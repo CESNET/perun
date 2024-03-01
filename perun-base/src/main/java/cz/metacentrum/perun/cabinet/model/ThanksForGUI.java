@@ -15,13 +15,11 @@ public class ThanksForGUI extends Thanks {
     super();
   }
 
-  public ThanksForGUI(int id, int publicationId, int ownerId,
-                      String createdBy, Date createdDate) {
+  public ThanksForGUI(int id, int publicationId, int ownerId, String createdBy, Date createdDate) {
     super(id, publicationId, ownerId, createdBy, createdDate);
   }
 
-  public ThanksForGUI(int id, int publicationId, int ownerId,
-                      String createdBy, Date createdDate, int createByUid) {
+  public ThanksForGUI(int id, int publicationId, int ownerId, String createdBy, Date createdDate, int createByUid) {
     super(id, publicationId, ownerId, createdBy, createdDate);
     setCreatedByUid(createByUid);
   }

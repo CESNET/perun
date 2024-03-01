@@ -2,8 +2,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 
 
 /**
- * This exception raises when some inconsistency in underlying data sources occurs.
- * Usually, it cannot be solved on the client side, but it has to be fixed by Perun developers.
+ * This exception raises when some inconsistency in underlying data sources occurs. Usually, it cannot be solved on the
+ * client side, but it has to be fixed by Perun developers.
  *
  * @author Slavek Licehammer
  */

@@ -16,17 +16,13 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplApi {
 
   /**
-   * Checks if value of this entityless attribute has valid syntax.
+   * If you need to do some further work with other modules, this method do that
    *
-   * @param perunSession perun session
-   * @param key          string for which you want to check validity of attribute
-   * @param attribute    attribute to check
-   * @throws InternalErrorException       if an exception is raised in particular
-   *                                      implementation, the exception is wrapped in InternalErrorException
-   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+   * @param session   session
+   * @param key       the key for entityless attribute
+   * @param attribute the attribute
    */
-  void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
-      throws WrongAttributeValueException;
+  void changedAttributeHook(PerunSessionImpl session, String key, Attribute attribute);
 
   /**
    * Checks if value of this entityless attribute has valid semantics.
@@ -34,14 +30,27 @@ public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplA
    * @param perunSession perun session
    * @param key          string for which you want to check validity of attribute
    * @param attribute    attribute to check
-   * @throws InternalErrorException                if an exception is raised in particular
-   *                                               implementation, the exception is wrapped in InternalErrorException
+   * @throws InternalErrorException                if an exception is raised in particular implementation, the exception
+   *                                               is wrapped in InternalErrorException
    * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
    * @throws WrongAttributeAssignmentException     if attribute does not belong to appropriate entity
    */
 
   void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute)
       throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+  /**
+   * Checks if value of this entityless attribute has valid syntax.
+   *
+   * @param perunSession perun session
+   * @param key          string for which you want to check validity of attribute
+   * @param attribute    attribute to check
+   * @throws InternalErrorException       if an exception is raised in particular implementation, the exception is
+   *                                      wrapped in InternalErrorException
+   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+   */
+  void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
+      throws WrongAttributeValueException;
 
   /**
    * This method MAY fill an attribute at the specified resource.
@@ -52,13 +61,4 @@ public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplA
    * @return
    */
   Attribute fillAttribute(PerunSessionImpl perunSession, String key, AttributeDefinition attribute);
-
-  /**
-   * If you need to do some further work with other modules, this method do that
-   *
-   * @param session   session
-   * @param key       the key for entityless attribute
-   * @param attribute the attribute
-   */
-  void changedAttributeHook(PerunSessionImpl session, String key, Attribute attribute);
 }

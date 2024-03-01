@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
@@ -8,13 +11,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
 
 
 public class urn_perun_member_attribute_def_def_memberOrganizationsTest {

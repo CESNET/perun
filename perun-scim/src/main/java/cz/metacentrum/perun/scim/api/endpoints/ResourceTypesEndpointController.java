@@ -5,15 +5,13 @@ import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_GROUP;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_USER;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.USERS_PATH;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.scim.api.entities.ResourceTypeSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Endpoint controller, that returns all SCIM resource types.

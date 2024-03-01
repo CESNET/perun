@@ -3,7 +3,8 @@ package cz.metacentrum.perun.engine.scheduling;
 import java.util.Collection;
 
 /**
- * This class wraps classic Map class, making its size limited an providing blocking behaviour when the limit is reached.
+ * This class wraps classic Map class, making its size limited an providing blocking behaviour when the limit is
+ * reached.
  *
  * @param <K> Maps key
  * @param <V> Maps value
@@ -23,6 +24,13 @@ public interface BlockingBoundedMap<K, V> {
   V blockingPut(K key, V value) throws InterruptedException;
 
   /**
+   * Get all keys currently held by this blocking map
+   *
+   * @return
+   */
+  Collection<K> keySet();
+
+  /**
    * Removes key=value from the Map, releasing its space for another blockingPut()
    *
    * @param key Key to be removed
@@ -36,12 +44,5 @@ public interface BlockingBoundedMap<K, V> {
    * @return All values
    */
   Collection<V> values();
-
-  /**
-   * Get all keys currently held by this blocking map
-   *
-   * @return
-   */
-  Collection<K> keySet();
 
 }

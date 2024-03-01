@@ -9,12 +9,11 @@ import cz.metacentrum.perun.ldapc.processor.EventDispatcher;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.DispatchEventCondition;
 import cz.metacentrum.perun.ldapc.processor.EventProcessor;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 public abstract class AbstractEventProcessor implements EventProcessor, InitializingBean {
 
@@ -33,10 +32,11 @@ public abstract class AbstractEventProcessor implements EventProcessor, Initiali
   protected Collection<DispatchEventCondition> dispatchConditions;
   private EventDispatcher eventDispatcher;
 
-  @Required
-  @Autowired
-  public void setEventDispatcher(EventDispatcher eventDispatcher) {
-    this.eventDispatcher = eventDispatcher;
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    for (DispatchEventCondition dispatchEventCondition : dispatchConditions) {
+      eventDispatcher.registerProcessor(this, dispatchEventCondition);
+    }
   }
 
   @Required
@@ -48,11 +48,10 @@ public abstract class AbstractEventProcessor implements EventProcessor, Initiali
     dispatchConditions.addAll(condition);
   }
 
-  @Override
-  public void afterPropertiesSet() throws Exception {
-    for (DispatchEventCondition dispatchEventCondition : dispatchConditions) {
-      eventDispatcher.registerProcessor(this, dispatchEventCondition);
-    }
+  @Required
+  @Autowired
+  public void setEventDispatcher(EventDispatcher eventDispatcher) {
+    this.eventDispatcher = eventDispatcher;
   }
 
   protected interface PerunAttributeNames {

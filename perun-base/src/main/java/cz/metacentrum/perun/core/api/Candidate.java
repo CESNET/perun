@@ -74,57 +74,12 @@ public class Candidate extends User {
     }
   }
 
-  public UserExtSource getUserExtSource() {
-    return userExtSource;
-  }
-
-  public void setUserExtSource(UserExtSource userExtSource) {
-    this.userExtSource = userExtSource;
-  }
-
-  public Map<String, String> getAttributes() {
-    if (attributes == null) {
-      return null;
-    }
-    return Collections.unmodifiableMap(attributes);
-  }
-
-  public void setAttributes(Map<String, String> attributes) {
-    this.attributes = attributes;
-  }
-
-  public List<UserExtSource> getAdditionalUserExtSources() {
-    if (additionalUserExtSources == null) {
-      return null;
-    }
-    return Collections.unmodifiableList(additionalUserExtSources);
-  }
-
-  public void setAdditionalUserExtSources(List<UserExtSource> additionalUserExtSources) {
-    this.additionalUserExtSources = additionalUserExtSources;
-  }
-
-
-  // FIXME Temporary method, in the future the candidate shoudl have only this function. userExtSource and additionalUserExtSources will be merged into one userExtSources
-  // Beaware that this property is IGNORED in RPC serializers/deserializers
-  public List<UserExtSource> getUserExtSources() {
-    List<UserExtSource> userExtSources = new ArrayList<UserExtSource>();
-    if (this.userExtSource != null) {
-      userExtSources.add(this.userExtSource);
-    }
-    if (this.additionalUserExtSources != null) {
-      userExtSources.addAll(this.additionalUserExtSources);
-    }
-    return Collections.unmodifiableList(userExtSources);
-  }
-
-
   /**
    * Method converts candidate's user-attributes and user core attributes to JSON object.
    *
    * @return JSONObject which contains candidate's user-attributes and user-core-attributes in JSON format
    */
-  public JSONObject convertAttributesToJSON() {
+  public JSONObject convertAttributesToJson() {
     JSONObject candidateAttributes = new JSONObject();
 
     //Convert userCoreAttributes to JSON
@@ -143,62 +98,6 @@ public class Candidate extends User {
       }
     }
     return candidateAttributes;
-  }
-
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    String attrNew = BeansUtils.serializeMapToString(attributes);
-    List<String> userESNew = new ArrayList<String>();
-    List<UserExtSource> userESOld = getAdditionalUserExtSources();
-    String sUserESNew;
-
-    if (getAdditionalUserExtSources() == null) {
-      sUserESNew = "\\0";
-    } else {
-      for (UserExtSource u : userESOld) {
-        userESNew.add(u.serializeToString());
-      }
-      sUserESNew = userESNew.toString();
-    }
-
-    return str.append(this.getClass().getSimpleName()).append(":[" +
-            "userExtSource=<").append(getUserExtSource() == null ? "\\0" : getUserExtSource().serializeToString())
-        .append(">" +
-            ", attributes=<").append(attrNew).append(">" +
-            ", additionalUserExtSources=<").append(sUserESNew).append(">" +
-            ']').toString();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    Map<String, String> attrNew = null;
-    if (attributes != null) {
-      attrNew = new HashMap<String, String>(attributes);
-    }
-    if (attrNew != null) {
-      Set<String> keys = new HashSet<String>(attrNew.keySet());
-      for (String s : keys) {
-        attrNew.put('\'' + s + '\'', '\'' + attrNew.get(s) + '\'');
-        attrNew.remove(s);
-      }
-    }
-    return str.append(getClass().getSimpleName() + ":[userExtSource='").append(userExtSource).append("', attributes='"
-        + attrNew).append("', additionalUserExtSources='").append(additionalUserExtSources).append("']").toString();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result
-        + ((attributes == null) ? 0 : attributes.hashCode());
-    result = prime * result
-        + ((userExtSource == null) ? 0 : userExtSource.hashCode());
-    return result;
   }
 
   @Override
@@ -230,11 +129,108 @@ public class Candidate extends User {
     return true;
   }
 
+  public List<UserExtSource> getAdditionalUserExtSources() {
+    if (additionalUserExtSources == null) {
+      return null;
+    }
+    return Collections.unmodifiableList(additionalUserExtSources);
+  }
+
+  public void setAdditionalUserExtSources(List<UserExtSource> additionalUserExtSources) {
+    this.additionalUserExtSources = additionalUserExtSources;
+  }
+
+  public Map<String, String> getAttributes() {
+    if (attributes == null) {
+      return null;
+    }
+    return Collections.unmodifiableMap(attributes);
+  }
+
+  public void setAttributes(Map<String, String> attributes) {
+    this.attributes = attributes;
+  }
+
   public String getExpectedSyncGroupStatus() {
     return expectedSyncGroupStatus;
   }
 
   public void setExpectedSyncGroupStatus(String expectedSyncGroupStatus) {
     this.expectedSyncGroupStatus = expectedSyncGroupStatus;
+  }
+
+  public UserExtSource getUserExtSource() {
+    return userExtSource;
+  }
+
+  public void setUserExtSource(UserExtSource userExtSource) {
+    this.userExtSource = userExtSource;
+  }
+
+  // FIXME Temporary method, in the future the candidate shoudl have only this function.
+  //  userExtSource and additionalUserExtSources will be merged into one userExtSources
+  // Beaware that this property is IGNORED in RPC serializers/deserializers
+  public List<UserExtSource> getUserExtSources() {
+    List<UserExtSource> userExtSources = new ArrayList<UserExtSource>();
+    if (this.userExtSource != null) {
+      userExtSources.add(this.userExtSource);
+    }
+    if (this.additionalUserExtSources != null) {
+      userExtSources.addAll(this.additionalUserExtSources);
+    }
+    return Collections.unmodifiableList(userExtSources);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
+    result = prime * result + ((userExtSource == null) ? 0 : userExtSource.hashCode());
+    return result;
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    String attrNew = BeansUtils.serializeMapToString(attributes);
+    List<String> userESNew = new ArrayList<String>();
+    List<UserExtSource> userESOld = getAdditionalUserExtSources();
+    String stringUserESNew;
+
+    if (getAdditionalUserExtSources() == null) {
+      stringUserESNew = "\\0";
+    } else {
+      for (UserExtSource u : userESOld) {
+        userESNew.add(u.serializeToString());
+      }
+      stringUserESNew = userESNew.toString();
+    }
+
+    return str.append(this.getClass().getSimpleName()).append(":[" + "userExtSource=<")
+        .append(getUserExtSource() == null ? "\\0" : getUserExtSource().serializeToString())
+        .append(">" + ", attributes=<").append(attrNew).append(">" + ", additionalUserExtSources=<")
+        .append(stringUserESNew).append(">" + ']').toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    Map<String, String> attrNew = null;
+    if (attributes != null) {
+      attrNew = new HashMap<String, String>(attributes);
+    }
+    if (attrNew != null) {
+      Set<String> keys = new HashSet<String>(attrNew.keySet());
+      for (String s : keys) {
+        attrNew.put('\'' + s + '\'', '\'' + attrNew.get(s) + '\'');
+        attrNew.remove(s);
+      }
+    }
+    return str.append(getClass().getSimpleName() + ":[userExtSource='").append(userExtSource)
+        .append("', attributes='" + attrNew).append("', additionalUserExtSources='").append(additionalUserExtSources)
+        .append("']").toString();
   }
 }

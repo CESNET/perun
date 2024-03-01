@@ -18,13 +18,13 @@ public class AttributePolicyCollectionSet extends AuditEvent implements EngineIg
     this.message = formatMessage("Attribute policy collection set: %s for %s", policyCollection, apc.getAttributeId());
   }
 
-  public AttributePolicyCollection getPolicyCollection() {
-    return policyCollection;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public AttributePolicyCollection getPolicyCollection() {
+    return policyCollection;
   }
 
   @Override

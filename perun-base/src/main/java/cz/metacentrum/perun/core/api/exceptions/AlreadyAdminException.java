@@ -366,12 +366,66 @@ public class AlreadyAdminException extends PerunException {
   // getters
 
   /**
+   * Getter for the authorized group
+   *
+   * @return group which is already in the specific role
+   */
+  public Group getAuthorizedGroup() {
+    return authorizedGroup;
+  }
+
+  /**
+   * Getter for the facility
+   *
+   * @return facility in which the user/entity is already in the specific role
+   */
+  public Facility getFacility() {
+    return facility;
+  }
+
+  /**
+   * Getter for the group
+   *
+   * @return group in which the user/entity is already in the specific role
+   */
+  public Group getGroup() {
+    return group;
+  }
+
+  /**
    * Getter for the member
    *
    * @return
    */
   public Member getMember() {
     return member;
+  }
+
+  /**
+   * Getter for the resource
+   *
+   * @return resource in which the user/entity is already in the specific role
+   */
+  public Resource getResource() {
+    return resource;
+  }
+
+  /**
+   * Getter for the role
+   *
+   * @return the specific role in which the user/group already is
+   */
+  public String getRole() {
+    return role;
+  }
+
+  /**
+   * Getter for the security team
+   *
+   * @return security team in which the user/entity is already in the specific role
+   */
+  public SecurityTeam getSecurityTeam() {
+    return securityTeam;
   }
 
   /**
@@ -390,59 +444,5 @@ public class AlreadyAdminException extends PerunException {
    */
   public Vo getVo() {
     return vo;
-  }
-
-  /**
-   * Getter for the facility
-   *
-   * @return facility in which the user/entity is already in the specific role
-   */
-  public Facility getFacility() {
-    return facility;
-  }
-
-  /**
-   * Getter for the resource
-   *
-   * @return resource in which the user/entity is already in the specific role
-   */
-  public Resource getResource() {
-    return resource;
-  }
-
-  /**
-   * Getter for the group
-   *
-   * @return group in which the user/entity is already in the specific role
-   */
-  public Group getGroup() {
-    return group;
-  }
-
-  /**
-   * Getter for the authorized group
-   *
-   * @return group which is already in the specific role
-   */
-  public Group getAuthorizedGroup() {
-    return authorizedGroup;
-  }
-
-  /**
-   * Getter for the security team
-   *
-   * @return security team in which the user/entity is already in the specific role
-   */
-  public SecurityTeam getSecurityTeam() {
-    return securityTeam;
-  }
-
-  /**
-   * Getter for the role
-   *
-   * @return the specific role in which the user/group already is
-   */
-  public String getRole() {
-    return role;
   }
 }

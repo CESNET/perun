@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class SelfPasswordTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "pass";
+  public static final String URL = "pass";
   /**
    * Perun web session
    */

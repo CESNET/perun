@@ -5,17 +5,15 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleImplApi;
-
 import java.util.LinkedHashMap;
 
 /**
- * Attribute for setting override of the member's quota on the resource.
- * This override is always used instead of defaultFileQuota on resource or specific member-resource FileQuota
+ * Attribute for setting override of the member's quota on the resource. This override is always used instead of
+ * defaultFileQuota on resource or specific member-resource FileQuota
  *
  * @author Michal Stava stavamichal@gmail.com
  */
@@ -43,7 +41,8 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotasOverride
     attr.setDisplayName("Override of file quotas for member on resource");
     attr.setType(LinkedHashMap.class.getName());
     attr.setDescription("Override has the highest priority for setting file quotas of member on resource. " +
-        "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota'. Example: '1000:2000'.");
+                        "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota'. Example:" +
+                        " '1000:2000'.");
     return attr;
   }
 }

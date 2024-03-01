@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  */
 public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "preview";
+  public static final String URL = "preview";
   private PerunWebSession session = PerunWebSession.getInstance();
   private ArrayList<ApplicationFormItem> formItems;
   private Label titleWidget = new Label("form preview");

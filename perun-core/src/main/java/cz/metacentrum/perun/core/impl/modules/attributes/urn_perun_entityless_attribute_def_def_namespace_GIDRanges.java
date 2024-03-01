@@ -3,12 +3,10 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
-
 import java.util.LinkedHashMap;
 
 /**
@@ -22,7 +20,8 @@ public class urn_perun_entityless_attribute_def_def_namespace_GIDRanges extends 
   @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
       throws WrongAttributeValueException {
-    //Check if gid ranges are in correct format (we don't need to use the output of the method there, we want to just check it)
+    //Check if gid ranges are in correct format (we don't need to use the output of the method there, we want to just
+    // check it)
     perunSession.getPerunBl().getModulesUtilsBl().checkAndConvertIDRanges(attribute);
   }
 
@@ -34,7 +33,8 @@ public class urn_perun_entityless_attribute_def_def_namespace_GIDRanges extends 
     attr.setDisplayName("GID ranges in namespace");
     attr.setType(LinkedHashMap.class.getName());
     attr.setDescription(
-        "Manageable GID ranges in a namespace - key of map is minimum and assigned value is maximum of one range, minimum and maximum can be equal");
+        "Manageable GID ranges in a namespace - key of map is minimum and assigned value is maximum of one range, " +
+        "minimum and maximum can be equal");
     return attr;
   }
 }

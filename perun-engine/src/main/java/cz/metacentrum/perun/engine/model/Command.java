@@ -19,12 +19,12 @@ public class Command implements Serializable {
     return command;
   }
 
-  public void setCommand(String command) {
-    this.command = command;
-  }
-
   public String[] getParameters() {
     return parameters;
+  }
+
+  public void setCommand(String command) {
+    this.command = command;
   }
 
   public void setParameters(String[] parameters) {

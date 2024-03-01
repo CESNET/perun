@@ -3,8 +3,8 @@ package cz.metacentrum.perun.core.api;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 
 /**
- * This is a wrapper around AuditEvent with metadata, like ID, timestamp, and actor.
- * It is used solely for reading purpose (once event is stored in DB).
+ * This is a wrapper around AuditEvent with metadata, like ID, timestamp, and actor. It is used solely for reading
+ * purpose (once event is stored in DB).
  *
  * @author Michal Stava
  * @author Pavel Zlámal
@@ -28,72 +28,6 @@ public class AuditMessage {
     this.actor = actor;
     this.createdAt = createdAt;
     this.createdByUid = createdByUid;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public AuditEvent getEvent() {
-    return event;
-  }
-
-  public void setEvent(AuditEvent event) {
-    this.event = event;
-  }
-
-  public String getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(String createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public String getActor() {
-    return actor;
-  }
-
-  public void setActor(String actor) {
-    this.actor = actor;
-  }
-
-  public Integer getCreatedByUid() {
-    return createdByUid;
-  }
-
-  public void setCreatedByUid(Integer createdByUid) {
-    this.createdByUid = createdByUid;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder ret = new StringBuilder();
-    ret.append(getClass().getSimpleName());
-    ret.append(":[id='");
-    ret.append(id);
-    ret.append("', event='");
-    ret.append(event);
-    ret.append("']");
-
-    return ret.toString();
-
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result
-        + ((event == null) ? 0 : event.hashCode());
-    result = prime * result + id;
-    result = prime * result
-        + ((createdAt == null) ? 0 : createdAt.hashCode());
-    return result;
   }
 
   @Override
@@ -135,5 +69,69 @@ public class AuditMessage {
       return false;
     }
     return true;
+  }
+
+  public String getActor() {
+    return actor;
+  }
+
+  public void setActor(String actor) {
+    this.actor = actor;
+  }
+
+  public String getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public Integer getCreatedByUid() {
+    return createdByUid;
+  }
+
+  public void setCreatedByUid(Integer createdByUid) {
+    this.createdByUid = createdByUid;
+  }
+
+  public AuditEvent getEvent() {
+    return event;
+  }
+
+  public void setEvent(AuditEvent event) {
+    this.event = event;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((event == null) ? 0 : event.hashCode());
+    result = prime * result + id;
+    result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder ret = new StringBuilder();
+    ret.append(getClass().getSimpleName());
+    ret.append(":[id='");
+    ret.append(id);
+    ret.append("', event='");
+    ret.append(event);
+    ret.append("']");
+
+    return ret.toString();
+
   }
 }

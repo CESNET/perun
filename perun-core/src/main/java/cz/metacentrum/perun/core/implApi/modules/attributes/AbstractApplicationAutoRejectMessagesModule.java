@@ -2,10 +2,8 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.util.LinkedHashMap;
 import java.util.regex.Pattern;
 
@@ -35,7 +33,6 @@ public abstract class AbstractApplicationAutoRejectMessagesModule<T extends Peru
    * @return Returns true, if the given key has a valid format, false otherwise.
    */
   private boolean isInvalidKey(String key) {
-    return !IGNORED_BY_ADMIN_PATTERN.matcher(key).matches() &&
-        !MAIL_VERIFICATION_PATTERN.matcher(key).matches();
+    return !IGNORED_BY_ADMIN_PATTERN.matcher(key).matches() && !MAIL_VERIFICATION_PATTERN.matcher(key).matches();
   }
 }

@@ -1,23 +1,29 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_vo_attribute_def_def_applicationAffiliationRegexTest {
   private urn_perun_vo_attribute_def_def_applicationAffiliationRegex classInstance;
   private Attribute attributeToCheck;
   private PerunSessionImpl session;
   private Vo vo;
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void checkInvalidSyntax() throws Exception {
+    System.out.println("checkInvalidSyntax()");
+    attributeToCheck.setValue(new ArrayList<>(List.of("^[a-zA-Z0-9._%+-+@cesnet.cz$")));
+    classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -32,13 +38,6 @@ public class urn_perun_vo_attribute_def_def_applicationAffiliationRegexTest {
     System.out.println("testCheckNull()");
     attributeToCheck.setValue(null);
     classInstance.checkAttributeSemantics(session, vo, attributeToCheck);
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void checkInvalidSyntax() throws Exception {
-    System.out.println("checkInvalidSyntax()");
-    attributeToCheck.setValue(new ArrayList<>(List.of("^[a-zA-Z0-9._%+-+@cesnet.cz$")));
-    classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
   }
 
   @Test

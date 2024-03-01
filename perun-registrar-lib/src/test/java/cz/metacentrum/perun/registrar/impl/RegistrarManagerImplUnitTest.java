@@ -37,6 +37,95 @@ public class RegistrarManagerImplUnitTest {
   }
 
   @Test
+  public void testDisplayNameReverseAndFedData() {
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put(URN_USER_DISPLAY_NAME, "Bc. Sassmann Vojtech Dis.");
+    Map<String, String> fedData = new HashMap<>();
+    fedData.put("givenName", "Vojtech");
+    fedData.put("sn", "Sassmann");
+
+    Candidate candidate = new Candidate();
+    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+    assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
+    assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
+    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
+    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
+    assertThat(candidate.getMiddleName()).isEqualTo(null);
+  }
+
+  @Test
+  public void testDisplayNameReverseWithCommaAndFedData() {
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put(URN_USER_DISPLAY_NAME, "Bc. Sassmann, Vojtech Dis.");
+    Map<String, String> fedData = new HashMap<>();
+    fedData.put("givenName", "Vojtech");
+    fedData.put("sn", "Sassmann");
+
+    Candidate candidate = new Candidate();
+    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+    assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
+    assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
+    assertThat(candidate.getMiddleName()).isEqualTo(null);
+    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
+    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
+  }
+
+  @Test
+  public void testDisplayNameReverseWithMiddleNameAndFedData() {
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put(URN_USER_DISPLAY_NAME, "Bc. Sassmann Jan Vojtech Dis.");
+    Map<String, String> fedData = new HashMap<>();
+    fedData.put("givenName", "Vojtech");
+    fedData.put("sn", "Sassmann");
+
+    Candidate candidate = new Candidate();
+    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+    assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
+    assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
+    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
+    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
+    assertThat(candidate.getMiddleName()).isEqualTo("Jan");
+  }
+
+  @Test
+  public void testDisplayNameWithMiddleNameAndFedData() {
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put(URN_USER_DISPLAY_NAME, "Bc. Vojtech Jan Sassmann Dis.");
+    Map<String, String> fedData = new HashMap<>();
+    fedData.put("givenName", "Vojtech");
+    fedData.put("sn", "Sassmann");
+
+    Candidate candidate = new Candidate();
+    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+    assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
+    assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
+    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
+    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
+    assertThat(candidate.getMiddleName()).isEqualTo("Jan");
+  }
+
+  @Test
+  public void testDisplayNameWithOnlyLastNameAndFedInfo() {
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put(URN_USER_DISPLAY_NAME, "Sassmann");
+    Map<String, String> fedData = new HashMap<>();
+    fedData.put("sn", "Sassmann");
+    fedData.put("givenName", "Vojtech");
+
+    Candidate candidate = new Candidate();
+    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+    assertThat(candidate.getTitleBefore()).isEqualTo(null);
+    assertThat(candidate.getTitleAfter()).isEqualTo(null);
+    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
+    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
+  }
+
+  @Test
   public void testDisplayNameWithoutOtherAttributes() {
     Candidate candidate = new Candidate();
     Map<String, String> attributes = new HashMap<>();
@@ -51,85 +140,31 @@ public class RegistrarManagerImplUnitTest {
   }
 
   @Test
-  public void testDisplayNameWithMiddleNameAndFedData() {
-    Candidate candidate = new Candidate();
+  public void testParseMultipleTitlesAfter() {
     Map<String, String> attributes = new HashMap<>();
-    attributes.put(URN_USER_DISPLAY_NAME, "Bc. Vojtech Jan Sassmann Dis.");
-    Map<String, String> fedData = new HashMap<>();
-    fedData.put("givenName", "Vojtech");
-    fedData.put("sn", "Sassmann");
-
-    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
-
-    assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
-    assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
-    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
-    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
-    assertThat(candidate.getMiddleName()).isEqualTo("Jan");
-  }
-
-  @Test
-  public void testDisplayNameReverseWithMiddleNameAndFedData() {
-    Candidate candidate = new Candidate();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put(URN_USER_DISPLAY_NAME, "Bc. Sassmann Jan Vojtech Dis.");
-    Map<String, String> fedData = new HashMap<>();
-    fedData.put("givenName", "Vojtech");
-    fedData.put("sn", "Sassmann");
-
-    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
-
-    assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
-    assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
-    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
-    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
-    assertThat(candidate.getMiddleName()).isEqualTo("Jan");
-  }
-
-  @Test
-  public void testDisplayNameReverseAndFedData() {
-    Candidate candidate = new Candidate();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put(URN_USER_DISPLAY_NAME, "Bc. Sassmann Vojtech Dis.");
-    Map<String, String> fedData = new HashMap<>();
-    fedData.put("givenName", "Vojtech");
-    fedData.put("sn", "Sassmann");
-
-    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
-
-    assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
-    assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
-    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
-    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
-    assertThat(candidate.getMiddleName()).isEqualTo(null);
-  }
-
-  @Test
-  public void testDisplayNameWithOnlyLastNameAndFedInfo() {
-    Candidate candidate = new Candidate();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put(URN_USER_DISPLAY_NAME, "Sassmann");
+    attributes.put(URN_USER_DISPLAY_NAME, "Vojtech Sassmann Dis. Csc.");
     Map<String, String> fedData = new HashMap<>();
     fedData.put("sn", "Sassmann");
     fedData.put("givenName", "Vojtech");
 
+    Candidate candidate = new Candidate();
     registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
 
     assertThat(candidate.getTitleBefore()).isEqualTo(null);
-    assertThat(candidate.getTitleAfter()).isEqualTo(null);
+    assertThat(candidate.getTitleAfter()).isEqualTo("Dis. Csc.");
     assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
     assertThat(candidate.getLastName()).isEqualTo("Sassmann");
   }
 
   @Test
   public void testParseMultipleTitlesBefore() {
-    Candidate candidate = new Candidate();
     Map<String, String> attributes = new HashMap<>();
     attributes.put(URN_USER_DISPLAY_NAME, "Bc. Mgr. Vojtech Sassmann");
     Map<String, String> fedData = new HashMap<>();
     fedData.put("sn", "Sassmann");
     fedData.put("givenName", "Vojtech");
 
+    Candidate candidate = new Candidate();
     registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
 
     assertThat(candidate.getTitleBefore()).isEqualTo("Bc. Mgr.");
@@ -139,72 +174,22 @@ public class RegistrarManagerImplUnitTest {
   }
 
   @Test
-  public void testParseMultipleTitlesAfter() {
-    Candidate candidate = new Candidate();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put(URN_USER_DISPLAY_NAME, "Vojtech Sassmann Dis. Csc.");
-    Map<String, String> fedData = new HashMap<>();
-    fedData.put("sn", "Sassmann");
-    fedData.put("givenName", "Vojtech");
-
-    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
-
-    assertThat(candidate.getTitleBefore()).isEqualTo(null);
-    assertThat(candidate.getTitleAfter()).isEqualTo("Dis. Csc.");
-    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
-    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
-  }
-
-  @Test
-  public void testParseWithoutFedInfo() {
-    Candidate candidate = new Candidate();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put(URN_USER_DISPLAY_NAME, "Mgr. Bc. Vojtech Sassmann Dis. Csc.");
-    Map<String, String> fedData = new HashMap<>();
-
-    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
-
-    assertThat(candidate.getTitleBefore()).isEqualTo("Mgr. Bc.");
-    assertThat(candidate.getTitleAfter()).isEqualTo("Dis. Csc.");
-    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
-    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
-  }
-
-  @Test
-  public void testDisplayNameReverseWithCommaAndFedData() {
-    Candidate candidate = new Candidate();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put(URN_USER_DISPLAY_NAME, "Bc. Sassmann, Vojtech Dis.");
-    Map<String, String> fedData = new HashMap<>();
-    fedData.put("givenName", "Vojtech");
-    fedData.put("sn", "Sassmann");
-
-    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
-
-    assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
-    assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
-    assertThat(candidate.getMiddleName()).isEqualTo(null);
-    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
-    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
-  }
-
-  @Test
   public void testParseNamesIfTheMiddleNameEqualsFirstName() {
-    Candidate candidate = new Candidate();
     Map<String, String> attributes = new HashMap<>();
     attributes.put(URN_USER_DISPLAY_NAME, "Bc. Jakub Jakub Hejda Dis.");
     Map<String, String> fedData = new HashMap<>();
     fedData.put("givenName", "Jakub");
     fedData.put("sn", "Hejda");
 
-    Candidate candidate2 = new Candidate();
     Map<String, String> attributes2 = new HashMap<>();
     attributes2.put(URN_USER_DISPLAY_NAME, "Sir doc. John Paolo John Paolo Van Horn Phd.");
     Map<String, String> fedData2 = new HashMap<>();
     fedData2.put("givenName", "John Paolo");
     fedData2.put("sn", "Van Horn");
 
+    Candidate candidate = new Candidate();
     registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+    Candidate candidate2 = new Candidate();
     registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate2, attributes2, fedData2);
 
     assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
@@ -222,13 +207,13 @@ public class RegistrarManagerImplUnitTest {
 
   @Test
   public void testParseNamesIfTheMiddleNameEqualsFirstNameReversePattern() {
-    Candidate candidate = new Candidate();
     Map<String, String> attributes = new HashMap<>();
     attributes.put(URN_USER_DISPLAY_NAME, "Bc. Hejda Hejda Jakub Dis.");
     Map<String, String> fedData = new HashMap<>();
     fedData.put("givenName", "Jakub");
     fedData.put("sn", "Hejda");
 
+    Candidate candidate = new Candidate();
     registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
 
     assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
@@ -236,5 +221,20 @@ public class RegistrarManagerImplUnitTest {
     assertThat(candidate.getMiddleName()).isEqualTo("Hejda");
     assertThat(candidate.getLastName()).isEqualTo("Hejda");
     assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
+  }
+
+  @Test
+  public void testParseWithoutFedInfo() {
+    Candidate candidate = new Candidate();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put(URN_USER_DISPLAY_NAME, "Mgr. Bc. Vojtech Sassmann Dis. Csc.");
+    Map<String, String> fedData = new HashMap<>();
+
+    registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+    assertThat(candidate.getTitleBefore()).isEqualTo("Mgr. Bc.");
+    assertThat(candidate.getTitleAfter()).isEqualTo("Dis. Csc.");
+    assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
+    assertThat(candidate.getLastName()).isEqualTo("Sassmann");
   }
 }

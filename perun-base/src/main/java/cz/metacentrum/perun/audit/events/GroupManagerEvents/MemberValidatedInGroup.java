@@ -23,12 +23,12 @@ public class MemberValidatedInGroup extends AuditEvent {
     this.message = formatMessage("%s in %s validated.", member, group);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public Group getGroup() {
     return group;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
   @Override

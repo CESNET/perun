@@ -22,6 +22,19 @@ public class AttributeRules {
     this.attributePolicyCollections = attributePolicyCollections;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AttributeRules that = (AttributeRules) o;
+    return Objects.equals(attributePolicyCollections, that.attributePolicyCollections) &&
+           Objects.equals(criticalActions, that.criticalActions);
+  }
+
   public List<AttributePolicyCollection> getAttributePolicyCollections() {
     return attributePolicyCollections;
   }
@@ -39,28 +52,13 @@ public class AttributeRules {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    AttributeRules that = (AttributeRules) o;
-    return Objects.equals(attributePolicyCollections, that.attributePolicyCollections) &&
-        Objects.equals(criticalActions, that.criticalActions);
-  }
-
-  @Override
   public int hashCode() {
     return Objects.hash(attributePolicyCollections, criticalActions);
   }
 
   @Override
   public String toString() {
-    return "AttributeRules{" +
-        "attributePolicyCollections=" + attributePolicyCollections +
-        ", criticalActions=" + criticalActions +
-        '}';
+    return "AttributeRules{" + "attributePolicyCollections=" + attributePolicyCollections + ", criticalActions=" +
+           criticalActions + '}';
   }
 }

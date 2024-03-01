@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -23,9 +22,9 @@ import java.util.regex.Pattern;
 /**
  * Module for checking user's home mount point on facility.
  * <p>
- * Value can be pre-filled from first found resource with "defaultHomeMountPoint" set.
- * Value syntax must be a valid absolute path.
- * Value must be one of the possible options - one of "homeMountPoints" from all allowed resources of the user for this facility.
+ * Value can be pre-filled from first found resource with "defaultHomeMountPoint" set. Value syntax must be a valid
+ * absolute path. Value must be one of the possible options - one of "homeMountPoints" from all allowed resources of the
+ * user for this facility.
  *
  * @author Milan Halenar <255818@mail.muni.cz>
  */
@@ -101,13 +100,6 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints");
-    return dependencies;
-  }
-
-  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
@@ -116,5 +108,12 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
     attr.setType(String.class.getName());
     attr.setDescription("Home mount point.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints");
+    return dependencies;
   }
 }

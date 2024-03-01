@@ -8,8 +8,7 @@ import java.util.Objects;
 /**
  * Class representing an extended version of {@link UserExtSource}.
  * <p>
- * This class is used for providing additional information about an UserExtSource
- * via its attributes.
+ * This class is used for providing additional information about an UserExtSource via its attributes.
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
@@ -29,8 +28,7 @@ public class RichUserExtSource {
   }
 
   /**
-   * View method used for accessing the original {@link UserExtSource} object
-   * of this composition.
+   * View method used for accessing the original {@link UserExtSource} object of this composition.
    *
    * @return original {@link UserExtSource}
    */
@@ -39,8 +37,16 @@ public class RichUserExtSource {
     return userExtSource;
   }
 
-  public void setUserExtSource(UserExtSource userExtSource) {
-    this.userExtSource = userExtSource;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    RichUserExtSource that = (RichUserExtSource) o;
+    return Objects.equals(userExtSource, that.userExtSource) && Objects.equals(attributes, that.attributes);
   }
 
   public List<Attribute> getAttributes() {
@@ -56,28 +62,16 @@ public class RichUserExtSource {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    RichUserExtSource that = (RichUserExtSource) o;
-    return Objects.equals(userExtSource, that.userExtSource) &&
-        Objects.equals(attributes, that.attributes);
-  }
-
-  @Override
   public int hashCode() {
     return Objects.hash(userExtSource, attributes);
   }
 
+  public void setUserExtSource(UserExtSource userExtSource) {
+    this.userExtSource = userExtSource;
+  }
+
   @Override
   public String toString() {
-    return "RichUserExtSource:[" +
-        "userExtSource=" + userExtSource +
-        ", attributes=" + attributes +
-        ']';
+    return "RichUserExtSource:[" + "userExtSource=" + userExtSource + ", attributes=" + attributes + ']';
   }
 }

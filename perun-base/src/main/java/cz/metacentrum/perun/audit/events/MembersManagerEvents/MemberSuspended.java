@@ -18,13 +18,13 @@ public class MemberSuspended extends AuditEvent implements EngineForceEvent {
     this.message = formatMessage("%s suspended.", member);
   }
 
+  public Member getMember() {
+    return member;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   @Override

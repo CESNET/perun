@@ -12,6 +12,13 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.naming.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -19,22 +26,19 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
-import javax.naming.Name;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
 @Component
 public class UserSynchronizer extends AbstractSynchronizer implements ApplicationContextAware {
 
-  private final static Logger log = LoggerFactory.getLogger(UserSynchronizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UserSynchronizer.class);
   private static AtomicInteger taskCount;
   private static boolean wasThreadException = false;
   private ApplicationContext context;
   private PerunUser[] perunUser = new PerunUser[5];
+
+  @Override
+  public void setApplicationContext(ApplicationContext context) {
+    this.context = context;
+  }
 
   public void synchronizeUsers() {
 
@@ -50,7 +54,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
     try {
 
-      log.debug("Getting list of users");
+      LOG.debug("Getting list of users");
       List<User> users = perun.getUsersManagerBl().getUsers(ldapcManager.getPerunSession());
       users.sort(Comparator.comparingInt(User::getId));
       Set<Name> presentUsers = new HashSet<Name>(users.size());
@@ -67,33 +71,33 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
         presentUsers.add(perunUser[0].getEntryDN(String.valueOf(user.getId())));
 
-        log.debug("Getting list of attributes for user {}", user.getId());
+        LOG.debug("Getting list of attributes for user {}", user.getId());
         List<Attribute> attrs = new ArrayList<Attribute>();
         List<String> attrNames = fillPerunAttributeNames(perunUser[poolIndex].getPerunAttributeNames());
         try {
           //log.debug("Getting attribute {} for user {}", attrName, user.getId());
           attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), user, attrNames));
-						/* very chatty
-						if(attr == null) {
-							log.debug("Got null for attribute {}", attrName);
-						} else if (attr.getValue() == null) {
-							log.debug("Got attribute {} with null value", attrName);
-						} else {
-							log.debug("Got attribute {} with value {}", attrName, attr.getValue().toString());
-						}
-						*/
+          /* very chatty
+                        if(attr == null) {
+                            log.debug("Got null for attribute {}", attrName);
+                        } else if (attr.getValue() == null) {
+                            log.debug("Got attribute {} with null value", attrName);
+                        } else {
+                            log.debug("Got attribute {} with value {}", attrName, attr.getValue().toString());
+                        }
+                        */
         } catch (PerunRuntimeException e) {
-          log.warn("Couldn't get attributes {} for user {}: {}", attrNames, user.getId(), e.getMessage());
+          LOG.warn("Couldn't get attributes {} for user {}: {}", attrNames, user.getId(), e.getMessage());
           shouldWriteExceptionLog = false;
           throw new InternalErrorException(e);
         }
-        log.debug("Got attributes {}", attrNames.toString());
+        LOG.debug("Got attributes {}", attrNames.toString());
 
         try {
           //log.debug("Synchronizing user {} with {} attrs", user, attrs.size());
           //perunUser.synchronizeEntry(user, attrs);
 
-          log.debug("Getting list of member groups for user {}", user.getId());
+          LOG.debug("Getting list of member groups for user {}", user.getId());
           Set<Integer> voIds = new HashSet<>();
           List<Member> members = perun.getMembersManagerBl().getMembersByUser(ldapcManager.getPerunSession(), user);
           List<Group> groups = new ArrayList<Group>();
@@ -108,26 +112,26 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
           //log.debug("Synchronizing user {} with {} VOs and {} groups", user.getId(), voIds.size(), groups.size());
           //perunUser.synchronizeMembership(user, voIds, groups);
 
-          log.debug("Getting list of extSources for user {}", user.getId());
+          LOG.debug("Getting list of extSources for user {}", user.getId());
           List<UserExtSource> userExtSources =
               perun.getUsersManagerBl().getUserExtSources(ldapcManager.getPerunSession(), user);
 
-          List<Group> admin_groups =
+          List<Group> adminGroups =
               perun.getUsersManagerBl().getGroupsWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
-          List<Vo> admin_vos = perun.getUsersManagerBl().getVosWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
-          List<Facility> admin_facilities =
+          List<Vo> adminVos = perun.getUsersManagerBl().getVosWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
+          List<Facility> adminFacilities =
               perun.getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
 
           //log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
           //perunUser.synchronizePrincipals(user, userExtSources);
 
           syncExecutor.execute(
-              new SyncUsersWorker(poolIndex, user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos,
-                  admin_facilities));
+              new SyncUsersWorker(poolIndex, user, attrs, voIds, groups, userExtSources, adminGroups, adminVos,
+                  adminFacilities));
           taskCount.incrementAndGet();
 
         } catch (PerunRuntimeException e) {
-          log.error("Error synchronizing user", e);
+          LOG.error("Error synchronizing user", e);
           shouldWriteExceptionLog = false;
           throw new InternalErrorException(e);
         }
@@ -136,16 +140,16 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
       }
 
       try {
-        removeOldEntries(perunUser[0], presentUsers, log);
+        removeOldEntries(perunUser[0], presentUsers, LOG);
       } catch (InternalErrorException e) {
-        log.error("Error removing old user entries", e);
+        LOG.error("Error removing old user entries", e);
         shouldWriteExceptionLog = false;
         throw new InternalErrorException(e);
       }
 
     } catch (PerunRuntimeException e) {
       if (shouldWriteExceptionLog) {
-        log.error("Error synchronizing users", e);
+        LOG.error("Error synchronizing users", e);
       }
       throw new InternalErrorException(e);
 
@@ -177,11 +181,6 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
   }
 
-  @Override
-  public void setApplicationContext(ApplicationContext context) {
-    this.context = context;
-  }
-
   private class SyncUsersWorker implements Runnable {
 
     public int poolIndex;
@@ -190,49 +189,42 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
     public Set<Integer> voIds;
     public List<Group> groups;
     List<UserExtSource> userExtSources;
-    List<Group> admin_groups;
-    List<Vo> admin_vos;
-    List<Facility> admin_facilities;
+    List<Group> adminGroups;
+    List<Vo> adminVos;
+    List<Facility> adminFacilities;
 
-    public SyncUsersWorker(
-        int poolIndex,
-        User user,
-        List<Attribute> attrs,
-        Set<Integer> voIds,
-        List<Group> groups,
-        List<UserExtSource> userExtSources,
-        List<Group> admin_groups,
-        List<Vo> admin_vos,
-        List<Facility> admin_facilities) {
+    public SyncUsersWorker(int poolIndex, User user, List<Attribute> attrs, Set<Integer> voIds, List<Group> groups,
+                           List<UserExtSource> userExtSources, List<Group> adminGroups, List<Vo> adminVos,
+                           List<Facility> adminFacilities) {
       this.poolIndex = poolIndex;
       this.user = user;
       this.attrs = attrs;
       this.voIds = voIds;
       this.groups = groups;
       this.userExtSources = userExtSources;
-      this.admin_groups = admin_groups;
-      this.admin_vos = admin_vos;
-      this.admin_facilities = admin_facilities;
+      this.adminGroups = adminGroups;
+      this.adminVos = adminVos;
+      this.adminFacilities = adminFacilities;
     }
 
     public void run() {
       try {
-        log.debug("Synchronizing user {} with {} attrs", user, attrs.size());
+        LOG.debug("Synchronizing user {} with {} attrs", user, attrs.size());
         //perunUser[poolIndex].synchronizeEntry(user, attrs);
-        log.debug("Synchronizing user {} with {} VOs and {} groups", user.getId(), voIds.size(), groups.size());
+        LOG.debug("Synchronizing user {} with {} VOs and {} groups", user.getId(), voIds.size(), groups.size());
         //perunUser[poolIndex].synchronizeMembership(user, voIds, groups);
-        log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
+        LOG.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
         //perunUser[poolIndex].synchronizePrincipals(user, userExtSources);
-        log.debug("Synchronizing user {} as admin of {} groups, {} VOs and {} facilities", user.getId(),
-            admin_groups.size(), admin_vos.size(), admin_facilities.size());
-        perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos,
-            admin_facilities);
+        LOG.debug("Synchronizing user {} as admin of {} groups, {} VOs and {} facilities", user.getId(),
+            adminGroups.size(), adminVos.size(), adminFacilities.size());
+        perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources, adminGroups, adminVos,
+            adminFacilities);
       } catch (PerunRuntimeException e) {
-        log.error("Error synchronizing user", e);
+        LOG.error("Error synchronizing user", e);
         UserSynchronizer.wasThreadException = true;
 
       } catch (Exception e) {
-        log.error("Error synchronizing user", e);
+        LOG.error("Error synchronizing user", e);
         UserSynchronizer.wasThreadException = true;
 
       } finally {

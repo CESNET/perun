@@ -58,22 +58,28 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
   private static final String A_U_V_GROUP_NAMES = AttributesManager.NS_USER_ATTR_VIRT + ":" + FRIENDLY_NAME;
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("groupNames");
+    attr.setDisplayName("Group names");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("Full names of groups which the user is a member.");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
     Attribute attribute = new Attribute(attributeDefinition);
     Set<String> groupNames = new TreeSet<>();
     List<Pair<String, String>> names;
     try {
       names = sess.getPerunBl().getDatabaseManagerBl().getJdbcPerunTemplate().query(
-          "SELECT" +
-              " DISTINCT vos.short_name AS vo_short_name, groups.name AS group_name" +
-              " FROM" +
-              " members" +
-              " JOIN vos ON vos.id = members.vo_id AND members.user_id = ? AND members.status = ?" +
-              " JOIN groups_members ON groups_members.member_id = members.id AND groups_members.source_group_status = ?" +
-              " JOIN groups ON groups_members.group_id = groups.id" +
-              " ORDER BY vo_short_name, group_name",
-          ROW_MAPPER,
-          user.getId(), Status.VALID.getCode(), MemberGroupStatus.VALID.getCode());
+          "SELECT" + " DISTINCT vos.short_name AS vo_short_name, groups.name AS group_name" + " FROM" + " members" +
+          " JOIN vos ON vos.id = members.vo_id AND members.user_id = ? AND members.status = ?" +
+          " JOIN groups_members ON groups_members.member_id = members.id AND groups_members.source_group_status =" +
+          " ?" + " JOIN groups ON groups_members.group_id = groups.id" + " ORDER BY vo_short_name, group_name",
+          ROW_MAPPER, user.getId(), Status.VALID.getCode(), MemberGroupStatus.VALID.getCode());
     } catch (EmptyResultDataAccessException e) {
       names = new ArrayList<>();
     } catch (RuntimeException e) {
@@ -90,6 +96,13 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
     }
     attribute.setValue(new ArrayList<>(groupNames));
     return attribute;
+  }
+
+  private AuditEvent resolveEvent(PerunSessionImpl sess, Member member) throws AttributeNotExistsException {
+    User user = sess.getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+    AttributeDefinition attributeDefinition =
+        sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_GROUP_NAMES);
+    return new AttributeChangedForUser(new Attribute(attributeDefinition), user);
   }
 
   @Override
@@ -122,24 +135,6 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
       resolvingMessages.add(resolveEvent(sess, ((MemberInvalidated) message).getMember()));
     }
     return resolvingMessages;
-  }
-
-  private AuditEvent resolveEvent(PerunSessionImpl sess, Member member) throws AttributeNotExistsException {
-    User user = sess.getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-    AttributeDefinition attributeDefinition =
-        sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_GROUP_NAMES);
-    return new AttributeChangedForUser(new Attribute(attributeDefinition), user);
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("groupNames");
-    attr.setDisplayName("Group names");
-    attr.setType(ArrayList.class.getName());
-    attr.setDescription("Full names of groups which the user is a member.");
-    return attr;
   }
 
 }

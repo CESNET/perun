@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,33 @@ import java.util.Map;
 @SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID
     extends UserFacilityVirtualAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Attribute can't be null.");
+    }
+    try {
+      Attribute defaultUnixGID = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttribute(perunSession, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
+      defaultUnixGID.setValue(attribute.getValue());
+      perunSession.getPerunBl().getAttributesManagerBl()
+          .checkAttributeSemantics(perunSession, facility, user, defaultUnixGID);
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    }
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+    attr.setFriendlyName("defaultUnixGID");
+    attr.setType(Integer.class.getName());
+    attr.setDescription("Computed unix group id from user preferrences");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility,
@@ -88,9 +114,9 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID
           }
         }
 
-        for (String pGroupName : (List<String>) userPreferredGroupNames.getValue()) {
-          if (resourcesWithName.containsKey(pGroupName)) {
-            Resource resource = resourcesWithName.get(pGroupName);
+        for (String prefGroupName : (List<String>) userPreferredGroupNames.getValue()) {
+          if (resourcesWithName.containsKey(prefGroupName)) {
+            Resource resource = resourcesWithName.get(prefGroupName);
             Attribute resourceUnixGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource,
                 AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace);
             if (resourceUnixGID.getValue() != null) {
@@ -99,8 +125,8 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID
               return attr;
             }
           }
-          if (groupsWithName.containsKey(pGroupName)) {
-            Group group = groupsWithName.get(pGroupName);
+          if (groupsWithName.containsKey(prefGroupName)) {
+            Group group = groupsWithName.get(prefGroupName);
             Attribute groupUnixGID = sess.getPerunBl().getAttributesManagerBl()
                 .getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace);
             if (groupUnixGID.getValue() != null) {
@@ -126,38 +152,6 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID
   }
 
   @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute)
-      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Attribute can't be null.");
-    }
-    try {
-      Attribute defaultUnixGID = perunSession.getPerunBl().getAttributesManagerBl()
-          .getAttribute(perunSession, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
-      defaultUnixGID.setValue(attribute.getValue());
-      perunSession.getPerunBl().getAttributesManagerBl()
-          .checkAttributeSemantics(perunSession, facility, user, defaultUnixGID);
-    } catch (AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
-    }
-  }
-
-  @Override
-  public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) {
-    try {
-      Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl()
-          .getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
-      attributeToSet.setValue(attribute.getValue());
-      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
-
-    } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
-    } catch (WrongAttributeValueException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
   public List<String> getStrongDependencies() {
     List<String> strongDependencies = new ArrayList<>();
     strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
@@ -173,12 +167,17 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID
   }
 
   @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-    attr.setFriendlyName("defaultUnixGID");
-    attr.setType(Integer.class.getName());
-    attr.setDescription("Computed unix group id from user preferrences");
-    return attr;
+  public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) {
+    try {
+      Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl()
+          .getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
+      attributeToSet.setValue(attribute.getValue());
+      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
+
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    } catch (WrongAttributeValueException ex) {
+      throw new InternalErrorException(ex);
+    }
   }
 }

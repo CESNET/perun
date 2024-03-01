@@ -7,15 +7,15 @@ package cz.metacentrum.perun.core.api;
  */
 public class Destination extends Auditable implements Comparable<PerunBean> {
 
-  public final static String DESTINATIONHOSTTYPE = "host";
-  public final static String DESTINATIONEMAILTYPE = "email";
-  public final static String DESTINATIONSEMAILTYPE = "semail";
-  public final static String DESTINATIONURLTYPE = "url";
-  public final static String DESTINATIONUSERHOSTTYPE = "user@host";
-  public final static String DESTINATIONUSERHOSTPORTTYPE = "user@host:port";
-  public final static String DESTINATIONSERVICESPECIFICTYPE = "service-specific";
-  public final static String DESTINATIONWINDOWS = "user@host-windows";
-  public final static String DESTINATIONWINDOWSPROXY = "host-windows-proxy";
+  public static final String DESTINATIONHOSTTYPE = "host";
+  public static final String DESTINATIONEMAILTYPE = "email";
+  public static final String DESTINATIONSEMAILTYPE = "semail";
+  public static final String DESTINATIONURLTYPE = "url";
+  public static final String DESTINATIONUSERHOSTTYPE = "user@host";
+  public static final String DESTINATIONUSERHOSTPORTTYPE = "user@host:port";
+  public static final String DESTINATIONSERVICESPECIFICTYPE = "service-specific";
+  public static final String DESTINATIONWINDOWS = "user@host-windows";
+  public static final String DESTINATIONWINDOWSPROXY = "host-windows-proxy";
 
   public static final String PROPAGATIONTYPE_PARALLEL = "PARALLEL";
   public static final String PROPAGATIONTYPE_SERIAL = "SERIAL";
@@ -51,133 +51,26 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
     this.type = type;
   }
 
-  /**
-   * Gets the destination for this instance.
-   *
-   * @return The name.
-   */
-  public String getDestination() {
-    return this.destination;
-  }
-
-  /**
-   * Sets the destination for this instance.
-   *
-   * @param destination The destination.
-   */
-  public void setDestination(String destination) {
-    this.destination = destination;
-  }
-
-  /**
-   * Gets the type for this instance.
-   *
-   * @return The type.
-   */
-  public String getType() {
-    return this.type;
-  }
-
-  /**
-   * Sets the type for this instance.
-   *
-   * @param type The type.
-   */
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  /**
-   * Gets the propagation type for this instance.
-   *
-   * @return The propagation type, either "PARALLEL", "SERIAL" or "DUMMY"
-   */
-  public String getPropagationType() {
-    return this.propagationType;
-  }
-
-  /**
-   * Sets the propagation type for this instance.
-   *
-   * @param type The propagation type.
-   */
-  public void setPropagationType(String type) {
-    this.propagationType = type;
-  }
-
-  /**
-   * Gets the hostname from destination
-   * e.g. if destination is type user@host then return host
-   * e.g. if destination is type user@host:port then return host
-   * e.g. if destination is type user@host-windows then return host-windows
-   * if destination is other type then these three, return destination without changes
-   * <p>
-   * if there is no chars @ and :, return not changed type
-   * if type is null, return this destination without changes
-   * if destination null, return destination without changes (null)
-   *
-   * @return host from destination if possible to separate, in other case return destination without changes
-   */
-  public String getHostNameFromDestination() {
-    if (this.destination == null) {
-      return this.destination;
+  @Override
+  public int compareTo(PerunBean perunBean) {
+    if (perunBean == null) {
+      throw new NullPointerException("PerunBean to compare with is null.");
     }
-    if (this.type == null) {
-      return this.destination;
-    }
-
-    if (this.type.equals(DESTINATIONUSERHOSTPORTTYPE) || this.type.equals(DESTINATIONUSERHOSTTYPE) ||
-        this.type.equals(DESTINATIONWINDOWS)) {
-      int startIndex = this.destination.indexOf('@');
-      int endIndex = this.destination.indexOf(':');
-      if (startIndex == -1) {
-        return this.destination;
+    if (perunBean instanceof Destination) {
+      Destination destination = (Destination) perunBean;
+      if (this.getDestination() == null && destination.getDestination() != null) {
+        return -1;
       }
-      if (endIndex == -1) {
-        endIndex = this.destination.length();
+      if (destination.getDestination() == null && this.getDestination() != null) {
+        return 1;
       }
-
-      String hostname = this.destination.substring(startIndex, endIndex);
-      return hostname;
+      if (this.getDestination() == null && destination.getDestination() == null) {
+        return 0;
+      }
+      return this.getDestination().compareToIgnoreCase(destination.getDestination());
     } else {
-      return this.destination;
+      return (this.getId() - perunBean.getId());
     }
-  }
-
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", destination=<").append(getDestination() == null ? "\\0" : BeansUtils.createEscaping(getDestination()))
-        .append(">").append(
-            ", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">").append(
-            ", propagationtype=<")
-        .append(getPropagationType() == null ? "\\0" : BeansUtils.createEscaping(getPropagationType())).append(">")
-        .append(
-            ']').toString();
-  }
-
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(getClass().getSimpleName()).append(":["
-    ).append("id='").append(getId()
-    ).append("', destination='").append(destination
-    ).append("', type='").append(type
-    ).append("', propagationtype='").append(propagationType
-    ).append("']").toString();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((type == null) ? 0 : type.hashCode());
-    result = prime * result + getId();
-    result = prime * result + ((destination == null) ? 0 : destination.hashCode());
-    return result;
   }
 
   @Override
@@ -212,25 +105,124 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
     return true;
   }
 
-  @Override
-  public int compareTo(PerunBean perunBean) {
-    if (perunBean == null) {
-      throw new NullPointerException("PerunBean to compare with is null.");
+  /**
+   * Gets the destination for this instance.
+   *
+   * @return The name.
+   */
+  public String getDestination() {
+    return this.destination;
+  }
+
+  /**
+   * Sets the destination for this instance.
+   *
+   * @param destination The destination.
+   */
+  public void setDestination(String destination) {
+    this.destination = destination;
+  }
+
+  /**
+   * Gets the hostname from destination e.g. if destination is type user@host then return host e.g. if destination is
+   * type user@host:port then return host e.g. if destination is type user@host-windows then return host-windows if
+   * destination is other type then these three, return destination without changes
+   * <p>
+   * if there is no chars @ and :, return not changed type if type is null, return this destination without changes if
+   * destination null, return destination without changes (null)
+   *
+   * @return host from destination if possible to separate, in other case return destination without changes
+   */
+  public String getHostNameFromDestination() {
+    if (this.destination == null) {
+      return this.destination;
     }
-    if (perunBean instanceof Destination) {
-      Destination destination = (Destination) perunBean;
-      if (this.getDestination() == null && destination.getDestination() != null) {
-        return -1;
+    if (this.type == null) {
+      return this.destination;
+    }
+
+    if (this.type.equals(DESTINATIONUSERHOSTPORTTYPE) || this.type.equals(DESTINATIONUSERHOSTTYPE) ||
+        this.type.equals(DESTINATIONWINDOWS)) {
+      int startIndex = this.destination.indexOf('@');
+      int endIndex = this.destination.indexOf(':');
+      if (startIndex == -1) {
+        return this.destination;
       }
-      if (destination.getDestination() == null && this.getDestination() != null) {
-        return 1;
+      if (endIndex == -1) {
+        endIndex = this.destination.length();
       }
-      if (this.getDestination() == null && destination.getDestination() == null) {
-        return 0;
-      }
-      return this.getDestination().compareToIgnoreCase(destination.getDestination());
+
+      String hostname = this.destination.substring(startIndex, endIndex);
+      return hostname;
     } else {
-      return (this.getId() - perunBean.getId());
+      return this.destination;
     }
+  }
+
+  /**
+   * Gets the propagation type for this instance.
+   *
+   * @return The propagation type, either "PARALLEL", "SERIAL" or "DUMMY"
+   */
+  public String getPropagationType() {
+    return this.propagationType;
+  }
+
+  /**
+   * Sets the propagation type for this instance.
+   *
+   * @param type The propagation type.
+   */
+  public void setPropagationType(String type) {
+    this.propagationType = type;
+  }
+
+  /**
+   * Gets the type for this instance.
+   *
+   * @return The type.
+   */
+  public String getType() {
+    return this.type;
+  }
+
+  /**
+   * Sets the type for this instance.
+   *
+   * @param type The type.
+   */
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((type == null) ? 0 : type.hashCode());
+    result = prime * result + getId();
+    result = prime * result + ((destination == null) ? 0 : destination.hashCode());
+    return result;
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", destination=<")
+        .append(getDestination() == null ? "\\0" : BeansUtils.createEscaping(getDestination())).append(">")
+        .append(", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">")
+        .append(", propagationtype=<")
+        .append(getPropagationType() == null ? "\\0" : BeansUtils.createEscaping(getPropagationType())).append(">")
+        .append(']').toString();
+  }
+
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(getClass().getSimpleName()).append(":[").append("id='").append(getId()).append("', destination='")
+        .append(destination).append("', type='").append(type).append("', propagationtype='").append(propagationType)
+        .append("']").toString();
   }
 }

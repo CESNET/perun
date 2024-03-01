@@ -24,8 +24,7 @@ import java.util.Map;
 public interface MailManager {
 
   /**
-   * Add new mail notification.
-   * Relation to application form (vo) is inside ApplicationMail object
+   * Add new mail notification. Relation to application form (vo) is inside ApplicationMail object
    *
    * @param sess PerunSession for authz
    * @param form for authz
@@ -36,6 +35,47 @@ public interface MailManager {
    */
   Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail)
       throws ApplicationMailExistsException, PrivilegeException, InvalidHtmlInputException;
+
+  /**
+   * Creates an invitation link for the given vo/group with the default authType (if defined in the vo/group attribute)
+   *
+   * @param vo    Vo for which the invitation link should be created, parent Vo of the group if it should be a group
+   *              invitation
+   * @param group Group for which the invitation link should be created, null if it is not a group invitation
+   * @return the full invitation URL for Vo or Group
+   */
+  String buildInviteURL(Vo vo, Group group);
+
+  /**
+   * Copy all mail definitions from one group into another group.
+   *
+   * @param sess      PerunSession
+   * @param fromGroup Group to get application mails from
+   * @param toGroup   Group to add application mails to
+   * @throws PerunException
+   */
+  void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
+
+  /**
+   * Copy all mail definitions from one VO to Group or reverse.
+   *
+   * @param sess    PerunSession for authz
+   * @param fromVo  VO to get application mails from (or opposite if reverse=TRUE)
+   * @param toGroup Group to set application mails to (or opposite if reverse=TRUE)
+   * @param reverse FALSE = copy from VO to Group (default) / TRUE = copy from Group to VO
+   * @throws PerunException
+   */
+  void copyMailsFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
+
+  /**
+   * Copy all mail definitions from one VO's form into another VO's form.
+   *
+   * @param sess   PerunSession
+   * @param fromVo VO to get application mails from
+   * @param toVo   VO to add application mails to
+   * @throws PerunException
+   */
+  void copyMailsFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
 
   /**
    * Delete mail notification from DB based on ID property.
@@ -51,41 +91,6 @@ public interface MailManager {
       throws ApplicationMailAlreadyRemovedException, PrivilegeException, ApplicationMailNotExistsException;
 
   /**
-   * Update notification parameters (including message texts)
-   * based on provided ID param in ApplicationMail object.
-   *
-   * @param sess PerunSession for authz
-   * @param mail ApplicationMail to update to
-   * @throws FormNotExistsException            When application form related to the mail template not exists
-   * @throws PrivilegeException                When caller is not authorized
-   * @throws ApplicationMailNotExistsException When application mail does not exist
-   */
-  void updateMailById(PerunSession sess, ApplicationMail mail)
-      throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException, InvalidHtmlInputException;
-
-  /**
-   * Enable or disable sending for list of mail definitions
-   *
-   * @param sess    for Authz
-   * @param mails   mail definitions to update
-   * @param enabled true = enable sending / false = disable sending
-   * @throws FormNotExistsException            When application form related to the mail template not exists
-   * @throws PrivilegeException                When caller is not authorized
-   * @throws ApplicationMailNotExistsException When application mail does not exist
-   */
-  void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws PerunException;
-
-  /**
-   * Return mail definition including texts by ID.
-   *
-   * @param id   of mail definition to get
-   * @param sess for authz
-   * @return mail
-   * @throws ApplicationMailNotExistsException when application mail does not exist
-   */
-  ApplicationMail getMailById(PerunSession sess, Integer id) throws ApplicationMailNotExistsException;
-
-  /**
    * Return all mail notifications related to specific app form (vo/group)
    *
    * @param sess PerunSession for authz
@@ -96,143 +101,14 @@ public interface MailManager {
   List<ApplicationMail> getApplicationMails(PerunSession sess, ApplicationForm form) throws PerunException;
 
   /**
-   * Copy all mail definitions from one VO's form into another VO's form.
+   * Return mail definition including texts by ID.
    *
-   * @param sess   PerunSession
-   * @param fromVo VO to get application mails from
-   * @param toVo   VO to add application mails to
-   * @throws PerunException
+   * @param id   of mail definition to get
+   * @param sess for authz
+   * @return mail
+   * @throws ApplicationMailNotExistsException when application mail does not exist
    */
-  void copyMailsFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
-
-  /**
-   * Copy all mail definitions from one VO to Group or reverse.
-   *
-   * @param sess    PerunSession for authz
-   * @param fromVo  VO to get application mails from (or opposite if reverse=TRUE)
-   * @param toGroup Group to set application mails to (or opposite if reverse=TRUE)
-   * @param reverse FALSE = copy from VO to Group (default) / TRUE = copy from Group to VO
-   * @throws PerunException
-   */
-  void copyMailsFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
-
-  /**
-   * Copy all mail definitions from one group into another group.
-   *
-   * @param sess      PerunSession
-   * @param fromGroup Group to get application mails from
-   * @param toGroup   Group to add application mails to
-   * @throws PerunException
-   */
-  void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
-
-  /**
-   * Send mail notification for specific application and mail type.
-   * VO (form) and AppType is taken form Application object.
-   * <p>
-   * Consumes all exceptions since sending mail is not mandatory,
-   * exceptions are loged into perun-registrar.log
-   *
-   * @param app        application to send notification for
-   * @param mailType   MailType action which caused sending
-   * @param reason     custom text passed to mail by admin (e.g. reason of application reject)
-   * @param exceptions list of exceptions which occured when processing parent request
-   */
-  void sendMessage(Application app, MailType mailType, String reason, List<Exception> exceptions);
-
-  /**
-   * Re-send mail notification for specific application and MailType.
-   * This method throw exceptions, if sending is not possible (template not defined,
-   * sending disabled, notification is not related to current AppState,...).
-   * <p>
-   * PerunAdmin can send all notifications not limited by AppState.
-   * <p>
-   * Contextual data, like exceptions related to processing Application itself can't be sent
-   * this way, since this method doesn't perform any action with Application. It only send emails.
-   *
-   * @param sess     PerunSession for authz
-   * @param app      application to send notification for
-   * @param mailType MailType action which caused sending
-   * @param reason   custom text passed to mail by admin (e.g. reason of application reject)
-   */
-  void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException;
-
-  /**
-   * Manually re-send multiple notifications at once. Expected to be called as a result of direct VO administrator action in the web UI.
-   *
-   * @param sess         PerunSession for authz
-   * @param applications application to send notification for
-   * @param mailType     MailType action which caused sending
-   * @param reason       custom text passed to mail by admin (e.g. reason of application reject)
-   */
-  void sendMessages(PerunSession sess, List<Application> applications, MailType mailType, String reason)
-      throws PerunException;
-
-  /**
-   * Send invitations with link to VO / Group application form from provided csv data
-   * <p>
-   * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
-   * content is used as link to application form. Otherwise link is automatically generated based on
-   * required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
-   * <p>
-   * General errors result in exception being thrown, single failures are skipped and added to result
-   *
-   * @param sess     PerunSession for authz
-   * @param vo       VO to link form to
-   * @param group    Group to link form to
-   * @param language Language used in notification (if not specified, VO settings is used, if not set, "en" is used).
-   * @return Map of {firstValue (should be email) : result}. Result can be 'OK' or 'ERROR: <error message>'
-   * @throws GroupNotExistsException
-   * @throws PrivilegeException
-   * @throws VoNotExistsException
-   * @throws RegistrarException
-   * @data csv file values separated by semicolon ';'. Only [email; name] or [email] is valid format.
-   * example: ["mail@mail.cz", "mail2@mail.cz;user2"]
-   */
-  Map<String, String> sendInvitationsFromCsv(PerunSession sess, Vo vo, Group group, List<String> data, String language)
-      throws GroupNotExistsException, PrivilegeException, VoNotExistsException, RegistrarException;
-
-  /**
-   * Sends invitation with link to VO / Group application form.
-   * <p>
-   * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
-   * content is used as link to application form. Otherwise link is automatically generated based on
-   * required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
-   *
-   * @param sess     PerunSession for authz
-   * @param vo       VO to link form to
-   * @param group    Group to link form to
-   * @param name     Name of invited User
-   * @param email    Email to send invitation to.
-   * @param language Language used in notification (if not specified, VO settings is used, if not set, "en" is used).
-   * @throws PerunException
-   */
-  void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email, String language)
-      throws PerunException;
-
-  /**
-   * Sends invitation with link to VO / Group application form.
-   * <p>
-   * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
-   * content is used as link to application form. Otherwise link is automatically generated based on
-   * required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
-   *
-   * @param sess  PerunSession for authz
-   * @param vo    VO to link form to
-   * @param group Group to link form to
-   * @param user  User to send invitation to
-   * @throws PerunException
-   */
-  void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException;
-
-  /**
-   * Creates an invitation link for the given vo/group with the default authType (if defined in the vo/group attribute)
-   *
-   * @param vo    Vo for which the invitation link should be created, parent Vo of the group if it should be a group invitation
-   * @param group Group for which the invitation link should be created, null if it is not a group invitation
-   * @return the full invitation URL for Vo or Group
-   */
-  String buildInviteURL(Vo vo, Group group);
+  ApplicationMail getMailById(PerunSession sess, Integer id) throws ApplicationMailNotExistsException;
 
   /**
    * Creates a MAC with a hard-compiled secret key encoded to printable characters.
@@ -261,7 +137,8 @@ public interface MailManager {
   Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws PerunException;
 
   /**
-   * Checks if invitation via notification is enabled (invitation notification exists, application form exists and application form can be submitted)
+   * Checks if invitation via notification is enabled (invitation notification exists, application form exists and
+   * application form can be submitted)
    *
    * @param sess  session
    * @param vo    vo
@@ -281,4 +158,126 @@ public interface MailManager {
    * @throws PerunException exception
    */
   Boolean isLinkInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException;
+
+  /**
+   * Sends invitation with link to VO / Group application form.
+   * <p>
+   * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL content is used as
+   * link to application form. Otherwise link is automatically generated based on required AUTHZ in template and
+   * registrar url set in /etc/perun/perun-registrar.properties.
+   *
+   * @param sess     PerunSession for authz
+   * @param vo       VO to link form to
+   * @param group    Group to link form to
+   * @param name     Name of invited User
+   * @param email    Email to send invitation to.
+   * @param language Language used in notification (if not specified, VO settings is used, if not set, "en" is used).
+   * @throws PerunException
+   */
+  void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email, String language)
+      throws PerunException;
+
+  /**
+   * Sends invitation with link to VO / Group application form.
+   * <p>
+   * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL content is used as
+   * link to application form. Otherwise link is automatically generated based on required AUTHZ in template and
+   * registrar url set in /etc/perun/perun-registrar.properties.
+   *
+   * @param sess  PerunSession for authz
+   * @param vo    VO to link form to
+   * @param group Group to link form to
+   * @param user  User to send invitation to
+   * @throws PerunException
+   */
+  void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException;
+
+  /**
+   * Send invitations with link to VO / Group application form from provided csv data
+   * <p>
+   * If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL content is used as
+   * link to application form. Otherwise link is automatically generated based on required AUTHZ in template and
+   * registrar url set in /etc/perun/perun-registrar.properties.
+   * <p>
+   * General errors result in exception being thrown, single failures are skipped and added to result
+   *
+   * @param sess     PerunSession for authz
+   * @param vo       VO to link form to
+   * @param group    Group to link form to
+   * @param language Language used in notification (if not specified, VO settings is used, if not set, "en" is used).
+   * @return Map of {firstValue (should be email) : result}. Result can be 'OK' or 'ERROR: <error message>'
+   * @throws GroupNotExistsException
+   * @throws PrivilegeException
+   * @throws VoNotExistsException
+   * @throws RegistrarException
+   * @data csv file values separated by semicolon ';'. Only [email; name] or [email] is valid format. example:
+   * ["mail@mail.cz", "mail2@mail.cz;user2"]
+   */
+  Map<String, String> sendInvitationsFromCsv(PerunSession sess, Vo vo, Group group, List<String> data, String language)
+      throws GroupNotExistsException, PrivilegeException, VoNotExistsException, RegistrarException;
+
+  /**
+   * Send mail notification for specific application and mail type. VO (form) and AppType is taken form Application
+   * object.
+   * <p>
+   * Consumes all exceptions since sending mail is not mandatory, exceptions are loged into perun-registrar.log
+   *
+   * @param app        application to send notification for
+   * @param mailType   MailType action which caused sending
+   * @param reason     custom text passed to mail by admin (e.g. reason of application reject)
+   * @param exceptions list of exceptions which occured when processing parent request
+   */
+  void sendMessage(Application app, MailType mailType, String reason, List<Exception> exceptions);
+
+  /**
+   * Re-send mail notification for specific application and MailType. This method throw exceptions, if sending is not
+   * possible (template not defined, sending disabled, notification is not related to current AppState,...).
+   * <p>
+   * PerunAdmin can send all notifications not limited by AppState.
+   * <p>
+   * Contextual data, like exceptions related to processing Application itself can't be sent this way, since this method
+   * doesn't perform any action with Application. It only send emails.
+   *
+   * @param sess     PerunSession for authz
+   * @param app      application to send notification for
+   * @param mailType MailType action which caused sending
+   * @param reason   custom text passed to mail by admin (e.g. reason of application reject)
+   */
+  void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException;
+
+  /**
+   * Manually re-send multiple notifications at once. Expected to be called as a result of direct VO administrator
+   * action in the web UI.
+   *
+   * @param sess         PerunSession for authz
+   * @param applications application to send notification for
+   * @param mailType     MailType action which caused sending
+   * @param reason       custom text passed to mail by admin (e.g. reason of application reject)
+   */
+  void sendMessages(PerunSession sess, List<Application> applications, MailType mailType, String reason)
+      throws PerunException;
+
+  /**
+   * Enable or disable sending for list of mail definitions
+   *
+   * @param sess    for Authz
+   * @param mails   mail definitions to update
+   * @param enabled true = enable sending / false = disable sending
+   * @throws FormNotExistsException            When application form related to the mail template not exists
+   * @throws PrivilegeException                When caller is not authorized
+   * @throws ApplicationMailNotExistsException When application mail does not exist
+   */
+  void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws PerunException;
+
+  /**
+   * Update notification parameters (including message texts) based on provided ID param in ApplicationMail object.
+   *
+   * @param sess PerunSession for authz
+   * @param mail ApplicationMail to update to
+   * @throws FormNotExistsException            When application form related to the mail template not exists
+   * @throws PrivilegeException                When caller is not authorized
+   * @throws ApplicationMailNotExistsException When application mail does not exist
+   */
+  void updateMailById(PerunSession sess, ApplicationMail mail)
+      throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException, InvalidHtmlInputException;
 }

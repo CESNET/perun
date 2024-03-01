@@ -4,7 +4,8 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import java.util.List;
 
 /**
- * This exception is thrown when principal has roles always requiring MFA and roles always skipping MFA at the same time
+ * This exception is thrown when principal has roles always requiring MFA and roles always skipping MFA at the same
+ * time
  *
  * @author Johana Supikova <xsupikov@fi.muni.cz>
  */
@@ -25,7 +26,6 @@ public class MfaInvalidRolesException extends MfaPrivilegeException {
 
   public MfaInvalidRolesException(PerunSession sess, List<String> requiringMfa, List<String> skippingMfa) {
     super("Principal " + sess.getPerunPrincipal().getActor() + " cannot have roles skipping MFA " +
-        skippingMfa.toString() + " and roles requiring MFA " +
-        requiringMfa + " at the same time");
+          skippingMfa.toString() + " and roles requiring MFA " + requiringMfa + " at the same time");
   }
 }

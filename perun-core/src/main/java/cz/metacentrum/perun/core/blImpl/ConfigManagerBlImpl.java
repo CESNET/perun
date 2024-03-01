@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
 import cz.metacentrum.perun.core.bl.ConfigManagerBl;
 import cz.metacentrum.perun.core.implApi.ConfigManagerImplApi;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -26,11 +25,6 @@ public class ConfigManagerBlImpl implements ConfigManagerBl {
   }
 
   @Override
-  public void reloadAppsConfig() {
-    configManagerImpl.reloadAppsConfig();
-  }
-
-  @Override
   public OidcConfig getPerunOidcConfig(String requestUrl)
       throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
     String domain;
@@ -42,6 +36,11 @@ public class ConfigManagerBlImpl implements ConfigManagerBl {
     }
 
     return configManagerImpl.getPerunOidcConfig(domain);
+  }
+
+  @Override
+  public void reloadAppsConfig() {
+    configManagerImpl.reloadAppsConfig();
   }
 
 }

@@ -22,13 +22,13 @@ public class SponsorshipExpirationInAMonth extends AuditEvent implements EngineI
         sponsorship.getSponsoredMember(), sponsorship.getSponsor());
   }
 
-  public EnrichedSponsorship getSponsorship() {
-    return sponsorship;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public EnrichedSponsorship getSponsorship() {
+    return sponsorship;
   }
 
   @Override

@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static java.util.Collections.emptyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -12,17 +16,12 @@ import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.modules.pwdmgr.LifescienceidusernamePasswordManagerModule;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.Collections.emptyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_usernameTest {
   private static final User user = new User(1, "User", "1", "", "", "");
@@ -37,8 +36,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
   public static void setUpCoreConfig() {
     originalCoreConfig = BeansUtils.getCoreConfig();
     BeansUtils.setConfig(mockedCoreConfig);
-    when(mockedCoreConfig.getGeneratedLoginNamespaces())
-        .thenReturn(emptyList());
+    when(mockedCoreConfig.getGeneratedLoginNamespaces()).thenReturn(emptyList());
   }
 
   @AfterClass
@@ -64,34 +62,11 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
         .getPasswordManagerModule(session, "lifescienceid-username")).thenReturn(module);
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testSyntaxOnlyNumbers() throws Exception {
-    System.out.println("testSyntaxOnlyNumbers()");
-    attributeToCheck.setValue("1234");
-
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void testSyntaxStartWithNumber() throws Exception {
-    System.out.println("testSyntaxStartWithNumber()");
-    attributeToCheck.setValue("1aaa");
-
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-  }
-
   @Test
-  public void testSyntaxStartWithLetter() throws Exception {
-    System.out.println("testSyntaxStartWithLetter()");
-    attributeToCheck.setValue("a111");
-
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsWithNullAttribute() throws Exception {
-    System.out.println("testCheckAttributeSemanticsWithNullAttribute()");
-    attributeToCheck.setValue(null);
+  public void testCheckAttributeSemanticsCorrectValue() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrectValue()");
+    when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck, true)).thenReturn(
+        new ArrayList<>(List.of(user)));
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
@@ -105,12 +80,35 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
 
-  @Test
-  public void testCheckAttributeSemanticsCorrectValue() throws Exception {
-    System.out.println("testCheckAttributeSemanticsCorrectValue()");
-    when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck, true)).thenReturn(
-        new ArrayList<>(List.of(user)));
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithNullAttribute() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithNullAttribute()");
+    attributeToCheck.setValue(null);
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testSyntaxOnlyNumbers() throws Exception {
+    System.out.println("testSyntaxOnlyNumbers()");
+    attributeToCheck.setValue("1234");
+
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
+
+  @Test
+  public void testSyntaxStartWithLetter() throws Exception {
+    System.out.println("testSyntaxStartWithLetter()");
+    attributeToCheck.setValue("a111");
+
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testSyntaxStartWithNumber() throws Exception {
+    System.out.println("testSyntaxStartWithNumber()");
+    attributeToCheck.setValue("1aaa");
+
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
   }
 }

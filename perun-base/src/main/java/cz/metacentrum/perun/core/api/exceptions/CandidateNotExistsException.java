@@ -2,8 +2,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 
 
 /**
- * This exception is thrown when the candidate does not exist in the ExtSource
- * It is thrown when search for candidates in ExtSource returned a unique identifier, for which no additional data was found in the ExtSource
+ * This exception is thrown when the candidate does not exist in the ExtSource It is thrown when search for candidates
+ * in ExtSource returned a unique identifier, for which no additional data was found in the ExtSource
  *
  * @author Martin Kuba
  */

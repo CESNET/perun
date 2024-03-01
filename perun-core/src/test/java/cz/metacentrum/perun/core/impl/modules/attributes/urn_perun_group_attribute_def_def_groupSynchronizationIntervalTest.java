@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -9,9 +12,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_group_attribute_def_def_groupSynchronizationIntervalTest {
   private urn_perun_group_attribute_def_def_groupSynchronizationInterval classInstance;
@@ -35,18 +35,18 @@ public class urn_perun_group_attribute_def_def_groupSynchronizationIntervalTest 
         .getAttribute(sess, group, GroupsManager.GROUP_SYNCHRO_TIMES_ATTRNAME)).thenReturn(syncTimes);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testMissingReqAttribute() throws Exception {
-    System.out.println("testMissingReqAttribute()");
-    syncTimes.setValue("true");
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
     attributeToCheck.setValue("value");
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
   }
 
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testMissingReqAttribute() throws Exception {
+    System.out.println("testMissingReqAttribute()");
+    syncTimes.setValue("true");
     attributeToCheck.setValue("value");
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);

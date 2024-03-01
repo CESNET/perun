@@ -13,8 +13,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 public class urn_perun_user_attribute_def_virt_eduPersonORCID extends UserVirtualAttributeCollectedFromUserExtSource {
 
   @Override
-  public String getSourceAttributeFriendlyName() {
-    return "eduPersonOrcid";
+  public String getDestinationAttributeDescription() {
+    return "All ORCIDs of a user";
   }
 
   @Override
@@ -23,7 +23,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCID extends UserVirtua
   }
 
   @Override
-  public String getDestinationAttributeDescription() {
-    return "All ORCIDs of a user";
+  public String getSourceAttributeFriendlyName() {
+    return "eduPersonOrcid";
   }
 }

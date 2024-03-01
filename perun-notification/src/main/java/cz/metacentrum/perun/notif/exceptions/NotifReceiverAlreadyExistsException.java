@@ -24,7 +24,6 @@ public class NotifReceiverAlreadyExistsException extends PerunException {
 
   public NotifReceiverAlreadyExistsException(PerunNotifReceiver receiver) {
     super("Receiver with target: " + receiver.getTarget() + ", templateId: " + receiver.getTemplateId() +
-        " and locale: " +
-        receiver.getLocale() + "already exists.");
+          " and locale: " + receiver.getLocale() + "already exists.");
   }
 }

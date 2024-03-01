@@ -14,11 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Module for capabilities according to AARC specification. i.e. specification of resource and optional actions.
- * Syntax:
- * value=“res:RESOURCE[:CHILD-RESOURCE1][:CHILD-RESOURCE2]...[:act:ACTION[,ACTION]...]”
- * Example1: value=“res:RESOURCE1:CHILD-RESOURCE1:CHILD-RESOURCE2:act:ACTION1,ACTION2,ACTION3”
- * Example2: value=“res:RESOURCE1:CHILD-RESOURCE1:CHILD-RESOURCE2”
+ * Module for capabilities according to AARC specification. i.e. specification of resource and optional actions. Syntax:
+ * value=“res:RESOURCE[:CHILD-RESOURCE1][:CHILD-RESOURCE2]...[:act:ACTION[,ACTION]...]” Example1:
+ * value=“res:RESOURCE1:CHILD-RESOURCE1:CHILD-RESOURCE2:act:ACTION1,ACTION2,ACTION3” Example2:
+ * value=“res:RESOURCE1:CHILD-RESOURCE1:CHILD-RESOURCE2”
  *
  * @author Ondrej Ernst
  * @see urn_perun_resource_attribute_def_def_capabilities
@@ -35,8 +34,9 @@ public class urn_perun_facility_attribute_def_def_capabilities extends FacilityA
     List<String> values = attribute.valueAsList();
     for (String value : values) {
       if (!PATTERN.matcher(value).matches()) {
-        throw new WrongAttributeValueException(attribute, facility.getName() +
-            " has attribute whose value is not valid. Example of valid value: res:RESOURCE[:CHILD-RESOURCE1][:CHILD-RESOURCE2]...[:act:ACTION[,ACTION]...]");
+        throw new WrongAttributeValueException(attribute,
+            facility.getName() + " has attribute whose value is not valid. Example of valid value: " +
+            "res:RESOURCE[:CHILD-RESOURCE1][:CHILD-RESOURCE2]...[:act:ACTION[,ACTION]...]");
       }
     }
   }

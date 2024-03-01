@@ -60,7 +60,7 @@ import java.util.Map;
  */
 public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "servsettings";
+  public static final String URL = "servsettings";
   final VerticalPanel vp = new VerticalPanel();
   ScrollPanel sp = new ScrollPanel();
   ScrollPanel sp2 = new ScrollPanel();

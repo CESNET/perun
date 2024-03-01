@@ -27,13 +27,13 @@ public class AttributeSetForVo extends AuditEvent {
     return attribute;
   }
 
-  public Vo getVo() {
-    return vo;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Vo getVo() {
+    return vo;
   }
 
   @Override

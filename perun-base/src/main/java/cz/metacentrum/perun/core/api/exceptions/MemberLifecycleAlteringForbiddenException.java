@@ -3,8 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Member;
 
 /**
- * Operation altering member's lifecycle is forbidden
- * (e.g. cannot change expiration of hierarchical vo's members, if they come from member vos)
+ * Operation altering member's lifecycle is forbidden (e.g. cannot change expiration of hierarchical vo's members, if
+ * they come from member vos)
  *
  * @author Johana Supikova <xsupikov@fi.muni.cz>
  */

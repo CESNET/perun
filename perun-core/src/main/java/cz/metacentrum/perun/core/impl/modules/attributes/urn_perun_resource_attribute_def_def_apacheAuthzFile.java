@@ -9,13 +9,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Attribute module for apacheAuthzFile attribute. Module checks that
- * attribute is not empty and it also contains unix-like file path.
+ * Attribute module for apacheAuthzFile attribute. Module checks that attribute is not empty and it also contains
+ * unix-like file path.
  *
  * @author Vladimir Mecko vladimir.mecko@gmail.com
  */
@@ -23,6 +22,15 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFile extends Resour
     implements ResourceAttributesModuleImplApi {
 
   private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9.?*+$%]+)+$");
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
+          "Attribute value can not be null.");
+    }
+  }
 
   @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
@@ -37,15 +45,6 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFile extends Resour
     if (!match.matches()) {
       throw new WrongAttributeValueException(attribute, resource, null,
           "Wrong file path format in attribute (should be like '/dir1/dir2').");
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
-          "Attribute value can not be null.");
     }
   }
 

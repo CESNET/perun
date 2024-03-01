@@ -31,30 +31,6 @@ public class EmailSCIM {
   public EmailSCIM() {
   }
 
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  public Boolean getPrimary() {
-    return primary;
-  }
-
-  public void setPrimary(Boolean primary) {
-    this.primary = primary;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -76,6 +52,18 @@ public class EmailSCIM {
 
   }
 
+  public Boolean getPrimary() {
+    return primary;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
   @Override
   public int hashCode() {
     int result = getType() != null ? getType().hashCode() : 0;
@@ -84,12 +72,20 @@ public class EmailSCIM {
     return result;
   }
 
+  public void setPrimary(Boolean primary) {
+    this.primary = primary;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
+
   @Override
   public String toString() {
-    return "EmailSCIM{" +
-        "type='" + type + '\'' +
-        ", value='" + value + '\'' +
-        ", primary=" + primary +
-        '}';
+    return "EmailSCIM{" + "type='" + type + '\'' + ", value='" + value + '\'' + ", primary=" + primary + '}';
   }
 }

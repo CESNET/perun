@@ -26,13 +26,13 @@ public class ResourceSelfServiceRemovedForGroup extends AuditEvent implements En
     this.message = formatMessage("%s was removed as ResourceSelfService for %s.", group, resource);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   public Resource getResource() {

@@ -23,21 +23,21 @@ public class MembershipExpired extends AuditEvent implements EngineIgnoreEvent {
     this.message = formatMessage("%s has expired %d days ago in %s.", member, daysAfterExpiration, vo);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public int getDaysAfterExpiration() {
     return daysAfterExpiration;
   }
 
-  public Vo getVo() {
-    return vo;
+  public Member getMember() {
+    return member;
   }
 
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Vo getVo() {
+    return vo;
   }
 
   @Override

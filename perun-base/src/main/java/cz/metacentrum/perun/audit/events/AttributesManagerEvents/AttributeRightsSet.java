@@ -19,13 +19,13 @@ public class AttributeRightsSet extends AuditEvent implements EngineIgnoreEvent 
     this.message = formatMessage("Attribute right set: %s", rights);
   }
 
-  public AttributeRights getRights() {
-    return rights;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public AttributeRights getRights() {
+    return rights;
   }
 
   @Override

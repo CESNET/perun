@@ -1,24 +1,28 @@
 package cz.metacentrum.perun.cabinet;
 
-import static org.junit.Assert.*;
-
-import java.util.Date;
-import java.util.Properties;
+import static org.junit.Assert.assertTrue;
 
 import cz.metacentrum.perun.cabinet.api.CabinetManager;
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.cabinet.model.Authorship;
+import cz.metacentrum.perun.cabinet.model.Category;
+import cz.metacentrum.perun.cabinet.model.Publication;
+import cz.metacentrum.perun.cabinet.model.PublicationSystem;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Owner;
+import cz.metacentrum.perun.core.api.OwnerType;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import java.util.Date;
+import java.util.Properties;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.cabinet.model.Category;
-import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.core.bl.PerunBl;
 
 /**
  * Base integration test class, all other tests should extend it.
@@ -50,21 +54,6 @@ public abstract class CabinetBaseIntegrationTest {
   private boolean init = false;
 
   // setters -------------------------
-
-  public CabinetManager getCabinetManager() {
-    return cabinetManager;
-  }
-
-  @Autowired
-  public void setCabinetManager(CabinetManager cabinetManager) {
-    this.cabinetManager = cabinetManager;
-  }
-
-  public void setCabinetProperties(Properties cabinetProperties) {
-    this.cabinetProperties = cabinetProperties;
-  }
-
-  // test -------------------------------
 
   @Before
   public void beforeClass() throws Exception {
@@ -190,6 +179,21 @@ public abstract class CabinetBaseIntegrationTest {
 
     init = true;
 
+  }
+
+  public CabinetManager getCabinetManager() {
+    return cabinetManager;
+  }
+
+  @Autowired
+  public void setCabinetManager(CabinetManager cabinetManager) {
+    this.cabinetManager = cabinetManager;
+  }
+
+  // test -------------------------------
+
+  public void setCabinetProperties(Properties cabinetProperties) {
+    this.cabinetProperties = cabinetProperties;
   }
 
 }

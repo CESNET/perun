@@ -1,19 +1,18 @@
 package cz.metacentrum.perun.core.impl;
 
-import net.jcip.annotations.GuardedBy;
-import net.jcip.annotations.ThreadSafe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 public class PerunAuthenticatorImpl extends Authenticator {
-  private final static Logger log = LoggerFactory.getLogger(PerunAuthenticatorImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PerunAuthenticatorImpl.class);
   @GuardedBy("PerunAuthenticatorImpl.class")
   private static PerunAuthenticatorImpl instance;
   @GuardedBy("itself")
@@ -23,7 +22,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
     super();
   }
 
-  synchronized public static PerunAuthenticatorImpl getPerunAuthenticator() {
+  public static synchronized PerunAuthenticatorImpl getPerunAuthenticator() {
     if (instance == null) {
       instance = new PerunAuthenticatorImpl();
       Authenticator.setDefault(instance);
@@ -40,20 +39,21 @@ public class PerunAuthenticatorImpl extends Authenticator {
     URL url = getRequestingURL();
     PasswordAuthentication passwordAuthentication = passwordAuthenticationsForURL.get(url.toExternalForm());
     if (passwordAuthentication == null) {
-      log.info("No authenticator provided for url {}", url);
+      LOG.info("No authenticator provided for url {}", url);
     }
     return passwordAuthentication;
   }
 
   /**
-   * Register passwordAuthentication for specific URL. If there is some passwordAuthentication already registered for the url it is replaced by the new one.
+   * Register passwordAuthentication for specific URL. If there is some passwordAuthentication already registered for
+   * the url it is replaced by the new one.
    *
    * @param url
    * @param passwordAuthentication
    * @return true if there is no passwordAuthentication already registered for the URL, false otherwise
    */
   public boolean registerAuthenticationForURL(URL url, PasswordAuthentication passwordAuthentication) {
-    log.debug("Authenticator registered for url {}", url);
+    LOG.debug("Authenticator registered for url {}", url);
     return passwordAuthenticationsForURL.put(url.toExternalForm(), passwordAuthentication) == null;
   }
 
@@ -64,7 +64,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
    * @return true if there was passwordAuthentication registered for the URL
    */
   public boolean unRegisterAuthenticationForURL(URL url) {
-    log.debug("Authenticator unregistered for url {}", url);
+    LOG.debug("Authenticator unregistered for url {}", url);
     return passwordAuthenticationsForURL.remove(url.toExternalForm()) == null;
   }
 

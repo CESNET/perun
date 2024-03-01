@@ -25,12 +25,12 @@ public class UserRemovedFromBlackListOfSecurityTeam extends AuditEvent {
     return message;
   }
 
-  public User getUser() {
-    return user;
-  }
-
   public SecurityTeam getSecurityTeam() {
     return securityTeam;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   @Override

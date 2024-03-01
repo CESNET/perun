@@ -3,7 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 /**
- * This exception is thrown when you try to assign attribute as required by the service but the attribute has already been assigned.
+ * This exception is thrown when you try to assign attribute as required by the service but the attribute has already
+ * been assigned.
  *
  * @author Slavek Licehammer
  */

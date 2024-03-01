@@ -21,8 +21,17 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends GroupResourceAttributesModuleAbstract
     implements GroupResourceAttributesModuleImplApi {
 
-  private final static org.slf4j.Logger log =
+  private static final org.slf4j.Logger LOG =
       LoggerFactory.getLogger(urn_perun_group_resource_attribute_def_def_drupalGroupType.class);
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, group,
+          "Type of drupal group can't be null.");
+    }
+  }
 
   @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
@@ -40,15 +49,6 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
   }
 
   @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, resource, group,
-          "Type of drupal group can't be null.");
-    }
-  }
-
-  @Override
   public Attribute fillAttribute(PerunSessionImpl session, Group group, Resource resource,
                                  AttributeDefinition attribute) {
     Attribute filledAttribute = new Attribute(attribute);
@@ -61,7 +61,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
         checkAttributeSyntax(session, group, resource, filledAttribute);
         checkAttributeSemantics(session, group, resource, filledAttribute);
       } catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-        log.error("Type of drupal group can be either 'public' or 'private'.", ex);
+        LOG.error("Type of drupal group can be either 'public' or 'private'.", ex);
       }
     }
     return filledAttribute;
@@ -77,4 +77,6 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
     attr.setDescription("Type of the drupal group");
     return attr;
   }
+
+
 }

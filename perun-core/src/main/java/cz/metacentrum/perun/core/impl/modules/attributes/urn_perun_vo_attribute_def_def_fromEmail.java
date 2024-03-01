@@ -22,6 +22,15 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
   private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    // null attribute
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Vo fromEmail cannot be null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, Vo vo, Attribute attribute)
       throws WrongAttributeValueException {
     // null attribute is ok for syntax check
@@ -37,7 +46,8 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
 
       if (!match.matches()) {
         throw new WrongAttributeValueException(attribute, "Vo : " + vo.getName() + " has fromEmail " + fromEmail +
-            " which is not valid. It has to be in form \"header\" <correct email> or just correct email.");
+                                                          " which is not valid. It has to be in form \"header\" " +
+                                                          "<correct email> or just correct email.");
       } else {
 
         String[] emailParts = fromEmail.split("[<>]+");
@@ -47,15 +57,6 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
               "Vo : " + vo.getName() + " has email in <> " + emailParts[1] + " which is not valid.");
         }
       }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    // null attribute
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "Vo fromEmail cannot be null.");
     }
   }
 

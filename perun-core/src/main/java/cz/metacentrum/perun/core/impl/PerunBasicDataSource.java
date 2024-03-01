@@ -2,12 +2,11 @@ package cz.metacentrum.perun.core.impl;
 
 import com.zaxxer.hikari.HikariDataSource;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DataSource used instead of HikariDataSource in Perun to override getConnection.
@@ -16,9 +15,13 @@ import java.sql.SQLException;
  */
 public class PerunBasicDataSource extends HikariDataSource {
 
-  private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PerunBasicDataSource.class);
 
   private Auditer auditer;
+
+  public Auditer getAuditer() {
+    return auditer;
+  }
 
   @Override
   public Connection getConnection() throws SQLException {
@@ -34,10 +37,6 @@ public class PerunBasicDataSource extends HikariDataSource {
     return new PerunConnection(con, auditer);
   }
 
-  public Auditer getAuditer() {
-    return auditer;
-  }
-
   public void setAuditer(Auditer auditer) {
     this.auditer = auditer;
   }
@@ -45,7 +44,8 @@ public class PerunBasicDataSource extends HikariDataSource {
   @Override
   public void setJdbcUrl(String jdbcUrl) {
     //for PostgreSQL, adds system property ApplicationName to URL, it is diplayed as application_name in
-    // SELECT usename||'@'||datname AS who,application_name AS app,client_addr,state,query_start FROM pg_stat_activity ORDER BY app;
+    // SELECT usename||'@'||datname AS who,application_name AS app,client_addr,state,query_start FROM
+    // pg_stat_activity ORDER BY app;
     String applicationName = System.getProperty("ApplicationName");
     if (applicationName != null && jdbcUrl.contains("jdbc:postgresql")) {
       if (jdbcUrl.contains("?")) {
@@ -53,7 +53,7 @@ public class PerunBasicDataSource extends HikariDataSource {
       } else {
         jdbcUrl += "?ApplicationName=" + URLEncoder.encode(applicationName);
       }
-      log.info("changed jdbc.url to include ApplicationName: {}", jdbcUrl);
+      LOG.info("changed jdbc.url to include ApplicationName: {}", jdbcUrl);
     }
     super.setJdbcUrl(jdbcUrl);
   }

@@ -15,17 +15,13 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 public interface HostAttributesModuleImplApi extends AttributesModuleImplApi {
 
   /**
-   * Checks if value of assigned attribute to the host has valid syntax.
+   * If you need to do some further work with other modules, this method do that
    *
-   * @param session   Perun session
+   * @param session   session
    * @param host      Host
-   * @param attribute Attribute of the host.
-   * @throws InternalErrorException       if an exception is raised in particular
-   *                                      implementation, the exception is wrapped in InternalErrorException
-   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+   * @param attribute the attribute
    */
-  void checkAttributeSyntax(PerunSessionImpl session, Host host, Attribute attribute)
-      throws WrongAttributeValueException;
+  void changedAttributeHook(PerunSessionImpl session, Host host, Attribute attribute);
 
   /**
    * Checks if value of assigned attribute to the host has valid semantics.
@@ -37,6 +33,19 @@ public interface HostAttributesModuleImplApi extends AttributesModuleImplApi {
   void checkAttributeSemantics(PerunSessionImpl session, Host host, Attribute attribute);
 
   /**
+   * Checks if value of assigned attribute to the host has valid syntax.
+   *
+   * @param session   Perun session
+   * @param host      Host
+   * @param attribute Attribute of the host.
+   * @throws InternalErrorException       if an exception is raised in particular implementation, the exception is
+   *                                      wrapped in InternalErrorException
+   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+   */
+  void checkAttributeSyntax(PerunSessionImpl session, Host host, Attribute attribute)
+      throws WrongAttributeValueException;
+
+  /**
    * Tries to fill an attribute to the specified host.
    *
    * @param session   Perun Session
@@ -45,14 +54,5 @@ public interface HostAttributesModuleImplApi extends AttributesModuleImplApi {
    * @return Attribute which MAY be filled in
    */
   Attribute fillAttribute(PerunSessionImpl session, Host host, AttributeDefinition attribute);
-
-  /**
-   * If you need to do some further work with other modules, this method do that
-   *
-   * @param session   session
-   * @param host      Host
-   * @param attribute the attribute
-   */
-  void changedAttributeHook(PerunSessionImpl session, Host host, Attribute attribute);
 
 }

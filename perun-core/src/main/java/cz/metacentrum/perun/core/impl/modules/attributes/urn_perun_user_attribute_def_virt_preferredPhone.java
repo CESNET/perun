@@ -29,6 +29,17 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
   private static final String A_U_O_privatePhoneKos = AttributesManager.NS_USER_ATTR_OPT + ":privatePhoneKos";
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("preferredPhone");
+    attr.setDisplayName("Preferred phone");
+    attr.setType(String.class.getName());
+    attr.setDescription("Preferred phone resolved from phone, mobilePhone and privatePhone (both DC2 and KOS).");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 
     Attribute attribute = new Attribute(attributeDefinition);
@@ -74,17 +85,6 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
     strongDependencies.add(A_U_O_privatePhone);
     strongDependencies.add(A_U_O_privatePhoneKos);
     return strongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("preferredPhone");
-    attr.setDisplayName("Preferred phone");
-    attr.setType(String.class.getName());
-    attr.setDescription("Preferred phone resolved from phone, mobilePhone and privatePhone (both DC2 and KOS).");
-    return attr;
   }
 
 }

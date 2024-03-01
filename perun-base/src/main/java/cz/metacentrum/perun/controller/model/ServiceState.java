@@ -29,12 +29,17 @@ public class ServiceState {
     this.facility = facility;
   }
 
-  public Service getService() {
-    return service;
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
   }
 
-  public void setService(Service service) {
-    this.service = service;
+  /**
+   * Return time when was Task on Facility scheduled if ever for the last time.
+   *
+   * @return Time when was last task scheduled.
+   */
+  public Long getEndTime() {
+    return (task != null) ? task.getEndTimeAsLong() : null;
   }
 
   public Facility getFacility() {
@@ -45,12 +50,68 @@ public class ServiceState {
     this.facility = facility;
   }
 
+  public boolean getHasDestinations() {
+    return hasDestinations;
+  }
+
+  public void setHasDestinations(boolean hasDestinations) {
+    this.hasDestinations = hasDestinations;
+  }
+
+  /**
+   * Return time when was Task on Facility scheduled if ever for the last time.
+   *
+   * @return Time when was last task scheduled.
+   */
+  public Long getScheduled() {
+    return (task != null) ? task.getScheduleAsLong() : null;
+  }
+
+  public Service getService() {
+    return service;
+  }
+
+  public void setService(Service service) {
+    this.service = service;
+  }
+
+  /**
+   * Return time when was Task on Facility scheduled if ever for the last time.
+   *
+   * @return Time when was last task scheduled.
+   */
+  public Long getStartTime() {
+    return (task != null) ? task.getStartTimeAsLong() : null;
+  }
+
+  /**
+   * Return status of service propagation (task status) based on current tasks states. Method compares "scheduled" dates
+   * of tasks in order to determine, which is more relevant.
+   * <p>
+   * If can't determine, TaskStatus.NONE is returned.
+   *
+   * @return TaskStatus of service on facility
+   */
+  public Task.TaskStatus getStatus() {
+    return (task != null) ? task.getStatus() : Task.TaskStatus.WAITING;
+  }
+
   public Task getTask() {
     return task;
   }
 
   public void setTask(Task task) {
     this.task = task;
+  }
+
+  /**
+   * Return ID of Task. If present SEND Task takes precedence. If not GEN Task is used or 0 is returned if none Task is
+   * present.
+   *
+   * @return ID of Task
+   */
+  public int getTaskId() {
+    return (task != null) ? task.getId() : 0;
   }
 
   public boolean isBlockedGlobally() {
@@ -65,75 +126,12 @@ public class ServiceState {
     this.isBlockedOnFacility = isBlockedOnFacility;
   }
 
-  public boolean getHasDestinations() {
-    return hasDestinations;
-  }
-
-  public void setHasDestinations(boolean hasDestinations) {
-    this.hasDestinations = hasDestinations;
-  }
-
-  /**
-   * Return ID of Task. If present SEND Task takes precedence.
-   * If not GEN Task is used or 0 is returned if none Task is present.
-   *
-   * @return ID of Task
-   */
-  public int getTaskId() {
-    return (task != null) ? task.getId() : 0;
-  }
-
-  /**
-   * Return time when was Task on Facility scheduled if ever for the last time.
-   *
-   * @return Time when was last task scheduled.
-   */
-  public Long getScheduled() {
-    return (task != null) ? task.getScheduleAsLong() : null;
-  }
-
-  /**
-   * Return time when was Task on Facility scheduled if ever for the last time.
-   *
-   * @return Time when was last task scheduled.
-   */
-  public Long getStartTime() {
-    return (task != null) ? task.getStartTimeAsLong() : null;
-  }
-
-  /**
-   * Return time when was Task on Facility scheduled if ever for the last time.
-   *
-   * @return Time when was last task scheduled.
-   */
-  public Long getEndTime() {
-    return (task != null) ? task.getEndTimeAsLong() : null;
-  }
-
-  /**
-   * Return status of service propagation (task status) based on current tasks states.
-   * Method compares "scheduled" dates of tasks in order to determine, which is more relevant.
-   * <p>
-   * If can't determine, TaskStatus.NONE is returned.
-   *
-   * @return TaskStatus of service on facility
-   */
-  public Task.TaskStatus getStatus() {
-    return (task != null) ? task.getStatus() : Task.TaskStatus.WAITING;
-  }
-
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
-  }
-
   @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
-    return str.append(getBeanName()).append(":[")
-        .append("service='").append(getService().toString())
-        .append("', facility='").append(getFacility().toString())
-        .append("', task='").append(getTask())
-        .append("']").toString();
+    return str.append(getBeanName()).append(":[").append("service='").append(getService().toString())
+        .append("', facility='").append(getFacility().toString()).append("', task='").append(getTask()).append("']")
+        .toString();
   }
 
 }

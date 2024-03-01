@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -26,7 +25,18 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_mu
 
   private static final Pattern loginMUPattern = Pattern.compile("^([0-9]+)[@]muni[.]cz$");
   private static final String A_U_D_loginNamespace_mu = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
-  private final String EXTSOURCE_MUNI_IDP2 = "https://idp2.ics.muni.cz/idp/shibboleth";
+  private static final String EXTSOURCE_MUNI_IDP2 = "https://idp2.ics.muni.cz/idp/shibboleth";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("optional-login-namespace:mu");
+    attr.setDisplayName("Optional login in namespace: mu");
+    attr.setType(String.class.getName());
+    attr.setDescription("Contains an optional login in namespace mu if the user has it.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
@@ -58,8 +68,8 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_mu
           continue;
         }
         //It is ok, take UCO from login and set it to attribute value
-        String UCO = loginMUMatcher.group(1);
-        attr.setValue(UCO);
+        String uco = loginMUMatcher.group(1);
+        attr.setValue(uco);
         break;
       }
     }
@@ -69,16 +79,5 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_mu
   @Override
   public List<String> getStrongDependencies() {
     return Collections.singletonList(A_U_D_loginNamespace_mu);
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("optional-login-namespace:mu");
-    attr.setDisplayName("Optional login in namespace: mu");
-    attr.setType(String.class.getName());
-    attr.setDescription("Contains an optional login in namespace mu if the user has it.");
-    return attr;
   }
 }

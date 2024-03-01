@@ -64,7 +64,7 @@ import java.util.Map;
  */
 public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "add-to-grp";
+  public static final String URL = "add-to-grp";
   ScrollPanel sp = new ScrollPanel();
   ScrollPanel sp2 = new ScrollPanel();
   /**

@@ -39,7 +39,7 @@ import java.util.Comparator;
 public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserExtSource> {
 
   // JSON URL
-  private final static String JSON_URL = "usersManager/getUserExtSources";
+  private static final String JSON_URL = "usersManager/getUserExtSources";
   // selection model for tables (for easy selection)
   private final MultiSelectionModel<UserExtSource> selectionModel =
       new MultiSelectionModel<UserExtSource>(new GeneralKeyProvider<UserExtSource>());

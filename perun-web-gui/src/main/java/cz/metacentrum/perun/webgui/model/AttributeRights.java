@@ -13,7 +13,7 @@ public class AttributeRights extends JavaScriptObject {
   protected AttributeRights() {
   }
 
-  public final static native AttributeRights create(int attrId, String role) /*-{
+  public static final native AttributeRights create(int attrId, String role) /*-{
 		var obj = new Object();
 		obj.attributeId = attrId;
 		obj.role = role;

@@ -1,5 +1,11 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -7,16 +13,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
@@ -24,6 +23,10 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
   private static PerunSessionImpl session;
   private static User user;
   private static Attribute attributeToCheck;
+
+  private String errorWithoutId(String msg) {
+    return msg.substring(msg.indexOf(":") + 1).trim();
+  }
 
   @Before
   public void setUp() throws WrongAttributeAssignmentException, AttributeNotExistsException {
@@ -35,56 +38,14 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
 
 
     Attribute mockMfaCategories = new Attribute();
-    mockMfaCategories.setValue("{" +
-        "    \"cat1\":" +
-        "    {" +
-        "      \"label\": {\"en\": \"cat1_en_label\"}," +
-        "      \"rps\":" +
-        "      {" +
-        "        \"cat1_rps1\": {\"en\":\"cat1_rps1_en_label\"}," +
-        "        \"cat1_rps2\": {\"en\":\"cat1_rps2_en_label\"}" +
-        "      }" +
-        "    }," +
-        "    \"cat2\":" +
-        "    {" +
-        "      \"label\": {\"en\": \"cat2_en_label\"}," +
-        "      \"rps\":" +
-        "      {" +
-        "        \"cat2_rps1\": {\"en\":\"cat2_rps1_en_label\"}" +
-        "      }" +
-        "    }" + "  " +
-        "}");
-    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(any(), any(), any()))
-        .thenReturn(Collections.singletonMap(attributeToCheck.getFriendlyNameParameter(), mockMfaCategories));
-  }
-
-  @Test
-  public void testAttributeSyntaxNotValidJSON() {
-    System.out.println("testAttributeSyntaxNotValidJSON()");
-    attributeToCheck.setValue("plain string");
-
-    try {
-      classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-    } catch (WrongAttributeValueException e) {
-      assertEquals("Attribute value " + attributeToCheck.getValue() + " is not a valid JSON.",
-          errorWithoutId(e.getMessage()));
-    }
-  }
-
-  @Test
-  public void testAttributeSyntaxNull() throws Exception {
-    System.out.println("testAttributeSyntaxNull()");
-    attributeToCheck.setValue(null);
-
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-  }
-
-  @Test
-  public void testAttributeSyntaxEmpty() throws Exception {
-    System.out.println("testAttributeSyntaxEmpty()");
-    attributeToCheck.setValue("");
-
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    mockMfaCategories.setValue(
+        "{" + "    \"cat1\":" + "    {" + "      \"label\": {\"en\": \"cat1_en_label\"}," + "      \"rps\":" +
+        "      {" + "        \"cat1_rps1\": {\"en\":\"cat1_rps1_en_label\"}," +
+        "        \"cat1_rps2\": {\"en\":\"cat1_rps2_en_label\"}" + "      }" + "    }," + "    \"cat2\":" + "    {" +
+        "      \"label\": {\"en\": \"cat2_en_label\"}," + "      \"rps\":" + "      {" +
+        "        \"cat2_rps1\": {\"en\":\"cat2_rps1_en_label\"}" + "      }" + "    }" + "  " + "}");
+    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(any(), any(), any())).thenReturn(
+        Collections.singletonMap(attributeToCheck.getFriendlyNameParameter(), mockMfaCategories));
   }
 
   @Test
@@ -136,6 +97,35 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
   }
 
   @Test
+  public void testAttributeSyntaxEmpty() throws Exception {
+    System.out.println("testAttributeSyntaxEmpty()");
+    attributeToCheck.setValue("");
+
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
+
+  @Test
+  public void testAttributeSyntaxNotValidJSON() {
+    System.out.println("testAttributeSyntaxNotValidJSON()");
+    attributeToCheck.setValue("plain string");
+
+    try {
+      classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    } catch (WrongAttributeValueException e) {
+      assertEquals("Attribute value " + attributeToCheck.getValue() + " is not a valid JSON.",
+          errorWithoutId(e.getMessage()));
+    }
+  }
+
+  @Test
+  public void testAttributeSyntaxNull() throws Exception {
+    System.out.println("testAttributeSyntaxNull()");
+    attributeToCheck.setValue(null);
+
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
+
+  @Test
   public void testAttributeSyntaxWrongFormat() {
     System.out.println("testAttributeSyntaxWrongFormat()");
     attributeToCheck.setValue("{\"all\":true,\"include_categories\":[\"str1\",\"str2\"]}");
@@ -143,12 +133,10 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
     try {
       classInstance.checkAttributeSyntax(session, user, attributeToCheck);
     } catch (WrongAttributeValueException e) {
-      assertEquals(
-          "Attribute value {\"all\":true,\"include_categories\":[\"str1\",\"str2\"]} has incorrect format." +
-              " Allowed values are:" +
-              " empty string or null," +
-              " {\"all\":true}, {\"include_categories\":[\"str1\",\"str2\"]}," +
-              " {\"include_categories\":[\"str1\",\"str2\"],\"exclude_rps\":[\"rp1\",\"rp2\"]}",
+      assertEquals("Attribute value {\"all\":true,\"include_categories\":[\"str1\",\"str2\"]} has incorrect format." +
+                   " Allowed values are:" + " empty string or null," +
+                   " {\"all\":true}, {\"include_categories\":[\"str1\",\"str2\"]}," +
+                   " {\"include_categories\":[\"str1\",\"str2\"],\"exclude_rps\":[\"rp1\",\"rp2\"]}",
           errorWithoutId(e.getMessage()));
     }
   }
@@ -177,9 +165,5 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
     attributeToCheck.setValue("{\"include_categories\":[\"str1\",\"str2\"],\"exclude_rps\":[\"wrong_rps\",\"rp2\"]}");
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-  }
-
-  private String errorWithoutId(String msg) {
-    return msg.substring(msg.indexOf(":") + 1).trim();
   }
 }

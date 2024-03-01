@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static cz.metacentrum.perun.core.impl.Utils.EMAIL_PATTERN;
+import static cz.metacentrum.perun.core.impl.Utils.UCO_EMAIL_PATTERN;
+import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
+
 import com.google.common.collect.Lists;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -16,23 +20,16 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
-
-import static cz.metacentrum.perun.core.impl.Utils.emailPattern;
-import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
-import static cz.metacentrum.perun.core.impl.Utils.ucoEmailPattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Module for email addresses for Office365 at Masaryk University.
- * Implements checks for attribute urn:perun:group:attribute-def:def:o365EmailAddresses:o365mu.
+ * Module for email addresses for Office365 at Masaryk University. Implements checks for attribute
+ * urn:perun:group:attribute-def:def:o365EmailAddresses:o365mu.
  * <p>
  * Requirements:
  * <ul>
@@ -53,37 +50,8 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu extends
   static final String ADNAME_ATTRIBUTE = AttributesManager.NS_GROUP_ATTR_DEF + ":adName:o365mu";
   static final String USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE =
       AttributesManager.NS_USER_ATTR_DEF + ":o365UserEmailAddresses:mu";
-  private final static Logger log =
+  private static final Logger LOG =
       LoggerFactory.getLogger(urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu.class);
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
-      throws WrongAttributeValueException {
-    log.trace("checkAttributeSyntax(group={},attribute={})", group, attribute);
-    List<String> emails = attribute.valueAsList();
-
-    if (emails == null) {
-      return;
-    }
-
-    //check syntax of all values
-    for (String email : emails) {
-      Matcher emailMatcher = emailPattern.matcher(email);
-      if (!emailMatcher.matches()) {
-        throw new WrongAttributeValueException(attribute, group, "Email " + email + " is not in correct form.");
-      }
-      Matcher ucoEmailMatcher = ucoEmailPattern.matcher(email);
-      if (ucoEmailMatcher.matches()) {
-        throw new WrongAttributeValueException(attribute, group,
-            "Email " + email + " is based on UCO which is not supported.");
-      }
-    }
-
-    //check for duplicities
-    if (hasDuplicate(emails)) {
-      throw new WrongAttributeValueException(attribute, group, "duplicate values");
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
@@ -124,8 +92,37 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu extends
       }
     } catch (AttributeNotExistsException ex) {
       //If attribute not exists, we can log it and skip it, because there are no duplicates in not existing attributes
-      log.debug("Attribute {} not exists to check duplicities in it while checkAttributeSemantics for {}.",
+      LOG.debug("Attribute {} not exists to check duplicities in it while checkAttributeSemantics for {}.",
           USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE, attribute);
+    }
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    LOG.trace("checkAttributeSyntax(group={},attribute={})", group, attribute);
+    List<String> emails = attribute.valueAsList();
+
+    if (emails == null) {
+      return;
+    }
+
+    //check syntax of all values
+    for (String email : emails) {
+      Matcher emailMatcher = EMAIL_PATTERN.matcher(email);
+      if (!emailMatcher.matches()) {
+        throw new WrongAttributeValueException(attribute, group, "Email " + email + " is not in correct form.");
+      }
+      Matcher ucoEmailMatcher = UCO_EMAIL_PATTERN.matcher(email);
+      if (ucoEmailMatcher.matches()) {
+        throw new WrongAttributeValueException(attribute, group,
+            "Email " + email + " is based on UCO which is not supported.");
+      }
+    }
+
+    //check for duplicities
+    if (hasDuplicate(emails)) {
+      throw new WrongAttributeValueException(attribute, group, "duplicate values");
     }
   }
 
@@ -152,14 +149,6 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu extends
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(ADNAME_ATTRIBUTE);
-    dependencies.add(USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE);
-    return dependencies;
-  }
-
-  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
@@ -169,5 +158,13 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu extends
     attr.setUnique(true);
     attr.setDescription("Email address for Office365 at Masaryk University in o365mu namespace");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(ADNAME_ATTRIBUTE);
+    dependencies.add(USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE);
+    return dependencies;
   }
 }

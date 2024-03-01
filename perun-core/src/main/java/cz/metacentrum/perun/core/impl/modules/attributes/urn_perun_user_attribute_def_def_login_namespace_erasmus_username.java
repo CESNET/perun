@@ -13,11 +13,11 @@ public class urn_perun_user_attribute_def_def_login_namespace_erasmus_username
     extends urn_perun_user_attribute_def_def_login_namespace {
 
   /**
-   * Filling implemented for:
-   * - namespaces configured in /etc/perun/perun.properties as property: "perun.loginNamespace.generated"
+   * Filling implemented for: - namespaces configured in /etc/perun/perun.properties as property:
+   * "perun.loginNamespace.generated"
    * <p>
-   * Resulting format/rules:
-   * - "firstName-lastName[number]" where number is opt and start with 1 when same login is already present.
+   * Resulting format/rules: - "firstName-lastName[number]" where number is opt and start with 1 when same login is
+   * already present.
    *
    * @param perunSession PerunSession
    * @param user         User to fill attribute for
@@ -68,10 +68,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_erasmus_username
   }
 
   /**
-   * Generates login base from users' first and last name.
-   * When the result is longer then 16 chars, it is cut to 16 chars.
-   * Only first part of "firstName" and last part of "lastName" is taken.
-   * All accented chars are unaccented and all non (a-z,A-Z) chars are removed from name and value is lowered.
+   * Generates login base from users' first and last name. When the result is longer then 16 chars, it is cut to 16
+   * chars. Only first part of "firstName" and last part of "lastName" is taken. All accented chars are unaccented and
+   * all non (a-z,A-Z) chars are removed from name and value is lowered.
    *
    * @param user for which the login base is generated
    * @return String in form of firstname_lastname or erasmus-user if some info is missing

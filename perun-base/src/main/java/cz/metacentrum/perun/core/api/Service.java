@@ -36,116 +36,6 @@ public class Service extends Auditable implements Comparable<PerunBean> {
     this.name = name;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public int getDelay() {
-    return delay;
-  }
-
-  public void setDelay(int delay) {
-    this.delay = delay;
-  }
-
-  public int getRecurrence() {
-    return recurrence;
-  }
-
-  public void setRecurrence(int recurrence) {
-    this.recurrence = recurrence;
-  }
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public String getScript() {
-    return script;
-  }
-
-  public void setScript(String script) {
-    this.script = script;
-  }
-
-  public boolean isUseExpiredMembers() {
-    return useExpiredMembers;
-  }
-
-  public void setUseExpiredMembers(boolean useExpiredUsers) {
-    this.useExpiredMembers = useExpiredUsers;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + getId();
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    Service other = (Service) obj;
-    if (getId() != other.getId()) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
-            ", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription()))
-        .append(">").append(
-            ", delay=<").append(this.getDelay()).append(">").append(
-            ", recurrence=<").append(this.getRecurrence()).append(">").append(
-            ", enabled=<").append(this.isEnabled()).append(">").append(
-            ", script=<").append(getScript() == null ? "\\0" : BeansUtils.createEscaping(getScript())).append(">")
-        .append(
-            ", useExpiredMembers=<").append(isUseExpiredMembers()).append(">").append(
-            ']').toString();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', name='").append(name)
-        .append("', description='").append(getDescription()).append("', delay='").append(getDelay())
-        .append("', recurrence='").append(getRecurrence()).append("', enabled='").append(isEnabled())
-        .append("', script='").append(getScript()).append("', useExpiredMembers='").append(isUseExpiredMembers())
-        .append("']").toString();
-  }
-
   @Override
   public int compareTo(PerunBean perunBean) {
     if (perunBean == null) {
@@ -166,5 +56,111 @@ public class Service extends Auditable implements Comparable<PerunBean> {
     } else {
       return (this.getId() - perunBean.getId());
     }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    Service other = (Service) obj;
+    if (getId() != other.getId()) {
+      return false;
+    }
+    return true;
+  }
+
+  public int getDelay() {
+    return delay;
+  }
+
+  public void setDelay(int delay) {
+    this.delay = delay;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public int getRecurrence() {
+    return recurrence;
+  }
+
+  public void setRecurrence(int recurrence) {
+    this.recurrence = recurrence;
+  }
+
+  public String getScript() {
+    return script;
+  }
+
+  public void setScript(String script) {
+    this.script = script;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + getId();
+    return result;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  public boolean isUseExpiredMembers() {
+    return useExpiredMembers;
+  }
+
+  public void setUseExpiredMembers(boolean useExpiredUsers) {
+    this.useExpiredMembers = useExpiredUsers;
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">")
+        .append(", description=<")
+        .append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">")
+        .append(", delay=<").append(this.getDelay()).append(">").append(", recurrence=<").append(this.getRecurrence())
+        .append(">").append(", enabled=<").append(this.isEnabled()).append(">").append(", script=<")
+        .append(getScript() == null ? "\\0" : BeansUtils.createEscaping(getScript())).append(">")
+        .append(", useExpiredMembers=<").append(isUseExpiredMembers()).append(">").append(']').toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', name='").append(name)
+        .append("', description='").append(getDescription()).append("', delay='").append(getDelay())
+        .append("', recurrence='").append(getRecurrence()).append("', enabled='").append(isEnabled())
+        .append("', script='").append(getScript()).append("', useExpiredMembers='").append(isUseExpiredMembers())
+        .append("']").toString();
   }
 }

@@ -13,7 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException(
           "Namespace from value of " + namespaceAttribute + " doesn't exists. (Resource attribute " +
-              AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespaceName + " doesn't exists", ex);
+          AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespaceName + " doesn't exists", ex);
     }
 
     resourceGidAttribute.setValue(attribute.getValue());
@@ -104,14 +103,6 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
-    dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
-    return dependencies;
-  }
-
-  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
@@ -119,5 +110,13 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
     attr.setType(Integer.class.getName());
     attr.setDescription("Generated primary unix gid which is used if user doesn't have other preferences.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+    dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
+    return dependencies;
   }
 }

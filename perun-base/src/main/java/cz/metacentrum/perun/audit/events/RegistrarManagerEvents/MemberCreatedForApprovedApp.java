@@ -21,12 +21,12 @@ public class MemberCreatedForApprovedApp extends AuditEvent implements EngineIgn
     this.message = formatMessage("%s created for approved %s.", member, app);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public Application getApp() {
     return app;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
   @Override

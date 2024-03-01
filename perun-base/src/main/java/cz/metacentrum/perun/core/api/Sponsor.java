@@ -6,9 +6,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Class representing a Sponsor for some specific member. This object contains information
- * about the validity of this sponsorship for the specific member. It also contains additional
- * information about the sponsor so it can be obtained in one API call.
+ * Class representing a Sponsor for some specific member. This object contains information about the validity of this
+ * sponsorship for the specific member. It also contains additional information about the sponsor so it can be obtained
+ * in one API call.
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
@@ -30,42 +30,6 @@ public class Sponsor {
     this.userExtSources = user.getUserExtSources();
   }
 
-  public LocalDate getValidityTo() {
-    return validityTo;
-  }
-
-  public void setValidityTo(LocalDate validityTo) {
-    this.validityTo = validityTo;
-  }
-
-  public boolean isActive() {
-    return active;
-  }
-
-  public void setActive(boolean active) {
-    this.active = active;
-  }
-
-  public List<UserExtSource> getUserExtSources() {
-    return userExtSources;
-  }
-
-  public void setUserExtSources(List<UserExtSource> userExtSources) {
-    this.userExtSources = userExtSources;
-  }
-
-  public List<Attribute> getUserAttributes() {
-    return userAttributes;
-  }
-
-  public void setUserAttributes(List<Attribute> userAttributes) {
-    this.userAttributes = userAttributes;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -80,19 +44,50 @@ public class Sponsor {
     return user != null ? user.equals(sponsor.user) : sponsor.user == null;
   }
 
+  public User getUser() {
+    return user;
+  }
+
+  public List<Attribute> getUserAttributes() {
+    return userAttributes;
+  }
+
+  public void setUserAttributes(List<Attribute> userAttributes) {
+    this.userAttributes = userAttributes;
+  }
+
+  public List<UserExtSource> getUserExtSources() {
+    return userExtSources;
+  }
+
+  public void setUserExtSources(List<UserExtSource> userExtSources) {
+    this.userExtSources = userExtSources;
+  }
+
+  public LocalDate getValidityTo() {
+    return validityTo;
+  }
+
+  public void setValidityTo(LocalDate validityTo) {
+    this.validityTo = validityTo;
+  }
+
   @Override
   public int hashCode() {
     return user != null ? user.hashCode() : 0;
   }
 
+  public boolean isActive() {
+    return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
+  }
+
   @Override
   public String toString() {
-    return "Sponsor[" +
-        "user=" + user +
-        ", validityTo=" + validityTo +
-        ", active=" + active +
-        ", userExtSources=" + userExtSources +
-        ", userAttributes=" + userAttributes +
-        ']';
+    return "Sponsor[" + "user=" + user + ", validityTo=" + validityTo + ", active=" + active + ", userExtSources=" +
+           userExtSources + ", userAttributes=" + userAttributes + ']';
   }
 }

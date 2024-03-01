@@ -28,7 +28,7 @@ import org.springframework.web.client.RestClientException;
 @SpringBootApplication
 public class PerunCLI implements CommandLineRunner {
 
-  private static final Logger log = LoggerFactory.getLogger(PerunCLI.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PerunCLI.class);
 
   private static final String PERUN_URL_OPTION = "U";
   private static final String PERUN_URL_VARIABLE = "PERUN_URL";
@@ -138,12 +138,12 @@ public class PerunCLI implements CommandLineRunner {
   @Override
   public void run(String... args) throws Exception {
     //find all classes implementing commands and put them into the "commands" variable
-    log.debug("finding available commands...");
+    LOG.debug("finding available commands...");
     Reflections reflections = new Reflections("cz.metacentrum.perun.cli.commands");
     List<Class<? extends PerunCommand>> classes = new ArrayList<>(reflections.getSubTypesOf(PerunCommand.class));
     List<PerunCommand> commands = new ArrayList<>(classes.size());
-    for (Class<? extends PerunCommand> aClass : classes) {
-      commands.add(aClass.getDeclaredConstructor().newInstance());
+    for (Class<? extends PerunCommand> currClass : classes) {
+      commands.add(currClass.getDeclaredConstructor().newInstance());
     }
     commands.sort(Comparator.comparing(PerunCommand::getName));
 

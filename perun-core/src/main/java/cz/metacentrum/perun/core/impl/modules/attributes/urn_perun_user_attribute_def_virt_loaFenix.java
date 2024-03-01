@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * All loaFenix values collected from UserExtSources attributes are collected
- * and the lowest value is then returned as the result.
+ * All loaFenix values collected from UserExtSources attributes are collected and the lowest value is then returned as
+ * the result.
  *
  * @author Petr Vsetecka <vsetecka@cesnet.cz>
  */
@@ -24,22 +24,13 @@ public class urn_perun_user_attribute_def_virt_loaFenix extends UserVirtualAttri
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Override
-  public String getSourceAttributeFriendlyName() {
-    return "loaFenix";
-  }
-
-  @Override
-  public String getDestinationAttributeFriendlyName() {
-    return "loaFenix";
-  }
-
-  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user,
                                      AttributeDefinition destinationAttributeDefinition) {
     Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
 
     // get already filled value obtained from UserExtSources
-    // IMPORTANT: value get from super method is type of ArrayList (destination attribute has String type), this situation is known and resolved below in code
+    // IMPORTANT: value get from super method is type of ArrayList (destination attribute has String type), this
+    // situation is known and resolved below in code
     Attribute attribute = super.getAttributeValue(sess, user, destinationAttributeDefinition);
 
     if (attribute.valueAsList().isEmpty()) {
@@ -57,6 +48,16 @@ public class urn_perun_user_attribute_def_virt_loaFenix extends UserVirtualAttri
     // use the first element as it will be lowest number (highest Fenix value)
     destinationAttribute.setValue(valueList.get(0));
     return destinationAttribute;
+  }
+
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "loaFenix";
+  }
+
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "loaFenix";
   }
 
 }

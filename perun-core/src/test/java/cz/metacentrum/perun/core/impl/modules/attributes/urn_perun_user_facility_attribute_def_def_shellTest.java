@@ -1,5 +1,13 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -8,18 +16,9 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Set of tests for class urn_perun_user_facility_attribute_def_def_shell
@@ -65,8 +64,8 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
   }
 
   /**
-   * Test of checkAttributeSemantics method, of class urn_perun_user_facility_attribute_def_def_shell.
-   * with all parameters properly set.
+   * Test of checkAttributeSemantics method, of class urn_perun_user_facility_attribute_def_def_shell. with all
+   * parameters properly set.
    */
   @Test
   public void testCheckAttributeSemantics() throws Exception {
@@ -109,8 +108,8 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
   }
 
   /**
-   * Test of checkAttributeSemantics method, of class urn_perun_user_facility_attribute_def_def_shell.
-   * with empty attribute.
+   * Test of checkAttributeSemantics method, of class urn_perun_user_facility_attribute_def_def_shell. with empty
+   * attribute.
    */
   public void testCheckAttributeSemanticsWithEmptyAttribute() throws Exception {
     System.out.println("testCheckAttributeSemanticsWithEmptyAttribute()");
@@ -131,8 +130,8 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
   }
 
   /**
-   * Test of checkAttributeSemantics method, of class urn_perun_user_facility_attribute_def_def_shell.
-   * with shell containing forbiden character.
+   * Test of checkAttributeSemantics method, of class urn_perun_user_facility_attribute_def_def_shell. with shell
+   * containing forbiden character.
    */
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void testCheckAttributeSemanticsWrongShellFormat() throws Exception {

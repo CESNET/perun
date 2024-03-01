@@ -64,44 +64,41 @@ public class Member extends Auditable {
     sourceGroupId = null;
   }
 
-  public int getUserId() {
-    return userId;
-  }
-
-  public void setUserId(int userId) {
-    this.userId = userId;
-  }
-
-  public Status getStatus() {
-    return this.status;
-  }
-
-  public void setStatus(Status status) {
-    this.status = status;
-  }
-
-  public void setStatus(String status) {
-    if (status == null) {
-      this.status = null;
-    } else {
-      this.status = Status.valueOf(status);
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof Member)) {
+      return false;
+    }
+    Member other = (Member) obj;
+    return getId() == other.getId();
   }
 
-  public Integer getSourceGroupId() {
-    return sourceGroupId;
+  /**
+   * Returns group status of member for given context.
+   * <p>
+   * This value is used to calculate member's group status for groups that are relevant to given context. E.g.: If this
+   * member is returned from call ResourceManager.getAllowedMembers(), this status returns member's total group status
+   * calculated from groups that can access this resource and contains this member.
+   *
+   * @return memberGroup status for context relevant groups.
+   */
+  public MemberGroupStatus getGroupStatus() {
+    if (groupsStatuses.containsValue(MemberGroupStatus.EXPIRED) &&
+        !groupsStatuses.containsValue(MemberGroupStatus.VALID)) {
+      return MemberGroupStatus.EXPIRED;
+    }
+
+    return MemberGroupStatus.VALID;
   }
 
-  public void setSourceGroupId(Integer sourceGroupId) {
-    this.sourceGroupId = sourceGroupId;
-  }
-
-  public int getVoId() {
-    return voId;
-  }
-
-  public void setVoId(int voId) {
-    this.voId = voId;
+  public Map<Integer, MemberGroupStatus> getGroupStatuses() {
+    return Collections.unmodifiableMap(groupsStatuses);
   }
 
   public MembershipType getMembershipType() {
@@ -120,6 +117,55 @@ public class Member extends Auditable {
     }
   }
 
+  public Integer getSourceGroupId() {
+    return sourceGroupId;
+  }
+
+  public void setSourceGroupId(Integer sourceGroupId) {
+    this.sourceGroupId = sourceGroupId;
+  }
+
+  public Status getStatus() {
+    return this.status;
+  }
+
+  public void setStatus(Status status) {
+    this.status = status;
+  }
+
+  public void setStatus(String status) {
+    if (status == null) {
+      this.status = null;
+    } else {
+      this.status = Status.valueOf(status);
+    }
+  }
+
+  public int getUserId() {
+    return userId;
+  }
+
+  public void setUserId(int userId) {
+    this.userId = userId;
+  }
+
+  public int getVoId() {
+    return voId;
+  }
+
+  public void setVoId(int voId) {
+    this.voId = voId;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + getId();
+    result = prime * result;
+    return result;
+  }
+
   public boolean isSponsored() {
     return sponsored;
   }
@@ -129,8 +175,7 @@ public class Member extends Auditable {
   }
 
   /**
-   * Adds member's status for given group. If member already had a VALID status
-   * for given group, nothing is changed.
+   * Adds member's status for given group. If member already had a VALID status for given group, nothing is changed.
    *
    * @param groupId group ID
    * @param status  member's status for given group
@@ -144,39 +189,9 @@ public class Member extends Auditable {
     groupsStatuses.put(groupId, status);
   }
 
-  public Map<Integer, MemberGroupStatus> getGroupStatuses() {
-    return Collections.unmodifiableMap(groupsStatuses);
-  }
-
   /**
-   * Returns group status of member for given context.
-   * <p>
-   * This value is used to calculate member's group status for groups
-   * that are relevant to given context. E.g.: If this member is returned from call
-   * ResourceManager.getAllowedMembers(), this status returns member's total group status
-   * calculated from groups that can access this resource and contains this member.
-   *
-   * @return memberGroup status for context relevant groups.
-   */
-  public MemberGroupStatus getGroupStatus() {
-    if (groupsStatuses.containsValue(MemberGroupStatus.EXPIRED) &&
-        !groupsStatuses.containsValue(MemberGroupStatus.VALID)) {
-      return MemberGroupStatus.EXPIRED;
-    }
-
-    return MemberGroupStatus.VALID;
-  }
-
-  protected void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses) {
-    if (groupsStatuses == null) {
-      throw new IllegalArgumentException("Group statuses cannot be null.");
-    }
-    this.groupsStatuses = new HashMap<>(groupsStatuses);
-  }
-
-  /**
-   * Adds member's statuses for given group. If member already had a VALID status
-   * for any of given groups, then nothing is changed for the group.
+   * Adds member's statuses for given group. If member already had a VALID status for any of given groups, then nothing
+   * is changed for the group.
    *
    * @param groupStatuses map containing group's IDs and member statuses
    */
@@ -190,52 +205,25 @@ public class Member extends Auditable {
   }
 
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + getId();
-    result = prime * result;
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (!(obj instanceof Member)) {
-      return false;
-    }
-    Member other = (Member) obj;
-    return getId() == other.getId();
-  }
-
-  @Override
   public String serializeToString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id=<" + getId() + ">" +
-        ", userId=<" + getUserId() + ">" +
-        ", voId=<" + getVoId() + ">" +
-        ", status=<" + (getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())) + ">" +
-        ", type=<" + (getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) +
-        ">" +
-        ", sourceGroupId=<" + (getSourceGroupId() == null ? "\\0" : getSourceGroupId().toString()) + ">" +
-        ", sponsored=<" + sponsored + ">" +
-        ']';
+    return this.getClass().getSimpleName() + ":[" + "id=<" + getId() + ">" + ", userId=<" + getUserId() + ">" +
+           ", voId=<" + getVoId() + ">" + ", status=<" +
+           (getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())) + ">" + ", type=<" +
+           (getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
+           ", sourceGroupId=<" + (getSourceGroupId() == null ? "\\0" : getSourceGroupId().toString()) + ">" +
+           ", sponsored=<" + sponsored + ">" + ']';
+  }
+
+  protected void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses) {
+    if (groupsStatuses == null) {
+      throw new IllegalArgumentException("Group statuses cannot be null.");
+    }
+    this.groupsStatuses = new HashMap<>(groupsStatuses);
   }
 
   @Override
   public String toString() {
-    return "Member:[id='" + getId() +
-        "', userId='" + userId +
-        "', voId='" + voId +
-        "', status='" + status +
-        "', type='" + membershipType +
-        "', sourceGroupId='" + sourceGroupId +
-        "', sponsored='" + sponsored +
-        "']";
+    return "Member:[id='" + getId() + "', userId='" + userId + "', voId='" + voId + "', status='" + status +
+           "', type='" + membershipType + "', sourceGroupId='" + sourceGroupId + "', sponsored='" + sponsored + "']";
   }
 }

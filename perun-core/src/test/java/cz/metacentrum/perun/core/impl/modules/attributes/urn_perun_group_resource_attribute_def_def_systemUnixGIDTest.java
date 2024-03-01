@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -9,14 +13,9 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_group_resource_attribute_def_def_systemUnixGIDTest {
 
@@ -52,12 +51,14 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGIDTest {
         AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGroupName")).thenReturn(reqAttribute2);
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongValue() throws Exception {
-    System.out.println("testWrongValue()");
-    attributeToCheck.setValue(0);
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue(1);
+    reqAttribute.setValue("same_name");
+    reqAttribute2.setValue("same_name");
 
-    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
+    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
   @Test
@@ -66,15 +67,6 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGIDTest {
     attributeToCheck.setValue(1);
 
     classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testSemanticsNullValueWithUnixGroup() throws Exception {
-    System.out.println("testSemanticsNullValueWithUnixGroup()");
-    attributeToCheck.setValue(null);
-    reqAttribute.setValue(1);
-
-    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
@@ -87,13 +79,20 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGIDTest {
     classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue(1);
-    reqAttribute.setValue("same_name");
-    reqAttribute2.setValue("same_name");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testSemanticsNullValueWithUnixGroup() throws Exception {
+    System.out.println("testSemanticsNullValueWithUnixGroup()");
+    attributeToCheck.setValue(null);
+    reqAttribute.setValue(1);
 
     classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongValue() throws Exception {
+    System.out.println("testWrongValue()");
+    attributeToCheck.setValue(0);
+
+    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
   }
 }

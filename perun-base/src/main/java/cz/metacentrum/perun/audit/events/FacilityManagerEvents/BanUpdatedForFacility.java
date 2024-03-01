@@ -26,10 +26,6 @@ public class BanUpdatedForFacility extends AuditEvent {
     return banOnFacility;
   }
 
-  public int getUserId() {
-    return userId;
-  }
-
   public int getFacilityId() {
     return facilityId;
   }
@@ -37,6 +33,10 @@ public class BanUpdatedForFacility extends AuditEvent {
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public int getUserId() {
+    return userId;
   }
 
   @Override

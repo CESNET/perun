@@ -23,12 +23,12 @@ public class MemberExpiredInGroup extends AuditEvent {
     this.message = formatMessage("%s in %s expired.", member, group);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public Group getGroup() {
     return group;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
   @Override

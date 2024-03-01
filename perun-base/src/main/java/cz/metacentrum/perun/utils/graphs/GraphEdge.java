@@ -16,6 +16,19 @@ public class GraphEdge {
     this.type = type;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GraphEdge edge = (GraphEdge) o;
+    return Objects.equals(sourceNode, edge.sourceNode) && Objects.equals(targetNode, edge.targetNode) &&
+           type == edge.type;
+  }
+
   public Node getSourceNode() {
     return sourceNode;
   }
@@ -41,28 +54,13 @@ public class GraphEdge {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    GraphEdge edge = (GraphEdge) o;
-    return Objects.equals(sourceNode, edge.sourceNode) &&
-        Objects.equals(targetNode, edge.targetNode) &&
-        type == edge.type;
-  }
-
-  @Override
   public int hashCode() {
 
     return Objects.hash(sourceNode, targetNode, type);
   }
 
   public enum Type {
-    DASHED("dashed"),
-    BOLD("bold");
+    DASHED("dashed"), BOLD("bold");
 
     private String style;
 

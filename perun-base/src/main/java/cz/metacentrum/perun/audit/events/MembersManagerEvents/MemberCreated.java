@@ -17,13 +17,13 @@ public class MemberCreated extends AuditEvent {
     this.message = formatMessage("%s created.", member);
   }
 
+  public Member getMember() {
+    return member;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   @Override

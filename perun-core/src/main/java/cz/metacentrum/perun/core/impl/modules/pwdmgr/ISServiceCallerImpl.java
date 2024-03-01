@@ -39,8 +39,8 @@ import org.xml.sax.SAXParseException;
  */
 public class ISServiceCallerImpl implements ISServiceCaller {
 
-  private final static Logger log = LoggerFactory.getLogger(ISServiceCallerImpl.class);
-  private final static String CRLF = "\r\n"; // Line separator required by multipart/form-data.
+  private static final Logger LOG = LoggerFactory.getLogger(ISServiceCallerImpl.class);
+  private static final String CRLF = "\r\n"; // Line separator required by multipart/form-data.
 
   private static volatile ISServiceCallerImpl instance;
 
@@ -52,8 +52,8 @@ public class ISServiceCallerImpl implements ISServiceCaller {
   }
 
   /**
-   * Based on tests from: http://stackoverflow.com/questions/309424/read-convert-an-inputstream-to-a-string
-   * Most quicker and native InputStream reading method.
+   * Based on tests from: http://stackoverflow.com/questions/309424/read-convert-an-inputstream-to-a-string Most quicker
+   * and native InputStream reading method.
    *
    * @param inputStream Input stream to convert
    * @param encoding    encoding used to parse input stream
@@ -119,12 +119,10 @@ public class ISServiceCallerImpl implements ISServiceCaller {
     //set request header if is required (set in extSource xml)
     con.setDoOutput(true);
     con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-    log.trace("[IS Request {}] Content-Type: multipart/form-data; boundary={}", requestId, boundary);
+    LOG.trace("[IS Request {}] Content-Type: multipart/form-data; boundary={}", requestId, boundary);
 
-    try (
-        OutputStream output = con.getOutputStream();
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true)
-    ) {
+    try (OutputStream output = con.getOutputStream();
+         PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true)) {
       // Send param about return
       writer.append("--" + boundary).append(CRLF);
       logBuilder.append("--" + boundary).append(CRLF);
@@ -154,7 +152,7 @@ public class ISServiceCallerImpl implements ISServiceCaller {
       writer.append("--" + boundary + "--").append(CRLF).flush();
       logBuilder.append("--" + boundary + "--").append(CRLF);
 
-      log.trace("[IS Request {}] {}", requestId, logBuilder.toString());
+      LOG.trace("[IS Request {}] {}", requestId, logBuilder.toString());
 
     }
 
@@ -167,16 +165,16 @@ public class ISServiceCallerImpl implements ISServiceCaller {
       try {
         response = convertStreamToString(con.getErrorStream(), StandardCharsets.UTF_8);
       } catch (IOException ex) {
-        log.error("Unable to convert InputStream to String.", ex);
+        LOG.error("Unable to convert InputStream to String.", ex);
       }
 
-      log.trace("[IS Request {}] Response: {}", requestId, response);
+      LOG.trace("[IS Request {}] Response: {}", requestId, response);
 
     }
 
     throw new InternalErrorException(
         "Wrong response code while opening connection on uri '" + uri + "'. Response code: " + responseCode +
-            ". Request ID: " + requestId);
+        ". Request ID: " + requestId);
   }
 
   /**
@@ -205,8 +203,8 @@ public class ISServiceCallerImpl implements ISServiceCaller {
       throw new IllegalArgumentException("Unable to convert InputStream to String.", ex);
     }
 
-    log.trace("[IS Request {}] Response: {}", requestID, response);
-    log.debug("[IS Request {}] Processing response from IS MU.", requestID);
+    LOG.trace("[IS Request {}] Response: {}", requestID, response);
+    LOG.debug("[IS Request {}] Processing response from IS MU.", requestID);
 
     Document doc;
     try {
@@ -222,8 +220,8 @@ public class ISServiceCallerImpl implements ISServiceCaller {
     }
 
     //Prepare xpath expression
-    XPathFactory xPathfactory = XPathFactory.newInstance();
-    XPath xpath = xPathfactory.newXPath();
+    XPathFactory xpathfactory = XPathFactory.newInstance();
+    XPath xpath = xpathfactory.newXPath();
     XPathExpression isErrorExpr;
     XPathExpression getErrorTextExpr;
     XPathExpression getDbErrorTextExpr;
@@ -244,8 +242,8 @@ public class ISServiceCallerImpl implements ISServiceCaller {
           "Error when evaluate xpath query on document to resolve response status. Request ID: " + requestID, ex);
     }
 
-    log.trace("[IS Request {}] Response of request from IS MU has status: {}", requestID, responseStatus);
-    log.debug("[IS Request {}] Response of request from IS MU has status: {}", requestID, responseStatus);
+    LOG.trace("[IS Request {}] Response of request from IS MU has status: {}", requestID, responseStatus);
+    LOG.debug("[IS Request {}] Response of request from IS MU has status: {}", requestID, responseStatus);
 
     ISResponseData responseData = new ISResponseData();
     responseData.setStatus(responseStatus);

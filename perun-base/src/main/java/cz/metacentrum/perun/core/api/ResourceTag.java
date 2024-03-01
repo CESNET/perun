@@ -23,54 +23,6 @@ public class ResourceTag extends Auditable {
     this.voId = voId;
   }
 
-  public String getTagName() {
-    return tagName;
-  }
-
-  public void setTagName(String tagName) {
-    this.tagName = tagName;
-  }
-
-  public int getVoId() {
-    return voId;
-  }
-
-  public void setVoId(int voId) {
-    this.voId = voId;
-  }
-
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", tagName=<").append(getTagName() == null ? "\\0" : BeansUtils.createEscaping(getTagName())).append(">")
-        .append(
-            ", voId=<").append(getVoId()).append(">").append(
-            ']').toString();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-        "id='").append(getId()).append('\'').append(
-        ", tagName='").append(tagName).append('\'').append(
-        ", voId='").append(voId).append('\'').append(
-        ']').toString();
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = 53 * hash + this.getId();
-    hash = 53 * hash + (this.getTagName() != null ? this.tagName.hashCode() : 0);
-    hash = 53 * hash + this.voId;
-    return hash;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -90,5 +42,48 @@ public class ResourceTag extends Auditable {
       return false;
     }
     return true;
+  }
+
+  public String getTagName() {
+    return tagName;
+  }
+
+  public void setTagName(String tagName) {
+    this.tagName = tagName;
+  }
+
+  public int getVoId() {
+    return voId;
+  }
+
+  public void setVoId(int voId) {
+    this.voId = voId;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 53 * hash + this.getId();
+    hash = 53 * hash + (this.getTagName() != null ? this.tagName.hashCode() : 0);
+    hash = 53 * hash + this.voId;
+    return hash;
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", tagName=<").append(getTagName() == null ? "\\0" : BeansUtils.createEscaping(getTagName()))
+        .append(">").append(", voId=<").append(getVoId()).append(">").append(']').toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id='").append(getId()).append('\'')
+        .append(", tagName='").append(tagName).append('\'').append(", voId='").append(voId).append('\'').append(']')
+        .toString();
   }
 }

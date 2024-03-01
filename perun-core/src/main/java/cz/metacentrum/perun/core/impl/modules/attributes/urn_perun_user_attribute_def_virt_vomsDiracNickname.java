@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +26,17 @@ public class urn_perun_user_attribute_def_virt_vomsDiracNickname extends UserVir
 
   private static final String A_U_D_loginNamespace_egiUi =
       AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:egi-ui";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("vomsDiracNickname");
+    attr.setDisplayName("Voms Nickname for DIRAC");
+    attr.setType(String.class.getName());
+    attr.setDescription("It is login in egi-ui or empty if login not exists.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
@@ -48,16 +58,5 @@ public class urn_perun_user_attribute_def_virt_vomsDiracNickname extends UserVir
   @Override
   public List<String> getStrongDependencies() {
     return Collections.singletonList(A_U_D_loginNamespace_egiUi);
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("vomsDiracNickname");
-    attr.setDisplayName("Voms Nickname for DIRAC");
-    attr.setType(String.class.getName());
-    attr.setDescription("It is login in egi-ui or empty if login not exists.");
-    return attr;
   }
 }

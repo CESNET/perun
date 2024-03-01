@@ -36,6 +36,13 @@ public class RichApplication extends Application {
     this.formData.add(form);
   }
 
+  public void addData(ApplicationFormItemData data) {
+    if (data == null) {
+      throw new NullPointerException("Application form data cannot be null");
+    }
+    this.formData.add(data);
+  }
+
   public List<ApplicationFormItemData> getFormData() {
     return formData;
   }
@@ -44,32 +51,15 @@ public class RichApplication extends Application {
     this.formData = formData;
   }
 
-  public void addData(ApplicationFormItemData data) {
-    if (data == null) {
-      throw new NullPointerException("Application form data cannot be null");
-    }
-    this.formData.add(data);
-  }
-
   @Override
   public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id='" + getId() + '\'' +
-        ", vo='" + getVo() + '\'' +
-        ", group='" + getGroup() + '\'' +
-        ", fedInfo='" + getFedInfo() + '\'' +
-        ", type='" + getType().toString() + '\'' +
-        ", state='" + getState().toString() + '\'' +
-        ", extSourceName='" + getExtSourceName() + '\'' +
-        ", extSourceType='" + getExtSourceType() + '\'' +
-        ", extSourceLoa='" + getExtSourceLoa() + '\'' +
-        ", user='" + getUser() + '\'' +
-        ", created_at='" + getCreatedAt() + '\'' +
-        ", created_by='" + getCreatedBy() + '\'' +
-        ", modified_at='" + getModifiedAt() + '\'' +
-        ", modified_by='" + getModifiedBy() + '\'' +
-        ", formData='" + getFormData() + '\'' +
-        ']';
+    return this.getClass().getSimpleName() + ":[" + "id='" + getId() + '\'' + ", vo='" + getVo() + '\'' + ", group='" +
+           getGroup() + '\'' + ", fedInfo='" + getFedInfo() + '\'' + ", type='" + getType().toString() + '\'' +
+           ", state='" + getState().toString() + '\'' + ", extSourceName='" + getExtSourceName() + '\'' +
+           ", extSourceType='" + getExtSourceType() + '\'' + ", extSourceLoa='" + getExtSourceLoa() + '\'' +
+           ", user='" + getUser() + '\'' + ", created_at='" + getCreatedAt() + '\'' + ", created_by='" +
+           getCreatedBy() + '\'' + ", modified_at='" + getModifiedAt() + '\'' + ", modified_by='" + getModifiedBy() +
+           '\'' + ", formData='" + getFormData() + '\'' + ']';
   }
 
 }

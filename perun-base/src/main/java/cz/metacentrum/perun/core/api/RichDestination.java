@@ -42,11 +42,12 @@ public class RichDestination extends Destination implements Comparable<PerunBean
     this.lastSuccessfulPropagation = lastSuccessfulPropagation;
   }
 
-	/*public RichDestination(User user, Member member, List<UserExtSource> userExtSources, List<Attribute> userAttributes, List<Attribute> memberAttributes) {
-		this(user, member, userExtSources);
-		this.userAttributes = userAttributes;
-		this.memberAttributes = memberAttributes;
-		}*/
+  /*public RichDestination(User user, Member member, List<UserExtSource> userExtSources, List<Attribute> userAttributes,
+                         List<Attribute> memberAttributes) {
+    this(user, member, userExtSources);
+    this.userAttributes = userAttributes;
+    this.memberAttributes = memberAttributes;
+  }*/
 
   public Facility getFacility() {
     return facility;
@@ -122,33 +123,23 @@ public class RichDestination extends Destination implements Comparable<PerunBean
   public String serializeToString() {
     StringBuilder str = new StringBuilder();
 
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", destination=<")
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", destination=<")
         .append(super.getDestination() == null ? "\\0" : BeansUtils.createEscaping(super.getDestination())).append(">")
-        .append(
-            ", type=<").append(super.getType() == null ? "\\0" : BeansUtils.createEscaping(super.getType())).append(">")
-        .append(
-            ", facility=<").append(getFacility() == null ? "\\0" : getFacility().serializeToString()).append(">")
-        .append(
-            ", service=<").append(getService() == null ? "\\0" : getService().serializeToString()).append(">").append(
-            ", blocked=<").append(isBlocked()).append(">").append(
-            ", lastSuccessfulPropagation=<").append(getLastSuccessfulPropagation()).append(">").append(
-            ']').toString();
+        .append(", type=<").append(super.getType() == null ? "\\0" : BeansUtils.createEscaping(super.getType()))
+        .append(">").append(", facility=<").append(getFacility() == null ? "\\0" : getFacility().serializeToString())
+        .append(">").append(", service=<").append(getService() == null ? "\\0" : getService().serializeToString())
+        .append(">").append(", blocked=<").append(isBlocked()).append(">").append(", lastSuccessfulPropagation=<")
+        .append(getLastSuccessfulPropagation()).append(">").append(']').toString();
   }
 
   @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
 
-    return str.append(getClass().getSimpleName()).append(":["
-    ).append("id='").append(getId()
-    ).append("', destination='").append(super.getDestination()
-    ).append("', type='").append(super.getType()
-    ).append("', facility='").append(getFacility()
-    ).append("', service='").append(getService()
-    ).append("', blocked='").append(isBlocked()
-    ).append("', lastSuccessfulPropagation='").append(getLastSuccessfulPropagation()
-    ).append("']").toString();
+    return str.append(getClass().getSimpleName()).append(":[").append("id='").append(getId()).append("', destination='")
+        .append(super.getDestination()).append("', type='").append(super.getType()).append("', facility='")
+        .append(getFacility()).append("', service='").append(getService()).append("', blocked='").append(isBlocked())
+        .append("', lastSuccessfulPropagation='").append(getLastSuccessfulPropagation()).append("']").toString();
   }
 }

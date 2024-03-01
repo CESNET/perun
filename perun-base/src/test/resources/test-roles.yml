@@ -1,6 +1,6 @@
 ---
 # A list of Perun roles that are loaded to the database
-perun_roles: []
+perun_roles: [ ]
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
 #
@@ -65,72 +65,72 @@ perun_policies:
   default_policy:
     policy_roles:
       - PERUNADMIN:
-    include_policies: []
+    include_policies: [ ]
 
   test_resourceselfservice:
     policy_roles:
       - RESOURCESELFSERVICE: Resource
         GROUPADMIN: Group
-    include_policies: []
+    include_policies: [ ]
 
   test_sponsor:
     policy_roles:
       - SPONSOR: Vo
-    include_policies: []
+    include_policies: [ ]
 
   test_cabinet:
     policy_roles:
       - CABINETADMIN:
-    include_policies: []
+    include_policies: [ ]
 
   test_audit:
     policy_roles:
       - AUDITCONSUMERADMIN
-    include_policies: []
+    include_policies: [ ]
 
   test_self:
     policy_roles:
       - SELF: User
-    include_policies: []
+    include_policies: [ ]
 
   test_voobserver_and_topgroupcreator:
     policy_roles:
       - VOOBSERVER: Vo
         TOPGROUPCREATOR:
-    include_policies: []
+    include_policies: [ ]
 
   test_security_admin:
     policy_roles:
       - SECURITYADMIN: SecurityTeam
-    include_policies: []
+    include_policies: [ ]
 
   test_group_or_vo:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
-    include_policies: []
+    include_policies: [ ]
 
   test_resource_admin:
     policy_roles:
       - RESOURCEADMIN: Resource
-    include_policies: []
+    include_policies: [ ]
 
   test_resource_and_facility_admin:
     policy_roles:
       - RESOURCEADMIN: Resource
         FACILITYADMIN: Facility
-    include_policies: []
+    include_policies: [ ]
 
   test_authorized_vo_admin:
     policy_roles:
       - VOADMIN: Vo
-    include_policies: []
+    include_policies: [ ]
 
   test_groupadmin_voadmin:
     policy_roles:
       - VOADMIN: Vo
         GROUPADMIN: Group
-    include_policies: []
+    include_policies: [ ]
 
   test_cycle_voadmin:
     policy_roles:
@@ -188,12 +188,12 @@ perun_policies:
   test_groupmembershipmanager:
     policy_roles:
       - GROUPMEMBERSHIPMANAGER: Group
-    include_policies: []
+    include_policies: [ ]
 
   test_spregapplication:
     policy_roles:
       - SPREGAPPLICATION:
-    include_policies: []
+    include_policies: [ ]
 
   test_passwordresetmanager:
     policy_roles:
@@ -203,7 +203,7 @@ perun_policies:
   test_proxy_role:
     policy_roles:
       - PROXY:
-    include_policies: []
+    include_policies: [ ]
 
   test_filter-getMembersPage_policy:
     policy_roles:
@@ -238,5 +238,5 @@ perun_policies:
     include_policies:
       - default_policy
 
-perun_roles_management: {}
+perun_roles_management: { }
 ...

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CoreConfig {
 
-  private final static Logger log = LoggerFactory.getLogger(CoreConfig.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CoreConfig.class);
 
   private Properties properties;
   private String defaultLoaIdP;
@@ -96,427 +96,11 @@ public class CoreConfig {
   private int idpLoginValidity;
   private List<String> idpLoginValidityExceptions;
   private int roleUpdateInterval;
-  private boolean forceHTMLSanitization;
+  private boolean forceHtmlSanitization;
   private List<String> externalProgramsDependencies;
   private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
   private Map<String, String> oidcIssuersExtsourceNames = new HashMap<>();
   private Map<String, String> oidcIssuersExtsourceTypes = new HashMap<>();
-
-  /**
-   * Stores this bean into static BeansUtils for backward compatibility. Called by init-method in perun-base.xml.
-   */
-  public void initBeansUtils() {
-    BeansUtils.setConfig(this);
-  }
-
-  public int getGroupMaxConcurentGroupsToSynchronize() {
-    return groupMaxConcurentGroupsToSynchronize;
-  }
-
-  public void setGroupMaxConcurentGroupsToSynchronize(int groupMaxConcurentGroupsToSynchronize) {
-    this.groupMaxConcurentGroupsToSynchronize = groupMaxConcurentGroupsToSynchronize;
-  }
-
-  public int getGroupMaxConcurrentGroupsStructuresToSynchronize() {
-    return groupMaxConcurrentGroupsStructuresToSynchronize;
-  }
-
-  public void setGroupMaxConcurrentGroupsStructuresToSynchronize(int groupMaxConcurrentGroupsStructuresToSynchronize) {
-    this.groupMaxConcurrentGroupsStructuresToSynchronize = groupMaxConcurrentGroupsStructuresToSynchronize;
-  }
-
-  public int getGroupStructureSynchronizationInterval() {
-    return groupStructureSynchronizationInterval;
-  }
-
-  public void setGroupStructureSynchronizationInterval(int groupSynchronizationInterval) {
-    this.groupStructureSynchronizationInterval = groupSynchronizationInterval;
-  }
-
-  public int getGroupStructureSynchronizationTimeout() {
-    return groupStructureSynchronizationTimeout;
-  }
-
-  public void setGroupStructureSynchronizationTimeout(int groupStructureSynchronizationTimeout) {
-    this.groupStructureSynchronizationTimeout = groupStructureSynchronizationTimeout;
-  }
-
-  boolean isDbInitializatorEnabled() {
-    return dbInitializatorEnabled;
-  }
-
-  public void setDbInitializatorEnabled(boolean dbInitializatorEnabled) {
-    this.dbInitializatorEnabled = dbInitializatorEnabled;
-  }
-
-  boolean isReadOnlyPerun() {
-    return readOnlyPerun;
-  }
-
-  public void setReadOnlyPerun(boolean readOnlyPerun) {
-    this.readOnlyPerun = readOnlyPerun;
-  }
-
-  public int getGroupSynchronizationInterval() {
-    return groupSynchronizationInterval;
-  }
-
-  public void setGroupSynchronizationInterval(int groupSynchronizationInterval) {
-    this.groupSynchronizationInterval = groupSynchronizationInterval;
-  }
-
-  public int getGroupSynchronizationTimeout() {
-    return groupSynchronizationTimeout;
-  }
-
-  public void setGroupSynchronizationTimeout(int groupSynchronizationTimeout) {
-    this.groupSynchronizationTimeout = groupSynchronizationTimeout;
-  }
-
-  public int getMailchangeValidationWindow() {
-    return mailchangeValidationWindow;
-  }
-
-  public void setMailchangeValidationWindow(int mailchangeValidationWindow) {
-    this.mailchangeValidationWindow = mailchangeValidationWindow;
-  }
-
-  public int getPwdresetValidationWindow() {
-    return pwdresetValidationWindow;
-  }
-
-  public void setPwdresetValidationWindow(int pwdresetValidationWindow) {
-    this.pwdresetValidationWindow = pwdresetValidationWindow;
-  }
-
-  public int getAccountActivationValidationWindow() {
-    return accountActivationValidationWindow;
-  }
-
-  public void setAccountActivationValidationWindow(int accountActivationValidationWindow) {
-    this.accountActivationValidationWindow = accountActivationValidationWindow;
-  }
-
-  public List<String> getAdmins() {
-    return admins;
-  }
-
-  public void setAdmins(List<String> admins) {
-    this.admins = admins;
-  }
-
-  public List<String> getEnginePrincipals() {
-    return enginePrincipals;
-  }
-
-  public void setEnginePrincipals(List<String> enginePrincipals) {
-    this.enginePrincipals = enginePrincipals;
-  }
-
-  public List<String> getGeneratedLoginNamespaces() {
-    return generatedLoginNamespaces;
-  }
-
-  public void setGeneratedLoginNamespaces(List<String> generatedLoginNamespaces) {
-    this.generatedLoginNamespaces = generatedLoginNamespaces;
-  }
-
-  public List<String> getNotificationPrincipals() {
-    return notificationPrincipals;
-  }
-
-  public void setNotificationPrincipals(List<String> notificationPrincipals) {
-    this.notificationPrincipals = notificationPrincipals;
-  }
-
-  public List<String> getProxyIdPs() {
-    return proxyIdPs;
-  }
-
-  public void setProxyIdPs(List<String> proxyIdPs) {
-    this.proxyIdPs = proxyIdPs;
-  }
-
-  public List<String> getRegistrarPrincipals() {
-    return registrarPrincipals;
-  }
-
-  public void setRegistrarPrincipals(List<String> registrarPrincipals) {
-    this.registrarPrincipals = registrarPrincipals;
-  }
-
-  public List<String> getRpcPowerusers() {
-    return rpcPowerusers;
-  }
-
-  public void setRpcPowerusers(List<String> rpcPowerusers) {
-    this.rpcPowerusers = rpcPowerusers;
-  }
-
-  public Set<String> getDontLookupUsers() {
-    return dontLookupUsers;
-  }
-
-  public void setDontLookupUsers(Set<String> dontLookupUsers) {
-    this.dontLookupUsers = dontLookupUsers;
-  }
-
-  public Set<String> getExtSourcesMultipleIdentifiers() {
-    return extSourcesMultipleIdentifiers;
-  }
-
-  public void setExtSourcesMultipleIdentifiers(Set<String> extSourcesMultipleIdentifiers) {
-    this.extSourcesMultipleIdentifiers = extSourcesMultipleIdentifiers;
-  }
-
-  public boolean getLookupUserByIdentifiersAndExtSourceLogin() {
-    return lookupUserByIdentifiersAndExtSourceLogin;
-  }
-
-  public void setLookupUserByIdentifiersAndExtSourceLogin(boolean lookupUserByIdentifiersAndExtSourceLogin) {
-    this.lookupUserByIdentifiersAndExtSourceLogin = lookupUserByIdentifiersAndExtSourceLogin;
-  }
-
-  public boolean getUserDeletionForced() {
-    return userDeletionForced;
-  }
-
-  public void setUserDeletionForced(boolean userDeletionForced) {
-    this.userDeletionForced = userDeletionForced;
-  }
-
-  public boolean getForceConsents() {
-    return forceConsents;
-  }
-
-  public void setForceConsents(boolean forceConsents) {
-    this.forceConsents = forceConsents;
-  }
-
-  public String getAlternativePasswordManagerProgram() {
-    return alternativePasswordManagerProgram;
-  }
-
-  public void setAlternativePasswordManagerProgram(String alternativePasswordManagerProgram) {
-    this.alternativePasswordManagerProgram = alternativePasswordManagerProgram;
-  }
-
-  public String getInstanceId() {
-    return instanceId;
-  }
-
-  public void setInstanceId(String instanceId) {
-    this.instanceId = instanceId;
-  }
-
-  public String getInstanceName() {
-    return instanceName;
-  }
-
-  public void setInstanceName(String instanceName) {
-    this.instanceName = instanceName;
-  }
-
-  public String getMailchangeBackupFrom() {
-    return mailchangeBackupFrom;
-  }
-
-  public void setMailchangeBackupFrom(String mailchangeBackupFrom) {
-    this.mailchangeBackupFrom = mailchangeBackupFrom;
-  }
-
-  public String getMailchangeReplyTo() {
-    return mailchangeReplyTo;
-  }
-
-  public void setMailchangeReplyTo(String mailchangeReplyTo) {
-    this.mailchangeReplyTo = mailchangeReplyTo;
-  }
-
-
-  public String getMailchangeSecretKey() {
-    return mailchangeSecretKey;
-  }
-
-  public void setMailchangeSecretKey(String mailchangeSecretKey) {
-    this.mailchangeSecretKey = mailchangeSecretKey;
-  }
-
-  public String getNativeLanguage() {
-    return nativeLanguage;
-  }
-
-  public void setNativeLanguage(String nativeLanguage) {
-    this.nativeLanguage = nativeLanguage;
-  }
-
-  public String getPasswordManagerProgram() {
-    return passwordManagerProgram;
-  }
-
-  public void setPasswordManagerProgram(String passwordManagerProgram) {
-    this.passwordManagerProgram = passwordManagerProgram;
-  }
-
-  public String getPwdresetInitVector() {
-    return pwdresetInitVector;
-  }
-
-  public void setPwdresetInitVector(String pwdresetInitVector) {
-    this.pwdresetInitVector = pwdresetInitVector;
-  }
-
-  public String getPwdresetSecretKey() {
-    return pwdresetSecretKey;
-  }
-
-  public void setPwdresetSecretKey(String pwdresetSecretKey) {
-    this.pwdresetSecretKey = pwdresetSecretKey;
-  }
-
-  public String getRecaptchaPrivateKey() {
-    return recaptchaPrivateKey;
-  }
-
-  public void setRecaptchaPrivateKey(String recaptchaPrivateKey) {
-    this.recaptchaPrivateKey = recaptchaPrivateKey;
-  }
-
-  public String getRpcPrincipal() {
-    return rpcPrincipal;
-  }
-
-  public void setRpcPrincipal(String rpcPrincipal) {
-    this.rpcPrincipal = rpcPrincipal;
-  }
-
-  public String getRtDefaultQueue() {
-    return rtDefaultQueue;
-  }
-
-  public void setRtDefaultQueue(String rtDefaultQueue) {
-    this.rtDefaultQueue = rtDefaultQueue;
-  }
-
-  public String getRtServiceuserPassword() {
-    return rtServiceuserPassword;
-  }
-
-  public void setRtServiceuserPassword(String rtServiceuserPassword) {
-    this.rtServiceuserPassword = rtServiceuserPassword;
-  }
-
-  public String getRtServiceuserUsername() {
-    return rtServiceuserUsername;
-  }
-
-  public void setRtServiceuserUsername(String rtServiceuserUsername) {
-    this.rtServiceuserUsername = rtServiceuserUsername;
-  }
-
-  public String getRtUrl() {
-    return rtUrl;
-  }
-
-  public void setRtUrl(String rtUrl) {
-    this.rtUrl = rtUrl;
-  }
-
-  public String getSmsProgram() {
-    return smsProgram;
-  }
-
-  public void setSmsProgram(String smsProgram) {
-    this.smsProgram = smsProgram;
-  }
-
-  public String getUserExtSourcesPersistent() {
-    return userExtSourcesPersistent;
-  }
-
-  public void setUserExtSourcesPersistent(String userExtSourcesPersistent) {
-    this.userExtSourcesPersistent = userExtSourcesPersistent;
-  }
-
-  public void setOidcIssuers(List<String> oidcIssuers) {
-    for (String issuer : oidcIssuers) {
-      String iss = getOidcIssuerProperty(issuer, "iss");
-      if (iss == null) {
-        continue;
-      }
-      String extSourceName = getOidcIssuerProperty(issuer, "extsource.name");
-      if (extSourceName == null) {
-        continue;
-      }
-      String extSourceType = getOidcIssuerProperty(issuer, "extsource.type");
-      if (extSourceType == null) {
-        continue;
-      }
-      log.debug("registering OIDC issuer {} with extSourceName={} and extSourceType={}", iss, extSourceName,
-          extSourceType);
-      oidcIssuersExtsourceNames.put(iss, extSourceName);
-      oidcIssuersExtsourceTypes.put(iss, extSourceType);
-    }
-  }
-
-  private String getOidcIssuerProperty(String issuer, String suffix) {
-    String p = "perun.oidc." + issuer + "." + suffix;
-    String value = properties.getProperty(p);
-    if (value == null) {
-      log.error("property {} not found, skipping OIDC issuer {}", p, issuer);
-    }
-    return value;
-  }
-
-  public Map<String, List<String>> getAppAllowedRoles() {
-    return appAllowedRoles;
-  }
-
-  public void setAppAllowedRoles(List<String> apps) {
-    for (String app : apps) {
-      String regex = getAppAllowedRolesProperty(app, "reg");
-      if (regex == null) {
-        continue;
-      }
-
-      String rolesProperty = getAppAllowedRolesProperty(app, "roles");
-      if (rolesProperty == null) {
-        continue;
-      }
-
-      List<String> roles = List.of(rolesProperty.split("\s*,\s*"));
-
-      log.debug("registering application {} by regex={} with roles={}", app, regex, roles);
-
-      this.appAllowedRoles.put(regex, roles);
-    }
-  }
-
-  private String getAppAllowedRolesProperty(String app, String suffix) {
-    String property = "perun.appAllowedRoles." + app + "." + suffix;
-    String value = properties.getProperty(property);
-    if (value == null) {
-      log.error("property {} not found, skipping allowed roles for application {}", property, app);
-    }
-    return value;
-  }
-
-  public Map<String, String> getOidcIssuersExtsourceNames() {
-    return oidcIssuersExtsourceNames;
-  }
-
-  public Map<String, String> getOidcIssuersExtsourceTypes() {
-    return oidcIssuersExtsourceTypes;
-  }
-
-  /**
-   * Attributes to be saved when new PerunSession is created.
-   *
-   * @return a map from ExtSource types like ExtSourcesManager.EXTSOURCE_IDP to lists of attribute definitions
-   */
-  public Map<String, List<AttributeDefinition>> getAttributesForUpdate() {
-    return attributesForUpdate;
-  }
 
   private void createAttributeDefinitions(String extSourceType, List<String> attrNames) {
     List<AttributeDefinition> attrs = new ArrayList<>();
@@ -595,7 +179,8 @@ public class CoreConfig {
         case "assurance":
           attr.setDisplayName("eduPersonAssurance");
           attr.setDescription(
-              "Assurance about user as defined at: https://wiki.refeds.org/display/ASS/REFEDS+Assurance+Framework+ver+1.0");
+              "Assurance about user as defined at: https://wiki.refeds" +
+              ".org/display/ASS/REFEDS+Assurance+Framework+ver+1.0");
           attr.setType(String.class.getName());
           break;
         case "europeanStudentID":
@@ -627,8 +212,8 @@ public class CoreConfig {
           break;
         case "internalEligibilities":
           attr.setDisplayName("Eligibilities (internal)");
-          attr.setDescription(
-              "Eligibilities calculated by proxy (from Perun and IdP data) stored last time user used this identity to access Perun.");
+          attr.setDescription("Eligibilities calculated by proxy (from Perun and IdP data) stored last time user " +
+                              "used this identity to access Perun.");
           attr.setType(ArrayList.class.getName());
           break;
         default:
@@ -640,16 +225,20 @@ public class CoreConfig {
     attributesForUpdate.put(extSourceType, attrs);
   }
 
-  public void setAttributesForUpdateIdP(List<String> attrNames) {
-    createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceIdp", attrNames);
+  public int getAccountActivationValidationWindow() {
+    return accountActivationValidationWindow;
   }
 
-  public void setAttributesForUpdateX509(List<String> attrNames) {
-    createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceX509", attrNames);
+  public void setAccountActivationValidationWindow(int accountActivationValidationWindow) {
+    this.accountActivationValidationWindow = accountActivationValidationWindow;
   }
 
-  public void setProperties(Properties properties) {
-    this.properties = properties;
+  public List<String> getAdmins() {
+    return admins;
+  }
+
+  public void setAdmins(List<String> admins) {
+    this.admins = admins;
   }
 
   public List<String> getAllowedCorsDomains() {
@@ -660,140 +249,54 @@ public class CoreConfig {
     this.allowedCorsDomains = allowedCorsDomains;
   }
 
-  public String getPdfFontPath() {
-    return pdfFontPath;
+  public String getAlternativePasswordManagerProgram() {
+    return alternativePasswordManagerProgram;
   }
 
-  public void setPdfFontPath(String pdfFontPath) {
-    this.pdfFontPath = pdfFontPath;
+  public void setAlternativePasswordManagerProgram(String alternativePasswordManagerProgram) {
+    this.alternativePasswordManagerProgram = alternativePasswordManagerProgram;
   }
 
-  public boolean getNotifSendMessages() {
-    return notifSendMessages;
+  public Map<String, List<String>> getAppAllowedRoles() {
+    return appAllowedRoles;
   }
 
-  public void setNotifSendMessages(boolean notifSendMessages) {
-    this.notifSendMessages = notifSendMessages;
+  public void setAppAllowedRoles(List<String> apps) {
+    for (String app : apps) {
+      String regex = getAppAllowedRolesProperty(app, "reg");
+      if (regex == null) {
+        continue;
+      }
+
+      String rolesProperty = getAppAllowedRolesProperty(app, "roles");
+      if (rolesProperty == null) {
+        continue;
+      }
+
+      List<String> roles = List.of(rolesProperty.split("\s*,\s*"));
+
+      LOG.debug("registering application {} by regex={} with roles={}", app, regex, roles);
+
+      this.appAllowedRoles.put(regex, roles);
+    }
   }
 
-  public String getSmtpHost() {
-    return smtpHost;
+  private String getAppAllowedRolesProperty(String app, String suffix) {
+    String property = "perun.appAllowedRoles." + app + "." + suffix;
+    String value = properties.getProperty(property);
+    if (value == null) {
+      LOG.error("property {} not found, skipping allowed roles for application {}", property, app);
+    }
+    return value;
   }
 
-  public void setSmtpHost(String smtpHost) {
-    this.smtpHost = smtpHost;
-  }
-
-  public String getSmtpFrom() {
-    return smtpFrom;
-  }
-
-  public void setSmtpFrom(String smtpFrom) {
-    this.smtpFrom = smtpFrom;
-  }
-
-  public int getSmtpPort() {
-    return smtpPort;
-  }
-
-  public void setSmtpPort(int smtpPort) {
-    this.smtpPort = smtpPort;
-  }
-
-  public boolean isSmtpAuth() {
-    return smtpAuth;
-  }
-
-  public void setSmtpAuth(boolean smtpAuth) {
-    this.smtpAuth = smtpAuth;
-  }
-
-  public boolean isSmtpStartTls() {
-    return smtpStartTls;
-  }
-
-  public void setSmtpStartTls(boolean smtpStartTls) {
-    this.smtpStartTls = smtpStartTls;
-  }
-
-  public boolean isMailDebug() {
-    return mailDebug;
-  }
-
-  public void setMailDebug(boolean mailDebug) {
-    this.mailDebug = mailDebug;
-  }
-
-  public String getSmtpUser() {
-    return smtpUser;
-  }
-
-  public void setSmtpUser(String smtpUser) {
-    this.smtpUser = smtpUser;
-  }
-
-  public String getSmtpPass() {
-    return smtpPass;
-  }
-
-  public void setSmtpPass(String smtpPass) {
-    this.smtpPass = smtpPass;
-  }
-
-  public List<String> getAutocreatedNamespaces() {
-    return autocreatedNamespaces;
-  }
-
-  public void setAutocreatedNamespaces(List<String> autocreatedNamespaces) {
-    this.autocreatedNamespaces = autocreatedNamespaces;
-  }
-
-  public String getRtSendToMail() {
-    return rtSendToMail;
-  }
-
-  public void setRtSendToMail(String rtSendToMail) {
-    this.rtSendToMail = rtSendToMail;
-  }
-
-  public int getQueryTimeout() {
-    return queryTimeout;
-  }
-
-  public void setQueryTimeout(int queryTimeout) {
-    this.queryTimeout = queryTimeout;
-  }
-
-  public String getDefaultLoaIdP() {
-    return defaultLoaIdP;
-  }
-
-  public void setDefaultLoaIdP(String defaultLoaIdP) {
-    this.defaultLoaIdP = defaultLoaIdP;
-  }
-
-  public String getGroupNameSecondaryRegex() {
-    return groupNameSecondaryRegex;
-  }
-
-  public void setGroupNameSecondaryRegex(String groupNameSecondaryRegex) {
-    this.groupNameSecondaryRegex = groupNameSecondaryRegex;
-  }
-
-  public String getGroupFullNameSecondaryRegex() {
-    return groupFullNameSecondaryRegex;
-  }
-
-  public void setGroupFullNameSecondaryRegex(String groupFullNameSecondaryRegex) {
-    this.groupFullNameSecondaryRegex = groupFullNameSecondaryRegex;
-  }
-
-  public List<String> getAttributesToSearchUsersAndMembersBy() {
-    return attributesToSearchUsersAndMembersBy;
-  }
-
-  public void setAttributesToSearchUsersAndMembersBy(List<String> attributesToSearchUsersAndMembersBy) {
-    this.attributesToSearchUsersAndMembersBy = attributesToSearchUsersAndMembersBy;
+  /**
+   * Attributes to be saved when new PerunSession is created.
+   *
+   * @return a map from ExtSource types like ExtSourcesManager.EXTSOURCE_IDP to lists of attribute definitions
+   */
+  public Map<String, List<AttributeDefinition>> getAttributesForUpdate() {
+    return attributesForUpdate;
   }
 
   public List<String> getAttributesToAnonymize() {
@@ -812,108 +315,20 @@ public class CoreConfig {
     this.attributesToKeep = attributesToKeep;
   }
 
-  public boolean isSendIdentityAlerts() {
-    return sendIdentityAlert;
+  public List<String> getAttributesToSearchUsersAndMembersBy() {
+    return attributesToSearchUsersAndMembersBy;
   }
 
-  public void setSendIdentityAlerts(boolean sendIdentityAlerts) {
-    this.sendIdentityAlert = sendIdentityAlerts;
+  public void setAttributesToSearchUsersAndMembersBy(List<String> attributesToSearchUsersAndMembersBy) {
+    this.attributesToSearchUsersAndMembersBy = attributesToSearchUsersAndMembersBy;
   }
 
-  public boolean isFindSimilarUsersDisabled() {
-    return findSimilarUsersDisabled;
+  public List<String> getAutocreatedNamespaces() {
+    return autocreatedNamespaces;
   }
 
-  public void setFindSimilarUsersDisabled(boolean findSimilarUsersDisabled) {
-    this.findSimilarUsersDisabled = findSimilarUsersDisabled;
-  }
-
-  public boolean getRequestUserInfoEndpoint() {
-    return this.requestUserInfoEndpoint;
-  }
-
-  public void setRequestUserInfoEndpoint(boolean requestUserInfoEndpoint) {
-    this.requestUserInfoEndpoint = requestUserInfoEndpoint;
-  }
-
-  public List<String> getUserInfoEndpointExtSourceLogin() {
-    return userInfoEndpointExtSourceLogin;
-  }
-
-  public void setUserInfoEndpointExtSourceLogin(List<String> userInfoEndpointExtSourceLogin) {
-    this.userInfoEndpointExtSourceLogin = userInfoEndpointExtSourceLogin;
-  }
-
-  public String getUserInfoEndpointExtSourceName() {
-    return userInfoEndpointExtSourceName;
-  }
-
-  public void setUserInfoEndpointExtSourceName(String userInfoEndpointExtSourceName) {
-    this.userInfoEndpointExtSourceName = userInfoEndpointExtSourceName;
-  }
-
-  public List<String> getUserInfoEndpointExtSourceFriendlyName() {
-    return userInfoEndpointExtSourceFriendlyName;
-  }
-
-  public void setUserInfoEndpointExtSourceFriendlyName(List<String> userInfoEndpointExtSourceFriendlyName) {
-    this.userInfoEndpointExtSourceFriendlyName = userInfoEndpointExtSourceFriendlyName;
-  }
-
-  public String getIntrospectionEndpointMfaAcrValue() {
-    return introspectionEndpointMfaAcrValue;
-  }
-
-  public void setIntrospectionEndpointMfaAcrValue(String introspectionEndpointMfaAcrValue) {
-    this.introspectionEndpointMfaAcrValue = introspectionEndpointMfaAcrValue;
-  }
-
-  public boolean getForceHTMLSanitization() {
-    return forceHTMLSanitization;
-  }
-
-  public void setForceHTMLSanitization(boolean forceHTMLSanitization) {
-    this.forceHTMLSanitization = forceHTMLSanitization;
-  }
-
-  public int getMfaAuthTimeout() {
-    return mfaAuthTimeout;
-  }
-
-  public void setMfaAuthTimeout(int mfaAuthTimeout) {
-    this.mfaAuthTimeout = mfaAuthTimeout;
-  }
-
-  public int getMfaAuthTimeoutPercentageForceLogIn() {
-    return mfaAuthTimeoutPercentageForceLogIn;
-  }
-
-  public void setMfaAuthTimeoutPercentageForceLogIn(int mfaAuthTimeoutPercentageForceLogIn) {
-    this.mfaAuthTimeoutPercentageForceLogIn = mfaAuthTimeoutPercentageForceLogIn;
-  }
-
-  public boolean isEnforceMfa() {
-    return enforceMfa;
-  }
-
-  public void setEnforceMfa(boolean enforceMfa) {
-    this.enforceMfa = enforceMfa;
-  }
-
-  public int getIdpLoginValidity() {
-    return idpLoginValidity;
-  }
-
-  public void setIdpLoginValidity(int idpLoginValidity) {
-    this.idpLoginValidity = idpLoginValidity;
-  }
-
-  public List<String> getIdpLoginValidityExceptions() {
-    return idpLoginValidityExceptions;
-  }
-
-  public void setIdpLoginValidityExceptions(List<String> idpLoginValidityExceptions) {
-    this.idpLoginValidityExceptions = idpLoginValidityExceptions;
+  public void setAutocreatedNamespaces(List<String> autocreatedNamespaces) {
+    this.autocreatedNamespaces = autocreatedNamespaces;
   }
 
   /**
@@ -934,6 +349,353 @@ public class CoreConfig {
     return blockedLogins;
   }
 
+  public String getDefaultLoaIdP() {
+    return defaultLoaIdP;
+  }
+
+  public void setDefaultLoaIdP(String defaultLoaIdP) {
+    this.defaultLoaIdP = defaultLoaIdP;
+  }
+
+  public Set<String> getDontLookupUsers() {
+    return dontLookupUsers;
+  }
+
+  public void setDontLookupUsers(Set<String> dontLookupUsers) {
+    this.dontLookupUsers = dontLookupUsers;
+  }
+
+  public List<String> getEnginePrincipals() {
+    return enginePrincipals;
+  }
+
+  public void setEnginePrincipals(List<String> enginePrincipals) {
+    this.enginePrincipals = enginePrincipals;
+  }
+
+  public Set<String> getExtSourcesMultipleIdentifiers() {
+    return extSourcesMultipleIdentifiers;
+  }
+
+  public void setExtSourcesMultipleIdentifiers(Set<String> extSourcesMultipleIdentifiers) {
+    this.extSourcesMultipleIdentifiers = extSourcesMultipleIdentifiers;
+  }
+
+  public List<String> getExternalProgramsDependencies() {
+    return externalProgramsDependencies;
+  }
+
+  public void setExternalProgramsDependencies(List<String> externalProgramsDependencies) {
+    externalProgramsDependencies = externalProgramsDependencies.stream().filter(programName -> !programName.isEmpty())
+        .collect(Collectors.toList());
+    this.externalProgramsDependencies = externalProgramsDependencies;
+  }
+
+  public boolean getForceConsents() {
+    return forceConsents;
+  }
+
+  public void setForceConsents(boolean forceConsents) {
+    this.forceConsents = forceConsents;
+  }
+
+  public boolean getForceHtmlSanitization() {
+    return forceHtmlSanitization;
+  }
+
+  public void setForceHtmlSanitization(boolean forceHtmlSanitization) {
+    this.forceHtmlSanitization = forceHtmlSanitization;
+  }
+
+  public List<String> getGeneratedLoginNamespaces() {
+    return generatedLoginNamespaces;
+  }
+
+  public void setGeneratedLoginNamespaces(List<String> generatedLoginNamespaces) {
+    this.generatedLoginNamespaces = generatedLoginNamespaces;
+  }
+
+  public String getGroupFullNameSecondaryRegex() {
+    return groupFullNameSecondaryRegex;
+  }
+
+  public void setGroupFullNameSecondaryRegex(String groupFullNameSecondaryRegex) {
+    this.groupFullNameSecondaryRegex = groupFullNameSecondaryRegex;
+  }
+
+  public int getGroupMaxConcurentGroupsToSynchronize() {
+    return groupMaxConcurentGroupsToSynchronize;
+  }
+
+  public void setGroupMaxConcurentGroupsToSynchronize(int groupMaxConcurentGroupsToSynchronize) {
+    this.groupMaxConcurentGroupsToSynchronize = groupMaxConcurentGroupsToSynchronize;
+  }
+
+  public int getGroupMaxConcurrentGroupsStructuresToSynchronize() {
+    return groupMaxConcurrentGroupsStructuresToSynchronize;
+  }
+
+  public void setGroupMaxConcurrentGroupsStructuresToSynchronize(int groupMaxConcurrentGroupsStructuresToSynchronize) {
+    this.groupMaxConcurrentGroupsStructuresToSynchronize = groupMaxConcurrentGroupsStructuresToSynchronize;
+  }
+
+  public String getGroupNameSecondaryRegex() {
+    return groupNameSecondaryRegex;
+  }
+
+  public void setGroupNameSecondaryRegex(String groupNameSecondaryRegex) {
+    this.groupNameSecondaryRegex = groupNameSecondaryRegex;
+  }
+
+  public int getGroupStructureSynchronizationInterval() {
+    return groupStructureSynchronizationInterval;
+  }
+
+  public void setGroupStructureSynchronizationInterval(int groupSynchronizationInterval) {
+    this.groupStructureSynchronizationInterval = groupSynchronizationInterval;
+  }
+
+  public int getGroupStructureSynchronizationTimeout() {
+    return groupStructureSynchronizationTimeout;
+  }
+
+  public void setGroupStructureSynchronizationTimeout(int groupStructureSynchronizationTimeout) {
+    this.groupStructureSynchronizationTimeout = groupStructureSynchronizationTimeout;
+  }
+
+  public int getGroupSynchronizationInterval() {
+    return groupSynchronizationInterval;
+  }
+
+  public void setGroupSynchronizationInterval(int groupSynchronizationInterval) {
+    this.groupSynchronizationInterval = groupSynchronizationInterval;
+  }
+
+  public int getGroupSynchronizationTimeout() {
+    return groupSynchronizationTimeout;
+  }
+
+  public void setGroupSynchronizationTimeout(int groupSynchronizationTimeout) {
+    this.groupSynchronizationTimeout = groupSynchronizationTimeout;
+  }
+
+  public int getIdpLoginValidity() {
+    return idpLoginValidity;
+  }
+
+  public void setIdpLoginValidity(int idpLoginValidity) {
+    this.idpLoginValidity = idpLoginValidity;
+  }
+
+  public List<String> getIdpLoginValidityExceptions() {
+    return idpLoginValidityExceptions;
+  }
+
+  public void setIdpLoginValidityExceptions(List<String> idpLoginValidityExceptions) {
+    this.idpLoginValidityExceptions = idpLoginValidityExceptions;
+  }
+
+  public String getInstanceId() {
+    return instanceId;
+  }
+
+  public void setInstanceId(String instanceId) {
+    this.instanceId = instanceId;
+  }
+
+  public String getInstanceName() {
+    return instanceName;
+  }
+
+  public void setInstanceName(String instanceName) {
+    this.instanceName = instanceName;
+  }
+
+  public String getIntrospectionEndpointMfaAcrValue() {
+    return introspectionEndpointMfaAcrValue;
+  }
+
+  public void setIntrospectionEndpointMfaAcrValue(String introspectionEndpointMfaAcrValue) {
+    this.introspectionEndpointMfaAcrValue = introspectionEndpointMfaAcrValue;
+  }
+
+  public boolean getLookupUserByIdentifiersAndExtSourceLogin() {
+    return lookupUserByIdentifiersAndExtSourceLogin;
+  }
+
+  public void setLookupUserByIdentifiersAndExtSourceLogin(boolean lookupUserByIdentifiersAndExtSourceLogin) {
+    this.lookupUserByIdentifiersAndExtSourceLogin = lookupUserByIdentifiersAndExtSourceLogin;
+  }
+
+  public String getMailchangeBackupFrom() {
+    return mailchangeBackupFrom;
+  }
+
+  public void setMailchangeBackupFrom(String mailchangeBackupFrom) {
+    this.mailchangeBackupFrom = mailchangeBackupFrom;
+  }
+
+  public String getMailchangeReplyTo() {
+    return mailchangeReplyTo;
+  }
+
+  public void setMailchangeReplyTo(String mailchangeReplyTo) {
+    this.mailchangeReplyTo = mailchangeReplyTo;
+  }
+
+  public String getMailchangeSecretKey() {
+    return mailchangeSecretKey;
+  }
+
+  public void setMailchangeSecretKey(String mailchangeSecretKey) {
+    this.mailchangeSecretKey = mailchangeSecretKey;
+  }
+
+  public int getMailchangeValidationWindow() {
+    return mailchangeValidationWindow;
+  }
+
+  public void setMailchangeValidationWindow(int mailchangeValidationWindow) {
+    this.mailchangeValidationWindow = mailchangeValidationWindow;
+  }
+
+  public int getMfaAuthTimeout() {
+    return mfaAuthTimeout;
+  }
+
+  public void setMfaAuthTimeout(int mfaAuthTimeout) {
+    this.mfaAuthTimeout = mfaAuthTimeout;
+  }
+
+  public int getMfaAuthTimeoutPercentageForceLogIn() {
+    return mfaAuthTimeoutPercentageForceLogIn;
+  }
+
+  public void setMfaAuthTimeoutPercentageForceLogIn(int mfaAuthTimeoutPercentageForceLogIn) {
+    this.mfaAuthTimeoutPercentageForceLogIn = mfaAuthTimeoutPercentageForceLogIn;
+  }
+
+  public String getNativeLanguage() {
+    return nativeLanguage;
+  }
+
+  public void setNativeLanguage(String nativeLanguage) {
+    this.nativeLanguage = nativeLanguage;
+  }
+
+  public boolean getNotifSendMessages() {
+    return notifSendMessages;
+  }
+
+  public void setNotifSendMessages(boolean notifSendMessages) {
+    this.notifSendMessages = notifSendMessages;
+  }
+
+  public List<String> getNotificationPrincipals() {
+    return notificationPrincipals;
+  }
+
+  public void setNotificationPrincipals(List<String> notificationPrincipals) {
+    this.notificationPrincipals = notificationPrincipals;
+  }
+
+  private String getOidcIssuerProperty(String issuer, String suffix) {
+    String p = "perun.oidc." + issuer + "." + suffix;
+    String value = properties.getProperty(p);
+    if (value == null) {
+      LOG.error("property {} not found, skipping OIDC issuer {}", p, issuer);
+    }
+    return value;
+  }
+
+  public Map<String, String> getOidcIssuersExtsourceNames() {
+    return oidcIssuersExtsourceNames;
+  }
+
+  public Map<String, String> getOidcIssuersExtsourceTypes() {
+    return oidcIssuersExtsourceTypes;
+  }
+
+  public String getPasswordManagerProgram() {
+    return passwordManagerProgram;
+  }
+
+  public void setPasswordManagerProgram(String passwordManagerProgram) {
+    this.passwordManagerProgram = passwordManagerProgram;
+  }
+
+  public String getPdfFontPath() {
+    return pdfFontPath;
+  }
+
+  public void setPdfFontPath(String pdfFontPath) {
+    this.pdfFontPath = pdfFontPath;
+  }
+
+  public List<String> getProxyIdPs() {
+    return proxyIdPs;
+  }
+
+  public void setProxyIdPs(List<String> proxyIdPs) {
+    this.proxyIdPs = proxyIdPs;
+  }
+
+  public String getPwdresetInitVector() {
+    return pwdresetInitVector;
+  }
+
+  public void setPwdresetInitVector(String pwdresetInitVector) {
+    this.pwdresetInitVector = pwdresetInitVector;
+  }
+
+  public String getPwdresetSecretKey() {
+    return pwdresetSecretKey;
+  }
+
+  public void setPwdresetSecretKey(String pwdresetSecretKey) {
+    this.pwdresetSecretKey = pwdresetSecretKey;
+  }
+
+  public int getPwdresetValidationWindow() {
+    return pwdresetValidationWindow;
+  }
+
+  public void setPwdresetValidationWindow(int pwdresetValidationWindow) {
+    this.pwdresetValidationWindow = pwdresetValidationWindow;
+  }
+
+  public int getQueryTimeout() {
+    return queryTimeout;
+  }
+
+  public void setQueryTimeout(int queryTimeout) {
+    this.queryTimeout = queryTimeout;
+  }
+
+  public String getRecaptchaPrivateKey() {
+    return recaptchaPrivateKey;
+  }
+
+  public void setRecaptchaPrivateKey(String recaptchaPrivateKey) {
+    this.recaptchaPrivateKey = recaptchaPrivateKey;
+  }
+
+  public List<String> getRegistrarPrincipals() {
+    return registrarPrincipals;
+  }
+
+  public void setRegistrarPrincipals(List<String> registrarPrincipals) {
+    this.registrarPrincipals = registrarPrincipals;
+  }
+
+  public boolean getRequestUserInfoEndpoint() {
+    return this.requestUserInfoEndpoint;
+  }
+
+  public void setRequestUserInfoEndpoint(boolean requestUserInfoEndpoint) {
+    this.requestUserInfoEndpoint = requestUserInfoEndpoint;
+  }
+
   public int getRoleUpdateInterval() {
     return roleUpdateInterval;
   }
@@ -942,15 +704,251 @@ public class CoreConfig {
     this.roleUpdateInterval = roleUpdateInterval;
   }
 
-  public List<String> getExternalProgramsDependencies() {
-    return externalProgramsDependencies;
+  public List<String> getRpcPowerusers() {
+    return rpcPowerusers;
   }
 
-  public void setExternalProgramsDependencies(List<String> externalProgramsDependencies) {
-    externalProgramsDependencies = externalProgramsDependencies
-        .stream()
-        .filter(programName -> !programName.isEmpty())
-        .collect(Collectors.toList());
-    this.externalProgramsDependencies = externalProgramsDependencies;
+  public void setRpcPowerusers(List<String> rpcPowerusers) {
+    this.rpcPowerusers = rpcPowerusers;
+  }
+
+  public String getRpcPrincipal() {
+    return rpcPrincipal;
+  }
+
+  public void setRpcPrincipal(String rpcPrincipal) {
+    this.rpcPrincipal = rpcPrincipal;
+  }
+
+  public String getRtDefaultQueue() {
+    return rtDefaultQueue;
+  }
+
+  public void setRtDefaultQueue(String rtDefaultQueue) {
+    this.rtDefaultQueue = rtDefaultQueue;
+  }
+
+  public String getRtSendToMail() {
+    return rtSendToMail;
+  }
+
+  public void setRtSendToMail(String rtSendToMail) {
+    this.rtSendToMail = rtSendToMail;
+  }
+
+  public String getRtServiceuserPassword() {
+    return rtServiceuserPassword;
+  }
+
+  public void setRtServiceuserPassword(String rtServiceuserPassword) {
+    this.rtServiceuserPassword = rtServiceuserPassword;
+  }
+
+  public String getRtServiceuserUsername() {
+    return rtServiceuserUsername;
+  }
+
+  public void setRtServiceuserUsername(String rtServiceuserUsername) {
+    this.rtServiceuserUsername = rtServiceuserUsername;
+  }
+
+  public String getRtUrl() {
+    return rtUrl;
+  }
+
+  public void setRtUrl(String rtUrl) {
+    this.rtUrl = rtUrl;
+  }
+
+  public String getSmsProgram() {
+    return smsProgram;
+  }
+
+  public void setSmsProgram(String smsProgram) {
+    this.smsProgram = smsProgram;
+  }
+
+  public String getSmtpFrom() {
+    return smtpFrom;
+  }
+
+  public void setSmtpFrom(String smtpFrom) {
+    this.smtpFrom = smtpFrom;
+  }
+
+  public String getSmtpHost() {
+    return smtpHost;
+  }
+
+  public void setSmtpHost(String smtpHost) {
+    this.smtpHost = smtpHost;
+  }
+
+  public String getSmtpPass() {
+    return smtpPass;
+  }
+
+  public void setSmtpPass(String smtpPass) {
+    this.smtpPass = smtpPass;
+  }
+
+  public int getSmtpPort() {
+    return smtpPort;
+  }
+
+  public void setSmtpPort(int smtpPort) {
+    this.smtpPort = smtpPort;
+  }
+
+  public String getSmtpUser() {
+    return smtpUser;
+  }
+
+  public void setSmtpUser(String smtpUser) {
+    this.smtpUser = smtpUser;
+  }
+
+  public boolean getUserDeletionForced() {
+    return userDeletionForced;
+  }
+
+  public void setUserDeletionForced(boolean userDeletionForced) {
+    this.userDeletionForced = userDeletionForced;
+  }
+
+  public String getUserExtSourcesPersistent() {
+    return userExtSourcesPersistent;
+  }
+
+  public void setUserExtSourcesPersistent(String userExtSourcesPersistent) {
+    this.userExtSourcesPersistent = userExtSourcesPersistent;
+  }
+
+  public List<String> getUserInfoEndpointExtSourceFriendlyName() {
+    return userInfoEndpointExtSourceFriendlyName;
+  }
+
+  public void setUserInfoEndpointExtSourceFriendlyName(List<String> userInfoEndpointExtSourceFriendlyName) {
+    this.userInfoEndpointExtSourceFriendlyName = userInfoEndpointExtSourceFriendlyName;
+  }
+
+  public List<String> getUserInfoEndpointExtSourceLogin() {
+    return userInfoEndpointExtSourceLogin;
+  }
+
+  public void setUserInfoEndpointExtSourceLogin(List<String> userInfoEndpointExtSourceLogin) {
+    this.userInfoEndpointExtSourceLogin = userInfoEndpointExtSourceLogin;
+  }
+
+  public String getUserInfoEndpointExtSourceName() {
+    return userInfoEndpointExtSourceName;
+  }
+
+  public void setUserInfoEndpointExtSourceName(String userInfoEndpointExtSourceName) {
+    this.userInfoEndpointExtSourceName = userInfoEndpointExtSourceName;
+  }
+
+  /**
+   * Stores this bean into static BeansUtils for backward compatibility. Called by init-method in perun-base.xml.
+   */
+  public void initBeansUtils() {
+    BeansUtils.setConfig(this);
+  }
+
+  boolean isDbInitializatorEnabled() {
+    return dbInitializatorEnabled;
+  }
+
+  public void setDbInitializatorEnabled(boolean dbInitializatorEnabled) {
+    this.dbInitializatorEnabled = dbInitializatorEnabled;
+  }
+
+  public boolean isEnforceMfa() {
+    return enforceMfa;
+  }
+
+  public void setEnforceMfa(boolean enforceMfa) {
+    this.enforceMfa = enforceMfa;
+  }
+
+  public boolean isFindSimilarUsersDisabled() {
+    return findSimilarUsersDisabled;
+  }
+
+  public void setFindSimilarUsersDisabled(boolean findSimilarUsersDisabled) {
+    this.findSimilarUsersDisabled = findSimilarUsersDisabled;
+  }
+
+  public boolean isMailDebug() {
+    return mailDebug;
+  }
+
+  public void setMailDebug(boolean mailDebug) {
+    this.mailDebug = mailDebug;
+  }
+
+  boolean isReadOnlyPerun() {
+    return readOnlyPerun;
+  }
+
+  public void setReadOnlyPerun(boolean readOnlyPerun) {
+    this.readOnlyPerun = readOnlyPerun;
+  }
+
+  public boolean isSendIdentityAlerts() {
+    return sendIdentityAlert;
+  }
+
+  public void setSendIdentityAlerts(boolean sendIdentityAlerts) {
+    this.sendIdentityAlert = sendIdentityAlerts;
+  }
+
+  public boolean isSmtpAuth() {
+    return smtpAuth;
+  }
+
+  public void setSmtpAuth(boolean smtpAuth) {
+    this.smtpAuth = smtpAuth;
+  }
+
+  public boolean isSmtpStartTls() {
+    return smtpStartTls;
+  }
+
+  public void setSmtpStartTls(boolean smtpStartTls) {
+    this.smtpStartTls = smtpStartTls;
+  }
+
+  public void setAttributesForUpdateIdP(List<String> attrNames) {
+    createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceIdp", attrNames);
+  }
+
+  public void setAttributesForUpdateX509(List<String> attrNames) {
+    createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceX509", attrNames);
+  }
+
+  public void setOidcIssuers(List<String> oidcIssuers) {
+    for (String issuer : oidcIssuers) {
+      String iss = getOidcIssuerProperty(issuer, "iss");
+      if (iss == null) {
+        continue;
+      }
+      String extSourceName = getOidcIssuerProperty(issuer, "extsource.name");
+      if (extSourceName == null) {
+        continue;
+      }
+      String extSourceType = getOidcIssuerProperty(issuer, "extsource.type");
+      if (extSourceType == null) {
+        continue;
+      }
+      LOG.debug("registering OIDC issuer {} with extSourceName={} and extSourceType={}", iss, extSourceName,
+          extSourceType);
+      oidcIssuersExtsourceNames.put(iss, extSourceName);
+      oidcIssuersExtsourceTypes.put(iss, extSourceType);
+    }
+  }
+
+  public void setProperties(Properties properties) {
+    this.properties = properties;
   }
 }

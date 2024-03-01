@@ -1,17 +1,14 @@
 package org.springframework.jdbc.core;
 
-import org.springframework.dao.DataAccessException;
+import java.util.List;
+import javax.sql.DataSource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 
-import javax.sql.DataSource;
-import java.util.List;
-
 /**
- * Class JdbcPerunTemplate extends JdbcTemplate from spring. - it has 1
- * additional method queryForObject(String sql, ResultSetExtractor<T> rse,
- * Object... args)
+ * Class JdbcPerunTemplate extends JdbcTemplate from spring. - it has 1 additional method queryForObject(String sql,
+ * ResultSetExtractor<T> rse, Object... args)
  *
  * @author Sona Mastrakova
  */
@@ -19,6 +16,18 @@ public class JdbcPerunTemplate extends JdbcTemplate {
 
   public JdbcPerunTemplate(DataSource perunPool) {
     super(perunPool);
+  }
+
+  /**
+   * Implements a method removed from spring-jdbc
+   *
+   * @param sql  SQL query
+   * @param args arguments for the SQL query
+   * @return result of the query or zero if null
+   */
+  public int queryForInt(String sql, Object... args) {
+    Integer i = this.queryForObject(sql, Integer.class, args);
+    return i == null ? 0 : i;
   }
 
   /**
@@ -33,17 +42,5 @@ public class JdbcPerunTemplate extends JdbcTemplate {
    */
   public <T> T queryForObject(String sql, ResultSetExtractor<? extends List<T>> rse, Object... args) {
     return DataAccessUtils.requiredSingleResult(this.query(sql, rse, args));
-  }
-
-  /**
-   * Implements a method removed from spring-jdbc
-   *
-   * @param sql  SQL query
-   * @param args arguments for the SQL query
-   * @return result of the query or zero if null
-   */
-  public int queryForInt(String sql, Object... args) {
-    Integer i = this.queryForObject(sql, Integer.class, args);
-    return i == null ? 0 : i;
   }
 }

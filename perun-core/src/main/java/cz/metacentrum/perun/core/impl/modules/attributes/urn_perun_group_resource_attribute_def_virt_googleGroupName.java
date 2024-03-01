@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,6 +89,17 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName
   }
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
+    attr.setFriendlyName("googleGroupName");
+    attr.setDisplayName("Google group name");
+    attr.setType(String.class.getName());
+    attr.setDescription("Name of this group in google groups represented by the resource.");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Group group, Resource resource,
                                      AttributeDefinition attributeDefinition) {
     Attribute attribute = new Attribute(attributeDefinition);
@@ -116,6 +126,29 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName
   }
 
   @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupsDomain");
+    //Disallowed because it does not affect value of dependent attribute
+    //dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:*");
+    return dependencies;
+  }
+
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace" + ":*");
+    dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupsDomain");
+    return dependencies;
+  }
+
+  @Override
+  public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource,
+                                      AttributeDefinition attribute) {
+    return false;
+  }
+
+  @Override
   public boolean setAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
       throws WrongReferenceAttributeValueException {
     Attribute googleGroupNameNamespaceAttribute =
@@ -134,40 +167,6 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName
     } catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
       throw new InternalErrorException(ex);
     }
-  }
-
-  @Override
-  public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource,
-                                      AttributeDefinition attribute) {
-    return false;
-  }
-
-  @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupsDomain");
-    //Disallowed because it does not affect value of dependent attribute
-    //dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:*");
-    return dependencies;
-  }
-
-  @Override
-  public List<String> getStrongDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace" + ":*");
-    dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupsDomain");
-    return dependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
-    attr.setFriendlyName("googleGroupName");
-    attr.setDisplayName("Google group name");
-    attr.setType(String.class.getName());
-    attr.setDescription("Name of this group in google groups represented by the resource.");
-    return attr;
   }
 
 }

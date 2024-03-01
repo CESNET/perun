@@ -26,10 +26,6 @@ public class CesnetEligibleExpiration extends AuditEvent implements EngineIgnore
     this.message = formatMessage("%s isCesnetEligible expires %s.", user, expirationString);
   }
 
-  public User getUser() {
-    return user;
-  }
-
   public int getDaysToExpiration() {
     return daysToExpiration;
   }
@@ -37,6 +33,10 @@ public class CesnetEligibleExpiration extends AuditEvent implements EngineIgnore
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   @Override

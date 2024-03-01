@@ -28,13 +28,13 @@ public class ForcePropagationOnFacilityAndService extends AuditEvent implements 
     return facility;
   }
 
-  public Service getService() {
-    return service;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Service getService() {
+    return service;
   }
 
   @Override

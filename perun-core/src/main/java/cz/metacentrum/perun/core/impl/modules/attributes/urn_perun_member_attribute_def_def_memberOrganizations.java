@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleImplApi;
-
 import java.util.ArrayList;
 
 /**

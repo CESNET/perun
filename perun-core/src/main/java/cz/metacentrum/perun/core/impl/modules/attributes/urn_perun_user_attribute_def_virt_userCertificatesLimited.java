@@ -14,13 +14,11 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +29,17 @@ import java.util.Map;
 public class urn_perun_user_attribute_def_virt_userCertificatesLimited extends UserVirtualAttributesModuleAbstract
     implements UserVirtualAttributesModuleImplApi {
 
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("userCertificatesLimited");
+    attr.setDisplayName("User certificates limited");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("User certificates limited to ten newest certificates.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
@@ -53,10 +62,8 @@ public class urn_perun_user_attribute_def_virt_userCertificatesLimited extends U
         }
       });
 
-      certsExpirationInMilliSeconds.entrySet().stream()
-          .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
-          .limit(10)
-          .forEachOrdered(entry -> result.add(certs.get(entry.getKey())));
+      certsExpirationInMilliSeconds.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+          .limit(10).forEachOrdered(entry -> result.add(certs.get(entry.getKey())));
 
       Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, resultAttribute);
     }
@@ -64,6 +71,11 @@ public class urn_perun_user_attribute_def_virt_userCertificatesLimited extends U
     resultAttribute.setValue(result);
 
     return resultAttribute;
+  }
+
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
   }
 
   private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) {
@@ -75,21 +87,5 @@ public class urn_perun_user_attribute_def_virt_userCertificatesLimited extends U
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException(ex);
     }
-  }
-
-  @Override
-  public List<String> getStrongDependencies() {
-    return Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("userCertificatesLimited");
-    attr.setDisplayName("User certificates limited");
-    attr.setType(ArrayList.class.getName());
-    attr.setDescription("User certificates limited to ten newest certificates.");
-    return attr;
   }
 }

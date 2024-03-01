@@ -33,35 +33,8 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace extends UserAttributesModuleAbstract
     implements UserAttributesModuleImplApi {
 
-  protected final static List<String> generatedNamespaces = BeansUtils.getCoreConfig().getGeneratedLoginNamespaces();
-  private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace.class);
-
-  /**
-   * Checks if the user's login is in the correct format and if it is permitted to use
-   *
-   * @param sess      PerunSession
-   * @param user      user
-   * @param attribute Attribute of the user
-   * @throws InternalErrorException
-   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
-   */
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    // delegate login syntax check to the password manager module of that namespace, for default see GenericPasswordManagerModule
-    try {
-      sess.getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, attribute.getFriendlyNameParameter())
-          .checkLoginFormat(sess, attribute.valueAsString());
-    } catch (InvalidLoginException e) {
-      // TODO - pass better info about syntax check from InvalidLoginException to WrongAttributeValueException
-      throw new WrongAttributeValueException(attribute, user, e.getMessage(), e);
-    }
-
-  }
+  protected static final List<String> generatedNamespaces = BeansUtils.getCoreConfig().getGeneratedLoginNamespaces();
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace.class);
 
   /**
    * Checks if the user's login is unique in the namespace organization
@@ -81,7 +54,8 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
       throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Value can't be null");
     }
 
-    // Get all users who have set attribute urn:perun:member:attribute-def:def:login-namespace:[login-namespace], with the value.
+    // Get all users who have set attribute urn:perun:member:attribute-def:def:login-namespace:[login-namespace],
+    // with the value.
     List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
 
     usersWithSameLogin.remove(user); //remove self
@@ -107,9 +81,37 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
   }
 
   /**
-   * Filling implemented for:
-   * - namespaces configured in /etc/perun/perun.properties as property: "perun.loginNamespace.generated"
-   * - You must create own attribute module for that namespace to define filling function
+   * Checks if the user's login is in the correct format and if it is permitted to use
+   *
+   * @param sess      PerunSession
+   * @param user      user
+   * @param attribute Attribute of the user
+   * @throws InternalErrorException
+   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+   */
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    // delegate login syntax check to the password manager module of that namespace, for default see
+    // GenericPasswordManagerModule
+    try {
+      sess.getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, attribute.getFriendlyNameParameter())
+          .checkLoginFormat(sess, attribute.valueAsString());
+    } catch (InvalidLoginException e) {
+      // TODO - pass better info about syntax check from InvalidLoginException to WrongAttributeValueException
+      throw new WrongAttributeValueException(attribute, user, e.getMessage(), e);
+    }
+
+  }
+
+  /**
+   * Filling implemented for: - namespaces configured in /etc/perun/perun.properties as property:
+   * "perun.loginNamespace.generated" - You must create own attribute module for that namespace to define filling
+   * function
    *
    * @param perunSession PerunSession
    * @param user         User to fill attribute for
@@ -127,18 +129,18 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 
   }
 
-	/*public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("login-namespace");
-		attr.setType(String.class.getName());
-		attr.setDescription("Login namespace.");
-		return attr;
-	}*/
+  /*public AttributeDefinition getAttributeDefinition() {
+      AttributeDefinition attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+      attr.setFriendlyName("login-namespace");
+      attr.setType(String.class.getName());
+      attr.setDescription("Login namespace.");
+      return attr;
+  }*/
 
   /**
-   * Generate unique ID as hexadecimal string representation of SHA1 digest from users ID and domain.
-   * Input is salted per Perun instance. Effective resulting string consist of [0-9a-f] characters.
+   * Generate unique ID as hexadecimal string representation of SHA1 digest from users ID and domain. Input is salted
+   * per Perun instance. Effective resulting string consist of [0-9a-f] characters.
    * <p>
    * It is used to generate unique IDs for ProxyIdP login namespaces.
    *
@@ -150,10 +152,10 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
   protected StringBuilder sha1HashCount(User user, String domain) {
     try {
       String salt = BeansUtils.getCoreConfig().getInstanceId();
-      MessageDigest mDigest = MessageDigest.getInstance("SHA1");
+      MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
       // counts sha1hash and converts output to hex
       int length = 4 + salt.getBytes(StandardCharsets.UTF_8).length + domain.getBytes(StandardCharsets.UTF_8).length;
-      byte[] result = mDigest.digest(
+      byte[] result = messageDigest.digest(
           ByteBuffer.allocate(length).putInt(user.getId()).put(domain.getBytes(StandardCharsets.UTF_8))
               .put(salt.getBytes(StandardCharsets.UTF_8)).array());
       StringBuilder sb = new StringBuilder();

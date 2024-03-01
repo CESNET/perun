@@ -3,8 +3,8 @@ package cz.metacentrum.perun.registrar.exceptions;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 
 /**
- * Exception thrown when new application can't be created (stored) in Perun.
- * This is usually caused by broken login/pass reservation i external system.
+ * Exception thrown when new application can't be created (stored) in Perun. This is usually caused by broken login/pass
+ * reservation i external system.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */

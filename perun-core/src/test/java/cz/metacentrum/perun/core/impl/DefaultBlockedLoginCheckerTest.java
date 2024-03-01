@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -10,31 +13,19 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DefaultBlockedLoginCheckerTest extends AbstractPerunIntegrationTest {
-  private final static String CLASS_NAME = "DefaultBlockedLoginChecker.";
-  private final static String LOGIN = "testLogin";
+  private static final String CLASS_NAME = "DefaultBlockedLoginChecker.";
+  private static final String LOGIN = "testLogin";
   DefaultBlockedLoginChecker defaultBlockedLoginChecker;
   private User user;
   private Attribute attr;
-
-  @Before
-  public void setUp() throws Exception {
-    defaultBlockedLoginChecker = new DefaultBlockedLoginChecker(perun);
-
-    setUser();
-    setLoginNamespaceAttribute();
-  }
 
   @Test
   public void defaultBlockedLoginAlreadyUsed() {
@@ -77,14 +68,6 @@ public class DefaultBlockedLoginCheckerTest extends AbstractPerunIntegrationTest
     }
   }
 
-  private void setUser() {
-    user = new User();
-    user.setFirstName("Joe");
-    user.setLastName("Doe");
-    user = perun.getUsersManagerBl().createUser(sess, user);
-    assertNotNull(user);
-  }
-
   private void setLoginNamespaceAttribute()
       throws AttributeDefinitionExistsException, WrongAttributeAssignmentException,
       WrongReferenceAttributeValueException, WrongAttributeValueException {
@@ -98,5 +81,21 @@ public class DefaultBlockedLoginCheckerTest extends AbstractPerunIntegrationTest
         perun.getAttributesManagerBl().createAttribute(sess, attr));
 
     perun.getAttributesManagerBl().setAttribute(sess, user, attr);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    defaultBlockedLoginChecker = new DefaultBlockedLoginChecker(perun);
+
+    setUser();
+    setLoginNamespaceAttribute();
+  }
+
+  private void setUser() {
+    user = new User();
+    user.setFirstName("Joe");
+    user.setLastName("Doe");
+    user = perun.getUsersManagerBl().createUser(sess, user);
+    assertNotNull(user);
   }
 }

@@ -5,21 +5,19 @@ import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import java.util.List;
 
 /**
- * Manager interface for work with messages send by auditer Is Used to backup
- * messages which are in process of processing. After processing of message,
- * this message should be erased from db.
+ * Manager interface for work with messages send by auditer Is Used to backup messages which are in process of
+ * processing. After processing of message, this message should be erased from db.
  *
  * @author tomas.tunkl
  */
 public interface PerunNotifAuditMessageManager {
 
   /**
-   * Saves message from auditer to perunAuditerMessage
+   * Gets all perunNotifAuditMessages from db.
    *
-   * @param messasge
    * @return
    */
-  public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String messasge, PerunSession message);
+  public List<PerunNotifAuditMessage> getAll();
 
   /**
    * Removes perunAuditerMessage from db based on id
@@ -29,9 +27,10 @@ public interface PerunNotifAuditMessageManager {
   public void removePerunAuditerMessageById(long id);
 
   /**
-   * Gets all perunNotifAuditMessages from db.
+   * Saves message from auditer to perunAuditerMessage
    *
+   * @param messasge
    * @return
    */
-  public List<PerunNotifAuditMessage> getAll();
+  public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String messasge, PerunSession message);
 }

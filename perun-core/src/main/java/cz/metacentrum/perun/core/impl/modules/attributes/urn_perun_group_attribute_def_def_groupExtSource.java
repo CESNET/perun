@@ -43,7 +43,7 @@ public class urn_perun_group_attribute_def_def_groupExtSource extends GroupAttri
         }
         throw new WrongReferenceAttributeValueException(attribute, null, group, null,
             "ExtSourceName " + extSourceName + " is not valid, because VO " + groupVo +
-                " of this group has no such extSource assigned.");
+            " of this group has no such extSource assigned.");
       } catch (VoNotExistsException ex) {
         throw new ConsistencyErrorException("Vo of this group " + group + " not exists!");
       }

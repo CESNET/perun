@@ -35,10 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Module for BBMRINetworks instance.
- * The module
- * 1. reads input with networks IDs and checks, whether the networks exist in Perun as groups
- * 2. adds users to the appropriate groups
+ * Module for BBMRINetworks instance. The module 1. reads input with networks IDs and checks, whether the networks exist
+ * in Perun as groups 2. adds users to the appropriate groups
  *
  * @author Jiri Mauritz <jirmaurtiz@gmail.com> (original)
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz> (modifications)
@@ -46,7 +44,7 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public class BBMRINetworks extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(BBMRINetworks.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BBMRINetworks.class);
   private static final String NETWORK_IDS_FIELD = "networkIds";
   private static final String NETWORKS_GROUP_NAME = "networks";
   private static final String NETWORK_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:networkID";
@@ -81,7 +79,7 @@ public class BBMRINetworks extends DefaultRegistrarModule {
     for (String networkID : networkIDsInApplication) {
       Group group = networkIDsToGroupsMap.get(networkID);
       if (group == null) {
-        log.debug("For network ID: " + networkID + " there is no group in Perun.");
+        LOG.debug("For network ID: " + networkID + " there is no group in Perun.");
       } else {
         try {
           perun.getGroupsManager().addMember(session, group, member);
@@ -101,8 +99,8 @@ public class BBMRINetworks extends DefaultRegistrarModule {
   }
 
   /**
-   * Checks whether all network IDs found in user input really exists in Perun.
-   * If not, CantBeApproved exception is thrown.
+   * Checks whether all network IDs found in user input really exists in Perun. If not, CantBeApproved exception is
+   * thrown.
    *
    * @param session who approves the application
    * @param app     unchanged application
@@ -126,8 +124,14 @@ public class BBMRINetworks extends DefaultRegistrarModule {
     // difference must be empty
     if (!networkIDsInApplication.isEmpty()) {
       throw new CantBeApprovedException("Networks with IDs: " + networkIDsInApplication + " do not exist." +
-          "If you approve the application, these networks will be skipped.", "", "", "", true, app.getId());
+                                        "If you approve the application, these networks will be skipped.", "", "", "",
+          true, app.getId());
     }
+  }
+
+  private Set<String> getNetworkIDs(PerunSession session, PerunBl perun, Group collectionsGroup)
+      throws WrongAttributeAssignmentException, AttributeNotExistsException {
+    return getNetworkIDsToGroupsMap(session, perun, collectionsGroup).keySet();
   }
 
   /**
@@ -164,35 +168,28 @@ public class BBMRINetworks extends DefaultRegistrarModule {
    *
    * @return Map of collection IDs to group.
    */
-  private Map<String, Group> getNetworkIDsToGroupsMap(PerunSession session,
-                                                      PerunBl perun,
-                                                      Group networksGroup)
+  private Map<String, Group> getNetworkIDsToGroupsMap(PerunSession session, PerunBl perun, Group networksGroup)
       throws WrongAttributeAssignmentException, AttributeNotExistsException {
     Map<String, Group> networkIDsToGroupMap = new HashMap<>();
     List<Group> networkGroups = perun.getGroupsManagerBl().getSubGroups(session, networksGroup);
     if (networkGroups == null || networkGroups.isEmpty()) {
-      log.debug("No network groups found, returning empty map.");
+      LOG.debug("No network groups found, returning empty map.");
       return networkIDsToGroupMap;
     }
 
     for (Group networkGroup : networkGroups) {
-      Attribute networkIDAttr = perun.getAttributesManagerBl()
-          .getAttribute(session, networkGroup, NETWORK_ID_ATTR_NAME);
+      Attribute networkIDAttr =
+          perun.getAttributesManagerBl().getAttribute(session, networkGroup, NETWORK_ID_ATTR_NAME);
 
       if (networkIDAttr == null || Strings.isNullOrEmpty(networkIDAttr.valueAsString())) {
-        log.warn("Found collection group ({}) without value in attr {}: ({})",
-            networkGroup, NETWORK_ID_ATTR_NAME, networkIDAttr);
+        LOG.warn("Found collection group ({}) without value in attr {}: ({})", networkGroup, NETWORK_ID_ATTR_NAME,
+            networkIDAttr);
       } else {
         networkIDsToGroupMap.put(networkIDAttr.valueAsString(), networkGroup);
       }
     }
 
     return networkIDsToGroupMap;
-  }
-
-  private Set<String> getNetworkIDs(PerunSession session, PerunBl perun, Group collectionsGroup)
-      throws WrongAttributeAssignmentException, AttributeNotExistsException {
-    return getNetworkIDsToGroupsMap(session, perun, collectionsGroup).keySet();
   }
 
 }

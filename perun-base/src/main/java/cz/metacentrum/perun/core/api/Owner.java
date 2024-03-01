@@ -42,82 +42,26 @@ public class Owner extends Auditable implements Comparable<PerunBean> {
     this.type = type;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-
-  /**
-   * Gets the contact for this instance.
-   *
-   * @return The contact.
-   */
-  public String getContact() {
-    return this.contact;
-  }
-
-  /**
-   * Sets the contact for this instance.
-   *
-   * @param contact The contact.
-   */
-  public void setContact(String contact) {
-    this.contact = contact;
-  }
-
-  public OwnerType getType() {
-    return this.type;
-  }
-
-  public void setType(OwnerType type) {
-    this.type = type;
-  }
-
-  public void setTypeByString(String type) {
-    if (type == null) {
-      this.type = null;
-    } else {
-      this.type = OwnerType.valueOf(type);
+  @Override
+  public int compareTo(PerunBean perunBean) {
+    if (perunBean == null) {
+      throw new NullPointerException("PerunBean to compare with is null.");
     }
-  }
-
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
-            ", contact=<").append(getContact() == null ? "\\0" : BeansUtils.createEscaping(getContact())).append(">")
-        .append(
-            ", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType().toString())).append(">")
-        .append(
-            ']').toString();
-  }
-
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(getClass().getSimpleName()).append(":[").append(
-        "id='").append(getId()).append('\'').append(
-        ", name='").append(name).append('\'').append(
-        ", contact='").append(contact).append('\'').append(
-        ", type='").append(type).append(
-        "']").toString();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((contact == null) ? 0 : contact.hashCode());
-    result = prime * result + getId();
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    return result;
+    if (perunBean instanceof Owner) {
+      Owner owner = (Owner) perunBean;
+      if (this.getName() == null && owner.getName() != null) {
+        return -1;
+      }
+      if (owner.getName() == null && this.getName() != null) {
+        return 1;
+      }
+      if (this.getName() == null && owner.getName() == null) {
+        return 0;
+      }
+      return this.getName().compareToIgnoreCase(owner.getName());
+    } else {
+      return (this.getId() - perunBean.getId());
+    }
   }
 
   @Override
@@ -152,25 +96,75 @@ public class Owner extends Auditable implements Comparable<PerunBean> {
     return true;
   }
 
+  /**
+   * Gets the contact for this instance.
+   *
+   * @return The contact.
+   */
+  public String getContact() {
+    return this.contact;
+  }
+
+  /**
+   * Sets the contact for this instance.
+   *
+   * @param contact The contact.
+   */
+  public void setContact(String contact) {
+    this.contact = contact;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public OwnerType getType() {
+    return this.type;
+  }
+
+  public void setType(OwnerType type) {
+    this.type = type;
+  }
+
   @Override
-  public int compareTo(PerunBean perunBean) {
-    if (perunBean == null) {
-      throw new NullPointerException("PerunBean to compare with is null.");
-    }
-    if (perunBean instanceof Owner) {
-      Owner owner = (Owner) perunBean;
-      if (this.getName() == null && owner.getName() != null) {
-        return -1;
-      }
-      if (owner.getName() == null && this.getName() != null) {
-        return 1;
-      }
-      if (this.getName() == null && owner.getName() == null) {
-        return 0;
-      }
-      return this.getName().compareToIgnoreCase(owner.getName());
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((contact == null) ? 0 : contact.hashCode());
+    result = prime * result + getId();
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    return result;
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">")
+        .append(", contact=<").append(getContact() == null ? "\\0" : BeansUtils.createEscaping(getContact()))
+        .append(">").append(", type=<")
+        .append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType().toString())).append(">").append(']')
+        .toString();
+  }
+
+  public void setTypeByString(String type) {
+    if (type == null) {
+      this.type = null;
     } else {
-      return (this.getId() - perunBean.getId());
+      this.type = OwnerType.valueOf(type);
     }
+  }
+
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(getClass().getSimpleName()).append(":[").append("id='").append(getId()).append('\'')
+        .append(", name='").append(name).append('\'').append(", contact='").append(contact).append('\'')
+        .append(", type='").append(type).append("']").toString();
   }
 }

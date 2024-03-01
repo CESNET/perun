@@ -6,17 +6,16 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class LdapcStarter {
-  private final static Logger log = LoggerFactory.getLogger(LdapcStarter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapcStarter.class);
 
   private LdapcManager ldapcManager;
   private AbstractApplicationContext springCtx;
@@ -87,8 +86,9 @@ public class LdapcStarter {
         //Set lastProcessedIdToSet if bigger than 0
         if (lastProcessedIdToSet > 0) {
           //Rpc.AuditMessagesManager.setLastProcessedId(rpcCaller, "ldapcConsumer", lastProcessedIdToSet);
-          //ldapcStarter.perunBl.getAuditMessagesManager().setLastProcessedId(ldapcStarter.ldapcManager.getPerunSession(),
-          //		ldapcStarter.ldapProperties.getLdapConsumerName(), lastProcessedIdToSet);
+          //ldapcStarter.perunBl.getAuditMessagesManager().setLastProcessedId(ldapcStarter.ldapcManager
+          // .getPerunSession(),
+          // ldapcStarter.ldapProperties.getLdapConsumerName(), lastProcessedIdToSet);
           ldapcStarter.ldapcManager.setLastProcessedId(lastProcessedIdToSet);
         }
       }
@@ -96,12 +96,12 @@ public class LdapcStarter {
       // Start processing events (run method in EventProcessorImpl)
       ldapcStarter.ldapcManager.startProcessingEvents();
     } catch (Exception e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
     }
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     Date date = new Date();
-    log.info(dateFormat.format(date) + ": Done. Perun-Ldapc has started.");
+    LOG.info(dateFormat.format(date) + ": Done. Perun-Ldapc has started.");
     System.out.println(dateFormat.format(date) + ": Done. Perun-Ldapc has started.");
   }
 }

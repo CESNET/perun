@@ -6,21 +6,18 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetFor
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * All identifiers collected from:
- * - UserExtSource attribute additionalIdentifiers
+ * All identifiers collected from: - UserExtSource attribute additionalIdentifiers
  *
  * @author Michal Stava <Michal.Stava@cesnet.cz>
  */
@@ -30,16 +27,6 @@ public class urn_perun_user_attribute_def_virt_additionalIdentifiers
     extends UserVirtualAttributeCollectedFromUserExtSource {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-  @Override
-  public String getSourceAttributeFriendlyName() {
-    return "additionalIdentifiers";
-  }
-
-  @Override
-  public String getDestinationAttributeFriendlyName() {
-    return "additionalIdentifiers";
-  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user,
@@ -55,6 +42,11 @@ public class urn_perun_user_attribute_def_virt_additionalIdentifiers
     //convert set to list (values in list will be without duplicities)
     destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicities));
     return destinationAttribute;
+  }
+
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "additionalIdentifiers";
   }
 
   @Override
@@ -85,5 +77,10 @@ public class urn_perun_user_attribute_def_virt_additionalIdentifiers
       }
     });
     return handleIdentifiers;
+  }
+
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "additionalIdentifiers";
   }
 }

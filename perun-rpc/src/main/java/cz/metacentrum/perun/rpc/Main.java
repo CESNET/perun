@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class Main implements ServletContextListener {
 
-  private final static Logger log = LoggerFactory.getLogger(Main.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   @Override
   public void contextDestroyed(ServletContextEvent arg0) {
@@ -16,6 +16,6 @@ public class Main implements ServletContextListener {
 
   @Override
   public void contextInitialized(ServletContextEvent servletContextEvent) {
-    log.info("Perun RPC web application is now initialized");
+    LOG.info("Perun RPC web application is now initialized");
   }
 }

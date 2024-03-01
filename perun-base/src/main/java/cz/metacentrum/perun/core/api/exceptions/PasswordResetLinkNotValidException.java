@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when password reset link is not valid because it was either
- * already used or has never existed.
+ * This exception is thrown when password reset link is not valid because it was either already used or has never
+ * existed.
  *
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */

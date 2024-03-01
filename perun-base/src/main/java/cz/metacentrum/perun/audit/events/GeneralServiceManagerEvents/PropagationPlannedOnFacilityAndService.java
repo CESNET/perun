@@ -27,13 +27,13 @@ public class PropagationPlannedOnFacilityAndService extends AuditEvent {
     return facility;
   }
 
-  public Service getService() {
-    return service;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Service getService() {
+    return service;
   }
 
   @Override

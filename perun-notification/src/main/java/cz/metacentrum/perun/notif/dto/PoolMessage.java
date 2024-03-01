@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Holds PerunNotifPoolMessages aggregated for user and templateId, and same
- * keyAttributes
+ * Holds PerunNotifPoolMessages aggregated for user and templateId, and same keyAttributes
  *
  * @author tomas.tunkl
  */
@@ -24,30 +23,9 @@ public class PoolMessage {
   private Map<String, String> keyAttributes;
 
   /**
-   * PerunNotifPoolMessages from db, which has common keyAttributes and
-   * templateIds
+   * PerunNotifPoolMessages from db, which has common keyAttributes and templateIds
    */
   private List<PerunNotifPoolMessage> list;
-
-  public Integer getTemplateId() {
-    return templateId;
-  }
-
-  public void setTemplateId(Integer templateId) {
-    this.templateId = templateId;
-  }
-
-  public Map<String, String> getKeyAttributes() {
-    return keyAttributes;
-  }
-
-  public void setKeyAttributes(Map<String, String> keyAttributes) {
-    this.keyAttributes = keyAttributes;
-  }
-
-  public List<PerunNotifPoolMessage> getList() {
-    return list;
-  }
 
   public void addToList(PerunNotifPoolMessage message) {
     if (list == null) {
@@ -55,6 +33,26 @@ public class PoolMessage {
     }
 
     list.add(message);
+  }
+
+  public Map<String, String> getKeyAttributes() {
+    return keyAttributes;
+  }
+
+  public List<PerunNotifPoolMessage> getList() {
+    return list;
+  }
+
+  public Integer getTemplateId() {
+    return templateId;
+  }
+
+  public void setKeyAttributes(Map<String, String> keyAttributes) {
+    this.keyAttributes = keyAttributes;
+  }
+
+  public void setTemplateId(Integer templateId) {
+    this.templateId = templateId;
   }
 
   @Override

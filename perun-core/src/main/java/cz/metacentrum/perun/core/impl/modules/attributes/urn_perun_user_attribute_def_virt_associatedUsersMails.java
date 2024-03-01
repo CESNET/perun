@@ -9,20 +9,29 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Module for virtual user attribute associatedUsersMails.
- * Get list of preferred mails of all associated users.
+ * Module for virtual user attribute associatedUsersMails. Get list of preferred mails of all associated users.
  *
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
 public class urn_perun_user_attribute_def_virt_associatedUsersMails extends UserVirtualAttributesModuleAbstract {
 
   private static final String A_U_D_preferredMail = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("associatedUsersMails");
+    attr.setDisplayName("Mails of associated users");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("List of preferred mails of all associated users.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
@@ -47,16 +56,5 @@ public class urn_perun_user_attribute_def_virt_associatedUsersMails extends User
     mails.sort(Collator.getInstance());
     attribute.setValue(mails);
     return attribute;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("associatedUsersMails");
-    attr.setDisplayName("Mails of associated users");
-    attr.setType(ArrayList.class.getName());
-    attr.setDescription("List of preferred mails of all associated users.");
-    return attr;
   }
 }

@@ -16,12 +16,32 @@ public class Identity {
   private String email;
   private List<ExtSource> identities;
 
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
   public int getId() {
     return id;
   }
 
   public void setId(int id) {
     this.id = id;
+  }
+
+  public List<ExtSource> getIdentities() {
+    return identities;
+  }
+
+  public void setIdentities(List<ExtSource> identities) {
+    this.identities = identities;
   }
 
   public String getName() {
@@ -38,26 +58,6 @@ public class Identity {
 
   public void setOrganization(String organization) {
     this.organization = organization;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public List<ExtSource> getIdentities() {
-    return identities;
-  }
-
-  public void setIdentities(List<ExtSource> identities) {
-    this.identities = identities;
-  }
-
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
   }
 
 }

@@ -1,15 +1,13 @@
 package cz.metacentrum.perun.scim.api.entities;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.List;
 
 /**
- * ListResponse type containing list of some resources, number of resources
- * and type of resource schema.
+ * ListResponse type containing list of some resources, number of resources and type of resource schema.
  *
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @date 08.10.2016
@@ -37,30 +35,6 @@ public class ListResponseSCIM {
   public ListResponseSCIM() {
   }
 
-  public Long getTotalResults() {
-    return totalResults;
-  }
-
-  public void setTotalResults(Long totalResults) {
-    this.totalResults = totalResults;
-  }
-
-  public String getSchemas() {
-    return schemas;
-  }
-
-  public void setSchemas(String schemas) {
-    this.schemas = schemas;
-  }
-
-  public List getResources() {
-    return resources;
-  }
-
-  public void setResources(List resources) {
-    this.resources = resources;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -83,6 +57,18 @@ public class ListResponseSCIM {
 
   }
 
+  public List getResources() {
+    return resources;
+  }
+
+  public String getSchemas() {
+    return schemas;
+  }
+
+  public Long getTotalResults() {
+    return totalResults;
+  }
+
   @Override
   public int hashCode() {
     int result = getTotalResults() != null ? getTotalResults().hashCode() : 0;
@@ -91,12 +77,21 @@ public class ListResponseSCIM {
     return result;
   }
 
+  public void setResources(List resources) {
+    this.resources = resources;
+  }
+
+  public void setSchemas(String schemas) {
+    this.schemas = schemas;
+  }
+
+  public void setTotalResults(Long totalResults) {
+    this.totalResults = totalResults;
+  }
+
   @Override
   public String toString() {
-    return "ListResponseSCIM{" +
-        "totalResults=" + totalResults +
-        ", schemas='" + schemas + '\'' +
-        ", resources=" + resources +
-        '}';
+    return "ListResponseSCIM{" + "totalResults=" + totalResults + ", schemas='" + schemas + '\'' + ", resources=" +
+           resources + '}';
   }
 }

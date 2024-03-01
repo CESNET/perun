@@ -17,6 +17,14 @@ public class urn_perun_resource_attribute_def_def_mailingListManagerEmail extend
     implements ResourceAttributesModuleImplApi {
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value is null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
       throws WrongAttributeValueException {
     if (attribute.getValue() == null) {
@@ -24,14 +32,6 @@ public class urn_perun_resource_attribute_def_def_mailingListManagerEmail extend
     }
 
     perunSession.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(perunSession, attribute.valueAsString());
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value is null.");
-    }
   }
 
   @Override

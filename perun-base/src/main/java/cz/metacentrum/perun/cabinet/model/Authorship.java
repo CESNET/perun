@@ -6,8 +6,7 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * Class represents Authorship = connection between
- * publication and its author.
+ * Class represents Authorship = connection between publication and its author.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -19,6 +18,45 @@ public class Authorship extends PerunBean {
   private String createdBy;
   private Date createdDate;
   private int createdByUid;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Authorship)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    Authorship that = (Authorship) o;
+    return publicationId == that.publicationId && userId == that.userId;
+  }
+
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  public int getCreatedByUid() {
+    return createdByUid;
+  }
+
+  public void setCreatedByUid(int createdByUid) {
+    this.createdByUid = createdByUid;
+  }
+
+  public Date getCreatedDate() {
+    return createdDate;
+  }
+
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
+  }
 
   /**
    * Return ID of Publication this Authorship belongs to.
@@ -56,59 +94,9 @@ public class Authorship extends PerunBean {
     this.userId = userId;
   }
 
-  public String getCreatedBy() {
-    return createdBy;
-  }
-
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public int getCreatedByUid() {
-    return createdByUid;
-  }
-
-  public void setCreatedByUid(int createdByUid) {
-    this.createdByUid = createdByUid;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Authorship)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    Authorship that = (Authorship) o;
-    return publicationId == that.publicationId &&
-        userId == that.userId;
-  }
-
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), publicationId, userId);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', userId='").append(userId)
-        .append("', publicationId='").append(publicationId).append("', createdBy='").append(createdBy)
-        .append("', createdDate='").append(createdDate).append("', createdByUid='").append(createdByUid).append("']")
-        .toString();
   }
 
   @Override
@@ -122,15 +110,22 @@ public class Authorship extends PerunBean {
       dateString = "\\0";
     }
 
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", userId=<").append(getUserId()).append(">").append(
-            ", publicationId=<").append(getPublicationId()).append(">").append(
-            ", createdBy=<").append(getCreatedBy() == null ? "\\0" : BeansUtils.createEscaping(getCreatedBy())).append(">")
-        .append(
-            ", createdDate=<").append(dateString).append(">").append(
-            ", createdByUid=<").append(getCreatedByUid()).append(">").append(
-            "]").toString();
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", userId=<").append(getUserId()).append(">").append(", publicationId=<").append(getPublicationId())
+        .append(">").append(", createdBy=<")
+        .append(getCreatedBy() == null ? "\\0" : BeansUtils.createEscaping(getCreatedBy())).append(">")
+        .append(", createdDate=<").append(dateString).append(">").append(", createdByUid=<").append(getCreatedByUid())
+        .append(">").append("]").toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', userId='").append(userId)
+        .append("', publicationId='").append(publicationId).append("', createdBy='").append(createdBy)
+        .append("', createdDate='").append(createdDate).append("', createdByUid='").append(createdByUid).append("']")
+        .toString();
   }
 
 }

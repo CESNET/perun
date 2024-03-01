@@ -1,31 +1,26 @@
 package cz.metacentrum.perun.scim.api.endpoints;
 
+import static cz.metacentrum.perun.scim.api.SCIMDefaults.BASE_PATH;
+import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_GROUP;
+import static cz.metacentrum.perun.scim.api.SCIMDefaults.USERS_PATH;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.scim.api.entities.GroupSCIM;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-
-import static cz.metacentrum.perun.scim.api.SCIMDefaults.BASE_PATH;
-import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_GROUP;
-import static cz.metacentrum.perun.scim.api.SCIMDefaults.USERS_PATH;
-
+import cz.metacentrum.perun.scim.api.entities.GroupSCIM;
 import cz.metacentrum.perun.scim.api.entities.MemberSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
-
 import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Endpoint controller, that returns all group resources.

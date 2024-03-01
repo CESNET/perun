@@ -28,21 +28,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 @org.springframework.stereotype.Service(value = "eventLogger")
 public class EventLoggerImpl implements EventLogger, Runnable {
 
-  private final static Logger log = LoggerFactory.getLogger(EventLoggerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EventLoggerImpl.class);
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
   private static final String AUDIT_LOGGER_NAME = "journal-audit";
 
-  private static final Logger journal = LoggerFactory.getLogger(AUDIT_LOGGER_NAME);
+  private static final Logger JOURNAL = LoggerFactory.getLogger(AUDIT_LOGGER_NAME);
 
-  private static final Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
-  private static final ObjectMapper mapper = new ObjectMapper();
+  private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   static {
-    mapper.enableDefaultTyping();
+    MAPPER.enableDefaultTyping();
     // TODO - skip any problematic properties using interfaces for mixins
-    mapper.setMixIns(mixinMap);
+    MAPPER.setMixIns(MIXIN_MAP);
   }
 
   @Autowired
@@ -53,6 +53,43 @@ public class EventLoggerImpl implements EventLogger, Runnable {
   private int lastProcessedIdNumber;
 
   private boolean running = false;
+
+  public int getLastProcessedIdNumber() {
+    return lastProcessedIdNumber;
+  }
+
+  protected void loadLastProcessedId() {
+    Path file = FileSystems.getDefault().getPath(auditLoggerManager.getStateFile());
+    if (!file.toFile().canRead()) {
+      LOG.warn("Could not read state from " + file.toString() + ", defaulting to end of current auditLOG.");
+      this.lastProcessedIdNumber = perun.getAuditMessagesManager().getLastMessageId(perunSession);
+    } else {
+      try {
+        List<String> idString = Files.readAllLines(file, Charset.defaultCharset());
+        int lastId = idString.isEmpty() ? 0 : Integer.parseInt(idString.get(0));
+        if (lastId >= 0) {
+          this.lastProcessedIdNumber = lastId;
+        } else {
+          LOG.error("Wrong number for last processed message id {}, exiting.", idString);
+          System.exit(-1);
+
+        }
+      } catch (IOException exception) {
+        LOG.error("Error reading last processed message id from {}", auditLoggerManager.getStateFile(), exception);
+        System.exit(-1);
+      }
+    }
+  }
+
+  @Override
+  public int logMessage(AuditMessage message) {
+    try {
+      JOURNAL.info(MAPPER.writeValueAsString(message));
+    } catch (JsonProcessingException e) {
+      return -1;
+    }
+    return 0;
+  }
 
   @Override
   public void run() {
@@ -76,18 +113,20 @@ public class EventLoggerImpl implements EventLogger, Runnable {
       while (running) {
 
         int sleepTime = 1000;
-        //Waiting for new messages. If consumer failed in some internal case, waiting until it will be repaired (waiting time is increases by each attempt)
+
+        // Waiting for new messages. If consumer failed in some internal case, waiting until it will be repaired
+        // (waiting time is increases by each attempt)
         while (messages == null || messages.isEmpty()) {
           try {
             //IMPORTANT STEP1: Get new bulk of messages
-            log.debug("Waiting for audit messages.");
+            LOG.debug("Waiting for audit messages.");
             messages = ((PerunBl) perun).getAuditMessagesManagerBl()
                 .pollConsumerMessages(perunSession, auditLoggerManager.getConsumerName(), lastProcessedIdNumber);
             if (messages.size() > 0) {
-              log.debug("Read {} new audit messages starting from {}", messages.size(), lastProcessedIdNumber);
+              LOG.debug("Read {} new audit messages starting from {}", messages.size(), lastProcessedIdNumber);
             }
           } catch (InternalErrorException ex) {
-            log.error("Consumer failed due to {}. Sleeping for {} ms.", ex, sleepTime);
+            LOG.error("Consumer failed due to {}. Sleeping for {} ms.", ex, sleepTime);
             Thread.sleep(sleepTime);
             sleepTime += sleepTime;
           }
@@ -99,13 +138,13 @@ public class EventLoggerImpl implements EventLogger, Runnable {
         }
         //If new messages exist, resolve them all
         Iterator<AuditMessage> messagesIterator = messages.iterator();
-        log.debug("Trying to send {} messages", messages.size());
+        LOG.debug("Trying to send {} messages", messages.size());
         while (messagesIterator.hasNext()) {
           message = messagesIterator.next();
           //Warning when two consecutive messages are separated by more than 15 ids
           if (lastProcessedIdNumber >= 0 && lastProcessedIdNumber < message.getId()) {
             if ((message.getId() - lastProcessedIdNumber) > 15) {
-              log.debug("SKIP FLAG WARNING: lastProcessedIdNumber: {} - newMessageNumber: {} = {}",
+              LOG.debug("SKIP FLAG WARNING: lastProcessedIdNumber: {} - newMessageNumber: {} = {}",
                   lastProcessedIdNumber, message.getId(), (lastProcessedIdNumber - message.getId()));
             }
           }
@@ -118,10 +157,11 @@ public class EventLoggerImpl implements EventLogger, Runnable {
           }
         }
         if (messages.isEmpty()) {
-          log.debug("All messages sent.");
+          LOG.debug("All messages sent.");
           messages = null;
         }
-        //After all messages has been resolved, test interrupting of thread and if its ok, wait and go for another bulk of messages
+        // After all messages has been resolved, test interrupting of thread and if its ok, wait and go for another
+        // bulk of messages
         if (Thread.interrupted()) {
           running = false;
         } else {
@@ -132,60 +172,18 @@ public class EventLoggerImpl implements EventLogger, Runnable {
       //If auditlogger is interrupted
     } catch (InterruptedException e) {
       Date date = new Date();
-      log.error("Last message has ID='{}' and was INTERRUPTED at {} due to interrupting.",
+      LOG.error("Last message has ID='{}' and was INTERRUPTED at {} due to interrupting.",
           ((message != null) ? message.getId() : 0), DATE_FORMAT.format(date));
       running = false;
       Thread.currentThread().interrupt();
       //If some other exception is thrown
     } catch (Exception e) {
       Date date = new Date();
-      log.error("Last message has ID='{}' and was bad PARSED or EXECUTE at {} due to exception {}",
+      LOG.error("Last message has ID='{}' and was bad PARSED or EXECUTE at {} due to exception {}",
           ((message != null) ? message.getId() : 0), DATE_FORMAT.format(date), e.toString());
       throw new RuntimeException(e);
     } finally {
       saveLastProcessedId();
-    }
-  }
-
-  @Override
-  public int logMessage(AuditMessage message) {
-    try {
-      journal.info(mapper.writeValueAsString(message));
-    } catch (JsonProcessingException e) {
-      return -1;
-    }
-    return 0;
-  }
-
-
-  public int getLastProcessedIdNumber() {
-    return lastProcessedIdNumber;
-  }
-
-  public void setLastProcessedIdNumber(int lastProcessedIdNumber) {
-    this.lastProcessedIdNumber = lastProcessedIdNumber;
-  }
-
-  protected void loadLastProcessedId() {
-    Path file = FileSystems.getDefault().getPath(auditLoggerManager.getStateFile());
-    if (!file.toFile().canRead()) {
-      log.warn("Could not read state from " + file.toString() + ", defaulting to end of current audit log.");
-      this.lastProcessedIdNumber = perun.getAuditMessagesManager().getLastMessageId(perunSession);
-    } else {
-      try {
-        List<String> id_s = Files.readAllLines(file, Charset.defaultCharset());
-        int lastId = id_s.isEmpty() ? 0 : Integer.parseInt(id_s.get(0));
-        if (lastId >= 0) {
-          this.lastProcessedIdNumber = lastId;
-        } else {
-          log.error("Wrong number for last processed message id {}, exiting.", id_s);
-          System.exit(-1);
-
-        }
-      } catch (IOException exception) {
-        log.error("Error reading last processed message id from {}", auditLoggerManager.getStateFile(), exception);
-        System.exit(-1);
-      }
     }
   }
 
@@ -194,7 +192,11 @@ public class EventLoggerImpl implements EventLogger, Runnable {
     try {
       Files.write(file, String.valueOf(lastProcessedIdNumber).getBytes());
     } catch (IOException e) {
-      log.error("Error writing last processed message id to file {}", auditLoggerManager.getStateFile(), e);
+      LOG.error("Error writing last processed message id to file {}", auditLoggerManager.getStateFile(), e);
     }
+  }
+
+  public void setLastProcessedIdNumber(int lastProcessedIdNumber) {
+    this.lastProcessedIdNumber = lastProcessedIdNumber;
   }
 }

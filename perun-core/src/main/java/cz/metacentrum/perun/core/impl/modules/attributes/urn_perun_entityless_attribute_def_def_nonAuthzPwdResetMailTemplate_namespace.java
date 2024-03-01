@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
-
 import java.util.regex.Pattern;
 
 /**

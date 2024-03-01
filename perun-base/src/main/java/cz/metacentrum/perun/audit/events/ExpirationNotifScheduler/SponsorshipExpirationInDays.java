@@ -25,10 +25,6 @@ public class SponsorshipExpirationInDays extends AuditEvent implements EngineIgn
         sponsorship.getSponsoredMember(), sponsorship.getSponsor(), days);
   }
 
-  public EnrichedSponsorship getSponsorship() {
-    return sponsorship;
-  }
-
   public int getDays() {
     return days;
   }
@@ -36,6 +32,10 @@ public class SponsorshipExpirationInDays extends AuditEvent implements EngineIgn
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public EnrichedSponsorship getSponsorship() {
+    return sponsorship;
   }
 
   @Override

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -10,9 +13,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupNameTest {
 
@@ -43,7 +43,15 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupNameTe
         AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace")).thenReturn(facilityGroupNameNamespace);
     when(attributesManagerBl.getAttribute(sess, user,
         AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" +
-            facilityGroupNameNamespace.valueAsString())).thenReturn(preferredUnixGroupName);
+        facilityGroupNameNamespace.valueAsString())).thenReturn(preferredUnixGroupName);
+  }
+
+  @Test
+  public void testSemanticsCorrect() throws Exception {
+    System.out.println("testSemanticsCorrect()");
+    attributeToCheck.setValue("name");
+
+    classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
@@ -51,14 +59,6 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupNameTe
     System.out.println("testSemanticsWithoutFacilityLoginNamespaceAttribute()");
     attributeToCheck.setValue("name");
     facilityGroupNameNamespace.setValue(null);
-
-    classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
-  }
-
-  @Test
-  public void testSemanticsCorrect() throws Exception {
-    System.out.println("testSemanticsCorrect()");
-    attributeToCheck.setValue("name");
 
     classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
   }

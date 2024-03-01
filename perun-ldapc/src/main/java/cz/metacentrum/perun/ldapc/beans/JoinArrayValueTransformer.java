@@ -1,24 +1,26 @@
 package cz.metacentrum.perun.ldapc.beans;
 
+import static java.util.stream.Collectors.joining;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
-
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.stream.Collectors.joining;
-
 /**
- * Value transformer which joins {@link List <String>} attribute values from Perun into single String
- * using defined separator. Result is used for single-valued LDAP attributes.
+ * Value transformer which joins {@link List <String>} attribute values from Perun into single String using defined
+ * separator. Result is used for single-valued LDAP attributes.
  */
 public class JoinArrayValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
   /**
-   * Separator used to join incoming multi-valued attribute into single value
-   * Initialized from Spring context.
+   * Separator used to join incoming multi-valued attribute into single value Initialized from Spring context.
    */
   protected String separator;
+
+  public String getSeparator() {
+    return separator;
+  }
 
   @Override
   public String getValue(Collection<String> value, Attribute attr) {
@@ -33,10 +35,6 @@ public class JoinArrayValueTransformer extends ValueTransformerBase implements A
   @Override
   public Boolean isReduce() {
     return true;
-  }
-
-  public String getSeparator() {
-    return separator;
   }
 
   public void setSeparator(String separator) {

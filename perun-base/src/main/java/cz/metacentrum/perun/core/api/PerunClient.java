@@ -14,7 +14,7 @@ public class PerunClient {
 
   public static final String SCOPE_ALL = "all";
   public static final String PERUN_API_SCOPE = "perun_api";
-      //scope for calling RPC and delegation all roles except PERUNADMIN
+  //scope for calling RPC and delegation all roles except PERUNADMIN
   public static final String PERUN_ADMIN_SCOPE = "perun_admin"; //scope fo delagating even the admin role
   private String id;
   private List<String> scopes;
@@ -48,34 +48,6 @@ public class PerunClient {
     this.type = Type.INTERNAL;
   }
 
-  public String getId() {
-    return id;
-  }
-
-  public List<String> getScopes() {
-    return scopes;
-  }
-
-  public Type getType() {
-    return type;
-  }
-
-  @Override
-  public String toString() {
-    return new StringBuilder(getClass().getSimpleName()).append(":[")
-        .append("id='").append(id).append("', ")
-        .append("scopes='").append(scopes).append("']").toString();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + ((scopes == null) ? 0 : scopes.hashCode());
-    return result;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -104,6 +76,34 @@ public class PerunClient {
     }
     return true;
   }
+
+  public String getId() {
+    return id;
+  }
+
+  public List<String> getScopes() {
+    return scopes;
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((scopes == null) ? 0 : scopes.hashCode());
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return new StringBuilder(getClass().getSimpleName()).append(":[").append("id='").append(id).append("', ")
+        .append("scopes='").append(scopes).append("']").toString();
+  }
+
   public enum Type {
     INTERNAL, // Trustful client. E.g. Perun GUI, client for internal components or tests. No privileges are checked.
     OAUTH;  // Untrustful client. Privileges (scopes) should be checked. Not all methods are allowed to access.

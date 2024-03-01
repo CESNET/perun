@@ -15,17 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -40,6 +29,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ExtSource for synchronization from another Perun instance
@@ -48,9 +47,9 @@ import java.util.regex.Pattern;
  */
 public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
 
-  public static final Pattern attributePattern = Pattern.compile("[{](.+)[}]");
-  private final static Logger log = LoggerFactory.getLogger(ExtSourcePerun.class);
-  private static final String format = "json";
+  public static final Pattern ATTRIBUTE_PATTERN = Pattern.compile("[{](.+)[}]");
+  private static final Logger LOG = LoggerFactory.getLogger(ExtSourcePerun.class);
+  private static final String FORMAT = "json";
   // this will allow us to keep session to other Perun instances on all subsequent synchronization calls
   private static CookieStore cookieStore = new BasicCookieStore();
   private String perunUrl;
@@ -58,70 +57,67 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
   private String password;
   private String extSourceNameForLogin = null;
 
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString)
-      throws ExtSourceUnsupportedOperationException {
-    return findSubjectsLogins(searchString, 0);
-  }
+  protected Deserializer call(String managerName, String methodName, String query) throws PerunException {
+    //Prepare sending message
+    HttpResponse response;
+    HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+    httpClientBuilder.setDefaultCookieStore(cookieStore);
+    HttpClient httpClient = httpClientBuilder.build();
 
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResulsts)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException(
-        "For Perun ExtSource is not supported to use this method. Use findSubjects instead.");
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjects(String searchString) {
-    return findSubjects(searchString, 0);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
-    setEnviroment();
-    List<RichUser> richUsers = findRichUsers(searchString);
-    if (maxResults != 0) {
-      if (richUsers.size() > maxResults) {
-        richUsers = richUsers.subList(0, maxResults);
-      }
+    String commandUrl = perunUrl + FORMAT + "/" + managerName + "/" + methodName;
+    if (query != null) {
+      commandUrl += "?" + query;
     }
 
-    List<Map<String, String>> subjects = convertRichUsersToListOfSubjects(richUsers);
-    return subjects;
-  }
+    HttpGet get = new HttpGet(commandUrl);
+    get.setHeader("Content-Type", "application/json");
+    get.setHeader("charset", StandardCharsets.UTF_8.toString());
+    get.setHeader("Connection", "Close");
+    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
 
-  @Override
-  public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
-    setEnviroment();
-    Map<String, String> subject = covertRichUserToSubject(findRichUser(login));
-    return subject;
-  }
+    get.addHeader(BasicScheme.authenticate(credentials, StandardCharsets.UTF_8.toString(), false));
+    //post.setParams(params);
 
-  @Override
-  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
-    setEnviroment();
-    // Get the query for the group subjects
-    String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+    InputStream rpcServerAnswer = null;
 
-    //If there is no query for group, throw exception
-    if (queryForGroup == null) {
-      throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
+    try {
+      response = httpClient.execute(get);
+      rpcServerAnswer = response.getEntity().getContent();
+    } catch (IOException ex) {
+      this.processIOException(ex);
     }
 
-    Integer groupId = Integer.valueOf(queryForGroup);
+    JsonDeserializer des = null;
+    try {
+      des = new JsonDeserializer(rpcServerAnswer);
+    } catch (IOException ex) {
+      this.processIOException(ex);
+    }
 
-    List<Map<String, String>> subjectsFromGroup = convertRichUsersToListOfSubjects(findRichUsers(groupId));
+    return des;
+  }
 
-    return subjectsFromGroup;
+  private Deserializer call(String managerName, String methodName) throws PerunException {
+    return this.call(managerName, methodName, null);
   }
 
   @Override
-  public List<Map<String, String>> getUsersSubjects() {
-    String query = getAttributes().get(UsersManager.USERS_QUERY);
+  public void close() {
+    //not needed there
+  }
 
-    setEnviroment();
+  private List<RichUser> convertListOfRichMembersToListOfRichUsers(List<RichMember> richMembers) {
+    List<RichUser> richUsers = new ArrayList<>();
+    if (richMembers == null || richMembers.isEmpty()) {
+      return richUsers;
+    }
 
-    return convertRichUsersToListOfSubjects(findRichUsers(query));
+    for (RichMember rm : richMembers) {
+      RichUser ru = new RichUser(rm.getUser(), rm.getUserExtSources(), rm.getUserAttributes());
+      richUsers.add(ru);
+    }
+
+    return richUsers;
   }
 
   private List<Map<String, String>> convertRichUsersToListOfSubjects(List<RichUser> richUsers) {
@@ -162,7 +158,7 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
       String name = attr.substring(0, index);
       String value = attr.substring(index + 1);
 
-      Matcher attributeMatcher = attributePattern.matcher(value);
+      Matcher attributeMatcher = ATTRIBUTE_PATTERN.matcher(value);
       //Try to find perun attributes in value part
       if (attributeMatcher.find()) {
         if (attributeMatcher.group(1).equals("login")) {
@@ -191,18 +187,6 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
     return richUserInMap;
   }
 
-  private String lookingForValueInRichUserAttributes(String value, RichUser richUser) {
-    String returnedValue = null;
-    List<Attribute> attributes = richUser.getUserAttributes();
-    for (Attribute attr : attributes) {
-      if (attr.getName().equals(value)) {
-        returnedValue = BeansUtils.attributeValueToString(attr);
-        break;
-      }
-    }
-    return returnedValue;
-  }
-
   private RichUser findRichUser(String login) throws SubjectNotExistsException {
     Map<String, Object> params = new HashMap<>();
 
@@ -223,15 +207,29 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
     if (matchesRichUsers.isEmpty()) {
       throw new SubjectNotExistsException(
           "There is no subject with login " + login + " in extSource " + extSourceNameForLogin +
-              " in System perun with RPC url: " + perunUrl);
+          " in System perun with RPC url: " + perunUrl);
     }
     if (matchesRichUsers.size() > 1) {
       throw new InternalErrorException(
           "There are more then one subject with login " + login + " in extSource " + extSourceNameForLogin +
-              " in System perun with RPC url: " + perunUrl);
+          " in System perun with RPC url: " + perunUrl);
     }
 
     return richUsers.get(0);
+  }
+
+  private List<RichUser> findRichUsers(Integer groupId) {
+    // we don't need to encode query params here, no unsafe char in fixed string
+    String query = "group=" + groupId + "&" + "allowedStatuses[]=" + "VALID";
+
+    List<RichMember> richMembers;
+    try {
+      richMembers = this.call("membersManager", "getRichMembersWithAttributes", query).readList(RichMember.class);
+    } catch (PerunException ex) {
+      throw new InternalErrorException(ex);
+    }
+
+    return convertListOfRichMembersToListOfRichUsers(richMembers);
   }
 
   private List<RichUser> findRichUsers(String substring) {
@@ -265,87 +263,88 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
     return richUsers;
   }
 
-  private List<RichUser> findRichUsers(Integer groupId) {
-    // we don't need to encode query params here, no unsafe char in fixed string
-    String query = "group=" + groupId + "&" + "allowedStatuses[]=" + "VALID";
-
-    List<RichMember> richMembers;
-    try {
-      richMembers = this.call("membersManager", "getRichMembersWithAttributes", query).readList(RichMember.class);
-    } catch (PerunException ex) {
-      throw new InternalErrorException(ex);
-    }
-
-    return convertListOfRichMembersToListOfRichUsers(richMembers);
+  @Override
+  public List<Map<String, String>> findSubjects(String searchString) {
+    return findSubjects(searchString, 0);
   }
 
-  private void setEnviroment() {
-    perunUrl = getAttributes().get("perunUrl");
-    username = getAttributes().get("username");
-    password = getAttributes().get("password");
-    extSourceNameForLogin = getAttributes().get("extSourceNameForLogin");
-    BeansUtils.notNull(perunUrl, "perunUrl");
-    BeansUtils.notNull(username, "username");
-    BeansUtils.notNull(password, "password");
-    BeansUtils.notNull(extSourceNameForLogin, "extSourceNameForLogin");
+  @Override
+  public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
+    setEnviroment();
+    List<RichUser> richUsers = findRichUsers(searchString);
+    if (maxResults != 0) {
+      if (richUsers.size() > maxResults) {
+        richUsers = richUsers.subList(0, maxResults);
+      }
+    }
+
+    List<Map<String, String>> subjects = convertRichUsersToListOfSubjects(richUsers);
+    return subjects;
   }
 
-  private List<RichUser> convertListOfRichMembersToListOfRichUsers(List<RichMember> richMembers) {
-    List<RichUser> richUsers = new ArrayList<>();
-    if (richMembers == null || richMembers.isEmpty()) {
-      return richUsers;
-    }
-
-    for (RichMember rm : richMembers) {
-      RichUser ru = new RichUser(rm.getUser(), rm.getUserExtSources(), rm.getUserAttributes());
-      richUsers.add(ru);
-    }
-
-    return richUsers;
+  @Override
+  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResulsts)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException(
+        "For Perun ExtSource is not supported to use this method. Use findSubjects instead.");
   }
 
-  private Deserializer call(String managerName, String methodName) throws PerunException {
-    return this.call(managerName, methodName, null);
+  @Override
+  public List<Map<String, String>> findSubjectsLogins(String searchString)
+      throws ExtSourceUnsupportedOperationException {
+    return findSubjectsLogins(searchString, 0);
   }
 
-  protected Deserializer call(String managerName, String methodName, String query) throws PerunException {
-    //Prepare sending message
-    HttpResponse response;
-    HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-    httpClientBuilder.setDefaultCookieStore(cookieStore);
-    HttpClient httpClient = httpClientBuilder.build();
+  @Override
+  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
+    setEnviroment();
+    // Get the query for the group subjects
+    String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
-    String commandUrl = perunUrl + format + "/" + managerName + "/" + methodName;
-    if (query != null) {
-      commandUrl += "?" + query;
+    //If there is no query for group, throw exception
+    if (queryForGroup == null) {
+      throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
     }
 
-    HttpGet get = new HttpGet(commandUrl);
-    get.setHeader("Content-Type", "application/json");
-    get.setHeader("charset", StandardCharsets.UTF_8.toString());
-    get.setHeader("Connection", "Close");
-    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
+    Integer groupId = Integer.valueOf(queryForGroup);
 
-    get.addHeader(BasicScheme.authenticate(credentials, StandardCharsets.UTF_8.toString(), false));
-    //post.setParams(params);
+    List<Map<String, String>> subjectsFromGroup = convertRichUsersToListOfSubjects(findRichUsers(groupId));
 
-    InputStream rpcServerAnswer = null;
+    return subjectsFromGroup;
+  }
 
-    try {
-      response = httpClient.execute(get);
-      rpcServerAnswer = response.getEntity().getContent();
-    } catch (IOException ex) {
-      this.processIOException(ex);
+  @Override
+  public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
+    setEnviroment();
+    Map<String, String> subject = covertRichUserToSubject(findRichUser(login));
+    return subject;
+  }
+
+  @Override
+  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
+
+  @Override
+  public List<Map<String, String>> getUsersSubjects() {
+    String query = getAttributes().get(UsersManager.USERS_QUERY);
+
+    setEnviroment();
+
+    return convertRichUsersToListOfSubjects(findRichUsers(query));
+  }
+
+  private String lookingForValueInRichUserAttributes(String value, RichUser richUser) {
+    String returnedValue = null;
+    List<Attribute> attributes = richUser.getUserAttributes();
+    for (Attribute attr : attributes) {
+      if (attr.getName().equals(value)) {
+        returnedValue = BeansUtils.attributeValueToString(attr);
+        break;
+      }
     }
-
-    JsonDeserializer des = null;
-    try {
-      des = new JsonDeserializer(rpcServerAnswer);
-    } catch (IOException ex) {
-      this.processIOException(ex);
-    }
-
-    return des;
+    return returnedValue;
   }
 
   private void processIOException(Throwable e) {
@@ -383,14 +382,14 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
         e);
   }
 
-  @Override
-  public void close() {
-    //not needed there
-  }
-
-  @Override
-  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
+  private void setEnviroment() {
+    perunUrl = getAttributes().get("perunUrl");
+    username = getAttributes().get("username");
+    password = getAttributes().get("password");
+    extSourceNameForLogin = getAttributes().get("extSourceNameForLogin");
+    BeansUtils.notNull(perunUrl, "perunUrl");
+    BeansUtils.notNull(username, "username");
+    BeansUtils.notNull(password, "password");
+    BeansUtils.notNull(extSourceNameForLogin, "extSourceNameForLogin");
   }
 }

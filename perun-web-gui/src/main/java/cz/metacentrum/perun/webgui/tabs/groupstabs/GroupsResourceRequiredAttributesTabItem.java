@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class GroupsResourceRequiredAttributesTabItem implements TabItem {
 
-  public final static String URL = "gps-res-req-attrs";
+  public static final String URL = "gps-res-req-attrs";
   /**
    * Perun web session
    */

@@ -19,40 +19,12 @@ public abstract class PerunBean implements Comparable<PerunBean>, Serializable {
     this.id = id;
   }
 
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  /**
-   * Returns bean name like VO, Member, Resource,...
-   */
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
-  }
-
   @Override
-  public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id='" + id + '\'' +
-        ']';
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = 53 * hash + this.id;
-    hash = 53 * hash + this.getBeanName().hashCode();
-    return hash;
-  }
-
-  public String serializeToString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id=<" + id + ">" +
-        ']';
+  public int compareTo(PerunBean o) {
+    if (o == null) {
+      throw new NullPointerException("PerunBean to compare with is null.");
+    }
+    return (this.getId() - o.getId());
   }
 
   @Override
@@ -68,12 +40,36 @@ public abstract class PerunBean implements Comparable<PerunBean>, Serializable {
 
   }
 
+  /**
+   * Returns bean name like VO, Member, Resource,...
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
   @Override
-  public int compareTo(PerunBean o) {
-    if (o == null) {
-      throw new NullPointerException("PerunBean to compare with is null.");
-    }
-    return (this.getId() - o.getId());
+  public int hashCode() {
+    int hash = 7;
+    hash = 53 * hash + this.id;
+    hash = 53 * hash + this.getBeanName().hashCode();
+    return hash;
+  }
+
+  public String serializeToString() {
+    return this.getClass().getSimpleName() + ":[" + "id=<" + id + ">" + ']';
+  }
+
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName() + ":[" + "id='" + id + '\'' + ']';
   }
 
 }

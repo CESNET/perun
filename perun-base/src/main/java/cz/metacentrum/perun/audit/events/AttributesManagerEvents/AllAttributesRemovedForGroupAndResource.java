@@ -25,13 +25,13 @@ public class AllAttributesRemovedForGroupAndResource extends AuditEvent implemen
     return group;
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   @Override

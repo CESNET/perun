@@ -10,8 +10,7 @@ import java.util.List;
  */
 public enum PerunNotifTypeOfReceiver {
 
-  EMAIL_USER("EMAIL_USER"),
-  EMAIL_GROUP("EMAIL_GROUP");
+  EMAIL_USER("EMAIL_USER"), EMAIL_GROUP("EMAIL_GROUP");
 
   private String key;
 

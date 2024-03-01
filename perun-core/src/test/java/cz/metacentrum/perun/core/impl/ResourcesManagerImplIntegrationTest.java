@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
@@ -18,25 +20,20 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
+import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.HashMap;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author David Flor <493294@mail.muni.cz>
  */
 public class ResourcesManagerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
-  private final static String CLASS_NAME = "ResourcesManagerImpl.";
+  private static final String CLASS_NAME = "ResourcesManagerImpl.";
 
   final ExtSource extSource = new ExtSource(0, "ResourcesManagerExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
   private int userLoginSequence = 0;
@@ -46,20 +43,12 @@ public class ResourcesManagerImplIntegrationTest extends AbstractPerunIntegratio
   private PerunSession sess;
   private Vo vo;
 
-  @Before
-  public void setUp() throws Exception {
-    resourcesManagerImpl =
-        (ResourcesManagerImplApi) ReflectionTestUtils.getField(perun.getResourcesManagerBl(), "resourcesManagerImpl");
-    if (resourcesManagerImpl == null) {
-      throw new RuntimeException("Failed to get resourcesManagerImpl");
-    }
-    sess = perun.getPerunSession(
-        new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-            ExtSourcesManager.EXTSOURCE_INTERNAL),
-        new PerunClient());
-
-    vo = new Vo(0, "ResourcesImplTestVo", "ResourcesImplTestVo");
-    vo = perun.getVosManagerBl().createVo(sess, vo);
+  private Member createSomeMember(final Vo createdVo)
+      throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
+      WrongReferenceAttributeValueException {
+    final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
+    final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
+    return createdMember;
   }
 
   @Test
@@ -129,30 +118,18 @@ public class ResourcesManagerImplIntegrationTest extends AbstractPerunIntegratio
 
   // private methods ==============================================================
 
-  private Facility setUpFacility(String name) throws Exception {
+  @Before
+  public void setUp() throws Exception {
+    resourcesManagerImpl =
+        (ResourcesManagerImplApi) ReflectionTestUtils.getField(perun.getResourcesManagerBl(), "resourcesManagerImpl");
+    if (resourcesManagerImpl == null) {
+      throw new RuntimeException("Failed to get resourcesManagerImpl");
+    }
+    sess = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 
-    Facility facility = new Facility();
-    facility.setName(name);
-    facility = perun.getFacilitiesManager().createFacility(sess, facility);
-		/*
-			 Owner owner = new Owner();
-			 owner.setName("ResourcesManagerTestOwner");
-			 owner.setContact("testingOwner");
-			 perun.getOwnersManager().createOwner(sess, owner);
-			 perun.getFacilitiesManager().addOwner(sess, facility, owner);
-			 */
-    return facility;
-
-  }
-
-  private Resource setUpResource(Vo vo, Facility facility, String name) throws Exception {
-
-    Resource resource = new Resource();
-    resource.setName(name);
-    resource.setDescription("Testovaci");
-    resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
-    return resource;
-
+    vo = new Vo(0, "ResourcesImplTestVo", "ResourcesImplTestVo");
+    vo = perun.getVosManagerBl().createVo(sess, vo);
   }
 
   private Candidate setUpCandidate(String login) {
@@ -174,6 +151,22 @@ public class ResourcesManagerImplIntegrationTest extends AbstractPerunIntegratio
 
   }
 
+  private Facility setUpFacility(String name) throws Exception {
+
+    Facility facility = new Facility();
+    facility.setName(name);
+    facility = perun.getFacilitiesManager().createFacility(sess, facility);
+        /*
+             Owner owner = new Owner();
+             owner.setName("ResourcesManagerTestOwner");
+             owner.setContact("testingOwner");
+             perun.getOwnersManager().createOwner(sess, owner);
+             perun.getFacilitiesManager().addOwner(sess, facility, owner);
+             */
+    return facility;
+
+  }
+
   private Group setUpGroup(Vo vo, Member member, String name) throws Exception {
 
     Group group = new Group(name, "test group");
@@ -184,11 +177,13 @@ public class ResourcesManagerImplIntegrationTest extends AbstractPerunIntegratio
     return group;
   }
 
-  private Member createSomeMember(final Vo createdVo)
-      throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException {
-    final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
-    final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
-    return createdMember;
+  private Resource setUpResource(Vo vo, Facility facility, String name) throws Exception {
+
+    Resource resource = new Resource();
+    resource.setName(name);
+    resource.setDescription("Testovaci");
+    resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
+    return resource;
+
   }
 }

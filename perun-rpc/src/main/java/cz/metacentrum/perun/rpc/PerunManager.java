@@ -34,122 +34,102 @@ public enum PerunManager {
     public ManagerMethod getMethod(String methodName) {
       return VosManagerMethod.valueOf(methodName);
     }
-  },
-  rtMessagesManager {
+  }, rtMessagesManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return RTMessagesManagerMethod.valueOf(methodName);
     }
-  },
-  searcher {
+  }, searcher {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return SearcherMethod.valueOf(methodName);
     }
-  },
-  membersManager {
+  }, membersManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return MembersManagerMethod.valueOf(methodName);
     }
-  },
-  groupsManager {
+  }, groupsManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return GroupsManagerMethod.valueOf(methodName);
     }
-  },
-  usersManager {
+  }, usersManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return UsersManagerMethod.valueOf(methodName);
     }
-  },
-  attributesManager {
+  }, attributesManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return AttributesManagerMethod.valueOf(methodName);
     }
-  },
-  extSourcesManager {
+  }, extSourcesManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return ExtSourcesManagerMethod.valueOf(methodName);
     }
-  },
-  facilitiesManager {
+  }, facilitiesManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return FacilitiesManagerMethod.valueOf(methodName);
     }
-  },
-  consentsManager {
+  }, consentsManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return ConsentsManagerMethod.valueOf(methodName);
     }
-  },
-  configManager {
+  }, configManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return ConfigManagerMethod.valueOf(methodName);
     }
-  },
-  databaseManager {
+  }, databaseManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return DatabaseManagerMethod.valueOf(methodName);
     }
-  },
-  resourcesManager {
+  }, resourcesManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return ResourcesManagerMethod.valueOf(methodName);
     }
-  },
-  servicesManager {
+  }, servicesManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return ServicesManagerMethod.valueOf(methodName);
     }
-  },
-  ownersManager {
+  }, ownersManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return OwnersManagerMethod.valueOf(methodName);
     }
-  },
-  authzResolver {
+  }, authzResolver {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return AuthzResolverMethod.valueOf(methodName);
     }
-  },
-  tasksManager {
+  }, tasksManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return TasksManagerMethod.valueOf(methodName);
     }
-  },
-  cabinetManager {
+  }, cabinetManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return CabinetManagerMethod.valueOf(methodName);
     }
-  },
-  auditMessagesManager {
+  }, auditMessagesManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return AuditMessagesManagerMethod.valueOf(methodName);
     }
-  },
-  registrarManager {
+  }, registrarManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return RegistrarManagerMethod.valueOf(methodName);
     }
-  },
-  securityTeamsManager {
+  }, securityTeamsManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return SecurityTeamsManagerMethod.valueOf(methodName);
@@ -181,8 +161,6 @@ public enum PerunManager {
     return manager.call(methodName, ac, parms);
   }
 
-  protected abstract ManagerMethod getMethod(String methodName);
-
   public Object call(String methodName, ApiCaller ac, Deserializer parms) throws PerunException {
     ManagerMethod method;
     try {
@@ -192,4 +170,6 @@ public enum PerunManager {
     }
     return method.call(ac, parms);
   }
+
+  protected abstract ManagerMethod getMethod(String methodName);
 }

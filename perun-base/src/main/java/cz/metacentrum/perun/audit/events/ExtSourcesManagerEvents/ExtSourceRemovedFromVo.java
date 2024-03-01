@@ -21,17 +21,17 @@ public class ExtSourceRemovedFromVo extends AuditEvent implements EngineIgnoreEv
     this.message = formatMessage("%s removed from %s.", source, vo);
   }
 
+  @Override
+  public String getMessage() {
+    return message;
+  }
+
   public ExtSource getSource() {
     return source;
   }
 
   public Vo getVo() {
     return vo;
-  }
-
-  @Override
-  public String getMessage() {
-    return message;
   }
 
   @Override

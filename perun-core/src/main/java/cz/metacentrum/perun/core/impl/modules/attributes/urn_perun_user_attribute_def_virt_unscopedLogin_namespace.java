@@ -7,11 +7,11 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Arrays;
 
 /**
- * Generic module which takes login-namespace attribute for a specific namespace and returns the unscoped value of the attribute.
+ * Generic module which takes login-namespace attribute for a specific namespace and returns the unscoped value of the
+ * attribute.
  */
 public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace extends UserVirtualAttributesModuleAbstract {
 

@@ -26,12 +26,12 @@ public class OwnershipEnabledForSpecificUser extends AuditEvent implements Engin
     return message;
   }
 
-  public User getUser() {
-    return user;
-  }
-
   public User getSpecificUser() {
     return specificUser;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   @Override

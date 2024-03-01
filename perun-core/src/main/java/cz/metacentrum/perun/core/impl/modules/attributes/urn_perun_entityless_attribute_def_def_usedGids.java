@@ -18,11 +18,8 @@ import java.util.regex.Pattern;
  * <p>
  * Contains all used and already depleted Gids.
  * <p>
- * Available Formats:
- * "Gx" -> "y"  means Group with ID x using GID y
- * "Rx" -> "y"  means Resource with ID x using GID y
- * "Dy" -> "y"  means depleted GID y (no group or resource using it now)
- * No other formats are available.
+ * Available Formats: "Gx" -> "y"  means Group with ID x using GID y "Rx" -> "y"  means Resource with ID x using GID y
+ * "Dy" -> "y"  means depleted GID y (no group or resource using it now) No other formats are available.
  * <p>
  * Null in value of this attribute means there is no GID used or depleted.
  * <p>

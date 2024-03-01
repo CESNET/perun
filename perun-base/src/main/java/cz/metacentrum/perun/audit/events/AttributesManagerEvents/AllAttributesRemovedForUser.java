@@ -18,13 +18,13 @@ public class AllAttributesRemovedForUser extends AuditEvent implements EngineIgn
     this.message = formatMessage("All attributes removed for %s.", user);
   }
 
-  public User getUser() {
-    return user;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   @Override

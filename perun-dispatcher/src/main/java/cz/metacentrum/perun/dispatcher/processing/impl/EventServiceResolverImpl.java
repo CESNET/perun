@@ -49,7 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @org.springframework.stereotype.Service(value = "eventServiceResolver")
 public class EventServiceResolverImpl implements EventServiceResolver {
 
-  private static final Logger log = LoggerFactory.getLogger(EventServiceResolverImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EventServiceResolverImpl.class);
 
   private Properties dispatcherProperties;
   private Perun perun;
@@ -62,21 +62,9 @@ public class EventServiceResolverImpl implements EventServiceResolver {
     return dispatcherProperties;
   }
 
-  @javax.annotation.Resource(name = "dispatcherPropertiesBean")
-  public void setDispatcherProperties(Properties dispatcherProperties) {
-    this.dispatcherProperties = dispatcherProperties;
-  }
-
   public Perun getPerun() {
     return perun;
   }
-
-  @Autowired
-  public void setPerun(Perun perun) {
-    this.perun = perun;
-  }
-
-  // ----- methods -------------------------------------
 
   @Override
   public Map<Facility, Set<Service>> resolveEvent(AuditEvent event)
@@ -85,11 +73,11 @@ public class EventServiceResolverImpl implements EventServiceResolver {
     Map<Facility, Set<Service>> result = new HashMap<Facility, Set<Service>>();
 
     if (event instanceof EngineIgnoreEvent) {
-      log.debug("Event {} ignored 0 facilities will be returned", event.getName());
+      LOG.debug("Event {} ignored 0 facilities will be returned", event.getName());
       return result;
     }
 
-    log.info("Event - I am going to process event: {}", event);
+    LOG.info("Event - I am going to process event: {}", event);
 
     // GET All Beans (only PerunBeans) from message
     List<PerunBean> listOfBeans = new ArrayList<PerunBean>();
@@ -129,7 +117,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 
     // If there is any attribute, so create AttributeDefinition
     if (attributeDefinition != null) {
-      log.debug("Attribute found in event. {}.", attributeDefinition);
+      LOG.debug("Attribute found in event. {}.", attributeDefinition);
     }
 
     List<Facility> facilitiesResolvedFromEvent = new ArrayList<Facility>();
@@ -139,22 +127,19 @@ public class EventServiceResolverImpl implements EventServiceResolver {
     // =============== Resolve facilities from event======================
 
     if (perunSession == null) {
-      perunSession = perun.getPerunSession(new PerunPrincipal(
-              dispatcherProperties.getProperty("perun.principal.name"),
-              dispatcherProperties.getProperty("perun.principal.extSourceName"),
-              dispatcherProperties.getProperty("perun.principal.extSourceType")),
-          new PerunClient());
+      perunSession = perun.getPerunSession(new PerunPrincipal(dispatcherProperties.getProperty("perun.principal.name"),
+          dispatcherProperties.getProperty("perun.principal.extSourceName"),
+          dispatcherProperties.getProperty("perun.principal.extSourceType")), new PerunClient());
     }
 
     // Try to find FACILITY in event
     if (facility != null) {
       try {
-        log.debug("Facility found in event. {}.", facility);
+        LOG.debug("Facility found in event. {}.", facility);
         facilitiesResolvedFromEvent.add(facility);
-        resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager()
-            .getAssignedResources(perunSession, facility));
+        resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager().getAssignedResources(perunSession, facility));
       } catch (FacilityNotExistsException ex) {
-        log.warn("Non-existing facility found while resolving event. id={}", facility.getId());
+        LOG.warn("Non-existing facility found while resolving event. id={}", facility.getId());
       }
     } else {
       // Try to find RESOURCE in event
@@ -164,47 +149,42 @@ public class EventServiceResolverImpl implements EventServiceResolver {
         // Try to find GROUP in event
         if (group != null) {
           try {
-            resourcesResolvedFromEvent = perun.getResourcesManager()
-                .getAssignedResources(perunSession, group);
+            resourcesResolvedFromEvent = perun.getResourcesManager().getAssignedResources(perunSession, group);
           } catch (GroupNotExistsException ex) {
-            log.warn("Non-existing group found while resolving event. id={}", group.getId());
+            LOG.warn("Non-existing group found while resolving event. id={}", group.getId());
           }
         } else {
           // try to find USER in event
           if (user != null) {
             try {
-              resourcesResolvedFromEvent = perun.getUsersManager()
-                  .getAllowedResources(perunSession, user);
+              resourcesResolvedFromEvent = perun.getUsersManager().getAllowedResources(perunSession, user);
             } catch (UserNotExistsException ex) {
-              log.warn("Non-existing user found while resolving event. id={}", user.getId());
+              LOG.warn("Non-existing user found while resolving event. id={}", user.getId());
             }
           } else {
             // try to find MEMBER in event
             if (member != null) {
               try {
-                resourcesResolvedFromEvent = perun.getResourcesManager()
-                    .getAllowedResources(perunSession, member);
+                resourcesResolvedFromEvent = perun.getResourcesManager().getAllowedResources(perunSession, member);
               } catch (MemberNotExistsException ex) {
-                log.warn("Non-existing member found while resolving event. id={}", member.getId());
+                LOG.warn("Non-existing member found while resolving event. id={}", member.getId());
               }
             } else {
               // try to find HOST in event
               if (host != null) {
                 try {
-                  log.debug("Host found in event.id= {}.", host.getId());
+                  LOG.debug("Host found in event.id= {}.", host.getId());
                   facility = perun.getFacilitiesManager().getFacilityForHost(perunSession, host);
                   facilitiesResolvedFromEvent.add(facility);
-                  resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager()
-                      .getAssignedResources(perunSession, facility));
+                  resourcesResolvedFromEvent.addAll(
+                      perun.getFacilitiesManager().getAssignedResources(perunSession, facility));
                 } catch (FacilityNotExistsException ex) {
-                  log.warn(
-                      "Host on non-existing facility found while resolving event. Host id={}",
-                      host.getId());
+                  LOG.warn("Host on non-existing facility found while resolving event. Host id={}", host.getId());
                 } catch (HostNotExistsException ex) {
-                  log.warn("Non-existing host found while resolving event. id={}", host.getId());
+                  LOG.warn("Non-existing host found while resolving event. id={}", host.getId());
                 }
               } else {
-                log.warn("No match found for this event. Event={}", event);
+                LOG.warn("No match found for this event. Event={}", event);
               }
             }
           }
@@ -220,24 +200,26 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 
     // FIXME - Following code is commented since we don't want to start propagation for messages like "ServiceUpdated".
     // Generally it could clog the propagations, when single service is assigned to the many facilities.
-    // It also means, that messages to force/planServicePropagation for service (without facility specified) are ignored.
-		/*
-		if (servicesResolvedFromEvent.size() == 1 &&
-				facilitiesResolvedFromEvent.isEmpty() &&
-				resourcesResolvedFromEvent.isEmpty()) {
-			// there was no proper sourcing object other than the service
-			// so we will append all facilities with such service
-			facilitiesResolvedFromEvent.addAll(perun.getFacilitiesManager().getAssignedFacilities(perunSession, service));
-			for (Facility fac : facilitiesResolvedFromEvent) {
-				try {
-					resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager()
-							.getAssignedResources(perunSession, fac));
-				} catch (FacilityNotExistsException e) {
-					log.error("Facility {} was probably deleted, can't get resources for it.", fac, e);
-				}
-			}
-		}
-		*/
+    // It also means, that messages to force/planServicePropagation for service (without facility specified) are
+    // ignored.
+    /*
+        if (servicesResolvedFromEvent.size() == 1 &&
+                facilitiesResolvedFromEvent.isEmpty() &&
+                resourcesResolvedFromEvent.isEmpty()) {
+            // there was no proper sourcing object other than the service
+            // so we will append all facilities with such service
+            facilitiesResolvedFromEvent.addAll(perun.getFacilitiesManager().getAssignedFacilities(perunSession,
+            service));
+            for (Facility fac : facilitiesResolvedFromEvent) {
+                try {
+                    resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager()
+                            .getAssignedResources(perunSession, fac));
+                } catch (FacilityNotExistsException e) {
+                    log.error("Facility {} was probably deleted, can't get resources for it.", fac, e);
+                }
+            }
+        }
+        */
 
     for (Resource r : resourcesResolvedFromEvent) {
 
@@ -251,7 +233,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
           servicesResolvedFromResource.retainAll(servicesResolvedFromEvent);
         }
       } catch (ResourceNotExistsException ex) {
-        log.error("Non-existing resource found while resolving event. Resource={}", r);
+        LOG.error("Non-existing resource found while resolving event. Resource={}", r);
         continue; // skip to next resource
       }
 
@@ -263,9 +245,8 @@ public class EventServiceResolverImpl implements EventServiceResolver {
           // TODO (CHECKME) This method can raise
           // ServiceNotExistsException. Is it ok? Or it must be
           // catch?
-          List<AttributeDefinition> serviceRequiredAttributes = perun
-              .getAttributesManager()
-              .getRequiredAttributesDefinition(perunSession, s);
+          List<AttributeDefinition> serviceRequiredAttributes =
+              perun.getAttributesManager().getRequiredAttributesDefinition(perunSession, s);
           if (!serviceRequiredAttributes.contains(attributeDefinition)) {
             continue;
           }
@@ -281,9 +262,21 @@ public class EventServiceResolverImpl implements EventServiceResolver {
       }
     }
 
-    log.debug("{} facilities will be returned", result.size());
+    LOG.debug("{} facilities will be returned", result.size());
     return result;
 
+  }
+
+  @javax.annotation.Resource(name = "dispatcherPropertiesBean")
+  public void setDispatcherProperties(Properties dispatcherProperties) {
+    this.dispatcherProperties = dispatcherProperties;
+  }
+
+  // ----- methods -------------------------------------
+
+  @Autowired
+  public void setPerun(Perun perun) {
+    this.perun = perun;
   }
 
 }

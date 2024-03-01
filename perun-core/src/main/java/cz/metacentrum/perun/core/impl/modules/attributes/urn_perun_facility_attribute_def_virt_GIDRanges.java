@@ -48,6 +48,17 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
   }
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
+    attr.setFriendlyName("GIDRanges");
+    attr.setDisplayName("GID ranges in set namespace for the Facility");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription("Computed GID ranges in set namespace for the facility");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility,
                                      AttributeDefinition attributeDefinition) {
     Attribute attribute = new Attribute(attributeDefinition);
@@ -58,6 +69,40 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
     Attribute namespaceGIDRangesAttribute =
         getNamespaceGIDRangesAttribute(sess, (String) gidNamespaceAttribute.getValue());
     return Utils.copyAttributeToVirtualAttributeWithValue(namespaceGIDRangesAttribute, attribute);
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_E_namespaceGIDRanges);
+    dependencies.add(A_FAC_unixGIDNamespace);
+    return dependencies;
+  }
+
+  private Attribute getNamespaceGIDRangesAttribute(PerunSessionImpl sess, String uidNamespace) {
+    try {
+      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespaceGIDRanges);
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(A_FAC_unixGIDNamespace);
+    strongDependencies.add(A_E_namespaceGIDRanges);
+    return strongDependencies;
+  }
+
+  private Attribute getUnixGIDNamespaceAttribute(PerunSessionImpl sess, Facility facility) {
+    try {
+      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_unixGIDNamespace);
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
   }
 
   @Override
@@ -77,50 +122,5 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
           "You can't change attribute value of GID Ranges by changing value of virtual attribute.");
     }
     return false;
-  }
-
-  private Attribute getNamespaceGIDRangesAttribute(PerunSessionImpl sess, String uidNamespace) {
-    try {
-      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespaceGIDRanges);
-    } catch (AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
-    } catch (WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  private Attribute getUnixGIDNamespaceAttribute(PerunSessionImpl sess, Facility facility) {
-    try {
-      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_unixGIDNamespace);
-    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_E_namespaceGIDRanges);
-    dependencies.add(A_FAC_unixGIDNamespace);
-    return dependencies;
-  }
-
-  @Override
-  public List<String> getStrongDependencies() {
-    List<String> strongDependencies = new ArrayList<>();
-    strongDependencies.add(A_FAC_unixGIDNamespace);
-    strongDependencies.add(A_E_namespaceGIDRanges);
-    return strongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
-    attr.setFriendlyName("GIDRanges");
-    attr.setDisplayName("GID ranges in set namespace for the Facility");
-    attr.setType(LinkedHashMap.class.getName());
-    attr.setDescription("Computed GID ranges in set namespace for the facility");
-    return attr;
   }
 }

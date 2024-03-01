@@ -34,13 +34,13 @@ public class AttributeSetForFacilityAndUser extends AuditEvent {
     return facility;
   }
 
-  public User getUser() {
-    return user;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   @Override

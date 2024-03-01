@@ -18,13 +18,13 @@ public class ApplicationCreated extends AuditEvent implements EngineIgnoreEvent 
     this.message = formatMessage("New %s created.", app);
   }
 
+  public Application getApp() {
+    return app;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Application getApp() {
-    return app;
   }
 
   @Override

@@ -17,9 +17,9 @@ public class EngineMessageProcessorTest extends AbstractDispatcherTest {
   @Test
   public void processDispatcherQueueAndMatchingRuleTest() {
     System.out.println("SystemQueueProcessor.processDispatcherQueueAndMatchingRule()");
-    String testMessage_task = "";
-    String testMessage_register = "";
-    String testMessage_goodbye = "";
+    String testMessageTask = "";
+    String testMessageRegister = "";
+    String testMessageGoodbye = "";
   }
 
 }

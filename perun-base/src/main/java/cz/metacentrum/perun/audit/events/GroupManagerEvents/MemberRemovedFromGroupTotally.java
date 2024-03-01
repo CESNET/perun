@@ -20,17 +20,17 @@ public class MemberRemovedFromGroupTotally extends AuditEvent {
     this.message = formatMessage("%s was removed from %s totally.", member, group);
   }
 
-  @Override
-  public String getMessage() {
-    return message;
+  public Group getGroup() {
+    return group;
   }
 
   public Member getMember() {
     return member;
   }
 
-  public Group getGroup() {
-    return group;
+  @Override
+  public String getMessage() {
+    return message;
   }
 
   @Override

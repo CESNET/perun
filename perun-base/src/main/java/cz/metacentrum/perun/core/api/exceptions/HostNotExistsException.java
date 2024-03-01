@@ -3,8 +3,7 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Host;
 
 /**
- * This exception is to be thrown in case we
- * are unable to look up the host computer in the Perun system.
+ * This exception is to be thrown in case we are unable to look up the host computer in the Perun system.
  *
  * @author Michal Karm Babacek
  */

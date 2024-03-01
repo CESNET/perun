@@ -18,14 +18,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * AD Name module
- * Name in AD for group and resource need to be unique in between
- * other AD name where assigned resource has OU Name attribute with same value
- * For example: If the group1 will be assigned to the resource1 and the group2
- * will be assigned to the resource2, on both resources will be attribute OU Name
- * set to value 'SPECIFIC_OU', then value of attribute defined by this module need
- * to be different (unique) for both groups (can't be same). If OU of one of these
- * resources will be different, then both groups can't have the same name.
+ * AD Name module Name in AD for group and resource need to be unique in between other AD name where assigned resource
+ * has OU Name attribute with same value For example: If the group1 will be assigned to the resource1 and the group2
+ * will be assigned to the resource2, on both resources will be attribute OU Name set to value 'SPECIFIC_OU', then value
+ * of attribute defined by this module need to be different (unique) for both groups (can't be same). If OU of one of
+ * these resources will be different, then both groups can't have the same name.
  *
  * @author Michal Stava  stavamichal@gmail.com
  */
@@ -35,20 +32,6 @@ public class urn_perun_group_resource_attribute_def_def_adName extends GroupReso
   private static final String A_R_D_AD_OU_NAME = AttributesManager.NS_RESOURCE_ATTR_DEF + ":adOuName";
 
   private static final Pattern pattern = Pattern.compile("(\\w|-|\\.)*");
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    //Attribute can be null
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    if (!pattern.matcher(attribute.valueAsString()).matches()) {
-      throw new WrongAttributeValueException(attribute,
-          "Invalid attribute adName value. It should contain only letters, digits, hyphens, underscores or dots.");
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
@@ -77,15 +60,22 @@ public class urn_perun_group_resource_attribute_def_def_adName extends GroupReso
     if (!groupsWithSameADNameInSameOu.isEmpty()) {
       throw new WrongReferenceAttributeValueException(attribute, resourceAdOuName, group, resource, resource, null,
           "Attribute AD Name can't be set for group and resource in this OU, because this value is already " +
-              "set for different group and resource in the same OU!");
+          "set for different group and resource in the same OU!");
     }
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_R_D_AD_OU_NAME);
-    return dependencies;
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Attribute can be null
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    if (!pattern.matcher(attribute.valueAsString()).matches()) {
+      throw new WrongAttributeValueException(attribute,
+          "Invalid attribute adName value. It should contain only letters, digits, hyphens, underscores or dots.");
+    }
   }
 
   @Override
@@ -97,5 +87,12 @@ public class urn_perun_group_resource_attribute_def_def_adName extends GroupReso
     attr.setType(String.class.getName());
     attr.setDescription("Name of AD");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_R_D_AD_OU_NAME);
+    return dependencies;
   }
 }

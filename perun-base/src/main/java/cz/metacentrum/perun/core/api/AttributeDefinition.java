@@ -4,8 +4,8 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import java.io.Serializable;
 
 /**
- * This class represents definition of attribute. All attributes comes from some definition.
- * Attribute definition is attribute without connection to some object.
+ * This class represents definition of attribute. All attributes comes from some definition. Attribute definition is
+ * attribute without connection to some object.
  *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
@@ -27,7 +27,8 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
   private String description;
 
   /**
-   * Type of attribute's value. It's a name of java class. "Java.lang.String" for expample. (To get this use something like <em>String.class.getName()</em>)
+   * Type of attribute's value. It's a name of java class. "Java.lang.String" for expample. (To get this use something
+   * like <em>String.class.getName()</em>)
    */
   private String type;
 
@@ -42,8 +43,8 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
   private boolean writable;
 
   /**
-   * If the attribute values must be unique. For multivalued types like java.util.ArrayList, each value in the list
-   * for a given object must be unique among all values for all objects.
+   * If the attribute values must be unique. For multivalued types like java.util.ArrayList, each value in the list for
+   * a given object must be unique among all values for all objects.
    * <p>
    * Entityless attributes cannot be unique.
    */
@@ -71,104 +72,25 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
     this.unique = attributeDefinition.isUnique();
   }
 
-
   /**
-   * Returns the whole attribute name including namespace
+   * Compares this instance to other instance, throws exception if they are different. Used to check that Attribute has
+   * correct AttributeDefinition fields.
    *
-   * @return attribute namespace + friendly name
+   * @param a other instance to be checked for equality
+   * @throws ConsistencyErrorException thrown if any of class attributes differ
    */
-  public String getName() {
-    return namespace + ":" + friendlyName;
-  }
-
-  public String getFriendlyName() {
-    return friendlyName;
-  }
-
-  public void setFriendlyName(String friendlyName) {
-    this.friendlyName = friendlyName;
-  }
-
-  public String getNamespace() {
-    return namespace;
-  }
-
-  public void setNamespace(String namespace) {
-    this.namespace = namespace;
-  }
-
-  public String getType() {
-    //return this.value.getClass().getName();
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
-
-  public boolean getWritable() {
-    return writable;
-  }
-
-  public void setWritable(boolean writable) {
-    this.writable = writable;
-  }
-
-  public boolean isUnique() {
-    return unique;
-  }
-
-  public void setUnique(boolean unique) {
-    this.unique = unique;
-  }
-
-  /**
-   * Get the first part from the friendlyName if the friendlyName contains parameter friendlyName = name:param. Otherwise returns firendlyName.
-   */
-  public String getBaseFriendlyName() {
-    String[] friendlyNames = friendlyName.split(":");
-
-    return friendlyNames[0];
-  }
-
-  /**
-   * Returns parameter of the friendly name, e.g. fiendlyName=name:param.
-   */
-  public String getFriendlyNameParameter() {
-    int index = friendlyName.indexOf(':');
-
-    if (index != -1 && index < friendlyName.length() - 1) {
-      return friendlyName.substring(index + 1);
-    } else {
-      return "";
+  public void checkEquality(AttributeDefinition a) {
+    if (!this.getFriendlyName().equals(a.getFriendlyName())) {
+      throw new ConsistencyErrorException("attribute friendlyName is altered");
     }
-  }
-
-  /**
-   * Returns name of the entity from the attribute name (urn:perun:[entity]:attribute-def). e.g. member, facility, user, ...
-   */
-  public String getEntity() {
-    if (namespace != null && namespace.length() > 0) {
-      String pattern = "urn:perun:(.+?):.+";
-      return namespace.replaceAll(pattern, "$1");
-    } else {
-      return "";
+    if (!this.getNamespace().equals(a.getNamespace())) {
+      throw new ConsistencyErrorException("attribute namespace is altered");
+    }
+    if (!this.getType().equals(a.getType())) {
+      throw new ConsistencyErrorException("attribute type is altered");
+    }
+    if (this.isUnique() != a.isUnique()) {
+      throw new ConsistencyErrorException("attribute unique flag is altered");
     }
   }
 
@@ -194,15 +116,6 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
   }
 
   @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = 53 * hash + getId();
-    hash = 53 * hash + (friendlyName == null ? 0 : friendlyName.hashCode());
-    hash = 53 * hash + (namespace == null ? 0 : namespace.hashCode());
-    return hash;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == null) {
       return false;
@@ -215,51 +128,131 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
     final AttributeDefinition other = (AttributeDefinition) obj;
 
     return this.getId() == other.getId() &&
-        (this.friendlyName == null ? other.friendlyName == null : this.friendlyName.equals(other.friendlyName))
-        && (this.namespace == null ? other.namespace == null : this.namespace.equals(other.namespace));
+           (this.friendlyName == null ? other.friendlyName == null : this.friendlyName.equals(other.friendlyName)) &&
+           (this.namespace == null ? other.namespace == null : this.namespace.equals(other.namespace));
   }
 
   /**
-   * Compares this instance to other instance, throws exception if they are different.
-   * Used to check that Attribute has correct AttributeDefinition fields.
-   *
-   * @param a other instance to be checked for equality
-   * @throws ConsistencyErrorException thrown if any of class attributes differ
+   * Get the first part from the friendlyName if the friendlyName contains parameter friendlyName = name:param.
+   * Otherwise, returns firendlyName.
    */
-  public void checkEquality(AttributeDefinition a) {
-    if (!this.getFriendlyName().equals(a.getFriendlyName())) {
-      throw new ConsistencyErrorException("attribute friendlyName is altered");
+  public String getBaseFriendlyName() {
+    String[] friendlyNames = friendlyName.split(":");
+
+    return friendlyNames[0];
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
+
+  /**
+   * Returns name of the entity from the attribute name (urn:perun:[entity]:attribute-def). e.g. member, facility, user
+   */
+  public String getEntity() {
+    if (namespace != null && namespace.length() > 0) {
+      String pattern = "urn:perun:(.+?):.+";
+      return namespace.replaceAll(pattern, "$1");
+    } else {
+      return "";
     }
-    if (!this.getNamespace().equals(a.getNamespace())) {
-      throw new ConsistencyErrorException("attribute namespace is altered");
+  }
+
+  public String getFriendlyName() {
+    return friendlyName;
+  }
+
+  public void setFriendlyName(String friendlyName) {
+    this.friendlyName = friendlyName;
+  }
+
+  /**
+   * Returns parameter of the friendly name, e.g. fiendlyName=name:param.
+   */
+  public String getFriendlyNameParameter() {
+    int index = friendlyName.indexOf(':');
+
+    if (index != -1 && index < friendlyName.length() - 1) {
+      return friendlyName.substring(index + 1);
+    } else {
+      return "";
     }
-    if (!this.getType().equals(a.getType())) {
-      throw new ConsistencyErrorException("attribute type is altered");
-    }
-    if (this.isUnique() != a.isUnique()) {
-      throw new ConsistencyErrorException("attribute unique flag is altered");
-    }
+  }
+
+  /**
+   * Returns the whole attribute name including namespace
+   *
+   * @return attribute namespace + friendly name
+   */
+  public String getName() {
+    return namespace + ":" + friendlyName;
+  }
+
+  public String getNamespace() {
+    return namespace;
+  }
+
+  public void setNamespace(String namespace) {
+    this.namespace = namespace;
+  }
+
+  public String getType() {
+    //return this.value.getClass().getName();
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public boolean getWritable() {
+    return writable;
+  }
+
+  public void setWritable(boolean writable) {
+    this.writable = writable;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 53 * hash + getId();
+    hash = 53 * hash + (friendlyName == null ? 0 : friendlyName.hashCode());
+    hash = 53 * hash + (namespace == null ? 0 : namespace.hashCode());
+    return hash;
+  }
+
+  public boolean isUnique() {
+    return unique;
+  }
+
+  public void setUnique(boolean unique) {
+    this.unique = unique;
   }
 
   @Override
   public String serializeToString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id=<" + getId() + ">" +
-        ", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
-        ", namespace=<" + (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" +
-        ", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
-        ", unique=<" + unique + ">" +
-        ']';
+    return this.getClass().getSimpleName() + ":[" + "id=<" + getId() + ">" + ", friendlyName=<" +
+           (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" + ", namespace=<" +
+           (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" + ", type=<" +
+           (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" + ", unique=<" + unique + ">" + ']';
   }
 
   @Override
   public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id='" + getId() + "'" +
-        ", friendlyName='" + friendlyName + "'" +
-        ", namespace='" + namespace + "'" +
-        ", type='" + type + "'" +
-        ", unique='" + unique + "'" +
-        ']';
+    return this.getClass().getSimpleName() + ":[" + "id='" + getId() + "'" + ", friendlyName='" + friendlyName + "'" +
+           ", namespace='" + namespace + "'" + ", type='" + type + "'" + ", unique='" + unique + "'" + ']';
   }
 }

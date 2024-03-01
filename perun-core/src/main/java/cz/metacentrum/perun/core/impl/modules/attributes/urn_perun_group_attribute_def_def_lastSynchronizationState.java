@@ -8,9 +8,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
 /**
  * Last synchronization state module
  * <p>
- * If group is synchronized, there will be information about state of last synchronization.
- * If everything is ok, information will be 'OK'.
- * If there is some error, there will be text of an error.
+ * If group is synchronized, there will be information about state of last synchronization. If everything is ok,
+ * information will be 'OK'. If there is some error, there will be text of an error.
  * <p>
  * If group has never been synchronized, this attribute will be empty.
  *

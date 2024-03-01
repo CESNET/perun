@@ -7,7 +7,7 @@ import java.util.UUID;
  *
  * @author Michal Prochazka
  */
-public class Facility extends Auditable implements Comparable<PerunBean>, HasUUID {
+public class Facility extends Auditable implements Comparable<PerunBean>, HasUuid {
 
   private String name;
   private String description;
@@ -35,60 +35,25 @@ public class Facility extends Auditable implements Comparable<PerunBean>, HasUUI
   }
 
   @Override
-  public UUID getUuid() {
-    return uuid;
-  }
-
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", uuid=<").append(getUuid()).append(">").append(
-            ", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
-            ", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription()))
-        .append(">").append(
-            ']').toString();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', uuid='").append(uuid)
-        .append("', name='").append(name).append(
-            "', description='").append(description).append("']").toString();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + getId();
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((description == null) ? 0 : description.hashCode());
-    return result;
+  public int compareTo(PerunBean perunBean) {
+    if (perunBean == null) {
+      throw new NullPointerException("PerunBean to compare with is null.");
+    }
+    if (perunBean instanceof Facility) {
+      Facility facility = (Facility) perunBean;
+      if (this.getName() == null && facility.getName() != null) {
+        return -1;
+      }
+      if (facility.getName() == null && this.getName() != null) {
+        return 1;
+      }
+      if (this.getName() == null && facility.getName() == null) {
+        return 0;
+      }
+      return this.getName().compareToIgnoreCase(facility.getName());
+    } else {
+      return (this.getId() - perunBean.getId());
+    }
   }
 
   @Override
@@ -116,25 +81,57 @@ public class Facility extends Auditable implements Comparable<PerunBean>, HasUUI
     return true;
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
   @Override
-  public int compareTo(PerunBean perunBean) {
-    if (perunBean == null) {
-      throw new NullPointerException("PerunBean to compare with is null.");
-    }
-    if (perunBean instanceof Facility) {
-      Facility facility = (Facility) perunBean;
-      if (this.getName() == null && facility.getName() != null) {
-        return -1;
-      }
-      if (facility.getName() == null && this.getName() != null) {
-        return 1;
-      }
-      if (this.getName() == null && facility.getName() == null) {
-        return 0;
-      }
-      return this.getName().compareToIgnoreCase(facility.getName());
-    } else {
-      return (this.getId() - perunBean.getId());
-    }
+  public UUID getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(UUID uuid) {
+    this.uuid = uuid;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + getId();
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((description == null) ? 0 : description.hashCode());
+    return result;
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", uuid=<").append(getUuid()).append(">").append(", name=<")
+        .append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(", description=<")
+        .append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">").append(']')
+        .toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', uuid='").append(uuid)
+        .append("', name='").append(name).append("', description='").append(description).append("']").toString();
   }
 }

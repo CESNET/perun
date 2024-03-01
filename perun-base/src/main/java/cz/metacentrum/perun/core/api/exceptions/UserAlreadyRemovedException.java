@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when the user has already been removed or when the user
- * has not been found in the blacklist of the security team
+ * This exception is thrown when the user has already been removed or when the user has not been found in the blacklist
+ * of the security team
  *
  * @author Michal Stava
  */

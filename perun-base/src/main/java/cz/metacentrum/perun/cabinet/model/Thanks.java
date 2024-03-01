@@ -5,8 +5,7 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * Class represents Thanks = expression of acknowledgment
- * from authors to facility owners.
+ * Class represents Thanks = expression of acknowledgment from authors to facility owners.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -35,22 +34,63 @@ public class Thanks extends PerunBean {
     this.createdByUid = createdByUid;
   }
 
-  /**
-   * This method returns the value of the database column THANKS.reportId
-   *
-   * @return the value of THANKS.reportId
-   */
-  public int getPublicationId() {
-    return publicationId;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Thanks)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    Thanks thanks = (Thanks) o;
+    return publicationId == thanks.publicationId && ownerId == thanks.ownerId;
   }
 
   /**
-   * This method sets the value of the database column THANKS.publicationId
+   * This method returns the value of the database column THANKS.createdBy
    *
-   * @param publicationId the value for THANKS.publicationId
+   * @return the value of THANKS.createdBy
    */
-  public void setPublicationId(int publicationId) {
-    this.publicationId = publicationId;
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  /**
+   * This method sets the value of the database column THANKS.createdBy
+   *
+   * @param createdBy the value for THANKS.createdBy
+   */
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  public int getCreatedByUid() {
+    return createdByUid;
+  }
+
+  public void setCreatedByUid(int createdByUid) {
+    this.createdByUid = createdByUid;
+  }
+
+  /**
+   * This method returns the value of the database column THANKS.createdDate
+   *
+   * @return the value of THANKS.createdDate
+   */
+  public Date getCreatedDate() {
+    return createdDate;
+  }
+
+  /**
+   * This method sets the value of the database column THANKS.createdDate
+   *
+   * @param createdDate the value for THANKS.createdDate
+   */
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
   }
 
   /**
@@ -72,64 +112,21 @@ public class Thanks extends PerunBean {
   }
 
   /**
-   * This method returns the value of the database column THANKS.createdBy
+   * This method returns the value of the database column THANKS.reportId
    *
-   * @return the value of THANKS.createdBy
+   * @return the value of THANKS.reportId
    */
-  public String getCreatedBy() {
-    return createdBy;
+  public int getPublicationId() {
+    return publicationId;
   }
 
   /**
-   * This method sets the value of the database column THANKS.createdBy
+   * This method sets the value of the database column THANKS.publicationId
    *
-   * @param createdBy the value for THANKS.createdBy
+   * @param publicationId the value for THANKS.publicationId
    */
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  /**
-   * This method returns the value of the database column THANKS.createdDate
-   *
-   * @return the value of THANKS.createdDate
-   */
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  /**
-   * This method sets the value of the database column THANKS.createdDate
-   *
-   * @param createdDate the value for THANKS.createdDate
-   */
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public int getCreatedByUid() {
-    return createdByUid;
-  }
-
-  public void setCreatedByUid(int createdByUid) {
-    this.createdByUid = createdByUid;
-  }
-
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Thanks)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    Thanks thanks = (Thanks) o;
-    return publicationId == thanks.publicationId &&
-        ownerId == thanks.ownerId;
+  public void setPublicationId(int publicationId) {
+    this.publicationId = publicationId;
   }
 
   @Override

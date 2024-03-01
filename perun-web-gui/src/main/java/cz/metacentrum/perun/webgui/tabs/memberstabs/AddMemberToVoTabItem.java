@@ -48,7 +48,7 @@ import java.util.Map;
  */
 public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "add-to-vo";
+  public static final String URL = "add-to-vo";
   /**
    * vo id
    */

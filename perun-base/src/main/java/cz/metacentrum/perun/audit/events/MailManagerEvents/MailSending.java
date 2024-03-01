@@ -17,21 +17,20 @@ public class MailSending extends AuditEvent implements EngineIgnoreEvent {
   public MailSending(ApplicationMail mail, boolean enabled) {
     this.mail = mail;
     this.enabled = enabled;
-    this.message = formatMessage("Sending of Mail ID: %d %s.", mail.getId(),
-        (enabled) ? " enabled." : " disabled.");
+    this.message = formatMessage("Sending of Mail ID: %d %s.", mail.getId(), (enabled) ? " enabled." : " disabled.");
   }
 
   public ApplicationMail getMail() {
     return mail;
   }
 
-  public boolean isEnabled() {
-    return enabled;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
   }
 
   @Override

@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.ldapc.beans;
 
 /**
- * Representation of a single regex substitution, which is applied by {@link RegexpValueTransformer}
- * on the values before they are pushed to the LDAP.
+ * Representation of a single regex substitution, which is applied by {@link RegexpValueTransformer} on the values
+ * before they are pushed to the LDAP.
  */
 public class RegexpSubst {
 
@@ -20,12 +20,12 @@ public class RegexpSubst {
     return find;
   }
 
-  public void setFind(String find) {
-    this.find = find;
-  }
-
   public String getReplace() {
     return replace;
+  }
+
+  public void setFind(String find) {
+    this.find = find;
   }
 
   public void setReplace(String replace) {

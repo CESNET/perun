@@ -1,16 +1,15 @@
 package cz.metacentrum.perun.engine.service.impl;
 
+import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.runners.GenCollector;
 import cz.metacentrum.perun.engine.runners.GenPlanner;
 import cz.metacentrum.perun.engine.runners.SendCollector;
 import cz.metacentrum.perun.engine.runners.SendPlanner;
+import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
+import cz.metacentrum.perun.engine.service.EngineManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import cz.metacentrum.perun.engine.jms.JMSQueueManager;
-import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
-import cz.metacentrum.perun.engine.service.EngineManager;
 
 /**
  * Implementation of EngineManager.
@@ -23,7 +22,7 @@ import cz.metacentrum.perun.engine.service.EngineManager;
 @org.springframework.stereotype.Service(value = "engineManager")
 public class EngineManagerImpl implements EngineManager {
 
-  private final static Logger log = LoggerFactory.getLogger(EngineManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EngineManagerImpl.class);
 
   private GenPlanner genPlanner;
   private GenCollector genCollector;
@@ -43,23 +42,24 @@ public class EngineManagerImpl implements EngineManager {
 
   // ----- setters ------------------------------
 
+  public GenCollector getGenCollector() {
+    return genCollector;
+  }
 
   public GenPlanner getGenPlanner() {
     return genPlanner;
   }
 
-  @Autowired
-  public void setGenPlanner(GenPlanner genPlanner) {
-    this.genPlanner = genPlanner;
+  public JMSQueueManager getJmsQueueManager() {
+    return jmsQueueManager;
   }
 
-  public GenCollector getGenCollector() {
-    return genCollector;
+  public SchedulingPool getSchedulingPool() {
+    return schedulingPool;
   }
 
-  @Autowired
-  public void setGenCollector(GenCollector genCollector) {
-    this.genCollector = genCollector;
+  public SendCollector getSendCollector() {
+    return sendCollector;
   }
 
   public SendPlanner getSendPlanner() {
@@ -67,21 +67,13 @@ public class EngineManagerImpl implements EngineManager {
   }
 
   @Autowired
-  public void setSendPlanner(SendPlanner sendPlanner) {
-    this.sendPlanner = sendPlanner;
-  }
-
-  public SendCollector getSendCollector() {
-    return sendCollector;
+  public void setGenCollector(GenCollector genCollector) {
+    this.genCollector = genCollector;
   }
 
   @Autowired
-  public void setSendCollector(SendCollector sendCollector) {
-    this.sendCollector = sendCollector;
-  }
-
-  public JMSQueueManager getJmsQueueManager() {
-    return jmsQueueManager;
+  public void setGenPlanner(GenPlanner genPlanner) {
+    this.genPlanner = genPlanner;
   }
 
   @Autowired
@@ -89,18 +81,23 @@ public class EngineManagerImpl implements EngineManager {
     this.jmsQueueManager = jmsQueueManager;
   }
 
-  public SchedulingPool getSchedulingPool() {
-    return schedulingPool;
-  }
-
   @Autowired
   public void setSchedulingPool(SchedulingPool schedulingPool) {
     this.schedulingPool = schedulingPool;
   }
 
+  @Autowired
+  public void setSendCollector(SendCollector sendCollector) {
+    this.sendCollector = sendCollector;
+  }
+
+  @Autowired
+  public void setSendPlanner(SendPlanner sendPlanner) {
+    this.sendPlanner = sendPlanner;
+  }
+
 
   // ----- methods ------------------------------
-
 
   @Override
   public void startMessaging() {

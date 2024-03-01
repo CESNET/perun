@@ -7,15 +7,13 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Class representing author. Author it's not stored in cabinet DB.
- * It's identified by his userId (~id) and always manually created from User.
+ * Class representing author. Author it's not stored in cabinet DB. It's identified by his userId (~id) and always
+ * manually created from User.
  * <p>
- * Other author's params are optional, therefore can be null or empty when not
- * requested by original SQL query.
+ * Other author's params are optional, therefore can be null or empty when not requested by original SQL query.
  * <p>
- * E.g. Authors used inside PublicationForGUI object usually contains
- * only base User's params like name. But authors used when "listing all of them"
- * contains also their logins, all authorships etc.
+ * E.g. Authors used inside PublicationForGUI object usually contains only base User's params like name. But authors
+ * used when "listing all of them" contains also their logins, all authorships etc.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -31,18 +29,15 @@ public class Author extends PerunBean {
   private List<Attribute> attributes = new ArrayList<>();
 
   /**
-   * Authorships related to this author.
-   * Provides authorships.getAuthorship(pubId).getCreatedBy() display for GUI.
-   * Used when displaying authors for some publication.
-   * !! This property must be filled manually !!
+   * Authorships related to this author. Provides authorships.getAuthorship(pubId).getCreatedBy() display for GUI. Used
+   * when displaying authors for some publication. !! This property must be filled manually !!
    */
   private List<Authorship> authorships = new ArrayList<Authorship>();
 
   public Author() {
   }
 
-  public Author(int id, String firstName, String lastName,
-                String middleName, String titleBefore, String titleAfter) {
+  public Author(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter) {
     super(id);
     this.firstName = firstName;
     this.lastName = lastName;
@@ -51,44 +46,21 @@ public class Author extends PerunBean {
     this.titleAfter = titleAfter;
   }
 
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-  public String getMiddleName() {
-    return middleName;
-  }
-
-  public void setMiddleName(String middleName) {
-    this.middleName = middleName;
-  }
-
-  public String getTitleBefore() {
-    return titleBefore;
-  }
-
-  public void setTitleBefore(String titleBefore) {
-    this.titleBefore = titleBefore;
-  }
-
-  public String getTitleAfter() {
-    return titleAfter;
-  }
-
-  public void setTitleAfter(String titleAfter) {
-    this.titleAfter = titleAfter;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Author)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    Author author = (Author) o;
+    return Objects.equals(firstName, author.firstName) && Objects.equals(lastName, author.lastName) &&
+           Objects.equals(middleName, author.middleName) && Objects.equals(titleBefore, author.titleBefore) &&
+           Objects.equals(titleAfter, author.titleAfter);
   }
 
   public List<Attribute> getAttributes() {
@@ -139,36 +111,57 @@ public class Author extends PerunBean {
     return name;
   }
 
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  public String getMiddleName() {
+    return middleName;
+  }
+
+  public void setMiddleName(String middleName) {
+    this.middleName = middleName;
+  }
+
+  public String getTitleAfter() {
+    return titleAfter;
+  }
+
+  public void setTitleAfter(String titleAfter) {
+    this.titleAfter = titleAfter;
+  }
+
+  public String getTitleBefore() {
+    return titleBefore;
+  }
+
+  public void setTitleBefore(String titleBefore) {
+    this.titleBefore = titleBefore;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), firstName, lastName, middleName, titleBefore, titleAfter);
+  }
+
   @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
     return str.append(getClass().getSimpleName()).append(":[id=").append(getId()).append(", firstName=")
         .append(firstName).append(", lastName=").append(lastName).append(", displayName=").append(this.getDisplayName())
         .append(", attributes=").append(attributes).append(", authorships=").append(authorships).append("]").toString();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Author)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    Author author = (Author) o;
-    return Objects.equals(firstName, author.firstName) &&
-        Objects.equals(lastName, author.lastName) &&
-        Objects.equals(middleName, author.middleName) &&
-        Objects.equals(titleBefore, author.titleBefore) &&
-        Objects.equals(titleAfter, author.titleAfter);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), firstName, lastName, middleName, titleBefore, titleAfter);
   }
 
 }

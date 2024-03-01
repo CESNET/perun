@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractApplicationExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.LinkedHashMap;
 
 /**
@@ -19,15 +18,9 @@ import java.util.LinkedHashMap;
 public class urn_perun_group_attribute_def_def_applicationExpirationRules
     extends AbstractApplicationExpirationRulesModule<Group> implements GroupAttributesModuleImplApi {
   @Override
-  public Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute)
-      throws WrongAttributeAssignmentException {
-    return new Attribute(attribute);
-  }
+  public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
 
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute)
-      throws WrongAttributeValueException {
-    super.checkAttributeSyntax(perunSession, group, attribute);
   }
 
   @Override
@@ -37,9 +30,15 @@ public class urn_perun_group_attribute_def_def_applicationExpirationRules
   }
 
   @Override
-  public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    super.checkAttributeSyntax(perunSession, group, attribute);
+  }
 
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException {
+    return new Attribute(attribute);
   }
 
   @Override

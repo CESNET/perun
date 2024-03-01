@@ -20,16 +20,12 @@ public class LdapProperties {
     this.isReplica = Boolean.parseBoolean(isReplica);
   }
 
-  public boolean propsLoaded() {
-    return ldapConsumerName != null && ldapBase != null && ldapLoginNamespace != null;
+  public String getLdapBase() {
+    return ldapBase;
   }
 
   public String getLdapConsumerName() {
     return ldapConsumerName;
-  }
-
-  public String getLdapBase() {
-    return ldapBase;
   }
 
   public String getLdapLoginNamespace() {
@@ -42,6 +38,10 @@ public class LdapProperties {
 
   public boolean isReplica() {
     return isReplica;
+  }
+
+  public boolean propsLoaded() {
+    return ldapConsumerName != null && ldapBase != null && ldapLoginNamespace != null;
   }
 
 }

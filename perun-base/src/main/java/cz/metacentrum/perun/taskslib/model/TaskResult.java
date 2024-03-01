@@ -28,22 +28,6 @@ public class TaskResult extends PerunBean implements Serializable {
   private Service service;
 
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + destinationId;
-    result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
-    result = prime * result + getId();
-    result = prime * result + returnCode;
-    result = prime * result + ((standardMessage == null) ? 0 : standardMessage.hashCode());
-    result = prime * result + ((status == null) ? 0 : status.hashCode());
-    result = prime * result + taskId;
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-    result = prime * result + ((service == null) ? 0 : service.hashCode());
-    return result;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
@@ -90,55 +74,16 @@ public class TaskResult extends PerunBean implements Serializable {
     return true;
   }
 
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    String dateString;
-    if (timestamp != null) {
-      dateString = BeansUtils.getDateFormatter().format(timestamp);
-    } else {
-      dateString = "\\0";
-    }
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", taskId=<").append(taskId).append(">").append(
-            ", destinationId=<").append(destinationId).append(">").append(
-            ", errorMessage=<").append(errorMessage == null ? "\\0" : BeansUtils.createEscaping(errorMessage.toString()))
-        .append(">").append(
-            ", standardMessage=<")
-        .append(standardMessage == null ? "\\0" : BeansUtils.createEscaping(standardMessage.toString())).append(">")
-        .append(
-            ", returnCode=<").append(returnCode).append(">").append(
-            ", timestamp=<").append(dateString).append(">").append(
-            ", status=<").append(status == null ? "\\0" : BeansUtils.createEscaping(status.toString())).append(">")
-        .append(
-            ", service=<").append(service == null ? "\\0" : service.serializeToString()).append(">").append(
-            ']').toString();
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
   }
 
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-    return str.append(getClass().getSimpleName())
-        .append(":[id='").append(getId())
-        .append("', taskId='").append(taskId)
-        .append("', destinationId='").append(destinationId)
-        .append("', errorMessage='").append(errorMessage)
-        .append("', standardMessage='").append(standardMessage)
-        .append("', returnCode='").append(returnCode)
-        .append("', timestamp='").append(BeansUtils.getDateFormatter().format(timestamp))
-        .append("', status='").append(status)
-        .append("', service='").append(service).append("']").toString();
+  public Destination getDestination() {
+    return destination;
   }
 
-  public int getTaskId() {
-    return taskId;
-  }
-
-  public void setTaskId(int taskId) {
-    this.taskId = taskId;
+  public void setDestination(Destination destination) {
+    this.destination = destination;
   }
 
   public int getDestinationId() {
@@ -157,6 +102,22 @@ public class TaskResult extends PerunBean implements Serializable {
     this.errorMessage = errorMessage;
   }
 
+  public int getReturnCode() {
+    return returnCode;
+  }
+
+  public void setReturnCode(int returnCode) {
+    this.returnCode = returnCode;
+  }
+
+  public Service getService() {
+    return service;
+  }
+
+  public void setService(Service service) {
+    this.service = service;
+  }
+
   public String getStandardMessage() {
     return standardMessage;
   }
@@ -165,12 +126,20 @@ public class TaskResult extends PerunBean implements Serializable {
     this.standardMessage = standardMessage;
   }
 
-  public int getReturnCode() {
-    return returnCode;
+  public TaskResultStatus getStatus() {
+    return status;
   }
 
-  public void setReturnCode(int returnCode) {
-    this.returnCode = returnCode;
+  public void setStatus(TaskResultStatus status) {
+    this.status = status;
+  }
+
+  public int getTaskId() {
+    return taskId;
+  }
+
+  public void setTaskId(int taskId) {
+    this.taskId = taskId;
   }
 
   public Date getTimestamp() {
@@ -185,32 +154,53 @@ public class TaskResult extends PerunBean implements Serializable {
     return (timestamp == null) ? null : timestamp.getTime();
   }
 
-  public TaskResultStatus getStatus() {
-    return status;
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + destinationId;
+    result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
+    result = prime * result + getId();
+    result = prime * result + returnCode;
+    result = prime * result + ((standardMessage == null) ? 0 : standardMessage.hashCode());
+    result = prime * result + ((status == null) ? 0 : status.hashCode());
+    result = prime * result + taskId;
+    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+    result = prime * result + ((service == null) ? 0 : service.hashCode());
+    return result;
   }
 
-  public void setStatus(TaskResultStatus status) {
-    this.status = status;
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    String dateString;
+    if (timestamp != null) {
+      dateString = BeansUtils.getDateFormatter().format(timestamp);
+    } else {
+      dateString = "\\0";
+    }
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", taskId=<").append(taskId).append(">").append(", destinationId=<").append(destinationId).append(">")
+        .append(", errorMessage=<")
+        .append(errorMessage == null ? "\\0" : BeansUtils.createEscaping(errorMessage.toString())).append(">")
+        .append(", standardMessage=<")
+        .append(standardMessage == null ? "\\0" : BeansUtils.createEscaping(standardMessage.toString())).append(">")
+        .append(", returnCode=<").append(returnCode).append(">").append(", timestamp=<").append(dateString).append(">")
+        .append(", status=<").append(status == null ? "\\0" : BeansUtils.createEscaping(status.toString())).append(">")
+        .append(", service=<").append(service == null ? "\\0" : service.serializeToString()).append(">").append(']')
+        .toString();
   }
 
-  public Destination getDestination() {
-    return destination;
-  }
-
-  public void setDestination(Destination destination) {
-    this.destination = destination;
-  }
-
-  public Service getService() {
-    return service;
-  }
-
-  public void setService(Service service) {
-    this.service = service;
-  }
-
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', taskId='").append(taskId)
+        .append("', destinationId='").append(destinationId).append("', errorMessage='").append(errorMessage)
+        .append("', standardMessage='").append(standardMessage).append("', returnCode='").append(returnCode)
+        .append("', timestamp='").append(BeansUtils.getDateFormatter().format(timestamp)).append("', status='")
+        .append(status).append("', service='").append(service).append("']").toString();
   }
 
   public static enum TaskResultStatus {

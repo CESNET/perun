@@ -9,9 +9,8 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * Sending part of original Task. Task is usually split between multiple SendTasks,
- * each of them associated with one Destination. Results are then grouped and used
- * to determine state of a whole Task.
+ * Sending part of original Task. Task is usually split between multiple SendTasks, each of them associated with one
+ * Destination. Results are then grouped and used to determine state of a whole Task.
  *
  * @see cz.metacentrum.perun.taskslib.model.Task
  * @see cz.metacentrum.perun.core.api.Destination
@@ -42,58 +41,17 @@ public class SendTask implements Serializable {
     setId();
   }
 
-  /**
-   * Get time when sending of Task started.
-   *
-   * @return Time when sending started
-   */
-  public Date getStartTime() {
-    return startTime;
-  }
-
-  /**
-   * Set time when sending of Task started.
-   *
-   * @param startTime Time when sending started
-   */
-  public void setStartTime(Date startTime) {
-    this.startTime = startTime;
-  }
-
-  /**
-   * Get time when sending of Task ended.
-   *
-   * @return Time when sending ended
-   */
-  public Date getEndTime() {
-    return endTime;
-  }
-
-  /**
-   * Set time when sending of Task ended.
-   *
-   * @param endTime Time when sending ended
-   */
-  public void setEndTime(Date endTime) {
-    this.endTime = endTime;
-  }
-
-  /**
-   * Get Task associated with this SendTask
-   *
-   * @return Task associated with this SendTask
-   */
-  public Task getTask() {
-    return task;
-  }
-
-  /**
-   * Set Task associated with this SendTask
-   *
-   * @param task Task associated with this SendTask
-   */
-  public void setTask(Task task) {
-    this.task = task;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof SendTask)) {
+      return false;
+    }
+    SendTask sendTask = (SendTask) o;
+    return Objects.equals(startTime, sendTask.startTime) && Objects.equals(endTime, sendTask.endTime) &&
+           Objects.equals(task, sendTask.task) && Objects.equals(destination, sendTask.destination);
   }
 
   /**
@@ -115,21 +73,30 @@ public class SendTask implements Serializable {
   }
 
   /**
-   * Get Status of SendTask
+   * Get time when sending of Task ended.
    *
-   * @return Status of SendTask
+   * @return Time when sending ended
    */
-  public SendTaskStatus getStatus() {
-    return status;
+  public Date getEndTime() {
+    return endTime;
   }
 
   /**
-   * Set Status of SendTask
+   * Set time when sending of Task ended.
    *
-   * @param status Status of SendTask
+   * @param endTime Time when sending ended
    */
-  public void setStatus(SendTaskStatus status) {
-    this.status = status;
+  public void setEndTime(Date endTime) {
+    this.endTime = endTime;
+  }
+
+  /**
+   * Get ID of SendTask as a pair of Task ID and Destination
+   *
+   * @return ID of SendTask
+   */
+  public Pair<Integer, Destination> getId() {
+    return id;
   }
 
   /**
@@ -151,21 +118,39 @@ public class SendTask implements Serializable {
   }
 
   /**
-   * Get STDOUT of sending script
+   * Get time when sending of Task started.
    *
-   * @return STDOUT of sending script
+   * @return Time when sending started
    */
-  public String getStdout() {
-    return stdout;
+  public Date getStartTime() {
+    return startTime;
   }
 
   /**
-   * Set STDOUT of sending script
+   * Set time when sending of Task started.
    *
-   * @param stdout STDOUT of sending script
+   * @param startTime Time when sending started
    */
-  public void setStdout(String stdout) {
-    this.stdout = stdout;
+  public void setStartTime(Date startTime) {
+    this.startTime = startTime;
+  }
+
+  /**
+   * Get Status of SendTask
+   *
+   * @return Status of SendTask
+   */
+  public SendTaskStatus getStatus() {
+    return status;
+  }
+
+  /**
+   * Set Status of SendTask
+   *
+   * @param status Status of SendTask
+   */
+  public void setStatus(SendTaskStatus status) {
+    this.status = status;
   }
 
   /**
@@ -187,34 +172,39 @@ public class SendTask implements Serializable {
   }
 
   /**
-   * Set SendTask ID as a pair of Task ID and Destination
+   * Get STDOUT of sending script
+   *
+   * @return STDOUT of sending script
    */
-  public void setId() {
-    id = new Pair<>(task.getId(), destination);
+  public String getStdout() {
+    return stdout;
   }
 
   /**
-   * Get ID of SendTask as a pair of Task ID and Destination
+   * Set STDOUT of sending script
    *
-   * @return ID of SendTask
+   * @param stdout STDOUT of sending script
    */
-  public Pair<Integer, Destination> getId() {
-    return id;
+  public void setStdout(String stdout) {
+    this.stdout = stdout;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof SendTask)) {
-      return false;
-    }
-    SendTask sendTask = (SendTask) o;
-    return Objects.equals(startTime, sendTask.startTime) &&
-        Objects.equals(endTime, sendTask.endTime) &&
-        Objects.equals(task, sendTask.task) &&
-        Objects.equals(destination, sendTask.destination);
+  /**
+   * Get Task associated with this SendTask
+   *
+   * @return Task associated with this SendTask
+   */
+  public Task getTask() {
+    return task;
+  }
+
+  /**
+   * Set Task associated with this SendTask
+   *
+   * @param task Task associated with this SendTask
+   */
+  public void setTask(Task task) {
+    this.task = task;
   }
 
   @Override
@@ -222,19 +212,21 @@ public class SendTask implements Serializable {
     return Objects.hash(startTime, endTime, task, destination);
   }
 
+  /**
+   * Set SendTask ID as a pair of Task ID and Destination
+   */
+  public void setId() {
+    id = new Pair<>(task.getId(), destination);
+  }
+
   @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
-    str.append(getClass().getSimpleName()).append(":[status='").append(status)
-        .append("', startTime='")
+    str.append(getClass().getSimpleName()).append(":[status='").append(status).append("', startTime='")
         .append((startTime != null) ? BeansUtils.getDateFormatter().format(startTime) : startTime)
         .append("', endTime='").append((endTime != null) ? BeansUtils.getDateFormatter().format(endTime) : endTime)
-        .append("', returnCode='").append(returnCode)
-        .append("', task='").append(task)
-        .append("', destination='").append(destination)
-        .append("', stdout='").append(stdout)
-        .append("', stderr='").append(stderr)
-        .append("']");
+        .append("', returnCode='").append(returnCode).append("', task='").append(task).append("', destination='")
+        .append(destination).append("', stdout='").append(stdout).append("', stderr='").append(stderr).append("']");
     return str.toString();
   }
 

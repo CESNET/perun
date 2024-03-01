@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class AddUserExtSourceTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "add-ext-src";
+  public static final String URL = "add-ext-src";
   /**
    * User id
    */

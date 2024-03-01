@@ -22,13 +22,13 @@ public class MemberUnsuspended extends AuditEvent implements EngineForceEvent {
     this.message = formatMessage("%s unsuspended.", member);
   }
 
+  public Member getMember() {
+    return member;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   @Override

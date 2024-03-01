@@ -30,10 +30,6 @@ public class AttributeRemovedForResourceAndMember extends AuditEvent {
     return attribute;
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
   public Member getMember() {
     return member;
   }
@@ -41,6 +37,10 @@ public class AttributeRemovedForResourceAndMember extends AuditEvent {
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   @Override

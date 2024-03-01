@@ -103,15 +103,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
       if (parms.contains("group")) {
         if (parms.contains("parentGroup")) {
-          return ac.getGroupsManager().createGroup(ac.getSession(),
-              ac.getGroupById(parms.readInt("parentGroup")),
+          return ac.getGroupsManager().createGroup(ac.getSession(), ac.getGroupById(parms.readInt("parentGroup")),
               parms.read("group", Group.class));
         } else if (parms.contains("vo")) {
           Group group = parms.read("group", Group.class);
           if (group.getParentGroupId() == null) {
-            return ac.getGroupsManager().createGroup(ac.getSession(),
-                ac.getVoById(parms.readInt("vo")),
-                group);
+            return ac.getGroupsManager().createGroup(ac.getSession(), ac.getVoById(parms.readInt("vo")), group);
           } else {
             throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Top-level groups can't have parentGroupId set!");
           }
@@ -123,16 +120,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
           String name = parms.readString("name");
           String description = parms.readString("description");
           Group group = new Group(name, description);
-          return ac.getGroupsManager().createGroup(ac.getSession(),
-              ac.getGroupById(parms.readInt("parentGroup")),
-              group);
+          return ac.getGroupsManager()
+              .createGroup(ac.getSession(), ac.getGroupById(parms.readInt("parentGroup")), group);
         } else if (parms.contains("vo")) {
           String name = parms.readString("name");
           String description = parms.readString("description");
           Group group = new Group(name, description);
-          return ac.getGroupsManager().createGroup(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              group);
+          return ac.getGroupsManager().createGroup(ac.getSession(), ac.getVoById(parms.readInt("vo")), group);
         } else {
           throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or parentGroup");
         }
@@ -163,8 +157,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getGroupsManager().createGroupUnion(ac.getSession(),
-          ac.getGroupById(parms.readInt("resultGroup")),
+      return ac.getGroupsManager().createGroupUnion(ac.getSession(), ac.getGroupById(parms.readInt("resultGroup")),
           ac.getGroupById(parms.readInt("operandGroup")));
     }
   },
@@ -233,16 +226,15 @@ public enum GroupsManagerMethod implements ManagerMethod {
         groups.add(ac.getGroupById(i));
       }
 
-      ac.getGroupsManager().deleteGroups(ac.getSession(),
-          groups,
-          parms.readBoolean("forceDelete"));
+      ac.getGroupsManager().deleteGroups(ac.getSession(), groups, parms.readBoolean("forceDelete"));
       return null;
     }
   },
 
   /*#
    * Removes union of two groups, when "operandGroup" is technically removed from subgroups of "resultGroup".
-   * Members from "operandGroup" are removed from "resultGroup" if they were INDIRECT members sourcing from this group only.
+   * Members from "operandGroup" are removed from "resultGroup" if they were INDIRECT members sourcing from this
+   * group only.
    *
    * @throw GroupNotExistsException If any group not exists in perun
    * @throw GroupRelationDoesNotExist If the relation doesn't exist
@@ -256,8 +248,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getGroupsManager().removeGroupUnion(ac.getSession(),
-          ac.getGroupById(parms.readInt("resultGroup")),
+      ac.getGroupsManager().removeGroupUnion(ac.getSession(), ac.getGroupById(parms.readInt("resultGroup")),
           ac.getGroupById(parms.readInt("operandGroup")));
       return null;
     }
@@ -277,8 +268,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getGroupsManager().updateGroup(ac.getSession(),
-          parms.read("group", Group.class));
+      return ac.getGroupsManager().updateGroup(ac.getSession(), parms.read("group", Group.class));
     }
   },
 
@@ -309,13 +299,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("destinationGroup")) {
-        ac.getGroupsManager().moveGroup(ac.getSession(),
-            ac.getGroupById(parms.readInt("destinationGroup")),
+        ac.getGroupsManager().moveGroup(ac.getSession(), ac.getGroupById(parms.readInt("destinationGroup")),
             ac.getGroupById(parms.readInt("movingGroup")));
       } else {
-        ac.getGroupsManager().moveGroup(ac.getSession(),
-            null,
-            ac.getGroupById(parms.readInt("movingGroup")));
+        ac.getGroupsManager().moveGroup(ac.getSession(), null, ac.getGroupById(parms.readInt("movingGroup")));
       }
       return null;
     }
@@ -350,9 +337,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupByName {
     @Override
     public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupByName(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          parms.readString("name"));
+      return ac.getGroupsManager()
+          .getGroupByName(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("name"));
     }
   },
 
@@ -382,8 +368,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupUnions {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupUnions(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
+      return ac.getGroupsManager().getGroupUnions(ac.getSession(), ac.getGroupById(parms.readInt("group")),
           parms.readBoolean("reverseDirection"));
     }
   },
@@ -413,16 +398,15 @@ public enum GroupsManagerMethod implements ManagerMethod {
           members.add(member);
         }
       }
-      ac.getGroupsManager().addMembers(ac.getSession(),
-          group,
-          members);
+      ac.getGroupsManager().addMembers(ac.getSession(), group, members);
 
       return null;
     }
   },
 
   /*#
-   * Copies direct members from one group to other groups in the same VO. The members are copied without their member-group attributes.
+   * Copies direct members from one group to other groups in the same VO. The members are copied without their
+   * member-group attributes.
    * Copies all direct members if members list is empty or null.
    *
    * @param sourceGroup int <code>id</code> of the group to copy members from
@@ -448,8 +432,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
         groups.add(ac.getGroupById(id));
       }
 
-      ac.getGroupsManager().copyMembers(ac.getSession(), ac.getGroupById(parms.readInt("sourceGroup")),
-          groups, members);
+      ac.getGroupsManager()
+          .copyMembers(ac.getSession(), ac.getGroupById(parms.readInt("sourceGroup")), groups, members);
       return null;
     }
   },
@@ -460,7 +444,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @throws MemberNotExistsException When member doesn't exist
    * @throws AlreadyMemberException When already member
    * @throws GroupNotExistsException When group doesn't exist
-   * @throws WrongAttributeValueException If any member attribute value, required by resource (on which the group is assigned), is wrong
+   * @throws WrongAttributeValueException If any member attribute value, required by resource (on which the group is
+   * assigned), is wrong
    * @throws WrongAttributeAssignmentException Thrown while assigning atribute to wrong entity
    * @throws AttributeNotExistsException When attribute doesn't exist
    * @throw WrongReferenceAttributeValueException When the attribute of the reference has illegal value
@@ -482,8 +467,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("group")) {
-        ac.getGroupsManager().addMember(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getGroupsManager().addMember(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             ac.getMemberById(parms.readInt("member")));
       } else if (parms.contains("groups")) {
         List<Integer> groupsInts = parms.readList("groups", Integer.class);
@@ -494,9 +478,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
         for (Integer groupInt : groupsInts) {
           groups.add(ac.getGroupById(groupInt));
         }
-        ac.getGroupsManager().addMember(ac.getSession(),
-            groups,
-            ac.getMemberById(parms.readInt("member")));
+        ac.getGroupsManager().addMember(ac.getSession(), groups, ac.getMemberById(parms.readInt("member")));
 
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "Parameter not provided. 'group' or 'groups' missing.");
@@ -508,7 +490,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
   /*#
    * Removes members from a group.
    * Non-empty list of members expected. In case of empty list, no member is removed from the group.
-   * If member is not in the group or the membership is indirect, it is skipped without a warning but the rest of the members are processed.
+   * If member is not in the group or the membership is indirect, it is skipped without a warning but the rest of the
+   *  members are processed.
    *
    * @throw MemberNotExistsException When member doesn't exist
    * @throw NotGroupMemberException  When member is not in the group
@@ -540,9 +523,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
           //skipped because user is not member of this group so we don't need to remove him
         }
       }
-      ac.getGroupsManager().removeMembers(ac.getSession(),
-          group,
-          members);
+      ac.getGroupsManager().removeMembers(ac.getSession(), group, members);
       return null;
     }
   },
@@ -562,7 +543,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @param member int Member <code>id</code>
    */
   /*#
-   * Removes a member from groups. If a member is not in the group or is indirect, it is skipped without a warning, but the rest of groups are processed.
+   * Removes a member from groups. If a member is not in the group or is indirect, it is skipped without a warning,
+   * but the rest of groups are processed.
    * Non-empty list of groups expected. In case of empty list, member is not removed.
    *
    * @throw MemberNotExistsException When member doesn't exist
@@ -580,8 +562,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
       if (parms.contains("group")) {
-        ac.getGroupsManager().removeMember(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getGroupsManager().removeMember(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             ac.getMemberById(parms.readInt("member")));
       } else if (parms.contains("groups")) {
         List<Integer> groupsInts = parms.readList("groups", Integer.class);
@@ -600,9 +581,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
             //skipped because user is not member of this group so we don't need to remove him
           }
         }
-        ac.getGroupsManager().removeMember(ac.getSession(),
-            ac.getMemberById(parms.readInt("member")),
-            groups);
+        ac.getGroupsManager().removeMember(ac.getSession(), ac.getMemberById(parms.readInt("member")), groups);
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "non-empty parameter 'groups' or parameter 'group' not sent");
@@ -658,8 +637,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupRichMembers {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupRichMembers(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getGroupRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -675,8 +653,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupDirectRichMembers {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupDirectRichMembers(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getGroupDirectRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -692,8 +669,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupRichMembersWithAttributes {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupRichMembersWithAttributes(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager()
+          .getGroupRichMembersWithAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -709,8 +686,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   isGroupMember {
     @Override
     public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().isGroupMember(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
+      return ac.getGroupsManager().isGroupMember(ac.getSession(), ac.getGroupById(parms.readInt("group")),
           ac.getMemberById(parms.readInt("member")));
     }
   },
@@ -726,8 +702,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupMembersCount {
     @Override
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupMembersCount(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getGroupMembersCount(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -742,8 +717,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupDirectMembersCount {
     @Override
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupDirectMembersCount(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getGroupDirectMembersCount(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -758,8 +732,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupMembersCountsByVoStatus {
     @Override
     public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      Map<Status, Integer> counts = ac.getGroupsManager().getGroupMembersCountsByVoStatus(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      Map<Status, Integer> counts = ac.getGroupsManager()
+          .getGroupMembersCountsByVoStatus(ac.getSession(), ac.getGroupById(parms.readInt("group")));
 
       // convert Status to String
       return counts.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue));
@@ -777,8 +751,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupMembersCountsByGroupStatus {
     @Override
     public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      Map<MemberGroupStatus, Integer> counts = ac.getGroupsManager().getGroupMembersCountsByGroupStatus(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      Map<MemberGroupStatus, Integer> counts = ac.getGroupsManager()
+          .getGroupMembersCountsByGroupStatus(ac.getSession(), ac.getGroupById(parms.readInt("group")));
 
       // convert MemberGroupStatus to String
       return counts.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue));
@@ -845,10 +819,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupsPage {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupsPage(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          parms.read("query", GroupsPageQuery.class),
-          parms.readList("attrNames", String.class));
+      return ac.getGroupsManager()
+          .getGroupsPage(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.read("query", GroupsPageQuery.class),
+              parms.readList("attrNames", String.class));
     }
   },
 
@@ -868,10 +841,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getSubgroupsPage {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getSubgroupsPage(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
-          parms.read("query", GroupsPageQuery.class),
-          parms.readList("attrNames", String.class));
+      return ac.getGroupsManager().getSubgroupsPage(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+          parms.read("query", GroupsPageQuery.class), parms.readList("attrNames", String.class));
     }
   },
 
@@ -886,7 +857,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Object> call(ApiCaller ac, Deserializer parms) throws PerunException {
       List<Object> convertedGroups = new ArrayList<Object>();
-      // Every list must contain as a first field the group object which represents the group. First list contains null on the first position.
+      // Every list must contain as a first field the group object which represents the group. First list contains
+      // null on the first position.
       convertedGroups.add(0, null);
 
       Map<Group, Object> groups =
@@ -969,12 +941,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
       if (parms.contains("user")) {
-        ac.getGroupsManager().addAdmin(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            ac.getUserById(parms.readInt("user")));
+        ac.getGroupsManager()
+            .addAdmin(ac.getSession(), ac.getGroupById(parms.readInt("group")), ac.getUserById(parms.readInt("user")));
       } else {
-        ac.getGroupsManager().addAdmin(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getGroupsManager().addAdmin(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             ac.getGroupById(parms.readInt("authorizedGroup")));
       }
       return null;
@@ -1005,12 +975,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
       if (parms.contains("user")) {
-        ac.getGroupsManager().removeAdmin(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getGroupsManager().removeAdmin(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             ac.getUserById(parms.readInt("user")));
       } else {
-        ac.getGroupsManager().removeAdmin(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getGroupsManager().removeAdmin(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             ac.getGroupById(parms.readInt("authorizedGroup")));
       }
       return null;
@@ -1027,7 +995,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @throw GroupNotExistsException When the group doesn't exist
    *
    * @param group int Group <code>id</code>
-   * @param onlyDirectAdmins int if == true, get only direct user administrators (if == false, get both direct and indirect)
+   * @param onlyDirectAdmins int if == true, get only direct user administrators (if == false, get both direct and
+   * indirect)
    *
    * @return List<User> list of all group administrators of the given group for supported role
    */
@@ -1104,13 +1073,17 @@ public enum GroupsManagerMethod implements ManagerMethod {
    *
    * Supported roles: GroupAdmin
    *
-   * If "onlyDirectAdmins" is == true, return only direct admins of the group for supported role with specific attributes.
-   * If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+   * If "onlyDirectAdmins" is == true, return only direct admins of the group for supported role with specific
+   * attributes.
+   * If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects
+   * richUser. Ignoring list of specific attributes.
    *
    * @param group int Group <code>id</code>
    * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
-   * @param allUserAttributes int if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
-   * @param onlyDirectAdmins int if == true, get only direct group administrators (if false, get both direct and indirect)
+   * @param allUserAttributes int if == true, get all possible user attributes and ignore list of specificAttributes
+   * (if false, get only specific attributes)
+   * @param onlyDirectAdmins int if == true, get only direct group administrators (if false, get both direct and
+   * indirect)
    *
    * @return List<RichUser> list of RichUser administrators for the group and supported role with attributes
    */
@@ -1128,19 +1101,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
       try {
         if (parms.contains("onlyDirectAdmins")) {
-          return AuthzResolver.getRichAdmins(ac.getSession(),
-              ac.getGroupById(parms.readInt("group")),
-              parms.readList("specificAttributes", String.class),
-              Role.GROUPADMIN,
-              parms.readBoolean("onlyDirectAdmins"),
-              parms.readBoolean("allUserAttributes"));
+          return AuthzResolver.getRichAdmins(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+              parms.readList("specificAttributes", String.class), Role.GROUPADMIN,
+              parms.readBoolean("onlyDirectAdmins"), parms.readBoolean("allUserAttributes"));
         } else {
-          return AuthzResolver.getRichAdmins(ac.getSession(),
-              ac.getGroupById(parms.readInt("group")),
-              new ArrayList<>(),
-              Role.GROUPADMIN,
-              false,
-              false);
+          return AuthzResolver.getRichAdmins(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+              new ArrayList<>(), Role.GROUPADMIN, false, false);
         }
       } catch (RoleCannotBeManagedException ex) {
         throw new InternalErrorException(ex);
@@ -1162,12 +1128,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
       try {
-        return AuthzResolver.getRichAdmins(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            new ArrayList<>(),
-            Role.GROUPADMIN,
-            false,
-            true);
+        return AuthzResolver.getRichAdmins(ac.getSession(), ac.getGroupById(parms.readInt("group")), new ArrayList<>(),
+            Role.GROUPADMIN, false, true);
       } catch (RoleCannotBeManagedException ex) {
         throw new InternalErrorException(ex);
       }
@@ -1238,13 +1200,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
       if (parms.contains("member")) {
         return ac.getGroupsManager().getRichGroupsAssignedToResourceWithAttributesByNames(ac.getSession(),
-            ac.getMemberById(parms.readInt("member")),
-            ac.getResourceById(parms.readInt("resource")),
-            attrNames);
+            ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")), attrNames);
       } else {
         return ac.getGroupsManager().getRichGroupsAssignedToResourceWithAttributesByNames(ac.getSession(),
-            ac.getResourceById(parms.readInt("resource")),
-            attrNames);
+            ac.getResourceById(parms.readInt("resource")), attrNames);
       }
     }
   },
@@ -1264,12 +1223,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       try {
-        return AuthzResolver.getRichAdmins(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            parms.readList("specificAttributes", String.class),
-            Role.GROUPADMIN,
-            false,
-            false);
+        return AuthzResolver.getRichAdmins(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+            parms.readList("specificAttributes", String.class), Role.GROUPADMIN, false, false);
       } catch (RoleCannotBeManagedException ex) {
         throw new InternalErrorException(ex);
       }
@@ -1292,12 +1247,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       try {
-        return AuthzResolver.getRichAdmins(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            parms.readList("specificAttributes", String.class),
-            Role.GROUPADMIN,
-            true,
-            false);
+        return AuthzResolver.getRichAdmins(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+            parms.readList("specificAttributes", String.class), Role.GROUPADMIN, true, false);
       } catch (RoleCannotBeManagedException ex) {
         throw new InternalErrorException(ex);
       }
@@ -1365,7 +1316,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    *
    * @throw VoNotExistsException When the Vo doesn't exist
    * @throw GroupAlreadyRemovedException If there is at least 1 group not affected by deleting from DB
-   * @throw GroupAlreadyRemovedFromResourceException If there is at least 1 group on resource affected by deleting from DB
+   * @throw GroupAlreadyRemovedFromResourceException If there is at least 1 group on resource affected by deleting
+   * from DB
    * @throw GroupRelationDoesNotExist When the group relation doesn't exist
    * @throw GroupRelationCannotBeRemoved When the group relation cannot be removed
    *
@@ -1376,8 +1328,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getGroupsManager().deleteAllGroups(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")));
+      ac.getGroupsManager().deleteAllGroups(ac.getSession(), ac.getVoById(parms.readInt("vo")));
       return null;
     }
   },
@@ -1395,8 +1346,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      ac.getGroupsManager().forceGroupSynchronization(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      ac.getGroupsManager().forceGroupSynchronization(ac.getSession(), ac.getGroupById(parms.readInt("group")));
       return null;
     }
   },
@@ -1412,8 +1362,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      ac.getGroupsManager().forceAllSubGroupsSynchronization(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      ac.getGroupsManager().forceAllSubGroupsSynchronization(ac.getSession(), ac.getGroupById(parms.readInt("group")));
       return null;
     }
   },
@@ -1422,7 +1371,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * Forces group structure synchronization.
    *
    * @throw GroupNotExistsException When the group doesn't exist
-   * @throw GroupStructureSynchronizationAlreadyRunningException When the group structure synchronization has already been running
+   * @throw GroupStructureSynchronizationAlreadyRunningException When the group structure synchronization has already
+   *  been running
    *
    * @param group int Group <code>id</code>
    */
@@ -1431,8 +1381,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getGroupsManager().forceGroupStructureSynchronization(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      ac.getGroupsManager()
+          .forceGroupStructureSynchronization(ac.getSession(), ac.getGroupById(parms.readInt("group")));
       return null;
     }
   },
@@ -1449,8 +1399,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public Vo call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getVo(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getVo(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -1466,8 +1415,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getParentGroupMembers(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getParentGroupMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -1482,8 +1430,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getParentGroupRichMembers(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getParentGroupRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -1498,8 +1445,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getParentGroupRichMembersWithAttributes(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager()
+          .getParentGroupRichMembersWithAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -1513,8 +1460,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getMemberGroups(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      return ac.getGroupsManager().getMemberGroups(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   },
 
@@ -1533,8 +1479,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getMemberGroupsByAttribute(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")), parms.read("attribute", Attribute.class));
+      return ac.getGroupsManager()
+          .getMemberGroupsByAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              parms.read("attribute", Attribute.class));
     }
   },
 
@@ -1553,7 +1500,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role, each containing selected attributes, starting at
+   * fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -1567,7 +1515,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing selected attributes,
+   *  starting at fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -1581,7 +1530,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing selected
+   * attributes, starting at fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -1608,7 +1558,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role, each containing all attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role, each containing all attributes, starting at
+   * fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -1621,7 +1572,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing all attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing all attributes,
+   * starting at fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -1634,7 +1586,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing all attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing all
+   * attributes, starting at fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -1661,7 +1614,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role, each containing selected attributes, starting at first index of the original
+   * Returns sub-list of all RichGroups filtered by user's role, each containing selected attributes, starting at
+   * first index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -1675,7 +1629,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing selected attributes, starting at first index of the original
+   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing selected attributes,
+   *  starting at first index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -1689,7 +1644,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing selected attributes, starting at first index of the original
+   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing selected
+   * attributes, starting at first index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -1716,7 +1672,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role, each containing all attributes, starting at first index of the original
+   * Returns sub-list of all RichGroups filtered by user's role, each containing all attributes, starting at first
+   * index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -1729,7 +1686,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing all attributes, starting at first index of the original
+   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing all attributes,
+   * starting at first index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -1742,7 +1700,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing all attributes, starting at first index of the original
+   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing all
+   * attributes, starting at first index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -1770,7 +1729,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role, each containing selected attributes, starting at
+   * fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -1785,7 +1745,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing selected attributes,
+   *  starting at fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -1800,7 +1761,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing selected
+   * attributes, starting at fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -1829,7 +1791,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role, each containing all attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role, each containing all attributes, starting at
+   * fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -1843,7 +1806,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing all attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role assignment type, each containing all attributes,
+   * starting at fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -1857,7 +1821,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing all attributes
    */
   /*#
-   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing all attributes, starting at fromIndex (included)
+   * Returns sub-list of all RichGroups filtered by user's role and its assignment type, each containing all
+   * attributes, starting at fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -1901,7 +1866,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns full list of all RichGroups filtered by user's role and its assignment type, containing selected attributes.
+   * Returns full list of all RichGroups filtered by user's role and its assignment type, containing selected
+   * attributes.
    *
    * @throw VoNotExistsException When Vo doesn't exist
    *
@@ -1950,13 +1916,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getAllRichGroupsWithAttributesByNames {
     @Override
     public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      List<RichGroup> listOfRichGroups = ac.getGroupsManager().getAllRichGroupsWithAttributesByNames(
-          ac.getSession(), ac.getVoById(parms.readInt("vo")),
-          parms.contains("attrNames") ? parms.readList("attrNames", String.class) : null,
-          parms.contains("roles") ? parms.readList("roles", String.class) : new ArrayList<>(),
-          parms.contains("types") ?
-              parms.readList("types", String.class).stream().map(RoleAssignmentType::valueOf).toList() :
-              new ArrayList<>());
+      List<RichGroup> listOfRichGroups = ac.getGroupsManager()
+          .getAllRichGroupsWithAttributesByNames(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.contains("attrNames") ? parms.readList("attrNames", String.class) : null,
+              parms.contains("roles") ? parms.readList("roles", String.class) : new ArrayList<>(),
+              parms.contains("types") ?
+                  parms.readList("types", String.class).stream().map(RoleAssignmentType::valueOf).toList() :
+                  new ArrayList<>());
 
       if (listOfRichGroups == null) {
         listOfRichGroups = new ArrayList<>();
@@ -1995,7 +1961,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of member's RichGroups filtered by user's role, each containing selected attributes, starting
+   * at fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -2015,7 +1982,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role assignment type, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of member's RichGroups filtered by user's role assignment type, each containing selected
+   * attributes, starting at fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -2036,7 +2004,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role and its assignment type, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of member's RichGroups filtered by user's role and its assignment type, each containing
+   * selected attributes, starting at fromIndex (included)
    * and ending at the size of the original list.
    *
    * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
@@ -2057,7 +2026,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups, each containing selected attributes, starting at first index of the original
+   * Returns sub-list of member's RichGroups, each containing selected attributes, starting at first index of the
+   * original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -2077,7 +2047,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role, each containing selected attributes, starting at first index of the original
+   * Returns sub-list of member's RichGroups filtered by user's role, each containing selected attributes, starting
+   * at first index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -2098,7 +2069,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role assignment type, each containing selected attributes, starting at first index of the original
+   * Returns sub-list of member's RichGroups filtered by user's role assignment type, each containing selected
+   * attributes, starting at first index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -2119,7 +2091,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role and its assignment type, each containing selected attributes, starting at first index of the original
+   * Returns sub-list of member's RichGroups filtered by user's role and its assignment type, each containing
+   * selected attributes, starting at first index of the original
    * list (included) and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], toIndex=2 => [1,2,3]
@@ -2162,7 +2135,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of member's RichGroups filtered by user's role, each containing selected attributes, starting
+   * at fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -2184,7 +2158,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role assignment type, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of member's RichGroups filtered by user's role assignment type, each containing selected
+   * attributes, starting at fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -2206,7 +2181,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns sub-list of member's RichGroups filtered by user's role and its assignment type, each containing selected attributes, starting at fromIndex (included)
+   * Returns sub-list of member's RichGroups filtered by user's role and its assignment type, each containing
+   * selected attributes, starting at fromIndex (included)
    * and ending at the toIndex (included).
    *
    * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
@@ -2279,7 +2255,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns full list of member's RichGroups filtered by user's role and its assignment type, containing selected attributes.
+   * Returns full list of member's RichGroups filtered by user's role and its assignment type, containing selected
+   * attributes.
    *
    *
    * "members" group is not included!
@@ -2299,13 +2276,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getMemberRichGroupsWithAttributesByNames {
     @Override
     public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      List<RichGroup> listOfRichGroups = ac.getGroupsManager().getMemberRichGroupsWithAttributesByNames(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")),
-          parms.readList("attrNames", String.class),
-          parms.contains("roles") ? parms.readList("roles", String.class) : new ArrayList<>(),
-          parms.contains("types") ?
-              parms.readList("types", String.class).stream().map(RoleAssignmentType::valueOf).toList() :
-              new ArrayList<>());
+      List<RichGroup> listOfRichGroups = ac.getGroupsManager()
+          .getMemberRichGroupsWithAttributesByNames(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              parms.readList("attrNames", String.class),
+              parms.contains("roles") ? parms.readList("roles", String.class) : new ArrayList<>(),
+              parms.contains("types") ?
+                  parms.readList("types", String.class).stream().map(RoleAssignmentType::valueOf).toList() :
+                  new ArrayList<>());
 
       if (listOfRichGroups == null) {
         listOfRichGroups = new ArrayList<>();
@@ -2337,9 +2314,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getRichSubGroupsWithAttributesByNames(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
-          parms.readList("attrNames", String.class));
+      return ac.getGroupsManager()
+          .getRichSubGroupsWithAttributesByNames(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+              parms.readList("attrNames", String.class));
     }
   },
 
@@ -2353,7 +2330,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns all AllRichSubGroups from parent group filtered by user's role, containing selected attributes (all level subgroups).
+   * Returns all AllRichSubGroups from parent group filtered by user's role, containing selected attributes (all
+   * level subgroups).
    *
    * @throw GroupNotExistsException When the group doesn't exist
    *
@@ -2363,7 +2341,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns all AllRichSubGroups from parent group filtered by user's role assignment type, containing selected attributes (all level subgroups).
+   * Returns all AllRichSubGroups from parent group filtered by user's role assignment type, containing selected
+   * attributes (all level subgroups).
    *
    * @throw GroupNotExistsException When the group doesn't exist
    *
@@ -2373,7 +2352,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
    * @return List<RichGroup> RichGroups containing selected attributes
    */
   /*#
-   * Returns all AllRichSubGroups from parent group filtered by user's role and its assignment type, containing selected attributes (all level subgroups).
+   * Returns all AllRichSubGroups from parent group filtered by user's role and its assignment type, containing
+   * selected attributes (all level subgroups).
    *
    * @throw GroupNotExistsException When the group doesn't exist
    *
@@ -2386,13 +2366,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getAllRichSubGroupsWithAttributesByNames {
     @Override
     public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getAllRichSubGroupsWithAttributesByNames(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
-          parms.readList("attrNames", String.class),
-          parms.contains("roles") ? parms.readList("roles", String.class) : new ArrayList<>(),
-          parms.contains("types") ?
-              parms.readList("types", String.class).stream().map(RoleAssignmentType::valueOf).toList() :
-              new ArrayList<>());
+      return ac.getGroupsManager()
+          .getAllRichSubGroupsWithAttributesByNames(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+              parms.readList("attrNames", String.class),
+              parms.contains("roles") ? parms.readList("roles", String.class) : new ArrayList<>(),
+              parms.contains("types") ?
+                  parms.readList("types", String.class).stream().map(RoleAssignmentType::valueOf).toList() :
+                  new ArrayList<>());
     }
   },
 
@@ -2409,8 +2389,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public RichGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getRichGroupByIdWithAttributesByNames(ac.getSession(),
-          parms.readInt("groupId"),
+      return ac.getGroupsManager().getRichGroupByIdWithAttributesByNames(ac.getSession(), parms.readInt("groupId"),
           parms.contains("attrNames") ? parms.readList("attrNames", String.class) : null);
     }
   },
@@ -2427,8 +2406,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getAllMemberGroups(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      return ac.getGroupsManager().getAllMemberGroups(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   },
 
@@ -2445,8 +2423,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getGroupsWhereMemberIsActive(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      return ac.getGroupsManager()
+          .getGroupsWhereMemberIsActive(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   },
 
@@ -2463,14 +2441,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getGroupsWhereMemberIsInactive(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      return ac.getGroupsManager()
+          .getGroupsWhereMemberIsInactive(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   },
 
   /**
-   * Returns all member's groups where member is in active state (is valid there)
-   * Included members group.
+   * Returns all member's groups where member is in active state (is valid there) Included members group.
    *
    * @throw MemberNotExistsException When the member doesn't exist
    * @param member int <code>id</code> of member
@@ -2480,8 +2457,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getAllGroupsWhereMemberIsActive(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      return ac.getGroupsManager()
+          .getAllGroupsWhereMemberIsActive(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   },
 
@@ -2499,11 +2476,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupsWhereUserIsActiveMember {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupsWhereUserIsActiveMember(
-          ac.getSession(),
-          ac.getUserById(parms.readInt("user")),
-          ac.getVoById(parms.readInt("vo"))
-      );
+      return ac.getGroupsManager()
+          .getGroupsWhereUserIsActiveMember(ac.getSession(), ac.getUserById(parms.readInt("user")),
+              ac.getVoById(parms.readInt("vo")));
     }
   },
 
@@ -2521,8 +2496,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getActiveGroupMembers(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getActiveGroupMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -2540,8 +2514,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getGroupsManager().getInactiveGroupMembers(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager().getInactiveGroupMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
 
   },
@@ -2563,10 +2536,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       MemberGroupStatus status = MemberGroupStatus.valueOf(parms.readString("status"));
-      return ac.getGroupsManager().setMemberGroupStatus(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")),
-          ac.getGroupById(parms.readInt("group")),
-          status);
+      return ac.getGroupsManager().setMemberGroupStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+          ac.getGroupById(parms.readInt("group")), status);
     }
   },
 
@@ -2585,15 +2556,15 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getGroupsManager().extendMembershipInGroup(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")),
+      ac.getGroupsManager().extendMembershipInGroup(ac.getSession(), ac.getMemberById(parms.readInt("member")),
           ac.getGroupById(parms.readInt("group")));
       return null;
     }
   },
 
   /*#
-   * Returns <code>1 == true</code> if member in given group can extend membership or if no rules were set for the membershipExpiration
+   * Returns <code>1 == true</code> if member in given group can extend membership or if no rules were set for the
+   * membershipExpiration
    * Otherwise return <code>0 == false</code>.
    *
    * @param member int Member <code>id</code>
@@ -2605,8 +2576,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   canExtendMembershipInGroup {
     @Override
     public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-      if (ac.getGroupsManager().canExtendMembershipInGroup(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")),
+      if (ac.getGroupsManager().canExtendMembershipInGroup(ac.getSession(), ac.getMemberById(parms.readInt("member")),
           ac.getGroupById(parms.readInt("group")))) {
         return 1;
       } else {
@@ -2627,9 +2597,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getIndirectMembershipPaths {
     @Override
     public List<List<Group>> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getIndirectMembershipPaths(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getGroupsManager()
+          .getIndirectMembershipPaths(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -2644,9 +2614,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupMemberById {
     @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupMemberById(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
-          parms.readInt("member"));
+      return ac.getGroupsManager()
+          .getGroupMemberById(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readInt("member"));
     }
   },
 
@@ -2663,10 +2632,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getGroupRichMembersByIds {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().getGroupRichMembersByIds(ac.getSession(),
-          parms.readInt("group"),
-          parms.readList("members", Integer.class),
-          parms.readList("attrNames", String.class));
+      return ac.getGroupsManager()
+          .getGroupRichMembersByIds(ac.getSession(), parms.readInt("group"), parms.readList("members", Integer.class),
+              parms.readList("attrNames", String.class));
     }
   },
 
@@ -2684,8 +2652,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getGroupsManager().allowGroupToHierarchicalVo(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
+      ac.getGroupsManager().allowGroupToHierarchicalVo(ac.getSession(), ac.getGroupById(parms.readInt("group")),
           ac.getVoById(parms.readInt("vo")));
       return null;
     }
@@ -2713,9 +2680,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
       Vo vo = ac.getVoById(parms.readInt("vo"));
 
-      ac.getGroupsManager().allowGroupsToHierarchicalVo(ac.getSession(),
-          groups,
-          vo);
+      ac.getGroupsManager().allowGroupsToHierarchicalVo(ac.getSession(), groups, vo);
 
       return null;
     }
@@ -2734,8 +2699,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getGroupsManager().disallowGroupToHierarchicalVo(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
+      ac.getGroupsManager().disallowGroupToHierarchicalVo(ac.getSession(), ac.getGroupById(parms.readInt("group")),
           ac.getVoById(parms.readInt("vo")));
       return null;
     }
@@ -2762,9 +2726,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
       Vo vo = ac.getVoById(parms.readInt("vo"));
 
-      ac.getGroupsManager().disallowGroupsToHierarchicalVo(ac.getSession(),
-          groups,
-          vo);
+      ac.getGroupsManager().disallowGroupsToHierarchicalVo(ac.getSession(), groups, vo);
 
       return null;
     }
@@ -2783,9 +2745,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
   isAllowedGroupToHierarchicalVo {
     @Override
     public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getGroupsManager().isAllowedGroupToHierarchicalVo(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")),
-          ac.getVoById(parms.readInt("vo")));
+      return ac.getGroupsManager()
+          .isAllowedGroupToHierarchicalVo(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+              ac.getVoById(parms.readInt("vo")));
     }
   },
 
@@ -2809,11 +2771,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
   getAllAllowedGroupsToHierarchicalVo {
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("memberVo")) {
-        return ac.getGroupsManager().getAllAllowedGroupsToHierarchicalVo(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")), ac.getVoById(parms.readInt("memberVo")));
+        return ac.getGroupsManager()
+            .getAllAllowedGroupsToHierarchicalVo(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+                ac.getVoById(parms.readInt("memberVo")));
       }
-      return ac.getGroupsManager().getAllAllowedGroupsToHierarchicalVo(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")));
+      return ac.getGroupsManager()
+          .getAllAllowedGroupsToHierarchicalVo(ac.getSession(), ac.getVoById(parms.readInt("vo")));
     }
 
   };

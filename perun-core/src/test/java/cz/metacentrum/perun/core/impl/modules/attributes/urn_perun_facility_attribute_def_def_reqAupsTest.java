@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -7,17 +10,13 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_facility_attribute_def_def_reqAupsTest {
 
@@ -46,11 +45,11 @@ public class urn_perun_facility_attribute_def_def_reqAupsTest {
 
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsWithoutAUPInOrganization() throws Exception {
-    System.out.println("testCheckAttributeSyntaxWithoutAUPInOrganization()");
+  @Test
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrect()");
     List<String> value = new ArrayList<>();
-    value.add("bad_example");
+    value.add("example");
     attributeToCheck.setValue(value);
     Map<String, String> value2 = new LinkedHashMap<>();
     value2.put("example", "example");
@@ -59,11 +58,11 @@ public class urn_perun_facility_attribute_def_def_reqAupsTest {
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }
 
-  @Test
-  public void testCheckAttributeSemanticsCorrect() throws Exception {
-    System.out.println("testCheckAttributeSemanticsCorrect()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithoutAUPInOrganization() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithoutAUPInOrganization()");
     List<String> value = new ArrayList<>();
-    value.add("example");
+    value.add("bad_example");
     attributeToCheck.setValue(value);
     Map<String, String> value2 = new LinkedHashMap<>();
     value2.put("example", "example");

@@ -7,10 +7,7 @@ package cz.metacentrum.perun.core.api;
  */
 public enum GroupResourceStatus {
 
-  ACTIVE(3),
-  INACTIVE(1),
-  FAILED(0),
-  PROCESSING(2);
+  ACTIVE(3), INACTIVE(1), FAILED(0), PROCESSING(2);
 
   private Integer level;
 

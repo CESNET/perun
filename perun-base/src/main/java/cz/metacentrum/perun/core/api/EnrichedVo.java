@@ -23,12 +23,16 @@ public class EnrichedVo {
     this.parentVos = parentVos;
   }
 
-  public Vo getVo() {
-    return vo;
-  }
-
-  public void setVo(Vo vo) {
-    this.vo = vo;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnrichedVo that = (EnrichedVo) o;
+    return Objects.equals(getVo(), that.getVo());
   }
 
   public List<Vo> getMemberVos() {
@@ -47,16 +51,12 @@ public class EnrichedVo {
     this.parentVos = parentVos;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    EnrichedVo that = (EnrichedVo) o;
-    return Objects.equals(getVo(), that.getVo());
+  public Vo getVo() {
+    return vo;
+  }
+
+  public void setVo(Vo vo) {
+    this.vo = vo;
   }
 
   @Override
@@ -66,10 +66,6 @@ public class EnrichedVo {
 
   @Override
   public String toString() {
-    return "EnrichedVo{" +
-        "vo=" + vo +
-        ", memberVos=" + memberVos +
-        ", parentVos=" + parentVos +
-        "}";
+    return "EnrichedVo{" + "vo=" + vo + ", memberVos=" + memberVos + ", parentVos=" + parentVos + "}";
   }
 }

@@ -6,8 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,23 +24,24 @@ public class urn_perun_user_attribute_def_def_preferredUnixGroupName_namespace e
       for (String groupName : attribute.valueAsList()) {
         Matcher matcher = pattern.matcher(groupName);
         if (!matcher.matches()) {
-          throw new WrongAttributeValueException(attribute, user, "GroupName: " + groupName +
-              " content invalid characters. Allowed are only letters, numbers and characters _ and - and .");
+          throw new WrongAttributeValueException(attribute, user,
+              "GroupName: " + groupName + " content invalid characters. Allowed are only " +
+              "letters, numbers and characters _ and - and .");
         }
       }
     }
   }
 
-	/*
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("preferredUnixGroupName-namespace");
-		attr.setType(List.class.getName());
-		attr.setDescription("User preferred unix group name, ordered by user's personal preferrences.");
-		return attr;
-	}
-	*/
+  /*
+    @Override
+    public AttributeDefinition getAttributeDefinition() {
+        AttributeDefinition attr = new AttributeDefinition();
+        attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+        attr.setFriendlyName("preferredUnixGroupName-namespace");
+        attr.setType(List.class.getName());
+        attr.setDescription("User preferred unix group name, ordered by user's personal preferrences.");
+        return attr;
+    }
+    */
 }
 

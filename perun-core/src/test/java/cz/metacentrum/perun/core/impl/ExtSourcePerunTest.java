@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -8,20 +12,15 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * @author Metodej Klang
@@ -30,13 +29,6 @@ public class ExtSourcePerunTest {
 
   @Spy
   private static ExtSourcePerun extSourcePerun;
-
-  @Before
-  public void setUp() throws Exception {
-    extSourcePerun = new ExtSourcePerun();
-
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   public void getUsersSubjectsTest() throws Exception {
@@ -85,5 +77,12 @@ public class ExtSourcePerunTest {
     // test the method
     List<Map<String, String>> actualSubjects = extSourcePerun.getUsersSubjects();
     assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    extSourcePerun = new ExtSourcePerun();
+
+    MockitoAnnotations.initMocks(this);
   }
 }

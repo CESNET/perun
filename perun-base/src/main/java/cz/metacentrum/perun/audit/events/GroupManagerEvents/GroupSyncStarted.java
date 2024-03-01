@@ -18,13 +18,13 @@ public class GroupSyncStarted extends AuditEvent implements EngineIgnoreEvent {
     this.message = formatMessage("Group synchronization for %s has been started.", group);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   @Override

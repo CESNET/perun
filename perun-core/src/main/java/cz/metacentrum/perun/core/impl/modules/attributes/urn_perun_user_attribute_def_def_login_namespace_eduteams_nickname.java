@@ -19,12 +19,12 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_eduteams_nickname
     extends urn_perun_user_attribute_def_def_login_namespace {
 
-  private final static Logger log =
+  private static final Logger LOG =
       LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_eduteams_nickname.class);
 
   /**
-   * Check if the user's login is in the correct format and if it is permitted to use.
-   * Check if maximum length is 20 chars
+   * Check if the user's login is in the correct format and if it is permitted to use. Check if maximum length is 20
+   * chars
    *
    * @param sess      PerunSession
    * @param user      User to check attribute for
@@ -49,13 +49,12 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_nickname
   }
 
   /**
-   * Filling implemented for:
-   * - namespaces configured in /etc/perun/perun.properties as property: "perun.loginNamespace.generated"
+   * Filling implemented for: - namespaces configured in /etc/perun/perun.properties as property:
+   * "perun.loginNamespace.generated"
    * <p>
-   * Resulting format/rules:
-   * - "firstName.lastName[number]" where number is opt and start with 1 when same login is already present.
-   * - Only first part of "firstName" and last part of "lastName" is taken.
-   * - All accented chars are unaccented and all non (a-z,A-Z) chars are removed from name and value is lowered.
+   * Resulting format/rules: - "firstName.lastName[number]" where number is opt and start with 1 when same login is
+   * already present. - Only first part of "firstName" and last part of "lastName" is taken. - All accented chars are
+   * unaccented and all non (a-z,A-Z) chars are removed from name and value is lowered.
    *
    * @param perunSession PerunSession
    * @param user         User to fill attribute for

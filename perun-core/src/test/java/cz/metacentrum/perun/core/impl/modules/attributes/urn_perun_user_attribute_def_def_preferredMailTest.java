@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -7,9 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_attribute_def_def_preferredMailTest {
 
@@ -27,11 +27,11 @@ public class urn_perun_user_attribute_def_def_preferredMailTest {
   }
 
   @Test
-  public void testCheckCorrectAttributeSyntax() throws Exception {
-    System.out.println("testCheckCorrectAttributeSyntax()");
+  public void testCheckAttributeSemantics() throws Exception {
+    System.out.println("testCheckAttributeSemantics()");
     attributeToCheck.setValue("my@example.com");
 
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
 
   @Test(expected = WrongAttributeValueException.class)
@@ -42,17 +42,17 @@ public class urn_perun_user_attribute_def_def_preferredMailTest {
     classInstance.checkAttributeSyntax(session, user, attributeToCheck);
   }
 
+  @Test
+  public void testCheckCorrectAttributeSyntax() throws Exception {
+    System.out.println("testCheckCorrectAttributeSyntax()");
+    attributeToCheck.setValue("my@example.com");
+
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
+
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void testCheckSemanticsWithNullAttributeValue() throws Exception {
     System.out.println("testCheckSemanticsWithNullAttributeValue()");
-
-    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-  }
-
-  @Test
-  public void testCheckAttributeSemantics() throws Exception {
-    System.out.println("testCheckAttributeSemantics()");
-    attributeToCheck.setValue("my@example.com");
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }

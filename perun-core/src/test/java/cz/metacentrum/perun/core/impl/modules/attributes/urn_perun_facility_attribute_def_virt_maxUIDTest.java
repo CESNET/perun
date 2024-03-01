@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -9,9 +12,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_facility_attribute_def_virt_maxUIDTest {
 
@@ -37,10 +37,10 @@ public class urn_perun_facility_attribute_def_virt_maxUIDTest {
     when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsWithReqAttributeWithNullValue() throws Exception {
-    System.out.println("testCheckAttributeSemanticsWithReqAttributeWithNullValue()");
-    reqAttribute.setValue(null);
+  @Test
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrect()");
+    reqAttribute.setValue("example");
     when(session.getPerunBl().getAttributesManagerBl()
         .getAttribute(session, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace")).thenReturn(
         reqAttribute);
@@ -48,10 +48,10 @@ public class urn_perun_facility_attribute_def_virt_maxUIDTest {
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }
 
-  @Test
-  public void testCheckAttributeSemanticsCorrect() throws Exception {
-    System.out.println("testCheckAttributeSemanticsCorrect()");
-    reqAttribute.setValue("example");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithReqAttributeWithNullValue() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithReqAttributeWithNullValue()");
+    reqAttribute.setValue(null);
     when(session.getPerunBl().getAttributesManagerBl()
         .getAttribute(session, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace")).thenReturn(
         reqAttribute);

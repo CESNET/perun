@@ -21,6 +21,17 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
     implements ResourceVirtualAttributesModuleImplApi {
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_VIRT);
+    attr.setFriendlyName("voShortName");
+    attr.setDisplayName("Short name of VO");
+    attr.setType(String.class.getName());
+    attr.setDescription("Short name of VO where this resource is assigned");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource,
                                      AttributeDefinition attributeDefinition) {
     Attribute attribute = new Attribute(attributeDefinition);
@@ -33,8 +44,10 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
   }
 
   @Override
-  public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) {
-    throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(AttributesManager.NS_VO_ATTR_CORE + ":shortName");
+    return strongDependencies;
   }
 
   @Override
@@ -43,20 +56,7 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
   }
 
   @Override
-  public List<String> getStrongDependencies() {
-    List<String> strongDependencies = new ArrayList<>();
-    strongDependencies.add(AttributesManager.NS_VO_ATTR_CORE + ":shortName");
-    return strongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_VO_ATTR_VIRT);
-    attr.setFriendlyName("voShortName");
-    attr.setDisplayName("Short name of VO");
-    attr.setType(String.class.getName());
-    attr.setDescription("Short name of VO where this resource is assigned");
-    return attr;
+  public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) {
+    throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
   }
 }

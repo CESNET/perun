@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.entry;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.SponsorshipExpired;
@@ -20,17 +23,13 @@ import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
 import cz.metacentrum.perun.core.impl.AuditMessagesManagerImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Integration tests of AuditMessagesManager.
@@ -46,94 +45,16 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
     super();
   }
 
-  /**
-   *
-   */
-  @Before
-  public void setUp() {
-    Facility testFacility = new Facility(0, "AuditMessageManagerEntryIntegrationTestFacility");
-    FacilityCreated facilityCreatedEvent = new FacilityCreated(testFacility);
-    createdAuditMessage.setEvent(facilityCreatedEvent);
-  }
-
-  /**
-   * Check if method getMessages(sess) return right number of messages
-   */
   @Test
-  public void testGetFixedNumberOfMessages() throws Exception {
-    System.out.println(CLASS_NAME + "testGetFixedNumberOfMessages");
-    int count = AuditMessagesManager.COUNTOFMESSAGES;
+  public void findAllPossibleEvents() throws Exception {
+    System.out.println(CLASS_NAME + "findAllPossibleEvents");
 
-    for (int i = 0; i < count; i++) {
-      perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: " + i));
-    }
+    List<String> events = perun.getAuditMessagesManager().findAllPossibleEvents(sess);
 
-    List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess);
-    assertEquals("getMessage(sess) returns wrong count of messages", count, messages.size());
-  }
-
-  /**
-   * Check if method getMessages(sess, count) return right number of messages
-   */
-  @Test
-  public void testGetVariableNumberOfMessages() throws Exception {
-    System.out.println(CLASS_NAME + "testGetVariableNumberOfMessages");
-    int count = 33;
-
-    for (int i = 0; i < count; i++) {
-      perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: " + i));
-    }
-    List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess, count);
-    assertEquals("getMessage(sess, count) returns wrong count of messages", count, messages.size());
-  }
-
-  @Test
-  public void testGetMessagesByIdAndCount() throws Exception {
-    System.out.println(CLASS_NAME + "testGetMessagesByIdAndCount");
-    int total = 40;
-    int idToChoose = total / 2;
-    int count = 10;
-
-    for (int i = 0; i < total; i++) {
-      perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: " + i));
-    }
-    List<AuditMessage> allNewMessages = perun.getAuditMessagesManager().getMessages(sess, total);
-    int id = allNewMessages.get(idToChoose).getId();
-    List<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesByIdAndCount(sess, id, count);
-    assertEquals("getMessagesByIdAndCount(sess, id, count) returns wrong count of messages", count, messages.size());
-    assertEquals(messages.get(0).getId(), id);
-    assertEquals(messages.get(count - 1), allNewMessages.get(idToChoose - count + 1));
-  }
-
-  /*
-   * Wrong Range of count exception if count is less than 1 message
-   */
-  @Test(expected = WrongRangeOfCountException.class)
-  public void testLessThanZeroCountOfMessages() throws Exception {
-    System.out.println(CLASS_NAME + "testLessThanZeroCountOfMessages");
-    perun.getAuditMessagesManager().getMessages(sess, -1);
-  }
-
-  @Test
-  public void testLocalDate() throws Exception {
-    System.out.println(CLASS_NAME + "testLocalDate");
-
-    AuditMessagesManagerImpl auditMessagesManagerImpl = (AuditMessagesManagerImpl) ReflectionTestUtils
-        .getField(perun.getAuditMessagesManagerBl(), "auditMessagesManagerImpl");
-    assertThat(auditMessagesManagerImpl).isNotNull();
-
-    ObjectMapper mapper = (ObjectMapper) ReflectionTestUtils.getField(auditMessagesManagerImpl, "mapper");
-    assertThat(mapper).isNotNull();
-
-    AuditEvent event = new SponsorshipEstablished(null, null, LocalDate.MIN);
-
-    testAuditEventMapper(mapper, event);
-
-    EnrichedSponsorship enrichedSponsorship = new EnrichedSponsorship();
-    enrichedSponsorship.setValidityTo(LocalDate.MAX);
-    AuditEvent event2 = new SponsorshipExpired();
-
-    testAuditEventMapper(mapper, event2);
+    assertThat(events.size()).isGreaterThan(200);
+    assertThat(events).contains("MemberCreated");
+    assertThat(events).contains("VoCreated");
+    assertThat(events).contains("UserCreated");
   }
 
   @Test
@@ -148,36 +69,8 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 
     Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
     assertThat(messages.getData().size()).isEqualTo(5);
-    assertThat(messages.getData().stream().map(a -> a.getEvent().getMessage()).collect(Collectors.toList()))
-        .isEqualTo(List.of("Test cislo: 4", "Test cislo: 3", "Test cislo: 2", "Test cislo: 1", "Test cislo: 0"));
-  }
-
-  @Test
-  public void getMessagesPage_oneOfMany() throws Exception {
-    System.out.println(CLASS_NAME + "getMessagesPage_oneOfMany");
-
-    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test older"));
-    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test newer"));
-
-    MessagesPageQuery query = new MessagesPageQuery(1, 0, SortingOrder.DESCENDING, new ArrayList<>());
-
-    Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
-    assertThat(messages.getData().size()).isEqualTo(1);
-    assertThat(messages.getData().get(0).getEvent().getMessage()).isEqualTo("Test newer");
-  }
-
-  @Test
-  public void getMessagesPage_secondPage() throws Exception {
-    System.out.println(CLASS_NAME + "getMessagesPage_secondPage");
-
-    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test older"));
-    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test newer"));
-
-    MessagesPageQuery query = new MessagesPageQuery(1, 1, SortingOrder.DESCENDING, new ArrayList<>());
-
-    Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
-    assertThat(messages.getData().size()).isEqualTo(1);
-    assertThat(messages.getData().get(0).getEvent().getMessage()).isEqualTo("Test older");
+    assertThat(messages.getData().stream().map(a -> a.getEvent().getMessage()).collect(Collectors.toList())).isEqualTo(
+        List.of("Test cislo: 4", "Test cislo: 3", "Test cislo: 2", "Test cislo: 1", "Test cislo: 0"));
   }
 
   @Test
@@ -211,15 +104,41 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
   }
 
   @Test
-  public void findAllPossibleEvents() throws Exception {
-    System.out.println(CLASS_NAME + "findAllPossibleEvents");
+  public void getMessagesPage_oneOfMany() throws Exception {
+    System.out.println(CLASS_NAME + "getMessagesPage_oneOfMany");
 
-    List<String> events = perun.getAuditMessagesManager().findAllPossibleEvents(sess);
+    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test older"));
+    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test newer"));
 
-    assertThat(events.size()).isGreaterThan(200);
-    assertThat(events).contains("MemberCreated");
-    assertThat(events).contains("VoCreated");
-    assertThat(events).contains("UserCreated");
+    MessagesPageQuery query = new MessagesPageQuery(1, 0, SortingOrder.DESCENDING, new ArrayList<>());
+
+    Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
+    assertThat(messages.getData().size()).isEqualTo(1);
+    assertThat(messages.getData().get(0).getEvent().getMessage()).isEqualTo("Test newer");
+  }
+
+  @Test
+  public void getMessagesPage_secondPage() throws Exception {
+    System.out.println(CLASS_NAME + "getMessagesPage_secondPage");
+
+    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test older"));
+    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test newer"));
+
+    MessagesPageQuery query = new MessagesPageQuery(1, 1, SortingOrder.DESCENDING, new ArrayList<>());
+
+    Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
+    assertThat(messages.getData().size()).isEqualTo(1);
+    assertThat(messages.getData().get(0).getEvent().getMessage()).isEqualTo("Test older");
+  }
+
+  /**
+   *
+   */
+  @Before
+  public void setUp() {
+    Facility testFacility = new Facility(0, "AuditMessageManagerEntryIntegrationTestFacility");
+    FacilityCreated facilityCreatedEvent = new FacilityCreated(testFacility);
+    createdAuditMessage.setEvent(facilityCreatedEvent);
   }
 
   private void testAuditEventMapper(ObjectMapper mapper, AuditEvent event) throws Exception {
@@ -228,6 +147,87 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
     AuditEvent deserializedEvent = mapper.readValue(value, AuditEvent.class);
 
     assertThat(deserializedEvent).isEqualTo(event);
+  }
+
+  /**
+   * Check if method getMessages(sess) return right number of messages
+   */
+  @Test
+  public void testGetFixedNumberOfMessages() throws Exception {
+    System.out.println(CLASS_NAME + "testGetFixedNumberOfMessages");
+    int count = AuditMessagesManager.COUNTOFMESSAGES;
+
+    for (int i = 0; i < count; i++) {
+      perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: " + i));
+    }
+
+    List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess);
+    assertEquals("getMessage(sess) returns wrong count of messages", count, messages.size());
+  }
+
+  @Test
+  public void testGetMessagesByIdAndCount() throws Exception {
+    System.out.println(CLASS_NAME + "testGetMessagesByIdAndCount");
+    int total = 40;
+    int idToChoose = total / 2;
+    int count = 10;
+
+    for (int i = 0; i < total; i++) {
+      perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: " + i));
+    }
+    List<AuditMessage> allNewMessages = perun.getAuditMessagesManager().getMessages(sess, total);
+    int id = allNewMessages.get(idToChoose).getId();
+    List<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesByIdAndCount(sess, id, count);
+    assertEquals("getMessagesByIdAndCount(sess, id, count) returns wrong count of messages", count, messages.size());
+    assertEquals(messages.get(0).getId(), id);
+    assertEquals(messages.get(count - 1), allNewMessages.get(idToChoose - count + 1));
+  }
+
+  /**
+   * Check if method getMessages(sess, count) return right number of messages
+   */
+  @Test
+  public void testGetVariableNumberOfMessages() throws Exception {
+    System.out.println(CLASS_NAME + "testGetVariableNumberOfMessages");
+    int count = 33;
+
+    for (int i = 0; i < count; i++) {
+      perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: " + i));
+    }
+    List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess, count);
+    assertEquals("getMessage(sess, count) returns wrong count of messages", count, messages.size());
+  }
+
+  /*
+   * Wrong Range of count exception if count is less than 1 message
+   */
+  @Test(expected = WrongRangeOfCountException.class)
+  public void testLessThanZeroCountOfMessages() throws Exception {
+    System.out.println(CLASS_NAME + "testLessThanZeroCountOfMessages");
+    perun.getAuditMessagesManager().getMessages(sess, -1);
+  }
+
+  @Test
+  public void testLocalDate() throws Exception {
+    System.out.println(CLASS_NAME + "testLocalDate");
+
+    AuditMessagesManagerImpl auditMessagesManagerImpl =
+        (AuditMessagesManagerImpl) ReflectionTestUtils.getField(perun.getAuditMessagesManagerBl(),
+            "auditMessagesManagerImpl");
+    assertThat(auditMessagesManagerImpl).isNotNull();
+
+    ObjectMapper mapper = (ObjectMapper) ReflectionTestUtils.getField(auditMessagesManagerImpl, "MAPPER");
+    assertThat(mapper).isNotNull();
+
+    AuditEvent event = new SponsorshipEstablished(null, null, LocalDate.MIN);
+
+    testAuditEventMapper(mapper, event);
+
+    EnrichedSponsorship enrichedSponsorship = new EnrichedSponsorship();
+    enrichedSponsorship.setValidityTo(LocalDate.MAX);
+    AuditEvent event2 = new SponsorshipExpired();
+
+    testAuditEventMapper(mapper, event2);
   }
 
 }

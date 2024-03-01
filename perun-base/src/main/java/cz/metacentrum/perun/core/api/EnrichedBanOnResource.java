@@ -25,6 +25,26 @@ public class EnrichedBanOnResource {
     this.resource = resource;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnrichedBanOnResource that = (EnrichedBanOnResource) o;
+    return Objects.equals(getBan(), that.getBan());
+  }
+
+  public BanOnResource getBan() {
+    return ban;
+  }
+
+  public void setBan(BanOnResource ban) {
+    this.ban = ban;
+  }
+
   public RichMember getMember() {
     return member;
   }
@@ -41,26 +61,6 @@ public class EnrichedBanOnResource {
     this.resource = resource;
   }
 
-  public BanOnResource getBan() {
-    return ban;
-  }
-
-  public void setBan(BanOnResource ban) {
-    this.ban = ban;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    EnrichedBanOnResource that = (EnrichedBanOnResource) o;
-    return Objects.equals(getBan(), that.getBan());
-  }
-
   @Override
   public int hashCode() {
     return Objects.hash(getBan());
@@ -68,10 +68,6 @@ public class EnrichedBanOnResource {
 
   @Override
   public String toString() {
-    return "EnrichedBanOnResource{" +
-        "member=" + member +
-        ", resource=" + resource +
-        ", ban=" + ban +
-        '}';
+    return "EnrichedBanOnResource{" + "member=" + member + ", resource=" + resource + ", ban=" + ban + '}';
   }
 }

@@ -29,6 +29,17 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends UserFacili
     implements UserFacilityVirtualAttributesModuleImplApi {
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+    attr.setFriendlyName("shell");
+    attr.setDisplayName("shell");
+    attr.setType(String.class.getName());
+    attr.setDescription("Computed shell from user preferences");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility,
                                      AttributeDefinition attributeDefinition) {
     Attribute attr = new Attribute(attributeDefinition);
@@ -59,19 +70,19 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends UserFacili
         }
       }
       if (userPrefferedShells.getValue() != null) {
-        for (String pShell : (List<String>) userPrefferedShells.getValue()) {
-          if (resourcesShells.contains(pShell)) {
+        for (String prefShell : (List<String>) userPrefferedShells.getValue()) {
+          if (resourcesShells.contains(prefShell)) {
             Utils.copyAttributeToViAttributeWithoutValue(userPrefferedShells, attr);
-            attr.setValue(pShell);
+            attr.setValue(prefShell);
             return attr;
           }
         }
       }
       if (facilityShells.getValue() != null) {
-        for (String fShell : (List<String>) facilityShells.getValue()) {
-          if (resourcesShells.contains(fShell)) {
+        for (String facilityShell : (List<String>) facilityShells.getValue()) {
+          if (resourcesShells.contains(facilityShell)) {
             Utils.copyAttributeToViAttributeWithoutValue(facilityShells, attr);
-            attr.setValue(fShell);
+            attr.setValue(facilityShell);
             return attr;
           }
         }
@@ -85,19 +96,6 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends UserFacili
   }
 
   @Override
-  public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) {
-    try {
-      Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl()
-          .getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
-      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
-    } catch (WrongAttributeAssignmentException ex) {
-      throw new ConsistencyErrorException(ex);
-    } catch (AttributeNotExistsException | WrongAttributeValueException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
   public List<String> getStrongDependencies() {
     List<String> strongDependencies = new ArrayList<>();
     strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
@@ -108,14 +106,16 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends UserFacili
   }
 
   @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-    attr.setFriendlyName("shell");
-    attr.setDisplayName("shell");
-    attr.setType(String.class.getName());
-    attr.setDescription("Computed shell from user preferences");
-    return attr;
+  public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) {
+    try {
+      Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl()
+          .getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
+      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new ConsistencyErrorException(ex);
+    } catch (AttributeNotExistsException | WrongAttributeValueException ex) {
+      throw new InternalErrorException(ex);
+    }
   }
 }
 

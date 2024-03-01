@@ -39,7 +39,7 @@ import java.util.Set;
  */
 public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "propags";
+  public static final String URL = "propags";
   /**
    * Perun web session
    */

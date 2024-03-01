@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,23 +21,6 @@ import java.util.List;
  */
 public class urn_perun_group_attribute_def_def_groupMembershipExpirationRules
     extends AbstractMembershipExpirationRulesModule<Group> implements GroupAttributesModuleImplApi {
-
-  @Override
-  protected boolean isAllowedParameter(String parameter) {
-    if (parameter == null) {
-      return false;
-    }
-    return parameter.equals(membershipPeriodKeyName) ||
-        parameter.equals(membershipDoNotExtendLoaKeyName) ||
-        parameter.equals(membershipGracePeriodKeyName) ||
-        parameter.equals(membershipPeriodLoaKeyName) ||
-        parameter.equals(membershipDoNotAllowLoaKeyName);
-  }
-
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) {
-    return null;
-  }
 
   @Override
   public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) {
@@ -58,7 +40,7 @@ public class urn_perun_group_attribute_def_def_groupMembershipExpirationRules
         if (conflictingAttribute.getValue() != null && conflictingAttribute.valueAsString().equals("true")) {
           throw new WrongReferenceAttributeValueException(attribute, conflictingAttribute, group, null, group, null,
               conflictingAttribute.toString() +
-                  " can not be enabled in order to create group membership expiration rules.");
+              " can not be enabled in order to create group membership expiration rules.");
         }
       }
     } catch (AttributeNotExistsException e) {
@@ -67,10 +49,8 @@ public class urn_perun_group_attribute_def_def_groupMembershipExpirationRules
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
-    return dependencies;
+  public Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) {
+    return null;
   }
 
   @Override
@@ -82,5 +62,22 @@ public class urn_perun_group_attribute_def_def_groupMembershipExpirationRules
     attr.setType(LinkedHashMap.class.getName());
     attr.setDescription("Rules which define how the membership in group is extended.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
+    return dependencies;
+  }
+
+  @Override
+  protected boolean isAllowedParameter(String parameter) {
+    if (parameter == null) {
+      return false;
+    }
+    return parameter.equals(MEMBERSHIP_PERIOD_KEY_NAME) || parameter.equals(MEMBERSHIP_DO_NOT_EXTEND_LOA_KEY_NAME) ||
+           parameter.equals(MEMBERSHIP_GRACE_PERIOD_KEY_NAME) || parameter.equals(MEMBERSHIP_PERIOD_LOA_KEY_NAME) ||
+           parameter.equals(MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME);
   }
 }

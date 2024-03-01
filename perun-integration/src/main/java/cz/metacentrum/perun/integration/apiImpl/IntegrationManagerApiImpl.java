@@ -29,12 +29,12 @@ public class IntegrationManagerApiImpl implements IntegrationManagerApi {
     return integrationManagerBl;
   }
 
-  public void setIntegrationManagerBl(IntegrationManagerBl integrationManagerBl) {
-    this.integrationManagerBl = integrationManagerBl;
-  }
-
   public Perun getPerun() {
     return perun;
+  }
+
+  public void setIntegrationManagerBl(IntegrationManagerBl integrationManagerBl) {
+    this.integrationManagerBl = integrationManagerBl;
   }
 
   public void setPerun(Perun perun) {

@@ -2,20 +2,18 @@ package cz.metacentrum.perun.ldapc.beans;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
-
 import java.util.Map;
 
 /**
- * Value transformer, which converts {@link Map} attributes from Perun to the multi-value LDAP attribute
- * using both key and value joining them with specified separator.
+ * Value transformer, which converts {@link Map} attributes from Perun to the multi-value LDAP attribute using both key
+ * and value joining them with specified separator.
  * <p>
  * If you wish to convert only keys or values, see {@link KeysetValueTransformer} or {@link ValuesetValueTransformer}.
  */
 public class MapEntryValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
   /**
-   * Separator used to join KEY=VALUE pairs of resulting attribute values.
-   * It is initialized from Spring config.
+   * Separator used to join KEY=VALUE pairs of resulting attribute values. It is initialized from Spring config.
    */
   protected String separator;
 
@@ -30,6 +28,10 @@ public class MapEntryValueTransformer extends ValueTransformerBase implements At
     return result;
   }
 
+  public String getSeparator() {
+    return separator;
+  }
+
   @Override
   public Boolean isMassTransformationPreferred() {
     return true;
@@ -38,10 +40,6 @@ public class MapEntryValueTransformer extends ValueTransformerBase implements At
   @Override
   public Boolean isReduce() {
     return false;
-  }
-
-  public String getSeparator() {
-    return separator;
   }
 
   public void setSeparator(String separator) {

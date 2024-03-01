@@ -23,21 +23,21 @@ public class MembershipExtendedForMemberInApprovedApp extends AuditEvent {
     this.message = formatMessage("Membership extended for %s in %s for approved %s.", member, app.getVo(), app);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public Application getApp() {
     return app;
   }
 
-  public Vo getVo() {
-    return vo;
+  public Member getMember() {
+    return member;
   }
 
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Vo getVo() {
+    return vo;
   }
 
   @Override

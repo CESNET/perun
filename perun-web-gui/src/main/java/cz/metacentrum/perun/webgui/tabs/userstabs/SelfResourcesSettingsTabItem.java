@@ -65,7 +65,7 @@ import java.util.Map;
  */
 public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, TabItemWithHelp {
 
-  public final static String URL = "settings";
+  public static final String URL = "settings";
   /**
    * Perun web session
    */

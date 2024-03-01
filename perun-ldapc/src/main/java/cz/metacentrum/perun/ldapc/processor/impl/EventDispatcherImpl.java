@@ -20,10 +20,6 @@ import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher;
 import cz.metacentrum.perun.ldapc.processor.EventProcessor;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -37,11 +33,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @org.springframework.stereotype.Service(value = "eventDispatcher")
 public class EventDispatcherImpl implements EventDispatcher, Runnable {
 
-  private final static Logger log = LoggerFactory.getLogger(EventDispatcherImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EventDispatcherImpl.class);
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
@@ -55,6 +54,88 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
   private boolean running = false;
 
   private List<Pair<DispatchEventCondition, EventProcessor>> registeredProcessors;
+
+  @Override
+  public void dispatchEvent(String msg, MessageBeans beans) {
+    for (Pair<DispatchEventCondition, EventProcessor> subscription : registeredProcessors) {
+      DispatchEventCondition condition = subscription.getLeft();
+      EventProcessor processor = subscription.getRight();
+
+      if (condition.isApplicable(beans, msg)) {
+        String handlerName = condition.getHandlerMethodName();
+        if (handlerName != null) {
+          try {
+            Method handler = processor.getClass().getMethod(handlerName, String.class, MessageBeans.class);
+            if (handler != null) {
+              LOG.debug("Dispatching message {} to method {}", msg, handler.toString());
+              handler.invoke(processor, msg, beans);
+            } else {
+              LOG.debug("Handler not found, dispatching message {} to processor {}", msg,
+                  processor.getClass().getName());
+              processor.processEvent(msg, beans);
+            }
+          } catch (Exception e) {
+            LOG.error("Error dispatching to handler " + handlerName + ": ", e);
+          }
+
+        } else {
+          LOG.debug("Dispatching message {} to processor {}", msg, processor.getClass().getName());
+          processor.processEvent(msg, beans);
+        }
+      }
+    }
+  }
+
+  public int getLastProcessedIdNumber() {
+    return lastProcessedIdNumber;
+  }
+
+  protected void loadLastProcessedId() {
+    Path file = FileSystems.getDefault().getPath(ldapProperties.getLdapStateFile());
+    try {
+      List<String> idString = Files.readAllLines(file, Charset.defaultCharset());
+      int lastId = idString.isEmpty() ? 0 : Integer.parseInt(idString.get(0));
+      if (lastId >= 0) {
+        this.lastProcessedIdNumber = lastId;
+      } else {
+        LOG.error("Wrong number for last processed message id {}, exiting.", idString);
+        System.exit(-1);
+
+      }
+    } catch (IOException exception) {
+      LOG.error("Error reading last processed message id from {}", ldapProperties.getLdapStateFile(), exception);
+      System.exit(-1);
+    }
+  }
+
+  @Override
+  public void registerProcessor(EventProcessor processor, DispatchEventCondition condition) {
+    if (registeredProcessors == null) {
+      registeredProcessors = new ArrayList<Pair<DispatchEventCondition, EventProcessor>>(20);
+    }
+    registeredProcessors.add(new Pair<DispatchEventCondition, EventProcessor>(condition, processor));
+  }
+
+  protected MessageBeans resolveMessage(String msg, Integer idOfMessage) {
+
+    List<PerunBean> listOfBeans;
+    listOfBeans = AuditParser.parseLog(msg);
+
+    //Debug information to check parsing of message.
+    MessageBeans beans = new MessageBeansImpl();
+
+    if (!listOfBeans.isEmpty()) {
+      int i = 0;
+      for (PerunBean p : listOfBeans) {
+        i++;
+        // if(p!=null)LOG.debug("There is object number " + i + ") " + p.serializeToString());
+        // elseLOG.debug("There is unknown object which is null");
+        beans.addBean(p);
+      }
+      //log.debug("Resolved{} beans ", beans.getBeansCount());
+    }
+    return beans;
+  }
 
   @Override
   public void run() {
@@ -80,15 +161,17 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 
         messages = null;
         int sleepTime = 1000;
-        //Waiting for new messages. If consumer failed in some internal case, waiting until it will be repaired (waiting time is increases by each attempt)
+        //Waiting for new messages. If consumer failed in some internal case, waiting until it will be repaired
+        // (waiting time is increases by each attempt)
         do {
           try {
             //IMPORTANT STEP1: Get new bulk of messages
             messages = perun.getAuditMessagesManager()
                 .pollConsumerMessages(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedIdNumber);
-            // Rpc.AuditMessagesManager.pollConsumerMessages(ldapcManager.getRpcCaller(), ldapProperties.getLdapConsumerName());
+            // Rpc.AuditMessagesManager.pollConsumerMessages(ldapcManager.getRpcCaller(), ldapProperties
+            // .getLdapConsumerName());
           } catch (InternalErrorException ex) {
-            log.error("Consumer failed due to {}. Sleeping for {} ms.", ex, sleepTime);
+            LOG.error("Consumer failed due to {}. Sleeping for {} ms.", ex, sleepTime);
             Thread.sleep(sleepTime);
             sleepTime += sleepTime;
           }
@@ -106,8 +189,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
           //Warning when two consecutive messages are separated by more than 15 ids
           if (lastProcessedIdNumber >= 0 && lastProcessedIdNumber < message.getId()) {
             if ((message.getId() - lastProcessedIdNumber) > 15) {
-              log.debug("SKIP FLAG WARNING: lastProcessedIdNumber: " + lastProcessedIdNumber + " - newMessageNumber: " +
-                  message.getId() + " = " + (lastProcessedIdNumber - message.getId()));
+              LOG.debug("SKIP FLAG WARNING: lastProcessedIdNumber: " + lastProcessedIdNumber + " - newMessageNumber: " +
+                        message.getId() + " = " + (lastProcessedIdNumber - message.getId()));
             }
           }
           lastProcessedIdNumber = message.getId();
@@ -115,7 +198,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
           MessageBeans presentBeans = this.resolveMessage(message.getEvent().getMessage(), message.getId());
           this.dispatchEvent(message.getEvent().getMessage(), presentBeans);
         }
-        //After all messages has been resolved, test interrupting of thread and if its ok, wait and go for another bulk of messages
+        //After all messages has been resolved, test interrupting of thread and if its ok, wait and go for another
+        // bulk of messages
         if (Thread.interrupted()) {
           running = false;
         } else {
@@ -126,105 +210,19 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
       //If ldapc is interrupted
     } catch (InterruptedException e) {
       Date date = new Date();
-      log.error("Last message has ID='" + ((message != null) ? message.getId() : 0) + "' and was INTERRUPTED at " +
-          DATE_FORMAT.format(date) + " due to interrupting.");
+      LOG.error("Last message has ID='" + ((message != null) ? message.getId() : 0) + "' and was INTERRUPTED at " +
+                DATE_FORMAT.format(date) + " due to interrupting.");
       running = false;
       Thread.currentThread().interrupt();
       //If some other exception is thrown
     } catch (Exception e) {
       Date date = new Date();
-      log.error(
+      LOG.error(
           "Last message has ID='" + ((message != null) ? message.getId() : 0) + "' and was bad PARSED or EXECUTE at " +
-              DATE_FORMAT.format(date) + " due to exception " + e.toString());
+          DATE_FORMAT.format(date) + " due to exception " + e.toString());
       throw new RuntimeException(e);
     } finally {
       saveLastProcessedId();
-    }
-  }
-
-  @Override
-  public void registerProcessor(EventProcessor processor, DispatchEventCondition condition) {
-    if (registeredProcessors == null) {
-      registeredProcessors = new ArrayList<Pair<DispatchEventCondition, EventProcessor>>(20);
-    }
-    registeredProcessors.add(new Pair<DispatchEventCondition, EventProcessor>(condition, processor));
-  }
-
-  @Override
-  public void dispatchEvent(String msg, MessageBeans beans) {
-    for (Pair<DispatchEventCondition, EventProcessor> subscription : registeredProcessors) {
-      DispatchEventCondition condition = subscription.getLeft();
-      EventProcessor processor = subscription.getRight();
-
-      if (condition.isApplicable(beans, msg)) {
-        String handlerName = condition.getHandlerMethodName();
-        if (handlerName != null) {
-          try {
-            Method handler = processor.getClass().getMethod(handlerName, String.class, MessageBeans.class);
-            if (handler != null) {
-              log.debug("Dispatching message {} to method {}", msg, handler.toString());
-              handler.invoke(processor, msg, beans);
-            } else {
-              log.debug("Handler not found, dispatching message {} to processor {}", msg,
-                  processor.getClass().getName());
-              processor.processEvent(msg, beans);
-            }
-          } catch (Exception e) {
-            log.error("Error dispatching to handler " + handlerName + ": ", e);
-          }
-
-        } else {
-          log.debug("Dispatching message {} to processor {}", msg, processor.getClass().getName());
-          processor.processEvent(msg, beans);
-        }
-      }
-    }
-  }
-
-  protected MessageBeans resolveMessage(String msg, Integer idOfMessage) {
-
-    List<PerunBean> listOfBeans;
-    listOfBeans = AuditParser.parseLog(msg);
-
-    //Debug information to check parsing of message.
-    MessageBeans beans = new MessageBeansImpl();
-
-    if (!listOfBeans.isEmpty()) {
-      int i = 0;
-      for (PerunBean p : listOfBeans) {
-        i++;
-        // if(p!=null) log.debug("There is object number " + i + ") " + p.serializeToString());
-        // else log.debug("There is unknown object which is null");
-        beans.addBean(p);
-      }
-      //log.debug("Resolved{} beans ", beans.getBeansCount());
-    }
-    return beans;
-  }
-
-  public int getLastProcessedIdNumber() {
-    return lastProcessedIdNumber;
-  }
-
-  public void setLastProcessedIdNumber(int lastProcessedIdNumber) {
-    this.lastProcessedIdNumber = lastProcessedIdNumber;
-  }
-
-  protected void loadLastProcessedId() {
-    Path file = FileSystems.getDefault().getPath(ldapProperties.getLdapStateFile());
-    try {
-      List<String> id_s = Files.readAllLines(file, Charset.defaultCharset());
-      int lastId = id_s.isEmpty() ? 0 : Integer.parseInt(id_s.get(0));
-      if (lastId >= 0) {
-        this.lastProcessedIdNumber = lastId;
-      } else {
-        log.error("Wrong number for last processed message id {}, exiting.", id_s);
-        System.exit(-1);
-
-      }
-    } catch (IOException exception) {
-      log.error("Error reading last processed message id from {}", ldapProperties.getLdapStateFile(), exception);
-      System.exit(-1);
     }
   }
 
@@ -233,8 +231,12 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     try {
       Files.write(file, String.valueOf(lastProcessedIdNumber).getBytes());
     } catch (IOException e) {
-      log.error("Error writing last processed message id to file {}", ldapProperties.getLdapStateFile(), e);
+      LOG.error("Error writing last processed message id to file {}", ldapProperties.getLdapStateFile(), e);
     }
+  }
+
+  public void setLastProcessedIdNumber(int lastProcessedIdNumber) {
+    this.lastProcessedIdNumber = lastProcessedIdNumber;
   }
 
   private class MessageBeansImpl implements MessageBeans {
@@ -242,10 +244,12 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     int beanCount = 0;
     int presentBeans = 0;
 
-    private Group group, parentGroup;
+    private Group group;
+    private Group parentGroup;
     private Member member;
     private Vo vo;
-    private User user, specificUser;
+    private User user;
+    private User specificUser;
     private Attribute attribute;
     private AttributeDefinition attributeDef;
     private UserExtSource userExtSource;
@@ -255,7 +259,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     @Override
     public void addBean(PerunBean perunBean) {
       if (perunBean == null) {
-        log.warn("Not adding unknown (null) bean");
+        LOG.warn("Not adding unknown (null) bean");
         return;
       }
       if (perunBean instanceof Group) {
@@ -296,7 +300,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
         }
         presentBeans |= USER_F;
       } else if (perunBean instanceof AttributeDefinition &&
-          perunBean instanceof cz.metacentrum.perun.core.api.Attribute) {
+                 perunBean instanceof cz.metacentrum.perun.core.api.Attribute) {
         if (this.attribute == null) {
           this.attribute = (cz.metacentrum.perun.core.api.Attribute) perunBean;
         } else {
@@ -336,13 +340,38 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     }
 
     @Override
-    public int getPresentBeansMask() {
-      return presentBeans;
+    public Attribute getAttribute() {
+      return attribute;
+    }
+
+    @Override
+    public AttributeDefinition getAttributeDef() {
+      return attributeDef;
     }
 
     @Override
     public int getBeansCount() {
       return beanCount;
+    }
+
+    @Override
+    public Facility getFacility() {
+      return facility;
+    }
+
+    @Override
+    public Group getGroup() {
+      return group;
+    }
+
+    @Override
+    public Member getMember() {
+      return member;
+    }
+
+    @Override
+    public Group getParentGroup() {
+      return parentGroup;
     }
 
     @Override
@@ -358,48 +387,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     }
 
     @Override
-    public Group getGroup() {
-      return group;
-    }
-
-    @Override
-    public Group getParentGroup() {
-      return parentGroup;
-    }
-
-    @Override
-    public Member getMember() {
-      return member;
-    }
-
-    @Override
-    public Vo getVo() {
-      return vo;
-    }
-
-    @Override
-    public User getUser() {
-      return (user == null) ? specificUser : user;
-    }
-
-    @Override
-    public User getSpecificUser() {
-      return specificUser;
-    }
-
-    @Override
-    public Attribute getAttribute() {
-      return attribute;
-    }
-
-    @Override
-    public AttributeDefinition getAttributeDef() {
-      return attributeDef;
-    }
-
-    @Override
-    public UserExtSource getUserExtSource() {
-      return userExtSource;
+    public int getPresentBeansMask() {
+      return presentBeans;
     }
 
     @Override
@@ -408,8 +397,23 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     }
 
     @Override
-    public Facility getFacility() {
-      return facility;
+    public User getSpecificUser() {
+      return specificUser;
+    }
+
+    @Override
+    public User getUser() {
+      return (user == null) ? specificUser : user;
+    }
+
+    @Override
+    public UserExtSource getUserExtSource() {
+      return userExtSource;
+    }
+
+    @Override
+    public Vo getVo() {
+      return vo;
     }
 
   }

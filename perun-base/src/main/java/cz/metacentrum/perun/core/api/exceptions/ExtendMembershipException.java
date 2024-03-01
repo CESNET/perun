@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 public class ExtendMembershipException extends PerunException {
 
   static final long serialVersionUID = 0;
-  private final static Logger log = LoggerFactory.getLogger(ExtendMembershipException.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ExtendMembershipException.class);
   private Reason reason;
   private String expirationDate;
 
@@ -26,7 +26,7 @@ public class ExtendMembershipException extends PerunException {
 
     this.reason = reason;
 
-    log.error("Internal Error Exception:", this);
+    LOG.error("Internal Error Exception:", this);
   }
 
   /**
@@ -42,7 +42,7 @@ public class ExtendMembershipException extends PerunException {
     this.expirationDate = expirationDate;
     this.reason = reason;
 
-    log.error("Internal Error Exception:", this);
+    LOG.error("Internal Error Exception:", this);
   }
 
   /**
@@ -54,7 +54,7 @@ public class ExtendMembershipException extends PerunException {
   public ExtendMembershipException(String message, Throwable cause) {
     super(message, cause);
 
-    log.error("Internal Error Exception:", this);
+    LOG.error("Internal Error Exception:", this);
   }
 
   /**
@@ -65,7 +65,18 @@ public class ExtendMembershipException extends PerunException {
   public ExtendMembershipException(Throwable cause) {
     super(cause);
 
-    log.error("Internal Error Exception:", this);
+    LOG.error("Internal Error Exception:", this);
+  }
+
+  /**
+   * Return string value of member's attribute "membership expiration date" or null when expiration is not set.
+   * <p>
+   * It's filled only when Reason is OUTSIDEEXTENSIONPERIOD.
+   *
+   * @return String value of membership expiration date
+   */
+  public String getExpirationDate() {
+    return this.expirationDate;
   }
 
   /**
@@ -76,18 +87,6 @@ public class ExtendMembershipException extends PerunException {
    */
   public Reason getReason() {
     return this.reason;
-  }
-
-  /**
-   * Return string value of member's attribute "membership expiration date"
-   * or null when expiration is not set.
-   * <p>
-   * It's filled only when Reason is OUTSIDEEXTENSIONPERIOD.
-   *
-   * @return String value of membership expiration date
-   */
-  public String getExpirationDate() {
-    return this.expirationDate;
   }
 
   public enum Reason {

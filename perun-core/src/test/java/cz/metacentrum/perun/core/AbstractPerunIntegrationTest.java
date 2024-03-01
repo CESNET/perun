@@ -7,6 +7,10 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +19,8 @@ import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 /**
- * This abstract class is intended for extending in integration tests in
- * Perun-core.
+ * This abstract class is intended for extending in integration tests in Perun-core.
  * <p>
  * <p>
  * Extending this class brings you:
@@ -36,19 +34,17 @@ import java.util.TreeSet;
  * application context
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
- * @see <a href="http://static.springsource.org/spring/docs/current/spring-framework-reference/html/testing.html#testcontext-framework">testing</a>
+ * @see <a href="http://static.springsource.org/spring/docs/current/spring-framework-reference/html/testing
+ * .html#testcontext-framework">testing</a>
  * <p>
  * You can use Mockito and PowerMock testing frameworks as well.
  * <p>
- * Keep in your mind that you can use AbstractJUnit4SpringContextTests for
- * similar purpose. This alternative approach offers reference for
- * JdbcTemplate which is useful for quering against database.
+ * Keep in your mind that you can use AbstractJUnit4SpringContextTests for similar purpose. This alternative approach
+ * offers reference for JdbcTemplate which is useful for quering against database.
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextHierarchy({
-    @ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})
-})
+@ContextHierarchy({@ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})})
 @Transactional(transactionManager = "springTransactionManager")
 public abstract class AbstractPerunIntegrationTest {
 

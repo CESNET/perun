@@ -4,14 +4,12 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
-import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.DatabaseManagerImpl;
 import cz.metacentrum.perun.core.implApi.DatabaseManagerImplApi;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
-
-import java.util.List;
 
 /**
  * Database manager can work with database version and upgraded state of perun DB.
@@ -20,11 +18,21 @@ import java.util.List;
  */
 public class DatabaseManagerBlImpl implements DatabaseManagerBl {
   public static final String POSTGRES_CHANGELOG = "postgresChangelog.txt";
-  final static Logger log = LoggerFactory.getLogger(DatabaseManagerBlImpl.class);
+  static final Logger LOG = LoggerFactory.getLogger(DatabaseManagerBlImpl.class);
   private final DatabaseManagerImplApi databaseManagerImpl;
 
   public DatabaseManagerBlImpl(DatabaseManagerImplApi databaseManagerImpl) {
     this.databaseManagerImpl = databaseManagerImpl;
+  }
+
+  @Override
+  public void createProperty(String property) {
+    this.databaseManagerImpl.createProperty(property);
+  }
+
+  @Override
+  public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) {
+    return this.databaseManagerImpl.getChangelogVersions(currentDBVersion, fileName);
   }
 
   @Override
@@ -42,29 +50,8 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
     return getDatabaseManagerImpl().getDatabaseInformation();
   }
 
-  @Override
-  public void updateDatabaseVersion(List<DBVersion> dbVersions) {
-    this.databaseManagerImpl.updateDatabaseVersion(dbVersions);
-  }
-
-  @Override
-  public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) {
-    return this.databaseManagerImpl.getChangelogVersions(currentDBVersion, fileName);
-  }
-
-  @Override
-  public long getTimeOfQueryPerformance() {
-    return this.databaseManagerImpl.getTimeOfQueryPerformance();
-  }
-
-  @Override
-  public void createProperty(String property) {
-    this.databaseManagerImpl.createProperty(property);
-  }
-
-  @Override
-  public boolean propertyExists(String property) {
-    return this.databaseManagerImpl.propertyExists(property);
+  public DatabaseManagerImplApi getDatabaseManagerImpl() {
+    return this.databaseManagerImpl;
   }
 
   @Override
@@ -72,8 +59,13 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
     return this.databaseManagerImpl.getJdbcPerunTemplate();
   }
 
+  @Override
+  public long getTimeOfQueryPerformance() {
+    return this.databaseManagerImpl.getTimeOfQueryPerformance();
+  }
+
   protected void initialize() {
-    log.debug("Initialize manager starts!");
+    LOG.debug("Initialize manager starts!");
 
     //This part of code probably need to be replaced by readOnly setting for every connection in perun
     //not just the one (this one)
@@ -82,7 +74,7 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
     //Initialize property for performance testing if not exists
     if (!this.propertyExists(DatabaseManagerImpl.PERFORMANCE_PROPERTY)) {
       if (readOnly) {
-        log.error("There is missing property for DB performance testing!");
+        LOG.error("There is missing property for DB performance testing!");
       } else {
         this.createProperty(DatabaseManagerImpl.PERFORMANCE_PROPERTY);
       }
@@ -104,9 +96,9 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
     String codeDBVersion = this.databaseManagerImpl.getCodeDatabaseVersion(dbVersions, currentDBVersion);
 
     if (codeDBVersion.equals(currentDBVersion)) {
-      log.debug("DB version is up to date - CurrentVersion: " + currentDBVersion);
+      LOG.debug("DB version is up to date - CurrentVersion: " + currentDBVersion);
     } else {
-      log.debug("DB version is not up to date! Updating database.");
+      LOG.debug("DB version is not up to date! Updating database.");
 
       if (BeansUtils.initializatorEnabled()) {
         //If read only, end with error
@@ -116,22 +108,29 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 
         try {
           updateDatabaseVersion(dbVersions);
-          log.debug("DB version updated successfully. Current version: " + codeDBVersion);
+          LOG.debug("DB version updated successfully. Current version: " + codeDBVersion);
         } catch (Exception e) {
           //Call exception which kills the initialization process in spring
           throw new InternalErrorException(
               "DB version is NOT up to date, database update was unsuccessful! Look to the logs for more info.", e);
         }
       } else {
-        log.error("Initializator of DB is disabled on this instance of Perun. Please, do manual changes in database.");
+        LOG.error("Initializator of DB is disabled on this instance of Perun. Please, do manual changes in database.");
         throw new InternalErrorException(
-            "DB version is NOT up to date, automatic update through initializer is disabled. Please do manual changes!");
+            "DB version is NOT up to date, automatic update through initializer is disabled. Please do manual " +
+            "changes!");
       }
     }
-    log.debug("Initialize manager ends!");
+    LOG.debug("Initialize manager ends!");
   }
 
-  public DatabaseManagerImplApi getDatabaseManagerImpl() {
-    return this.databaseManagerImpl;
+  @Override
+  public boolean propertyExists(String property) {
+    return this.databaseManagerImpl.propertyExists(property);
+  }
+
+  @Override
+  public void updateDatabaseVersion(List<DBVersion> dbVersions) {
+    this.databaseManagerImpl.updateDatabaseVersion(dbVersions);
   }
 }

@@ -18,10 +18,10 @@ public class PerunNotifAuditMessageManagerImpl implements PerunNotifAuditMessage
   @Autowired
   private PerunNotifAuditMessageDao perunNotifAuditMessageDao;
 
-  public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String message,
-                                                                 PerunSession session) {
+  @Override
+  public List<PerunNotifAuditMessage> getAll() {
 
-    return perunNotifAuditMessageDao.save(message);
+    return perunNotifAuditMessageDao.getAll();
   }
 
   public void removePerunAuditerMessageById(long id) {
@@ -29,9 +29,8 @@ public class PerunNotifAuditMessageManagerImpl implements PerunNotifAuditMessage
     perunNotifAuditMessageDao.remove(id);
   }
 
-  @Override
-  public List<PerunNotifAuditMessage> getAll() {
+  public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String message, PerunSession session) {
 
-    return perunNotifAuditMessageDao.getAll();
+    return perunNotifAuditMessageDao.save(message);
   }
 }

@@ -24,38 +24,6 @@ public class EnrichedFacility {
     this.hosts = hosts;
   }
 
-  public Facility getFacility() {
-    return facility;
-  }
-
-  public void setFacility(Facility facility) {
-    this.facility = facility;
-  }
-
-  public List<Owner> getOwners() {
-    return owners;
-  }
-
-  public void setOwners(List<Owner> owners) {
-    this.owners = owners;
-  }
-
-  public List<Destination> getDestinations() {
-    return destinations;
-  }
-
-  public void setDestinations(List<Destination> destinations) {
-    this.destinations = destinations;
-  }
-
-  public List<Host> getHosts() {
-    return hosts;
-  }
-
-  public void setHosts(List<Host> hosts) {
-    this.hosts = hosts;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -68,6 +36,38 @@ public class EnrichedFacility {
     return Objects.equals(getFacility(), that.getFacility());
   }
 
+  public List<Destination> getDestinations() {
+    return destinations;
+  }
+
+  public void setDestinations(List<Destination> destinations) {
+    this.destinations = destinations;
+  }
+
+  public Facility getFacility() {
+    return facility;
+  }
+
+  public void setFacility(Facility facility) {
+    this.facility = facility;
+  }
+
+  public List<Host> getHosts() {
+    return hosts;
+  }
+
+  public void setHosts(List<Host> hosts) {
+    this.hosts = hosts;
+  }
+
+  public List<Owner> getOwners() {
+    return owners;
+  }
+
+  public void setOwners(List<Owner> owners) {
+    this.owners = owners;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(getFacility());
@@ -75,11 +75,7 @@ public class EnrichedFacility {
 
   @Override
   public String toString() {
-    return "EnrichedFacility{" +
-        "facility=" + facility +
-        ", owners=" + owners +
-        ", destinations=" + destinations +
-        ", hosts=" + hosts +
-        '}';
+    return "EnrichedFacility{" + "facility=" + facility + ", owners=" + owners + ", destinations=" + destinations +
+           ", hosts=" + hosts + '}';
   }
 }

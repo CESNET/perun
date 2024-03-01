@@ -21,13 +21,13 @@ public class MemberValidatedFailed extends AuditEvent implements EngineIgnoreEve
     this.message = formatMessage("Validation of %s failed. He stays in %s state.", member, status);
   }
 
+  public Member getMember() {
+    return member;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   public Status getStatus() {

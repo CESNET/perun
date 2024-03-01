@@ -20,12 +20,12 @@ public class HostRemovedFromFacility extends AuditEvent {
     this.message = formatMessage("%s removed from %s.", host, facility);
   }
 
-  public Host getHost() {
-    return host;
-  }
-
   public Facility getFacility() {
     return facility;
+  }
+
+  public Host getHost() {
+    return host;
   }
 
   @Override

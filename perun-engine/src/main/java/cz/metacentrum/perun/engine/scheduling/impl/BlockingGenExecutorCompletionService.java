@@ -5,16 +5,24 @@ import cz.metacentrum.perun.engine.scheduling.BlockingCompletionService;
 import cz.metacentrum.perun.engine.scheduling.EngineWorker;
 import cz.metacentrum.perun.engine.scheduling.GenWorker;
 import cz.metacentrum.perun.taskslib.model.Task;
+import java.time.LocalDateTime;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.util.concurrent.*;
-
 /**
- * Implementation of BlockingCompletionService<Task> for generating Tasks in Engine.
- * It provides blocking methods and size limit to javas CompletionService, which itself run GenWorkers.
- * Tasks are managed by separate threads GenPlanner and GenCollector.
+ * Implementation of BlockingCompletionService<Task> for generating Tasks in Engine. It provides blocking methods and
+ * size limit to javas CompletionService, which itself run GenWorkers. Tasks are managed by separate threads GenPlanner
+ * and GenCollector.
  *
  * @author David Šarman
  * @author Pavel Zlámal <zlamal@cesnet.cz>
@@ -26,13 +34,13 @@ import java.util.concurrent.*;
  */
 public class BlockingGenExecutorCompletionService implements BlockingCompletionService<Task> {
 
-  private final static Logger log = LoggerFactory.getLogger(BlockingGenExecutorCompletionService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BlockingGenExecutorCompletionService.class);
   private CompletionService<Task> completionService;
   private ConcurrentMap<Future<Task>, Task> executingGenTasks = new ConcurrentHashMap<>();
   /**
-   * Provide blocking-waiting behavior to GEN Tasks, which are not started, until semaphore is acquired.
-   * When job is cancelled or done, semaphore is released. Semaphore shares limit for concurrently running
-   * GEN Tasks with javas ExecutorCompletionService.
+   * Provide blocking-waiting behavior to GEN Tasks, which are not started, until semaphore is acquired. When job is
+   * cancelled or done, semaphore is released. Semaphore shares limit for concurrently running GEN Tasks with javas
+   * ExecutorCompletionService.
    */
   private Semaphore semaphore;
 
@@ -90,7 +98,7 @@ public class BlockingGenExecutorCompletionService implements BlockingCompletionS
 
         // Unexpected exception during processing, pass stored Task if possible
         if (task == null) {
-          log.error("We couldn't get Task for failed Future<Task>: {}", e);
+          LOG.error("We couldn't get Task for failed Future<Task>: {}", e);
           throw new RuntimeException("We couldn't get Task for failed Future<Task>", e);
         }
 
@@ -103,7 +111,7 @@ public class BlockingGenExecutorCompletionService implements BlockingCompletionS
       Task removedTask = executingGenTasks.get(taskFuture);
       removeTaskFuture(taskFuture);
       if (removedTask == null) {
-        log.error("Somebody manually removed Future<Task> from executingGenTasks or Task was null: {}", ex);
+        LOG.error("Somebody manually removed Future<Task> from executingGenTasks or Task was null: {}", ex);
         throw ex; // we can't do anything about it
       }
 

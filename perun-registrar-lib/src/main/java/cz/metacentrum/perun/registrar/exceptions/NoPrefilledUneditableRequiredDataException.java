@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Exception thrown during application form retrieval for user when
- * any required application form item has no pre-filled value from
- * federation and currently this item is hidden or disabled.
+ * Exception thrown during application form retrieval for user when any required application form item has no pre-filled
+ * value from federation and currently this item is hidden or disabled.
  *
  * @author Jakub Hejda <Jakub.Hejda@cesnet.cz>
  */

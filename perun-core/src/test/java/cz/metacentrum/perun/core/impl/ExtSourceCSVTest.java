@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,9 +10,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * @author Metodej Klang
@@ -23,13 +22,6 @@ public class ExtSourceCSVTest {
 
   @Spy
   private static ExtSourceCSV extSourceCSV;
-
-  @Before
-  public void setUp() throws Exception {
-    extSourceCSV = new ExtSourceCSV();
-
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   public void getUsersSubjectsQueryWithContainsTest() throws Exception {
@@ -96,5 +88,12 @@ public class ExtSourceCSVTest {
     // test the method
     List<Map<String, String>> actualSubjects = extSourceCSV.getUsersSubjects();
     assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    extSourceCSV = new ExtSourceCSV();
+
+    MockitoAnnotations.initMocks(this);
   }
 }

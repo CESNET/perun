@@ -71,7 +71,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attrNames List<String> Attribute names
    * @return List<Attribute> Specified Vo attributes
    * @throw VoNotExistsException When Vo with <code>id</code> doesn't exist.
-   * @exampleParam attrNames [ "urn:perun:vo:attribute-def:def:contactEmail" , "urn:perun:vo:attribute-def:core:shortName" ]
+   * @exampleParam attrNames [ "urn:perun:vo:attribute-def:def:contactEmail" ,
+   * "urn:perun:vo:attribute-def:core:shortName" ]
    */
   /*#
    * Returns all non-empty UserExtSource attributes for selected UserExtSource.
@@ -94,17 +95,20 @@ public enum AttributesManagerMethod implements ManagerMethod {
    *
    * @param member int Member <code>id</code>
    * @param resource int Resource <code>id</code>
-   * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes.
+   * <code>False</code> is default.
    * @return List<Attribute> All non-empty Member-Resource attributes
    * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
    * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
    */
   /*#
-   * Returns selected non-empty Member, User, Member-Resource and User-Facility attributes (by list of attribute names) for selected Member and Resource.
+   * Returns selected non-empty Member, User, Member-Resource and User-Facility attributes (by list of attribute
+   * names) for selected Member and Resource.
    *
    * @param member int Member <code>id</code>
    * @param resource int Resource <code>id</code>
-   * @param workWithUserAttributes boolean If <code>true</code>, return also user and user-facility attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, return also user and user-facility attributes.
+   * <code>False</code> is default.
    * @param attrNames List<String> List of attribute names
    * @return List<Attribute> Selected non-empty User, Member, Member-Resource, User-Facility attributes
    * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
@@ -158,7 +162,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    *
    * @param group int Group <code>id</code>
    * @param resource int Resource <code>id</code>
-   * @param workWithGroupAttributes boolean If <code>true</code>, return also Group attributes. <code>False</code> is default.
+   * @param workWithGroupAttributes boolean If <code>true</code>, return also Group attributes. <code>False</code> is
+   *  default.
    * @return List<Attribute> All non-empty Group-Resource attributes
    * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
    * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
@@ -166,13 +171,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
   /*#
    * Returns all specified Group-Resource attributes for selected Group and Resource.
    * If <code>attrNames</code> is empty, it returns all non-empty attributes.
-   * If <code>workWithGroupAttributes == true</code> then also Group attributes are returned. <code>False</code> is default.
+   * If <code>workWithGroupAttributes == true</code> then also Group attributes are returned. <code>False</code> is
+   * default.
    *
    * @param group int Group <code>id</code>
    * @param resource int Resource <code>id</code>
    * @param attrNames List<String> Attribute names
-   * @param workWithGroupAttributes boolean If <code>true</code>, return also Group attributes. <code>False</code> is default.
-   * @return List<Attribute> Specified Group-Resource attributes and (if workWithGroupAttributes == true) also Group attributes.
+   * @param workWithGroupAttributes boolean If <code>true</code>, return also Group attributes. <code>False</code> is
+   *  default.
+   * @return List<Attribute> Specified Group-Resource attributes and (if workWithGroupAttributes == true) also Group
+   * attributes.
    * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
    * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
    */
@@ -198,7 +206,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param member int Member <code>id</code>
    * @param group int Group <code>id</code>
    * @param attrNames List<String> Attribute names
-   * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes.
+   * <code>False</code> is default.
    * @return List<Attribute> Specified Member-Group attributes
    * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
    * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
@@ -216,7 +225,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * If <code>workWithUserAttributes == true</code> then also all non-empty User attributes are returned.
    *
    * @param member int Member <code>id</code>
-   * @param workWithUserAttributes boolean If <code>true</code>, return also User attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, return also User attributes. <code>False</code> is
+   * default.
    * @return List<Attribute> All non-empty Member attributes
    * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
    */
@@ -238,7 +248,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attrNames List<String> Attribute names
    * @return List<Attribute> Specified Member attributes
    * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
-   * @exampleParam attrNames [ "urn:perun:member:attribute-def:def:mail" , "urn:perun:member:attribute-def:def:membershipExpiration" ]
+   * @exampleParam attrNames [ "urn:perun:member:attribute-def:def:mail" ,
+   * "urn:perun:member:attribute-def:def:membershipExpiration" ]
    */
   /*#
    * Returns all non-empty Member-Group attributes for selected Member and Group.
@@ -264,7 +275,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attrNames List<String> Attribute names
    * @return List<Attribute> Specified User attributes
    * @throw UserNotExistsException When User with <code>id</code> doesn't exist.
-   * @exampleParam attrNames [ "urn:perun:user:attribute-def:def:phone" , "urn:perun:user:attribute-def:def:preferredMail" ]
+   * @exampleParam attrNames [ "urn:perun:user:attribute-def:def:phone" ,
+   * "urn:perun:user:attribute-def:def:preferredMail" ]
    */
   /*#
    * Returns all non-empty Group attributes for selected Group.
@@ -280,7 +292,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attrNames List<String> Attribute names
    * @return List<Attribute> Specified Group attributes
    * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
-   * @exampleParam attrNames [ "urn:perun:user:attribute-def:core:description" , "urn:perun:user:attribute-def:def:synchronizationEnabled" ]
+   * @exampleParam attrNames [ "urn:perun:user:attribute-def:core:description" ,
+   * "urn:perun:user:attribute-def:def:synchronizationEnabled" ]
    */
   /*#
    * Returns all non-empty Host attributes for selected Host.
@@ -288,16 +301,19 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param host int Host <code>id</code>
    * @return List<Attribute> All non-empty Host attributes
    * @throw HostNotExistsException When Group with <code>id</code> doesn't exist.
-   * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" , "urn:perun:host:attribute-def:def:frontend" ]
+   * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" ,
+   * "urn:perun:host:attribute-def:def:frontend" ]
    */
   /*#
-   * Returns all Host attributes for selected Host which have name in list attrNames (empty too). Empty list attrNames will return no attributes.
+   * Returns all Host attributes for selected Host which have name in list attrNames (empty too). Empty list
+   * attrNames will return no attributes.
    *
    * @param host int Host <code>id</code>
    * @param attrNames List<String> Attribute names
    * @return List<Attribute> All non-empty Host attributes
    * @throw HostNotExistsException When Group with <code>id</code> doesn't exist.
-   * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" , "urn:perun:host:attribute-def:def:frontend" ]
+   * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" ,
+   * "urn:perun:host:attribute-def:def:frontend" ]
    */
   /*#
    * Returns all non-empty Entityless attributes with subject equaled <code>key</code>.
@@ -311,169 +327,140 @@ public enum AttributesManagerMethod implements ManagerMethod {
       if (parms.contains("facility")) {
         if (parms.contains("user")) {
           if (parms.contains("member") && parms.contains("resource")) {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getUserById(parms.readInt("user")),
-                ac.getMemberById(parms.readInt("member")));
+            return ac.getAttributesManager()
+                .getAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getResourceById(parms.readInt("resource")), ac.getUserById(parms.readInt("user")),
+                    ac.getMemberById(parms.readInt("member")));
           } else {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getUserById(parms.readInt("user")));
+            return ac.getAttributesManager()
+                .getAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getUserById(parms.readInt("user")));
           }
         } else {
           if (parms.contains("attrNames")) {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                parms.readList("attrNames", String.class));
+            return ac.getAttributesManager()
+                .getAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    parms.readList("attrNames", String.class));
           } else {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")));
+            return ac.getAttributesManager()
+                .getAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
           }
         }
       } else if (parms.contains("vo")) {
         if (parms.contains("attrNames")) {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")),
               parms.readList("attrNames", String.class));
         } else {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")));
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")));
         }
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
           if (parms.contains("workWithUserAttributes")) {
             if (parms.contains("attrNames")) {
-              return ac.getAttributesManager().getAttributes(ac.getSession(),
-                  ac.getMemberById(parms.readInt("member")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  parms.readList("attrNames", String.class),
+              return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                  ac.getResourceById(parms.readInt("resource")), parms.readList("attrNames", String.class),
                   parms.readBoolean("workWithUserAttributes"));
             } else {
-              return ac.getAttributesManager().getAttributes(ac.getSession(),
-                  ac.getMemberById(parms.readInt("member")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  parms.readBoolean("workWithUserAttributes"));
+              return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                  ac.getResourceById(parms.readInt("resource")), parms.readBoolean("workWithUserAttributes"));
             }
           } else if (parms.contains("attrNames") && parms.contains("group")) {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                ac.getMemberById(parms.readInt("member")),
-                parms.readList("attrNames", String.class));
+            return ac.getAttributesManager()
+                .getAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    ac.getGroupById(parms.readInt("group")), ac.getMemberById(parms.readInt("member")),
+                    parms.readList("attrNames", String.class));
           } else {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getResourceById(parms.readInt("resource"))
-            );
+            return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getResourceById(parms.readInt("resource")));
           }
         } else if (parms.contains("group")) {
           if (parms.contains("workWithGroupAttributes")) {
             if (parms.contains("attrNames")) {
-              return ac.getAttributesManager().getAttributes(ac.getSession(),
-                  ac.getResourceById(parms.readInt("resource")),
-                  ac.getGroupById(parms.readInt("group")),
-                  parms.readList("attrNames", String.class),
-                  parms.readBoolean("workWithGroupAttributes"));
+              return ac.getAttributesManager()
+                  .getAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                      ac.getGroupById(parms.readInt("group")), parms.readList("attrNames", String.class),
+                      parms.readBoolean("workWithGroupAttributes"));
 
             } else {
-              return ac.getAttributesManager().getAttributes(ac.getSession(),
-                  ac.getResourceById(parms.readInt("resource")),
-                  ac.getGroupById(parms.readInt("group")),
-                  parms.readBoolean("workWithGroupAttributes"));
+              return ac.getAttributesManager()
+                  .getAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                      ac.getGroupById(parms.readInt("group")), parms.readBoolean("workWithGroupAttributes"));
             }
           } else {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")));
+            return ac.getAttributesManager()
+                .getAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    ac.getGroupById(parms.readInt("group")));
           }
         } else {
           if (parms.contains("attrNames")) {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                parms.readList("attrNames", String.class));
+            return ac.getAttributesManager()
+                .getAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    parms.readList("attrNames", String.class));
           } else {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")));
+            return ac.getAttributesManager()
+                .getAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")));
           }
         }
       } else if (parms.contains("member")) {
         if (parms.contains("workWithUserAttributes")) {
           if (parms.contains("attrNames")) {
             if (parms.contains("group")) {
-              return ac.getAttributesManager().getAttributes(ac.getSession(),
-                  ac.getMemberById(parms.readInt("member")),
-                  ac.getGroupById(parms.readInt("group")),
-                  parms.readList("attrNames", String.class),
+              return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                  ac.getGroupById(parms.readInt("group")), parms.readList("attrNames", String.class),
                   parms.readBoolean("workWithUserAttributes"));
             } else {
-              return ac.getAttributesManager().getAttributes(ac.getSession(),
-                  ac.getMemberById(parms.readInt("member")),
-                  parms.readList("attrNames", String.class),
-                  parms.readBoolean("workWithUserAttributes"));
+              return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                  parms.readList("attrNames", String.class), parms.readBoolean("workWithUserAttributes"));
             }
           } else {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
+            return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
                 parms.readBoolean("workWithUserAttributes"));
           }
         } else if (parms.contains("attrNames")) {
           if (parms.contains("group")) {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attrNames", String.class));
+            return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getGroupById(parms.readInt("group")), parms.readList("attrNames", String.class));
           } else {
-            return ac.getAttributesManager().getAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
+            return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
                 parms.readList("attrNames", String.class));
           }
         } else if (parms.contains("group")) {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               ac.getGroupById(parms.readInt("group")));
         } else {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")));
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")));
         }
       } else if (parms.contains("user")) {
         if (parms.contains("attrNames")) {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getUserById(parms.readInt("user")),
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")),
               parms.readList("attrNames", String.class));
         } else {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getUserById(parms.readInt("user")));
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")));
         }
       } else if (parms.contains("group")) {
         if (parms.contains("attrNames")) {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getGroupById(parms.readInt("group")),
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")),
               parms.readList("attrNames", String.class));
         } else {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getGroupById(parms.readInt("group")));
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")));
         }
       } else if (parms.contains("host")) {
         if (parms.contains("attrNames")) {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getHostById(parms.readInt("host")),
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getHostById(parms.readInt("host")),
               parms.readList("attrNames", String.class));
         } else {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getHostById(parms.readInt("host")));
+          return ac.getAttributesManager().getAttributes(ac.getSession(), ac.getHostById(parms.readInt("host")));
         }
       } else if (parms.contains("key")) {
-        return ac.getAttributesManager().getAttributes(ac.getSession(),
-            parms.readString("key"));
+        return ac.getAttributesManager().getAttributes(ac.getSession(), parms.readString("key"));
       } else if (parms.contains("userExtSource")) {
         if (parms.contains("attrNames")) {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getUserExtSourceById(parms.readInt("userExtSource")),
-              parms.readList("attrNames", String.class));
+          return ac.getAttributesManager()
+              .getAttributes(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                  parms.readList("attrNames", String.class));
         } else {
-          return ac.getAttributesManager().getAttributes(ac.getSession(),
-              ac.getUserExtSourceById(parms.readInt("userExtSource")));
+          return ac.getAttributesManager()
+              .getAttributes(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")));
         }
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
@@ -507,12 +494,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("keys")) {
-        return ac.getAttributesManager()
-            .getEntitylessAttributesWithKeys(ac.getSession(), parms.readString("attrName"),
-                parms.readList("keys", String.class));
+        return ac.getAttributesManager().getEntitylessAttributesWithKeys(ac.getSession(), parms.readString("attrName"),
+            parms.readList("keys", String.class));
       } else {
-        return ac.getAttributesManager()
-            .getEntitylessAttributesWithKeys(ac.getSession(), parms.readString("attrName"));
+        return ac.getAttributesManager().getEntitylessAttributesWithKeys(ac.getSession(), parms.readString("attrName"));
       }
     }
   },
@@ -639,7 +624,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param member int Member <code>id</code>
    * @param group int Group <code>id</code>
    * @param attributes List<Attribute> List of attributes
-   * @param workWithUserAttributes boolean If <code>true</code>, store also User and Member attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, store also User and Member attributes.
+   * <code>False</code> is default.
    * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
    * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
@@ -694,106 +680,79 @@ public enum AttributesManagerMethod implements ManagerMethod {
         if (parms.contains("user")) {
           if (parms.contains("member") && parms.contains("resource")) {
             if (parms.contains("group")) {
-              ac.getAttributesManager().setAttributes(ac.getSession(),
-                  ac.getFacilityById(parms.readInt("facility")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  ac.getGroupById(parms.readInt("group")),
-                  ac.getUserById(parms.readInt("user")),
-                  ac.getMemberById(parms.readInt("member")),
+              ac.getAttributesManager().setAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                  ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")),
+                  ac.getUserById(parms.readInt("user")), ac.getMemberById(parms.readInt("member")),
                   parms.readList("attributes", Attribute.class));
             } else {
-              ac.getAttributesManager().setAttributes(ac.getSession(),
-                  ac.getFacilityById(parms.readInt("facility")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  ac.getUserById(parms.readInt("user")),
-                  ac.getMemberById(parms.readInt("member")),
-                  parms.readList("attributes", Attribute.class));
+              ac.getAttributesManager().setAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                  ac.getResourceById(parms.readInt("resource")), ac.getUserById(parms.readInt("user")),
+                  ac.getMemberById(parms.readInt("member")), parms.readList("attributes", Attribute.class));
             }
           } else {
-            ac.getAttributesManager().setAttributes(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getUserById(parms.readInt("user")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager().setAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                ac.getUserById(parms.readInt("user")), parms.readList("attributes", Attribute.class));
           }
         } else {
-          ac.getAttributesManager().setAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
+          ac.getAttributesManager().setAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
               parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().setAttributes(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getAttributesManager().setAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
           if (parms.contains("workWithUserAttributes")) {
-            ac.getAttributesManager().setAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readList("attributes", Attribute.class),
+            ac.getAttributesManager().setAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getResourceById(parms.readInt("resource")), parms.readList("attributes", Attribute.class),
                 parms.readBoolean("workWithUserAttributes"));
           } else {
-            ac.getAttributesManager().setAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager().setAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getResourceById(parms.readInt("resource")), parms.readList("attributes", Attribute.class));
           }
         } else if (parms.contains("group")) {
           if (parms.contains("workWithGroupAttributes")) {
-            ac.getAttributesManager().setAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attributes", Attribute.class),
+            ac.getAttributesManager().setAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class),
                 parms.readBoolean("workWithGroupAttributes"));
           } else {
-            ac.getAttributesManager().setAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager().setAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class));
           }
         } else {
-          ac.getAttributesManager().setAttributes(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
+          ac.getAttributesManager().setAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
               parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("workWithUserAttributes")) {
           if (parms.contains("group")) {
-            ac.getAttributesManager().setAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attributes", Attribute.class),
+            ac.getAttributesManager().setAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class),
                 parms.readBoolean("workWithUserAttributes"));
           } else {
-            ac.getAttributesManager().setAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                parms.readList("attributes", Attribute.class),
-                parms.readBoolean("workWithUserAttributes"));
+            ac.getAttributesManager().setAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                parms.readList("attributes", Attribute.class), parms.readBoolean("workWithUserAttributes"));
           }
         } else if (parms.contains("group")) {
-          ac.getAttributesManager().setAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.readList("attributes", Attribute.class));
+          ac.getAttributesManager().setAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class));
         } else {
-          ac.getAttributesManager().setAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().setAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().setAttributes(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getAttributesManager().setAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("group")) {
-        ac.getAttributesManager().setAttributes(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getAttributesManager().setAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().setAttributes(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
+        ac.getAttributesManager().setAttributes(ac.getSession(), ac.getHostById(parms.readInt("host")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().setAttributes(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")),
-            parms.readList("attributes", Attribute.class));
+        ac.getAttributesManager()
+            .setAttributes(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                parms.readList("attributes", Attribute.class));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "facility, vo, resource, member, user, host, group or userExtSource");
@@ -984,67 +943,60 @@ public enum AttributesManagerMethod implements ManagerMethod {
       if (parms.contains("attributeId")) {
         if (parms.contains("facility")) {
           if (parms.contains("user")) {
-            return ac.getAttributesManager().getAttributeById(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getUserById(parms.readInt("user")),
-                parms.readInt("attributeId"));
+            return ac.getAttributesManager()
+                .getAttributeById(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getUserById(parms.readInt("user")), parms.readInt("attributeId"));
           } else {
-            return ac.getAttributesManager().getAttributeById(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                parms.readInt("attributeId"));
+            return ac.getAttributesManager()
+                .getAttributeById(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    parms.readInt("attributeId"));
           }
         } else if (parms.contains("vo")) {
-          return ac.getAttributesManager().getAttributeById(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              parms.readInt("attributeId"));
+          return ac.getAttributesManager()
+              .getAttributeById(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readInt("attributeId"));
         } else if (parms.contains("resource")) {
           if (parms.contains("member")) {
-            return ac.getAttributesManager().getAttributeById(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readInt("attributeId"));
+            return ac.getAttributesManager()
+                .getAttributeById(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getResourceById(parms.readInt("resource")), parms.readInt("attributeId"));
           } else if (parms.contains("group")) {
-            return ac.getAttributesManager().getAttributeById(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readInt("attributeId"));
+            return ac.getAttributesManager()
+                .getAttributeById(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    ac.getGroupById(parms.readInt("group")), parms.readInt("attributeId"));
           } else {
-            return ac.getAttributesManager().getAttributeById(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                parms.readInt("attributeId"));
+            return ac.getAttributesManager()
+                .getAttributeById(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    parms.readInt("attributeId"));
           }
         } else if (parms.contains("member")) {
           if (parms.contains("group")) {
-            return ac.getAttributesManager().getAttributeById(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readInt("attributeId"));
+            return ac.getAttributesManager()
+                .getAttributeById(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getGroupById(parms.readInt("group")), parms.readInt("attributeId"));
           } else {
-            return ac.getAttributesManager().getAttributeById(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                parms.readInt("attributeId"));
+            return ac.getAttributesManager()
+                .getAttributeById(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    parms.readInt("attributeId"));
           }
         } else if (parms.contains("user")) {
-          return ac.getAttributesManager().getAttributeById(ac.getSession(),
-              ac.getUserById(parms.readInt("user")),
-              parms.readInt("attributeId"));
+          return ac.getAttributesManager()
+              .getAttributeById(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readInt("attributeId"));
         } else if (parms.contains("group")) {
-          return ac.getAttributesManager().getAttributeById(ac.getSession(),
-              ac.getGroupById(parms.readInt("group")),
-              parms.readInt("attributeId"));
+          return ac.getAttributesManager()
+              .getAttributeById(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readInt("attributeId"));
         } else if (parms.contains("host")) {
-          return ac.getAttributesManager().getAttributeById(ac.getSession(),
-              ac.getHostById(parms.readInt("host")),
-              parms.readInt("attributeId"));
-					/*  Not implemented yet
-							} else if (parms.contains("key")) {
-							return ac.getAttributesManager().getAttributeById(ac.getSession(),
-							parms.readString("key"),
-							parms.readInt("attributeId"));
-							*/
+          return ac.getAttributesManager()
+              .getAttributeById(ac.getSession(), ac.getHostById(parms.readInt("host")), parms.readInt("attributeId"));
+          /*  Not implemented yet
+                  } else if (parms.contains("key")) {
+                  return ac.getAttributesManager().getAttributeById(ac.getSession(),
+                  parms.readString("key"),
+                  parms.readInt("attributeId"));
+                  */
         } else if (parms.contains("userExtSource")) {
-          return ac.getAttributesManager().getAttributeById(ac.getSession(),
-              ac.getUserExtSourceById(parms.readInt("userExtSource")),
-              parms.readInt("attributeId"));
+          return ac.getAttributesManager()
+              .getAttributeById(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                  parms.readInt("attributeId"));
         } else {
           throw new RpcException(RpcException.Type.MISSING_VALUE,
               "facility, vo, resource, member, user, host, key, group or userExtSource");
@@ -1052,65 +1004,54 @@ public enum AttributesManagerMethod implements ManagerMethod {
       } else {
         if (parms.contains("facility")) {
           if (parms.contains("user")) {
-            return ac.getAttributesManager().getAttribute(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getUserById(parms.readInt("user")),
-                parms.readString("attributeName"));
+            return ac.getAttributesManager()
+                .getAttribute(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getUserById(parms.readInt("user")), parms.readString("attributeName"));
           } else {
-            return ac.getAttributesManager().getAttribute(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                parms.readString("attributeName"));
+            return ac.getAttributesManager()
+                .getAttribute(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    parms.readString("attributeName"));
           }
         } else if (parms.contains("vo")) {
-          return ac.getAttributesManager().getAttribute(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              parms.readString("attributeName"));
+          return ac.getAttributesManager()
+              .getAttribute(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("attributeName"));
         } else if (parms.contains("resource")) {
           if (parms.contains("member")) {
-            return ac.getAttributesManager().getAttribute(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readString("attributeName"));
+            return ac.getAttributesManager().getAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getResourceById(parms.readInt("resource")), parms.readString("attributeName"));
           } else if (parms.contains("group")) {
-            return ac.getAttributesManager().getAttribute(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readString("attributeName"));
+            return ac.getAttributesManager()
+                .getAttribute(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    ac.getGroupById(parms.readInt("group")), parms.readString("attributeName"));
           } else {
-            return ac.getAttributesManager().getAttribute(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                parms.readString("attributeName"));
+            return ac.getAttributesManager()
+                .getAttribute(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    parms.readString("attributeName"));
           }
         } else if (parms.contains("member")) {
           if (parms.contains("group")) {
-            return ac.getAttributesManager().getAttribute(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readString("attributeName"));
+            return ac.getAttributesManager().getAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getGroupById(parms.readInt("group")), parms.readString("attributeName"));
           } else {
-            return ac.getAttributesManager().getAttribute(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
+            return ac.getAttributesManager().getAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
                 parms.readString("attributeName"));
           }
         } else if (parms.contains("user")) {
-          return ac.getAttributesManager().getAttribute(ac.getSession(),
-              ac.getUserById(parms.readInt("user")),
-              parms.readString("attributeName"));
+          return ac.getAttributesManager()
+              .getAttribute(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("attributeName"));
         } else if (parms.contains("group")) {
-          return ac.getAttributesManager().getAttribute(ac.getSession(),
-              ac.getGroupById(parms.readInt("group")),
+          return ac.getAttributesManager().getAttribute(ac.getSession(), ac.getGroupById(parms.readInt("group")),
               parms.readString("attributeName"));
         } else if (parms.contains("host")) {
-          return ac.getAttributesManager().getAttribute(ac.getSession(),
-              ac.getHostById(parms.readInt("host")),
-              parms.readString("attributeName"));
+          return ac.getAttributesManager()
+              .getAttribute(ac.getSession(), ac.getHostById(parms.readInt("host")), parms.readString("attributeName"));
         } else if (parms.contains("userExtSource")) {
-          return ac.getAttributesManager().getAttribute(ac.getSession(),
-              ac.getUserExtSourceById(parms.readInt("userExtSource")),
-              parms.readString("attributeName"));
+          return ac.getAttributesManager()
+              .getAttribute(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                  parms.readString("attributeName"));
         } else if (parms.contains("key")) {
-          return ac.getAttributesManager().getAttribute(ac.getSession(),
-              parms.readString("key"),
-              parms.readString("attributeName"));
+          return ac.getAttributesManager()
+              .getAttribute(ac.getSession(), parms.readString("key"), parms.readString("attributeName"));
         } else {
           throw new RpcException(RpcException.Type.MISSING_VALUE,
               "facility, vo, resource, member, user, host, key, group or userExtSource");
@@ -1128,8 +1069,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
   getAttributeDefinition {
     @Override
     public AttributeDefinition call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAttributesManager().getAttributeDefinition(ac.getSession(),
-          parms.readString("attributeName"));
+      return ac.getAttributesManager().getAttributeDefinition(ac.getSession(), parms.readString("attributeName"));
     }
   },
 
@@ -1167,8 +1107,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
   getAttributesDefinitionByNamespace {
     @Override
     public List<AttributeDefinition> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAttributesManager().getAttributesDefinitionByNamespace(ac.getSession(),
-          parms.readString("namespace"));
+      return ac.getAttributesManager()
+          .getAttributesDefinitionByNamespace(ac.getSession(), parms.readString("namespace"));
     }
   },
 
@@ -1246,9 +1186,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
         entities.add(ues);
       }
       //If entityless exists in query
-			/*if(parms.contains("entityless")) {
+      /*if(parms.contains("entityless")) {
 
-				}*/
+          }*/
 
       List<AttributeDefinition> attributesDefinition =
           ac.getAttributesManager().getAttributesDefinitionWithRights(ac.getSession(), entities);
@@ -1343,65 +1283,49 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
       if (parms.contains("facility")) {
         if (parms.contains("user")) {
-          ac.getAttributesManager().setAttribute(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              ac.getUserById(parms.readInt("user")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().setAttribute(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+              ac.getUserById(parms.readInt("user")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().setAttribute(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
+          ac.getAttributesManager().setAttribute(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
               parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().setAttribute(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.read("attribute", Attribute.class));
+        ac.getAttributesManager()
+            .setAttribute(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.read("attribute", Attribute.class));
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
-          ac.getAttributesManager().setAttribute(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().setAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getResourceById(parms.readInt("resource")), parms.read("attribute", Attribute.class));
         } else if (parms.contains("group")) {
-          ac.getAttributesManager().setAttribute(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().setAttribute(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+              ac.getGroupById(parms.readInt("group")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().setAttribute(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
+          ac.getAttributesManager().setAttribute(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
               parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
-          ac.getAttributesManager().setAttribute(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().setAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getGroupById(parms.readInt("group")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().setAttribute(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().setAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().setAttribute(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getAttributesManager().setAttribute(ac.getSession(), ac.getUserById(parms.readInt("user")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("group")) {
-        ac.getAttributesManager().setAttribute(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getAttributesManager().setAttribute(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().setAttribute(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
+        ac.getAttributesManager().setAttribute(ac.getSession(), ac.getHostById(parms.readInt("host")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().setAttribute(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")),
+        ac.getAttributesManager().setAttribute(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("key")) {
-        ac.getAttributesManager().setAttribute(ac.getSession(),
-            parms.readString("key"),
-            parms.read("attribute", Attribute.class));
+        ac.getAttributesManager()
+            .setAttribute(ac.getSession(), parms.readString("key"), parms.read("attribute", Attribute.class));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "facility, vo, resource, user, member, host, key, group or userExtSource");
@@ -1414,10 +1338,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
   /*#
    * Creates AttributeDefinition
    *
-   * AttributeDefinition object must contain: namespace, friendlyName, type. Description, displayName and unique are optional. Other Parameters are ignored.
+   * AttributeDefinition object must contain: namespace, friendlyName, type. Description, displayName and unique are
+   * optional. Other Parameters are ignored.
    * @param attribute AttributeDefinition object
    * @return AttributeDefinition Created AttributeDefinition
-   * @exampleParam attribute { "friendlyName": "kerberosLogins", "namespace": "urn:perun:user:attribute-def:def", "type": "java.util.ArrayList" }
+   * @exampleParam attribute { "friendlyName": "kerberosLogins", "namespace": "urn:perun:user:attribute-def:def",
+   * "type": "java.util.ArrayList" }
    */
   /*#
    * Creates AttributeDefinition
@@ -1425,7 +1351,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param friendlyName String friendlyName
    * @param namespace String namespace in URN format
    * @param description String description
-   * @param type String type which is one of the: "java.lang.String", "java.lang.Integer", "java.lang.Boolean", "java.util.ArrayList",
+   * @param type String type which is one of the: "java.lang.String", "java.lang.Integer", "java.lang.Boolean", "java
+   * .util.ArrayList",
    *                                              "java.util.LinkedHashMap"
    * @param displayName String displayName
    * @param unique Boolean unique
@@ -1440,11 +1367,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("attribute")) {
-        return ac.getAttributesManager().createAttribute(ac.getSession(),
-            parms.read("attribute", AttributeDefinition.class));
+        return ac.getAttributesManager()
+            .createAttribute(ac.getSession(), parms.read("attribute", AttributeDefinition.class));
       } else if (parms.contains("friendlyName") && parms.contains("namespace") && parms.contains("description") &&
-          parms.contains("type")
-          && parms.contains("displayName") && parms.contains("unique")) {
+                 parms.contains("type") && parms.contains("displayName") && parms.contains("unique")) {
         AttributeDefinition attribute = new AttributeDefinition();
         attribute.setFriendlyName(parms.readString("friendlyName"));
         attribute.setNamespace(parms.readString("namespace"));
@@ -1464,15 +1390,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * set for any entity
    *
    * @param attribute int AttributeDefinition <code>id</code>
-   * @throw RelationExistsException When attribute definition has any relation to some application form item or to some service as a required attribute
+   * @throw RelationExistsException When attribute definition has any relation to some application form item or to
+   * some service as a required attribute
    */
   deleteAttribute {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getAttributesManager().deleteAttribute(ac.getSession(),
-          ac.getAttributeDefinitionById(parms.readInt("attribute")));
+      ac.getAttributesManager()
+          .deleteAttribute(ac.getSession(), ac.getAttributeDefinitionById(parms.readInt("attribute")));
       return null;
     }
   },
@@ -1489,8 +1416,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
       List<Integer> attDefs = parms.readList("attributes", Integer.class);
       for (Integer id : attDefs) {
-        ac.getAttributesManager().deleteAttribute(ac.getSession(),
-            ac.getAttributeDefinitionById(id));
+        ac.getAttributesManager().deleteAttribute(ac.getSession(), ac.getAttributeDefinitionById(id));
       }
       return null;
     }
@@ -1537,7 +1463,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param resource int Resource <code>id</code>
    * @param group int Group <code>id</code>
    * @param member int Member <code>id</code>
-   * @param workWithUserAttributes boolean If <code>true</code>, return also User and User-facility attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, return also User and User-facility attributes.
+   * <code>False</code> is default.
    * @return List<Attribute> Required Attributes
    */
   /*#
@@ -1556,7 +1483,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param service int Service <code>id</code>
    * @param member int Member <code>id</code>
    * @param group int Group <code>id</code>
-   * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes.
+   * <code>False</code> is default.
    * @return List<Attribute> Required Attributes
    * @throw ServiceNotExistsException When Service not exists by its <code>id</code>.
    * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
@@ -1695,72 +1623,64 @@ public enum AttributesManagerMethod implements ManagerMethod {
           if (parms.contains("group")) {
             if (parms.contains("member")) {
               if (parms.contains("workWithUserAttributes")) {
-                return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                    ac.getServiceById(parms.readInt("service")),
-                    ac.getResourceById(parms.readInt("resource")),
-                    ac.getGroupById(parms.readInt("group")),
-                    ac.getMemberById(parms.readInt("member")),
-                    parms.readBoolean("workWithUserAttributes"));
+                return ac.getAttributesManager()
+                    .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                        ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")),
+                        ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
               } else {
-                return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                    ac.getServiceById(parms.readInt("service")),
-                    ac.getResourceById(parms.readInt("resource")),
-                    ac.getGroupById(parms.readInt("group")),
-                    ac.getMemberById(parms.readInt("member")),
-                    false);
+                return ac.getAttributesManager()
+                    .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                        ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")),
+                        ac.getMemberById(parms.readInt("member")), false);
               }
             } else {
-              return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                  ac.getServiceById(parms.readInt("service")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  ac.getGroupById(parms.readInt("group")));
+              return ac.getAttributesManager()
+                  .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                      ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")));
             }
           } else if (parms.contains("member")) {
             if (parms.contains("workWithUserAttributes")) {
-              return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                  ac.getServiceById(parms.readInt("service")),
-                  ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                  parms.readBoolean("workWithUserAttributes"));
+              return ac.getAttributesManager()
+                  .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                      ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
+                      parms.readBoolean("workWithUserAttributes"));
             } else {
-              return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                  ac.getServiceById(parms.readInt("service")),
-                  ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource"))
-              );
+              return ac.getAttributesManager()
+                  .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                      ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")));
             }
           } else {
-            return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                ac.getServiceById(parms.readInt("service")),
-                ac.getResourceById(parms.readInt("resource")));
+            return ac.getAttributesManager()
+                .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                    ac.getResourceById(parms.readInt("resource")));
           }
         } else if (parms.contains("member")) {
           if (parms.contains("group")) {
             if (parms.contains("workWithUserAttributes")) {
-              return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                  ac.getServiceById(parms.readInt("service")),
-                  ac.getMemberById(parms.readInt("member")),
-                  ac.getGroupById(parms.readInt("group")),
-                  parms.readBoolean("workWithUserAttributes"));
+              return ac.getAttributesManager()
+                  .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                      ac.getMemberById(parms.readInt("member")), ac.getGroupById(parms.readInt("group")),
+                      parms.readBoolean("workWithUserAttributes"));
             } else {
-              return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                  ac.getServiceById(parms.readInt("service")),
-                  ac.getMemberById(parms.readInt("member")),
-                  ac.getGroupById(parms.readInt("group")));
+              return ac.getAttributesManager()
+                  .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                      ac.getMemberById(parms.readInt("member")), ac.getGroupById(parms.readInt("group")));
             }
           } else {
             throw new RpcException(RpcException.Type.MISSING_VALUE, "group");
           }
         } else if (parms.contains("facility")) {
-          return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-              ac.getServiceById(parms.readInt("service")),
-              ac.getFacilityById(parms.readInt("facility")));
+          return ac.getAttributesManager()
+              .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                  ac.getFacilityById(parms.readInt("facility")));
         } else if (parms.contains("host")) {
-          return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-              ac.getServiceById(parms.readInt("service")),
-              ac.getHostById(parms.readInt("host")));
+          return ac.getAttributesManager()
+              .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                  ac.getHostById(parms.readInt("host")));
         } else if (parms.contains("vo")) {
-          return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-              ac.getServiceById(parms.readInt("service")),
-              ac.getVoById(parms.readInt("vo")));
+          return ac.getAttributesManager()
+              .getRequiredAttributes(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+                  ac.getVoById(parms.readInt("vo")));
         } else {
           throw new RpcException(RpcException.Type.MISSING_VALUE, "host, resource or facility");
         }
@@ -1775,63 +1695,61 @@ public enum AttributesManagerMethod implements ManagerMethod {
           }
         }
         if (parms.contains("facility")) {
-          return ac.getAttributesManager().getRequiredAttributes(ac.getSession(), services,
-              ac.getFacilityById(parms.readInt("facility")));
+          return ac.getAttributesManager()
+              .getRequiredAttributes(ac.getSession(), services, ac.getFacilityById(parms.readInt("facility")));
         } else if (parms.contains("resource")) {
-          return ac.getAttributesManager().getRequiredAttributes(ac.getSession(), services,
-              ac.getResourceById(parms.readInt("resource")));
+          return ac.getAttributesManager()
+              .getRequiredAttributes(ac.getSession(), services, ac.getResourceById(parms.readInt("resource")));
         } else {
           throw new RpcException(RpcException.Type.MISSING_VALUE, "facility or resource");
         }
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
           if (parms.contains("workWithUserAttributes")) {
-            return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readBoolean("workWithUserAttributes"));
+            return ac.getAttributesManager()
+                .getRequiredAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getResourceById(parms.readInt("resource")), parms.readBoolean("workWithUserAttributes"));
           } else {
-            return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource"))
-            );
+            return ac.getAttributesManager()
+                .getRequiredAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getResourceById(parms.readInt("resource")));
           }
         } else {
-          return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")));
+          return ac.getAttributesManager()
+              .getRequiredAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")));
         }
       } else if (parms.contains("facility")) {
         if (parms.contains("user")) {
-          return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              ac.getUserById(parms.readInt("user")));
+          return ac.getAttributesManager()
+              .getRequiredAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                  ac.getUserById(parms.readInt("user")));
         } else {
-          return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")));
+          return ac.getAttributesManager()
+              .getRequiredAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
           if (parms.contains("workWithUserAttributes")) {
-            return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readBoolean("workWithUserAttributes"));
+            return ac.getAttributesManager()
+                .getRequiredAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getGroupById(parms.readInt("group")), parms.readBoolean("workWithUserAttributes"));
           } else {
-            return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                false);
+            return ac.getAttributesManager()
+                .getRequiredAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getGroupById(parms.readInt("group")), false);
           }
         } else {
           if (parms.contains("workWithUserAttributes")) {
-            return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
+            return ac.getAttributesManager()
+                .getRequiredAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    parms.readBoolean("workWithUserAttributes"));
           } else {
-            return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), false);
+            return ac.getAttributesManager()
+                .getRequiredAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")), false);
           }
         }
       } else if (parms.contains("user")) {
-        return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-            ac.getUserById(parms.readInt("user")));
+        return ac.getAttributesManager().getRequiredAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "service, resource, facility, member or user");
       }
@@ -1847,14 +1765,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
   getRequiredAttributesDefinition {
     @Override
     public List<AttributeDefinition> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAttributesManager().getRequiredAttributesDefinition(ac.getSession(),
-          ac.getServiceById(parms.readInt("service")));
+      return ac.getAttributesManager()
+          .getRequiredAttributesDefinition(ac.getSession(), ac.getServiceById(parms.readInt("service")));
     }
   },
 
   /*#
    * Gets member, user, member-resource and user-facility attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param facility int Facility <code>id</code>
@@ -1864,18 +1783,22 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @return List<Attribute> Member, user, member-resource and user-facility attributes
    */
   /*#
-   * Gets member-resource attributes and also user, user-facility and member attributes, if workWithUserAttributes == true.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * Gets member-resource attributes and also user, user-facility and member attributes, if workWithUserAttributes ==
+   *  true.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param resource int Resource <code>id</code>
    * @param member int Member <code>id</code>
    * @param workWithUserAttributes boolean Work with user attributes. False is default value.
-   * @return List<Attribute> Member-resource attributes (if workWithUserAttributes == true also user, user-facility and member attributes)
+   * @return List<Attribute> Member-resource attributes (if workWithUserAttributes == true also user, user-facility
+   * and member attributes)
    */
   /*#
    * Gets member-resource attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param resource int Resource <code>id</code>
@@ -1884,12 +1807,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets member-group attributes and also user and member attributes, if workWithUserAttributes == true.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param member int Member <code>id</code>
    * @param group int Group <code>id</code>
-   * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes.
+   * <code>False</code> is default.
    * @return List<Attribute> Member-group attributes
    * @throw ResourceNotExistsException When Resource not exists by its <code>id</code>.
    * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
@@ -1898,7 +1823,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets member-group attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param member int Member <code>id</code>
@@ -1911,7 +1837,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets member attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param member int Member <code>id</code>
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
@@ -1919,7 +1846,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets user-facility attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param facility int Facility <code>id</code>
@@ -1928,7 +1856,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets user attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param user int User <code>id</code>
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
@@ -1936,7 +1865,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets group-resource and also group attributes, if workWithGroupAttributes == true.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param group int Group <code>id</code>
@@ -1946,7 +1876,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets group-resource attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param resource int Resource <code>id</code>
@@ -1956,18 +1887,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
   /*#
    * Gets member-group and member-resource attributes.
    * If workWithUserAttributes == TRUE then return also member, user, user-facility attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param resource int Resource <code>id</code>
    * @param group int Group <code>id</code>
    * @param member int Member <code>id</code>
    * @param workWithUserAttributes boolean Work with member, user, user-facility attributes. False is default value.
-   * @return List<Attribute> Member-group and member-resource attributes, if workWithUserAttributes == TRUE, member, user and user-facility attributes are returned too.
+   * @return List<Attribute> Member-group and member-resource attributes, if workWithUserAttributes == TRUE, member,
+   * user and user-facility attributes are returned too.
    */
   /*#
    * Gets member-group and member-resource attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param resource int Resource <code>id</code>
@@ -1977,7 +1911,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets group attributes.
-   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified resource. Both empty and non-empty
+   * attributes are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param group int Group <code>id</code>
@@ -1985,7 +1920,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets host attributes.
-   * It returns attributes required by all services assigned to specified host. Both empty and non-empty attributes are returned.
+   * It returns attributes required by all services assigned to specified host. Both empty and non-empty attributes
+   * are returned.
    *
    * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
    * @param host int Host <code>id</code>
@@ -2000,25 +1936,19 @@ public enum AttributesManagerMethod implements ManagerMethod {
             if (parms.contains("facility") && parms.contains("user")) {
               return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                   ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                  ac.getFacilityById(parms.readInt("facility")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  ac.getUserById(parms.readInt("user")),
-                  ac.getMemberById(parms.readInt("member")));
+                  ac.getFacilityById(parms.readInt("facility")), ac.getResourceById(parms.readInt("resource")),
+                  ac.getUserById(parms.readInt("user")), ac.getMemberById(parms.readInt("member")));
             } else if (parms.contains("group")) {
               if (parms.contains("workWithUserAttributes")) {
                 return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                     ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                    ac.getResourceById(parms.readInt("resource")),
-                    ac.getGroupById(parms.readInt("group")),
-                    ac.getMemberById(parms.readInt("member")),
-                    parms.readBoolean("workWithUserAttributes"));
+                    ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")),
+                    ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
               } else {
                 return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                     ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                    ac.getResourceById(parms.readInt("resource")),
-                    ac.getGroupById(parms.readInt("group")),
-                    ac.getMemberById(parms.readInt("member")),
-                    false);
+                    ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")),
+                    ac.getMemberById(parms.readInt("member")), false);
               }
             } else if (parms.contains("workWithUserAttributes")) {
               return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
@@ -2028,21 +1958,18 @@ public enum AttributesManagerMethod implements ManagerMethod {
             } else {
               return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                   ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                  ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource"))
-              );
+                  ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")));
             }
           } else if (parms.contains("group")) {
             if (parms.contains("workWithUserAttributes")) {
               return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                   ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                  ac.getMemberById(parms.readInt("member")),
-                  ac.getGroupById(parms.readInt("group")),
+                  ac.getMemberById(parms.readInt("member")), ac.getGroupById(parms.readInt("group")),
                   parms.readBoolean("workWithUserAttributes"));
             } else {
               return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                   ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                  ac.getMemberById(parms.readInt("member")),
-                  ac.getGroupById(parms.readInt("group")));
+                  ac.getMemberById(parms.readInt("member")), ac.getGroupById(parms.readInt("group")));
             }
           } else {
             return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
@@ -2053,26 +1980,22 @@ public enum AttributesManagerMethod implements ManagerMethod {
           if (parms.contains("facility")) {
             return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                 ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getUserById(parms.readInt("user")));
+                ac.getFacilityById(parms.readInt("facility")), ac.getUserById(parms.readInt("user")));
           } else {
             return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                ac.getUserById(parms.readInt("user")));
+                ac.getResourceById(parms.readInt("resourceToGetServicesFrom")), ac.getUserById(parms.readInt("user")));
           }
         } else if (parms.contains("group")) {
           if (parms.contains("resource")) {
             if (parms.contains("workWithGroupAttributes")) {
               return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                   ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  ac.getGroupById(parms.readInt("group")),
+                  ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")),
                   parms.readBoolean("workWithGroupAttributes"));
             } else {
               return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
                   ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  ac.getGroupById(parms.readInt("group")));
+                  ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")));
             }
           } else {
             return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
@@ -2081,8 +2004,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
           }
         } else if (parms.contains("host")) {
           return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
-              ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
-              ac.getHostById(parms.readInt("host")));
+              ac.getResourceById(parms.readInt("resourceToGetServicesFrom")), ac.getHostById(parms.readInt("host")));
         } else {
           throw new RpcException(RpcException.Type.MISSING_VALUE, "member, group, host or user");
         }
@@ -2169,58 +2091,46 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
       if (parms.contains("host")) {
         Host host = ac.getHostById(parms.readInt("host"));
-        return ac.getAttributesManager().fillAttribute(ac.getSession(),
-            host,
-            ac.getAttributeById(host, parms.readInt("attribute")));
+        return ac.getAttributesManager()
+            .fillAttribute(ac.getSession(), host, ac.getAttributeById(host, parms.readInt("attribute")));
       } else if (parms.contains("resource")) {
         Resource resource = ac.getResourceById(parms.readInt("resource"));
         if (parms.contains("group")) {
           Group group = ac.getGroupById(parms.readInt("group"));
-          return ac.getAttributesManager().fillAttribute(ac.getSession(),
-              resource,
-              group,
+          return ac.getAttributesManager().fillAttribute(ac.getSession(), resource, group,
               ac.getAttributeById(resource, group, parms.readInt("attribute")));
         } else if (parms.contains("member")) {
           Member member = ac.getMemberById(parms.readInt("member"));
-          return ac.getAttributesManager().fillAttribute(ac.getSession(),
-              member, resource,
+          return ac.getAttributesManager().fillAttribute(ac.getSession(), member, resource,
               ac.getAttributeById(resource, member, parms.readInt("attribute")));
         } else {
-          return ac.getAttributesManager().fillAttribute(ac.getSession(),
-              resource,
-              ac.getAttributeById(resource, parms.readInt("attribute")));
+          return ac.getAttributesManager()
+              .fillAttribute(ac.getSession(), resource, ac.getAttributeById(resource, parms.readInt("attribute")));
         }
       } else if (parms.contains("user")) {
         User user = ac.getUserById(parms.readInt("user"));
         if (parms.contains("facility")) {
           Facility facility = ac.getFacilityById(parms.readInt("facility"));
-          return ac.getAttributesManager().fillAttribute(ac.getSession(),
-              facility,
-              user,
+          return ac.getAttributesManager().fillAttribute(ac.getSession(), facility, user,
               ac.getAttributeById(facility, user, parms.readInt("attribute")));
         } else {
-          return ac.getAttributesManager().fillAttribute(ac.getSession(),
-              user,
-              ac.getAttributeById(user, parms.readInt("attribute")));
+          return ac.getAttributesManager()
+              .fillAttribute(ac.getSession(), user, ac.getAttributeById(user, parms.readInt("attribute")));
         }
       } else if (parms.contains("member")) {
         Member member = ac.getMemberById(parms.readInt("member"));
         if (parms.contains("group")) {
           Group group = ac.getGroupById(parms.readInt("group"));
-          return ac.getAttributesManager().fillAttribute(ac.getSession(),
-              member,
-              group,
+          return ac.getAttributesManager().fillAttribute(ac.getSession(), member, group,
               ac.getAttributeById(member, group, parms.readInt("attribute")));
         } else {
-          return ac.getAttributesManager().fillAttribute(ac.getSession(),
-              member,
-              ac.getAttributeById(member, parms.readInt("attribute")));
+          return ac.getAttributesManager()
+              .fillAttribute(ac.getSession(), member, ac.getAttributeById(member, parms.readInt("attribute")));
         }
       } else if (parms.contains("group")) {
         Group group = ac.getGroupById(parms.readInt("group"));
-        return ac.getAttributesManager().fillAttribute(ac.getSession(),
-            group,
-            ac.getAttributeById(group, parms.readInt("attribute")));
+        return ac.getAttributesManager()
+            .fillAttribute(ac.getSession(), group, ac.getAttributeById(group, parms.readInt("attribute")));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "host, resource, user, member or group");
       }
@@ -2253,7 +2163,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @return List<Attribute> attributes which MAY have filled value
    */
   /*#
-   * Tries to fill member-resource attributes and also user and user-facility attributes, if workWithUserAttributes == true.
+   * Tries to fill member-resource attributes and also user and user-facility attributes, if workWithUserAttributes
+   * == true.
    *
    * @param resource int Resource <code>id</code>
    * @param member int Member <code>id</code>
@@ -2282,7 +2193,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param member int Member <code>id</code>
    * @param group int Group <code>id</code>
    * @param attributes List<Attribute> List of attributes
-   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>False</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes.
+   * <code>False</code> is default.
    * @return List<Attribute> attributes which MAY have filled value
    * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
    * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
@@ -2341,76 +2253,59 @@ public enum AttributesManagerMethod implements ManagerMethod {
       }
 
       if (parms.contains("host")) {
-        return ac.getAttributesManager().fillAttributes(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
-            attributes);
+        return ac.getAttributesManager()
+            .fillAttributes(ac.getSession(), ac.getHostById(parms.readInt("host")), attributes);
       } else if (parms.contains("resource")) {
         if (parms.contains("group")) {
-          return ac.getAttributesManager().fillAttributes(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              ac.getGroupById(parms.readInt("group")),
-              attributes);
+          return ac.getAttributesManager()
+              .fillAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                  ac.getGroupById(parms.readInt("group")), attributes);
         } else if (parms.contains("user")) {
           if (parms.contains("facility") && parms.contains("member")) {
-            return ac.getAttributesManager().fillAttributes(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getUserById(parms.readInt("user")),
-                ac.getMemberById(parms.readInt("member")),
-                attributes);
+            return ac.getAttributesManager()
+                .fillAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getResourceById(parms.readInt("resource")), ac.getUserById(parms.readInt("user")),
+                    ac.getMemberById(parms.readInt("member")), attributes);
           } else {
             throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, member");
           }
         } else if (parms.contains("member")) {
           if (parms.contains("workWithUserAttributes")) {
-            return ac.getAttributesManager().fillAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                attributes,
-                parms.readBoolean("workWithUserAttributes"));
+            return ac.getAttributesManager().fillAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getResourceById(parms.readInt("resource")), attributes, parms.readBoolean("workWithUserAttributes"));
           } else {
-            return ac.getAttributesManager().fillAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                attributes);
+            return ac.getAttributesManager().fillAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getResourceById(parms.readInt("resource")), attributes);
           }
         } else {
-          return ac.getAttributesManager().fillAttributes(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              attributes);
+          return ac.getAttributesManager()
+              .fillAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")), attributes);
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
           if (parms.contains("workWithUserAttributes")) {
-            return ac.getAttributesManager().fillAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                attributes,
-                parms.readBoolean("workWithUserAttributes"));
+            return ac.getAttributesManager().fillAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getGroupById(parms.readInt("group")), attributes, parms.readBoolean("workWithUserAttributes"));
           } else {
-            return ac.getAttributesManager().fillAttributes(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                attributes);
+            return ac.getAttributesManager().fillAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getGroupById(parms.readInt("group")), attributes);
           }
         } else {
-          return ac.getAttributesManager().fillAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              attributes);
+          return ac.getAttributesManager()
+              .fillAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")), attributes);
         }
       } else if (parms.contains("user")) {
         if (parms.contains("facility")) {
-          return ac.getAttributesManager().fillAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              ac.getUserById(parms.readInt("user")),
-              attributes);
+          return ac.getAttributesManager()
+              .fillAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                  ac.getUserById(parms.readInt("user")), attributes);
         } else {
-          return ac.getAttributesManager().fillAttributes(ac.getSession(),
-              ac.getUserById(parms.readInt("user")),
-              attributes);
+          return ac.getAttributesManager()
+              .fillAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")), attributes);
         }
       } else if (parms.contains("group")) {
-        return ac.getAttributesManager().fillAttributes(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            attributes);
+        return ac.getAttributesManager()
+            .fillAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")), attributes);
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "host, resource, member, user or group");
       }
@@ -2464,7 +2359,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
-   * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> aren't from the same Vo.
+   * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code>
+   * aren't from the same Vo.
    */
   /*#
    * Checks if this group-resource attribute has valid syntax.
@@ -2478,7 +2374,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't group-resource attribute.
-   * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code> aren't from the same Vo.
+   * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code>
+   * aren't from the same Vo.
    */
   /*#
    * Checks if this resource attribute has valid syntax.
@@ -2488,7 +2385,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    *
    * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
-   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Resource with <code>id</code>.
+   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Resource
+   * with <code>id</code>.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2523,7 +2421,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attribute Attribute Attribute <code>id</code>
    *
    * @throw WrongAttributeValueException  When the attribute value has wrong/illegal syntax.
-   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
+   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with
+   * <code>id</code>.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
    */
@@ -2534,7 +2433,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attribute Attribute Attribute <code>id</code>
    *
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
-   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
+   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with
+   * <code>id</code>.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    * @throw HostNotExistsException When the host with <code>id</code> doesn't exist.
    */
@@ -2556,7 +2456,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attribute Attribute Attribute <code>id</code>
    *
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
-   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
+   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of
+   * UserExtSource with <code>id</code>.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    * @throw UserExtSourceNotExistsException When the specified user external source with <code>id</code> doesn't exist.
    */
@@ -2565,61 +2466,47 @@ public enum AttributesManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("facility")) {
         if (parms.contains("user")) {
-          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              ac.getUserById(parms.readInt("user")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+              ac.getUserById(parms.readInt("user")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
+          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
               parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
-          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getResourceById(parms.readInt("resource")), parms.read("attribute", Attribute.class));
         } else if (parms.contains("group")) {
-          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+              ac.getGroupById(parms.readInt("group")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
+          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
               parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
-          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getGroupById(parms.readInt("group")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("group")) {
-        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
+        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getHostById(parms.readInt("host")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(), ac.getUserById(parms.readInt("user")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")),
-            parms.read("attribute", Attribute.class));
+        ac.getAttributesManager()
+            .checkAttributeSyntax(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                parms.read("attribute", Attribute.class));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "facility, vo, resource, member, group, host, user or userExtSource");
@@ -2640,7 +2527,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw UserNotExistsException When the User with <code>id</code> doesn't exist.
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2652,7 +2540,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't facility attribute.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2664,7 +2553,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw VoNotExistsException When the vo with <code>id</code> doesn't exist.
    * @throw WrongAttributeAssignmentException When the attribute isn't attribute of Vo with <code>id</code>.
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2678,9 +2568,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
-   * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> aren't from the same Vo.
+   * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code>
+   * aren't from the same Vo.
    */
   /*#
    * Checks if this group-resource attribute has valid semantics.
@@ -2694,8 +2586,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't group-resource attribute.
-   * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code> aren't from the same Vo.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code>
+   * aren't from the same Vo.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    */
   /*#
    * Checks if this resource attribute has valid semantics.
@@ -2705,8 +2599,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
    *
    * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
-   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Resource with <code>id</code>.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Resource
+   * with <code>id</code>.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2721,7 +2617,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2733,7 +2630,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2743,7 +2641,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attribute Attribute Attribute <code>id</code>
    *
    * @throw WrongAttributeValueException  When the attribute value is wrong/illegal.
-   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
+   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with
+   * <code>id</code>.
    * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
@@ -2755,7 +2654,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attribute Attribute Attribute <code>id</code>
    *
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
-   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
+   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with
+   * <code>id</code>.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    * @throw HostNotExistsException When the host with <code>id</code> doesn't exist.
    * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
@@ -2779,7 +2679,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attribute Attribute Attribute <code>id</code>
    *
    * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
-   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
+   * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of
+   * UserExtSource with <code>id</code>.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    * @throw UserExtSourceNotExistsException When the specified user external source with <code>id</code> doesn't exist.
    * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
@@ -2789,61 +2690,51 @@ public enum AttributesManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("facility")) {
         if (parms.contains("user")) {
-          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              ac.getUserById(parms.readInt("user")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributeSemantics(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                  ac.getUserById(parms.readInt("user")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributeSemantics(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                  parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
-          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getResourceById(parms.readInt("resource")), parms.read("attribute", Attribute.class));
         } else if (parms.contains("group")) {
-          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributeSemantics(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                  ac.getGroupById(parms.readInt("group")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributeSemantics(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                  parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
-          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.read("attribute", Attribute.class));
+          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getGroupById(parms.readInt("group")), parms.read("attribute", Attribute.class));
         } else {
-          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().checkAttributeSemantics(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               parms.read("attribute", Attribute.class));
         }
       } else if (parms.contains("group")) {
-        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
+        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(), ac.getHostById(parms.readInt("host")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(), ac.getUserById(parms.readInt("user")),
             parms.read("attribute", Attribute.class));
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")),
-            parms.read("attribute", Attribute.class));
+        ac.getAttributesManager()
+            .checkAttributeSemantics(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                parms.read("attribute", Attribute.class));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "facility, vo, resource, member, group, host, user or userExtSource");
@@ -2854,7 +2745,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Checks if attributes have valid semantics. These attributes can be from namespace: member, user, member-resource and user-facility.
+   * Checks if attributes have valid semantics. These attributes can be from namespace: member, user, member-resource
+   *  and user-facility.
    *
    * @param facility int Facility <code>id</code>
    * @param resource int Resource <code>id</code>
@@ -2887,7 +2779,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param resource int Resource <code>id</code>
    * @param member int Member <code>id</code>
    * @param attributes List<Attribute> Attributes List
-   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes.
+   * <code>false</code> is default.
    */
   /*#
    * Checks if these member-resource attributes have valid semantics.
@@ -2915,12 +2808,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param member int Member <code>id</code>
    * @param group int Group <code>id</code>
    * @param attributes List<Attribute> Attributes List
-   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes.
+   * <code>false</code> is default.
    * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
    * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2933,7 +2828,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -2966,80 +2862,70 @@ public enum AttributesManagerMethod implements ManagerMethod {
       if (parms.contains("facility")) {
         if (parms.contains("user")) {
           if (parms.contains("resource") && parms.contains("member")) {
-            ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getUserById(parms.readInt("user")),
-                ac.getMemberById(parms.readInt("member")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager()
+                .checkAttributesSemantics(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getResourceById(parms.readInt("resource")), ac.getUserById(parms.readInt("user")),
+                    ac.getMemberById(parms.readInt("member")), parms.readList("attributes", Attribute.class));
           } else {
-            ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getUserById(parms.readInt("user")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager()
+                .checkAttributesSemantics(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getUserById(parms.readInt("user")), parms.readList("attributes", Attribute.class));
           }
         } else {
-          ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              parms.readList("attributes", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributesSemantics(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                  parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getAttributesManager().checkAttributesSemantics(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
           if (parms.contains("workWithUserAttributes")) {
-            ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readList("attributes", Attribute.class),
-                parms.readBoolean("workWithUserAttributes"));
+            ac.getAttributesManager()
+                .checkAttributesSemantics(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getResourceById(parms.readInt("resource")), parms.readList("attributes", Attribute.class),
+                    parms.readBoolean("workWithUserAttributes"));
           } else {
-            ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager()
+                .checkAttributesSemantics(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getResourceById(parms.readInt("resource")), parms.readList("attributes", Attribute.class));
           }
         } else if (parms.contains("group")) {
-          ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.readList("attributes", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributesSemantics(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                  ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class));
         } else {
-          ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              parms.readList("attributes", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributesSemantics(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                  parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
           if (parms.contains("workWithUserAttributes")) {
-            ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attributes", Attribute.class),
-                parms.readBoolean("workWithUserAttributes"));
+            ac.getAttributesManager()
+                .checkAttributesSemantics(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class),
+                    parms.readBoolean("workWithUserAttributes"));
           } else {
-            ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager()
+                .checkAttributesSemantics(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                    ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class));
           }
         } else {
-          ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().checkAttributesSemantics(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
+        ac.getAttributesManager().checkAttributesSemantics(ac.getSession(), ac.getHostById(parms.readInt("host")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getAttributesManager().checkAttributesSemantics(ac.getSession(), ac.getUserById(parms.readInt("user")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")),
-            parms.readList("attributes", Attribute.class));
+        ac.getAttributesManager()
+            .checkAttributesSemantics(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                parms.readList("attributes", Attribute.class));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "facility, vo, resource, member, host, user or userExtSource");
@@ -3049,7 +2935,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Checks if attributes have valid syntax. These attributes can be from namespace: member, user, member-resource and user-facility.
+   * Checks if attributes have valid syntax. These attributes can be from namespace: member, user, member-resource
+   * and user-facility.
    *
    * @param facility int Facility <code>id</code>
    * @param resource int Resource <code>id</code>
@@ -3082,7 +2969,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param resource int Resource <code>id</code>
    * @param member int Member <code>id</code>
    * @param attributes List<Attribute> Attributes List
-   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes.
+   * <code>false</code> is default.
    */
   /*#
    * Checks if these member-resource attributes have valid syntax.
@@ -3110,7 +2998,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param member int Member <code>id</code>
    * @param group int Group <code>id</code>
    * @param attributes List<Attribute> Attributes List
-   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes.
+   * <code>false</code> is default.
    * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
    * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
@@ -3161,80 +3050,66 @@ public enum AttributesManagerMethod implements ManagerMethod {
       if (parms.contains("facility")) {
         if (parms.contains("user")) {
           if (parms.contains("resource") && parms.contains("member")) {
-            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getUserById(parms.readInt("user")),
-                ac.getMemberById(parms.readInt("member")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager()
+                .checkAttributesSyntax(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getResourceById(parms.readInt("resource")), ac.getUserById(parms.readInt("user")),
+                    ac.getMemberById(parms.readInt("member")), parms.readList("attributes", Attribute.class));
           } else {
-            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getUserById(parms.readInt("user")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager()
+                .checkAttributesSyntax(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                    ac.getUserById(parms.readInt("user")), parms.readList("attributes", Attribute.class));
           }
         } else {
-          ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              parms.readList("attributes", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributesSyntax(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                  parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getAttributesManager().checkAttributesSyntax(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
           if (parms.contains("workWithUserAttributes")) {
-            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readList("attributes", Attribute.class),
+            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getResourceById(parms.readInt("resource")), parms.readList("attributes", Attribute.class),
                 parms.readBoolean("workWithUserAttributes"));
           } else {
-            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getResourceById(parms.readInt("resource")), parms.readList("attributes", Attribute.class));
           }
         } else if (parms.contains("group")) {
-          ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              ac.getGroupById(parms.readInt("group")),
-              parms.readList("attributes", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributesSyntax(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                  ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class));
         } else {
-          ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              parms.readList("attributes", Attribute.class));
+          ac.getAttributesManager()
+              .checkAttributesSyntax(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                  parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
           if (parms.contains("workWithUserAttributes")) {
-            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attributes", Attribute.class),
+            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class),
                 parms.readBoolean("workWithUserAttributes"));
           } else {
-            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-                ac.getMemberById(parms.readInt("member")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attributes", Attribute.class));
+            ac.getAttributesManager().checkAttributesSyntax(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+                ac.getGroupById(parms.readInt("group")), parms.readList("attributes", Attribute.class));
           }
         } else {
-          ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().checkAttributesSyntax(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               parms.readList("attributes", Attribute.class));
         }
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
+        ac.getAttributesManager().checkAttributesSyntax(ac.getSession(), ac.getHostById(parms.readInt("host")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getAttributesManager().checkAttributesSyntax(ac.getSession(), ac.getUserById(parms.readInt("user")),
             parms.readList("attributes", Attribute.class));
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")),
-            parms.readList("attributes", Attribute.class));
+        ac.getAttributesManager()
+            .checkAttributesSyntax(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                parms.readList("attributes", Attribute.class));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "facility, vo, resource, member, host, user or userExtSource");
@@ -3261,7 +3136,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -3343,7 +3219,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * member, user (optional)
    *
    * @param member int Member <code>id</code>
-   * @param workWithUserAttributes boolean Set to true if you want to remove also user attributes. False is default value.
+   * @param workWithUserAttributes boolean Set to true if you want to remove also user attributes. False is default
+   * value.
    * @param attributes List<Integer> List of attributes IDs to remove
    */
   /*#
@@ -3360,7 +3237,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -3370,7 +3248,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    *
    * @param member int Member <code>id</code>
    * @param group int Group <code>id</code>
-   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+   * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes.
+   * <code>false</code> is default.
    * @param attributes List<Integer> List of attributes IDs to remove
    *
    * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
@@ -3378,7 +3257,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -3434,96 +3314,64 @@ public enum AttributesManagerMethod implements ManagerMethod {
       if (parms.contains("facility")) {
         if (parms.contains("resource") && parms.contains("member") && parms.contains("user")) {
           if (parms.contains("group")) {
-            ac.getAttributesManager().removeAttributes(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                ac.getUserById(parms.readInt("user")),
-                ac.getMemberById(parms.readInt("member")),
-                attributes);
+            ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                ac.getResourceById(parms.readInt("resource")), ac.getGroupById(parms.readInt("group")),
+                ac.getUserById(parms.readInt("user")), ac.getMemberById(parms.readInt("member")), attributes);
           } else {
-            ac.getAttributesManager().removeAttributes(ac.getSession(),
-                ac.getFacilityById(parms.readInt("facility")),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getUserById(parms.readInt("user")),
-                ac.getMemberById(parms.readInt("member")),
-                attributes);
+            ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                ac.getResourceById(parms.readInt("resource")), ac.getUserById(parms.readInt("user")),
+                ac.getMemberById(parms.readInt("member")), attributes);
           }
         } else if (parms.contains("user")) {
-          ac.getAttributesManager().removeAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              ac.getUserById(parms.readInt("user")),
-              attributes);
+          ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+              ac.getUserById(parms.readInt("user")), attributes);
         } else {
-          ac.getAttributesManager().removeAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              attributes);
+          ac.getAttributesManager()
+              .removeAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")), attributes);
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().removeAttributes(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            attributes);
+        ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")), attributes);
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
-          ac.getAttributesManager().removeAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-              attributes);
+          ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getResourceById(parms.readInt("resource")), attributes);
         } else if (parms.contains("group")) {
           if (parms.contains("workWithGroupAttributes")) {
-            ac.getAttributesManager().removeAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                attributes,
-                parms.readBoolean("workWithGroupAttributes"));
+            ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                ac.getGroupById(parms.readInt("group")), attributes, parms.readBoolean("workWithGroupAttributes"));
           } else {
-            ac.getAttributesManager().removeAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                attributes);
+            ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                ac.getGroupById(parms.readInt("group")), attributes);
           }
         } else {
-          ac.getAttributesManager().removeAttributes(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              attributes);
+          ac.getAttributesManager()
+              .removeAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")), attributes);
         }
       } else if (parms.contains("member")) {
         if (parms.contains("workWithUserAttributes") && parms.contains("group")) {
-          ac.getAttributesManager().removeAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              ac.getGroupById(parms.readInt("group")),
-              attributes,
-              parms.readBoolean("workWithUserAttributes"));
+          ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getGroupById(parms.readInt("group")), attributes, parms.readBoolean("workWithUserAttributes"));
         } else if (parms.contains("workWithUserAttributes")) {
-          ac.getAttributesManager().removeAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               parms.readBoolean("workWithUserAttributes"), attributes);
         } else if (parms.contains("group")) {
-          ac.getAttributesManager().removeAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              ac.getGroupById(parms.readInt("group")),
-              attributes);
+          ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getGroupById(parms.readInt("group")), attributes);
         } else {
-          ac.getAttributesManager().removeAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              attributes);
+          ac.getAttributesManager()
+              .removeAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")), attributes);
         }
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().removeAttributes(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
-            attributes);
+        ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getHostById(parms.readInt("host")), attributes);
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().removeAttributes(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
-            attributes);
+        ac.getAttributesManager().removeAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")), attributes);
 
       } else if (parms.contains("group")) {
-        ac.getAttributesManager().removeAttributes(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            attributes);
+        ac.getAttributesManager()
+            .removeAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")), attributes);
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().removeAttributes(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")),
-            attributes);
+        ac.getAttributesManager()
+            .removeAttributes(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")), attributes);
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "facility, vo, group, host, resource, member, user or userExtSource");
@@ -3598,7 +3446,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -3656,61 +3505,47 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
       if (parms.contains("facility")) {
         if (parms.contains("user")) {
-          ac.getAttributesManager().removeAttribute(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
-              ac.getUserById(parms.readInt("user")),
-              ac.getAttributeDefinitionById(parms.readInt("attribute")));
+          ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+              ac.getUserById(parms.readInt("user")), ac.getAttributeDefinitionById(parms.readInt("attribute")));
         } else {
-          ac.getAttributesManager().removeAttribute(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
+          ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
               ac.getAttributeDefinitionById(parms.readInt("attribute")));
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().removeAttribute(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             ac.getAttributeDefinitionById(parms.readInt("attribute")));
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
-          ac.getAttributesManager().removeAttribute(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
-              ac.getAttributeDefinitionById(parms.readInt("attribute")));
+          ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getResourceById(parms.readInt("resource")), ac.getAttributeDefinitionById(parms.readInt("attribute")));
         } else if (parms.contains("group")) {
-          ac.getAttributesManager().removeAttribute(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
-              ac.getGroupById(parms.readInt("group")),
-              ac.getAttributeDefinitionById(parms.readInt("attribute")));
+          ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+              ac.getGroupById(parms.readInt("group")), ac.getAttributeDefinitionById(parms.readInt("attribute")));
         } else {
-          ac.getAttributesManager().removeAttribute(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")),
+          ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
               ac.getAttributeDefinitionById(parms.readInt("attribute")));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
-          ac.getAttributesManager().removeAttribute(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
-              ac.getGroupById(parms.readInt("group")),
-              ac.getAttributeDefinitionById(parms.readInt("attribute")));
+          ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getGroupById(parms.readInt("group")), ac.getAttributeDefinitionById(parms.readInt("attribute")));
         } else {
-          ac.getAttributesManager().removeAttribute(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               ac.getAttributeDefinitionById(parms.readInt("attribute")));
         }
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().removeAttribute(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getUserById(parms.readInt("user")),
             ac.getAttributeDefinitionById(parms.readInt("attribute")));
       } else if (parms.contains("group")) {
-        ac.getAttributesManager().removeAttribute(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             ac.getAttributeDefinitionById(parms.readInt("attribute")));
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().removeAttribute(ac.getSession(),
-            ac.getHostById(parms.readInt("host")),
+        ac.getAttributesManager().removeAttribute(ac.getSession(), ac.getHostById(parms.readInt("host")),
             ac.getAttributeDefinitionById(parms.readInt("attribute")));
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().removeAttribute(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")),
-            ac.getAttributeDefinitionById(parms.readInt("attribute")));
+        ac.getAttributesManager()
+            .removeAttribute(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")),
+                ac.getAttributeDefinitionById(parms.readInt("attribute")));
       } else if (parms.contains("key")) {
         ac.getAttributesManager().removeAttribute(ac.getSession(), parms.readString("key"),
             ac.getAttributeDefinitionById(parms.readInt("attribute")));
@@ -3779,7 +3614,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
    * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
    * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
    */
   /*#
@@ -3814,61 +3650,49 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
       if (parms.contains("facility")) {
         if (parms.contains("user")) {
-          ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
+          ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
               ac.getUserById(parms.readInt("user")));
         } else if (parms.contains("workWithUserAttributes")) {
-          ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")),
+          ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
               parms.readBoolean("workWithUserAttributes"));
         } else {
-          ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-              ac.getFacilityById(parms.readInt("facility")));
+          ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
         }
       } else if (parms.contains("vo")) {
-        ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")));
+        ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")));
       } else if (parms.contains("resource")) {
         if (parms.contains("member")) {
-          ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource"))
-          );
+          ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+              ac.getResourceById(parms.readInt("resource")));
         } else if (parms.contains("group")) {
           if (parms.contains("workWithGroupAttributes")) {
-            ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readBoolean("workWithGroupAttributes"));
+            ac.getAttributesManager()
+                .removeAllAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    ac.getGroupById(parms.readInt("group")), parms.readBoolean("workWithGroupAttributes"));
           } else {
-            ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-                ac.getResourceById(parms.readInt("resource")),
-                ac.getGroupById(parms.readInt("group")));
+            ac.getAttributesManager()
+                .removeAllAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                    ac.getGroupById(parms.readInt("group")));
           }
         } else {
-          ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-              ac.getResourceById(parms.readInt("resource")));
+          ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getResourceById(parms.readInt("resource")));
         }
       } else if (parms.contains("member")) {
         if (parms.contains("group")) {
-          ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")),
+          ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")),
               ac.getGroupById(parms.readInt("group")));
         } else {
-          ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-              ac.getMemberById(parms.readInt("member")));
+          ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getMemberById(parms.readInt("member")));
         }
       } else if (parms.contains("user")) {
-        ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-            ac.getUserById(parms.readInt("user")));
+        ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")));
       } else if (parms.contains("group")) {
-        ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")));
+        ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")));
       } else if (parms.contains("host")) {
-        ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-            ac.getHostById(parms.readInt("host")));
+        ac.getAttributesManager().removeAllAttributes(ac.getSession(), ac.getHostById(parms.readInt("host")));
       } else if (parms.contains("userExtSource")) {
-        ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-            ac.getUserExtSourceById(parms.readInt("userExtSource")));
+        ac.getAttributesManager()
+            .removeAllAttributes(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "facility, resource, vo, group, member, host, user or userExtSource");
@@ -3889,8 +3713,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
   getLogins {
     @Override
     public List<Attribute> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAttributesManager().getLogins(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getAttributesManager().getLogins(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -3907,25 +3730,26 @@ public enum AttributesManagerMethod implements ManagerMethod {
     public AttributeDefinition call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getAttributesManager().updateAttributeDefinition(ac.getSession(),
-          parms.read("attributeDefinition", AttributeDefinition.class));
+      return ac.getAttributesManager()
+          .updateAttributeDefinition(ac.getSession(), parms.read("attributeDefinition", AttributeDefinition.class));
     }
   },
 
   /*#
-   * Takes all Member related attributes (Member, User, Member-Resource, User-Facility) and tries to fill them and set them.
+   * Takes all Member related attributes (Member, User, Member-Resource, User-Facility) and tries to fill them and
+   * set them.
    *
    * @param member int Member <code>id</code>
    * @throw WrongAttributeAssignmentException When we try to fill/set Attribute from unrelated namespace.
    * @throw WrongAttributeValueException When value of some Attribute is not correct.
-   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+   * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other
+   * Attribute value.
    * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
    */
   doTheMagic {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getAttributesManager().doTheMagic(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      ac.getAttributesManager().doTheMagic(ac.getSession(), ac.getMemberById(parms.readInt("member")));
       return null;
     }
   },
@@ -3945,8 +3769,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
     @Override
     @Deprecated
     public List<AttributeRights> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAttributesManager().getAttributeRights(ac.getSession(),
-          parms.readInt("attributeId"));
+      return ac.getAttributesManager().getAttributeRights(ac.getSession(), parms.readInt("attributeId"));
     }
   },
 
@@ -3965,8 +3788,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getAttributesManager().setAttributeRights(ac.getSession(),
-          parms.readList("rights", AttributeRights.class));
+      ac.getAttributesManager().setAttributeRights(ac.getSession(), parms.readList("rights", AttributeRights.class));
       return null;
     }
   },
@@ -3978,14 +3800,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attributeId int attribute for which policies are set
    * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
    * @throw RoleNotSupportedException When some of the AttributePolicyCollection does have a role which does not exist
-   * @throw RoleObjectCombinationInvalidException when the combination role + RoleObject of any included policy isn't valid
+   * @throw RoleObjectCombinationInvalidException when the combination role + RoleObject of any included policy isn't
+   *  valid
    */
   setAttributePolicyCollections {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       ac.getAttributesManager().setAttributePolicyCollections(ac.getSession(),
-          parms.readList("policyCollections", AttributePolicyCollection.class)
-      );
+          parms.readList("policyCollections", AttributePolicyCollection.class));
       return null;
     }
   },
@@ -4000,8 +3822,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
   getAttributePolicyCollections {
     @Override
     public List<AttributePolicyCollection> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAttributesManager().getAttributePolicyCollections(ac.getSession(),
-          parms.readInt("attributeId"));
+      return ac.getAttributesManager().getAttributePolicyCollections(ac.getSession(), parms.readInt("attributeId"));
     }
   },
 
@@ -4106,7 +3927,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
    * @param attributeDefinition attribute definition id
    * @param action critical action
    * @param critical true if action should be set critical, false to non-critical
-   * @param global true if action should be globally critical, false if action should be critical only for critical objects
+   * @param global true if action should be globally critical, false if action should be critical only for critical
+   * objects
    *
    * @throws RelationExistsException if trying to mark already critical action
    * @throws RelationNotExistsException if trying to unmark not critical action
@@ -4115,11 +3937,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getAttributesManager().setAttributeActionCriticality(
-          ac.getSession(),
+      ac.getAttributesManager().setAttributeActionCriticality(ac.getSession(),
           ac.getAttributeDefinitionById(parms.readInt("attributeDefinition")),
-          AttributeAction.valueOf(parms.readString("action").toUpperCase()),
-          parms.readBoolean("critical"),
+          AttributeAction.valueOf(parms.readString("action").toUpperCase()), parms.readBoolean("critical"),
           parms.contains("global") ? parms.readBoolean("global") : false);
       return null;
     }
@@ -4136,9 +3956,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
   getAttributeRules {
     @Override
     public AttributeRules call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAttributesManager().getAttributeRules(
-          ac.getSession(),
-          parms.readInt("attributeDefinition"));
+      return ac.getAttributesManager().getAttributeRules(ac.getSession(), parms.readInt("attributeDefinition"));
     }
   },
 

@@ -69,70 +69,6 @@ public class MembersPageQuery {
     this.groupStatuses = groupStatuses;
   }
 
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public MembersOrderColumn getSortColumn() {
-    return sortColumn;
-  }
-
-  public void setSortColumn(MembersOrderColumn sortColumn) {
-    this.sortColumn = sortColumn;
-  }
-
-  public String getSearchString() {
-    return searchString;
-  }
-
-  public void setSearchString(String searchString) {
-    this.searchString = searchString;
-  }
-
-  public List<Status> getStatuses() {
-    return statuses;
-  }
-
-  public void setStatuses(List<Status> statuses) {
-    this.statuses = statuses;
-  }
-
-  public Integer getGroupId() {
-    return groupId;
-  }
-
-  public void setGroupId(Integer groupId) {
-    this.groupId = groupId;
-  }
-
-  public List<MemberGroupStatus> getGroupStatuses() {
-    return groupStatuses;
-  }
-
-  public void setGroupStatuses(List<MemberGroupStatus> groupStatuses) {
-    this.groupStatuses = groupStatuses;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -166,6 +102,70 @@ public class MembersPageQuery {
       return false;
     }
     return getStatuses() != that.getStatuses();
+  }
+
+  public Integer getGroupId() {
+    return groupId;
+  }
+
+  public void setGroupId(Integer groupId) {
+    this.groupId = groupId;
+  }
+
+  public List<MemberGroupStatus> getGroupStatuses() {
+    return groupStatuses;
+  }
+
+  public void setGroupStatuses(List<MemberGroupStatus> groupStatuses) {
+    this.groupStatuses = groupStatuses;
+  }
+
+  public int getOffset() {
+    return offset;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public SortingOrder getOrder() {
+    return order;
+  }
+
+  public void setOrder(SortingOrder order) {
+    this.order = order;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
+  }
+
+  public String getSearchString() {
+    return searchString;
+  }
+
+  public void setSearchString(String searchString) {
+    this.searchString = searchString;
+  }
+
+  public MembersOrderColumn getSortColumn() {
+    return sortColumn;
+  }
+
+  public void setSortColumn(MembersOrderColumn sortColumn) {
+    this.sortColumn = sortColumn;
+  }
+
+  public List<Status> getStatuses() {
+    return statuses;
+  }
+
+  public void setStatuses(List<Status> statuses) {
+    this.statuses = statuses;
   }
 
   @Override

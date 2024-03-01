@@ -1,10 +1,10 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
- * Represents ban for someone on something in perun.
- * Description and timestamp.
+ * Represents ban for someone on something in perun. Description and timestamp.
  *
  * @author Michal Stava
  */
@@ -30,73 +30,28 @@ public abstract class Ban extends Auditable implements Comparable<PerunBean> {
     this.description = description;
   }
 
-  public Date getValidityTo() {
-    return validityTo;
-  }
-
-  public void setValidityTo(Date validityTo) {
-    //set precision for validity on seconds
-    this.validityTo = (validityTo != null) ? new Date(validityTo.getTime() / 1000 * 1000) : null;
-  }
-
-  public Long getValidityToAsLong() {
-    return (validityTo == null) ? null : validityTo.getTime();
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  /**
-   * Class name of specific ban.
-   *
-   * @return class name of specific ban
-   */
-  public abstract String getType();
-
-  /**
-   * Id of subject who is banned on target.
-   *
-   * @return id of affected subject
-   */
-  public abstract int getSubjectId();
-
-  /**
-   * Id of target where subject is banned on.
-   *
-   * @return id of affected target
-   */
-  public abstract int getTargetId();
-
-
   @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", validityTo=<").append(getValidityTo() == null ? "\\0" : getValidityTo().getTime()).append(">").append(
-            ", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription()))
-        .append(">").append(
-            ']').toString();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    Long validityInMiliseconds = null;
-    if (getValidityTo() != null) {
-      validityInMiliseconds = getValidityTo().getTime();
+  public int compareTo(PerunBean perunBean) {
+    if (perunBean == null) {
+      throw new NullPointerException("PerunBean to compare with is null.");
     }
-
-    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()
-    ).append("', validityTo='").append(validityInMiliseconds
-    ).append("', description='").append(description).append("']").toString();
+    if (perunBean instanceof Ban) {
+      Ban ban = (Ban) perunBean;
+      if (this.validityTo == null && ban.getValidityTo() != null) {
+        return -1;
+      }
+      if (ban.getValidityTo() == null && this.validityTo != null) {
+        return 1;
+      }
+      if (ban.getValidityTo() == null && this.validityTo == null) {
+        return 0;
+      }
+      Long thisValidity = this.validityTo.getTime();
+      Long otherValidity = ban.getValidityTo().getTime();
+      return thisValidity.compareTo(otherValidity);
+    } else {
+      return (this.getId() - perunBean.getId());
+    }
   }
 
   @Override
@@ -121,27 +76,74 @@ public abstract class Ban extends Auditable implements Comparable<PerunBean> {
     return true;
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  /**
+   * Id of subject who is banned on target.
+   *
+   * @return id of affected subject
+   */
+  public abstract int getSubjectId();
+
+  /**
+   * Id of target where subject is banned on.
+   *
+   * @return id of affected target
+   */
+  public abstract int getTargetId();
+
+  /**
+   * Class name of specific ban.
+   *
+   * @return class name of specific ban
+   */
+  public abstract String getType();
+
+  public Date getValidityTo() {
+    return validityTo;
+  }
+
+  public void setValidityTo(Date validityTo) {
+    //set precision for validity on seconds
+    this.validityTo = (validityTo != null) ? new Date(validityTo.getTime() / 1000 * 1000) : null;
+  }
+
+  public Long getValidityToAsLong() {
+    return (validityTo == null) ? null : validityTo.getTime();
+  }
+
   @Override
-  public int compareTo(PerunBean perunBean) {
-    if (perunBean == null) {
-      throw new NullPointerException("PerunBean to compare with is null.");
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getValidityTo(), getDescription());
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", validityTo=<").append(getValidityTo() == null ? "\\0" : getValidityTo().getTime()).append(">")
+        .append(", description=<")
+        .append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">").append(']')
+        .toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    Long validityInMiliseconds = null;
+    if (getValidityTo() != null) {
+      validityInMiliseconds = getValidityTo().getTime();
     }
-    if (perunBean instanceof Ban) {
-      Ban ban = (Ban) perunBean;
-      if (this.validityTo == null && ban.getValidityTo() != null) {
-        return -1;
-      }
-      if (ban.getValidityTo() == null && this.validityTo != null) {
-        return 1;
-      }
-      if (ban.getValidityTo() == null && this.validityTo == null) {
-        return 0;
-      }
-      Long thisValidity = this.validityTo.getTime();
-      Long otherValidity = ban.getValidityTo().getTime();
-      return thisValidity.compareTo(otherValidity);
-    } else {
-      return (this.getId() - perunBean.getId());
-    }
+
+    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', validityTo='")
+        .append(validityInMiliseconds).append("', description='").append(description).append("']").toString();
   }
 }

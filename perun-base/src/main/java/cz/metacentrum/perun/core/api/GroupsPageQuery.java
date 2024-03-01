@@ -73,70 +73,6 @@ public class GroupsPageQuery {
     this.types = types;
   }
 
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public GroupsOrderColumn getSortColumn() {
-    return sortColumn;
-  }
-
-  public void setSortColumn(GroupsOrderColumn sortColumn) {
-    this.sortColumn = sortColumn;
-  }
-
-  public String getSearchString() {
-    return searchString;
-  }
-
-  public void setSearchString(String searchString) {
-    this.searchString = searchString;
-  }
-
-  public Integer getMemberId() {
-    return memberId;
-  }
-
-  public void setMemberId(Integer memberId) {
-    this.memberId = memberId;
-  }
-
-  public List<String> getRoles() {
-    return roles;
-  }
-
-  public void setRoles(List<String> roles) {
-    this.roles = roles;
-  }
-
-  public List<RoleAssignmentType> getTypes() {
-    return types;
-  }
-
-  public void setTypes(List<RoleAssignmentType> types) {
-    this.types = types;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -170,6 +106,70 @@ public class GroupsPageQuery {
       return false;
     }
     return getSearchString().equals(that.getSearchString());
+  }
+
+  public Integer getMemberId() {
+    return memberId;
+  }
+
+  public void setMemberId(Integer memberId) {
+    this.memberId = memberId;
+  }
+
+  public int getOffset() {
+    return offset;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public SortingOrder getOrder() {
+    return order;
+  }
+
+  public void setOrder(SortingOrder order) {
+    this.order = order;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
+  }
+
+  public List<String> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(List<String> roles) {
+    this.roles = roles;
+  }
+
+  public String getSearchString() {
+    return searchString;
+  }
+
+  public void setSearchString(String searchString) {
+    this.searchString = searchString;
+  }
+
+  public GroupsOrderColumn getSortColumn() {
+    return sortColumn;
+  }
+
+  public void setSortColumn(GroupsOrderColumn sortColumn) {
+    this.sortColumn = sortColumn;
+  }
+
+  public List<RoleAssignmentType> getTypes() {
+    return types;
+  }
+
+  public void setTypes(List<RoleAssignmentType> types) {
+    this.types = types;
   }
 
   @Override

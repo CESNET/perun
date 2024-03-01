@@ -9,16 +9,15 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 /**
- * Module to check value of application view configuration. Values represent columns to be shown in GUI.
- * Column names can be either basic column names (e.g. createdBy), or IdP extsource attribute name (e.g. schacHomeOrganization).
- * 'id' is not allowed to be set as it should be shown automatically for corresponding use case.
- * 'fedInfo' should be defined per each attribute. 'formData' values cannot be set.
+ * Module to check value of application view configuration. Values represent columns to be shown in GUI. Column names
+ * can be either basic column names (e.g. createdBy), or IdP extsource attribute name (e.g. schacHomeOrganization). 'id'
+ * is not allowed to be set as it should be shown automatically for corresponding use case. 'fedInfo' should be defined
+ * per each attribute. 'formData' values cannot be set.
  *
  * @author Johana Supikova <supikova@ics.muni.cz>
  */
@@ -30,6 +29,15 @@ public class urn_perun_group_attribute_def_def_applicationViewPreferences extend
           "createdBy", "createdAt", "modifiedBy", "modifiedAt");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    // null attribute
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Column names attribute cannot be null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
       throws WrongAttributeValueException {
     // null value is ok for syntax check
@@ -39,8 +47,7 @@ public class urn_perun_group_attribute_def_def_applicationViewPreferences extend
 
     List<String> idpAttributeNames =
         sess.getPerunBl().getAttributesManagerBl().getIdpAttributeDefinitions(sess).stream()
-            .map(AttributeDefinition::getFriendlyName)
-            .toList();
+            .map(AttributeDefinition::getFriendlyName).toList();
 
     List<String> columns = attribute.valueAsList();
     HashSet<String> set = new HashSet<>(columns);
@@ -51,15 +58,6 @@ public class urn_perun_group_attribute_def_def_applicationViewPreferences extend
       if (!basicColumnNames.contains(column) && !idpAttributeNames.contains(column)) {
         throw new WrongAttributeValueException(attribute, column + " is not a valid column name.");
       }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    // null attribute
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "Column names attribute cannot be null.");
     }
   }
 

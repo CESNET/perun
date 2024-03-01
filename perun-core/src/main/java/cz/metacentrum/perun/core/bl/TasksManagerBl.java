@@ -97,10 +97,11 @@ public interface TasksManagerBl {
       throws VoNotExistsException, FacilityNotExistsException;
 
   /**
-   * Returns list of ServiceStates for given facility. It lists states for all services, which are currently
-   * assigned to the facility or has any Task related to this facility.
+   * Returns list of ServiceStates for given facility. It lists states for all services, which are currently assigned to
+   * the facility or has any Task related to this facility.
    * <p>
-   * So results are returned even when there was no previous propagation of such service or service is no longer assigned.
+   * So results are returned even when there was no previous propagation of such service or service is no longer
+   * assigned.
    *
    * @param sess
    * @param facility
@@ -172,6 +173,15 @@ public interface TasksManagerBl {
   //all new from dao
 
   /**
+   * Returns task results for defined destinations (string representation).
+   *
+   * @param session
+   * @param destinationsNames
+   * @return list of tasks results
+   */
+  List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames);
+
+  /**
    * Retrieve all tasks results for given task
    *
    * @param sess
@@ -197,15 +207,6 @@ public interface TasksManagerBl {
   List<TaskResult> getTaskResultsByTaskOnlyNewest(PerunSession sess, int taskId);
 
   /**
-   * Returns task results for defined destinations (string representation).
-   *
-   * @param session
-   * @param destinationsNames
-   * @return list of tasks results
-   */
-  List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames);
-
-  /**
    * Insert TaskResult into DB.
    *
    * @param sess
@@ -222,6 +223,13 @@ public interface TasksManagerBl {
    * @return int id of the inserted task
    */
   int insertTask(PerunSession sess, Task task);
+
+  /**
+   * Check if propagating tasks to engine is suspended.
+   *
+   * @return True if suspended, false if propagating
+   */
+  boolean isSuspendedTasksPropagation();
 
   /**
    * Check if there is a task for given service and facility.
@@ -301,14 +309,6 @@ public interface TasksManagerBl {
   void removeTask(PerunSession sess, Service service, Facility facility);
 
   /**
-   * Update DB record for given task.
-   *
-   * @param sess
-   * @param task
-   */
-  void updateTask(PerunSession sess, Task task);
-
-  /**
    * Suspend propagating tasks to engine.
    *
    * @param sess
@@ -317,9 +317,10 @@ public interface TasksManagerBl {
   void suspendTasksPropagation(PerunSession sess, boolean suspend);
 
   /**
-   * Check if propagating tasks to engine is suspended.
+   * Update DB record for given task.
    *
-   * @return True if suspended, false if propagating
+   * @param sess
+   * @param task
    */
-  boolean isSuspendedTasksPropagation();
+  void updateTask(PerunSession sess, Task task);
 }

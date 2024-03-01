@@ -38,18 +38,6 @@ public class DefaultRegistrarModule implements RegistrarModule {
   protected RegistrarManager registrar;
 
   @Override
-  public void setRegistrar(RegistrarManager registrar) {
-    this.registrar = registrar;
-  }
-
-  @Override
-  public List<ApplicationFormItemData> createApplication(PerunSession user, Application application,
-                                                         List<ApplicationFormItemData> data) throws PerunException {
-    // return unmodified data
-    return data;
-  }
-
-  @Override
   public Application approveApplication(PerunSession session, Application app)
       throws UserNotExistsException, PrivilegeException, AlreadyAdminException, GroupNotExistsException,
       VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException,
@@ -61,9 +49,8 @@ public class DefaultRegistrarModule implements RegistrarModule {
   }
 
   @Override
-  public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-    // return unmodified data
-    return app;
+  public boolean autoApproveShouldBeForce(PerunSession sess, Application app) throws PerunException {
+    return false;
   }
 
   @Override
@@ -85,13 +72,26 @@ public class DefaultRegistrarModule implements RegistrarModule {
   }
 
   @Override
+  public List<ApplicationFormItemData> createApplication(PerunSession user, Application application,
+                                                         List<ApplicationFormItemData> data) throws PerunException {
+    // return unmodified data
+    return data;
+  }
+
+  @Override
   public void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
                                        List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException {
 
   }
 
   @Override
-  public boolean autoApproveShouldBeForce(PerunSession sess, Application app) throws PerunException {
-    return false;
+  public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
+    // return unmodified data
+    return app;
+  }
+
+  @Override
+  public void setRegistrar(RegistrarManager registrar) {
+    this.registrar = registrar;
   }
 }

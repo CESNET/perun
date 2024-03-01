@@ -15,13 +15,11 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Checks and fills at specified facility users preferred unix Group Name
- * Empty list if user has no preferrences.
+ * Checks and fills at specified facility users preferred unix Group Name Empty list if user has no preferrences.
  *
  * @author Michal Stava   <stavamichal@gmail.com>
  * @date 12.8.2014
@@ -58,6 +56,17 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName
   }
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+    attr.setFriendlyName("preferredUnixGroupName");
+    attr.setDisplayName("Preferred Unix GroupName");
+    attr.setType(List.class.getName());
+    attr.setDescription("Chosen users preferred unix groupNames for specific facility namespace.");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility,
                                      AttributeDefinition attributeDefinition) {
     Attribute attr = new Attribute(attributeDefinition);
@@ -81,6 +90,22 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName
     }
 
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE);
+    dependencies.add(A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE + "*");
+    return dependencies;
+  }
+
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
+    strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace" + ":*");
+    return strongDependencies;
   }
 
   @Override
@@ -112,32 +137,5 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName
     } catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
       throw new InternalErrorException(e);
     }
-  }
-
-  @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE);
-    dependencies.add(A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE + "*");
-    return dependencies;
-  }
-
-  @Override
-  public List<String> getStrongDependencies() {
-    List<String> StrongDependencies = new ArrayList<>();
-    StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
-    StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace" + ":*");
-    return StrongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-    attr.setFriendlyName("preferredUnixGroupName");
-    attr.setDisplayName("Preferred Unix GroupName");
-    attr.setType(List.class.getName());
-    attr.setDescription("Chosen users preferred unix groupNames for specific facility namespace.");
-    return attr;
   }
 }

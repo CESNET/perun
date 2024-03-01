@@ -9,13 +9,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Module for project directory permissions.
- * Standard unix file system permissions in numeric format.
+ * Module for project directory permissions. Standard unix file system permissions in numeric format.
  *
  * @author Michal Stava <stavamichal@gmail.com>
  * @date 25.2.2014
@@ -51,7 +49,8 @@ public class urn_perun_group_resource_attribute_def_def_projectDirPermissions
     attr.setDisplayName("Project directory permission");
     attr.setType(Integer.class.getName());
     attr.setDescription(
-        "Permissions (ACL) to directory, where the project exists. Standard unix file system permissions in numeric format.");
+        "Permissions (ACL) to directory, where the project exists. Standard unix file system permissions in numeric " +
+        "format.");
     return attr;
   }
 }

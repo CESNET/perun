@@ -19,7 +19,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
  */
 public class PdfSerializer implements Serializer {
 
-  final static Logger log = LoggerFactory.getLogger(PdfSerializer.class);
+  static final Logger LOG = LoggerFactory.getLogger(PdfSerializer.class);
   private OutputStream outputStream;
 
   public PdfSerializer(OutputStream outputStream) {
@@ -45,7 +45,7 @@ public class PdfSerializer implements Serializer {
           renderer.getFontResolver()
               .addFont(new File(BeansUtils.getCoreConfig().getPdfFontPath()).getAbsolutePath(), "CP1250", true);
         } catch (Exception e) {
-          log.error("Failed to add font for PDF: {}", e);
+          LOG.error("Failed to add font for PDF: {}", e);
         }
       }
 

@@ -1,8 +1,14 @@
 package cz.metacentrum.perun.cabinet.strategy;
 
-import java.io.IOException;
-
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.io.IOException;
+import javax.xml.namespace.QName;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -12,16 +18,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import org.w3c.dom.Node;
-
-import javax.xml.namespace.QName;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 /**
  * Shared logic for PublicationSystem strategies.
@@ -62,8 +59,8 @@ public abstract class AbstractPublicationSystemStrategy implements PublicationSy
    */
   protected Object getValueFromXpath(Node node, String xpathExpression, QName resultType) {
     //Prepare xpath expression
-    XPathFactory xPathfactory = XPathFactory.newInstance();
-    XPath xpath = xPathfactory.newXPath();
+    XPathFactory xpathfactory = XPathFactory.newInstance();
+    XPath xpath = xpathfactory.newXPath();
     XPathExpression expr;
     try {
       expr = xpath.compile(xpathExpression);

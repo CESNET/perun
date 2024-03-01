@@ -14,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 @org.springframework.stereotype.Service(value = "auditLoggerManager")
 public class AuditLoggerManagerImpl implements AuditLoggerManager {
 
-  private final static Logger log = LoggerFactory.getLogger(AuditLoggerManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AuditLoggerManagerImpl.class);
 
-  private final static String DEFAULT_CONSUMER_NAME = "auditlogger";
-  private final static String DEFAULT_STATE_FILE = "./auditlogger.state";
+  private static final String DEFAULT_CONSUMER_NAME = "auditlogger";
+  private static final String DEFAULT_STATE_FILE = "./auditlogger.state";
 
   private Thread eventProcessorThread;
   @Autowired
@@ -29,35 +29,21 @@ public class AuditLoggerManagerImpl implements AuditLoggerManager {
   private Perun perunBl;
   private PerunSession perunSession;
 
-
-  public void startProcessingEvents() {
-    eventProcessorThread = new Thread(eventLogger);
-    eventProcessorThread.start();
-
-    log.info("Event processor thread started.");
-    System.out.println("Event processor thread started.");
-  }
-
-  public void stopProcessingEvents() {
-    eventProcessorThread.interrupt();
-    log.info("Event processor thread interrupted.");
-    System.out.println("Event processor thread interrupted.");
+  @Override
+  public String getConsumerName() {
+    return this.propertiesBean.getProperty("auditlogger.consumer", DEFAULT_CONSUMER_NAME);
   }
 
   public EventLogger getEventDispatcher() {
     return eventLogger;
   }
 
-  public void setEventDispatcher(EventLogger eventLogger) {
-    this.eventLogger = eventLogger;
-  }
-
   public Perun getPerunBl() {
     return perunBl;
   }
 
-  public void setPerunBl(Perun perunBl) {
-    this.perunBl = perunBl;
+  public PerunPrincipal getPerunPrincipal() {
+    return perunPrincipal;
   }
 
   public PerunSession getPerunSession() {
@@ -67,12 +53,13 @@ public class AuditLoggerManagerImpl implements AuditLoggerManager {
     return perunSession;
   }
 
-  public PerunPrincipal getPerunPrincipal() {
-    return perunPrincipal;
+  @Override
+  public String getStateFile() {
+    return this.propertiesBean.getProperty("auditlogger.statefile", DEFAULT_STATE_FILE);
   }
 
-  public void setPerunPrincipal(PerunPrincipal perunPrincipal) {
-    this.perunPrincipal = perunPrincipal;
+  public void setEventDispatcher(EventLogger eventLogger) {
+    this.eventLogger = eventLogger;
   }
 
   @Override
@@ -80,14 +67,26 @@ public class AuditLoggerManagerImpl implements AuditLoggerManager {
     eventLogger.setLastProcessedIdNumber(lastProcessedId);
   }
 
-  @Override
-  public String getConsumerName() {
-    return this.propertiesBean.getProperty("auditlogger.consumer", DEFAULT_CONSUMER_NAME);
+  public void setPerunBl(Perun perunBl) {
+    this.perunBl = perunBl;
   }
 
-  @Override
-  public String getStateFile() {
-    return this.propertiesBean.getProperty("auditlogger.statefile", DEFAULT_STATE_FILE);
+  public void setPerunPrincipal(PerunPrincipal perunPrincipal) {
+    this.perunPrincipal = perunPrincipal;
+  }
+
+  public void startProcessingEvents() {
+    eventProcessorThread = new Thread(eventLogger);
+    eventProcessorThread.start();
+
+    LOG.info("Event processor thread started.");
+    System.out.println("Event processor thread started.");
+  }
+
+  public void stopProcessingEvents() {
+    eventProcessorThread.interrupt();
+    LOG.info("Event processor thread interrupted.");
+    System.out.println("Event processor thread interrupted.");
   }
 
 

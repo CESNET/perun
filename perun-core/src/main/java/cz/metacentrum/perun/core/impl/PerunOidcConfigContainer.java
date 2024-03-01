@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,8 +10,11 @@ public class PerunOidcConfigContainer {
 
   private Map<String, OidcConfig> oidcConfigs = new HashMap<>();
 
-  public void setOidcConfigs(Map<String, OidcConfig> oidcConfigs) {
-    this.oidcConfigs = oidcConfigs;
+  public Map<String, OidcConfig> getAllOidcConfigs() throws OidcConfigFileNotExistsException {
+    if (oidcConfigs == null) {
+      throw new OidcConfigFileNotExistsException("Configuration file for OIDC configs does not exist.");
+    }
+    return oidcConfigs;
   }
 
   public OidcConfig getOidcConfig(String name) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
@@ -26,10 +28,7 @@ public class PerunOidcConfigContainer {
     return oidcConfigs.get(name);
   }
 
-  public Map<String, OidcConfig> getAllOidcConfigs() throws OidcConfigFileNotExistsException {
-    if (oidcConfigs == null) {
-      throw new OidcConfigFileNotExistsException("Configuration file for OIDC configs does not exist.");
-    }
-    return oidcConfigs;
+  public void setOidcConfigs(Map<String, OidcConfig> oidcConfigs) {
+    this.oidcConfigs = oidcConfigs;
   }
 }

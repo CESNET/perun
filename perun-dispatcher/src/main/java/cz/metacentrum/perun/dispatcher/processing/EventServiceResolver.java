@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Allow resolving of Facility-Service pairs from Events.
- * It's used by EventProcessor for creating Tasks from Events.
+ * Allow resolving of Facility-Service pairs from Events. It's used by EventProcessor for creating Tasks from Events.
  *
  * @author Michal Karm Babacek
  * @author Michal Voců

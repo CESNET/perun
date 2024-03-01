@@ -1,17 +1,16 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
-import org.owasp.html.CssSchema;
-import org.owasp.html.HtmlChangeListener;
-import org.owasp.html.HtmlPolicyBuilder;
-import org.owasp.html.PolicyFactory;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
+import org.owasp.html.CssSchema;
+import org.owasp.html.HtmlChangeListener;
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
 
 
 /*
@@ -19,19 +18,19 @@ import java.util.regex.Pattern;
  * @author: Matej Hakoš <492968@mail.muni.cz>
  */
 public class HTMLParser {
-  private static final String[] allowedTags =
-      {"a", "article", "aside", "b", "blockquote", "br", "button", "caption", "center", "cite", "decorator", "del",
-          "details", "div", "em", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "i", "img", "kbd",
-          "label", "li", "ol", "p", "pre", "section", "select", "span", "strong", "sup", "table", "tbody", "td",
-          "textarea", "tfoot", "th", "thead", "tr", "u", "ul"};
-  private static final String[] allowedAttributes =
-      {"align", "class", "color", "data-lang", "disabled", "height", "hidden", "href", "id", "label", "rel", "size",
-          "span", "src", "srcset", "style", "type", "width"};
-  private static final String[] allowedStyles =
-      {"color", "background-color", "font-size", "font-family", "text-align", "margin", "padding", "border", "width",
-          "max-height", "height", "display", "position", "top", "bottom", "left", "right", "overflow", "float", "clear",
-          "z-index"};
-  private static final String[] allowedUrlProtocols = {"https", "mailto"};
+  private static final String[] ALLOWED_TAGS =
+    {"a", "article", "aside", "b", "blockquote", "br", "button", "caption", "center", "cite", "decorator", "del",
+        "details", "div", "em", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "i", "img", "kbd",
+        "label", "li", "ol", "p", "pre", "section", "select", "span", "strong", "sup", "table", "tbody", "td",
+        "textarea", "tfoot", "th", "thead", "tr", "u", "ul"};
+  private static final String[] ALLOWED_ATTRIBUTES =
+    {"align", "class", "color", "data-lang", "disabled", "height", "hidden", "href", "id", "label", "rel", "size",
+        "span", "src", "srcset", "style", "type", "width"};
+  private static final String[] ALLOWED_STYLES =
+    {"color", "background-color", "font-size", "font-family", "text-align", "margin", "padding", "border", "width",
+        "max-height", "height", "display", "position", "top", "bottom", "left", "right", "overflow", "float", "clear",
+        "z-index"};
+  private static final String[] ALLOWED_URL_PROTOCOLS = {"https", "mailto"};
   private static PolicyFactory policy = null;
 
   private List<String> escapedTags = new ArrayList<>();
@@ -49,21 +48,21 @@ public class HTMLParser {
   }
 
   /**
-   * Creates policy defined by the allowedTags, allowedAttributes, allowedStyles and allowedUrlProtocols.
-   * Used to sanitize HTML input.
+   * Creates policy defined by the allowedTags, allowedAttributes, allowedStyles and allowedUrlProtocols. Used to
+   * sanitize HTML input.
    *
    * @return policy - PolicyFactory object
    */
   private static PolicyFactory generatePolicy() {
     HtmlPolicyBuilder p = new HtmlPolicyBuilder();
-    p.allowUrlProtocols(allowedUrlProtocols);
-    for (String tag : allowedTags) {
+    p.allowUrlProtocols(ALLOWED_URL_PROTOCOLS);
+    for (String tag : ALLOWED_TAGS) {
       p.allowElements(tag);
     }
-    for (String attr : allowedAttributes) {
+    for (String attr : ALLOWED_ATTRIBUTES) {
       p.allowAttributes(attr).globally();
     }
-    CssSchema cssWhitelist = CssSchema.withProperties(Arrays.stream(allowedStyles).toList());
+    CssSchema cssWhitelist = CssSchema.withProperties(Arrays.stream(ALLOWED_STYLES).toList());
     p.allowStyling(cssWhitelist);
 
     // allow 'href' and 'target' attribute on 'a' tags
@@ -95,6 +94,51 @@ public class HTMLParser {
     return message.toString();
   }
 
+  public String getMessage() {
+    return getMessage(escapedStrings);
+  }
+
+  public HTMLParser checkEscapedHTML() {
+    return checkEscapedHTML(escapedHTML, rawHTML);
+  }
+
+  /**
+   * Checks if the given input is sanitized.
+   *
+   * @param escaped   - sanitized input
+   * @param unescaped - unsanitized input
+   * @return String[] of tags that are not the same and were removed during the sanitization
+   */
+  public HTMLParser checkEscapedHTML(String escaped, String unescaped) {
+    if (escaped.equals(unescaped) || isInputValid) {
+      escapedStrings = new String[] {"", "", "", ""};
+      return this;
+    }
+
+    escapedStrings[0] = String.join(", ", escapedTags);
+    escapedStrings[1] = String.join(", ", escapedAttributes);
+    escapedStrings[2] = String.join(", ", escapedStyles);
+    escapedStrings[3] = String.join(", ", escapedLinks);
+    return this;
+  }
+
+  /**
+   * Clears the list of escaped tags and attributes. Recomputes the policy and resets the escapedHTML/unescapedHTML and
+   * escapedStrings. isInputValid is set to true.
+   */
+  public HTMLParser clear() {
+    escapedTags.clear();
+    escapedAttributes.clear();
+    escapedStyles.clear();
+    escapedLinks.clear();
+    escapedHTML = "";
+    rawHTML = "";
+    escapedStrings = new String[] {"", "", "", ""};
+    isInputValid = true;
+    policy = generatePolicy();
+    return this;
+  }
+
   /**
    * Computes the difference between all style attributes in the escaped and unescaped input.
    *
@@ -103,9 +147,9 @@ public class HTMLParser {
    */
   private void computeEscapedStyles(String input, String escaped) {
     Pattern pattern = Pattern.compile("style=(\"|')(.*?)(\"|')");
-	  if (input == null || escaped == null) {
-		  return;
-	  }
+    if (input == null || escaped == null) {
+      return;
+    }
     Matcher matcher = pattern.matcher(input);
     while (matcher.find()) {
       String style = matcher.group(2);
@@ -138,9 +182,9 @@ public class HTMLParser {
    */
   public void computeInvalidLink(String input, String escaped) {
     Pattern pattern = Pattern.compile("href=(\"|')(.*?)(\"|')");
-	  if (input == null || escaped == null) {
-		  return;
-	  }
+    if (input == null || escaped == null) {
+      return;
+    }
     Matcher matcher = pattern.matcher(input);
     while (matcher.find()) {
       // Multiple groups, url is in group 2
@@ -148,27 +192,18 @@ public class HTMLParser {
       escapedLinks.add(link);
     }
 
-    for (String protocol : allowedUrlProtocols) {
+    for (String protocol : ALLOWED_URL_PROTOCOLS) {
       escapedLinks.removeIf(link -> link.startsWith(protocol));
     }
   }
 
   /**
-   * Clears the list of escaped tags and attributes.
-   * Recomputes the policy and resets the escapedHTML/unescapedHTML and escapedStrings.
-   * isInputValid is set to true.
+   * Returns array of strings containing Error strings. 0 -> tags, 1 -> attributes, 2 -> styles
+   *
+   * @return escapedStrings - array of error strings
    */
-  public HTMLParser clear() {
-    escapedTags.clear();
-    escapedAttributes.clear();
-    escapedStyles.clear();
-    escapedLinks.clear();
-    escapedHTML = "";
-    rawHTML = "";
-    escapedStrings = new String[] {"", "", "", ""};
-    isInputValid = true;
-    policy = generatePolicy();
-    return this;
+  public String[] getEscaped() {
+    return this.escapedStrings;
   }
 
   /**
@@ -177,7 +212,7 @@ public class HTMLParser {
    * @return escapedHTML - sanitized HTML input
    */
   public String getEscapedHTML() {
-    if (!BeansUtils.getCoreConfig().getForceHTMLSanitization()) {
+    if (!BeansUtils.getCoreConfig().getForceHtmlSanitization()) {
       return rawHTML;
     }
     return escapedHTML;
@@ -192,26 +227,6 @@ public class HTMLParser {
     return rawHTML;
   }
 
-  /*
-   * Returns validity of the last input.
-   */
-  public boolean isInputValid() {
-    if (!BeansUtils.getCoreConfig().getForceHTMLSanitization()) {
-      return true;
-    }
-    return isInputValid;
-  }
-
-  /**
-   * Returns array of strings containing Error strings.
-   * 0 -> tags, 1 -> attributes, 2 -> styles
-   *
-   * @return escapedStrings - array of error strings
-   */
-  public String[] getEscaped() {
-    return this.escapedStrings;
-  }
-
   /**
    * Sanitizes input checkbox label. Only <a> elements with `href` and `target` attributes are allowed.
    *
@@ -219,7 +234,7 @@ public class HTMLParser {
    * @return true if safe, false otherwise
    */
   public boolean isCheckboxLabelSafe(String input) {
-    if (!BeansUtils.getCoreConfig().getForceHTMLSanitization()) {
+    if (!BeansUtils.getCoreConfig().getForceHtmlSanitization()) {
       return true;
     }
     // keep track of removed attr/elements, don't care which is which, just to know something was removed.
@@ -231,7 +246,6 @@ public class HTMLParser {
         output.add(tag);
       }
 
-
       @Override
       public void discardedAttributes(@Nullable List<String> output, String tag, String... attributes) {
         if (tag.equals("a")) {
@@ -240,16 +254,26 @@ public class HTMLParser {
       }
     };
     HtmlPolicyBuilder p = new HtmlPolicyBuilder();
-    p.allowUrlProtocols(allowedUrlProtocols);
+    p.allowUrlProtocols(ALLOWED_URL_PROTOCOLS);
     p.allowElements("a");
     p.allowAttributes("href", "target").onElements("a");
-    CssSchema cssWhitelist = CssSchema.withProperties(Arrays.stream(allowedStyles).toList());
+    CssSchema cssWhitelist = CssSchema.withProperties(Arrays.stream(ALLOWED_STYLES).toList());
     p.allowStyling(cssWhitelist);
 
     String sanitized = p.toFactory().sanitize(input, listener, removed);
 
     // cannot just simply compare strings, order of attributes can differ
     return removed.isEmpty();
+  }
+
+  /*
+   * Returns validity of the last input.
+   */
+  public boolean isInputValid() {
+    if (!BeansUtils.getCoreConfig().getForceHtmlSanitization()) {
+      return true;
+    }
+    return isInputValid;
   }
 
   /**
@@ -260,7 +284,7 @@ public class HTMLParser {
    */
   public HTMLParser sanitizeHTML(String input) {
     rawHTML = input;
-    if (!BeansUtils.getCoreConfig().getForceHTMLSanitization()) {
+    if (!BeansUtils.getCoreConfig().getForceHtmlSanitization()) {
       return this;
     }
     HtmlChangeListener<List<List<String>>> listener = new HtmlChangeListener<>() {
@@ -304,33 +328,5 @@ public class HTMLParser {
     isInputValid =
         escapedTags.isEmpty() && escapedAttributes.isEmpty() && escapedStyles.isEmpty() && escapedLinks.isEmpty();
     return this;
-  }
-
-  /**
-   * Checks if the given input is sanitized.
-   *
-   * @param escaped   - sanitized input
-   * @param unescaped - unsanitized input
-   * @return String[] of tags that are not the same and were removed during the sanitization
-   */
-  public HTMLParser checkEscapedHTML(String escaped, String unescaped) {
-    if (escaped.equals(unescaped) || isInputValid) {
-      escapedStrings = new String[] {"", "", "", ""};
-      return this;
-    }
-
-    escapedStrings[0] = String.join(", ", escapedTags);
-    escapedStrings[1] = String.join(", ", escapedAttributes);
-    escapedStrings[2] = String.join(", ", escapedStyles);
-    escapedStrings[3] = String.join(", ", escapedLinks);
-    return this;
-  }
-
-  public HTMLParser checkEscapedHTML() {
-    return checkEscapedHTML(escapedHTML, rawHTML);
-  }
-
-  public String getMessage() {
-    return getMessage(escapedStrings);
   }
 }

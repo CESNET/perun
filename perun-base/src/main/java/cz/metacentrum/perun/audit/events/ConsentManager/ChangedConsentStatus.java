@@ -18,13 +18,13 @@ public class ChangedConsentStatus extends AuditEvent {
     this.message = formatMessage("%s status was changed.", consent);
   }
 
+  public Consent getConsent() {
+    return consent;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Consent getConsent() {
-    return consent;
   }
 
   public String toString() {

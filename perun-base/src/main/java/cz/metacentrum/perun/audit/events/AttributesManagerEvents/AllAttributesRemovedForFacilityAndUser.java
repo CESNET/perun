@@ -25,13 +25,13 @@ public class AllAttributesRemovedForFacilityAndUser extends AuditEvent implement
     return facility;
   }
 
-  public User getUser() {
-    return user;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   @Override

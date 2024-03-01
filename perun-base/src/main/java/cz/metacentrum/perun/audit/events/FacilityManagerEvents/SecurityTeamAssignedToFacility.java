@@ -20,6 +20,10 @@ public class SecurityTeamAssignedToFacility extends AuditEvent {
     this.message = formatMessage("%s was assigned to %s.", securityTeam, facility);
   }
 
+  public Facility getFacility() {
+    return facility;
+  }
+
   @Override
   public String getMessage() {
     return message;
@@ -27,10 +31,6 @@ public class SecurityTeamAssignedToFacility extends AuditEvent {
 
   public SecurityTeam getSecurityTeam() {
     return securityTeam;
-  }
-
-  public Facility getFacility() {
-    return facility;
   }
 
   @Override

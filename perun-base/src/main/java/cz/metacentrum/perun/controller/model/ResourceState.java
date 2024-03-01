@@ -12,20 +12,12 @@ public class ResourceState implements Comparable<ResourceState> {
   private Resource resource;
   private List<Task> taskList;
 
-  public Resource getResource() {
-    return resource;
-  }
-
-  public void setResource(Resource resource) {
-    this.resource = resource;
-  }
-
-  public List<Task> getTaskList() {
-    return taskList;
-  }
-
-  public void setTaskList(List<Task> taskList) {
-    this.taskList = taskList;
+  @Override
+  public int compareTo(ResourceState resource) {
+    if (resource == null || this.resource == null || this.resource.getName() == null) {
+      throw new NullPointerException("Resource or resource name");
+    }
+    return this.resource.getName().compareTo(resource.getResource().getName());
   }
 
   @Override
@@ -49,6 +41,22 @@ public class ResourceState implements Comparable<ResourceState> {
     return true;
   }
 
+  public Resource getResource() {
+    return resource;
+  }
+
+  public void setResource(Resource resource) {
+    this.resource = resource;
+  }
+
+  public List<Task> getTaskList() {
+    return taskList;
+  }
+
+  public void setTaskList(List<Task> taskList) {
+    this.taskList = taskList;
+  }
+
   @Override
   public int hashCode() {
     int result = resource != null ? resource.hashCode() : 0;
@@ -59,13 +67,5 @@ public class ResourceState implements Comparable<ResourceState> {
   @Override
   public String toString() {
     return "ResourceState[" + "resource=" + resource + ", taskList=" + taskList + ']';
-  }
-
-  @Override
-  public int compareTo(ResourceState resource) {
-    if (resource == null || this.resource == null || this.resource.getName() == null) {
-      throw new NullPointerException("Resource or resource name");
-    }
-    return this.resource.getName().compareTo(resource.getResource().getName());
   }
 }

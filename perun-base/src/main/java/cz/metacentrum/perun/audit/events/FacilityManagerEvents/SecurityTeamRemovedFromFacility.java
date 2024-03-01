@@ -20,6 +20,10 @@ public class SecurityTeamRemovedFromFacility extends AuditEvent {
     this.message = formatMessage("%s was removed from %s.", securityTeam, facility);
   }
 
+  public Facility getFacility() {
+    return facility;
+  }
+
   @Override
   public String getMessage() {
     return message;
@@ -27,10 +31,6 @@ public class SecurityTeamRemovedFromFacility extends AuditEvent {
 
   public SecurityTeam getSecurityTeam() {
     return securityTeam;
-  }
-
-  public Facility getFacility() {
-    return facility;
   }
 
   @Override

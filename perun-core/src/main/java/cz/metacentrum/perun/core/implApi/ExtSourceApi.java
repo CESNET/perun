@@ -2,15 +2,13 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-
 import java.util.List;
 import java.util.Map;
 
 /**
  * Definition of extSource api.
  * <p>
- * This extSource can get information about all subjects with all attributes by
- * one query.
+ * This extSource can get information about all subjects with all attributes by one query.
  *
  * @author Michal Stava stavamichal@gmail.com
  */

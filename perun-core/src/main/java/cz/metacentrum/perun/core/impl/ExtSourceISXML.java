@@ -3,12 +3,6 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,6 +14,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * XML extSource for groups in IS MU
@@ -28,57 +27,15 @@ import java.util.Random;
  */
 public class ExtSourceISXML extends ExtSourceXML {
 
-  private final static Logger log = LoggerFactory.getLogger(ExtSourceISXML.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ExtSourceISXML.class);
+  private static final String CRLF = "\r\n"; // Line separator required by multipart/form-data.
   //add 1 to prevent value "0"
   private final int requestID = (new Random()).nextInt(1000000) + 1;
   private final String boundary = Long.toHexString(System.currentTimeMillis());
-      //random number for purpose of creating bounderies in multipart
-  private final String CRLF = "\r\n"; // Line separator required by multipart/form-data.
+  //random number for purpose of creating bounderies in multipart
   private String ismuquery = null;
   private String workplace = null;
   private String groupName = null;
-
-  @Override
-  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
-    // Get the query for the group
-    String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-    //If there is no query for group, throw exception
-    if (queryForGroup == null || queryForGroup.isEmpty()) {
-      throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
-    }
-    //Expected value like "workplaceId:groupName" with ':' as separator
-    if (!queryForGroup.contains(":")) {
-      throw new InternalErrorException(
-          "Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME +
-              " has to contain separator ':' between workplaceId and groupName.");
-    }
-
-    //Parse workplace and groupName from queryForGroup
-    String[] parsedQuery = queryForGroup.split(":");
-    if (parsedQuery.length != 2) {
-      throw new InternalErrorException("Expected 2 values workplace and groupName but get " + parsedQuery.length);
-    }
-    workplace = parsedQuery[0];
-    groupName = parsedQuery[1];
-
-    // Get the generic query for group subjects
-    String query = getAttributes().get("query");
-    //If there is no generic query for group subjects, throw exception
-    if (query == null) {
-      throw new InternalErrorException("General query for ExtSourceISXML can't be null.");
-    }
-
-    //Get file or uri of xml
-    prepareEnvironment();
-
-    return xpathParsing(query, 0);
-  }
-
-  @Override
-  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
-  }
 
   @Override
   protected InputStream createTwoWaySSLConnection(String uri) throws IOException {
@@ -108,10 +65,8 @@ public class ExtSourceISXML extends ExtSourceXML {
     this.getCon().setDoOutput(true);
     this.getCon().setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
-    try (
-        OutputStream output = getCon().getOutputStream();
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true)
-    ) {
+    try (OutputStream output = getCon().getOutputStream();
+         PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true)) {
       // Send param about return
       writer.append("--" + boundary).append(CRLF);
       writer.append("Content-Disposition: form-data; name=\"out\"").append(CRLF);
@@ -142,22 +97,58 @@ public class ExtSourceISXML extends ExtSourceXML {
         "Wrong response code while opening connection on uri '" + uri + "'. Response code: " + responseCode);
   }
 
+  @Override
+  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
+    // Get the query for the group
+    String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+    //If there is no query for group, throw exception
+    if (queryForGroup == null || queryForGroup.isEmpty()) {
+      throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
+    }
+    //Expected value like "workplaceId:groupName" with ':' as separator
+    if (!queryForGroup.contains(":")) {
+      throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME +
+                                       " has to contain separator ':' between workplaceId and groupName.");
+    }
+
+    //Parse workplace and groupName from queryForGroup
+    String[] parsedQuery = queryForGroup.split(":");
+    if (parsedQuery.length != 2) {
+      throw new InternalErrorException("Expected 2 values workplace and groupName but get " + parsedQuery.length);
+    }
+    workplace = parsedQuery[0];
+    groupName = parsedQuery[1];
+
+    // Get the generic query for group subjects
+    String query = getAttributes().get("query");
+    //If there is no generic query for group subjects, throw exception
+    if (query == null) {
+      throw new InternalErrorException("General query for ExtSourceISXML can't be null.");
+    }
+
+    //Get file or uri of xml
+    prepareEnvironment();
+
+    return xpathParsing(query, 0);
+  }
+
   /**
    * Prepare request for getting group information.
    *
    * @return request with specific settings for group (by XML setting in perun-extSource.xml file)
    */
   private String getQueryForGroup() {
-    log.debug("RequestID for ISXML ExtSource group " + workplace + ":" + groupName + " = " + requestID);
+    LOG.debug("RequestID for ISXML ExtSource group " + workplace + ":" + groupName + " = " + requestID);
 
-    return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-        "<request>\n" +
-        "<skupina_clenove reqid=\"" + requestID + "\">\n" +
-        "<skupina_id></skupina_id>\n" +
-        "<pracoviste_id>" + workplace + "</pracoviste_id>\n" +
-        "<zkratka>" + groupName + "</zkratka>\n" +
-        "<operace>INF</operace>\n" +
-        "</skupina_clenove>\n" +
-        "</request>";
+    return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<request>\n" + "<skupina_clenove reqid=\"" + requestID +
+           "\">\n" + "<skupina_id></skupina_id>\n" + "<pracoviste_id>" + workplace + "</pracoviste_id>\n" +
+           "<zkratka>" + groupName + "</zkratka>\n" + "<operace>INF</operace>\n" + "</skupina_clenove>\n" +
+           "</request>";
+  }
+
+  @Override
+  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
   }
 }

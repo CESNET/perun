@@ -23,6 +23,14 @@ public class urn_perun_user_attribute_def_def_kerberosLogins extends UserAttribu
   private static final Pattern pattern = Pattern.compile("^[-/_.a-zA-Z0-9@]+@[-_.A-z0-9]+$");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Attribute's value can't be null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
       throws WrongAttributeValueException {
     if (attribute.getValue() == null) {
@@ -35,14 +43,6 @@ public class urn_perun_user_attribute_def_def_kerberosLogins extends UserAttribu
         throw new WrongAttributeValueException(attribute, user,
             "Attribute's value is not in correct format. format: login@realm");
       }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Attribute's value can't be null.");
     }
   }
 

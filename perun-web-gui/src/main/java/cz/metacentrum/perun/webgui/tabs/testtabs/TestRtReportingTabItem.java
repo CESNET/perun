@@ -29,7 +29,7 @@ import java.util.Map;
 public class TestRtReportingTabItem implements TabItem, TabItemWithUrl {
 
 
-  public final static String URL = "rt";
+  public static final String URL = "rt";
   /**
    * Perun web session
    */

@@ -17,13 +17,13 @@ public class MemberInvalidated extends AuditEvent {
     this.message = formatMessage("%s invalidated.", member);
   }
 
+  public Member getMember() {
+    return member;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   @Override

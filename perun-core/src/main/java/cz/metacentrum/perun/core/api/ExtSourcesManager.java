@@ -24,13 +24,13 @@ public interface ExtSourcesManager {
   String EXTSOURCE_LDAP = "cz.metacentrum.perun.core.impl.ExtSourceLdap";
   String EXTSOURCE_KERBEROS = "cz.metacentrum.perun.core.impl.ExtSourceKerberos";
   String EXTSOURCE_INTERNAL = "cz.metacentrum.perun.core.impl.ExtSourceInternal";
-  //	String EXTSOURCE_ISMU = "cz.metacentrum.perun.core.impl.ExtSourceISMU";
+  // String EXTSOURCE_ISMU = "cz.metacentrum.perun.core.impl.ExtSourceISMU";
   String EXTSOURCE_X509 = "cz.metacentrum.perun.core.impl.ExtSourceX509";
   String EXTSOURCE_REMS = "cz.metacentrum.perun.core.impl.ExtSourceREMS";
 
   /**
-   * Name of the LOCAL extSource, which is used for users without any external authentication.
-   * extLogin is generated on the fly, usually it is time of the first access.
+   * Name of the LOCAL extSource, which is used for users without any external authentication. extLogin is generated on
+   * the fly, usually it is time of the first access.
    */
   String EXTSOURCE_NAME_LOCAL = "LOCAL";
 
@@ -44,68 +44,22 @@ public interface ExtSourcesManager {
    */
   String EXTSOURCE_NAME_PERUN = "PERUN";
 
-  String CONFIGURATIONFILE = Utils.configurationsLocations + "perun-extSources.xml";
+  String CONFIGURATIONFILE = Utils.CONFIGURATIONS_LOCATIONS + "perun-extSources.xml";
 
   String EXTSOURCE_SYNCHRONIZATION_ENABLED_ATTRNAME = "extSourceSynchronizationEnabled";
-
-  /**
-   * Creates an external source.
-   *
-   * @return ExtSource object with newly associated ID.
-   */
-  ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes)
-      throws ExtSourceExistsException, PrivilegeException;
-
-  /**
-   * Deletes an external source.
-   *
-   * @throws ExtSourceAlreadyRemovedException when 0 rows are affected by deleting from DB
-   */
-  void deleteExtSource(PerunSession perunSession, ExtSource extSource)
-      throws ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException;
-
-  /**
-   * Searches for the external source with specified id.
-   *
-   * @return External source with specified id
-   */
-  ExtSource getExtSourceById(PerunSession perunSession, int id) throws ExtSourceNotExistsException, PrivilegeException;
-
-  /**
-   * Searches for the external source using specified name.
-   *
-   * @return External source with specified name
-   */
-  ExtSource getExtSourceByName(PerunSession perunSession, String name)
-      throws ExtSourceNotExistsException, PrivilegeException;
-
-  /**
-   * Get list of external sources associated with the VO.
-   *
-   * @return list of external sources associated with the VO
-   */
-  List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo) throws PrivilegeException, VoNotExistsException;
-
-  /**
-   * Get list of external sources associated with the GROUP.
-   *
-   * @return list of external sources associated with the VO
-   */
-  List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group)
-      throws PrivilegeException, GroupNotExistsException;
-
-  /**
-   * Get list of all external sources.
-   *
-   * @return list of external source
-   */
-  List<ExtSource> getExtSources(PerunSession perunSession) throws PrivilegeException;
 
   /**
    * Associate external source definition with the VO.
    */
   void addExtSource(PerunSession perunSession, Vo vo, ExtSource source)
       throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException;
+
+  /**
+   * Associate external source definition with the GROUP.
+   */
+  void addExtSource(PerunSession perunSession, Group group, ExtSource source)
+      throws PrivilegeException, VoNotExistsException, GroupNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceNotExistsException, ExtSourceAlreadyAssignedException;
 
   /**
    * Associate external source definitions with the VO.
@@ -120,13 +74,6 @@ public interface ExtSourcesManager {
    */
   void addExtSources(PerunSession perunSession, Vo vo, List<ExtSource> sources)
       throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException;
-
-  /**
-   * Associate external source definition with the GROUP.
-   */
-  void addExtSource(PerunSession perunSession, Group group, ExtSource source)
-      throws PrivilegeException, VoNotExistsException, GroupNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceNotExistsException, ExtSourceAlreadyAssignedException;
 
   /**
    * Associate external source definitions with the group.
@@ -146,56 +93,6 @@ public interface ExtSourcesManager {
       ExtSourceNotExistsException, ExtSourceAlreadyAssignedException;
 
   /**
-   * Remove association of the external source from the VO.
-   *
-   * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
-   */
-  void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source)
-      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceAlreadyRemovedException;
-
-  /**
-   * Remove associations of external sources from the VO.
-   *
-   * @param perunSession
-   * @param vo
-   * @param sources
-   * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
-   * @throws PrivilegeException
-   * @throws VoNotExistsException
-   * @throws ExtSourceNotExistsException
-   * @throws ExtSourceNotAssignedException
-   */
-  void removeExtSources(PerunSession perunSession, Vo vo, List<ExtSource> sources)
-      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceAlreadyRemovedException;
-
-  /**
-   * Remove association of the external source from the GROUP.
-   *
-   * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
-   */
-  void removeExtSource(PerunSession perunSession, Group group, ExtSource source)
-      throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceAlreadyRemovedException;
-
-  /**
-   * Remove associations of external sources from the GROUP.
-   *
-   * @param perunSession
-   * @param group
-   * @param sources
-   * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
-   * @throws PrivilegeException
-   * @throws GroupNotExistsException
-   * @throws ExtSourceNotExistsException
-   * @throws ExtSourceNotAssignedException
-   */
-  void removeExtSources(PerunSession perunSession, Group group, List<ExtSource> sources)
-      throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceAlreadyRemovedException;
-
-  /**
    * Checks whether the ExtSource exists, if not, then the ExtSource is created.
    *
    * @return existing or newly created extSource is returned
@@ -203,12 +100,29 @@ public interface ExtSourcesManager {
   ExtSource checkOrCreateExtSource(PerunSession perunSession, String extSourceName, String extSourceType);
 
   /**
-   * Returns list of users stored by this ExtSource, which are not valid.
+   * Creates an external source.
    *
-   * @return list of users, who is not in the extSource anymore
+   * @return ExtSource object with newly associated ID.
    */
-  @SuppressWarnings("unused")
-  List<User> getInvalidUsers(PerunSession perunSession, ExtSource source)
+  ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes)
+      throws ExtSourceExistsException, PrivilegeException;
+
+  /**
+   * Deletes an external source.
+   *
+   * @throws ExtSourceAlreadyRemovedException when 0 rows are affected by deleting from DB
+   */
+  void deleteExtSource(PerunSession perunSession, ExtSource extSource)
+      throws ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException;
+
+  /**
+   * Gets attributes for external source. Must be Perun Admin.
+   *
+   * @param sess      Current Session
+   * @param extSource External Source
+   * @return Map of attributes for external source
+   */
+  Map<String, String> getAttributes(PerunSession sess, ExtSource extSource)
       throws PrivilegeException, ExtSourceNotExistsException;
 
   /**
@@ -233,17 +147,103 @@ public interface ExtSourcesManager {
       throws PrivilegeException, ExtSourceNotExistsException;
 
   /**
+   * Searches for the external source with specified id.
+   *
+   * @return External source with specified id
+   */
+  ExtSource getExtSourceById(PerunSession perunSession, int id) throws ExtSourceNotExistsException, PrivilegeException;
+
+  /**
+   * Searches for the external source using specified name.
+   *
+   * @return External source with specified name
+   */
+  ExtSource getExtSourceByName(PerunSession perunSession, String name)
+      throws ExtSourceNotExistsException, PrivilegeException;
+
+  /**
+   * Get list of all external sources.
+   *
+   * @return list of external source
+   */
+  List<ExtSource> getExtSources(PerunSession perunSession) throws PrivilegeException;
+
+  /**
+   * Get list of external sources associated with the GROUP.
+   *
+   * @return list of external sources associated with the VO
+   */
+  List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group)
+      throws PrivilegeException, GroupNotExistsException;
+
+  /**
+   * Returns list of users stored by this ExtSource, which are not valid.
+   *
+   * @return list of users, who is not in the extSource anymore
+   */
+  @SuppressWarnings("unused")
+  List<User> getInvalidUsers(PerunSession perunSession, ExtSource source)
+      throws PrivilegeException, ExtSourceNotExistsException;
+
+  /**
+   * Get list of external sources associated with the VO.
+   *
+   * @return list of external sources associated with the VO
+   */
+  List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo) throws PrivilegeException, VoNotExistsException;
+
+  /**
    * Loads ext source definitions from the configuration file and updates entries stored in the DB.
    */
   void loadExtSourcesDefinitions(PerunSession sess) throws PrivilegeException;
 
   /**
-   * Gets attributes for external source. Must be Perun Admin.
+   * Remove association of the external source from the VO.
    *
-   * @param sess      Current Session
-   * @param extSource External Source
-   * @return Map of attributes for external source
+   * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
    */
-  Map<String, String> getAttributes(PerunSession sess, ExtSource extSource)
-      throws PrivilegeException, ExtSourceNotExistsException;
+  void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source)
+      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceAlreadyRemovedException;
+
+  /**
+   * Remove association of the external source from the GROUP.
+   *
+   * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
+   */
+  void removeExtSource(PerunSession perunSession, Group group, ExtSource source)
+      throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceAlreadyRemovedException;
+
+  /**
+   * Remove associations of external sources from the VO.
+   *
+   * @param perunSession
+   * @param vo
+   * @param sources
+   * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
+   * @throws PrivilegeException
+   * @throws VoNotExistsException
+   * @throws ExtSourceNotExistsException
+   * @throws ExtSourceNotAssignedException
+   */
+  void removeExtSources(PerunSession perunSession, Vo vo, List<ExtSource> sources)
+      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceAlreadyRemovedException;
+
+  /**
+   * Remove associations of external sources from the GROUP.
+   *
+   * @param perunSession
+   * @param group
+   * @param sources
+   * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
+   * @throws PrivilegeException
+   * @throws GroupNotExistsException
+   * @throws ExtSourceNotExistsException
+   * @throws ExtSourceNotAssignedException
+   */
+  void removeExtSources(PerunSession perunSession, Group group, List<ExtSource> sources)
+      throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceAlreadyRemovedException;
 }

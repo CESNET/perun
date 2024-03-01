@@ -1,7 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when the password could not be deleted because it's not reserved, it's in use or other various reasons
+ * This exception is thrown when the password could not be deleted because it's not reserved, it's in use or other
+ * various reasons
  *
  * @author Michal Prochazka
  */

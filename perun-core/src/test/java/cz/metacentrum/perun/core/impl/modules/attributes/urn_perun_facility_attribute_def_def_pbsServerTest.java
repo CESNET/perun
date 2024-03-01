@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -8,14 +11,10 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_facility_attribute_def_def_pbsServerTest {
 
@@ -44,23 +43,6 @@ public class urn_perun_facility_attribute_def_def_pbsServerTest {
         AttributesManager.NS_FACILITY_ATTR_CORE + ":name")).thenReturn(name);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsWithoutSameNameFacility() throws Exception {
-    System.out.println("testCheckAttributeSemanticsWithoutSameNameFacility()");
-    attributeToCheck.setValue("domain");
-    when(session.getPerunBl().getFacilitiesManagerBl().getFacilities(session)).thenReturn(new ArrayList<>());
-
-    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
-    System.out.println("testCheckAttributeSemanticsWithNullValue()");
-    attributeToCheck.setValue(null);
-
-    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-  }
-
   @Test
   public void testCheckAttributeSemanticsCorrect() throws Exception {
     System.out.println("testCheckAttributeSemanticsCorrect()");
@@ -71,5 +53,22 @@ public class urn_perun_facility_attribute_def_def_pbsServerTest {
         Collections.singletonList(facilityToReturn));
 
     classInstance.checkAttributeSyntax(session, facility, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithNullValue()");
+    attributeToCheck.setValue(null);
+
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithoutSameNameFacility() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithoutSameNameFacility()");
+    attributeToCheck.setValue("domain");
+    when(session.getPerunBl().getFacilitiesManagerBl().getFacilities(session)).thenReturn(new ArrayList<>());
+
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }
 }

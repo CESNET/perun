@@ -21,6 +21,47 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
   @Autowired
   private PerunNotifRegexDao perunNotifRegexDao;
 
+  @Override
+  public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) {
+
+    int newPerunNotifReceiverId = Utils.getNewId(this.getJdbcTemplate(), "pn_receiver_id_seq");
+
+    this.getJdbcTemplate()
+        .update("insert into pn_receiver (id, target, type_of_receiver, template_id, locale) values (?, ?, ?, ?, ?)",
+            newPerunNotifReceiverId, receiver.getTarget(), receiver.getTypeOfReceiver().getKey(),
+            receiver.getTemplateId(), receiver.getLocale());
+    receiver.setId(newPerunNotifReceiverId);
+
+    return receiver;
+  }
+
+  @Override
+  public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessages) {
+
+    int newPerunNotifTemplateMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_message_id_seq");
+    this.getJdbcTemplate()
+        .update("INSERT INTO pn_template_message(id, template_id, message, locale, subject) values(?,?,?,?,?)",
+            newPerunNotifTemplateMessageId, templateMessages.getTemplateId(), templateMessages.getMessage(),
+            templateMessages.getLocale().getLanguage(), templateMessages.getSubject());
+    templateMessages.setId(newPerunNotifTemplateMessageId);
+
+    return templateMessages;
+  }
+
+  @Override
+  public List<PerunNotifReceiver> getAllPerunNotifReceivers() {
+
+    List<PerunNotifReceiver> list =
+        this.getJdbcTemplate().query("select * from pn_receiver", PerunNotifReceiver.PERUN_NOTIF_RECEIVER);
+    return list;
+  }
+
+  @Override
+  public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages() {
+    return this.getJdbcTemplate()
+        .query("select * from pn_template_message", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER);
+  }
+
   public List<PerunNotifTemplate> getAllPerunNotifTemplates() {
 
     List<PerunNotifTemplate> result =
@@ -46,42 +87,6 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
   }
 
   @Override
-  public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessages) {
-
-    int newPerunNotifTemplateMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_message_id_seq");
-    this.getJdbcTemplate()
-        .update("INSERT INTO pn_template_message(id, template_id, message, locale, subject) values(?,?,?,?,?)",
-            newPerunNotifTemplateMessageId, templateMessages.getTemplateId(), templateMessages.getMessage(),
-            templateMessages.getLocale().getLanguage(), templateMessages.getSubject());
-    templateMessages.setId(newPerunNotifTemplateMessageId);
-
-    return templateMessages;
-  }
-
-  @Override
-  public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessage) {
-
-    this.getJdbcTemplate()
-        .update("update pn_template_message set template_id = ?, message = ?, locale = ?, subject = ? where id = ?",
-            templateMessage.getTemplateId(), templateMessage.getMessage(), templateMessage.getLocale().getLanguage(),
-            templateMessage.getSubject(), templateMessage.getId());
-
-    return getPerunNotifTemplateMessageById(templateMessage.getId());
-  }
-
-  @Override
-  public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) {
-
-    this.getJdbcTemplate().update(
-        "update pn_template set name = ?, notify_trigger = ?, oldest_message_time = ?, youngest_message_time=?, primary_properties=?, sender = ? where id = ?",
-        template.getName(), template.getNotifyTrigger().getKey(), template.getOldestMessageTime(),
-        template.getYoungestMessageTime(), template.getSerializedPrimaryProperties(), template.getSender(),
-        template.getId());
-
-    return getPerunNotifTemplateById(template.getId());
-  }
-
-  @Override
   public PerunNotifReceiver getPerunNotifReceiverById(int id) {
 
     try {
@@ -91,39 +96,6 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
     } catch (EmptyResultDataAccessException ex) {
       return null;
     }
-  }
-
-  @Override
-  public List<PerunNotifReceiver> getAllPerunNotifReceivers() {
-
-    List<PerunNotifReceiver> list =
-        this.getJdbcTemplate().query("select * from pn_receiver", PerunNotifReceiver.PERUN_NOTIF_RECEIVER);
-    return list;
-  }
-
-  @Override
-  public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) {
-
-    int newPerunNotifReceiverId = Utils.getNewId(this.getJdbcTemplate(), "pn_receiver_id_seq");
-
-    this.getJdbcTemplate()
-        .update("insert into pn_receiver (id, target, type_of_receiver, template_id, locale) values (?, ?, ?, ?, ?)",
-            newPerunNotifReceiverId, receiver.getTarget(), receiver.getTypeOfReceiver().getKey(),
-            receiver.getTemplateId(), receiver.getLocale());
-    receiver.setId(newPerunNotifReceiverId);
-
-    return receiver;
-  }
-
-  @Override
-  public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) {
-
-    this.getJdbcTemplate()
-        .update("update pn_receiver set target = ?, type_of_receiver = ?, template_id = ?, locale = ? where id = ?",
-            receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale(),
-            receiver.getId());
-
-    return getPerunNotifReceiverById(receiver.getId());
   }
 
   @Override
@@ -155,27 +127,6 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
   }
 
   @Override
-  public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) {
-
-    int newPerunNotifTemplateId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_id_seq");
-
-    this.getJdbcTemplate().update(
-        "insert into pn_template(id, name, primary_properties, notify_trigger, youngest_message_time, oldest_message_time, sender) values (?, ?, ?, ?, ?, ?, ?)",
-        newPerunNotifTemplateId, template.getName(), template.getSerializedPrimaryProperties(),
-        template.getNotifyTrigger().getKey(), template.getYoungestMessageTime(), template.getOldestMessageTime(),
-        template.getSender());
-    template.setId(newPerunNotifTemplateId);
-
-    return template;
-  }
-
-  @Override
-  public void removePerunNotifReceiverById(int id) {
-
-    this.getJdbcTemplate().update("delete from pn_receiver where id = ?", id);
-  }
-
-  @Override
   public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) {
 
     try {
@@ -187,15 +138,9 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
   }
 
   @Override
-  public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages() {
-    return this.getJdbcTemplate()
-        .query("select * from pn_template_message", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER);
-  }
+  public void removePerunNotifReceiverById(int id) {
 
-  @Override
-  public void removePerunNotifTemplateMessage(int id) {
-
-    this.getJdbcTemplate().update("delete from pn_template_message where id = ?", id);
+    this.getJdbcTemplate().update("delete from pn_receiver where id = ?", id);
   }
 
   @Override
@@ -211,6 +156,28 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
   }
 
   @Override
+  public void removePerunNotifTemplateMessage(int id) {
+
+    this.getJdbcTemplate().update("delete from pn_template_message where id = ?", id);
+  }
+
+  @Override
+  public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) {
+
+    int newPerunNotifTemplateId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_id_seq");
+
+    this.getJdbcTemplate().update(
+        "insert into pn_template(id, name, primary_properties, notify_trigger, youngest_message_time, " +
+        "oldest_message_time, sender) values (?, ?, ?, ?, ?, ?, ?)",
+        newPerunNotifTemplateId, template.getName(), template.getSerializedPrimaryProperties(),
+        template.getNotifyTrigger().getKey(), template.getYoungestMessageTime(), template.getOldestMessageTime(),
+        template.getSender());
+    template.setId(newPerunNotifTemplateId);
+
+    return template;
+  }
+
+  @Override
   public void saveTemplateRegexRelation(int templateId, Integer regexId) {
     if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
       //Relation exists
@@ -220,5 +187,40 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
       PerunNotifTemplate template = getPerunNotifTemplateById(templateId);
       template.addPerunNotifRegex(perunNotifRegexDao.getPerunNotifRegexById(regexId));
     }
+  }
+
+  @Override
+  public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) {
+
+    this.getJdbcTemplate()
+        .update("update pn_receiver set target = ?, type_of_receiver = ?, template_id = ?, locale = ? where id = ?",
+            receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale(),
+            receiver.getId());
+
+    return getPerunNotifReceiverById(receiver.getId());
+  }
+
+  @Override
+  public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) {
+
+    this.getJdbcTemplate().update(
+        "update pn_template set name = ?, notify_trigger = ?, oldest_message_time = ?, youngest_message_time=?, " +
+        "primary_properties=?, sender = ? where id = ?",
+        template.getName(), template.getNotifyTrigger().getKey(), template.getOldestMessageTime(),
+        template.getYoungestMessageTime(), template.getSerializedPrimaryProperties(), template.getSender(),
+        template.getId());
+
+    return getPerunNotifTemplateById(template.getId());
+  }
+
+  @Override
+  public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessage) {
+
+    this.getJdbcTemplate()
+        .update("update pn_template_message set template_id = ?, message = ?, locale = ?, subject = ? where id = ?",
+            templateMessage.getTemplateId(), templateMessage.getMessage(), templateMessage.getLocale().getLanguage(),
+            templateMessage.getSubject(), templateMessage.getId());
+
+    return getPerunNotifTemplateMessageById(templateMessage.getId());
   }
 }

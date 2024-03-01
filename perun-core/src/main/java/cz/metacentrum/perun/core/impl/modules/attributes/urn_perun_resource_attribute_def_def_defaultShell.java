@@ -26,39 +26,8 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
   private static final String A_R_shells = AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells";
 
   /**
-   * Fills the default shell at specified resource. If the facility contains
-   * no shells, the exception is thrown otherwise some shell is picked.
-   */
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute)
-      throws WrongAttributeAssignmentException {
-    Attribute atr = new Attribute(attribute);
-    Attribute resourceAttr;
-    try {
-      resourceAttr =
-          perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_shells);
-    } catch (AttributeNotExistsException ex) {
-      throw new InternalErrorException(
-          "Attribute with list of shells from resource " + resource.getId() + " could not obtained.", ex);
-    }
-
-    if (resourceAttr.getValue() == null) {
-      return atr;
-    } else {
-      List<String> shells = (List<String>) resourceAttr.getValue();
-
-      if (!shells.isEmpty()) {
-        atr.setValue(shells.get(0));
-        return atr;
-      } else {
-        return atr;
-      }
-    }
-  }
-
-  /**
-   * Checks the attribute with a default shell at the specified resource. The
-   * new default shell must be included at specified resource.
+   * Checks the attribute with a default shell at the specified resource. The new default shell must be included at
+   * specified resource.
    */
   @Override
   public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
@@ -88,11 +57,35 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
     }
   }
 
+  /**
+   * Fills the default shell at specified resource. If the facility contains no shells, the exception is thrown
+   * otherwise some shell is picked.
+   */
   @Override
-  public List<String> getDependencies() {
-    List<String> dependecies = new ArrayList<>();
-    dependecies.add(A_R_shells);
-    return dependecies;
+  public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException {
+    Attribute atr = new Attribute(attribute);
+    Attribute resourceAttr;
+    try {
+      resourceAttr =
+          perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_shells);
+    } catch (AttributeNotExistsException ex) {
+      throw new InternalErrorException(
+          "Attribute with list of shells from resource " + resource.getId() + " could not obtained.", ex);
+    }
+
+    if (resourceAttr.getValue() == null) {
+      return atr;
+    } else {
+      List<String> shells = (List<String>) resourceAttr.getValue();
+
+      if (!shells.isEmpty()) {
+        atr.setValue(shells.get(0));
+        return atr;
+      } else {
+        return atr;
+      }
+    }
   }
 
   @Override
@@ -104,5 +97,12 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
     attr.setType(String.class.getName());
     attr.setDescription("Default shell for all members on this resource.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    dependecies.add(A_R_shells);
+    return dependecies;
   }
 }

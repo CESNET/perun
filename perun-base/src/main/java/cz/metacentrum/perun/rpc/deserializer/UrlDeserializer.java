@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Deserializer for URL data format.
  * <p>
- * Reads parameters only from URL of request, which is typically GET.
- * Doesn't read any parameters from request body (InputStream)!
+ * Reads parameters only from URL of request, which is typically GET. Doesn't read any parameters from request body
+ * (InputStream)!
  *
  * @author Jan Klos <ddd@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -29,8 +29,8 @@ public class UrlDeserializer extends Deserializer {
   }
 
   /**
-   * Returns {@code true} if value with the specified name is supplied. Check ignores array suffix "[]".
-   * It means, that {@code true} is returned for both "name" and "name[]" parameters.
+   * Returns {@code true} if value with the specified name is supplied. Check ignores array suffix "[]". It means, that
+   * {@code true} is returned for both "name" and "name[]" parameters.
    *
    * @param name name of the value to check
    * @return {@code true} if value with the specified name is supplied, {@code false} otherwise
@@ -41,28 +41,38 @@ public class UrlDeserializer extends Deserializer {
   }
 
   @Override
-  public String readString(String name) {
-	  if (!contains(name)) {
-		  throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-	  }
+  public HttpServletRequest getServletRequest() {
+    return this.req;
+  }
 
-    return req.getParameter(name);
+  public String readAll() {
+    StringBuilder stringParams = new StringBuilder();
+    for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements(); ) {
+      String paramName = parameters.nextElement();
+      stringParams.append(paramName).append("=").append(req.getParameter(paramName)).append(",");
+    }
+    return stringParams.toString();
+  }
+
+  @Override
+  public int[] readArrayOfInts(String name) {
+    return readList(name, Integer.class).stream().mapToInt(i -> i).toArray();
   }
 
   @Override
   public Boolean readBoolean(String name) {
-	  if (!contains(name)) {
-		  throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-	  }
+    if (!contains(name)) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
 
     try {
       // check if parameter in URL isn't passed as number
       // if yes, conform JsonDeserializer implementation
       // => only 0 is considered FALSE, other numbers are TRUE
       int number = Integer.parseInt(req.getParameter(name));
-		if (number == 0) {
-			return false;
-		}
+      if (number == 0) {
+        return false;
+      }
       return true;
     } catch (NumberFormatException ex) {
       // parameter is passed in URL as a String
@@ -72,15 +82,10 @@ public class UrlDeserializer extends Deserializer {
   }
 
   @Override
-  public int[] readArrayOfInts(String name) {
-    return readList(name, Integer.class).stream().mapToInt(i -> i).toArray();
-  }
-
-  @Override
   public int readInt(String name) {
-	  if (!contains(name)) {
-		  throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-	  }
+    if (!contains(name)) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
 
     try {
       return Integer.parseInt(req.getParameter(name));
@@ -92,9 +97,9 @@ public class UrlDeserializer extends Deserializer {
   @Override
   public <T> List<T> readList(String name, Class<T> valueType) {
 
-	  if (!contains(name)) {
-		  throw new RpcException(RpcException.Type.MISSING_VALUE, name);
-	  }
+    if (!contains(name)) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
 
     List<T> list = new ArrayList<T>();
 
@@ -119,18 +124,13 @@ public class UrlDeserializer extends Deserializer {
     return list;
   }
 
-  public String readAll() {
-    StringBuilder stringParams = new StringBuilder();
-    for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements(); ) {
-      String paramName = parameters.nextElement();
-      stringParams.append(paramName).append("=").append(req.getParameter(paramName)).append(",");
-    }
-    return stringParams.toString();
-  }
-
   @Override
-  public HttpServletRequest getServletRequest() {
-    return this.req;
+  public String readString(String name) {
+    if (!contains(name)) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
+
+    return req.getParameter(name);
   }
 
 }

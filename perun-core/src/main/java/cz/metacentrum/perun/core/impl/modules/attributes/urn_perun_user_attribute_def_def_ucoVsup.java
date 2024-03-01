@@ -18,33 +18,12 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
 /**
- * Attribute module for generating unique UČO for every person in VŠUP.
- * When UCO is set, UserExtSource is added too.
+ * Attribute module for generating unique UČO for every person in VŠUP. When UCO is set, UserExtSource is added too.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModuleAbstract
     implements UserAttributesModuleImplApi {
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "UČO can't be null.");
-    }
-
-  }
-
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
-
-    Attribute attr = new Attribute(attribute);
-    int uco = Utils.getNewId(sess.getPerunBl().getDatabaseManagerBl().getJdbcPerunTemplate(), "vsup_uco_seq");
-    attr.setValue(uco);
-    return attr;
-
-  }
 
   /**
    * When UCO changes: add UserExtSource, since UCOs are generated in Perun.
@@ -80,6 +59,26 @@ public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModu
         }
       }
     }
+
+  }
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "UČO can't be null.");
+    }
+
+  }
+
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
+
+    Attribute attr = new Attribute(attribute);
+    int uco = Utils.getNewId(sess.getPerunBl().getDatabaseManagerBl().getJdbcPerunTemplate(), "vsup_uco_seq");
+    attr.setValue(uco);
+    return attr;
 
   }
 

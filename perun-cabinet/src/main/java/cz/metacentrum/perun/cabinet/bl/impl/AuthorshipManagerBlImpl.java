@@ -1,39 +1,36 @@
 package cz.metacentrum.perun.cabinet.bl.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import cz.metacentrum.perun.audit.events.AuthorshipManagementEvents.AuthorshipCreated;
 import cz.metacentrum.perun.audit.events.AuthorshipManagementEvents.AuthorshipDeleted;
+import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.PerunClient;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-
+import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.cabinet.dao.AuthorshipManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
-import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
-import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * Class for handling Authorship entity in Cabinet.
@@ -44,7 +41,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 
   private static final double DEFAULT_RANK = 1.0;
-  private static Logger log = LoggerFactory.getLogger(AuthorshipManagerBlImpl.class);
+  private static Logger LOG = LoggerFactory.getLogger(AuthorshipManagerBlImpl.class);
   private AuthorshipManagerDao authorshipManagerDao;
   private PublicationManagerBl publicationManagerBl;
   private CategoryManagerBl categoryManagerBl;
@@ -53,82 +50,6 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
   private PerunSession session;
 
   // setters ===========================================
-
-  @Autowired
-  public void setPerun(PerunBl perun) {
-    this.perun = perun;
-  }
-
-  public AuthorshipManagerDao getAuthorshipManagerDao() {
-    return authorshipManagerDao;
-  }
-
-  @Autowired
-  public void setAuthorshipManagerDao(AuthorshipManagerDao authorshipManagerDao) {
-    this.authorshipManagerDao = authorshipManagerDao;
-  }
-
-  public CategoryManagerBl getCategoryManagerBl() {
-    return categoryManagerBl;
-  }
-
-  @Autowired
-  public void setCategoryManagerBl(CategoryManagerBl categoryManagerBl) {
-    this.categoryManagerBl = categoryManagerBl;
-  }
-
-  public PublicationManagerBl getPublicationManagerBl() {
-    return publicationManagerBl;
-  }
-
-  @Autowired
-  public void setPublicationManagerBl(PublicationManagerBl publicationManagerBl) {
-    this.publicationManagerBl = publicationManagerBl;
-  }
-
-  public CabinetManagerBl getCabinetManagerBl() {
-    return cabinetManagerBl;
-  }
-
-  @Autowired
-  public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
-    this.cabinetManagerBl = cabinetManagerBl;
-  }
-
-  // business methods ===================================
-
-  @Override
-  public Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
-
-    if (authorshipExists(authorship)) {
-      throw new CabinetException(ErrorCodes.AUTHORSHIP_ALREADY_EXISTS);
-    }
-    if (authorship.getCreatedDate() == null) {
-      authorship.setCreatedDate(new Date());
-    }
-    if (authorship.getCreatedByUid() == 0) {
-      authorship.setCreatedByUid(sess.getPerunPrincipal().getUserId());
-    }
-    try {
-      getAuthorshipManagerDao().createAuthorship(sess, authorship);
-    } catch (DataIntegrityViolationException e) {
-      throw new CabinetException(ErrorCodes.USER_NOT_EXISTS, e);
-    }
-    log.debug("{} created.", authorship);
-
-    synchronized (CabinetManagerBlImpl.class) {
-      getCabinetManagerBl().updatePriorityCoefficient(sess, authorship.getUserId(),
-          calculateNewRank(authorship.getUserId()));
-    }
-    synchronized (ThanksManagerBlImpl.class) {
-      getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
-    }
-
-    // log
-    perun.getAuditer().log(sess, new AuthorshipCreated(authorship));
-    return authorship;
-
-  }
 
   @Override
   public boolean authorshipExists(Authorship authorship) {
@@ -157,45 +78,6 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
   }
 
   @Override
-  public void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
-
-    getAuthorshipManagerDao().deleteAuthorship(sess, authorship);
-    log.debug("{} deleted.", authorship);
-
-    int userId = authorship.getUserId();
-
-    synchronized (CabinetManagerBlImpl.class) {
-      getCabinetManagerBl().updatePriorityCoefficient(sess, userId, calculateNewRank(userId));
-    }
-    synchronized (ThanksManagerBlImpl.class) {
-      getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
-    }
-
-    perun.getAuditer().log(sess, new AuthorshipDeleted(authorship));
-
-  }
-
-  @Override
-  public Authorship getAuthorshipById(int id) throws CabinetException {
-    return getAuthorshipManagerDao().getAuthorshipById(id);
-  }
-
-  @Override
-  public List<Authorship> getAuthorshipsByUserId(int id) {
-    return getAuthorshipManagerDao().getAuthorshipsByUserId(id);
-  }
-
-  @Override
-  public List<Authorship> getAuthorshipsByPublicationId(int id) {
-    return getAuthorshipManagerDao().getAuthorshipsByPublicationId(id);
-  }
-
-  @Override
-  public Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException {
-    return getAuthorshipManagerDao().getAuthorshipByUserAndPublicationId(userId, publicationId);
-  }
-
-  @Override
   public double calculateNewRank(int userId) throws CabinetException {
     List<Authorship> reports = getAuthorshipsByUserId(userId);
     return calculateNewRank(reports);
@@ -215,37 +97,82 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 
   }
 
-  @Override
-  public Author getAuthorById(int id) throws CabinetException {
-    return convertAuthorToAuthorWithAttributes(getAuthorshipManagerDao().getAuthorById(id));
+  private Author convertAuthorToAuthorWithAttributes(Author author) {
+    try {
+      if (session == null) {
+        session = perun.getPerunSession(new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+            ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
+      }
+      User user = perun.getUsersManagerBl().getUserById(session, author.getId());
+      Attribute a = perun.getAttributesManagerBl()
+          .getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+      Attribute b = perun.getAttributesManagerBl()
+          .getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
+      author.setAttributes(Arrays.asList(a, b));
+    } catch (Exception ex) {
+      LOG.error("Unable to get attributes for {}: {}", author, ex);
+    }
+    return author;
+  }
+
+  private List<Author> convertAuthorsToAuthorsWithAttributes(List<Author> authors) {
+    List<Author> result = new ArrayList<>();
+    for (Author author : authors) {
+      result.add(convertAuthorToAuthorWithAttributes(author));
+    }
+    return result;
   }
 
   @Override
-  public List<Author> getAllAuthors() {
-    return convertAuthorsToAuthorsWithAttributes(getAuthorshipManagerDao().getAllAuthors());
-  }
+  public Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
 
-  @Override
-  public List<Author> getAuthorsByPublicationId(int id) {
-    return convertAuthorsToAuthorsWithAttributes(getAuthorshipManagerDao().getAuthorsByPublicationId(id));
-  }
+    if (authorshipExists(authorship)) {
+      throw new CabinetException(ErrorCodes.AUTHORSHIP_ALREADY_EXISTS);
+    }
+    if (authorship.getCreatedDate() == null) {
+      authorship.setCreatedDate(new Date());
+    }
+    if (authorship.getCreatedByUid() == 0) {
+      authorship.setCreatedByUid(sess.getPerunPrincipal().getUserId());
+    }
+    try {
+      getAuthorshipManagerDao().createAuthorship(sess, authorship);
+    } catch (DataIntegrityViolationException e) {
+      throw new CabinetException(ErrorCodes.USER_NOT_EXISTS, e);
+    }
+    LOG.debug("{} created.", authorship);
 
-  @Override
-  public List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException {
-    List<Author> result = new ArrayList<Author>();
-
-    Authorship report = getAuthorshipManagerDao().getAuthorshipById(id);
-    if (report == null) {
-      throw new CabinetException("Authorship with ID: " + id + " doesn't exists!", ErrorCodes.AUTHORSHIP_NOT_EXISTS);
+    synchronized (CabinetManagerBlImpl.class) {
+      getCabinetManagerBl().updatePriorityCoefficient(sess, authorship.getUserId(),
+          calculateNewRank(authorship.getUserId()));
+    }
+    synchronized (ThanksManagerBlImpl.class) {
+      getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
     }
 
-    List<Authorship> publicationReports =
-        getAuthorshipManagerDao().getAuthorshipsByPublicationId(report.getPublicationId());
+    // log
+    perun.getAuditer().log(sess, new AuthorshipCreated(authorship));
+    return authorship;
 
-    for (Authorship r : publicationReports) {
-      result.add(getAuthorshipManagerDao().getAuthorById(r.getUserId()));
+  }
+
+  @Override
+  public void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
+
+    getAuthorshipManagerDao().deleteAuthorship(sess, authorship);
+    LOG.debug("{} deleted.", authorship);
+
+    int userId = authorship.getUserId();
+
+    synchronized (CabinetManagerBlImpl.class) {
+      getCabinetManagerBl().updatePriorityCoefficient(sess, userId, calculateNewRank(userId));
     }
-    return convertAuthorsToAuthorsWithAttributes(result);
+    synchronized (ThanksManagerBlImpl.class) {
+      getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
+    }
+
+    perun.getAuditer().log(sess, new AuthorshipDeleted(authorship));
+
   }
 
   @Override
@@ -284,36 +211,106 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
         authors.add(author);
       }
     } catch (UserNotExistsException e) {
-      log.error("Shouldn't really happen.");
+      LOG.error("Shouldn't really happen.");
     }
     return authors;
 
   }
 
-  private List<Author> convertAuthorsToAuthorsWithAttributes(List<Author> authors) {
-    List<Author> result = new ArrayList<>();
-    for (Author author : authors) {
-      result.add(convertAuthorToAuthorWithAttributes(author));
-    }
-    return result;
+  @Override
+  public List<Author> getAllAuthors() {
+    return convertAuthorsToAuthorsWithAttributes(getAuthorshipManagerDao().getAllAuthors());
   }
 
-  private Author convertAuthorToAuthorWithAttributes(Author author) {
-    try {
-      if (session == null) {
-        session = perun.getPerunSession(new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-            ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
-      }
-      User user = perun.getUsersManagerBl().getUserById(session, author.getId());
-      Attribute a = perun.getAttributesManagerBl()
-          .getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
-      Attribute b = perun.getAttributesManagerBl()
-          .getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
-      author.setAttributes(Arrays.asList(a, b));
-    } catch (Exception ex) {
-      log.error("Unable to get attributes for {}: {}", author, ex);
+  // business methods ===================================
+
+  @Override
+  public Author getAuthorById(int id) throws CabinetException {
+    return convertAuthorToAuthorWithAttributes(getAuthorshipManagerDao().getAuthorById(id));
+  }
+
+  @Override
+  public List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException {
+    List<Author> result = new ArrayList<Author>();
+
+    Authorship report = getAuthorshipManagerDao().getAuthorshipById(id);
+    if (report == null) {
+      throw new CabinetException("Authorship with ID: " + id + " doesn't exists!", ErrorCodes.AUTHORSHIP_NOT_EXISTS);
     }
-    return author;
+
+    List<Authorship> publicationReports =
+        getAuthorshipManagerDao().getAuthorshipsByPublicationId(report.getPublicationId());
+
+    for (Authorship r : publicationReports) {
+      result.add(getAuthorshipManagerDao().getAuthorById(r.getUserId()));
+    }
+    return convertAuthorsToAuthorsWithAttributes(result);
+  }
+
+  @Override
+  public List<Author> getAuthorsByPublicationId(int id) {
+    return convertAuthorsToAuthorsWithAttributes(getAuthorshipManagerDao().getAuthorsByPublicationId(id));
+  }
+
+  @Override
+  public Authorship getAuthorshipById(int id) throws CabinetException {
+    return getAuthorshipManagerDao().getAuthorshipById(id);
+  }
+
+  @Override
+  public Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException {
+    return getAuthorshipManagerDao().getAuthorshipByUserAndPublicationId(userId, publicationId);
+  }
+
+  public AuthorshipManagerDao getAuthorshipManagerDao() {
+    return authorshipManagerDao;
+  }
+
+  @Override
+  public List<Authorship> getAuthorshipsByPublicationId(int id) {
+    return getAuthorshipManagerDao().getAuthorshipsByPublicationId(id);
+  }
+
+  @Override
+  public List<Authorship> getAuthorshipsByUserId(int id) {
+    return getAuthorshipManagerDao().getAuthorshipsByUserId(id);
+  }
+
+  public CabinetManagerBl getCabinetManagerBl() {
+    return cabinetManagerBl;
+  }
+
+  public CategoryManagerBl getCategoryManagerBl() {
+    return categoryManagerBl;
+  }
+
+  public PublicationManagerBl getPublicationManagerBl() {
+    return publicationManagerBl;
+  }
+
+  @Autowired
+  public void setAuthorshipManagerDao(AuthorshipManagerDao authorshipManagerDao) {
+    this.authorshipManagerDao = authorshipManagerDao;
+  }
+
+  @Autowired
+  public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+    this.cabinetManagerBl = cabinetManagerBl;
+  }
+
+  @Autowired
+  public void setCategoryManagerBl(CategoryManagerBl categoryManagerBl) {
+    this.categoryManagerBl = categoryManagerBl;
+  }
+
+  @Autowired
+  public void setPerun(PerunBl perun) {
+    this.perun = perun;
+  }
+
+  @Autowired
+  public void setPublicationManagerBl(PublicationManagerBl publicationManagerBl) {
+    this.publicationManagerBl = publicationManagerBl;
   }
 
 }

@@ -16,12 +16,41 @@ public class EnrichedIdentity {
   private String email;
   private List<EnrichedExtSource> identities;
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnrichedIdentity that = (EnrichedIdentity) o;
+    return id == that.id && Objects.equals(name, that.name) && Objects.equals(organization, that.organization) &&
+           Objects.equals(email, that.email) && Objects.equals(identities, that.identities);
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
   public int getId() {
     return id;
   }
 
   public void setId(int id) {
     this.id = id;
+  }
+
+  public List<EnrichedExtSource> getIdentities() {
+    return identities;
+  }
+
+  public void setIdentities(List<EnrichedExtSource> identities) {
+    this.identities = identities;
   }
 
   public String getName() {
@@ -40,35 +69,6 @@ public class EnrichedIdentity {
     this.organization = organization;
   }
 
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public List<EnrichedExtSource> getIdentities() {
-    return identities;
-  }
-
-  public void setIdentities(List<EnrichedExtSource> identities) {
-    this.identities = identities;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    EnrichedIdentity that = (EnrichedIdentity) o;
-    return id == that.id && Objects.equals(name, that.name) && Objects.equals(organization, that.organization) &&
-        Objects.equals(email, that.email) && Objects.equals(identities, that.identities);
-  }
-
   @Override
   public int hashCode() {
     return Objects.hash(id, name, organization, email, identities);
@@ -76,12 +76,7 @@ public class EnrichedIdentity {
 
   @Override
   public String toString() {
-    return "EnrichedIdentity{" +
-        "id=" + id +
-        ", name='" + name + '\'' +
-        ", organization='" + organization + '\'' +
-        ", email='" + email + '\'' +
-        ", identities=" + identities +
-        '}';
+    return "EnrichedIdentity{" + "id=" + id + ", name='" + name + '\'' + ", organization='" + organization + '\'' +
+           ", email='" + email + '\'' + ", identities=" + identities + '}';
   }
 }

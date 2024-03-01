@@ -1,15 +1,15 @@
 package cz.metacentrum.perun.cabinet.strategy;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 /**
  * Integration tests for retrieving publications using different strategies.
@@ -17,6 +17,26 @@ import static org.junit.Assert.fail;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegrationTest {
+
+  @Test
+  public void contactPublicationSystemEuropePMCTest() throws Exception {
+    System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemEuropePMCTest");
+
+    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("europepmc");
+    assertNotNull(publicationSystem);
+
+    PublicationSystemStrategy prezentator =
+        (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+    assertNotNull(prezentator);
+
+    String authorId = "0000-0002- 1767-9318";
+    int yearSince = 2017;
+    int yearTill = 0;
+    HttpResponse result =
+        prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
+    assertNotNull(result);
+
+  }
 
   @Test
   public void contactPublicationSystemMUTest() throws Exception {
@@ -70,26 +90,6 @@ public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegra
         System.out.println("-- Test silently skipped because of HTTP_IO_EXCEPTION");
       }
     }
-
-  }
-
-  @Test
-  public void contactPublicationSystemEuropePMCTest() throws Exception {
-    System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemEuropePMCTest");
-
-    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("europepmc");
-    assertNotNull(publicationSystem);
-
-    PublicationSystemStrategy prezentator =
-        (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-    assertNotNull(prezentator);
-
-    String authorId = "0000-0002- 1767-9318";
-    int yearSince = 2017;
-    int yearTill = 0;
-    HttpResponse result =
-        prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
-    assertNotNull(result);
 
   }
 

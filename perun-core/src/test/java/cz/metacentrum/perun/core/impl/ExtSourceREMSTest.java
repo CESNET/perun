@@ -1,14 +1,17 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,16 +21,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import javax.sql.DataSource;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * @author Metodej Klang
@@ -38,15 +36,6 @@ public class ExtSourceREMSTest extends AbstractPerunIntegrationTest {
   private static ExtSourceREMS extSourceREMS;
 
   private static PerunBlImpl perunBl;
-
-  @Before
-  public void setUp() throws Exception {
-    extSourceREMS = new ExtSourceREMS();
-    perunBl = mock(PerunBlImpl.class, RETURNS_DEEP_STUBS);
-
-    MockitoAnnotations.initMocks(this);
-    extSourceREMS.setPerunBl(perunBl);
-  }
 
   @Test
   public void getUsersSubjectsTest() throws Exception {
@@ -91,5 +80,14 @@ public class ExtSourceREMSTest extends AbstractPerunIntegrationTest {
     // test the method
     List<Map<String, String>> actualSubjects = extSourceREMS.getUsersSubjects();
     assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    extSourceREMS = new ExtSourceREMS();
+    perunBl = mock(PerunBlImpl.class, RETURNS_DEEP_STUBS);
+
+    MockitoAnnotations.initMocks(this);
+    extSourceREMS.setPerunBl(perunBl);
   }
 }

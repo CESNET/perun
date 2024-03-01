@@ -56,59 +56,6 @@ public class PerunNotifTemplateMessage {
    */
   private String subject;
 
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public int getTemplateId() {
-    return templateId;
-  }
-
-  public void setTemplateId(int templateId) {
-    this.templateId = templateId;
-  }
-
-  public Locale getLocale() {
-    return locale;
-  }
-
-  public void setLocale(Locale locale) {
-    this.locale = locale;
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public String getSubject() {
-    return subject;
-  }
-
-  public void setSubject(String subject) {
-    this.subject = subject;
-  }
-
-  public void update(PerunNotifTemplateMessage messageFromDb) {
-
-    this.setLocale(messageFromDb.getLocale());
-    this.setMessage(messageFromDb.getMessage());
-    this.setSubject(messageFromDb.getSubject());
-  }
-
-  @Override
-  public String toString() {
-    return "id: " + getId() + " template id: " + getTemplateId() + " locale: " + getLocale().getLanguage()
-        + " message: " + getMessage() + " subject: " + getSubject();
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -126,6 +73,26 @@ public class PerunNotifTemplateMessage {
     return true;
   }
 
+  public int getId() {
+    return id;
+  }
+
+  public Locale getLocale() {
+    return locale;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public String getSubject() {
+    return subject;
+  }
+
+  public int getTemplateId() {
+    return templateId;
+  }
+
   @Override
   public int hashCode() {
     int result = id;
@@ -134,5 +101,38 @@ public class PerunNotifTemplateMessage {
     result = 31 * result + (message != null ? message.hashCode() : 0);
     result = 31 * result + (locale != null ? locale.hashCode() : 0);
     return result;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public void setSubject(String subject) {
+    this.subject = subject;
+  }
+
+  public void setTemplateId(int templateId) {
+    this.templateId = templateId;
+  }
+
+  @Override
+  public String toString() {
+    return "id: " + getId() + " template id: " + getTemplateId() + " locale: " + getLocale().getLanguage() +
+           " message: " + getMessage() + " subject: " + getSubject();
+  }
+
+  public void update(PerunNotifTemplateMessage messageFromDb) {
+
+    this.setLocale(messageFromDb.getLocale());
+    this.setMessage(messageFromDb.getMessage());
+    this.setSubject(messageFromDb.getSubject());
   }
 }

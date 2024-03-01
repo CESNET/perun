@@ -21,17 +21,17 @@ public class ExtSourceAddedToVo extends AuditEvent implements EngineIgnoreEvent 
     this.message = formatMessage("%s added to %s.", source, vo);
   }
 
+  @Override
+  public String getMessage() {
+    return message;
+  }
+
   public ExtSource getSource() {
     return source;
   }
 
   public Vo getVo() {
     return vo;
-  }
-
-  @Override
-  public String getMessage() {
-    return message;
   }
 
   @Override

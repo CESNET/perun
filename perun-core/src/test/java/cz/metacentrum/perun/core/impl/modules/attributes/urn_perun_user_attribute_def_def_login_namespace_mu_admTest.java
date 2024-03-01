@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -14,9 +17,6 @@ import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_user_attribute_def_def_login_namespace_mu_admTest {
   private static urn_perun_user_attribute_def_def_login_namespace_mu_adm classInstance;

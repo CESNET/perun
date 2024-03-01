@@ -2,7 +2,6 @@ package cz.metacentrum.perun.scim.api.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.Date;
 
 /**
@@ -41,46 +40,6 @@ public class Meta {
   public Meta() {
   }
 
-  public String getResourceType() {
-    return resourceType;
-  }
-
-  public void setResourceType(String resourceType) {
-    this.resourceType = resourceType;
-  }
-
-  public Date getCreated() {
-    return created;
-  }
-
-  public void setCreated(Date created) {
-    this.created = created;
-  }
-
-  public Date getLastModified() {
-    return lastModified;
-  }
-
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  public String getLocation() {
-    return location;
-  }
-
-  public void setLocation(String location) {
-    this.location = location;
-  }
-
-  public String getVersion() {
-    return version;
-  }
-
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -110,6 +69,26 @@ public class Meta {
 
   }
 
+  public Date getCreated() {
+    return created;
+  }
+
+  public Date getLastModified() {
+    return lastModified;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public String getResourceType() {
+    return resourceType;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
   @Override
   public int hashCode() {
     int result = getResourceType() != null ? getResourceType().hashCode() : 0;
@@ -120,14 +99,29 @@ public class Meta {
     return result;
   }
 
+  public void setCreated(Date created) {
+    this.created = created;
+  }
+
+  public void setLastModified(Date lastModified) {
+    this.lastModified = lastModified;
+  }
+
+  public void setLocation(String location) {
+    this.location = location;
+  }
+
+  public void setResourceType(String resourceType) {
+    this.resourceType = resourceType;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
   @Override
   public String toString() {
-    return "Meta{" +
-        "resourceType='" + resourceType + '\'' +
-        ", created=" + created +
-        ", lastModified=" + lastModified +
-        ", location='" + location + '\'' +
-        ", version='" + version + '\'' +
-        '}';
+    return "Meta{" + "resourceType='" + resourceType + '\'' + ", created=" + created + ", lastModified=" +
+           lastModified + ", location='" + location + '\'' + ", version='" + version + '\'' + '}';
   }
 }

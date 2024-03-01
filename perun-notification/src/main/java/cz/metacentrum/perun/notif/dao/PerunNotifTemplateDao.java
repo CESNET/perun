@@ -14,19 +14,42 @@ import java.util.List;
 public interface PerunNotifTemplateDao {
 
   /**
+   * Saves perunNotifReceiver
+   *
+   * @param receiver
+   * @return perunNotifReceiver with new id set
+   */
+  public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver);
+
+  /**
+   * Save perunNotifTemplateMessage to db
+   *
+   * @param message
+   * @return perunNotifTemplateMessage with new id set
+   */
+  public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message);
+
+  /**
+   * Returns all PerunNotifReceivers from db.
+   *
+   * @return list of all PerunNotifReceivers or null (when no receiver with id was found)
+   */
+  public List<PerunNotifReceiver> getAllPerunNotifReceivers();
+
+  /**
+   * Returns all PerunNotifTemplateMessages.
+   *
+   * @return list of all PerunNotifTemplateMessages
+   */
+  public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages();
+
+
+  /**
    * Gets all templates from db.
    *
    * @return
    */
   public List<PerunNotifTemplate> getAllPerunNotifTemplates();
-
-  /**
-   * Updates only data of template
-   *
-   * @param template
-   * @return
-   */
-  public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template);
 
   /**
    * Gets receiver by id
@@ -38,32 +61,6 @@ public interface PerunNotifTemplateDao {
   public PerunNotifReceiver getPerunNotifReceiverById(int id);
 
   /**
-   * Returns all PerunNotifReceivers from db.
-   *
-   * @return list of all PerunNotifReceivers or null (when no receiver with id was found)
-   */
-  public List<PerunNotifReceiver> getAllPerunNotifReceivers();
-
-  ;
-
-  /**
-   * Saves perunNotifReceiver
-   *
-   * @param receiver
-   * @return perunNotifReceiver with new id set
-   */
-  public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver);
-
-  /**
-   * Updates perunNotifReceiver
-   *
-   * @param receiver
-   * @return
-   * @throws InternalErrorException
-   */
-  public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver);
-
-  /**
    * Gets perunNotifTemplate by id from db
    *
    * @param id
@@ -71,6 +68,36 @@ public interface PerunNotifTemplateDao {
    * @throws InternalErrorException
    */
   public PerunNotifTemplate getPerunNotifTemplateById(int id);
+
+  /**
+   * get perunNotifTemplateMessage from db by id
+   *
+   * @param id
+   * @return template message of null (when message with id was not found)
+   */
+  public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id);
+
+  /**
+   * Removes perunNotifReceiver by id
+   *
+   * @param id
+   * @throws InternalErrorException
+   */
+  public void removePerunNotifReceiverById(int id);
+
+  /**
+   * Removes template by id
+   *
+   * @param id
+   */
+  public void removePerunNotifTemplateById(int id);
+
+  /**
+   * Remove perunNotifTemplateMessage from db
+   *
+   * @param id
+   */
+  public void removePerunNotifTemplateMessage(int id);
 
   /**
    * Saves data about transaction to db, not dependencies
@@ -82,35 +109,29 @@ public interface PerunNotifTemplateDao {
   public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template);
 
   /**
-   * Removes perunNotifReceiver by id
+   * Stores relation between template and regex to db
    *
-   * @param id
+   * @param templateId
+   * @param regexId
+   */
+  public void saveTemplateRegexRelation(int templateId, Integer regexId);
+
+  /**
+   * Updates perunNotifReceiver
+   *
+   * @param receiver
+   * @return
    * @throws InternalErrorException
    */
-  public void removePerunNotifReceiverById(int id);
+  public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver);
 
   /**
-   * get perunNotifTemplateMessage from db by id
+   * Updates only data of template
    *
-   * @param id
-   * @return template message of null (when message with id was not found)
+   * @param template
+   * @return
    */
-  public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id);
-
-  /**
-   * Returns all PerunNotifTemplateMessages.
-   *
-   * @return list of all PerunNotifTemplateMessages
-   */
-  public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages();
-
-  /**
-   * Save perunNotifTemplateMessage to db
-   *
-   * @param message
-   * @return perunNotifTemplateMessage with new id set
-   */
-  public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message);
+  public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template);
 
   /**
    * Update perunNotifTemplateMessage in db
@@ -119,26 +140,4 @@ public interface PerunNotifTemplateDao {
    * @return
    */
   public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message);
-
-  /**
-   * Remove perunNotifTemplateMessage from db
-   *
-   * @param id
-   */
-  public void removePerunNotifTemplateMessage(int id);
-
-  /**
-   * Removes template by id
-   *
-   * @param id
-   */
-  public void removePerunNotifTemplateById(int id);
-
-  /**
-   * Stores relation between template and regex to db
-   *
-   * @param templateId
-   * @param regexId
-   */
-  public void saveTemplateRegexRelation(int templateId, Integer regexId);
 }

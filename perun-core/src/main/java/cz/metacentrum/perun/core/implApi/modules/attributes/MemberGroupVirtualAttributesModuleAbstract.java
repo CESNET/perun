@@ -5,19 +5,16 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Abstract class for Member Group Virtual Attributes modules.
- * Implements methods for modules to perform default function.
- * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
+ * Abstract class for Member Group Virtual Attributes modules. Implements methods for modules to perform default
+ * function. In the function that the method in the module does nothing, it is not necessary to implement it, simply
+ * extend this abstract class.
  * <p>
- * author: Oliver Mrazik
- * version: 2015-04-16
+ * author: Oliver Mrazik version: 2015-04-16
  */
 public abstract class MemberGroupVirtualAttributesModuleAbstract extends MemberGroupAttributesModuleAbstract
     implements MemberGroupVirtualAttributesModuleImplApi {
@@ -28,8 +25,9 @@ public abstract class MemberGroupVirtualAttributesModuleAbstract extends MemberG
   }
 
   @Override
-  public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) {
-    return false;
+  public List<String> getStrongDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    return dependecies;
   }
 
   @Override
@@ -44,8 +42,7 @@ public abstract class MemberGroupVirtualAttributesModuleAbstract extends MemberG
   }
 
   @Override
-  public List<String> getStrongDependencies() {
-    List<String> dependecies = new ArrayList<>();
-    return dependecies;
+  public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) {
+    return false;
   }
 }

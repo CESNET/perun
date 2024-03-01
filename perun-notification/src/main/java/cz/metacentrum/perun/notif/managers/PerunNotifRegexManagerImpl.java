@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 
-  private static final Logger logger = LoggerFactory.getLogger(PerunNotifRegexManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PerunNotifRegexManager.class);
   @Autowired
   private PerunNotifRegexDao perunNotifRegexDao;
   @Autowired
@@ -36,14 +36,47 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
   private Set<PerunNotifRegex> allRegex = null;
   private Set<PerunNotifObject> allObjects = null;
 
-  @PostConstruct
-  private void init() {
+  @Override
+  public void addObjectToCache(PerunNotifObject object) {
+    if (!allObjects.add(object)) {
+      //Object is already in set
+      for (PerunNotifObject cacheObject : allObjects) {
+        if (cacheObject.getId().equals(object.getId())) {
+          cacheObject.update(object);
+          return;
+        }
+      }
+    }
+  }
 
-    allRegex = Collections.synchronizedSet(new HashSet<PerunNotifRegex>());
-    allRegex.addAll(perunNotifRegexDao.getAll());
+  @Override
+  public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws NotifRegexAlreadyExistsException {
 
-    allObjects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
-    allObjects.addAll(perunNotifObjectDao.getAll());
+    // check if there is no other Notif regex with the same regular expression
+    for (PerunNotifRegex item : getAllPerunNotifRegexes()) {
+      if (item.getRegex().equals(regex.getRegex())) {
+        throw new NotifRegexAlreadyExistsException(regex);
+      }
+    }
+
+    PerunNotifRegex perunNotifRegex = perunNotifRegexDao.saveInternals(regex);
+
+    for (PerunNotifObject object : regex.getObjects()) {
+      if (object.getId() == null) {
+        throw new NotExistsException("Object does not exists.");
+      }
+
+      perunNotifObjectDao.saveObjectRelation(regex.getId(), object.getId());
+    }
+
+    allRegex.add(regex);
+
+    return perunNotifRegex;
+  }
+
+  @Override
+  public List<PerunNotifRegex> getAllPerunNotifRegexes() {
+    return perunNotifRegexDao.getAll();
   }
 
   @Override
@@ -87,33 +120,96 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
   }
 
   @Override
-  public List<PerunNotifRegex> getAllPerunNotifRegexes() {
-    return perunNotifRegexDao.getAll();
+  public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId) {
+    return new ArrayList<>(perunNotifRegexDao.getPerunNotifRegexForTemplateId(templateId));
+  }
+
+  @PostConstruct
+  private void init() {
+
+    allRegex = Collections.synchronizedSet(new HashSet<PerunNotifRegex>());
+    allRegex.addAll(perunNotifRegexDao.getAll());
+
+    allObjects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
+    allObjects.addAll(perunNotifObjectDao.getAll());
   }
 
   @Override
-  public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws NotifRegexAlreadyExistsException {
+  public void removePerunNotifObjectFromCache(PerunNotifObject objectToRemove) {
 
-    // check if there is no other Notif regex with the same regular expression
-    for (PerunNotifRegex item : getAllPerunNotifRegexes()) {
-      if (item.getRegex().equals(regex.getRegex())) {
-        throw new NotifRegexAlreadyExistsException(regex);
+    boolean removed = false;
+    for (Iterator<PerunNotifObject> iter = allObjects.iterator(); iter.hasNext(); ) {
+      PerunNotifObject objectFromCache = iter.next();
+      if (objectFromCache.getId().equals(objectToRemove.getId())) {
+        iter.remove();
+        removed = true;
       }
     }
-
-    PerunNotifRegex perunNotifRegex = perunNotifRegexDao.saveInternals(regex);
-
-    for (PerunNotifObject object : regex.getObjects()) {
-      if (object.getId() == null) {
-        throw new NotExistsException("Object does not exists.");
-      }
-
-      perunNotifObjectDao.saveObjectRelation(regex.getId(), object.getId());
+    if (!removed) {
+      LOGGER.warn("Remove of object from cache failed. Object is not in cache. ID: {}", objectToRemove.getId());
     }
 
-    allRegex.add(regex);
+    for (PerunNotifRegex regex : allRegex) {
+      Set<PerunNotifObject> regexObjects = regex.getObjects();
+      if (regexObjects.contains(objectToRemove)) {
+        regexObjects.remove(objectToRemove);
+      }
+    }
+  }
 
-    return perunNotifRegex;
+  @Override
+  public void removePerunNotifRegexById(int id) throws PerunNotifRegexUsedException {
+
+    PerunNotifRegex regex = getPerunNotifRegexById(id);
+    if (regex == null) {
+      throw new NotExistsException("Regex does not exists in db");
+    }
+
+    List<Integer> referencedTemplates = perunNotifRegexDao.getTemplateIdsForRegexId(id);
+    if (referencedTemplates != null && !referencedTemplates.isEmpty()) {
+      throw new PerunNotifRegexUsedException("Regex is still used.", referencedTemplates);
+    }
+
+    perunNotifRegexDao.removePerunNotifRegexById(id);
+
+    allRegex.remove(regex);
+  }
+
+  @Override
+  public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) {
+
+    if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
+      perunNotifRegexDao.removePerunNotifTemplateRegexRelation(templateId, regexId);
+      PerunNotifTemplate template = perunNotifTemplateManager.getPerunNotifTemplateById(templateId);
+      template.getMatchingRegexs().remove(getPerunNotifRegexById(regexId));
+      perunNotifTemplateManager.removeTemplateFromRegex(regexId, templateId);
+    } else {
+      throw new InternalErrorException("Template - Regex relation cannot be removed, because does not exist.");
+    }
+  }
+
+  @Override
+  public void saveTemplateRegexRelation(int templateId, Integer regexId) {
+
+    if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
+      //Relation exists
+      return;
+    } else {
+      perunNotifRegexDao.saveTemplateRegexRelation(templateId, regexId);
+      PerunNotifTemplate template = perunNotifTemplateManager.getPerunNotifTemplateById(templateId);
+      template.addPerunNotifRegex(getPerunNotifRegexById(regexId));
+      perunNotifTemplateManager.assignTemplateToRegex(regexId, template);
+    }
+  }
+
+  @Override
+  public void updateObjectInCache(PerunNotifObject object) {
+
+    for (PerunNotifObject oldObject : allObjects) {
+      if (oldObject.getId().equals(object.getId())) {
+        oldObject.update(object);
+      }
+    }
   }
 
   public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex regex) {
@@ -146,103 +242,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
       }
     }
 
-    logger.warn("Updating regex in cache failed. Regex not found in cache id: {}", updatedRegex.getId());
+    LOGGER.warn("Updating regex in cache failed. Regex not found in cache id: {}", updatedRegex.getId());
     return updatedRegex;
-  }
-
-  @Override
-  public void removePerunNotifRegexById(int id) throws PerunNotifRegexUsedException {
-
-    PerunNotifRegex regex = getPerunNotifRegexById(id);
-    if (regex == null) {
-      throw new NotExistsException("Regex does not exists in db");
-    }
-
-    List<Integer> referencedTemplates = perunNotifRegexDao.getTemplateIdsForRegexId(id);
-    if (referencedTemplates != null && !referencedTemplates.isEmpty()) {
-      throw new PerunNotifRegexUsedException("Regex is still used.", referencedTemplates);
-    }
-
-    perunNotifRegexDao.removePerunNotifRegexById(id);
-
-    allRegex.remove(regex);
-  }
-
-  @Override
-  public void saveTemplateRegexRelation(int templateId, Integer regexId) {
-
-    if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
-      //Relation exists
-      return;
-    } else {
-      perunNotifRegexDao.saveTemplateRegexRelation(templateId, regexId);
-      PerunNotifTemplate template = perunNotifTemplateManager.getPerunNotifTemplateById(templateId);
-      template.addPerunNotifRegex(getPerunNotifRegexById(regexId));
-      perunNotifTemplateManager.assignTemplateToRegex(regexId, template);
-    }
-  }
-
-  @Override
-  public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId) {
-    return new ArrayList<>(perunNotifRegexDao.getPerunNotifRegexForTemplateId(templateId));
-  }
-
-  @Override
-  public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) {
-
-    if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
-      perunNotifRegexDao.removePerunNotifTemplateRegexRelation(templateId, regexId);
-      PerunNotifTemplate template = perunNotifTemplateManager.getPerunNotifTemplateById(templateId);
-      template.getMatchingRegexs().remove(getPerunNotifRegexById(regexId));
-      perunNotifTemplateManager.removeTemplateFromRegex(regexId, templateId);
-    } else {
-      throw new InternalErrorException("Template - Regex relation cannot be removed, because does not exist.");
-    }
-  }
-
-  @Override
-  public void addObjectToCache(PerunNotifObject object) {
-    if (!allObjects.add(object)) {
-      //Object is already in set
-      for (PerunNotifObject cacheObject : allObjects) {
-        if (cacheObject.getId().equals(object.getId())) {
-          cacheObject.update(object);
-          return;
-        }
-      }
-    }
-  }
-
-  @Override
-  public void updateObjectInCache(PerunNotifObject object) {
-
-    for (PerunNotifObject oldObject : allObjects) {
-      if (oldObject.getId().equals(object.getId())) {
-        oldObject.update(object);
-      }
-    }
-  }
-
-  @Override
-  public void removePerunNotifObjectFromCache(PerunNotifObject objectToRemove) {
-
-    boolean removed = false;
-    for (Iterator<PerunNotifObject> iter = allObjects.iterator(); iter.hasNext(); ) {
-      PerunNotifObject objectFromCache = iter.next();
-      if (objectFromCache.getId().equals(objectToRemove.getId())) {
-        iter.remove();
-        removed = true;
-      }
-    }
-    if (!removed) {
-      logger.warn("Remove of object from cache failed. Object is not in cache. ID: {}", objectToRemove.getId());
-    }
-
-    for (PerunNotifRegex regex : allRegex) {
-      Set<PerunNotifObject> regexObjects = regex.getObjects();
-      if (regexObjects.contains(objectToRemove)) {
-        regexObjects.remove(objectToRemove);
-      }
-    }
   }
 }

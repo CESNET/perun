@@ -6,12 +6,10 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
-
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Templates, for identity changes alerts.
@@ -41,64 +39,63 @@ public class urn_perun_entityless_attribute_def_def_identityAlertsTemplates exte
 
   public static final String DEFAULT_IDENTITY_ADDED_PREF_MAIL_SUBJECT = "New identity added";
   public static final String DEFAULT_IDENTITY_ADDED_UES_MAIL_SUBJECT = "Account linked";
-  public static final String DEFAULT_IDENTITY_ADDED_PREF_MAIL = """
-      A new identity has been added to your account. If you don't recognize this activity, please contact our support at perun@cesnet.cz.
-      			
-      Identity organization: {organization} 
-      Identity login: {login}
-      			
-      Time of change: {time}
-      			
-      Message is automatically generated.
-      ----------------------------------------------------------------
-      Perun - Identity & Access Management System""";
-  public static final String DEFAULT_IDENTITY_ADDED_UES_MAIL = """
-      Your account has been linked with an account in the Perun system. If you don't recognize this activity, please contact our support at perun@cesnet.cz.
-      			
-      Identity organization: {organization}
-      Identity login: {login}
-      			
-      Time of change: {time}
-      			
-      Message is automatically generated.
-      ----------------------------------------------------------------
-      Perun - Identity & Access Management System""";
+  public static final String DEFAULT_IDENTITY_ADDED_PREF_MAIL =
+      """
+          A new identity has been added to your account.
+          If you don't recognize this activity, please contact our support at perun@cesnet.cz.
+
+          Identity organization: {organization}
+          Identity login: {login}
+
+          Time of change: {time}
+
+          Message is automatically generated.
+          ----------------------------------------------------------------
+          Perun - Identity & Access Management System""";
+  public static final String DEFAULT_IDENTITY_ADDED_UES_MAIL =
+      """
+          Your account has been linked with an account in the Perun system.
+          If you don't recognize this activity, please contact our support at perun@cesnet.cz.
+
+          Identity organization: {organization}
+          Identity login: {login}
+
+          Time of change: {time}
+
+          Message is automatically generated.
+          ----------------------------------------------------------------
+          Perun - Identity & Access Management System""";
 
   public static final String DEFAULT_IDENTITY_REMOVED_PREF_MAIL_SUBJECT = "Identity removed";
   public static final String DEFAULT_IDENTITY_REMOVED_UES_MAIL_SUBJECT = "Account unlinked";
   public static final String DEFAULT_IDENTITY_REMOVED_PREF_MAIL = """
-      An identity has been removed from your account. If you don't recognize this activity, please contact our support at perun@cesnet.cz.
-      			
-      Identity organization: {organization} 
+      An identity has been removed from your account.
+      If you don't recognize this activity, please contact our support at perun@cesnet.cz.
+
+      Identity organization: {organization}
       Identity login: {login}
-      			
+
       Time of change: {time}
-      			
+
       Message is automatically generated.
       ----------------------------------------------------------------
       Perun - Identity & Access Management System""";
   public static final String DEFAULT_IDENTITY_REMOVED_UES_MAIL = """
-      Your account has been unlinked from an account in the Perun system. If you don't recognize this activity, please contact our support at perun@cesnet.cz.
-      			
+      Your account has been unlinked from an account in the Perun system.
+      If you don't recognize this activity, please contact our support at perun@cesnet.cz.
+
       Identity organization: {organization}
       Identity login: {login}
-      			
+
       Time of change: {time}
-      			
+
       Message is automatically generated.
       ----------------------------------------------------------------
       Perun - Identity & Access Management System""";
 
-  public static final Set<String> ALLOWED_TEMPLATES = Set.of(
-      UES_ADDED_PREFERRED_MAIL,
-      UES_ADDED_PREFERRED_MAIL_SUBJECT,
-      UES_ADDED_UES_MAIL,
-      UES_ADDED_UES_MAIL_SUBJECT,
-      UES_REMOVED_PREF_MAIL,
-      UES_REMOVED_PREF_MAIL_SUBJECT,
-      UES_REMOVED_UES_MAIL,
-      UES_REMOVED_UES_MAIL_SUBJECT
-  );
+  public static final Set<String> ALLOWED_TEMPLATES =
+      Set.of(UES_ADDED_PREFERRED_MAIL, UES_ADDED_PREFERRED_MAIL_SUBJECT, UES_ADDED_UES_MAIL, UES_ADDED_UES_MAIL_SUBJECT,
+          UES_REMOVED_PREF_MAIL, UES_REMOVED_PREF_MAIL_SUBJECT, UES_REMOVED_UES_MAIL, UES_REMOVED_UES_MAIL_SUBJECT);
 
   @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
@@ -113,8 +110,7 @@ public class urn_perun_entityless_attribute_def_def_identityAlertsTemplates exte
 
 
     for (String templateName : value.keySet()) {
-      if (ALLOWED_TEMPLATES.stream()
-          .noneMatch(templateName::equals)) {
+      if (ALLOWED_TEMPLATES.stream().noneMatch(templateName::equals)) {
         throw new WrongAttributeValueException("The given template name '" + templateName + "' is not allowed.");
       }
     }
@@ -127,22 +123,13 @@ public class urn_perun_entityless_attribute_def_def_identityAlertsTemplates exte
     attr.setType(LinkedHashMap.class.getName());
     attr.setFriendlyName("identityAlertsTemplates");
     attr.setDisplayName("Identity alerts templates");
-    attr.setDescription(
-        String.format("Templates for identity alerts. Use 'en' key to set the values. Allowed values are " +
-                "'%s', '%s', '%s', '%s', '%s', '%s', '%s', and '%s'. " +
-                "You can use placeholders %s, %s, %s in the templates that will be replaced with actual values.",
-            UES_ADDED_PREFERRED_MAIL,
-            UES_ADDED_PREFERRED_MAIL_SUBJECT,
-            UES_ADDED_UES_MAIL,
-            UES_ADDED_UES_MAIL_SUBJECT,
-            UES_REMOVED_PREF_MAIL,
-            UES_REMOVED_PREF_MAIL_SUBJECT,
-            UES_REMOVED_UES_MAIL,
-            UES_REMOVED_UES_MAIL_SUBJECT,
-            LOGIN_PLACEHOLDER,
-            ORG_PLACEHOLDER,
-            TIME_PLACEHOLDER
-        ));
+    attr.setDescription(String.format(
+        "Templates for identity alerts. Use 'en' key to set the values. Allowed values are " +
+            "'%s', '%s', '%s', '%s', '%s', '%s', '%s', and '%s'. " +
+            "You can use placeholders %s, %s, %s in the templates that will be replaced with actual values.",
+        UES_ADDED_PREFERRED_MAIL, UES_ADDED_PREFERRED_MAIL_SUBJECT, UES_ADDED_UES_MAIL, UES_ADDED_UES_MAIL_SUBJECT,
+        UES_REMOVED_PREF_MAIL, UES_REMOVED_PREF_MAIL_SUBJECT, UES_REMOVED_UES_MAIL, UES_REMOVED_UES_MAIL_SUBJECT,
+        LOGIN_PLACEHOLDER, ORG_PLACEHOLDER, TIME_PLACEHOLDER));
     return attr;
   }
 }

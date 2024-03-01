@@ -1,22 +1,21 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Pair;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Metodej Klang
@@ -25,13 +24,6 @@ public class ExtSourceTCSTest {
 
   @Spy
   private static ExtSourceTCS extSourceTCS;
-
-  @Before
-  public void setUp() throws Exception {
-    extSourceTCS = new ExtSourceTCS();
-
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   public void getUsersSubjects() {
@@ -60,5 +52,12 @@ public class ExtSourceTCSTest {
     // test the method
     List<Map<String, String>> actualSubjects = extSourceTCS.getUsersSubjects();
     assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    extSourceTCS = new ExtSourceTCS();
+
+    MockitoAnnotations.initMocks(this);
   }
 }

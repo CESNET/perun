@@ -23,15 +23,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Attribute module for storing basic/backup school mail of persons at VŠUP.
- * It has to be "login@vsup.cz" and is set whenever u:d:login-namespace:vsup attribute is set/changed !!
+ * Attribute module for storing basic/backup school mail of persons at VŠUP. It has to be "login@vsup.cz" and is set
+ * whenever u:d:login-namespace:vsup attribute is set/changed !!
  * <p>
  * Value can't be filled by this module, so we must allow NULL value in checkAttributeSemantics(), because when all mail
- * attributes are required and set at once, we can't ensure correct processing order of attributes and it might perform check on old
- * value, because of setRequiredAttributes() implementation uses in memory value instead of refreshing from DB.
+ * attributes are required and set at once, we can't ensure correct processing order of attributes and it might perform
+ * check on old value, because of setRequiredAttributes() implementation uses in memory value instead of refreshing from
+ * DB.
  * <p>
- * On value change, map of usedMails in entityless attributes is checked and updated.
- * Also u:d:vsupPreferredMail is set to current value, if is empty.
+ * On value change, map of usedMails in entityless attributes is checked and updated. Also u:d:vsupPreferredMail is set
+ * to current value, if is empty.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -49,58 +50,6 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
   public static final String vsupExchangeMailAliasesUrn = "urn:perun:user:attribute-def:def:vsupExchangeMailAliases";
 
   private static final String A_U_D_loginNamespace_vsup = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:vsup";
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() != null) {
-      Matcher emailMatcher = emailPattern.matcher(attribute.valueAsString());
-      if (!emailMatcher.find()) {
-        throw new WrongAttributeValueException(attribute, user,
-            "School mail is not in a correct form: \"login@vsup.cz\".");
-      }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-
-    // check only if not null
-    if (attribute.getValue() != null) {
-
-      // check that mail matches login
-      try {
-        Attribute login =
-            sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_loginNamespace_vsup);
-
-        // if login and mail value is set, they must match !!
-        if (login.getValue() != null && attribute.getValue() != null) {
-          if (!Objects.equals(login.getValue() + "@vsup.cz", attribute.getValue())) {
-            throw new WrongReferenceAttributeValueException(attribute, login, user, null, user, null,
-                "VŠUP mail must match users login at VŠUP.");
-          }
-        }
-        // if only one of them is set, it's OK, because:
-        // - we need vsupMail to be required, but it doesn't support fill (by purpose).
-        // - it's set in changedAttributeHook() of login-namespace:vsup attribute during same transaction.
-        // - always requiring non-null value would cause setRequiredAttributes() to fail, because of above and method implementation.
-      } catch (AttributeNotExistsException e) {
-        throw new ConsistencyErrorException("Attribute for login-namespace: vsup doesn't exists.", e);
-      }
-
-      //if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "School mail can't be null.");
-
-    }
-
-    // We check uniqueness on all related attributes change, so we don't need to do it here.
-
-  }
-
-  @Override
-  public List<String> getDependencies() {
-    return Collections.singletonList(A_U_D_loginNamespace_vsup);
-  }
 
   @Override
   public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute)
@@ -139,7 +88,8 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 
     if (attribute.getValue() == null && reservedMailsAttribute.getValue() == null) {
       throw new ConsistencyErrorException(
-          "User attribute 'urn:perun:user:attribute-def:def:usedMails' is empty, but we are removing 'vsupMail' value, so there should have been entry in usedMails attribute.");
+          "User attribute 'urn:perun:user:attribute-def:def:usedMails' is empty, but we are removing 'vsupMail' " +
+          "value, so there should have been entry in usedMails attribute.");
     }
 
     // get value from reserved mails attribute
@@ -223,6 +173,55 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
   }
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+
+    // check only if not null
+    if (attribute.getValue() != null) {
+
+      // check that mail matches login
+      try {
+        Attribute login =
+            sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_loginNamespace_vsup);
+
+        // if login and mail value is set, they must match !!
+        if (login.getValue() != null && attribute.getValue() != null) {
+          if (!Objects.equals(login.getValue() + "@vsup.cz", attribute.getValue())) {
+            throw new WrongReferenceAttributeValueException(attribute, login, user, null, user, null,
+                "VŠUP mail must match users login at VŠUP.");
+          }
+        }
+        // if only one of them is set, it's OK, because:
+        // - we need vsupMail to be required, but it doesn't support fill (by purpose).
+        // - it's set in changedAttributeHook() of login-namespace:vsup attribute during same transaction.
+        // - always requiring non-null value would cause setRequiredAttributes() to fail, because of above and method
+        // implementation.
+      } catch (AttributeNotExistsException e) {
+        throw new ConsistencyErrorException("Attribute for login-namespace: vsup doesn't exists.", e);
+      }
+
+      //if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "School mail can't
+      // be null.");
+
+    }
+
+    // We check uniqueness on all related attributes change, so we don't need to do it here.
+
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() != null) {
+      Matcher emailMatcher = emailPattern.matcher(attribute.valueAsString());
+      if (!emailMatcher.find()) {
+        throw new WrongAttributeValueException(attribute, user,
+            "School mail is not in a correct form: \"login@vsup.cz\".");
+      }
+    }
+  }
+
+  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
@@ -230,8 +229,14 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
     attr.setDisplayName("School mail");
     attr.setType(String.class.getName());
     attr.setDescription(
-        "Generated school mail in a \"login@vsup.cz\" form. Do not change value manually! Represents account in Zimbra.");
+        "Generated school mail in a \"login@vsup.cz\" form. Do not change value manually! Represents account in " +
+        "Zimbra.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    return Collections.singletonList(A_U_D_loginNamespace_vsup);
   }
 
 }

@@ -31,30 +31,6 @@ public class MemberSCIM {
   public MemberSCIM() {
   }
 
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  public String getRef() {
-    return ref;
-  }
-
-  public void setRef(String ref) {
-    this.ref = ref;
-  }
-
-  public String getDisplay() {
-    return display;
-  }
-
-  public void setDisplay(String display) {
-    this.display = display;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -76,6 +52,18 @@ public class MemberSCIM {
 
   }
 
+  public String getDisplay() {
+    return display;
+  }
+
+  public String getRef() {
+    return ref;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
   @Override
   public int hashCode() {
     int result = getValue() != null ? getValue().hashCode() : 0;
@@ -84,12 +72,20 @@ public class MemberSCIM {
     return result;
   }
 
+  public void setDisplay(String display) {
+    this.display = display;
+  }
+
+  public void setRef(String ref) {
+    this.ref = ref;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
+
   @Override
   public String toString() {
-    return "MemberSCIM{" +
-        "value='" + value + '\'' +
-        ", ref='" + ref + '\'' +
-        ", display='" + display + '\'' +
-        '}';
+    return "MemberSCIM{" + "value='" + value + '\'' + ", ref='" + ref + '\'' + ", display='" + display + '\'' + '}';
   }
 }

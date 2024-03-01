@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -11,15 +14,11 @@ import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_group_attribute_def_def_unixGroupName_namespaceTest {
   private urn_perun_group_attribute_def_def_unixGroupName_namespace classInstance;
@@ -52,6 +51,14 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespaceTest {
 
     ResourcesManagerBl resourcesManagerBl = mock(ResourcesManagerBl.class);
     when(sess.getPerunBl().getResourcesManagerBl()).thenReturn(resourcesManagerBl);
+  }
+
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue("my name");
+
+    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
@@ -89,14 +96,6 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespaceTest {
             attributeToCheck, attributeToCheck)).thenReturn(true);
     when(sess.getPerunBl().getModulesUtilsBl()
         .haveTheSameAttributeWithTheSameNamespace(sess, resource, attributeToCheck)).thenReturn(2);
-
-    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
-  }
-
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue("my name");
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
   }

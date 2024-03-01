@@ -20,7 +20,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -30,14 +29,29 @@ import java.util.Map;
 /**
  * Virtual attribute to count all file quotas for user on facility.
  * <p>
- * For every resource-member combination of user on this facility prepare merged quotas (unique just one, not unique - bigger is better)
- * Merge all combination for the user on facility together (use addition on them where paths are not unique)
+ * For every resource-member combination of user on this facility prepare merged quotas (unique just one, not unique -
+ * bigger is better) Merge all combination for the user on facility together (use addition on them where paths are not
+ * unique)
  *
  * @author Michal Stava stavamichal@gmail.com
  */
 @SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_facility_attribute_def_virt_fileQuotas extends UserFacilityVirtualAttributesModuleAbstract {
   public static final String A_MR_V_fileQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":fileQuotas";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+    attr.setFriendlyName("fileQuotas");
+    attr.setDisplayName("Computed file quotas for a user on a facility");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription(
+        "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota' in (M, G, T, ...), G is " +
+        "default. Example: '10G:20T'. Is counted from all member-resource and resource settings of the user on " +
+        "the facility.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility,
@@ -63,7 +77,7 @@ public class urn_perun_user_facility_attribute_def_virt_fileQuotas extends UserF
       } catch (MemberNotExistsException ex) {
         throw new ConsistencyErrorException(
             "User should have member in this VO, because he was listed in allowed assigned resources " + user + ", " +
-                membersVo + " , " + resource);
+            membersVo + " , " + resource);
       }
 
       //Get member-resource final counted quotas for the member on the resource
@@ -110,17 +124,5 @@ public class urn_perun_user_facility_attribute_def_virt_fileQuotas extends UserF
     List<String> strongDependencies = new ArrayList<>();
     strongDependencies.add(A_MR_V_fileQuotas);
     return strongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-    attr.setFriendlyName("fileQuotas");
-    attr.setDisplayName("Computed file quotas for a user on a facility");
-    attr.setType(LinkedHashMap.class.getName());
-    attr.setDescription(
-        "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota' in (M, G, T, ...), G is default. Example: '10G:20T'. Is counted from all member-resource and resource settings of the user on the facility.");
-    return attr;
   }
 }

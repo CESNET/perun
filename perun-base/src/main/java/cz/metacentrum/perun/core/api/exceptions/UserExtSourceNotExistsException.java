@@ -3,8 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.UserExtSource;
 
 /**
- * Thrown when the userExtSource has not been found either because it is not in the database or
- * additional identifiers were not provided
+ * Thrown when the userExtSource has not been found either because it is not in the database or additional identifiers
+ * were not provided
  *
  * @author Slavek Licehammer
  */

@@ -1,17 +1,18 @@
 package cz.metacentrum.perun.cabinet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.model.Author;
+import cz.metacentrum.perun.cabinet.model.Authorship;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-
 import org.junit.Test;
-
-import cz.metacentrum.perun.cabinet.model.Author;
-import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 
 /**
  * Integration tests of AuthorshipManager
@@ -19,6 +20,35 @@ import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest {
+
+  @Test
+  public void authorshipExistsTest() throws Exception {
+    System.out.println("AuthorshipManagerIntegrationTest.authorshipExistsTest");
+
+    // authorshipOne always exists
+    boolean result = getCabinetManager().authorshipExists(authorshipOne);
+    assertTrue("Existing Authorship doesn't exists by checkMethod (by ID).", result);
+
+    // new authorship shouldn't exists by ID
+    Authorship a = new Authorship();
+    a.setId(0);
+    boolean result1 = getCabinetManager().authorshipExists(a);
+    assertFalse("Authorship with ID: 0 shouldn't exists by checkMethod (by ID).", result1);
+
+    // authorship with USER_ID for publicationOne should always exists
+    Authorship a2 = new Authorship();
+    a2.setPublicationId(publicationOne.getId());
+    a2.setUserId(USER_ID);
+
+    boolean result2 = getCabinetManager().authorshipExists(a2);
+    assertTrue("Existing Authorship doesn't exists by checkMethod (by USER_ID, PUB_ID).", result2);
+
+    // authorship with USER_ID for publication with ID=0 shouldn't exists
+    a2.setPublicationId(0);
+    boolean result3 = getCabinetManager().authorshipExists(a2);
+    assertFalse("Authorship with PUB_ID: 0 shouldn't exists by checkMethod (by USER_ID, PUB_ID).", result3);
+
+  }
 
   @Test
   public void createAuthorshipTest() throws Exception {
@@ -77,35 +107,6 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
   }
 
   @Test
-  public void authorshipExistsTest() throws Exception {
-    System.out.println("AuthorshipManagerIntegrationTest.authorshipExistsTest");
-
-    // authorshipOne always exists
-    boolean result = getCabinetManager().authorshipExists(authorshipOne);
-    assertTrue("Existing Authorship doesn't exists by checkMethod (by ID).", result);
-
-    // new authorship shouldn't exists by ID
-    Authorship a = new Authorship();
-    a.setId(0);
-    boolean result1 = getCabinetManager().authorshipExists(a);
-    assertFalse("Authorship with ID: 0 shouldn't exists by checkMethod (by ID).", result1);
-
-    // authorship with USER_ID for publicationOne should always exists
-    Authorship a2 = new Authorship();
-    a2.setPublicationId(publicationOne.getId());
-    a2.setUserId(USER_ID);
-
-    boolean result2 = getCabinetManager().authorshipExists(a2);
-    assertTrue("Existing Authorship doesn't exists by checkMethod (by USER_ID, PUB_ID).", result2);
-
-    // authorship with USER_ID for publication with ID=0 shouldn't exists
-    a2.setPublicationId(0);
-    boolean result3 = getCabinetManager().authorshipExists(a2);
-    assertFalse("Authorship with PUB_ID: 0 shouldn't exists by checkMethod (by USER_ID, PUB_ID).", result3);
-
-  }
-
-  @Test
   public void getAuthorsByAuthorshipIdTest() throws Exception {
     System.out.println("AuthorshipManagerIntegrationTest.getAuthorsByAuthorshipIdTest");
 
@@ -134,6 +135,16 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
   }
 
   @Test
+  public void getAuthorsByPublicationIdTest() throws Exception {
+    System.out.println("AuthorshipManagerIntegrationTest.getAuthorsByPublicationIdTest");
+
+    List<Author> list = getCabinetManager().getAuthorsByPublicationId(sess, publicationOne.getId());
+    assertTrue("Returned authorships shouldn't be null.", list != null);
+    assertTrue("There should be exactly 2 authors for publicationOne.", list.size() == 2);
+
+  }
+
+  @Test
   public void getAuthorshipsByPublicationIdTest() throws Exception {
     System.out.println("AuthorshipManagerIntegrationTest.getAuthorshipsByPublicationIdTest");
 
@@ -150,16 +161,6 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
     List<Authorship> list = getCabinetManager().getAuthorshipsByUserId(USER_ID);
     assertTrue("Returned authorships shouldn't be null.", list != null);
     assertTrue("There should be some authorships for USER_ID.", list.size() > 0);
-
-  }
-
-  @Test
-  public void getAuthorsByPublicationIdTest() throws Exception {
-    System.out.println("AuthorshipManagerIntegrationTest.getAuthorsByPublicationIdTest");
-
-    List<Author> list = getCabinetManager().getAuthorsByPublicationId(sess, publicationOne.getId());
-    assertTrue("Returned authorships shouldn't be null.", list != null);
-    assertTrue("There should be exactly 2 authors for publicationOne.", list.size() == 2);
 
   }
 

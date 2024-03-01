@@ -11,12 +11,12 @@ import java.util.List;
 public interface PerunNotifAuditMessageDao {
 
   /**
-   * Saves message to db and creates perunNotifAuditMessage
+   * Gets all perun messages from db, these messages were not processed This can happen for example during restart of
+   * server
    *
-   * @param message
    * @return
    */
-  public PerunNotifAuditMessage save(String message);
+  public List<PerunNotifAuditMessage> getAll();
 
   /**
    * Removes perunNotifAuditMessage using id of perunNotifAuditMessage
@@ -26,10 +26,10 @@ public interface PerunNotifAuditMessageDao {
   public void remove(long id);
 
   /**
-   * Gets all perun messages from db, these messages were not processed
-   * This can happen for example during restart of server
+   * Saves message to db and creates perunNotifAuditMessage
    *
+   * @param message
    * @return
    */
-  public List<PerunNotifAuditMessage> getAll();
+  public PerunNotifAuditMessage save(String message);
 }

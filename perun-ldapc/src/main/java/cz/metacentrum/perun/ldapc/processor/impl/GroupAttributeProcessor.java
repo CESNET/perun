@@ -5,15 +5,14 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NamingException;
 
-import java.util.regex.Pattern;
-
 public class GroupAttributeProcessor extends AbstractAttributeProcessor {
 
-  private final static Logger log = LoggerFactory.getLogger(GroupAttributeProcessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GroupAttributeProcessor.class);
 
   private static Pattern groupSetPattern = Pattern.compile(" set for Group:\\[(.*)\\]");
   private static Pattern groupRemovePattern = Pattern.compile(" removed for Group:\\[(.*)\\]");
@@ -25,17 +24,16 @@ public class GroupAttributeProcessor extends AbstractAttributeProcessor {
         groupVirtualChangePattern);
   }
 
-  public void processAttributeSet(String msg, MessageBeans beans) {
+  public void processAllAttributesRemoved(String msg, MessageBeans beans) {
     // ensure we have the correct beans available
-    if (beans.getAttribute() == null || beans.getGroup() == null) {
+    if (beans.getGroup() == null) {
       return;
     }
     try {
-      log.debug("Setting attribute {} for group {}", beans.getAttribute(), beans.getGroup());
-      perunGroup.modifyEntry(beans.getGroup(), beans.getAttribute());
-    } catch (NamingException | InternalErrorException e) {
-      log.error("Error setting attribute {} for group {}: {}", beans.getAttribute().getId(), beans.getGroup().getId(),
-          e);
+      LOG.debug("Removing all attributes from group {}", beans.getGroup());
+      perunGroup.removeAllAttributes(beans.getGroup());
+    } catch (NamingException e) {
+      LOG.error("Error removing attributes from group {}: {}", beans.getGroup().getId(), e);
     }
   }
 
@@ -45,24 +43,25 @@ public class GroupAttributeProcessor extends AbstractAttributeProcessor {
       return;
     }
     try {
-      log.debug("Removing attribute {} for group {}", beans.getAttributeDef(), beans.getGroup());
+      LOG.debug("Removing attribute {} for group {}", beans.getAttributeDef(), beans.getGroup());
       perunGroup.modifyEntry(beans.getGroup(), beans.getAttributeDef());
     } catch (NamingException | InternalErrorException e) {
-      log.error("Error removing attribute {} from group {}: {}", beans.getAttributeDef().getId(),
+      LOG.error("Error removing attribute {} from group {}: {}", beans.getAttributeDef().getId(),
           beans.getGroup().getId(), e);
     }
   }
 
-  public void processAllAttributesRemoved(String msg, MessageBeans beans) {
+  public void processAttributeSet(String msg, MessageBeans beans) {
     // ensure we have the correct beans available
-    if (beans.getGroup() == null) {
+    if (beans.getAttribute() == null || beans.getGroup() == null) {
       return;
     }
     try {
-      log.debug("Removing all attributes from group {}", beans.getGroup());
-      perunGroup.removeAllAttributes(beans.getGroup());
-    } catch (NamingException e) {
-      log.error("Error removing attributes from group {}: {}", beans.getGroup().getId(), e);
+      LOG.debug("Setting attribute {} for group {}", beans.getAttribute(), beans.getGroup());
+      perunGroup.modifyEntry(beans.getGroup(), beans.getAttribute());
+    } catch (NamingException | InternalErrorException e) {
+      LOG.error("Error setting attribute {} for group {}: {}", beans.getAttribute().getId(), beans.getGroup().getId(),
+          e);
     }
   }
 
@@ -71,12 +70,12 @@ public class GroupAttributeProcessor extends AbstractAttributeProcessor {
       return;
     }
     try {
-      log.debug("Changing virtual attribute {} for group {}", beans.getAttribute(), beans.getGroup());
-      perunGroup.modifyEntry(beans.getGroup(), ((PerunBl) ldapcManager.getPerunBl()).getAttributesManagerBl().
-          getAttribute(ldapcManager.getPerunSession(), beans.getGroup(), beans.getAttribute().getName()));
+      LOG.debug("Changing virtual attribute {} for group {}", beans.getAttribute(), beans.getGroup());
+      perunGroup.modifyEntry(beans.getGroup(), ((PerunBl) ldapcManager.getPerunBl()).getAttributesManagerBl()
+          .getAttribute(ldapcManager.getPerunSession(), beans.getGroup(), beans.getAttribute().getName()));
     } catch (WrongAttributeAssignmentException | InternalErrorException | AttributeNotExistsException |
              NamingException e) {
-      log.error("Error changing virtual attribute {} for group {}: {}", beans.getAttribute().getId(),
+      LOG.error("Error changing virtual attribute {} for group {}: {}", beans.getAttribute().getId(),
           beans.getGroup().getId(), e);
     }
   }

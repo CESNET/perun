@@ -23,16 +23,16 @@ public class GroupMembershipExpirationInDays extends AuditEvent implements Engin
     this.message = formatMessage("%s will expire in %d days in %s.", member, daysToExpiration, group);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public int getDaysToExpiration() {
     return daysToExpiration;
   }
 
   public Group getGroup() {
     return group;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
   @Override

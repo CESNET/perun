@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * This class represent audit information.
@@ -67,6 +68,11 @@ public abstract class Auditable extends PerunBean implements Serializable {
     this.createdByUid = createdByUid;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    return obj != null && getClass() == obj.getClass() && this.getId() == ((Auditable) obj).getId();
+  }
+
   /**
    * Gets the information when it was created.
    *
@@ -101,6 +107,24 @@ public abstract class Auditable extends PerunBean implements Serializable {
    */
   public void setCreatedBy(String createdBy) {
     this.createdBy = createdBy;
+  }
+
+  /**
+   * Gets the information who user created it.
+   *
+   * @return createdByUid, the user
+   */
+  public Integer getCreatedByUid() {
+    return createdByUid;
+  }
+
+  /**
+   * Sets information about who user created it.
+   *
+   * @param createdByUid, the user.
+   */
+  public void setCreatedByUid(Integer createdByUid) {
+    this.createdByUid = createdByUid;
   }
 
   /**
@@ -157,27 +181,9 @@ public abstract class Auditable extends PerunBean implements Serializable {
     this.modifiedByUid = modifiedByUid;
   }
 
-  /**
-   * Gets the information who user created it.
-   *
-   * @return createdByUid, the user
-   */
-  public Integer getCreatedByUid() {
-    return createdByUid;
-  }
-
-  /**
-   * Sets information about who user created it.
-   *
-   * @param createdByUid, the user.
-   */
-  public void setCreatedByUid(Integer createdByUid) {
-    this.createdByUid = createdByUid;
-  }
-
   @Override
-  public boolean equals(Object obj) {
-    return obj != null && getClass() == obj.getClass() && this.getId() == ((Auditable) obj).getId();
+  public int hashCode() {
+    return Objects.hash(getId());
   }
 
   /* not used
@@ -227,16 +233,12 @@ public abstract class Auditable extends PerunBean implements Serializable {
   */
 
   @Override
-  public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id='" + this.getId() + '\'' +
-        ']';
+  public String serializeToString() {
+    return this.getClass().getSimpleName() + ":[" + "id=<" + this.getId() + ">" + ']';
   }
 
   @Override
-  public String serializeToString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id=<" + this.getId() + ">" +
-        ']';
+  public String toString() {
+    return this.getClass().getSimpleName() + ":[" + "id='" + this.getId() + '\'' + ']';
   }
 }

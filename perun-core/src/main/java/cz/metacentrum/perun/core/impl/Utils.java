@@ -1,5 +1,32 @@
 package cz.metacentrum.perun.core.impl;
 
+import static cz.metacentrum.perun.core.impl.PerunAppsConfig.getBrandContainingDomain;
+import static cz.metacentrum.perun.core.impl.PerunAppsConfig.getInstance;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ALERT_TIME_FORMATTER;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_PREF_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_PREF_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_UES_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_UES_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_PREF_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_PREF_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_UES_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_UES_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.KEY_EN;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.LOGIN_PLACEHOLDER;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ORG_PLACEHOLDER;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ORG_UNKNOWN_TEXT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.TIME_PLACEHOLDER;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_PREFERRED_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_PREFERRED_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_UES_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_UES_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_PREF_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_PREF_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_UES_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_UES_MAIL_SUBJECT;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -29,29 +56,14 @@ import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.SshKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-
-import javax.crypto.Cipher;
-import javax.crypto.Mac;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -93,60 +105,49 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import static cz.metacentrum.perun.core.impl.PerunAppsConfig.getBrandContainingDomain;
-import static cz.metacentrum.perun.core.impl.PerunAppsConfig.getInstance;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ALERT_TIME_FORMATTER;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_PREF_MAIL;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_PREF_MAIL_SUBJECT;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_UES_MAIL;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_UES_MAIL_SUBJECT;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_PREF_MAIL;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_PREF_MAIL_SUBJECT;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_UES_MAIL;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_UES_MAIL_SUBJECT;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.KEY_EN;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.LOGIN_PLACEHOLDER;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ORG_PLACEHOLDER;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ORG_UNKNOWN_TEXT;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.TIME_PLACEHOLDER;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_PREFERRED_MAIL;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_PREFERRED_MAIL_SUBJECT;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_UES_MAIL;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_UES_MAIL_SUBJECT;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_PREF_MAIL;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_PREF_MAIL_SUBJECT;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_UES_MAIL;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_UES_MAIL_SUBJECT;
-import static org.apache.commons.lang3.ObjectUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
 /**
  * Utilities.
  */
 public class Utils {
 
-  public final static String configurationsLocations = "/etc/perun/";
+  public static final String CONFIGURATIONS_LOCATIONS = "/etc/perun/";
   public static final String TITLE_BEFORE = "titleBefore";
   public static final String FIRST_NAME = "firstName";
   public static final String LAST_NAME = "lastName";
   public static final String TITLE_AFTER = "titleAfter";
-  public static final Pattern emailPattern =
+  public static final Pattern EMAIL_PATTERN =
       Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
-  public static final Pattern ucoEmailPattern = Pattern.compile("^[0-9]+@muni\\.cz$");
-  public static final DateTimeFormatter lastAccessFormatter = new DateTimeFormatterBuilder()
-      .appendPattern("yyyy-MM-dd HH:mm:ss")
-      .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
-      .toFormatter();
-  public static final Pattern hostPattern = Pattern.compile(
-      "^(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)[a-z0-9-]+\\.?)$|^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
-  public static final Pattern urlPattern =
+  public static final Pattern UCO_EMAIL_PATTERN = Pattern.compile("^[0-9]+@muni\\.cz$");
+  public static final DateTimeFormatter LAST_ACCESS_FORMATTER =
+      new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss")
+          .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true).toFormatter();
+  public static final Pattern HOST_PATTERN = Pattern.compile(
+      "^(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)[a-z0-9-]+\\.?)$|^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\" +
+      ".(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+  public static final Pattern URL_PATTERN =
       Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;()*$']*[-a-zA-Z0-9+&@#/%=~_|()*$']");
-  public static final Pattern userAtHostPattern = Pattern.compile(
-      "^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)@(?:(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)[a-z0-9-]+\\.?)$|(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$)");
-  public static final Pattern userAtHostPortPattern = Pattern.compile(
-      "^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)@(?:(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)[a-z0-9-]+\\.?)|(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}):[0-9]+");
-  public static final Pattern serviceSpecificPattern = Pattern.compile("^(?!-)[a-zA-Z0-9-_.:/]*$");
+  public static final Pattern USER_AT_HOST_PATTERN = Pattern.compile(
+      "^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)@(?:(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)" +
+      "[a-z0-9-]+\\.?)$|(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$)");
+  public static final Pattern USER_AT_HOST_PORT_PATTERN = Pattern.compile(
+      "^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)@(?:(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)" +
+      "[a-z0-9-]+\\.?)|(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}):[0-9]+");
+  public static final Pattern SERVICE_SPECIFIC_PATTERN = Pattern.compile("^(?!-)[a-zA-Z0-9-_.:/]*$");
   /**
    * Integer row mapper
    */
@@ -155,12 +156,12 @@ public class Utils {
    * String row mapper
    */
   public static final RowMapper<String> STRING_MAPPER = (resultSet, i) -> resultSet.getString("value");
-  private final static Logger log = LoggerFactory.getLogger(Utils.class);
-  private static final Pattern titleBeforePattern = Pattern.compile("^(([\\p{L}]+[.])|(et))$");
-  private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");
-  private static final Pattern lastNamePattern = Pattern.compile("^(([\\p{L}-']+)|([\\p{L}][.]))$");
-  private static final String userPhoneAttribute = "urn:perun:user:attribute-def:def:phone";
-  private static final String memberPhoneAttribute = "urn:perun:member:attribute-def:def:phone";
+  private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
+  private static final Pattern TITLE_BEFORE_PATTERN = Pattern.compile("^(([\\p{L}]+[.])|(et))$");
+  private static final Pattern FIRST_NAME_PATTERN = Pattern.compile("^[\\p{L}-']+$");
+  private static final Pattern LAST_NAME_PATTERN = Pattern.compile("^(([\\p{L}-']+)|([\\p{L}][.]))$");
+  private static final String USER_PHONE_ATTRIBUTE = "urn:perun:user:attribute-def:def:phone";
+  private static final String MEMBER_PHONE_ATTRIBUTE = "urn:perun:member:attribute-def:def:phone";
   private static final String A_U_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
   private static final String A_UES_MAIL = AttributesManager.NS_UES_ATTR_DEF + ":mail";
   private static final String A_E_IDENTITY_ALERTS =
@@ -168,15 +169,17 @@ public class Utils {
   private static final String A_UES_ORGANIZATION = AttributesManager.NS_UES_ATTR_DEF + ":o";
   private static Properties properties;
 
+  private Utils() {
+  }
+
   /**
-   * Replaces dangerous characters.
-   * Replaces : with - and spaces with _.
+   * Replaces dangerous characters. Replaces : with - and spaces with _.
    *
    * @param str string to be normalized
    * @return normalized string
    */
   public static String normalizeString(String str) {
-    log.trace("Entering normalizeString: str='{}'", str);
+    LOG.trace("Entering normalizeString: str='{}'", str);
     return str.replace(':', '-').replace(' ', '_');
   }
 
@@ -193,56 +196,34 @@ public class Utils {
   }
 
   /**
-   * Joins Strings or any objects into a String. Use as
-   * <pre>
-   *  List<?> list = Arrays.asList("a", 1, 2.0);
-   *  String s = join(list,",");
-   * </pre>
-   *
-   * @param collection anything Iterable, like a {@link java.util.List} or {@link java.util.Collection}
-   * @param separator  any separator, like a comma
-   * @return string with string representations of objects joined by separators
-   */
-  public static String join(Iterable<?> collection, String separator) {
-    Iterator<?> oIter;
-    if (collection == null || (!(oIter = collection.iterator()).hasNext())) {
-      return "";
-    }
-    StringBuilder oBuilder = new StringBuilder(String.valueOf(oIter.next()));
-    while (oIter.hasNext()) {
-      oBuilder.append(separator).append(oIter.next());
-    }
-    return oBuilder.toString();
-  }
-
-  /**
-   * Returns additionalUserExtSources from the subject. It's used for synchronization from different ExtSources. subjectFromExtSource was obtained from the ExtSource.
-   * This additional userExtSource has 3 required parts: name of extSource, type of extSource, login of extsource with optional ues attributes and their values.
-   * And 1 optional part: LoA.
-   * Expected format of additional userExtSource is: extSourceName|extSourceType|extLogin;uesAttribute1=value1,value2;uesAttribute2=value1|LoA
+   * Returns additionalUserExtSources from the subject. It's used for synchronization from different ExtSources.
+   * subjectFromExtSource was obtained from the ExtSource. This additional userExtSource has 3 required parts: name of
+   * extSource, type of extSource, login of extsource with optional ues attributes and their values. And 1 optional
+   * part: LoA. Expected format of additional userExtSource is:
+   * extSourceName|extSourceType|extLogin;uesAttribute1=value1, value2;uesAttribute2=value1|LoA
    *
    * @param sess                 perun session
    * @param subjectFromExtSource map with the subject
-   * @return List<RichUserExtSource> all additional ExtSources (and possibly their attributes) from the subject, returned list will never contain null value
+   * @return List<RichUserExtSource> all additional ExtSources (and possibly their attributes) from the subject,
+   * returned list will never contain null value
    */
   public static List<RichUserExtSource> extractAdditionalUserExtSources(PerunSession sess,
                                                                         Map<String, String> subjectFromExtSource) {
     List<RichUserExtSource> additionalUserExtSources = new ArrayList<>();
     for (String attrName : subjectFromExtSource.keySet()) {
-      if (attrName != null &&
-          subjectFromExtSource.get(attrName) != null &&
+      if (attrName != null && subjectFromExtSource.get(attrName) != null &&
           attrName.startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
         String login = subjectFromExtSource.get("login");
 
         // Entry contains extSourceName|extSourceType|extLogin;uesAttribute=value1,value2[|LoA]
         String[] userExtSourceRaw = subjectFromExtSource.get(attrName).split("\\|");
-        log.trace("Processing additionalUserExtSource {}", subjectFromExtSource.get(attrName));
+        LOG.trace("Processing additionalUserExtSource {}", subjectFromExtSource.get(attrName));
 
         // Check if the array has at least 3 parts, this is protection against outOfBoundException
         if (userExtSourceRaw.length < 3) {
           throw new InternalErrorException(
               "There is a missing mandatory part of additional user extSource value when processing it - '" + attrName +
-                  "'");
+              "'");
         }
 
         try {
@@ -258,7 +239,7 @@ public class Utils {
           // Add additional rich user extSource
           additionalUserExtSources.add(richUserExtSource);
         } catch (ParserException e) {
-          log.error("User with login {} has invalid additional userExtSource defined {}.", login, userExtSourceRaw);
+          LOG.error("User with login {} has invalid additional userExtSource defined {}.", login, userExtSourceRaw);
         }
       }
     }
@@ -266,29 +247,9 @@ public class Utils {
   }
 
   /**
-   * Returns loa of additional ues, if not stated, returns 0. If integer cannot be parsed from input, ParserException is thrown.
-   * Used in extractAdditionalUserExtSources to get ues LoA.
-   *
-   * @param userExtSourceRaw array containing LoA
-   * @return int LoA
-   */
-  private static int parseAdditionalUESLoa(String[] userExtSourceRaw) {
-    int additionalExtLoa = 0;
-    // Loa is not mandatory argument
-    if (userExtSourceRaw.length > 3 && userExtSourceRaw[3] != null) {
-      try {
-        additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
-      } catch (NumberFormatException e) {
-        throw new ParserException("Subject has wrong LoA '" + userExtSourceRaw[3] + "'.", e, "LoA");
-      }
-    }
-    return additionalExtLoa;
-  }
-
-  /**
    * Returns additional user ext source either found in Perun or creates new. Parameter userExtSourceRaw is array of
-   * Strings containing name, type and extLogin. If any of the required parts is empty, ParserException is thrown.
-   * Used in extractAdditionalUserExtSources to get ues.
+   * Strings containing name, type and extLogin. If any of the required parts is empty, ParserException is thrown. Used
+   * in extractAdditionalUserExtSources to get ues.
    *
    * @param sess             perun session
    * @param userExtSourceRaw array of strings containing all parts of ues
@@ -326,10 +287,9 @@ public class Utils {
   }
 
   /**
-   * Parses attributes of additional ues from String which is in format: extLogin;uesAttributeName1=value1,value2;uesAttributeName2=value3.
-   * These attributes are returned with their values. If value is missing or attribute is not found, that part is skipped and
-   * message is logged.
-   * Used in extractAdditionalUserExtSources to get ues attributes.
+   * Parses attributes of additional ues from String which is in format: extLogin;uesAttributeName1=value1,value2;
+   * uesAttributeName2=value3. These attributes are returned with their values. If value is missing or attribute is not
+   * found, that part is skipped and message is logged. Used in extractAdditionalUserExtSources to get ues attributes.
    *
    * @param sess                           perun session
    * @param login                          login of subject
@@ -354,7 +314,7 @@ public class Utils {
 
         // Check that the attribute has both required parts (name and value)
         if (uesAttribute.length != 2) {
-          log.error("User with login {} has invalid attribute for userExtSource defined as {}.", login, uesAttribute);
+          LOG.error("User with login {} has invalid attribute for userExtSource defined as {}.", login, uesAttribute);
           continue;
         }
 
@@ -365,7 +325,7 @@ public class Utils {
                   parseAttributeValuesDuringUESExtraction(uesAttribute[1]));
           attributes.add(attribute);
         } catch (AttributeNotExistsException e) {
-          log.error("User with login {} has invalid attribute for userExtSource defined as {}.", login, uesAttribute);
+          LOG.error("User with login {} has invalid attribute for userExtSource defined as {}.", login, uesAttribute);
         }
       }
     }
@@ -373,8 +333,28 @@ public class Utils {
   }
 
   /**
-   * Splits attribute value by "," and returns list of string values or single string if no "," occurres.
-   * Used in extractAdditionalUserExtSources to get ues attribute values.
+   * Returns loa of additional ues, if not stated, returns 0. If integer cannot be parsed from input, ParserException is
+   * thrown. Used in extractAdditionalUserExtSources to get ues LoA.
+   *
+   * @param userExtSourceRaw array containing LoA
+   * @return int LoA
+   */
+  private static int parseAdditionalUESLoa(String[] userExtSourceRaw) {
+    int additionalExtLoa = 0;
+    // Loa is not mandatory argument
+    if (userExtSourceRaw.length > 3 && userExtSourceRaw[3] != null) {
+      try {
+        additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
+      } catch (NumberFormatException e) {
+        throw new ParserException("Subject has wrong LoA '" + userExtSourceRaw[3] + "'.", e, "LoA");
+      }
+    }
+    return additionalExtLoa;
+  }
+
+  /**
+   * Splits attribute value by "," and returns list of string values or single string if no "," occurres. Used in
+   * extractAdditionalUserExtSources to get ues attribute values.
    *
    * @param attributeValue unsplitted attribute value
    * @return splitted attribute value to list of string or single string
@@ -400,30 +380,40 @@ public class Utils {
    * @return string with string representations of objects joined by separators
    */
   public static String join(Object[] objs, String separator) {
-    log.trace("Entering join: objs='{}', separator='{}'", objs, separator);
+    LOG.trace("Entering join: objs='{}', separator='{}'", objs, separator);
     return join(Arrays.asList(objs), separator);
+  }
+
+  /**
+   * Joins Strings or any objects into a String. Use as
+   * <pre>
+   *  List<?> list = Arrays.asList("a", 1, 2.0);
+   *  String s = join(list,",");
+   * </pre>
+   *
+   * @param collection anything Iterable, like a {@link java.util.List} or {@link java.util.Collection}
+   * @param separator  any separator, like a comma
+   * @return string with string representations of objects joined by separators
+   */
+  public static String join(Iterable<?> collection, String separator) {
+    Iterator<?> iterator;
+    if (collection == null) {
+      return "";
+    }
+    iterator = collection.iterator();
+    if (collection.iterator().hasNext()) {
+      return "";
+    }
+    StringBuilder builder = new StringBuilder(String.valueOf(iterator.next()));
+    while (iterator.hasNext()) {
+      builder.append(separator).append(iterator.next());
+    }
+    return builder.toString();
   }
 
   // FIXME prijde odstranit
   public static void checkPerunSession(PerunSession sess) {
     notNull(sess, "sess");
-  }
-
-  /**
-   * Creates copy of given Map with Sets as values. The returned object contains a new Map
-   * and new Sets, the {@link T} objects remain the same.
-   *
-   * @param original original Map
-   * @param <T>      parameter
-   * @return new Map with new Sets as values
-   */
-  public static <T> Map<T, Set<T>> createDeepCopyOfMapWithSets(Map<T, Set<T>> original) {
-    Map<T, Set<T>> copy = new HashMap<>();
-    for (T key : original.keySet()) {
-      Set<T> setCopy = original.get(key) == null ? null : new HashSet<>(original.get(key));
-      copy.put(key, setCopy);
-    }
-    return copy;
   }
 
   /**
@@ -440,8 +430,25 @@ public class Utils {
   }
 
   /**
-   * Throws a MinSizeExceededException if the given value does not specified minLength.
-   * If the value is null then MinSizeExceededException is thrown as well.
+   * Creates copy of given Map with Sets as values. The returned object contains a new Map and new Sets, the {@link T}
+   * objects remain the same.
+   *
+   * @param original original Map
+   * @param <T>      parameter
+   * @return new Map with new Sets as values
+   */
+  public static <T> Map<T, Set<T>> createDeepCopyOfMapWithSets(Map<T, Set<T>> original) {
+    Map<T, Set<T>> copy = new HashMap<>();
+    for (T key : original.keySet()) {
+      Set<T> setCopy = original.get(key) == null ? null : new HashSet<>(original.get(key));
+      copy.put(key, setCopy);
+    }
+    return copy;
+  }
+
+  /**
+   * Throws a MinSizeExceededException if the given value does not specified minLength. If the value is null then
+   * MinSizeExceededException is thrown as well.
    *
    * @param propertyName name of checked property
    * @param minLength    minimal length
@@ -451,18 +458,18 @@ public class Utils {
     if (actualValue == null) {
       throw new MinSizeExceededException(
           "The property '" + propertyName + "' does not have a minimal length equal to '" + minLength +
-              "' because it is null.");
+          "' because it is null.");
     }
     if (actualValue.length() < minLength) {
       throw new MinSizeExceededException(
           "Length of '" + propertyName + "' is too short! MinLength=" + minLength + ", ActualLength=" +
-              actualValue.length());
+          actualValue.length());
     }
   }
 
   /**
-   * Throws a MaxSizeExceededException if the given value is longer than maxLength.
-   * If the value is null then nothing happens.
+   * Throws a MaxSizeExceededException if the given value is longer than maxLength. If the value is null then nothing
+   * happens.
    *
    * @param propertyName name of checked property
    * @param maxLength    max length
@@ -475,7 +482,7 @@ public class Utils {
     if (actualValue.length() > maxLength) {
       throw new MaxSizeExceededException(
           "Length of '" + propertyName + "' is too long! MaxLength=" + maxLength + ", ActualLength=" +
-              actualValue.length());
+          actualValue.length());
     }
   }
 
@@ -495,8 +502,7 @@ public class Utils {
   }
 
   /**
-   * Define, if some entity contain a special symbol
-   * Special symbol is everything except - numbers, letters and space
+   * Define, if some entity contain a special symbol Special symbol is everything except - numbers, letters and space
    *
    * @param name name of entity
    * @throws SpecialCharsNotAllowedException
@@ -509,10 +515,9 @@ public class Utils {
   }
 
   /**
-   * Define, if some entity contain a special symbol
-   * Special symbol is everything except - numbers, letters and space (and allowedSpecialChars)
-   * The allowedSpecialChars are on the end of regular expresion, so the same rule must be observed.
-   * (example, symbol - must be on the end of string) rules are the same like in regular expresion
+   * Define, if some entity contain a special symbol Special symbol is everything except - numbers, letters and space
+   * (and allowedSpecialChars) The allowedSpecialChars are on the end of regular expresion, so the same rule must be
+   * observed. (example, symbol - must be on the end of string) rules are the same like in regular expresion
    *
    * @param name                name of entity
    * @param allowedSpecialChars this String must contain only special chars which are allowed
@@ -553,8 +558,7 @@ public class Utils {
   }
 
   /**
-   * Define, if some number is in range.
-   * Example: number 4 is in range 4 - 12, number 3 is not
+   * Define, if some number is in range. Example: number 4 is in range 4 - 12, number 3 is not
    *
    * @param number
    * @param lowestValue
@@ -666,11 +670,11 @@ public class Utils {
   }
 
   /**
-   * Creates a new instance of User with names initialized from parsed rawName.
-   * Imposes limit on lengths of fields.
+   * Creates a new instance of User with names initialized from parsed rawName. Imposes limit on lengths of fields.
    *
    * @param rawName          raw name
-   * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception otherwise
+   * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception
+   *                         otherwise
    * @return User
    * @see Utils#parseCommonName(String, boolean)
    */
@@ -695,29 +699,25 @@ public class Utils {
    * <p>
    * If rawName is null or empty, return map with empty values of all keys.
    * <p>
-   * Parsing procedure:
-   * 1] prepare list of parts by replacing all characters "," and "_" by spaces
-   * 2] change all sequence of invisible characters (space, tabulator etc.) to one space
-   * 3] one by one try to parsing parts from the list
-   * - A] try to find all titleBefore parts
-   * - B] try to find one firstName part
-   * - C] try to find all lastName parts
+   * Parsing procedure: 1] prepare list of parts by replacing all characters "," and "_" by spaces 2] change all
+   * sequence of invisible characters (space, tabulator etc.) to one space 3] one by one try to parsing parts from the
+   * list - A] try to find all titleBefore parts - B] try to find one firstName part - C] try to find all lastName parts
    * - D] if the rest is not lastName so save it to the title after
    * <p>
-   * Example of parsing rawName:
-   * 1] rawName = "Mgr. et Mgr.    Petr_Jiri R. Sojka, Ph.D., CSc."
-   * 2] convert all ',' and '_' to spaces: rawName = "Mgr. et Mgr.    Petr Jiri R. Sojka  Ph.D.  CSc."
-   * 3] convert more than 1 invisible char to 1 space: rawName = "Mgr. et Mgr. Petr Jiri R. Sojka Ph.D. CSc."
-   * 4] parse string to list of parts by space: ListOfParts= ["Mgr.","et","Mgr.","Petr","Jiri","R.","Sojka","Ph.D.","CSc."]
-   * 5] first fill everything what can be in title before: titleBefore="Mgr. et Mgr."
-   * 6] then fill everything what can be in first name (maximum 1 part): firstName="Petr"
-   * 7] then fill everything what can be in last name: lastName="Jiri R. Sojka"
-   * 8] everything else put to the title after: titleAfter="Ph.D. CSc."
-   * 9] put these variables to map like key=value, for ex.: Map[titleBefore="Mgr. et Mgr.",firstName="Petr", ... ] and return this map
+   * Example of parsing rawName: 1] rawName = "Mgr. et Mgr.    Petr_Jiri R. Sojka, Ph.D., CSc." 2] convert all ',' and
+   * '_' to spaces: rawName = "Mgr. et Mgr.    Petr Jiri R. Sojka  Ph.D.  CSc." 3] convert more than 1 invisible char to
+   * 1 space: rawName = "Mgr. et Mgr. Petr Jiri R. Sojka Ph.D. CSc." 4] parse string to list of parts by space:
+   * ListOfParts= ["Mgr.","et","Mgr.","Petr","Jiri","R.","Sojka","Ph.D.", "CSc."] 5] first fill everything what can be
+   * in title before: titleBefore="Mgr. et Mgr." 6] then fill everything what can be in first name (maximum 1 part):
+   * firstName="Petr" 7] then fill everything what can be in last name: lastName="Jiri R. Sojka" 8] everything else put
+   * to the title after: titleAfter="Ph.D. CSc." 9] put these variables to map like key=value, for ex.:
+   * Map[titleBefore="Mgr. et Mgr.",firstName="Petr", ... ] and return this map
    *
    * @param rawName          name to parse
-   * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception otherwise
-   * @return map string to string where are 4 keys (titleBefore,titleAfter,firstName and lastName) with their values (value can be null)
+   * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception
+   *                         otherwise
+   * @return map string to string where are 4 keys (titleBefore,titleAfter,firstName and lastName) with their values
+   * (value can be null)
    * @throws ParseUserNameException when method was unable to parse both first name and last name from the rawName
    */
   public static Map<String, String> parseCommonName(String rawName, boolean fullNameRequired) {
@@ -743,16 +743,16 @@ public class Utils {
         // if length of nameParts is more than 1, try to choose which part belong to which value
       } else {
         // join title before name to single string with ' ' as delimiter
-        titleBefore = parsePartOfName(nameParts, new StringJoiner(" "), titleBeforePattern);
+        titleBefore = parsePartOfName(nameParts, new StringJoiner(" "), TITLE_BEFORE_PATTERN);
 
         // get first name as a next name part if pattern matches and nameParts are not empty
         if (!nameParts.isEmpty()) {
-          firstName = parsePartOfName(nameParts, new StringJoiner(" "), firstNamePattern);
+          firstName = parsePartOfName(nameParts, new StringJoiner(" "), FIRST_NAME_PATTERN);
         }
 
         // join last names to single string with ' ' as delimiter
         if (!nameParts.isEmpty()) {
-          lastName = parsePartOfName(nameParts, new StringJoiner(" "), lastNamePattern);
+          lastName = parsePartOfName(nameParts, new StringJoiner(" "), LAST_NAME_PATTERN);
         }
 
         // if any nameParts are left join them to one string with ' ' as delimiter and assume they are titles after name
@@ -807,7 +807,7 @@ public class Utils {
     result.add(nameParts.get(0));
     nameParts.remove(0);
     // when nameParts are depleted or firstName was found there is no reason to continue the recursion
-    if (nameParts.isEmpty() || pattern.equals(firstNamePattern)) {
+    if (nameParts.isEmpty() || pattern.equals(FIRST_NAME_PATTERN)) {
       return result.toString();
     }
 
@@ -843,8 +843,7 @@ public class Utils {
   }
 
   /**
-   * Return true, if char on position in text is escaped by '\' Return false,
-   * if not.
+   * Return true, if char on position in text is escaped by '\' Return false, if not.
    *
    * @param text     text in which will be searching
    * @param position position in text <0-text.length>
@@ -899,10 +898,9 @@ public class Utils {
   }
 
   /**
-   * Method generates strings by pattern.
-   * The pattern is string with square brackets, e.g. "a[1-3]b". Then the content of the brackets
-   * is distributed, so the list is [a1b, a2b, a3c].
-   * Multibrackets are aslo allowed. For example "a[00-01]b[90-91]c" generates [a00b90c, a00b91c, a01b90c, a01b91c].
+   * Method generates strings by pattern. The pattern is string with square brackets, e.g. "a[1-3]b". Then the content
+   * of the brackets is distributed, so the list is [a1b, a2b, a3c]. Multibrackets are aslo allowed. For example
+   * "a[00-01]b[90-91]c" generates [a00b90c, a00b91c, a01b90c, a01b91c].
    *
    * @param pattern
    * @return list of all generated strings
@@ -1022,9 +1020,8 @@ public class Utils {
   }
 
   /**
-   * Method generates all combinations of joining of strings.
-   * It respects given order of lists.
-   * Example: input: [[a,b],[c,d]], output: [ac,ad,bc,bd]
+   * Method generates all combinations of joining of strings. It respects given order of lists. Example: input:
+   * [[a,b],[c,d]], output: [ac,ad,bc,bd]
    *
    * @param lists list of lists, which will be joined
    * @return all joined strings
@@ -1130,11 +1127,10 @@ public class Utils {
     String defaultSubject = "[" + instanceName + "] New email address verification";
     String defaultBody =
         "Dear " + user.getDisplayName() + ",\n\nWe've received request to change your preferred email address to: " +
-            email + "." +
-            "\n\nTo confirm this change please use link below:\n\n" + validationLink + "\n\n" +
-            "Message is automatically generated." +
-            "\n----------------------------------------------------------------" +
-            "\nPerun - Identity & Access Management System";
+        email + "." + "\n\nTo confirm this change please use link below:\n\n" + validationLink + "\n\n" +
+        "Message is automatically generated." + "\n----------------------------------------------------------------" +
+        "\nPerun - Identity & Access Management System";
+
 
     Map<String, String> subjectParametersToReplace = new HashMap<>();
     subjectParametersToReplace.put("{instanceName}", instanceName);
@@ -1148,294 +1144,49 @@ public class Utils {
   }
 
   /**
-   * Sends email with reminder of the username in the specified namespace to the user
+   * Prepare validation link for email change
    *
-   * @param user            user to send notification for
-   * @param email           user's email to send notification to
-   * @param login           user's login which will be used in message, if tag {@code {login}} is used.
-   * @param namespace       namespace to reset password in
-   * @param messageTemplate message of the email (uses default if null)
-   * @param subject         subject of the email (uses default if null)
+   * @param url          base URL of Perun instance
+   * @param linkLocation location of validation link under specific Perun instance (for example '/non/pwd-reset/')
+   * @param changeUuid   UUID of request
+   * @param user         user to who link will be send
+   * @param idp          authentication method for query parameter
+   * @return link of validation as String
    */
-  public static void sendUsernameReminderEmail(User user, String email, String login, String namespace,
-                                               String messageTemplate, String subject) {
-    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+  private static String prepareValidationLinkForEmailChange(String url, String linkLocation, UUID changeUuid, User user,
+                                                            String idp) {
+    notNull(user, "user");
+    notNull(url, "url");
+    notNull(linkLocation, "linkLocation");
 
-    String defaultSubject = "[" + instanceName + "] Username reminder for namespace: " + namespace;
-    String defaultBody = "Dear " + user.getDisplayName() + ",\n\n" +
-        "\n\nWe've received request to remind you your username for namespace \"" + namespace + "\"." +
-        "\nYour username is: " + login +
-        "\n\nMessage is automatically generated." +
-        "\n----------------------------------------------------------------" +
-        "\nPerun - Identity & Access Management System";
-
-    Map<String, String> subjectParametersToReplace = new HashMap<>();
-    subjectParametersToReplace.put("{instanceName}", instanceName);
-    subjectParametersToReplace.put("{namespace}", namespace);
-    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
-
-    Map<String, String> bodyParametersToReplace = new HashMap<>();
-    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
-    bodyParametersToReplace.put("{namespace}", namespace);
-    bodyParametersToReplace.put("{login}", login);
-
-    messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
-
-    sendEmail(subject, messageTemplate, email);
-  }
-
-  /**
-   * Sends email with link to non-authz account activation where user can activate his account by setting a password.
-   *
-   * @param user            user to send notification for
-   * @param email           user's email to send notification to
-   * @param login           user's login which will be used in message, if tag {@code {login}} is used.
-   * @param namespace       namespace to reset password in
-   * @param url             base URL of Perun instance
-   * @param uuid            UUID of account activation request
-   * @param messageTemplate message of the email (use default if null)
-   * @param subject         subject of the email (use default if null)
-   * @param validityTo      time till link is valid
-   */
-  public static void sendAccountActivationEmail(User user, String email, String login, String namespace, String url,
-                                                UUID uuid, String messageTemplate, String subject,
-                                                LocalDateTime validityTo) {
-    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
-
-    String validationLink =
-        prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", uuid, user, namespace, true);
-    String validityToString = prepareValidityTo(validityTo);
-
-    String defaultSubject = "[" + instanceName + "] Account activation in namespace: " + namespace;
-    String defaultBody =
-        "Dear " + user.getDisplayName() + ",\n\nWe've received request to activate your account in namespace \"" +
-            namespace + "\"." +
-            "\n\nPlease visit the link below, where you can activate your account:\n\n" + validationLink + "\n\n" +
-            "Link is valid till " + validityToString + "\n\n" +
-            "Message is automatically generated." +
-            "\n----------------------------------------------------------------" +
-            "\nPerun - Identity & Access Management System";
-
-    Map<String, String> subjectParametersToReplace = new HashMap<>();
-    subjectParametersToReplace.put("{instanceName}", instanceName);
-    subjectParametersToReplace.put("{namespace}", namespace);
-    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
-
-    Map<String, String> bodyParametersToReplace = new HashMap<>();
-    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
-    bodyParametersToReplace.put("{namespace}", namespace);
-    bodyParametersToReplace.put("{validity}", validityToString);
-    bodyParametersToReplace.put("{login}", login);
-
-    // allow enforcing per-language links
-    if (messageTemplate != null && messageTemplate.contains("{link-")) {
-      Pattern pattern = Pattern.compile("\\{link-[^}]+}");
-      Matcher matcher = pattern.matcher(messageTemplate);
-      while (matcher.find()) {
-        // whole "{link-something}"
-        String toSubstitute = matcher.group(0);
-        String langLink = validationLink;
-
-        Pattern namespacePattern = Pattern.compile("-(.*?)}");
-        Matcher m2 = namespacePattern.matcher(toSubstitute);
-        if (m2.find()) {
-          // only language "cs", "en",...
-          String lang = m2.group(1);
-          langLink = langLink + "&locale=" + lang;
-        }
-        bodyParametersToReplace.put(toSubstitute, langLink);
-      }
-    } else {
-      bodyParametersToReplace.put("{link}", validationLink);
-    }
-    messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
-
-    sendEmail(subject, messageTemplate, email);
-  }
-
-  /**
-   * Sends email with link to non-authz password reset GUI where user
-   * can reset forgotten password
-   *
-   * @param user            user to send notification for
-   * @param email           user's email to send notification to
-   * @param namespace       namespace to reset password in
-   * @param url             base URL of Perun instance
-   * @param uuid            UUID of pwd reset request
-   * @param messageTemplate message of the email
-   * @param subject         subject of the email
-   * @param validityTo      time till link is valid
-   * @throws InternalErrorException
-   */
-  public static void sendPasswordResetEmail(User user, String email, String namespace, String url, UUID uuid,
-                                            String messageTemplate, String subject, LocalDateTime validityTo) {
-    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
-    String linkLocation = "/non/pwd-reset/";
+    StringBuilder link = new StringBuilder();
 
     try {
       URL urlObject = new URL(url);
-      String domain = urlObject.getProtocol() + "://" + urlObject.getHost();
-      PerunAppsConfig.Brand brand = getBrandContainingDomain(domain);
 
-      if (brand != null) {
-        if (!brand.getOldGuiDomain().equals(domain) && brand.getNewApps().getPwdReset() != null &&
-            !brand.getNewApps().getPwdReset().isEmpty()) {
-          // change url to new pwd reset app
-          url = brand.getNewApps().getPwdReset();
-          linkLocation = "";
-        } else {
-          url = brand.getOldGuiDomain();
-        }
-      } else {
-        // if no brand contains specified domain, set default old gui domain
-        PerunAppsConfig.Brand defaultBrand = getInstance().getBrands().stream()
-            .filter(b -> b.getName().equals("default"))
-            .findFirst()
-            .orElseThrow(() -> new InternalErrorException("Default GUI branding configuration is missing"));
-        url = defaultBrand.getOldGuiDomain();
+      link.append(urlObject.getProtocol());
+      link.append("://");
+      link.append(urlObject.getHost());
+      link.append(linkLocation);
+      link.append("?token=");
+      link.append(URLEncoder.encode(changeUuid.toString(), StandardCharsets.UTF_8));
+      link.append("&u=" + user.getId());
+      if (isNotBlank(idp)) {
+        link.append("&idpFilter=");
+        link.append(URLEncoder.encode(idp, StandardCharsets.UTF_8));
       }
     } catch (MalformedURLException ex) {
       throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
     }
 
-    String validationLink =
-        prepareValidationLinkForPasswordResetAndAccountActivation(url, linkLocation, uuid, user, namespace, false);
-    String validityToString = prepareValidityTo(validityTo);
-
-    String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;
-    String defaultBody =
-        "Dear " + user.getDisplayName() + ",\n\nWe've received request to reset your password in namespace \"" +
-            namespace + "\"." +
-            "\n\nPlease visit the link below, where you can set new password:\n\n" + validationLink + "\n\n" +
-            "Link is valid till " + validityToString + "\n\n" +
-            "Message is automatically generated." +
-            "\n----------------------------------------------------------------" +
-            "\nPerun - Identity & Access Management System";
-
-    Map<String, String> subjectParametersToReplace = new HashMap<>();
-    subjectParametersToReplace.put("{instanceName}", instanceName);
-    subjectParametersToReplace.put("{namespace}", namespace);
-    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
-
-    Map<String, String> bodyParametersToReplace = new HashMap<>();
-    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
-    bodyParametersToReplace.put("{namespace}", namespace);
-    bodyParametersToReplace.put("{validity}", validityToString);
-    // allow enforcing per-language links
-    if (messageTemplate != null && messageTemplate.contains("{link-")) {
-      Pattern pattern = Pattern.compile("\\{link-[^}]+}");
-      Matcher matcher = pattern.matcher(messageTemplate);
-      while (matcher.find()) {
-        // whole "{link-something}"
-        String toSubstitute = matcher.group(0);
-        String langLink = validationLink;
-
-        Pattern namespacePattern = Pattern.compile("-(.*?)}");
-        Matcher m2 = namespacePattern.matcher(toSubstitute);
-        if (m2.find()) {
-          // only language "cs", "en",...
-          String lang = m2.group(1);
-          langLink = langLink + "&locale=" + lang;
-        }
-        bodyParametersToReplace.put(toSubstitute, langLink);
-      }
-    } else {
-      bodyParametersToReplace.put("{link}", validationLink);
-    }
-    messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
-
-    sendEmail(subject, messageTemplate, email);
-  }
-
-  /**
-   * Sends email to user confirming his password was set and the account was activated.
-   *
-   * @param user      user to send notification for
-   * @param email     user's email to send notification to
-   * @param namespace namespace where the account was activated
-   * @param login     login of user
-   * @param subject   Subject from template or null
-   * @param content   Message from template or null
-   */
-  public static void sendAccountActivationConfirmationEmail(User user, String email, String namespace, String login,
-                                                            String subject, String content) {
-    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
-
-    String defaultSubject = "[" + instanceName + "] Account activation in namespace: " + namespace;
-    String defaultText = "Dear " + user.getDisplayName() + ",\n\nyour account in namespace \"" + namespace +
-        "\" was successfully activated." +
-        "\n\nThis message is automatically sent to all your email addresses registered in " + instanceName +
-        " in order to prevent malicious account activation without your knowledge.\n\n" +
-        "If you didn't request / perform account activation, please notify your administrators and support at " +
-        (StringUtils.isNotEmpty(BeansUtils.getCoreConfig().getMailchangeReplyTo()) ?
-            BeansUtils.getCoreConfig().getMailchangeReplyTo() : BeansUtils.getCoreConfig().getMailchangeBackupFrom()) +
-        " to resolve this security issue.\n\n" +
-        "Message is automatically generated." +
-        "\n----------------------------------------------------------------" +
-        "\nPerun - Identity & Access Management System";
-
-    Map<String, String> subjectParametersToReplace = new HashMap<>();
-    subjectParametersToReplace.put("{instanceName}", instanceName);
-    subjectParametersToReplace.put("{namespace}", namespace);
-    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
-
-    Map<String, String> bodyParametersToReplace = new HashMap<>();
-    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
-    bodyParametersToReplace.put("{namespace}", namespace);
-    bodyParametersToReplace.put("{login}", login);
-    bodyParametersToReplace.put("{instanceName}", instanceName);
-    content = prepareBodyOfEmail(content, defaultText, bodyParametersToReplace);
-
-    sendEmail(subject, content, email);
-  }
-
-  /**
-   * Sends email to user confirming his password was changed.
-   *
-   * @param user      user to send notification for
-   * @param email     user's email to send notification to
-   * @param namespace namespace the password was re-set
-   * @param login     login of user
-   * @param subject   Subject from template or null
-   * @param content   Message from template or null
-   */
-  public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String login,
-                                                        String subject, String content) {
-    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
-
-    String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;
-    String defaultText = "Dear " + user.getDisplayName() + ",\n\nyour password in namespace \"" + namespace +
-        "\" was successfully reset." +
-        "\n\nThis message is automatically sent to all your email addresses registered in " + instanceName +
-        " in order to prevent malicious password reset without your knowledge.\n\n" +
-        "If you didn't request / perform password reset, please notify your administrators and support at " +
-        (StringUtils.isNotEmpty(BeansUtils.getCoreConfig().getMailchangeReplyTo()) ?
-            BeansUtils.getCoreConfig().getMailchangeReplyTo() : BeansUtils.getCoreConfig().getMailchangeBackupFrom()) +
-        " to resolve this security issue.\n\n" +
-        "Message is automatically generated." +
-        "\n----------------------------------------------------------------" +
-        "\nPerun - Identity & Access Management System";
-
-    Map<String, String> subjectParametersToReplace = new HashMap<>();
-    subjectParametersToReplace.put("{instanceName}", instanceName);
-    subjectParametersToReplace.put("{namespace}", namespace);
-    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
-
-    Map<String, String> bodyParametersToReplace = new HashMap<>();
-    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
-    bodyParametersToReplace.put("{namespace}", namespace);
-    bodyParametersToReplace.put("{login}", login);
-    bodyParametersToReplace.put("{instanceName}", instanceName);
-    content = prepareBodyOfEmail(content, defaultText, bodyParametersToReplace);
-
-    sendEmail(subject, content, email);
+    return link.toString();
   }
 
   /**
    * Prepare subject of email for password reset or account activation.
    * <p>
-   * If optionalSubject is defined, replace some variables in it and use it as is. If not, use the default
-   * subject instead.
+   * If optionalSubject is defined, replace some variables in it and use it as is. If not, use the default subject
+   * instead.
    *
    * @param optionalSubject     optional subject, can be null, if so use default subject instead
    * @param defaultSubject      default subject, need to be not null
@@ -1463,8 +1214,8 @@ public class Utils {
   /**
    * Prepare text of email for password reset or account activation.
    * <p>
-   * If optionalBody is defined, replace some variables in it and use it as is. If not, use the default
-   * subject instead.
+   * If optionalBody is defined, replace some variables in it and use it as is. If not, use the default subject
+   * instead.
    *
    * @param optionalBody        optional body, can be null, if so use default subject instead
    * @param defaultBody         default body, need to be not null
@@ -1520,20 +1271,114 @@ public class Utils {
     try {
       mailSender.send(message);
     } catch (MailException ex) {
-      log.error("Unable to send email to '" + email + "'.", ex);
+      LOG.error("Unable to send email to '" + email + "'.", ex);
       throw new InternalErrorException("Unable to send email.", ex);
     }
   }
 
   /**
-   * Prepare validity time of validation link.
+   * Sends email with reminder of the username in the specified namespace to the user
    *
-   * @param validityTo
-   * @return validity as formatted string
+   * @param user            user to send notification for
+   * @param email           user's email to send notification to
+   * @param login           user's login which will be used in message, if tag {@code {login}} is used.
+   * @param namespace       namespace to reset password in
+   * @param messageTemplate message of the email (uses default if null)
+   * @param subject         subject of the email (uses default if null)
    */
-  private static String prepareValidityTo(LocalDateTime validityTo) {
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    return dtf.format(validityTo);
+  public static void sendUsernameReminderEmail(User user, String email, String login, String namespace,
+                                               String messageTemplate, String subject) {
+    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+    String defaultSubject = "[" + instanceName + "] Username reminder for namespace: " + namespace;
+    String defaultBody = "Dear " + user.getDisplayName() + ",\n\n" +
+                         "\n\nWe've received request to remind you your username for namespace \"" + namespace + "\"." +
+                         "\nYour username is: " + login + "\n\nMessage is automatically generated." +
+                         "\n----------------------------------------------------------------" +
+                         "\nPerun - Identity & Access Management System";
+
+
+    Map<String, String> subjectParametersToReplace = new HashMap<>();
+    subjectParametersToReplace.put("{instanceName}", instanceName);
+    subjectParametersToReplace.put("{namespace}", namespace);
+    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+    Map<String, String> bodyParametersToReplace = new HashMap<>();
+    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+    bodyParametersToReplace.put("{namespace}", namespace);
+    bodyParametersToReplace.put("{login}", login);
+
+    messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
+
+    sendEmail(subject, messageTemplate, email);
+  }
+
+  /**
+   * Sends email with link to non-authz account activation where user can activate his account by setting a password.
+   *
+   * @param user            user to send notification for
+   * @param email           user's email to send notification to
+   * @param login           user's login which will be used in message, if tag {@code {login}} is used.
+   * @param namespace       namespace to reset password in
+   * @param url             base URL of Perun instance
+   * @param uuid            UUID of account activation request
+   * @param messageTemplate message of the email (use default if null)
+   * @param subject         subject of the email (use default if null)
+   * @param validityTo      time till link is valid
+   */
+  public static void sendAccountActivationEmail(User user, String email, String login, String namespace, String url,
+                                                UUID uuid, String messageTemplate, String subject,
+                                                LocalDateTime validityTo) {
+    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+    String validationLink =
+        prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", uuid, user, namespace, true);
+    String validityToString = prepareValidityTo(validityTo);
+
+    String defaultSubject = "[" + instanceName + "] Account activation in namespace: " + namespace;
+    String defaultBody =
+        "Dear " + user.getDisplayName() + ",\n\nWe've received request to activate your account in namespace \"" +
+        namespace + "\"." + "\n\nPlease visit the link below, where you can activate your account:\n\n" +
+        validationLink + "\n\n" + "Link is valid till " + validityToString + "\n\n" +
+        "Message is automatically generated." + "\n----------------------------------------------------------------" +
+        "\nPerun - Identity & Access Management System";
+
+    Map<String, String> subjectParametersToReplace = new HashMap<>();
+    subjectParametersToReplace.put("{instanceName}", instanceName);
+    subjectParametersToReplace.put("{namespace}", namespace);
+    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+    Map<String, String> bodyParametersToReplace = new HashMap<>();
+    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+    bodyParametersToReplace.put("{namespace}", namespace);
+    bodyParametersToReplace.put("{validity}", validityToString);
+    bodyParametersToReplace.put("{login}", login);
+
+    // allow enforcing per-language links
+    if (messageTemplate != null && messageTemplate.contains("{link-")) {
+      Pattern pattern = Pattern.compile("\\{link-[^}]+}");
+      Matcher matcher = pattern.matcher(messageTemplate);
+      while (matcher.find()) {
+        // whole "{link-something}"
+        String toSubstitute = matcher.group(0);
+        String langLink = validationLink;
+
+        Pattern namespacePattern = Pattern.compile("-(.*?)}");
+        Matcher m2 = namespacePattern.matcher(toSubstitute);
+        if (m2.find()) {
+          // only language "cs", "en",...
+          String lang = m2.group(1);
+          langLink = langLink + "&locale=" + lang;
+        }
+        bodyParametersToReplace.put(toSubstitute, langLink);
+      }
+    } else {
+      bodyParametersToReplace.put("{link}", validationLink);
+    }
+
+    messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
+
+    sendEmail(subject, messageTemplate, email);
   }
 
   /**
@@ -1579,48 +1424,196 @@ public class Utils {
   }
 
   /**
-   * Prepare validation link for email change
+   * Prepare validity time of validation link.
    *
-   * @param url          base URL of Perun instance
-   * @param linkLocation location of validation link under specific Perun instance (for example '/non/pwd-reset/')
-   * @param changeUuid   UUID of request
-   * @param user         user to who link will be send
-   * @param idp          authentication method for query parameter
-   * @return link of validation as String
+   * @param validityTo
+   * @return validity as formatted string
    */
-  private static String prepareValidationLinkForEmailChange(String url, String linkLocation, UUID changeUuid, User user,
-                                                            String idp) {
-    notNull(user, "user");
-    notNull(url, "url");
-    notNull(linkLocation, "linkLocation");
+  private static String prepareValidityTo(LocalDateTime validityTo) {
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    return dtf.format(validityTo);
+  }
 
-    StringBuilder link = new StringBuilder();
+  /**
+   * Sends email with link to non-authz password reset GUI where user can reset forgotten password
+   *
+   * @param user            user to send notification for
+   * @param email           user's email to send notification to
+   * @param namespace       namespace to reset password in
+   * @param url             base URL of Perun instance
+   * @param uuid            UUID of pwd reset request
+   * @param messageTemplate message of the email
+   * @param subject         subject of the email
+   * @param validityTo      time till link is valid
+   * @throws InternalErrorException
+   */
+  public static void sendPasswordResetEmail(User user, String email, String namespace, String url, UUID uuid,
+                                            String messageTemplate, String subject, LocalDateTime validityTo) {
+    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+    String linkLocation = "/non/pwd-reset/";
 
     try {
       URL urlObject = new URL(url);
+      String domain = urlObject.getProtocol() + "://" + urlObject.getHost();
+      PerunAppsConfig.Brand brand = getBrandContainingDomain(domain);
 
-      link.append(urlObject.getProtocol());
-      link.append("://");
-      link.append(urlObject.getHost());
-      link.append(linkLocation);
-      link.append("?token=");
-      link.append(URLEncoder.encode(changeUuid.toString(), StandardCharsets.UTF_8));
-      link.append("&u=" + user.getId());
-      if (isNotBlank(idp)) {
-        link.append("&idpFilter=");
-        link.append(URLEncoder.encode(idp, StandardCharsets.UTF_8));
+      if (brand != null) {
+        if (!brand.getOldGuiDomain().equals(domain) && brand.getNewApps().getPwdReset() != null &&
+            !brand.getNewApps().getPwdReset().isEmpty()) {
+          // change url to new pwd reset app
+          url = brand.getNewApps().getPwdReset();
+          linkLocation = "";
+        } else {
+          url = brand.getOldGuiDomain();
+        }
+      } else {
+        // if no brand contains specified domain, set default old gui domain
+        PerunAppsConfig.Brand defaultBrand =
+            getInstance().getBrands().stream().filter(b -> b.getName().equals("default")).findFirst()
+                .orElseThrow(() -> new InternalErrorException("Default GUI branding configuration is missing"));
+        url = defaultBrand.getOldGuiDomain();
       }
     } catch (MalformedURLException ex) {
       throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
     }
 
-    return link.toString();
+    String validationLink =
+        prepareValidationLinkForPasswordResetAndAccountActivation(url, linkLocation, uuid, user, namespace, false);
+    String validityToString = prepareValidityTo(validityTo);
+
+    String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;
+    String defaultBody =
+        "Dear " + user.getDisplayName() + ",\n\nWe've received request to reset your password in namespace \"" +
+        namespace + "\"." + "\n\nPlease visit the link below, where you can set new password:\n\n" + validationLink +
+        "\n\n" + "Link is valid till " + validityToString + "\n\n" + "Message is automatically generated." +
+        "\n----------------------------------------------------------------" +
+        "\nPerun - Identity & Access Management System";
+
+    Map<String, String> subjectParametersToReplace = new HashMap<>();
+    subjectParametersToReplace.put("{instanceName}", instanceName);
+    subjectParametersToReplace.put("{namespace}", namespace);
+    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+    Map<String, String> bodyParametersToReplace = new HashMap<>();
+    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+    bodyParametersToReplace.put("{namespace}", namespace);
+    bodyParametersToReplace.put("{validity}", validityToString);
+    // allow enforcing per-language links
+    if (messageTemplate != null && messageTemplate.contains("{link-")) {
+      Pattern pattern = Pattern.compile("\\{link-[^}]+}");
+      Matcher matcher = pattern.matcher(messageTemplate);
+      while (matcher.find()) {
+        // whole "{link-something}"
+        String toSubstitute = matcher.group(0);
+        String langLink = validationLink;
+
+        Pattern namespacePattern = Pattern.compile("-(.*?)}");
+        Matcher m2 = namespacePattern.matcher(toSubstitute);
+        if (m2.find()) {
+          // only language "cs", "en",...
+          String lang = m2.group(1);
+          langLink = langLink + "&locale=" + lang;
+        }
+        bodyParametersToReplace.put(toSubstitute, langLink);
+      }
+    } else {
+      bodyParametersToReplace.put("{link}", validationLink);
+    }
+
+    messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
+
+    sendEmail(subject, messageTemplate, email);
   }
 
   /**
-   * Return en/decrypted version of input using AES/CBC/PKCS5PADDING cipher.
-   * Perun's internal secretKey and initVector are used (you can configure them in
-   * perun.properties file).
+   * Sends email to user confirming his password was set and the account was activated.
+   *
+   * @param user      user to send notification for
+   * @param email     user's email to send notification to
+   * @param namespace namespace where the account was activated
+   * @param login     login of user
+   * @param subject   Subject from template or null
+   * @param content   Message from template or null
+   */
+  public static void sendAccountActivationConfirmationEmail(User user, String email, String namespace, String login,
+                                                            String subject, String content) {
+    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+    String defaultSubject = "[" + instanceName + "] Account activation in namespace: " + namespace;
+    String defaultText = "Dear " + user.getDisplayName() + ",\n\nyour account in namespace \"" + namespace +
+                         "\" was successfully activated." +
+                         "\n\nThis message is automatically sent to all your email addresses registered in " +
+                         instanceName +
+                         " in order to prevent malicious account activation without your knowledge.\n\n" +
+                         "If you didn't request / perform account activation, please notify your administrators and " +
+                         "support at " + (StringUtils.isNotEmpty(BeansUtils.getCoreConfig().getMailchangeReplyTo()) ?
+        BeansUtils.getCoreConfig().getMailchangeReplyTo() : BeansUtils.getCoreConfig().getMailchangeBackupFrom()) +
+                         " to resolve this security issue.\n\n" + "Message is automatically generated." +
+                         "\n----------------------------------------------------------------" +
+                         "\nPerun - Identity & Access Management System";
+
+
+    Map<String, String> subjectParametersToReplace = new HashMap<>();
+    subjectParametersToReplace.put("{instanceName}", instanceName);
+    subjectParametersToReplace.put("{namespace}", namespace);
+    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+    Map<String, String> bodyParametersToReplace = new HashMap<>();
+    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+    bodyParametersToReplace.put("{namespace}", namespace);
+    bodyParametersToReplace.put("{login}", login);
+    bodyParametersToReplace.put("{instanceName}", instanceName);
+
+    content = prepareBodyOfEmail(content, defaultText, bodyParametersToReplace);
+
+    sendEmail(subject, content, email);
+  }
+
+  /**
+   * Sends email to user confirming his password was changed.
+   *
+   * @param user      user to send notification for
+   * @param email     user's email to send notification to
+   * @param namespace namespace the password was re-set
+   * @param login     login of user
+   * @param subject   Subject from template or null
+   * @param content   Message from template or null
+   */
+  public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String login,
+                                                        String subject, String content) {
+    String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+    String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;
+    String defaultText = "Dear " + user.getDisplayName() + ",\n\nyour password in namespace \"" + namespace +
+                         "\" was successfully reset." +
+                         "\n\nThis message is automatically sent to all your email addresses registered in " +
+                         instanceName + " in order to prevent malicious password reset without your knowledge.\n\n" +
+                         "If you didn't request / perform password reset, please notify your administrators and " +
+                         "support at " + (StringUtils.isNotEmpty(BeansUtils.getCoreConfig().getMailchangeReplyTo()) ?
+        BeansUtils.getCoreConfig().getMailchangeReplyTo() : BeansUtils.getCoreConfig().getMailchangeBackupFrom()) +
+                         " to resolve this security issue.\n\n" + "Message is automatically generated." +
+                         "\n----------------------------------------------------------------" +
+                         "\nPerun - Identity & Access Management System";
+
+
+    Map<String, String> subjectParametersToReplace = new HashMap<>();
+    subjectParametersToReplace.put("{instanceName}", instanceName);
+    subjectParametersToReplace.put("{namespace}", namespace);
+    subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+    Map<String, String> bodyParametersToReplace = new HashMap<>();
+    bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+    bodyParametersToReplace.put("{namespace}", namespace);
+    bodyParametersToReplace.put("{login}", login);
+    bodyParametersToReplace.put("{instanceName}", instanceName);
+    content = prepareBodyOfEmail(content, defaultText, bodyParametersToReplace);
+
+    sendEmail(subject, content, email);
+  }
+
+  /**
+   * Return en/decrypted version of input using AES/CBC/PKCS5PADDING cipher. Perun's internal secretKey and initVector
+   * are used (you can configure them in perun.properties file).
    *
    * @param plainText text to en/decrypt
    * @param decrypt   TRUE = decrypt input / FALSE = encrypt input
@@ -1671,15 +1664,15 @@ public class Utils {
       throw new InternalErrorException("Destination is null.");
     }
     String destinationType = destination.getType();
-    if ((!Objects.equals(destinationType, Destination.DESTINATIONHOSTTYPE)
-        && (!Objects.equals(destinationType, Destination.DESTINATIONEMAILTYPE))
-        && (!Objects.equals(destinationType, Destination.DESTINATIONSEMAILTYPE))
-        && (!Objects.equals(destinationType, Destination.DESTINATIONURLTYPE))
-        && (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTTYPE))
-        && (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTPORTTYPE))
-        && (!Objects.equals(destinationType, Destination.DESTINATIONSERVICESPECIFICTYPE))
-        && (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWS))
-        && (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWSPROXY)))) {
+    if ((!Objects.equals(destinationType, Destination.DESTINATIONHOSTTYPE) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONEMAILTYPE)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONSEMAILTYPE)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONURLTYPE)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTTYPE)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTPORTTYPE)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONSERVICESPECIFICTYPE)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWS)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWSPROXY)))) {
       throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
     }
   }
@@ -1688,7 +1681,8 @@ public class Utils {
    * Checks whether the destinations name has correct syntax.
    *
    * @param destination destination to check
-   * @throws cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException if destination has invalid value in given destination type.
+   * @throws cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException if destination has invalid value in given
+   *                                                                           destination type.
    */
   public static void checkDestination(Destination destination) {
     if (destination == null) {
@@ -1699,24 +1693,24 @@ public class Utils {
     String destinationType = destination.getType();
     if (destinationType.equals(Destination.DESTINATIONHOSTTYPE) ||
         destinationType.equals(Destination.DESTINATIONWINDOWSPROXY)) {
-      matcher = hostPattern.matcher(destination.getDestination());
+      matcher = HOST_PATTERN.matcher(destination.getDestination());
     }
     if (destinationType.equals(Destination.DESTINATIONEMAILTYPE) ||
         destinationType.equals(Destination.DESTINATIONSEMAILTYPE)) {
-      matcher = emailPattern.matcher(destination.getDestination());
+      matcher = EMAIL_PATTERN.matcher(destination.getDestination());
     }
     if (destinationType.equals(Destination.DESTINATIONURLTYPE)) {
-      matcher = urlPattern.matcher(destination.getDestination());
+      matcher = URL_PATTERN.matcher(destination.getDestination());
     }
     if (destinationType.equals(Destination.DESTINATIONUSERHOSTTYPE) ||
         destinationType.equals(Destination.DESTINATIONWINDOWS)) {
-      matcher = userAtHostPattern.matcher(destination.getDestination());
+      matcher = USER_AT_HOST_PATTERN.matcher(destination.getDestination());
     }
     if (destinationType.equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
-      matcher = userAtHostPortPattern.matcher(destination.getDestination());
+      matcher = USER_AT_HOST_PORT_PATTERN.matcher(destination.getDestination());
     }
     if (destinationType.equals(Destination.DESTINATIONSERVICESPECIFICTYPE)) {
-      matcher = serviceSpecificPattern.matcher(destination.getDestination());
+      matcher = SERVICE_SPECIFIC_PATTERN.matcher(destination.getDestination());
     }
 
     // it should not happen because destination type is checked earlier
@@ -1741,7 +1735,7 @@ public class Utils {
       throw new InternalErrorException("Host is null.");
     }
 
-    Matcher matcher = hostPattern.matcher(host.getHostname());
+    Matcher matcher = HOST_PATTERN.matcher(host.getHostname());
 
     if (!matcher.matches()) {
       throw new IllegalArgumentException("Wrong syntax of hostname " + host.getHostname());
@@ -1749,14 +1743,16 @@ public class Utils {
   }
 
   /**
-   * Sends SMS to the phone number of a user with the given message.
-   * The phone number is taken from the user attribute urn:perun:user:attribute-def:def:phone.
+   * Sends SMS to the phone number of a user with the given message. The phone number is taken from the user attribute
+   * urn:perun:user:attribute-def:def:phone.
    *
    * @param sess    session
    * @param user    receiver of the message
    * @param message sms message to send
-   * @throws InternalErrorException                                          when the attribute value cannot be found or is broken
-   * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException     when the actor has not right to get the attribute
+   * @throws InternalErrorException                                          when the attribute value cannot be found or
+   *                                                                         is broken
+   * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException     when the actor has not right to get the
+   *                                                                         attribute
    * @throws cz.metacentrum.perun.core.api.exceptions.UserNotExistsException when given user does not exist
    */
   public static void sendSMS(PerunSession sess, User user, String message)
@@ -1770,27 +1766,29 @@ public class Utils {
     String telNumber;
     try {
       telNumber =
-          (String) sess.getPerun().getAttributesManager().getAttribute(sess, user, userPhoneAttribute).getValue();
+          (String) sess.getPerun().getAttributesManager().getAttribute(sess, user, USER_PHONE_ATTRIBUTE).getValue();
     } catch (AttributeNotExistsException ex) {
-      log.error("Sendig SMS with text \"{}\" to user {} failed: cannot get tel. number.", message, user);
-      throw new InternalErrorException("The attribute " + userPhoneAttribute + " has not been found.", ex);
+      LOG.error("Sendig SMS with text \"{}\" to user {} failed: cannot get tel. number.", message, user);
+      throw new InternalErrorException("The attribute " + USER_PHONE_ATTRIBUTE + " has not been found.", ex);
     } catch (WrongAttributeAssignmentException ex) {
-      log.error("Sendig SMS with text \"{}\" to user {} failed: cannot get tel. number.", message, user);
+      LOG.error("Sendig SMS with text \"{}\" to user {} failed: cannot get tel. number.", message, user);
       throw new InternalErrorException(
-          "The attribute " + userPhoneAttribute + " has not been found in user attributes.", ex);
+          "The attribute " + USER_PHONE_ATTRIBUTE + " has not been found in user attributes.", ex);
     }
     sendSMS(telNumber, message);
   }
 
   /**
-   * Sends SMS to the phone number of a member with the given message.
-   * The phone number is taken from the user attribute urn:perun:member:attribute-def:def:phone.
+   * Sends SMS to the phone number of a member with the given message. The phone number is taken from the user attribute
+   * urn:perun:member:attribute-def:def:phone.
    *
    * @param sess    session
    * @param member  receiver of the message
    * @param message sms message to send
-   * @throws InternalErrorException                                            when the attribute value cannot be found or is broken
-   * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException       when the actor has not right to get the attribute
+   * @throws InternalErrorException                                            when the attribute value cannot be found
+   *                                                                           or is broken
+   * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException       when the actor has not right to get the
+   *                                                                           attribute
    * @throws cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException when given member does not exist
    */
   public static void sendSMS(PerunSession sess, Member member, String message)
@@ -1798,22 +1796,21 @@ public class Utils {
     String telNumber;
     try {
       telNumber =
-          (String) sess.getPerun().getAttributesManager().getAttribute(sess, member, memberPhoneAttribute).getValue();
+          (String) sess.getPerun().getAttributesManager().getAttribute(sess, member, MEMBER_PHONE_ATTRIBUTE).getValue();
     } catch (AttributeNotExistsException ex) {
-      log.error("Sendig SMS with text \"{}\" to member {} failed: cannot get tel. number.", message, member);
-      throw new InternalErrorException("The attribute " + memberPhoneAttribute + " has not been found.", ex);
+      LOG.error("Sendig SMS with text \"{}\" to member {} failed: cannot get tel. number.", message, member);
+      throw new InternalErrorException("The attribute " + MEMBER_PHONE_ATTRIBUTE + " has not been found.", ex);
     } catch (WrongAttributeAssignmentException ex) {
-      log.error("Sendig SMS with text \"{}\" to member {} failed: cannot get tel. number.", message, member);
+      LOG.error("Sendig SMS with text \"{}\" to member {} failed: cannot get tel. number.", message, member);
       throw new InternalErrorException(
-          "The attribute " + memberPhoneAttribute + " has not been found in user attributes.", ex);
+          "The attribute " + MEMBER_PHONE_ATTRIBUTE + " has not been found in user attributes.", ex);
     }
     sendSMS(telNumber, message);
   }
 
   /**
-   * Sends SMS to the phone number with the given message.
-   * The sending provides external program for sending sms.
-   * Its path is saved in the perun property perun.sms.program.
+   * Sends SMS to the phone number with the given message. The sending provides external program for sending sms. Its
+   * path is saved in the perun property perun.sms.program.
    *
    * @param telNumber phone number of the receiver
    * @param message   sms message to send
@@ -1821,7 +1818,7 @@ public class Utils {
    * @throws IllegalArgumentException when the phone or message has a wrong format
    */
   public static void sendSMS(String telNumber, String message) {
-    log.debug("Sending SMS with text \"{}\" to tel. number {}.", message, telNumber);
+    LOG.debug("Sending SMS with text \"{}\" to tel. number {}.", message, telNumber);
 
     try {
       // create properties list
@@ -1842,36 +1839,47 @@ public class Utils {
         exitValue = process.waitFor();
       } catch (InterruptedException ex) {
         String errMsg = "The external process for sending sms was interrupted.";
-        log.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
+        LOG.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
         throw new InternalErrorException(errMsg, ex);
       }
 
       // handle response
       if (exitValue == 0) {
         // successful
-        log.debug("SMS with text \"{}\" to tel. number {} successfully sent.", message, telNumber);
+        LOG.debug("SMS with text \"{}\" to tel. number {} successfully sent.", message, telNumber);
       } else if ((exitValue == 1) || (exitValue == 2)) {
         // users fault
         String errMsg = getStringFromInputStream(process.getErrorStream());
-        log.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
+        LOG.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
         throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException(errMsg);
       } else if (exitValue > 2) {
         // internal fault
         String errMsg = getStringFromInputStream(process.getErrorStream());
-        log.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
+        LOG.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
         throw new InternalErrorException(errMsg);
       }
 
     } catch (IOException ex) {
-      log.warn("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
+      LOG.warn("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
       throw new InternalErrorException("Cannot access the sms external application.", ex);
     }
 
   }
 
+  private static String getStringFromInputStream(InputStream is) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    StringBuilder out = new StringBuilder();
+    String line;
+    while ((line = reader.readLine()) != null) {
+      out.append(line);
+    }
+    return out.toString();
+  }
+
+
   /**
-   * Get BigDecimal number like '1024' in Bytes and create better readable
-   * String with metric value like '1K' where K means KiloBytes.
+   * Get BigDecimal number like '1024' in Bytes and create better readable String with metric value like '1K' where K
+   * means KiloBytes.
    * <p>
    * Use M,G,T,P,E like multipliers of 1024.
    * <p>
@@ -1914,32 +1922,23 @@ public class Utils {
       stringWithMetric =
           quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).stripTrailingZeros().toPlainString() + "M";
     } else {
-      //can't be diveded by 1024^x where x>0 so let it be in the format like it already is, convert it to BigInteger without fractional part
+      //can't be diveded by 1024^x where x>0 so let it be in the format like it already is, convert it to BigInteger
+      // without fractional part
       stringWithMetric = quota.toBigInteger().toString() + "K";
     }
     //return result format with metric
     return stringWithMetric;
   }
 
-  private static String getStringFromInputStream(InputStream is) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-    StringBuilder out = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null) {
-      out.append(line);
-    }
-    return out.toString();
-  }
-
   /**
-   * Convert input string (expected UTF-8) to ASCII if possible.
-   * Any non-ASCII character is replaced by replacement parameter.
+   * Convert input string (expected UTF-8) to ASCII if possible. Any non-ASCII character is replaced by replacement
+   * parameter.
    *
    * @param input       String to convert from UTF-8 to ASCII.
    * @param replacement Replacement character used for all non-ASCII chars in input.
    * @return converted string from ascii to something near utf
    */
-  public synchronized static String toASCII(String input, Character replacement) {
+  public static synchronized String toASCII(String input, Character replacement) {
 
     String normalizedOutput = "";
 
@@ -1967,8 +1966,8 @@ public class Utils {
    *
    * @param localDate date to be extended
    * @param period    period used to extend date
-   * @throws InternalErrorException when the period has wrong format,
-   *                                allowed format is given by regex "\\+([0-9]+)([dmy]?)"
+   * @throws InternalErrorException when the period has wrong format, allowed format is given by regex
+   *                                "\\+([0-9]+)([dmy]?)"
    */
   public static LocalDate extendDateByPeriod(LocalDate localDate, String period) {
     // We will add days/months/years
@@ -2025,8 +2024,8 @@ public class Utils {
   }
 
   /**
-   * Returns closest future LocalDate based on values given by matcher.
-   * If returned value should fall to 29. 2. of non-leap year, the date is extended to 28. 2. instead.
+   * Returns closest future LocalDate based on values given by matcher. If returned value should fall to 29. 2. of
+   * non-leap year, the date is extended to 28. 2. instead.
    *
    * @param matcher matcher with day and month values
    * @return Extended date.
@@ -2035,7 +2034,8 @@ public class Utils {
     int day = Integer.parseInt(matcher.group(1));
     int month = Integer.parseInt(matcher.group(2));
 
-    // We must detect if the extension date is in current year or in a next year (we use year 2000 in comparison because it is a leap year)
+    // We must detect if the extension date is in current year or in a next year (we use year 2000 in comparison
+    // because it is a leap year)
     LocalDate extensionDate = LocalDate.of(2000, month, day);
 
     // check if extension is next year
@@ -2050,7 +2050,8 @@ public class Utils {
       year++;
     }
 
-    // Set the date to which the membership should be extended, can be changed if there was grace period, see next part of the code
+    // Set the date to which the membership should be extended, can be changed if there was grace period, see next
+    // part of the code
     if (day == 29 && month == 2 && !LocalDate.of(year, 1, 1).isLeapYear()) {
       // If extended date is 29. 2. of non-leap year, the date is set to 28. 2.
       extensionDate = LocalDate.of(year, 2, 28);
@@ -2096,8 +2097,8 @@ public class Utils {
   }
 
   /**
-   * We need to escape some special characters for LDAP filtering.
-   * We need to escape these characters: '\\', '*', '(', ')', '\000'
+   * We need to escape some special characters for LDAP filtering. We need to escape these characters: '\\', '*', '(',
+   * ')', '\000'
    *
    * @param searchString search string which need to be escaped properly
    * @return properly escaped search string
@@ -2123,30 +2124,6 @@ public class Utils {
     }
   }
 
-  public static void validateSSHPublicKey(String sshKey) throws SSHKeyNotValidException {
-    SSHValidator.validateSSH(sshKey);
-  }
-
-
-  /**
-   * Validates group name.
-   * <p>
-   * To check the group name, this method uses two regexes. A default one, hardcoded in
-   * the GroupsManager, and a secondary optional. The secondary regex can be default as
-   * a core property named groupNameSecondaryRegex.
-   *
-   * @param name name to be validated
-   */
-  public static void validateGroupName(String name) {
-    String primaryRegex = GroupsManager.GROUP_SHORT_NAME_REGEXP;
-    validateGroupName(name, primaryRegex);
-
-    String secondaryRegex = BeansUtils.getCoreConfig().getGroupNameSecondaryRegex();
-    if (secondaryRegex != null && !secondaryRegex.isEmpty()) {
-      validateGroupName(name, secondaryRegex);
-    }
-  }
-
   /**
    * Validates given group name against a given regex.
    *
@@ -2164,33 +2141,31 @@ public class Utils {
   }
 
   /**
-   * Returns search query to search by user name (exact match) based on databased in use.
+   * Validates group name.
+   * <p>
+   * To check the group name, this method uses two regexes. A default one, hardcoded in the GroupsManager, and a
+   * secondary optional. The secondary regex can be default as a core property named groupNameSecondaryRegex.
    *
-   * @return search query
+   * @param name name to be validated
    */
-  public static String prepareUserSearchQueryExactMatch() {
-    return " replace(lower(" + Compatibility.convertToAscii(
-        "COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") +
-        "), ' ', '')=replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')";
+  public static void validateGroupName(String name) {
+    String primaryRegex = GroupsManager.GROUP_SHORT_NAME_REGEXP;
+    validateGroupName(name, primaryRegex);
+
+    String secondaryRegex = BeansUtils.getCoreConfig().getGroupNameSecondaryRegex();
+    if (secondaryRegex != null && !secondaryRegex.isEmpty()) {
+      validateGroupName(name, secondaryRegex);
+    }
   }
 
-  /**
-   * Returns search query to search by user name (similar match) based on databased in use.
-   *
-   * @return search query
-   */
-  public static String prepareUserSearchQuerySimilarMatch() {
-    return " strpos(replace(lower(" + Compatibility.convertToAscii(
-        "COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") +
-        "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 or " +
-        " strpos(replace(lower(" + Compatibility.convertToAscii(
-        "COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") +
-        "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 ";
+  public static void validateSSHPublicKey(String sshKey) throws SshKeyNotValidException {
+    SSHValidator.validateSSH(sshKey);
   }
 
+
   /**
-   * Returns a part of WHERE condition to search users and members in their ids, uuids, logins, ext sources
-   * user names and attributes by given search string.
+   * Returns a part of WHERE condition to search users and members in their ids, uuids, logins, ext sources user names
+   * and attributes by given search string.
    *
    * @param searchString string to search by
    * @param namedParams  parameters used in the query
@@ -2231,118 +2206,96 @@ public class Utils {
 
     String userAttrCondition = "";
     if (!attributesToSearchBy.get("userAttributes").isEmpty()) {
-      userAttrCondition =
-          "        UNION " +
-              "        SELECT user_id" +
-              "            FROM user_attr_values uav" +
-              "            WHERE uav.attr_id IN (select id from attr_names where attr_name in (:userAttributes))" +
-              "            AND lower(uav.attr_value) = lower(:searchString)";
+      userAttrCondition = "        UNION " + "        SELECT user_id" + "            FROM user_attr_values uav" +
+                          "            WHERE uav.attr_id IN (select id from attr_names where attr_name in " +
+                          "(:userAttributes))" + "            AND lower(uav.attr_value) = lower(:searchString)";
     }
     String uesAttrCondition = "";
     if (!attributesToSearchBy.get("uesAttributes").isEmpty()) {
-      uesAttrCondition =
-          "        UNION " +
-              "        SELECT user_id" +
-              "            FROM user_ext_sources" +
-              "            WHERE user_ext_sources.id IN (" +
-              "                SELECT user_ext_source_id" +
-              "                FROM user_ext_source_attr_values uesav" +
-              "                WHERE uesav.attr_id IN (" +
-              "                    SELECT id" +
-              "                    FROM attr_names" +
-              "                    WHERE attr_name IN (:uesAttributes)" +
-              "                )" +
-              "                  AND lower(uesav.attr_value) = lower(:searchString)" +
-              "            )";
+      uesAttrCondition = "        UNION " + "        SELECT user_id" + "            FROM user_ext_sources" +
+                         "            WHERE user_ext_sources.id IN (" + "                SELECT user_ext_source_id" +
+                         "                FROM user_ext_source_attr_values uesav" +
+                         "                WHERE uesav.attr_id IN (" + "                    SELECT id" +
+                         "                    FROM attr_names" +
+                         "                    WHERE attr_name IN (:uesAttributes)" + "                )" +
+                         "                  AND lower(uesav.attr_value) = lower(:searchString)" + "            )";
     }
 
     String memberAttrCondition = "";
     if (!attributesToSearchBy.get("memberAttributes").isEmpty()) {
-      memberAttrCondition =
-          "OR " +
-              "      members.id IN (" +
-              "                SELECT member_id" +
-              "                FROM member_attr_values mav" +
-              "                WHERE mav.attr_id IN (" +
-              "                    SELECT id" +
-              "                    FROM attr_names" +
-              "                    WHERE attr_name IN (:memberAttributes)" +
-              "                )" +
-              "                  AND lower(mav.attr_value) = lower(:searchString)" +
-              "            )";
+      memberAttrCondition = "OR " + "      members.id IN (" + "                SELECT member_id" +
+                            "                FROM member_attr_values mav" + "                WHERE mav.attr_id IN (" +
+                            "                    SELECT id" + "                    FROM attr_names" +
+                            "                    WHERE attr_name IN (:memberAttributes)" + "                )" +
+                            "                  AND lower(mav.attr_value) = lower(:searchString)" + "            )";
     }
 
-    return
-        "     (users.id IN (" +
-            "        SELECT user_id" +
-            "        FROM user_ext_sources ues" +
-            "        WHERE LOWER(ues.login_ext) = LOWER(:searchString)" +
-            userAttrCondition +
-            uesAttrCondition +
-            "     ) " +
-            memberAttrCondition +
-            "OR (" +
-            userNameQueryString +
-            ")" +
-            idQueryString +
-            uuidQueryString +
-            ")";
+    return "     (users.id IN (" + "        SELECT user_id" + "        FROM user_ext_sources ues" +
+           "        WHERE LOWER(ues.login_ext) = LOWER(:searchString)" + userAttrCondition + uesAttrCondition +
+           "     ) " + memberAttrCondition + "OR (" + userNameQueryString + ")" + idQueryString + uuidQueryString + ")";
   }
 
   /**
-   * Returns search query to search by group name or description (similar match) based on databased in use.
+   * Returns search query to search by user name (exact match) based on databased in use.
    *
    * @return search query
    */
-  public static String prepareGroupNameDscSearchQuerySimilarMatch() {
-    return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(groups.dsc,'') || COALESCE(groups.name,'')") +
-        "), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  public static String prepareUserSearchQueryExactMatch() {
+    return " replace(lower(" + Compatibility.convertToAscii(
+        "COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") +
+           "), ' ', '')=replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')";
   }
 
   /**
-   * Returns search query to search by subgroup name or description (similar match) based on databased in use.
+   * Returns search query to search by user name (similar match) based on databased in use.
    *
    * @return search query
    */
-  public static String prepareSubgroupNameDscSearchQuerySimilarMatch() {
-    return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(groups_dsc,'') || COALESCE(groups_name,'')") +
-        "), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  public static String prepareUserSearchQuerySimilarMatch() {
+    return " strpos(replace(lower(" + Compatibility.convertToAscii(
+        "COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") +
+           "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 or " +
+           " strpos(replace(lower(" + Compatibility.convertToAscii(
+        "COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") +
+           "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 ";
   }
 
   /**
-   * Returns search query to search by user name based on databased in use.
+   * Takes attributes from CoreConfig used in users or members search and divides them into correct categories based on
+   * attribute type (member, user, userExtSource).
+   * <p>
+   * Then returns map: memberAttributes -> list of member attributes userAttributes -> list of user attributes
+   * uesAttributes -> list of userExtSource attributes
    *
-   * @return search query
+   * @return map of attributes
    */
-  public static String prepareUsernameSearchQuerySimilarMatch() {
-    return "(strpos(lower(" + Compatibility.convertToAscii(
-        "COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'') || COALESCE(a.modified_by,'')") +
-        "), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  public static Map<String, List<String>> getDividedAttributes() {
+    Map<String, List<String>> result = new HashMap<>();
+
+    List<String> allAttributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
+    List<String> memberAttributes = new ArrayList<>();
+    List<String> userAttributes = new ArrayList<>();
+    List<String> uesAttributes = new ArrayList<>();
+    for (String attribute : allAttributes) {
+      if (attribute.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+        memberAttributes.add(attribute);
+      } else if (attribute.startsWith(AttributesManager.NS_USER_ATTR)) {
+        userAttributes.add(attribute);
+      } else if (attribute.startsWith(AttributesManager.NS_UES_ATTR)) {
+        uesAttributes.add(attribute);
+      }
+    }
+
+    result.put("memberAttributes", memberAttributes);
+    result.put("userAttributes", userAttributes);
+    result.put("uesAttributes", uesAttributes);
+
+    return result;
   }
 
   /**
-   * Returns search query to search by group name or description (similar match) based on databased in use.
-   *
-   * @return search query
-   */
-  public static String prepareGroupNameDscAppsSearchQuerySimilarMatch() {
-    return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(g.name,'') || COALESCE(g.dsc,'')") + "), lower(" +
-        Compatibility.convertToAscii(":searchString") + ")) > 0)";
-  }
-
-  /**
-   * Returns search query to search by application's form data values based on databased in use.
-   *
-   * @return search query
-   */
-  public static String prepareApplicationDataSearchQuerySimilarMatch() {
-    return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(d.value,'')") + "), lower(" +
-        Compatibility.convertToAscii(":searchString") + ")) > 0)";
-  }
-
-  /**
-   * Returns a part of WHERE condition to search groups in their ids, uuids, names and descriptions
-   * by given search string.
+   * Returns a part of WHERE condition to search groups in their ids, uuids, names and descriptions by given search
+   * string.
    *
    * @param searchString string to search by
    * @param namedParams  parameters used in the query
@@ -2377,17 +2330,32 @@ public class Utils {
         subgroups ? prepareSubgroupNameDscSearchQuerySimilarMatch() : prepareGroupNameDscSearchQuerySimilarMatch();
     namedParams.addValue("searchString", searchString);
 
-    return
-        "(" +
-            groupNameDscQueryString +
-            idQueryString +
-            uuidQueryString +
-            ")";
+    return "(" + groupNameDscQueryString + idQueryString + uuidQueryString + ")";
   }
 
   /**
-   * Returns a part of WHERE condition to search applications in their ids, username, group ids/uuids, names and description
-   * by given search string.
+   * Returns search query to search by subgroup name or description (similar match) based on databased in use.
+   *
+   * @return search query
+   */
+  public static String prepareSubgroupNameDscSearchQuerySimilarMatch() {
+    return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(groups_dsc,'') || COALESCE(groups_name,'')") +
+           "), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  }
+
+  /**
+   * Returns search query to search by group name or description (similar match) based on databased in use.
+   *
+   * @return search query
+   */
+  public static String prepareGroupNameDscSearchQuerySimilarMatch() {
+    return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(groups.dsc,'') || COALESCE(groups.name,'')") +
+           "), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  }
+
+  /**
+   * Returns a part of WHERE condition to search applications in their ids, username, group ids/uuids, names and
+   * description by given search string.
    *
    * @param searchString string to search by
    * @param namedParams  parameters used in the query
@@ -2430,61 +2398,49 @@ public class Utils {
     String appdataQueryString = prepareApplicationDataSearchQuerySimilarMatch();
     namedParams.addValue("searchString", searchString);
 
-    return
-        "(" +
-            groupNameDscQueryString +
-            " OR " +
-            usernameQueryString +
-            " OR " +
-            appdataQueryString +
-            appIdQueryString +
-            groupIdQueryString +
-            uuidQueryString +
-            ")";
+    return "(" + groupNameDscQueryString + " OR " + usernameQueryString + " OR " + appdataQueryString +
+           appIdQueryString + groupIdQueryString + uuidQueryString + ")";
 
 
   }
 
   /**
-   * Takes attributes from CoreConfig used in users or members search and divides them into correct categories based
-   * on attribute type (member, user, userExtSource).
-   * <p>
-   * Then returns map: memberAttributes -> list of member attributes
-   * userAttributes -> list of user attributes
-   * uesAttributes -> list of userExtSource attributes
+   * Returns search query to search by group name or description (similar match) based on databased in use.
    *
-   * @return map of attributes
+   * @return search query
    */
-  public static Map<String, List<String>> getDividedAttributes() {
-    Map<String, List<String>> result = new HashMap<>();
+  public static String prepareGroupNameDscAppsSearchQuerySimilarMatch() {
+    return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(g.name,'') || COALESCE(g.dsc,'')") + "), lower(" +
+           Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  }
 
-    List<String> allAttributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
-    List<String> memberAttributes = new ArrayList<>();
-    List<String> userAttributes = new ArrayList<>();
-    List<String> uesAttributes = new ArrayList<>();
-    for (String attribute : allAttributes) {
-      if (attribute.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
-        memberAttributes.add(attribute);
-      } else if (attribute.startsWith(AttributesManager.NS_USER_ATTR)) {
-        userAttributes.add(attribute);
-      } else if (attribute.startsWith(AttributesManager.NS_UES_ATTR)) {
-        uesAttributes.add(attribute);
-      }
-    }
+  /**
+   * Returns search query to search by user name based on databased in use.
+   *
+   * @return search query
+   */
+  public static String prepareUsernameSearchQuerySimilarMatch() {
+    return "(strpos(lower(" + Compatibility.convertToAscii(
+        "COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'') || COALESCE(a" +
+        ".modified_by,'')") + "), lower(" + Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  }
 
-    result.put("memberAttributes", memberAttributes);
-    result.put("userAttributes", userAttributes);
-    result.put("uesAttributes", uesAttributes);
-
-    return result;
+  /**
+   * Returns search query to search by application's form data values based on databased in use.
+   *
+   * @return search query
+   */
+  public static String prepareApplicationDataSearchQuerySimilarMatch() {
+    return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(d.value,'')") + "), lower(" +
+           Compatibility.convertToAscii(":searchString") + ")) > 0)";
   }
 
   /**
    * Prepares query to search users or members by attributes if received attribute list is not empty.
    * <p>
    * Returns map: memberAttributesQueryString -> pair of parts of query to search by member attributes
-   * userAttributesQueryString -> pair of parts of query to search by user attributes
-   * uesAttributesQueryString -> pair of parts of query to search by userExtSource attributes
+   * userAttributesQueryString -> pair of parts of query to search by user attributes uesAttributesQueryString -> pair
+   * of parts of query to search by userExtSource attributes
    *
    * @param memberAttributes member attributes
    * @param userAttributes   user attributes
@@ -2499,23 +2455,24 @@ public class Utils {
     Pair<String, String> memberAttributesQueryString = new Pair<>("", "");
     if (!memberAttributes.isEmpty()) {
       memberAttributesQueryString.put(
-          " left join member_attr_values mav on members.id=mav.member_id and mav.attr_id in (select id from attr_names where attr_name in (:memberAttributes))",
-          " lower(mav.attr_value)=lower(:searchString) or ");
+          " left join member_attr_values mav on members.id=mav.member_id and mav.attr_id in (select id from " +
+          "attr_names where attr_name in (:memberAttributes))", " lower(mav.attr_value)=lower(:searchString) or ");
     }
     result.put("memberAttributesQuery", memberAttributesQueryString);
 
     Pair<String, String> userAttributesQueryString = new Pair<>("", "");
     if (!userAttributes.isEmpty()) {
       userAttributesQueryString.put(
-          " left join user_attr_values uav on users.id=uav.user_id and uav.attr_id in (select id from attr_names where attr_name in (:userAttributes))",
-          " lower(uav.attr_value)=lower(:searchString) or ");
+          " left join user_attr_values uav on users.id=uav.user_id and uav.attr_id in (select id from attr_names " +
+          "where attr_name in (:userAttributes))", " lower(uav.attr_value)=lower(:searchString) or ");
     }
     result.put("userAttributesQuery", userAttributesQueryString);
 
     Pair<String, String> uesAttributesQueryString = new Pair<>("", "");
     if (!uesAttributes.isEmpty()) {
       uesAttributesQueryString.put(
-          " left join user_ext_source_attr_values uesav on uesav.user_ext_source_id=ues.id and uesav.attr_id in (select id from attr_names where attr_name in (:uesAttributes))",
+          " left join user_ext_source_attr_values uesav on uesav.user_ext_source_id=ues.id and uesav.attr_id in " +
+          "(select id from attr_names where attr_name in (:uesAttributes))",
           " lower(uesav.attr_value)=lower(:searchString) or ");
     }
     result.put("uesAttributesQuery", uesAttributesQueryString);
@@ -2531,7 +2488,7 @@ public class Utils {
    * @return filled MapSqlParameterSource
    */
   public static MapSqlParameterSource getMapSqlParameterSourceToSearchUsersOrMembers(String searchString,
-                                                                                     Map<String, List<String>> attributesToSearchBy) {
+                                                                   Map<String, List<String>> attributesToSearchBy) {
     MapSqlParameterSource namedParams = new MapSqlParameterSource();
     namedParams.addValue("searchString", searchString);
     namedParams.addValue("nameString", searchString);
@@ -2543,9 +2500,8 @@ public class Utils {
   }
 
   /**
-   * Sends all alerts about an identity being added. Sends an email to the preferred email of
-   * the user. Also, if the identity has an email and it is different that the preferred email,
-   * another different email is send to this email.
+   * Sends all alerts about an identity being added. Sends an email to the preferred email of the user. Also, if the
+   * identity has an email and it is different that the preferred email, another different email is send to this email.
    *
    * @param sess   session
    * @param newUes removed userExtSource
@@ -2553,7 +2509,7 @@ public class Utils {
   public static void sendIdentityAddedAlerts(PerunSession sess, UserExtSource newUes) {
     String userEmail = getUserPreferredEmail(sess);
     if (userEmail == null) {
-      log.error("Cannot send identity added alert because the user has no preferred mail. User: {}",
+      LOG.error("Cannot send identity added alert because the user has no preferred mail. User: {}",
           sess.getPerunPrincipal().getUser());
     } else {
       sendIdentityAddedAlertToPreferredMail(sess, newUes, userEmail);
@@ -2565,9 +2521,8 @@ public class Utils {
   }
 
   /**
-   * Sends all alerts about an identity being removed. Sends an email to the preferred email of
-   * the user. Also, if the identity has an email and it is different that the preferred email,
-   * another different email is send to this email.
+   * Sends all alerts about an identity being removed. Sends an email to the preferred email of the user. Also, if the
+   * identity has an email and it is different that the preferred email, another different email is send to this email.
    *
    * @param sess       session
    * @param removedUes removed userExtSource
@@ -2576,15 +2531,14 @@ public class Utils {
   public static void sendIdentityRemovedAlerts(PerunSession sess, UserExtSource removedUes, List<Attribute> uesAttrs) {
     String userEmail = getUserPreferredEmail(sess);
     if (userEmail == null) {
-      log.error("Cannot send identity removed alert because the user has no preferred mail. User: {}",
+      LOG.error("Cannot send identity removed alert because the user has no preferred mail. User: {}",
           sess.getPerunPrincipal().getUser());
     } else {
       sendIdentityRemovedAlertToPreferredMail(sess, removedUes, uesAttrs, userEmail);
     }
-    Optional<Attribute> mailAttr = uesAttrs.stream()
-        .filter(attr -> attr.getFriendlyName().equals("mail"))
-        .filter(attr -> attr.getValue() != null)
-        .findFirst();
+    Optional<Attribute> mailAttr =
+        uesAttrs.stream().filter(attr -> attr.getFriendlyName().equals("mail")).filter(attr -> attr.getValue() != null)
+            .findFirst();
     if (mailAttr.isPresent()) {
       String uesMail = mailAttr.get().valueAsString();
       if (!uesMail.equals(userEmail)) {
@@ -2594,8 +2548,8 @@ public class Utils {
   }
 
   /**
-   * Returns true if given attribute is user-related (it is user, user_facility, member,
-   * member_group, member_resource or ues attribute).
+   * Returns true if given attribute is user-related (it is user, user_facility, member, member_group, member_resource
+   * or ues attribute).
    *
    * @param attribute the attribute
    * @return true if attribute is user-related
@@ -2603,16 +2557,16 @@ public class Utils {
   public static boolean isUserRelatedAttribute(AttributeDefinition attribute) {
     String attributeNamespace = attribute.getNamespace();
     return attributeNamespace.startsWith(AttributesManager.NS_USER_FACILITY_ATTR) ||
-        attributeNamespace.startsWith(AttributesManager.NS_USER_ATTR) ||
-        attributeNamespace.startsWith(AttributesManager.NS_MEMBER_ATTR) ||
-        attributeNamespace.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR) ||
-        attributeNamespace.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR) ||
-        attributeNamespace.startsWith(AttributesManager.NS_UES_ATTR);
+           attributeNamespace.startsWith(AttributesManager.NS_USER_ATTR) ||
+           attributeNamespace.startsWith(AttributesManager.NS_MEMBER_ATTR) ||
+           attributeNamespace.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR) ||
+           attributeNamespace.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR) ||
+           attributeNamespace.startsWith(AttributesManager.NS_UES_ATTR);
   }
 
   /**
-   * Performs binary search for EXACT match in SORTED ascii file.
-   * All entries need to be separated by newline and sorting needs to follow ASCII standard ('a' > 'A')!
+   * Performs binary search for EXACT match in SORTED ascii file. All entries need to be separated by newline and
+   * sorting needs to follow ASCII standard ('a' > 'A')!
    *
    * @param word     word to be checked
    * @param filename path to sorted file
@@ -2678,9 +2632,8 @@ public class Utils {
    */
   private static void sendIdentityRemovedAlertToUesMail(PerunSession sess, UserExtSource removedUes,
                                                         List<Attribute> uesAttrs, String uesMail) {
-    sendIdentityRemovedAlert(sess, removedUes, uesAttrs, uesMail,
-        UES_REMOVED_UES_MAIL, DEFAULT_IDENTITY_REMOVED_UES_MAIL,
-        UES_REMOVED_UES_MAIL_SUBJECT, DEFAULT_IDENTITY_REMOVED_UES_MAIL_SUBJECT);
+    sendIdentityRemovedAlert(sess, removedUes, uesAttrs, uesMail, UES_REMOVED_UES_MAIL,
+        DEFAULT_IDENTITY_REMOVED_UES_MAIL, UES_REMOVED_UES_MAIL_SUBJECT, DEFAULT_IDENTITY_REMOVED_UES_MAIL_SUBJECT);
   }
 
   /**
@@ -2693,9 +2646,8 @@ public class Utils {
    */
   private static void sendIdentityRemovedAlertToPreferredMail(PerunSession sess, UserExtSource removedUes,
                                                               List<Attribute> uesAttrs, String userEmail) {
-    sendIdentityRemovedAlert(sess, removedUes, uesAttrs, userEmail,
-        UES_REMOVED_PREF_MAIL, DEFAULT_IDENTITY_REMOVED_PREF_MAIL,
-        UES_REMOVED_PREF_MAIL_SUBJECT, DEFAULT_IDENTITY_REMOVED_PREF_MAIL_SUBJECT);
+    sendIdentityRemovedAlert(sess, removedUes, uesAttrs, userEmail, UES_REMOVED_PREF_MAIL,
+        DEFAULT_IDENTITY_REMOVED_PREF_MAIL, UES_REMOVED_PREF_MAIL_SUBJECT, DEFAULT_IDENTITY_REMOVED_PREF_MAIL_SUBJECT);
   }
 
   /**
@@ -2706,8 +2658,7 @@ public class Utils {
    * @param userEmail email, where the message is send
    */
   private static void sendIdentityAddedAlertToPreferredMail(PerunSession sess, UserExtSource newUes, String userEmail) {
-    sendIdentityAddedAlert(sess, newUes, userEmail,
-        UES_ADDED_PREFERRED_MAIL, DEFAULT_IDENTITY_ADDED_PREF_MAIL,
+    sendIdentityAddedAlert(sess, newUes, userEmail, UES_ADDED_PREFERRED_MAIL, DEFAULT_IDENTITY_ADDED_PREF_MAIL,
         UES_ADDED_PREFERRED_MAIL_SUBJECT, DEFAULT_IDENTITY_ADDED_PREF_MAIL_SUBJECT);
   }
 
@@ -2719,8 +2670,7 @@ public class Utils {
    * @param uesMail email of the newUserExtSource
    */
   private static void sendIdentityAddedAlertToNewIdentityMail(PerunSession sess, UserExtSource newUes, String uesMail) {
-    sendIdentityAddedAlert(sess, newUes, uesMail,
-        UES_ADDED_UES_MAIL, DEFAULT_IDENTITY_ADDED_UES_MAIL,
+    sendIdentityAddedAlert(sess, newUes, uesMail, UES_ADDED_UES_MAIL, DEFAULT_IDENTITY_ADDED_UES_MAIL,
         UES_ADDED_UES_MAIL_SUBJECT, DEFAULT_IDENTITY_ADDED_UES_MAIL_SUBJECT);
   }
 
@@ -2773,9 +2723,9 @@ public class Utils {
   }
 
   /**
-   * Into the given message, replace all '{organization}' placeholders with the value of the
-   * organization attribute, that is found for the given userUxtSource. If the ues has no organization
-   * attribute filled, the '<unknown>' string is used.
+   * Into the given message, replace all '{organization}' placeholders with the value of the organization attribute,
+   * that is found for the given userUxtSource. If the ues has no organization attribute filled, the '<unknown>' string
+   * is used.
    *
    * @param sess    session
    * @param message message, where the placeholder will be replaced
@@ -2793,34 +2743,29 @@ public class Utils {
     } catch (WrongAttributeAssignmentException e) {
       throw new InternalErrorException(e);
     } catch (AttributeNotExistsException e) {
-      log.error("Cannot add organization info, because the attribute does not exist.");
+      LOG.error("Cannot add organization info, because the attribute does not exist.");
     }
     return message.replace(ORG_PLACEHOLDER, organization);
   }
 
   /**
-   * In the given message, replaces all '{organization}' placeholders with the value of the
-   * organization attribute, that is given. If there is no such attribute, the '<unknown>'
-   * is used.
+   * In the given message, replaces all '{organization}' placeholders with the value of the organization attribute, that
+   * is given. If there is no such attribute, the '<unknown>' is used.
    *
    * @param message       message, where the placeholders will be replaced
    * @param uesAttributes attributes with the organization attribute
    * @return message where the '{organization}' placeholders are replaced
    */
   private static String insertOrganization(String message, List<Attribute> uesAttributes) {
-    String organization = uesAttributes.stream()
-        .filter(attr -> attr.getFriendlyName().equals("o"))
-        .filter(attr -> attr.getValue() != null)
-        .map(Attribute::valueAsString)
-        .findFirst()
-        .orElse(ORG_UNKNOWN_TEXT);
+    String organization = uesAttributes.stream().filter(attr -> attr.getFriendlyName().equals("o"))
+        .filter(attr -> attr.getValue() != null).map(Attribute::valueAsString).findFirst().orElse(ORG_UNKNOWN_TEXT);
 
     return message.replace(ORG_PLACEHOLDER, organization);
   }
 
   /**
-   * In the given message, replaces all '{time}' placeholders with the value of the
-   * current date and time in format MM/dd/yyyy - HH:mm:ss Z.
+   * In the given message, replaces all '{time}' placeholders with the value of the current date and time in format
+   * MM/dd/yyyy - HH:mm:ss Z.
    *
    * @param message message, where the placeholders will be replaced.
    * @return message with inserted date and time info
@@ -2832,8 +2777,8 @@ public class Utils {
 
   /**
    * Returns alert template for the given templateName. The templates should be stored in
-   * entityless:def:identityAlertsTemplates attribute, under the 'en' key.
-   * If the templateName is not present or has an empty value, the default value is used.
+   * entityless:def:identityAlertsTemplates attribute, under the 'en' key. If the templateName is not present or has an
+   * empty value, the default value is used.
    *
    * @param sess         session
    * @param templateName key of the template
@@ -2852,7 +2797,7 @@ public class Utils {
         }
       }
     } catch (AttributeNotExistsException e) {
-      log.warn("Identity alerts attribute not found, using default templates.");
+      LOG.warn("Identity alerts attribute not found, using default templates.");
     } catch (WrongAttributeAssignmentException e) {
       throw new InternalErrorException(e);
     }
@@ -2868,9 +2813,7 @@ public class Utils {
    */
   private static String getUESEmail(PerunSession sess, UserExtSource ues) {
     try {
-      return ((PerunBl) sess.getPerun()).getAttributesManagerBl()
-          .getAttribute(sess, ues, A_UES_MAIL)
-          .valueAsString();
+      return ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(sess, ues, A_UES_MAIL).valueAsString();
     } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
       throw new InternalErrorException(e);
     }
@@ -2886,8 +2829,7 @@ public class Utils {
   private static String getUserPreferredEmail(PerunSession sess) {
     try {
       return ((PerunBl) sess.getPerun()).getAttributesManagerBl()
-          .getAttribute(sess, sess.getPerunPrincipal().getUser(), A_U_MAIL)
-          .valueAsString();
+          .getAttribute(sess, sess.getPerunPrincipal().getUser(), A_U_MAIL).valueAsString();
     } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
       throw new InternalErrorException(e);
     }

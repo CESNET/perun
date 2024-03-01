@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 

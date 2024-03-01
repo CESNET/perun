@@ -21,10 +21,17 @@ import java.util.List;
 public class urn_perun_facility_attribute_def_def_shells extends FacilityAttributesModuleAbstract
     implements FacilityAttributesModuleImplApi {
 
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "This attribute cannot be null.");
+    }
+  }
+
   /**
-   * Checks if the facility has properly set shells. There must be at least one
-   * shell per facility which must match regular expression
-   * e.g. corretct unix path.
+   * Checks if the facility has properly set shells. There must be at least one shell per facility which must match
+   * regular expression e.g. corretct unix path.
    */
   @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
@@ -40,17 +47,8 @@ public class urn_perun_facility_attribute_def_def_shells extends FacilityAttribu
     }
   }
 
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "This attribute cannot be null.");
-    }
-  }
-
   /**
-   * Method for filling shells at specified facility is not implemented yet.
-   * Probably it will not be neccessary.
+   * Method for filling shells at specified facility is not implemented yet. Probably it will not be neccessary.
    */
   @Override
   public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class PerunRuntimeException extends RuntimeException {
   static final long serialVersionUID = 0;
-  private final static Logger log = LoggerFactory.getLogger("ultimate_logger");
+  private static final Logger LOG = LoggerFactory.getLogger("ultimate_logger");
 
   private String errorId = Long.toHexString(System.currentTimeMillis());
 
@@ -15,7 +15,7 @@ public abstract class PerunRuntimeException extends RuntimeException {
     super();
 
     if (!(this instanceof InternalErrorException)) {
-      log.debug("Runtime Exception {}: {}.", errorId, this);
+      LOG.debug("Runtime Exception {}: {}.", errorId, this);
     }
   }
 
@@ -24,7 +24,7 @@ public abstract class PerunRuntimeException extends RuntimeException {
     super(err);
 
     if (!(this instanceof InternalErrorException)) {
-      log.debug("Runtime Exception {}: {}.", errorId, this);
+      LOG.debug("Runtime Exception {}: {}.", errorId, this);
     }
   }
 
@@ -32,7 +32,7 @@ public abstract class PerunRuntimeException extends RuntimeException {
     super(cause != null ? cause.getMessage() : null, cause);
 
     if (!(this instanceof InternalErrorException)) {
-      log.debug("Runtime Exception {}: {}.", errorId, this);
+      LOG.debug("Runtime Exception {}: {}.", errorId, this);
     }
   }
 
@@ -40,7 +40,7 @@ public abstract class PerunRuntimeException extends RuntimeException {
     super(err, cause);
 
     if (!(this instanceof InternalErrorException)) {
-      log.debug("Runtime Exception {}: {}.", errorId, this);
+      LOG.debug("Runtime Exception {}: {}.", errorId, this);
     }
   }
 
@@ -48,12 +48,12 @@ public abstract class PerunRuntimeException extends RuntimeException {
     return errorId;
   }
 
-  public String getType() {
-    return this.getClass().getSimpleName();
-  }
-
   @Override
   public String getMessage() {
     return "Error " + errorId + ": " + super.getMessage();
+  }
+
+  public String getType() {
+    return this.getClass().getSimpleName();
   }
 }

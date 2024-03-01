@@ -21,12 +21,12 @@ public class GroupMembershipExpirationInMonthNotification extends AuditEvent imp
     this.message = formatMessage("%s will expire in a month in %s.", member, group);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public Group getGroup() {
     return group;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
   @Override

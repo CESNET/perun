@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Du extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(Du.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Du.class);
 
   @Override
   public Application beforeApprove(PerunSession session, Application app)
@@ -64,7 +64,7 @@ public class Du extends DefaultRegistrarModule {
         }
 
       } catch (ParseException e) {
-        log.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
+        LOG.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
       }
     }
 
@@ -103,12 +103,13 @@ public class Du extends DefaultRegistrarModule {
         }
 
       } catch (ParseException e) {
-        log.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
+        LOG.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
       }
     }
 
     throw new CantBeSubmittedException(
-        "User is not eligible for CESNET services. You must log-in using verified academic identity (at least once a year) in order to access CESNET services.",
+        "User is not eligible for CESNET services. You must log-in using verified academic identity (at least once a " +
+        "year) in order to access CESNET services.",
         "NOT_ELIGIBLE", null, null);
 
   }

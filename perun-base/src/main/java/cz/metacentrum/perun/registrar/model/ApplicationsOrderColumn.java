@@ -5,8 +5,8 @@ import java.util.function.Function;
 /**
  * Class representing columns, that can be used to sort paginated applications.
  * <p>
- * For each such column, this instances also contain sql parts that are specific for them.
- * This class can be extended, in the future, if for example, we would like to sort by some attributes.
+ * For each such column, this instances also contain sql parts that are specific for them. This class can be extended,
+ * in the future, if for example, we would like to sort by some attributes.
  *
  * @author David Flor <493294@mail.muni.cz>
  */
@@ -34,15 +34,15 @@ public enum ApplicationsOrderColumn {
 
   }
 
+  public String getSqlJoin() {
+    return this.joinSql;
+  }
+
   public String getSqlOrderBy(ApplicationsPageQuery query) {
     return this.orderBySqlFunction.apply(query);
   }
 
   public String getSqlSelect() {
     return this.selectSql;
-  }
-
-  public String getSqlJoin() {
-    return this.joinSql;
   }
 }

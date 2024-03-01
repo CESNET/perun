@@ -11,12 +11,18 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
 
 /**
- * Created by Oliver Mrázik on 3. 7. 2014.
- * author: Oliver Mrázik
- * version: 2014-07-03
+ * Created by Oliver Mrázik on 3. 7. 2014. author: Oliver Mrázik version: 2014-07-03
  */
 public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAttributesModuleAbstract
     implements FacilityAttributesModuleImplApi {
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, facility, null, "attribute is null");
+    }
+  }
 
   @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
@@ -39,14 +45,6 @@ public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAtt
   }
 
   @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, facility, null, "attribute is null");
-    }
-  }
-
-  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
@@ -54,7 +52,8 @@ public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAtt
     attr.setDisplayName("LDAP base DN");
     attr.setType(String.class.getName());
     attr.setDescription(
-        "Base part of DN, which will be used for all entities propagated to facility. Should be like \"ou=sth,dc=example,dc=domain\" (without quotes)");
+        "Base part of DN, which will be used for all entities propagated to facility. Should be like \"ou=sth," +
+        "dc=example,dc=domain\" (without quotes)");
     return attr;
   }
 }

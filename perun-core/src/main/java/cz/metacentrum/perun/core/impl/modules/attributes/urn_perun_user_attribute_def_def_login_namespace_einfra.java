@@ -10,10 +10,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * Module for EINFRA login namespace improves login checks with case-insensitive search!
@@ -24,7 +23,7 @@ import java.util.List;
 public class urn_perun_user_attribute_def_def_login_namespace_einfra
     extends urn_perun_user_attribute_def_def_login_namespace implements UserAttributesModuleImplApi {
 
-  private final static Logger log =
+  private static final Logger LOG =
       LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_einfra.class);
 
   /**

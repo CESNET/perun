@@ -8,12 +8,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.jdbc.core.SingleColumnRowMapper;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,59 +18,85 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 
 /**
- * The purpose of the PerunRolesLoader is to load perun roles and other policies from the perun-roles.yml configuration file.
+ * The purpose of the PerunRolesLoader is to load perun roles and other policies from the perun-roles.yml configuration
+ * file.
  * <p>
- * Production configuration file is located in /etc/perun/perun-roles.yml
- * Configuration file which is used during the build is located in perun-base/src/test/resources/perun-roles.yml
+ * Production configuration file is located in /etc/perun/perun-roles.yml Configuration file which is used during the
+ * build is located in perun-base/src/test/resources/perun-roles.yml
  */
 public class PerunRolesLoader {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-  private static final Logger log = LoggerFactory.getLogger(PerunRolesLoader.class);
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
+  private static final Logger LOG = LoggerFactory.getLogger(PerunRolesLoader.class);
 
   private Resource configurationPath;
   private Resource secondaryConfigurationPath;
 
-  /**
-   * Load perun roles from the configuration file to the database.
-   *
-   * @param jdbc connection to database
-   */
-  public void loadPerunRoles(JdbcPerunTemplate jdbc) {
-    try {
-      Set<String> roles = new HashSet<>(loadPerunRolesFromResource(configurationPath));
-      if (secondaryConfigurationPath != null) {
-        Set<String> secondaryRoles = new HashSet<>(loadPerunRolesFromResource(secondaryConfigurationPath));
-        roles.addAll(secondaryRoles);
-      }
+  private List<String> createListFromJsonNode(JsonNode node) {
+    List<String> resultList = new ArrayList<>();
 
-      List<String> databaseRoles =
-          new ArrayList<>(jdbc.query("select name from roles", new SingleColumnRowMapper<>(String.class)));
-      databaseRoles.forEach(dbRole -> {
-        if (!roles.contains(dbRole.toUpperCase())) {
-          log.debug("Role {} exists in the database but it is missing in the configuration files", dbRole);
-        }
-      });
-
-      // Check if all roles defined in class Role exists in the DB
-      for (String role : roles) {
-        if (!databaseRoles.contains(role.toLowerCase())) {
-          //Skip creating not existing roles for read only Perun
-          if (BeansUtils.isPerunReadOnly()) {
-            throw new InternalErrorException("One of default roles not exists in DB - " + role);
-          } else {
-            int newId = Utils.getNewId(jdbc, "roles_id_seq");
-            jdbc.update("insert into roles (id, name) values (?,?)", newId, role.toLowerCase());
-          }
-        }
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException("One of the roles configuration file has invalid syntax. Configuration files: " +
-          configurationPath.getFilename() +
-          (secondaryConfigurationPath == null ? "not defined" : secondaryConfigurationPath.getFilename()), e);
+    if (node == null) {
+      return resultList;
     }
+
+    Iterator<JsonNode> nodeArray = node.elements();
+    while (nodeArray.hasNext()) {
+      String value = nodeArray.next().asText();
+      resultList.add(value);
+    }
+
+    return resultList;
+  }
+
+  private List<Map<String, String>> createListOfMapsFromJsonNode(JsonNode listNode) {
+    List<Map<String, String>> rules = new ArrayList<>();
+
+    // iterate list of maps
+    for (JsonNode node : listNode) {
+      Map<String, String> innerRoleMap = createMapFromJsonNode(node);
+      rules.add(innerRoleMap);
+    }
+
+    return rules;
+  }
+
+  private Map<String, String> createMapFromJsonNode(JsonNode node) {
+    Map<String, String> resultMap = new HashMap<>();
+
+    Iterator<String> nodeArrayKeys = node.fieldNames();
+    while (nodeArrayKeys.hasNext()) {
+      String key = nodeArrayKeys.next();
+      JsonNode valueNode = node.get(key);
+      String value = valueNode.isNull() ? null : valueNode.textValue();
+      resultMap.put(key, value);
+    }
+
+    return resultMap;
+  }
+
+  public Resource getSecondaryConfigurationPath() {
+    return secondaryConfigurationPath;
+  }
+
+  private JsonNode loadConfigurationFile(Resource resource) {
+
+    JsonNode rootNode;
+    try (InputStream is = resource.getInputStream()) {
+      rootNode = OBJECT_MAPPER.readTree(is);
+    } catch (FileNotFoundException e) {
+      throw new InternalErrorException("Configuration file not found for perun roles. It should be in: " + resource, e);
+    } catch (IOException e) {
+      throw new InternalErrorException("IO exception was thrown during the processing of the file: " + resource, e);
+    }
+
+    return rootNode;
   }
 
   /**
@@ -98,16 +118,67 @@ public class PerunRolesLoader {
 
     } catch (RuntimeException e) {
       throw new InternalErrorException("One of the roles configuration file has invalid syntax. Configuration files: " +
-          configurationPath.getFilename() +
-          (secondaryConfigurationPath == null ? "not defined" : secondaryConfigurationPath.getFilename()), e);
+                                       configurationPath.getFilename() +
+                                       (secondaryConfigurationPath == null ? "not defined" :
+                                           secondaryConfigurationPath.getFilename()), e);
     }
 
     return policies;
   }
 
   /**
-   * Load role management rules from the configuration file as map
-   * with RoleManagementRules' identification as key and RoleManagementRules as value.
+   * Load perun roles from the configuration file to the database.
+   *
+   * @param jdbc connection to database
+   */
+  public void loadPerunRoles(JdbcPerunTemplate jdbc) {
+    try {
+      Set<String> roles = new HashSet<>(loadPerunRolesFromResource(configurationPath));
+      if (secondaryConfigurationPath != null) {
+        Set<String> secondaryRoles = new HashSet<>(loadPerunRolesFromResource(secondaryConfigurationPath));
+        roles.addAll(secondaryRoles);
+      }
+
+      List<String> databaseRoles =
+          new ArrayList<>(jdbc.query("select name from roles", new SingleColumnRowMapper<>(String.class)));
+      databaseRoles.forEach(dbRole -> {
+        if (!roles.contains(dbRole.toUpperCase())) {
+          LOG.debug("Role {} exists in the database but it is missing in the configuration files", dbRole);
+        }
+      });
+
+      // Check if all roles defined in class Role exists in the DB
+      for (String role : roles) {
+        if (!databaseRoles.contains(role.toLowerCase())) {
+          //Skip creating not existing roles for read only Perun
+          if (BeansUtils.isPerunReadOnly()) {
+            throw new InternalErrorException("One of default roles not exists in DB - " + role);
+          } else {
+            int newId = Utils.getNewId(jdbc, "roles_id_seq");
+            jdbc.update("insert into roles (id, name) values (?,?)", newId, role.toLowerCase());
+          }
+        }
+      }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException("One of the roles configuration file has invalid syntax. Configuration files: " +
+                                       configurationPath.getFilename() +
+                                       (secondaryConfigurationPath == null ? "not defined" :
+                                           secondaryConfigurationPath.getFilename()), e);
+    }
+  }
+
+  private List<String> loadPerunRolesFromResource(Resource resource) {
+    JsonNode primaryConfigRootNode = loadConfigurationFile(resource);
+
+    JsonNode rolesNode = primaryConfigRootNode.get("perun_roles");
+
+    return OBJECT_MAPPER.convertValue(rolesNode, new TypeReference<List<String>>() {
+    });
+  }
+
+  /**
+   * Load role management rules from the configuration file as map with RoleManagementRules' identification as key and
+   * RoleManagementRules as value.
    *
    * @return RoleManagementRules in a map.
    */
@@ -116,18 +187,19 @@ public class PerunRolesLoader {
 
     try {
       JsonNode rootNode = loadConfigurationFile(configurationPath);
-      loadPerunRolesManagementFromJsonNode(rootNode)
-          .forEach(rule -> rolesManagementRules.put(rule.getRoleName(), rule));
+      loadPerunRolesManagementFromJsonNode(rootNode).forEach(
+          rule -> rolesManagementRules.put(rule.getRoleName(), rule));
 
       if (secondaryConfigurationPath != null) {
         rootNode = loadConfigurationFile(secondaryConfigurationPath);
-        loadPerunRolesManagementFromJsonNode(rootNode)
-            .forEach(rule -> rolesManagementRules.put(rule.getRoleName(), rule));
+        loadPerunRolesManagementFromJsonNode(rootNode).forEach(
+            rule -> rolesManagementRules.put(rule.getRoleName(), rule));
       }
     } catch (RuntimeException e) {
       throw new InternalErrorException("One of the roles configuration file has invalid syntax. Configuration files: " +
-          configurationPath.getFilename() +
-          (secondaryConfigurationPath == null ? "not defined" : secondaryConfigurationPath.getFilename()), e);
+                                       configurationPath.getFilename() +
+                                       (secondaryConfigurationPath == null ? "not defined" :
+                                           secondaryConfigurationPath.getFilename()), e);
     }
 
     return rolesManagementRules;
@@ -169,71 +241,6 @@ public class PerunRolesLoader {
     return rules;
   }
 
-  private List<Map<String, String>> createListOfMapsFromJsonNode(JsonNode listNode) {
-    List<Map<String, String>> rules = new ArrayList<>();
-
-    // iterate list of maps
-    for (JsonNode node : listNode) {
-      Map<String, String> innerRoleMap = createMapFromJsonNode(node);
-      rules.add(innerRoleMap);
-    }
-
-    return rules;
-  }
-
-  private Map<String, String> createMapFromJsonNode(JsonNode node) {
-    Map<String, String> resultMap = new HashMap<>();
-
-    Iterator<String> nodeArrayKeys = node.fieldNames();
-    while (nodeArrayKeys.hasNext()) {
-      String key = nodeArrayKeys.next();
-      JsonNode valueNode = node.get(key);
-      String value = valueNode.isNull() ? null : valueNode.textValue();
-      resultMap.put(key, value);
-    }
-
-    return resultMap;
-  }
-
-  private List<String> createListFromJsonNode(JsonNode node) {
-    List<String> resultList = new ArrayList<>();
-
-    if (node == null) {
-      return resultList;
-    }
-
-    Iterator<JsonNode> nodeArray = node.elements();
-    while (nodeArray.hasNext()) {
-      String value = nodeArray.next().asText();
-      resultList.add(value);
-    }
-
-    return resultList;
-  }
-
-  private JsonNode loadConfigurationFile(Resource resource) {
-
-    JsonNode rootNode;
-    try (InputStream is = resource.getInputStream()) {
-      rootNode = objectMapper.readTree(is);
-    } catch (FileNotFoundException e) {
-      throw new InternalErrorException("Configuration file not found for perun roles. It should be in: " + resource, e);
-    } catch (IOException e) {
-      throw new InternalErrorException("IO exception was thrown during the processing of the file: " + resource, e);
-    }
-
-    return rootNode;
-  }
-
-  private List<String> loadPerunRolesFromResource(Resource resource) {
-    JsonNode primaryConfigRootNode = loadConfigurationFile(resource);
-
-    JsonNode rolesNode = primaryConfigRootNode.get("perun_roles");
-
-    return objectMapper.convertValue(rolesNode, new TypeReference<List<String>>() {
-    });
-  }
-
   private Set<PerunPolicy> loadPoliciesFromJsonNode(JsonNode rootNode) {
     Set<PerunPolicy> policies = new HashSet<>();
 
@@ -256,7 +263,7 @@ public class PerunRolesLoader {
 
       //Field include_policies is saved as List of Strings.
       List<String> includePolicies = new ArrayList<>(
-          objectMapper.convertValue(policyNode.get("include_policies"), new TypeReference<List<String>>() {
+          OBJECT_MAPPER.convertValue(policyNode.get("include_policies"), new TypeReference<List<String>>() {
           }));
 
       List<Map<String, String>> mfaRules = new ArrayList<>();
@@ -277,10 +284,6 @@ public class PerunRolesLoader {
 
   public void setConfigurationPath(Resource configurationPath) {
     this.configurationPath = configurationPath;
-  }
-
-  public Resource getSecondaryConfigurationPath() {
-    return secondaryConfigurationPath;
   }
 
   public void setSecondaryConfigurationPath(Resource secondaryConfigurationPath) {

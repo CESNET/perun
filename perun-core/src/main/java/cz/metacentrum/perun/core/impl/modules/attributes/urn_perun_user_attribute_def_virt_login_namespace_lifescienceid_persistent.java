@@ -12,12 +12,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Class for access def:lifescienceid-persistent-shadow attribute. It generates value if you call it for the first time.
+ * Class for access def:lifescienceid-persistent-shadow attribute. It generates value if you call it for the first
+ * time.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -27,6 +27,17 @@ public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_per
 
   public static final String SHADOW =
       "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:lifescienceid-persistent");
+    attr.setDisplayName("Lifescienceid login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login to Lifescienceid. It is set automatically with first call.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
@@ -59,16 +70,5 @@ public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_per
   @Override
   public List<String> getStrongDependencies() {
     return Collections.singletonList(SHADOW);
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("login-namespace:lifescienceid-persistent");
-    attr.setDisplayName("Lifescienceid login");
-    attr.setType(String.class.getName());
-    attr.setDescription("Login to Lifescienceid. It is set automatically with first call.");
-    return attr;
   }
 }

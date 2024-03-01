@@ -7,6 +7,21 @@ import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.strategy.AbstractPublicationSystemStrategy;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.apache.commons.text.WordUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -24,22 +39,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * EuropePMC publication system
  * <p>
@@ -49,121 +48,7 @@ import java.util.List;
  */
 public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 
-  private static Logger log = LoggerFactory.getLogger(EuropePMCStrategy.class);
-
-  @Override
-  public List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException {
-    try {
-      return parseResponse(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-    } catch (IOException e) {
-      throw new CabinetException(ErrorCodes.IO_EXCEPTION, e);
-    }
-  }
-
-  @Override
-  public HttpUriRequest getHttpRequest(String orcid, int yearSince, int yearTill, PublicationSystem ps) {
-
-    // yearTill is expected 0
-    // yearSince holds specific year
-
-    // set params
-    List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-    formparams.add(
-        new BasicNameValuePair("query", "AUTHORID:\"" + orcid + "\" sort_date:y PUB_YEAR:" + yearSince + ""));
-    formparams.add(new BasicNameValuePair("pageSize", "50"));
-    formparams.add(new BasicNameValuePair("resultType", "core"));
-
-    // prepare valid uri
-    URI uri = null;
-    try {
-      uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, StandardCharsets.UTF_8));
-      // log response into /var/log/perun/perun-cabinet.log
-      //log.debug("URI: {}", uri);
-
-    } catch (URISyntaxException e) {
-      log.error("Wrong URL syntax for contacting OrcID europepmc publication system.", e);
-    }
-
-    return new HttpGet(uri);
-
-  }
-
-  /**
-   * Parse String response as XML document and retrieve Publications from it.
-   *
-   * @param xml XML response from EuropePMC
-   * @return List of Publications
-   * @throws CabinetException If anything fails
-   */
-  protected List<Publication> parseResponse(String xml) throws CabinetException {
-
-    assert xml != null;
-    List<Publication> result = new ArrayList<Publication>();
-    //hook for titles with &
-    xml = xml.replace("&", "&amp;");
-
-    log.trace("RESPONSE: " + xml);
-
-    //Create new document factory builder
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder builder;
-    try {
-      builder = factory.newDocumentBuilder();
-    } catch (ParserConfigurationException ex) {
-      throw new CabinetException("Error when creating newDocumentBuilder.", ex);
-    }
-
-    Document doc;
-    try {
-      doc = builder.parse(new InputSource(new StringReader(xml)));
-    } catch (SAXParseException ex) {
-      throw new CabinetException("Error when parsing uri by document builder.", ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
-    } catch (SAXException ex) {
-      throw new CabinetException("Problem with parsing is more complex, not only invalid characters.",
-          ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
-    } catch (IOException ex) {
-      throw new CabinetException("Error when parsing uri by document builder. Problem with input or output.",
-          ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
-    }
-
-    //Prepare xpath expression
-    XPathFactory xPathFactory = XPathFactory.newInstance();
-    XPath xpath = xPathFactory.newXPath();
-    XPathExpression publicationsQuery;
-    try {
-      publicationsQuery = xpath.compile("/responseWrapper/resultList/result");
-    } catch (XPathExpressionException ex) {
-      throw new CabinetException("Error when compiling xpath query.", ex);
-    }
-
-    NodeList nodeList;
-    try {
-      nodeList = (NodeList) publicationsQuery.evaluate(doc, XPathConstants.NODESET);
-    } catch (XPathExpressionException ex) {
-      throw new CabinetException("Error when evaluate xpath query on document.", ex);
-    }
-
-    //Test if there is any nodeset in result
-    if (nodeList.getLength() == 0) {
-      //There is no results, return empty subjects
-      return result;
-    }
-
-    //Iterate through nodes and convert them to Map<String,String>
-    for (int i = 0; i < nodeList.getLength(); i++) {
-      Node singleNode = nodeList.item(i);
-      // remove node from original structure in order to keep access time constant (otherwise is exp.)
-      singleNode.getParentNode().removeChild(singleNode);
-      try {
-        Publication publication = convertNodeToPublication(singleNode, xPathFactory);
-        result.add(publication);
-      } catch (InternalErrorException ex) {
-        log.error("Unable to parse Publication:", ex);
-      }
-    }
-
-    return result;
-  }
+  private static Logger LOG = LoggerFactory.getLogger(EuropePMCStrategy.class);
 
   /**
    * Convert node of response to Publication
@@ -172,7 +57,7 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
    * @return Publication instance
    * @throws InternalErrorException
    */
-  private Publication convertNodeToPublication(Node node, XPathFactory xPathFactory) throws CabinetException {
+  private Publication convertNodeToPublication(Node node, XPathFactory xpathfactory) throws CabinetException {
 
     Publication publication = new Publication();
 
@@ -196,7 +81,7 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
     int year = ((Double) getValueFromXpath(node, "./pubYear/text()", XPathConstants.NUMBER)).intValue();
     publication.setYear(year);
 
-    XPath xpath = xPathFactory.newXPath();
+    XPath xpath = xpathfactory.newXPath();
     XPathExpression authorsQuery;
     try {
       authorsQuery = xpath.compile("./authorList/author");
@@ -236,7 +121,7 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
           author.setLastName(WordUtils.capitalize(lastName.trim()));
           authors.add(author);
         } catch (InternalErrorException ex) {
-          log.error("Exception [{}] caught while processing authors of response: [{}]", ex, node);
+          LOG.error("Exception [{}] caught while processing authors of response: [{}]", ex, node);
         }
       }
 
@@ -281,6 +166,120 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 
     return publication;
 
+  }
+
+  @Override
+  public HttpUriRequest getHttpRequest(String orcid, int yearSince, int yearTill, PublicationSystem ps) {
+
+    // yearTill is expected 0
+    // yearSince holds specific year
+
+    // set params
+    List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+    formparams.add(
+        new BasicNameValuePair("query", "AUTHORID:\"" + orcid + "\" sort_date:y PUB_YEAR:" + yearSince + ""));
+    formparams.add(new BasicNameValuePair("pageSize", "50"));
+    formparams.add(new BasicNameValuePair("resultType", "core"));
+
+    // prepare valid uri
+    URI uri = null;
+    try {
+      uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, StandardCharsets.UTF_8));
+      // log response into /var/log/perun/perun-cabinet.log
+      //log.debug("URI: {}", uri);
+
+    } catch (URISyntaxException e) {
+      LOG.error("Wrong URL syntax for contacting OrcID europepmc publication system.", e);
+    }
+
+    return new HttpGet(uri);
+
+  }
+
+  @Override
+  public List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException {
+    try {
+      return parseResponse(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      throw new CabinetException(ErrorCodes.IO_EXCEPTION, e);
+    }
+  }
+
+  /**
+   * Parse String response as XML document and retrieve Publications from it.
+   *
+   * @param xml XML response from EuropePMC
+   * @return List of Publications
+   * @throws CabinetException If anything fails
+   */
+  protected List<Publication> parseResponse(String xml) throws CabinetException {
+
+    assert xml != null;
+    List<Publication> result = new ArrayList<Publication>();
+    //hook for titles with &
+    xml = xml.replace("&", "&amp;");
+
+    LOG.trace("RESPONSE: " + xml);
+
+    //Create new document factory builder
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder;
+    try {
+      builder = factory.newDocumentBuilder();
+    } catch (ParserConfigurationException ex) {
+      throw new CabinetException("Error when creating newDocumentBuilder.", ex);
+    }
+
+    Document doc;
+    try {
+      doc = builder.parse(new InputSource(new StringReader(xml)));
+    } catch (SAXParseException ex) {
+      throw new CabinetException("Error when parsing uri by document builder.", ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
+    } catch (SAXException ex) {
+      throw new CabinetException("Problem with parsing is more complex, not only invalid characters.",
+          ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
+    } catch (IOException ex) {
+      throw new CabinetException("Error when parsing uri by document builder. Problem with input or output.",
+          ErrorCodes.MALFORMED_HTTP_RESPONSE, ex);
+    }
+
+    //Prepare xpath expression
+    XPathFactory xpathfactory = XPathFactory.newInstance();
+    XPath xpath = xpathfactory.newXPath();
+    XPathExpression publicationsQuery;
+    try {
+      publicationsQuery = xpath.compile("/responseWrapper/resultList/result");
+    } catch (XPathExpressionException ex) {
+      throw new CabinetException("Error when compiling xpath query.", ex);
+    }
+
+    NodeList nodeList;
+    try {
+      nodeList = (NodeList) publicationsQuery.evaluate(doc, XPathConstants.NODESET);
+    } catch (XPathExpressionException ex) {
+      throw new CabinetException("Error when evaluate xpath query on document.", ex);
+    }
+
+    //Test if there is any nodeset in result
+    if (nodeList.getLength() == 0) {
+      //There is no results, return empty subjects
+      return result;
+    }
+
+    //Iterate through nodes and convert them to Map<String,String>
+    for (int i = 0; i < nodeList.getLength(); i++) {
+      Node singleNode = nodeList.item(i);
+      // remove node from original structure in order to keep access time constant (otherwise is exp.)
+      singleNode.getParentNode().removeChild(singleNode);
+      try {
+        Publication publication = convertNodeToPublication(singleNode, xpathfactory);
+        result.add(publication);
+      } catch (InternalErrorException ex) {
+        LOG.error("Unable to parse Publication:", ex);
+      }
+    }
+
+    return result;
   }
 
 }

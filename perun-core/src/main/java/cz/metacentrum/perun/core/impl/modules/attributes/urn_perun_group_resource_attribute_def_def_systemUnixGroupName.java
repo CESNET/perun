@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,27 +32,6 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName
   private static final String A_GR_systemIsUnixGroup =
       AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isSystemUnixGroup";
   private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]*$");
-
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource,
-                                 AttributeDefinition attributeDefinition) {
-    return new Attribute(attributeDefinition);
-  }
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    String groupName = attribute.valueAsString();
-    if (groupName == null) {
-      return;
-    }
-
-    Matcher matcher = pattern.matcher(groupName);
-    if (!matcher.matches()) {
-      throw new WrongAttributeValueException(attribute, group, resource,
-          "String with other chars than numbers, letters or symbols _ and - is not allowed value.");
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
@@ -89,7 +67,8 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName
     List<Pair<Group, Resource>> listGroupPairsResource =
         sess.getPerunBl().getGroupsManagerBl().getGroupResourcePairsByAttribute(sess, attribute);
 
-    //Searching through all pairs and if is not checking group/resource/attribute, then try for being on the same facility, if yes then throw exception but only if these groups have not the same GID too.
+    //Searching through all pairs and if is not checking group/resource/attribute, then try for being on the same
+    // facility, if yes then throw exception but only if these groups have not the same GID too.
     for (Pair<Group, Resource> p : listGroupPairsResource) {
       if (!p.getLeft().equals(group) || !p.getRight().equals(resource)) {
         Facility facilityForTest = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, p.getRight());
@@ -114,7 +93,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName
         } catch (AttributeNotExistsException ex) {
           throw new ConsistencyErrorException(
               "Attribute " + A_GR_systemUnixGID + " not exists for group " + p.getLeft() + " and resource " +
-                  p.getRight(), ex);
+              p.getRight(), ex);
         } catch (GroupResourceMismatchException ex) {
           throw new InternalErrorException(ex);
         }
@@ -123,8 +102,8 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName
             (group1GID.getValue() != null ? (!group1GID.getValue().equals(group2GID.getValue())) : group2GID != null)) {
           throw new WrongReferenceAttributeValueException(attribute, attribute, group, resource,
               "Group name " + groupName +
-                  "is already used by another group-resource and these have not the same GID and GroupName.  " +
-                  p.getLeft() + " " + p.getRight());
+              "is already used by another group-resource and these have not the same GID and GroupName.  " +
+              p.getLeft() + " " + p.getRight());
         }
       }
     }
@@ -132,11 +111,24 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_GR_systemUnixGID);
-    dependencies.add(A_GR_systemIsUnixGroup);
-    return dependencies;
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    String groupName = attribute.valueAsString();
+    if (groupName == null) {
+      return;
+    }
+
+    Matcher matcher = pattern.matcher(groupName);
+    if (!matcher.matches()) {
+      throw new WrongAttributeValueException(attribute, group, resource,
+          "String with other chars than numbers, letters or symbols _ and - is not allowed value.");
+    }
+  }
+
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource,
+                                 AttributeDefinition attributeDefinition) {
+    return new Attribute(attributeDefinition);
   }
 
   @Override
@@ -148,5 +140,13 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName
     attr.setType(String.class.getName());
     attr.setDescription("Name of the system unix group.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_GR_systemUnixGID);
+    dependencies.add(A_GR_systemIsUnixGroup);
+    return dependencies;
   }
 }

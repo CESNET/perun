@@ -27,13 +27,13 @@ public class AttributeSetForUser extends AuditEvent {
     return attribute;
   }
 
-  public User getUser() {
-    return user;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   @Override

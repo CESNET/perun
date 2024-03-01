@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +21,14 @@ public class urn_perun_facility_attribute_def_def_shell_passwd_scp extends Facil
   private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Value can't be null");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
       throws WrongAttributeValueException {
     String shell = attribute.valueAsString();
@@ -32,14 +39,6 @@ public class urn_perun_facility_attribute_def_def_shell_passwd_scp extends Facil
     Matcher matcher = pattern.matcher(shell);
     if (!matcher.matches()) {
       throw new WrongAttributeValueException(attribute, "Wrong format. ^(/[-_.A-z0-9]+)+$ expected");
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "Value can't be null");
     }
   }
 

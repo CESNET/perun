@@ -25,62 +25,6 @@ public class PerunRequest {
     this.params = params;
   }
 
-  public long getStartTime() {
-    return startTime;
-  }
-
-  public PerunPrincipal getPerunPrincipal() {
-    return perunPrincipal;
-  }
-
-  public String getCallbackId() {
-    return callbackId;
-  }
-
-  public void setCallbackId(String callbackId) {
-    this.callbackId = callbackId;
-  }
-
-  public String getManager() {
-    return manager;
-  }
-
-  public String getMethod() {
-    return method;
-  }
-
-  public String getParams() {
-    return params;
-  }
-
-  public long getEndTime() {
-    return endTime;
-  }
-
-  public void setEndTime(long endTime) {
-    this.endTime = endTime;
-  }
-
-  public Object getResult() {
-    return result;
-  }
-
-  public void setResult(Object result) {
-    this.result = result;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((callbackId == null) ? 0 : callbackId.hashCode());
-    result = prime * result + ((manager == null) ? 0 : manager.hashCode());
-    result = prime * result + ((method == null) ? 0 : method.hashCode());
-    result = prime * result + ((perunPrincipal == null) ? 0 : perunPrincipal.hashCode());
-    result = prime * result + (int) (startTime ^ (startTime >>> 32));
-    return result;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -125,6 +69,62 @@ public class PerunRequest {
       return false;
     }
     return true;
+  }
+
+  public String getCallbackId() {
+    return callbackId;
+  }
+
+  public void setCallbackId(String callbackId) {
+    this.callbackId = callbackId;
+  }
+
+  public long getEndTime() {
+    return endTime;
+  }
+
+  public void setEndTime(long endTime) {
+    this.endTime = endTime;
+  }
+
+  public String getManager() {
+    return manager;
+  }
+
+  public String getMethod() {
+    return method;
+  }
+
+  public String getParams() {
+    return params;
+  }
+
+  public PerunPrincipal getPerunPrincipal() {
+    return perunPrincipal;
+  }
+
+  public Object getResult() {
+    return result;
+  }
+
+  public void setResult(Object result) {
+    this.result = result;
+  }
+
+  public long getStartTime() {
+    return startTime;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((callbackId == null) ? 0 : callbackId.hashCode());
+    result = prime * result + ((manager == null) ? 0 : manager.hashCode());
+    result = prime * result + ((method == null) ? 0 : method.hashCode());
+    result = prime * result + ((perunPrincipal == null) ? 0 : perunPrincipal.hashCode());
+    result = prime * result + (int) (startTime ^ (startTime >>> 32));
+    return result;
   }
 
 }

@@ -52,7 +52,7 @@ import java.util.Map;
 
 public class SearcherTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "searcher";
+  public static final String URL = "searcher";
   /**
    * Perun web session
    */

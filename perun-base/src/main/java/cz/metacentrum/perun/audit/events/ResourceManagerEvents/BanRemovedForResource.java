@@ -18,13 +18,8 @@ public class BanRemovedForResource extends AuditEvent {
     this.banOnResource = ban;
     this.memberId = memberId;
     this.resourceId = resourceId;
-    this.message = formatMessage("Ban %s was removed for memberId %d on resourceId %d.", banOnResource, memberId,
-        resourceId);
-  }
-
-  @Override
-  public String getMessage() {
-    return message;
+    this.message =
+        formatMessage("Ban %s was removed for memberId %d on resourceId %d.", banOnResource, memberId, resourceId);
   }
 
   public BanOnResource getBanOnResource() {
@@ -33,6 +28,11 @@ public class BanRemovedForResource extends AuditEvent {
 
   public int getMemberId() {
     return memberId;
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
   }
 
   public int getResourceId() {

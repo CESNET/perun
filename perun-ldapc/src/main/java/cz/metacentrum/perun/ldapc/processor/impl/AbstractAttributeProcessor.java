@@ -2,19 +2,20 @@ package cz.metacentrum.perun.ldapc.processor.impl;
 
 import cz.metacentrum.perun.ldapc.processor.AttributeProcessor;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AbstractAttributeProcessor extends AbstractEventProcessor implements AttributeProcessor {
 
   private int beanFlag;
-  private Pattern setPattern, removePattern, allAttrsRemovedPattern, virtualAttrChangePattern;
+  private Pattern setPattern;
+  private Pattern removePattern;
+  private Pattern allAttrsRemovedPattern;
+  private Pattern virtualAttrChangePattern;
 
 
   public AbstractAttributeProcessor(int beanFlag, Pattern setPattern, Pattern removePattern,
-                                    Pattern allAttrsRemovedPattern,
-                                    Pattern virtualAttrChangePattern) {
+                                    Pattern allAttrsRemovedPattern, Pattern virtualAttrChangePattern) {
     super();
     this.beanFlag = beanFlag;
     this.setPattern = setPattern;
@@ -22,6 +23,12 @@ public abstract class AbstractAttributeProcessor extends AbstractEventProcessor 
     this.allAttrsRemovedPattern = allAttrsRemovedPattern;
     this.virtualAttrChangePattern = virtualAttrChangePattern;
   }
+
+  public abstract void processAllAttributesRemoved(String msg, MessageBeans beans);
+
+  public abstract void processAttributeRemoved(String msg, MessageBeans beans);
+
+  public abstract void processAttributeSet(String msg, MessageBeans beans);
 
   @Override
   public void processEvent(String msg, MessageBeans beans) {
@@ -50,12 +57,6 @@ public abstract class AbstractAttributeProcessor extends AbstractEventProcessor 
     }
     // OK - we do not know how to handle this one
   }
-
-  public abstract void processAttributeSet(String msg, MessageBeans beans);
-
-  public abstract void processAttributeRemoved(String msg, MessageBeans beans);
-
-  public abstract void processAllAttributesRemoved(String msg, MessageBeans beans);
 
   public abstract void processVirtualAttributeChanged(String msg, MessageBeans beans);
 

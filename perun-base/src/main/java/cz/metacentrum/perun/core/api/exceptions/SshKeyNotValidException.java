@@ -5,14 +5,14 @@ package cz.metacentrum.perun.core.api.exceptions;
  *
  * @author David Flor <davidflor@seznam.cz>
  */
-public class SSHKeyNotValidException extends PerunException {
+public class SshKeyNotValidException extends PerunException {
 
   /**
    * Simple constructor with a message
    *
    * @param message message with details about the cause
    */
-  public SSHKeyNotValidException(String message) {
+  public SshKeyNotValidException(String message) {
     super(message);
   }
 
@@ -22,7 +22,7 @@ public class SSHKeyNotValidException extends PerunException {
    * @param message message with details about the cause
    * @param cause   Throwable that caused throwing of this exception
    */
-  public SSHKeyNotValidException(String message, Throwable cause) {
+  public SshKeyNotValidException(String message, Throwable cause) {
     super(message, cause);
   }
 
@@ -31,7 +31,7 @@ public class SSHKeyNotValidException extends PerunException {
    *
    * @param cause Throwable that caused throwing of this exception
    */
-  public SSHKeyNotValidException(Throwable cause) {
+  public SshKeyNotValidException(Throwable cause) {
     super(cause);
   }
 }

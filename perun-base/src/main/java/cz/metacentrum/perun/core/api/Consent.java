@@ -34,38 +34,6 @@ public class Consent extends Auditable {
     this.attributes = attributes;
   }
 
-  public int getUserId() {
-    return userId;
-  }
-
-  public void setUserId(int userId) {
-    this.userId = userId;
-  }
-
-  public ConsentStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(ConsentStatus status) {
-    this.status = status;
-  }
-
-  public ConsentHub getConsentHub() {
-    return consentHub;
-  }
-
-  public void setConsentHub(ConsentHub consentHub) {
-    this.consentHub = consentHub;
-  }
-
-  public List<AttributeDefinition> getAttributes() {
-    return attributes;
-  }
-
-  public void setAttributes(List<AttributeDefinition> attributes) {
-    this.attributes = attributes;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -76,7 +44,44 @@ public class Consent extends Auditable {
     }
     Consent that = (Consent) obj;
     return Objects.equals(that.getConsentHub(), getConsentHub()) && Objects.equals(that.getUserId(), getUserId()) &&
-        Objects.equals(that.getAttributes(), getAttributes()) && Objects.equals(that.getStatus(), getStatus());
+           Objects.equals(that.getAttributes(), getAttributes()) && Objects.equals(that.getStatus(), getStatus());
+  }
+
+  public List<AttributeDefinition> getAttributes() {
+    return attributes;
+  }
+
+  public void setAttributes(List<AttributeDefinition> attributes) {
+    this.attributes = attributes;
+  }
+
+  public ConsentHub getConsentHub() {
+    return consentHub;
+  }
+
+  public void setConsentHub(ConsentHub consentHub) {
+    this.consentHub = consentHub;
+  }
+
+  public ConsentStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(ConsentStatus status) {
+    this.status = status;
+  }
+
+  public int getUserId() {
+    return userId;
+  }
+
+  public void setUserId(int userId) {
+    this.userId = userId;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getUserId(), getConsentHub(), getAttributes(), getStatus());
   }
 
   @Override
@@ -103,16 +108,7 @@ public class Consent extends Auditable {
 
   @Override
   public String toString() {
-    return "Consent:[id='" + getId() +
-        "', userId='" + getUserId() +
-        "', consentHub='" + getConsentHub() +
-        "', status='" + getStatus() +
-        "', attributes='" + getAttributes() +
-        "']";
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), getUserId(), getConsentHub(), getAttributes(), getStatus());
+    return "Consent:[id='" + getId() + "', userId='" + getUserId() + "', consentHub='" + getConsentHub() +
+           "', status='" + getStatus() + "', attributes='" + getAttributes() + "']";
   }
 }

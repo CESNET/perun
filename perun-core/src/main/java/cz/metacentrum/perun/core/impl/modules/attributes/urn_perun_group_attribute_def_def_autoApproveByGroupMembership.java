@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,22 +22,6 @@ import java.util.List;
  */
 public class urn_perun_group_attribute_def_def_autoApproveByGroupMembership extends GroupAttributesModuleAbstract
     implements GroupAttributesModuleImplApi {
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    for (String id : attribute.valueAsList()) {
-      try {
-        Integer.valueOf(id);
-      } catch (NumberFormatException ex) {
-        throw new WrongAttributeValueException(id + " is not a correct group id.");
-      }
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
@@ -61,6 +44,22 @@ public class urn_perun_group_attribute_def_def_autoApproveByGroupMembership exte
   }
 
   @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    for (String id : attribute.valueAsList()) {
+      try {
+        Integer.valueOf(id);
+      } catch (NumberFormatException ex) {
+        throw new WrongAttributeValueException(id + " is not a correct group id.");
+      }
+    }
+  }
+
+  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
@@ -68,7 +67,8 @@ public class urn_perun_group_attribute_def_def_autoApproveByGroupMembership exte
     attr.setFriendlyName("autoApproveByGroupMembership");
     attr.setDisplayName("Auto approve by group membership");
     attr.setDescription(
-        "List of group IDs in which if the user is already a valid member, their application will be automatically approved.");
+        "List of group IDs in which if the user is already a valid member, their application will be automatically " +
+        "approved.");
     return attr;
   }
 }

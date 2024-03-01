@@ -13,8 +13,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuring
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
 
 /**
- * All alternative logins of user collected from UserExtSources attributes
- * as list of schacHomeOrganization:altLogin
+ * All alternative logins of user collected from UserExtSources attributes as list of schacHomeOrganization:altLogin
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -24,13 +23,8 @@ public class urn_perun_user_attribute_def_virt_alternativeLoginNames
     extends UserVirtualAttributeCollectedFromUserExtSource {
 
   @Override
-  public String getSourceAttributeFriendlyName() {
-    return "alternativeLoginName";
-  }
-
-  @Override
-  public String getDestinationAttributeFriendlyName() {
-    return "alternativeLoginNames";
+  public String getDestinationAttributeDescription() {
+    return "List of all alternative logins of user in organizations represented as tuples of entityId:alternativeLogin";
   }
 
   @Override
@@ -39,8 +33,13 @@ public class urn_perun_user_attribute_def_virt_alternativeLoginNames
   }
 
   @Override
-  public String getDestinationAttributeDescription() {
-    return "List of all alternative logins of user in organizations represented as tuples of entityId:alternativeLogin";
+  public String getDestinationAttributeFriendlyName() {
+    return "alternativeLoginNames";
+  }
+
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "alternativeLoginName";
   }
 
   @Override

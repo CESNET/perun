@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "allowed-vos";
+  public static final String URL = "allowed-vos";
   /**
    * Perun web session
    */

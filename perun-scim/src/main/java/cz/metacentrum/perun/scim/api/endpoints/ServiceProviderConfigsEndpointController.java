@@ -5,25 +5,34 @@ import static cz.metacentrum.perun.scim.api.SCIMDefaults.AUTH_OAUTH2_DESC;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.AUTH_OAUTH2_NAME;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_SERVICE_PROVIDER_CONFIG;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.scim.api.entities.AuthenticationSchemes;
 import cz.metacentrum.perun.scim.api.entities.ServiceProviderConfiguration;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
- * Service Provider Configuration endpoint, that returns specification
- * compliance, authentication schemas and data models.
+ * Service Provider Configuration endpoint, that returns specification compliance, authentication schemas and data
+ * models.
  *
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @date 08.10.2016
  */
 public class ServiceProviderConfigsEndpointController {
+
+  private List<AuthenticationSchemes> getAuthenticationSchemes() {
+    List schemes = new ArrayList();
+
+    AuthenticationSchemes autheticationSchemes = new AuthenticationSchemes();
+    autheticationSchemes.setName(AUTH_OAUTH2_NAME);
+    autheticationSchemes.setDescription(AUTH_OAUTH2_DESC);
+
+    schemes.add(autheticationSchemes);
+    return schemes;
+  }
 
   public Response getServiceProviderConfigs() throws SCIMException {
     try {
@@ -47,16 +56,5 @@ public class ServiceProviderConfigsEndpointController {
     } catch (IOException ex) {
       throw new SCIMException("Cannot convert service provider configuration to json string", ex);
     }
-  }
-
-  private List<AuthenticationSchemes> getAuthenticationSchemes() {
-    List schemes = new ArrayList();
-
-    AuthenticationSchemes autheticationSchemes = new AuthenticationSchemes();
-    autheticationSchemes.setName(AUTH_OAUTH2_NAME);
-    autheticationSchemes.setDescription(AUTH_OAUTH2_DESC);
-
-    schemes.add(autheticationSchemes);
-    return schemes;
   }
 }

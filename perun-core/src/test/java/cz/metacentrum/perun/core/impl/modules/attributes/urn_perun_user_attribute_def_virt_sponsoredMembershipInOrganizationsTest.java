@@ -1,5 +1,12 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -8,26 +15,18 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Michal Stava stavamichal@gmail.com
  */
 public class urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganizationsTest {
-  private final static Logger log =
+  private static final Logger LOG =
       LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganizationsTest.class);
 
   private final urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganizations classInstance =
@@ -53,6 +52,17 @@ public class urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganization
 
   private PerunSessionImpl sess;
 
+  @Test
+  public void getAttributeValue() {
+    ArrayList<String> attributeValue =
+        classInstance.getAttributeValue(sess, user, sponsoredMembershipInOrganizationsAttrDef).valueAsList();
+
+    assertNotNull(attributeValue);
+    assertEquals(2, attributeValue.size());
+    assertTrue(attributeValue.contains(value1));
+    assertTrue(attributeValue.contains(value2));
+  }
+
   @Before
   public void setUp() throws Exception {
     sponsoredMembershipInOrganizationsAttrDef.setId(100);
@@ -62,18 +72,18 @@ public class urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganization
     //prepare mocks
     sess = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-    when(sess.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(sess, member1))
-        .thenReturn(Arrays.asList(group1));
-    when(sess.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(sess, member2))
-        .thenReturn(Arrays.asList(group2));
+    when(sess.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(sess, member1)).thenReturn(
+        Arrays.asList(group1));
+    when(sess.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(sess, member2)).thenReturn(
+        Arrays.asList(group2));
 
-    when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group1, organizationIdentifierAttrName))
-        .thenReturn(groupAttr1);
-    when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group2, organizationIdentifierAttrName))
-        .thenReturn(groupAttr2);
+    when(sess.getPerunBl().getAttributesManagerBl()
+        .getAttribute(sess, group1, organizationIdentifierAttrName)).thenReturn(groupAttr1);
+    when(sess.getPerunBl().getAttributesManagerBl()
+        .getAttribute(sess, group2, organizationIdentifierAttrName)).thenReturn(groupAttr2);
 
-    when(sess.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(sess, user, Status.VALID))
-        .thenReturn(Arrays.asList(member1, member2));
+    when(sess.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(sess, user, Status.VALID)).thenReturn(
+        Arrays.asList(member1, member2));
   }
 
   private Attribute setUpGroupAttribute(int id, String friendlyName, String type, Object value) {
@@ -85,16 +95,5 @@ public class urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganization
     Attribute attr = new Attribute(attrDef);
     attr.setValue(value);
     return attr;
-  }
-
-  @Test
-  public void getAttributeValue() {
-    ArrayList<String> attributeValue =
-        classInstance.getAttributeValue(sess, user, sponsoredMembershipInOrganizationsAttrDef).valueAsList();
-
-    assertNotNull(attributeValue);
-    assertEquals(2, attributeValue.size());
-    assertTrue(attributeValue.contains(value1));
-    assertTrue(attributeValue.contains(value2));
   }
 }

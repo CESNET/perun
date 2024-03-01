@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +19,17 @@ public class urn_perun_member_group_attribute_def_virt_o365SendAs extends Member
 
   private static final String A_MG_o365SendAs = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":o365SendAs";
   private static final String A_G_o365SendAsGroups = AttributesManager.NS_GROUP_ATTR_DEF + ":o365SendAsGroups";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+    attr.setFriendlyName("o365SendAs");
+    attr.setDisplayName("O365 Send as");
+    attr.setType(Boolean.class.getName());
+    attr.setDescription("Whether member has a right to send as a group.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
@@ -35,16 +45,5 @@ public class urn_perun_member_group_attribute_def_virt_o365SendAs extends Member
     strongDependencies.add(A_MG_o365SendAs);
     strongDependencies.add(A_G_o365SendAsGroups);
     return strongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-    attr.setFriendlyName("o365SendAs");
-    attr.setDisplayName("O365 Send as");
-    attr.setType(Boolean.class.getName());
-    attr.setDescription("Whether member has a right to send as a group.");
-    return attr;
   }
 }

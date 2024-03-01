@@ -26,26 +26,9 @@ import org.slf4j.LoggerFactory;
  */
 public class Muadm extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(Muadm.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Muadm.class);
 
   private static final String URN_USER_D_LOGIN_MU = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
-
-  @Override
-  public void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
-                                       List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException {
-    if (!Application.AppType.INITIAL.equals(appType) && !Application.AppType.EMBEDDED.equals(appType)) {
-      return;
-    }
-
-    formItems.stream()
-        .filter(item -> item.getFormItem().getType() == ApplicationFormItem.Type.USERNAME)
-        .filter(item -> isEmpty(item.getPrefilledValue()))
-        .filter(item -> isNotEmpty(item.getFormItem().getPerunDestinationAttribute()))
-        .forEach(item -> {
-          item.setPrefilledValue(generateLogin(session));
-          item.setGenerated(true);
-        });
-  }
 
   private String generateLogin(PerunSession session) {
     User user = session.getPerunPrincipal().getUser();
@@ -58,15 +41,30 @@ public class Muadm extends DefaultRegistrarModule {
     try {
       uco = perunBl.getAttributesManagerBl().getAttribute(session, user, URN_USER_D_LOGIN_MU);
     } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-      log.error("Cannot generate login.", e);
+      LOG.error("Cannot generate login.", e);
       return null;
     }
 
     if (uco.getValue() == null) {
-      log.error("Cannot generate login, the user doesn't have filled attribute " + URN_USER_D_LOGIN_MU);
+      LOG.error("Cannot generate login, the user doesn't have filled attribute " + URN_USER_D_LOGIN_MU);
       return null;
     } else {
       return uco.valueAsString() + "adm";
     }
+  }
+
+  @Override
+  public void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
+                                       List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException {
+    if (!Application.AppType.INITIAL.equals(appType) && !Application.AppType.EMBEDDED.equals(appType)) {
+      return;
+    }
+
+    formItems.stream().filter(item -> item.getFormItem().getType() == ApplicationFormItem.Type.USERNAME)
+        .filter(item -> isEmpty(item.getPrefilledValue()))
+        .filter(item -> isNotEmpty(item.getFormItem().getPerunDestinationAttribute())).forEach(item -> {
+          item.setPrefilledValue(generateLogin(session));
+          item.setGenerated(true);
+        });
   }
 }

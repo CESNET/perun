@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({"RedundantIfStatement", "SimplifiableIfStatement"})
 public class Attribute extends AttributeDefinition implements Serializable {
 
-  private final static Logger log = LoggerFactory.getLogger(Attribute.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Attribute.class);
   /**
    * Value of the attribute, can be Map, List, String, Integer, Boolean...
    */
@@ -76,34 +76,39 @@ public class Attribute extends AttributeDefinition implements Serializable {
     this.setValue(value);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    if (!(obj instanceof AttributeDefinition)) {
+      return false;
+    }
+
+    if (!super.equals(obj)) {
+      return false;
+    }
+
+    if (!(obj instanceof Attribute)) {
+      //Compare only as AttributeDefinition, which was done above
+      return true;
+    }
+
+    final Attribute other = (Attribute) obj;
+
+    if (this.value == null ? other.value != null : !this.value.equals(other.value)) {
+      return false;
+    }
+    return true;
+  }
+
   public Object getValue() {
     return value;
   }
 
   public void setValue(Object value) {
     this.value = value;
-  }
-
-  public String valueAsString() {
-    return (String) value;
-  }
-
-  public Integer valueAsInteger() {
-    return (Integer) value;
-  }
-
-  public Boolean valueAsBoolean() {
-    return (Boolean) value;
-  }
-
-  @SuppressWarnings("unchecked")
-  public ArrayList<String> valueAsList() {
-    return (ArrayList<String>) value;
-  }
-
-  @SuppressWarnings("unchecked")
-  public LinkedHashMap<String, String> valueAsMap() {
-    return (LinkedHashMap<String, String>) value;
   }
 
   public String getValueCreatedAt() {
@@ -148,54 +153,6 @@ public class Attribute extends AttributeDefinition implements Serializable {
     return hash;
   }
 
-  /**
-   * Check if the attribute value contains value. In case of list, it uses method contains. In case of array it searches in both keys and values.
-   *
-   * @param value value
-   * @return true if the attribute value contains value.
-   */
-  @SuppressWarnings("unchecked")
-  public boolean valueContains(String value) {
-    if (this.getType().equals(String.class.getName())) {
-      return value == null ? this.getValue() == null : value.equals(this.getValue());
-    } else if (this.getType().equals(ArrayList.class.getName())) {
-      return this.getValue() == null ? value == null : ((ArrayList<String>) this.getValue()).contains(value);
-    } else if (this.getType().equals(LinkedHashMap.class.getName())) {
-      return this.getValue() == null ? value == null :
-          (((LinkedHashMap<String, String>) this.getValue()).containsKey(value) ||
-              ((LinkedHashMap<String, String>) this.getValue()).containsValue(value));
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-
-    if (!(obj instanceof AttributeDefinition)) {
-      return false;
-    }
-
-    if (!super.equals(obj)) {
-      return false;
-    }
-
-    if (!(obj instanceof Attribute)) {
-      //Compare only as AttributeDefinition, which was done above
-      return true;
-    }
-
-    final Attribute other = (Attribute) obj;
-
-    if (this.value == null ? other.value != null : !this.value.equals(other.value)) {
-      return false;
-    }
-    return true;
-  }
-
   @Override
   public String serializeToString() {
     StringBuilder str = new StringBuilder();
@@ -210,31 +167,67 @@ public class Attribute extends AttributeDefinition implements Serializable {
       } catch (InternalErrorException ex) {
         //WARNING: This error is not catched. There is very low chance to occur.
         //When this happens, error is logged and there is need to look on attributeValueToString script above.
-        log.error("Attribute value can't be serialize! {}", ex);
+        LOG.error("Attribute value can't be serialize! {}", ex);
         stringValue = null;
       }
     }
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", friendlyName=<").append(getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName()))
-        .append(">").append(
-            ", namespace=<").append(getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace()))
-        .append(">").append(
-            ", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">").append(
-            ", unique=<").append(isUnique()).append(">").append(
-            ", value=<").append(BeansUtils.createEscaping(stringValue)).append(">").append(
-            ']').toString();
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", friendlyName=<")
+        .append(getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())).append(">")
+        .append(", namespace=<").append(getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace()))
+        .append(">").append(", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType()))
+        .append(">").append(", unique=<").append(isUnique()).append(">").append(", value=<")
+        .append(BeansUtils.createEscaping(stringValue)).append(">").append(']').toString();
   }
 
   @Override
   public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id='" + getId() + '\'' +
-        ", friendlyName='" + getFriendlyName() + '\'' +
-        ", namespace='" + getNamespace() + '\'' +
-        ", type='" + getType() + '\'' +
-        ", unique='" + isUnique() + '\'' +
-        ", value='" + getValue() + '\'' +
-        ']';
+    return this.getClass().getSimpleName() + ":[" + "id='" + getId() + '\'' + ", friendlyName='" + getFriendlyName() +
+           '\'' + ", namespace='" + getNamespace() + '\'' + ", type='" + getType() + '\'' + ", unique='" + isUnique() +
+           '\'' + ", value='" + getValue() + '\'' + ']';
+  }
+
+  public Boolean valueAsBoolean() {
+    return (Boolean) value;
+  }
+
+  public Integer valueAsInteger() {
+    return (Integer) value;
+  }
+
+  @SuppressWarnings("unchecked")
+  public ArrayList<String> valueAsList() {
+    return (ArrayList<String>) value;
+  }
+
+  @SuppressWarnings("unchecked")
+  public LinkedHashMap<String, String> valueAsMap() {
+    return (LinkedHashMap<String, String>) value;
+  }
+
+  public String valueAsString() {
+    return (String) value;
+  }
+
+  /**
+   * Check if the attribute value contains value. In case of list, it uses method contains. In case of array it searches
+   * in both keys and values.
+   *
+   * @param value value
+   * @return true if the attribute value contains value.
+   */
+  @SuppressWarnings("unchecked")
+  public boolean valueContains(String value) {
+    if (this.getType().equals(String.class.getName())) {
+      return value == null ? this.getValue() == null : value.equals(this.getValue());
+    } else if (this.getType().equals(ArrayList.class.getName())) {
+      return this.getValue() == null ? value == null : ((ArrayList<String>) this.getValue()).contains(value);
+    } else if (this.getType().equals(LinkedHashMap.class.getName())) {
+      return this.getValue() == null ? value == null :
+          (((LinkedHashMap<String, String>) this.getValue()).containsKey(value) ||
+           ((LinkedHashMap<String, String>) this.getValue()).containsValue(value));
+    } else {
+      return false;
+    }
   }
 }

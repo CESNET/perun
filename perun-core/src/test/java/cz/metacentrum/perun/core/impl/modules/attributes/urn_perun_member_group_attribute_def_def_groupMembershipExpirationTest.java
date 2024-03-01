@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -7,9 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_member_group_attribute_def_def_groupMembershipExpirationTest {
 
@@ -26,17 +26,17 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpirationT
   }
 
   @Test
-  public void testCheckAttributeReturnNull() throws Exception {
-    System.out.println("testCheckAttributeReturnNull()");
-    attributeToCheck.setValue(null);
+  public void testCheckAttributeCommonValue() throws Exception {
+    System.out.println("testCheckAttributeCommonValue()");
+    attributeToCheck.setValue("2001-12-25");
 
     classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
   }
 
   @Test
-  public void testCheckAttributeCommonValue() throws Exception {
-    System.out.println("testCheckAttributeCommonValue()");
-    attributeToCheck.setValue("2001-12-25");
+  public void testCheckAttributeHighBorderValue() throws Exception {
+    System.out.println("testCheckAttributeHighBorderValue()");
+    attributeToCheck.setValue("9999-12-31");
 
     classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
   }
@@ -50,25 +50,25 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpirationT
   }
 
   @Test
-  public void testCheckAttributeHighBorderValue() throws Exception {
-    System.out.println("testCheckAttributeHighBorderValue()");
-    attributeToCheck.setValue("9999-12-31");
+  public void testCheckAttributeReturnNull() throws Exception {
+    System.out.println("testCheckAttributeReturnNull()");
+    attributeToCheck.setValue(null);
 
     classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
   }
 
   @Test(expected = WrongAttributeValueException.class)
-  public void testCheckAttributeWrongMonths() throws Exception {
-    System.out.println("testCheckAttributeWrongMonth()");
-    attributeToCheck.setValue("1500-15-25");
+  public void testCheckAttributeWrongCharInDate() throws Exception {
+    System.out.println("testCheckAttributeWrongCharsInDate()");
+    attributeToCheck.setValue("3595-11-31s");
 
     classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
   }
 
   @Test(expected = WrongAttributeValueException.class)
-  public void testCheckAttributeWrongYears() throws Exception {
-    System.out.println("testCheckAttributeWrongYear()");
-    attributeToCheck.setValue("500-10-25");
+  public void testCheckAttributeWrongCharsBetweenDate() throws Exception {
+    System.out.println("testCheckAttributeWrongCharsBetweenDate()");
+    attributeToCheck.setValue("3595.11.31");
 
     classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
   }
@@ -90,17 +90,17 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpirationT
   }
 
   @Test(expected = WrongAttributeValueException.class)
-  public void testCheckAttributeWrongCharInDate() throws Exception {
-    System.out.println("testCheckAttributeWrongCharsInDate()");
-    attributeToCheck.setValue("3595-11-31s");
+  public void testCheckAttributeWrongMonths() throws Exception {
+    System.out.println("testCheckAttributeWrongMonth()");
+    attributeToCheck.setValue("1500-15-25");
 
     classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
   }
 
   @Test(expected = WrongAttributeValueException.class)
-  public void testCheckAttributeWrongCharsBetweenDate() throws Exception {
-    System.out.println("testCheckAttributeWrongCharsBetweenDate()");
-    attributeToCheck.setValue("3595.11.31");
+  public void testCheckAttributeWrongYears() throws Exception {
+    System.out.println("testCheckAttributeWrongYear()");
+    attributeToCheck.setValue("500-10-25");
 
     classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
   }

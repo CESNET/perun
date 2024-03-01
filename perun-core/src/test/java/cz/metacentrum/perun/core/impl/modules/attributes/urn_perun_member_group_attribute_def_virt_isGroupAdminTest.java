@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -14,14 +17,10 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Kristyna Kysela
@@ -62,6 +61,25 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdminTest extends 
 
   }
 
+  private Group setUpGroup(Vo vo, Member member) throws Exception {
+
+    Group newGroup = new Group("TestGroup", "");
+    newGroup = groupsManager.createGroup(sess, vo, newGroup);
+    User user = usersManager.getUserByMember(sess, member);
+    groupsManager.addMember(sess, newGroup, member);
+    groupsManager.addAdmin(sess, newGroup, user);
+    return newGroup;
+
+  }
+
+  private Member setUpMember(Vo vo) throws Exception {
+
+    Member newMember = membersManager.createMember(sess, vo, user);
+    assertNotNull(newMember);
+    return newMember;
+
+  }
+
   private User setUpUser() throws PrivilegeException {
     User newUser = new User();
     newUser.setFirstName("adam");
@@ -74,7 +92,6 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdminTest extends 
     return newUser;
   }
 
-
   private Vo setUpVo() throws Exception {
     Vo newVo = new Vo(0, "TestVo", "TestVo");
     Vo returnedVo = vosManager.createVo(sess, newVo);
@@ -82,25 +99,6 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdminTest extends 
     newVo.setId(returnedVo.getId());
     assertEquals(newVo, returnedVo);
     return returnedVo;
-
-  }
-
-  private Member setUpMember(Vo vo) throws Exception {
-
-    Member newMember = membersManager.createMember(sess, vo, user);
-    assertNotNull(newMember);
-    return newMember;
-
-  }
-
-  private Group setUpGroup(Vo vo, Member member) throws Exception {
-
-    Group newGroup = new Group("TestGroup", "");
-    newGroup = groupsManager.createGroup(sess, vo, newGroup);
-    User user = usersManager.getUserByMember(sess, member);
-    groupsManager.addMember(sess, newGroup, member);
-    groupsManager.addAdmin(sess, newGroup, user);
-    return newGroup;
 
   }
 

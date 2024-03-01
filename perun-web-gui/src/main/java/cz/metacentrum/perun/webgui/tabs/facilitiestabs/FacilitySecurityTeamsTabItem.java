@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class FacilitySecurityTeamsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "sec";
+  public static final String URL = "sec";
   /**
    * Perun web session
    */

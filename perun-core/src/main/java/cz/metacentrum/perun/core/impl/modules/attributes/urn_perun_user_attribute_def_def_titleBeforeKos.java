@@ -23,8 +23,8 @@ public class urn_perun_user_attribute_def_def_titleBeforeKos extends UserAttribu
     implements UserAttributesModuleImplApi {
 
   /**
-   * When KOS title before name is set, check if there is title from DC2 (personal system).
-   * If not, update title in User.
+   * When KOS title before name is set, check if there is title from DC2 (personal system). If not, update title in
+   * User.
    *
    * @param session
    * @param user

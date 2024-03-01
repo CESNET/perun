@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "appl-detail";
+  public static final String URL = "appl-detail";
   final ScrollPanel sp = new ScrollPanel();
   /**
    * Perun web session

@@ -45,12 +45,21 @@ public class ApplicationFormItemData {
     this.prefilledValue = prefilled;
   }
 
-  public Integer getId() {
-    return id;
+  public String getAssuranceLevel() {
+    return assuranceLevel;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  public void setAssuranceLevel(String assuranceLevel) {
+    this.assuranceLevel = assuranceLevel;
+  }
+
+  /**
+   * Return bean name as PerunBean does.
+   *
+   * @return Class simple name (beanName)
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
   }
 
   public ApplicationFormItem getFormItem() {
@@ -59,6 +68,22 @@ public class ApplicationFormItemData {
 
   public void setFormItem(ApplicationFormItem formItem) {
     this.formItem = formItem;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getPrefilledValue() {
+    return prefilledValue;
+  }
+
+  public void setPrefilledValue(String prefilledValue) {
+    this.prefilledValue = prefilledValue;
   }
 
   public String getShortname() {
@@ -77,40 +102,11 @@ public class ApplicationFormItemData {
     this.value = value;
   }
 
-  public String getAssuranceLevel() {
-    return assuranceLevel;
-  }
-
-  public void setAssuranceLevel(String assuranceLevel) {
-    this.assuranceLevel = assuranceLevel;
-  }
-
-  public String getPrefilledValue() {
-    return prefilledValue;
-  }
-
-  public void setPrefilledValue(String prefilledValue) {
-    this.prefilledValue = prefilledValue;
-  }
-
-  /**
-   * Return bean name as PerunBean does.
-   *
-   * @return Class simple name (beanName)
-   */
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
-  }
-
   @Override
   public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "formItem='" + getFormItem().toString() + '\'' +
-        ", shortname='" + getShortname() + '\'' +
-        ", value='" + getValue() + '\'' +
-        ", prefilledValue='" + getPrefilledValue() + '\'' +
-        ", assuranceLevel='" + getAssuranceLevel() + '\''
-        + "]";
+    return this.getClass().getSimpleName() + ":[" + "formItem='" + getFormItem().toString() + '\'' + ", shortname='" +
+           getShortname() + '\'' + ", value='" + getValue() + '\'' + ", prefilledValue='" + getPrefilledValue() + '\'' +
+           ", assuranceLevel='" + getAssuranceLevel() + '\'' + "]";
   }
 
 }

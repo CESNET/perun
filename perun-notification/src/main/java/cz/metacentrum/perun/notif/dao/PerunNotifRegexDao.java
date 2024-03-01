@@ -18,18 +18,7 @@ public interface PerunNotifRegexDao {
   public List<PerunNotifRegex> getAll();
 
   /**
-   * Saves regex to db and creates new id using sequence, saves only basic
-   * attributes, not collections
-   *
-   * @param regex
-   * @return perunNotifRegex with new id set
-   * @throws InternalErrorException
-   */
-  public PerunNotifRegex saveInternals(PerunNotifRegex regex);
-
-  /**
-   * Gets perunNotifRegex by id, entity also contains related
-   * PerunNotifObject
+   * Gets perunNotifRegex by id, entity also contains related PerunNotifObject
    *
    * @param id
    * @return regex or null (when no regex with id is found)
@@ -38,32 +27,13 @@ public interface PerunNotifRegexDao {
   public PerunNotifRegex getPerunNotifRegexById(int id);
 
   /**
-   * Gets PerunNotifRegexs for templateId, regexes contains also related
-   * perunNotifObjects
+   * Gets PerunNotifRegexs for templateId, regexes contains also related perunNotifObjects
    *
    * @param id
    * @return
    * @throws InternalErrorException
    */
   public Set<PerunNotifRegex> getPerunNotifRegexForTemplateId(int id);
-
-  /**
-   * Updates perunNotifRegex internals not collections
-   *
-   * @param regex
-   * @return
-   * @throws InternalErrorException
-   */
-  public PerunNotifRegex updatePerunNotifRegexInternals(PerunNotifRegex regex);
-
-  /**
-   * Removes regex by id, but only regexInternals from pn_regex, not
-   * collections
-   *
-   * @param id
-   * @throws InternalErrorException
-   */
-  public void removePerunNotifRegexById(int id);
 
   /**
    * Returns all templatesIds which uses this regex id
@@ -84,12 +54,12 @@ public interface PerunNotifRegexDao {
   public boolean isRegexRelation(int templateId, Integer regexId);
 
   /**
-   * Stores relation between template and regex to db
+   * Removes regex by id, but only regexInternals from pn_regex, not collections
    *
-   * @param templateId
-   * @param regexId
+   * @param id
+   * @throws InternalErrorException
    */
-  public void saveTemplateRegexRelation(int templateId, Integer regexId);
+  public void removePerunNotifRegexById(int id);
 
   /**
    * Removes relation between template and regex
@@ -99,4 +69,30 @@ public interface PerunNotifRegexDao {
    * @throws InternalErrorException
    */
   public void removePerunNotifTemplateRegexRelation(int templateId, int regexId);
+
+  /**
+   * Saves regex to db and creates new id using sequence, saves only basic attributes, not collections
+   *
+   * @param regex
+   * @return perunNotifRegex with new id set
+   * @throws InternalErrorException
+   */
+  public PerunNotifRegex saveInternals(PerunNotifRegex regex);
+
+  /**
+   * Stores relation between template and regex to db
+   *
+   * @param templateId
+   * @param regexId
+   */
+  public void saveTemplateRegexRelation(int templateId, Integer regexId);
+
+  /**
+   * Updates perunNotifRegex internals not collections
+   *
+   * @param regex
+   * @return
+   * @throws InternalErrorException
+   */
+  public PerunNotifRegex updatePerunNotifRegexInternals(PerunNotifRegex regex);
 }

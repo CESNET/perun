@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class SecurityTeamMembersTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "mem";
+  public static final String URL = "mem";
   /**
    * Perun web session
    */

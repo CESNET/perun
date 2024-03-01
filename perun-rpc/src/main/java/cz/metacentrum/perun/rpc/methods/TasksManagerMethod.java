@@ -333,13 +333,10 @@ public enum TasksManagerMethod implements ManagerMethod {
             ac.getServicesManager().getDestinationById(ac.getSession(), parms.readInt("destinationId")));
       } else {
         ac.getTasksManager().deleteTaskResults(ac.getSession(),
-            ac.getTasksManager().getTaskById(ac.getSession(), parms.readInt("taskId")),
-            ac.getServicesManager().getDestinationById(ac.getSession(),
-                ac.getServicesManager().getDestinationIdByName(
-                    ac.getSession(),
-                    parms.readString("destinationName"),
-                    parms.readString("destinationType")
-                )));
+            ac.getTasksManager().getTaskById(ac.getSession(), parms.readInt("taskId")), ac.getServicesManager()
+                .getDestinationById(ac.getSession(), ac.getServicesManager()
+                    .getDestinationIdByName(ac.getSession(), parms.readString("destinationName"),
+                        parms.readString("destinationType"))));
       }
       return null;
     }
@@ -352,9 +349,7 @@ public enum TasksManagerMethod implements ManagerMethod {
   suspendTasksPropagation {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getTasksManager().suspendTasksPropagation(
-          ac.getSession(),
-          true);
+      ac.getTasksManager().suspendTasksPropagation(ac.getSession(), true);
       return null;
     }
   },
@@ -365,9 +360,7 @@ public enum TasksManagerMethod implements ManagerMethod {
   resumeTasksPropagation {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getTasksManager().suspendTasksPropagation(
-          ac.getSession(),
-          false);
+      ac.getTasksManager().suspendTasksPropagation(ac.getSession(), false);
       return null;
     }
   };

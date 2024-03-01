@@ -10,14 +10,13 @@ import java.util.Map;
  * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
  */
 public enum MemberGroupStatus {
-  VALID(0),
-  EXPIRED(1);
+  VALID(0), EXPIRED(1);
 
-  private static final Map<Integer, MemberGroupStatus> lookup = new HashMap<>();
+  private static final Map<Integer, MemberGroupStatus> LOOKUP = new HashMap<>();
 
   static {
     for (MemberGroupStatus status : EnumSet.allOf(MemberGroupStatus.class)) {
-      lookup.put(status.code, status);
+      LOOKUP.put(status.code, status);
     }
   }
 
@@ -28,7 +27,7 @@ public enum MemberGroupStatus {
   }
 
   public static MemberGroupStatus getMemberGroupStatus(int code) {
-    return lookup.get(code);
+    return LOOKUP.get(code);
   }
 
   public int getCode() {

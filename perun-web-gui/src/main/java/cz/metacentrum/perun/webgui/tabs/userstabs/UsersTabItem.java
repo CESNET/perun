@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class UsersTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "users";
+  public static final String URL = "users";
   /**
    * Perun web session
    */

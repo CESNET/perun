@@ -43,8 +43,8 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUserByUserExtSource {
     @Override
     public User call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUserByUserExtSource(ac.getSession(),
-          parms.read("userExtSource", UserExtSource.class));
+      return ac.getUsersManager()
+          .getUserByUserExtSource(ac.getSession(), parms.read("userExtSource", UserExtSource.class));
     }
   },
 
@@ -58,8 +58,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUserByExtSourceNameAndExtLogin {
     @Override
     public User call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(),
-          parms.readString("extSourceName"),
+      return ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(), parms.readString("extSourceName"),
           parms.readString("extLogin"));
     }
   },
@@ -109,8 +108,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUsersPage {
     @Override
     public Object call(ApiCaller ac, Deserializer params) throws PerunException {
-      return ac.getUsersManager().getUsersPage(ac.getSession(),
-          params.read("query", UsersPageQuery.class),
+      return ac.getUsersManager().getUsersPage(ac.getSession(), params.read("query", UsersPageQuery.class),
           params.readList("attrNames", String.class));
     }
   },
@@ -170,8 +168,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getSpecificUsersByUser {
     @Override
     public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getSpecificUsersByUser(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getUsersManager().getSpecificUsersByUser(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -184,8 +181,8 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUsersBySpecificUser {
     @Override
     public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUsersBySpecificUser(ac.getSession(),
-          ac.getUserById(parms.readInt("specificUser")));
+      return ac.getUsersManager()
+          .getUsersBySpecificUser(ac.getSession(), ac.getUserById(parms.readInt("specificUser")));
     }
   },
 
@@ -199,8 +196,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getUsersManager().addSpecificUserOwner(ac.getSession(),
-          ac.getUserById(parms.readInt("user")),
+      ac.getUsersManager().addSpecificUserOwner(ac.getSession(), ac.getUserById(parms.readInt("user")),
           ac.getUserById(parms.readInt("specificUser")));
 
       return null;
@@ -217,8 +213,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getUsersManager().removeSpecificUserOwner(ac.getSession(),
-          ac.getUserById(parms.readInt("user")),
+      ac.getUsersManager().removeSpecificUserOwner(ac.getSession(), ac.getUserById(parms.readInt("user")),
           ac.getUserById(parms.readInt("specificUser")));
 
       return null;
@@ -272,8 +267,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getRichUser {
     @Override
     public RichUser call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getRichUser(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getUsersManager().getRichUser(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -286,8 +280,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getRichUserWithAttributes {
     @Override
     public RichUser call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getRichUserWithAttributes(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getUsersManager().getRichUserWithAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -300,8 +293,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getAllRichUsers {
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getAllRichUsers(ac.getSession(),
-          parms.readBoolean("includedSpecificUsers"));
+      return ac.getUsersManager().getAllRichUsers(ac.getSession(), parms.readBoolean("includedSpecificUsers"));
     }
   },
 
@@ -314,8 +306,8 @@ public enum UsersManagerMethod implements ManagerMethod {
   getAllRichUsersWithAttributes {
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-          parms.readBoolean("includedSpecificUsers"));
+      return ac.getUsersManager()
+          .getAllRichUsersWithAttributes(ac.getSession(), parms.readBoolean("includedSpecificUsers"));
     }
   },
 
@@ -376,12 +368,12 @@ public enum UsersManagerMethod implements ManagerMethod {
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       if (parms.contains("attrsNames")) {
-        return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-            parms.readBoolean("includedSpecificUsers"),
-            parms.readList("attrsNames", String.class));
+        return ac.getUsersManager()
+            .getAllRichUsersWithAttributes(ac.getSession(), parms.readBoolean("includedSpecificUsers"),
+                parms.readList("attrsNames", String.class));
       } else {
-        return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-            parms.readBoolean("includedSpecificUsers"), null);
+        return ac.getUsersManager()
+            .getAllRichUsersWithAttributes(ac.getSession(), parms.readBoolean("includedSpecificUsers"), null);
       }
     }
   },
@@ -398,12 +390,11 @@ public enum UsersManagerMethod implements ManagerMethod {
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       if (parms.contains("attrsNames")) {
-        return ac.getUsersManager().findRichUsersWithAttributes(ac.getSession(),
-            parms.readString("searchString"),
+        return ac.getUsersManager().findRichUsersWithAttributes(ac.getSession(), parms.readString("searchString"),
             parms.readList("attrsNames", String.class));
       } else {
-        return ac.getUsersManager().findRichUsersWithAttributes(ac.getSession(),
-            parms.readString("searchString"), null);
+        return ac.getUsersManager()
+            .findRichUsersWithAttributes(ac.getSession(), parms.readString("searchString"), null);
       }
 
     }
@@ -420,8 +411,8 @@ public enum UsersManagerMethod implements ManagerMethod {
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       if (parms.contains("attrsNames")) {
-        return ac.getUsersManager().getRichUsersWithoutVoWithAttributes(ac.getSession(),
-            parms.readList("attrsNames", String.class));
+        return ac.getUsersManager()
+            .getRichUsersWithoutVoWithAttributes(ac.getSession(), parms.readList("attrsNames", String.class));
       } else {
         return ac.getUsersManager().getRichUsersWithoutVoWithAttributes(ac.getSession(), null);
       }
@@ -429,7 +420,8 @@ public enum UsersManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Return list of RichUsers who matches the searchString and are not member in specific VO and with selected attributes.
+   * Return list of RichUsers who matches the searchString and are not member in specific VO and with selected
+   * attributes.
    *
    * @param vo VO virtual organization
    * @param searchString String searched string
@@ -441,14 +433,13 @@ public enum UsersManagerMethod implements ManagerMethod {
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       if (parms.contains("attrsNames")) {
-        return ac.getUsersManager().findRichUsersWithoutSpecificVoWithAttributes(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readString("searchString"),
-            parms.readList("attrsNames", String.class));
+        return ac.getUsersManager()
+            .findRichUsersWithoutSpecificVoWithAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+                parms.readString("searchString"), parms.readList("attrsNames", String.class));
       } else {
-        return ac.getUsersManager().findRichUsersWithoutSpecificVoWithAttributes(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readString("searchString"), null);
+        return ac.getUsersManager()
+            .findRichUsersWithoutSpecificVoWithAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+                parms.readString("searchString"), null);
       }
     }
   },
@@ -458,10 +449,11 @@ public enum UsersManagerMethod implements ManagerMethod {
    *
    * @param user int User <code>id</code>
    * @throw RelationExistsException             if user has some members assigned
-   * @throw MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
+   * @throw MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting
+   * from DB
    * @throw UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
    * @throw SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
-   * @throw DeletionNotSupportedException		  if the deletion of users is not supported at this instance
+   * @throw DeletionNotSupportedException       if the deletion of users is not supported at this instance
    */
   /*#
    * Deletes a user (force).
@@ -470,10 +462,11 @@ public enum UsersManagerMethod implements ManagerMethod {
    * @param user int User <code>id</code>
    * @param force boolean If true, use force deletion.
    * @throw RelationExistsException             if forceDelete is false and the user has some members assigned
-   * @throw MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
+   * @throw MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting
+   * from DB
    * @throw UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
    * @throw SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
-   * @throw DeletionNotSupportedException	      if the deletion of users is not supported at this instance
+   * @throw DeletionNotSupportedException       if the deletion of users is not supported at this instance
    */
   deleteUser {
     @Override
@@ -481,11 +474,9 @@ public enum UsersManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("force") && parms.readBoolean("force")) {
-        ac.getUsersManager().deleteUser(ac.getSession(),
-            ac.getUserById(parms.readInt("user")), true);
+        ac.getUsersManager().deleteUser(ac.getSession(), ac.getUserById(parms.readInt("user")), true);
       } else {
-        ac.getUsersManager().deleteUser(ac.getSession(),
-            ac.getUserById(parms.readInt("user")));
+        ac.getUsersManager().deleteUser(ac.getSession(), ac.getUserById(parms.readInt("user")));
       }
       return null;
     }
@@ -499,7 +490,8 @@ public enum UsersManagerMethod implements ManagerMethod {
    * @param user int User <code>id</code>
    * @throw UserNotExistsException When the User specified by <code>id</code> doesn't exist.
    * @throw RelationExistsException When the User has some members assigned.
-   * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify the anonymization process or if the anonymization is not supported at this instance.
+   * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify
+   * the anonymization process or if the anonymization is not supported at this instance.
    */
   /*#
    * Anonymizes user (force) - according to configuration, each of user's attributes is either
@@ -511,7 +503,8 @@ public enum UsersManagerMethod implements ManagerMethod {
    * @param force boolean If true, use force anonymization
    * @throw UserNotExistsException When the User specified by <code>id</code> doesn't exist.
    * @throw RelationExistsException When the User has some members assigned.
-   * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify the anonymization process or if the anonymization is not supported at this instance.
+   * @throw AnonymizationNotSupportedException When an attribute should be anonymized but its module doesn't specify
+   * the anonymization process or if the anonymization is not supported at this instance.
    */
   anonymizeUser {
     @Override
@@ -539,8 +532,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     public User call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getUsersManager().updateUser(ac.getSession(),
-          parms.read("user", User.class));
+      return ac.getUsersManager().updateUser(ac.getSession(), parms.read("user", User.class));
     }
   },
 
@@ -559,8 +551,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     public User call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getUsersManager().updateNameTitles(ac.getSession(),
-          parms.read("user", User.class));
+      return ac.getUsersManager().updateNameTitles(ac.getSession(), parms.read("user", User.class));
     }
   },
 
@@ -575,8 +566,8 @@ public enum UsersManagerMethod implements ManagerMethod {
     public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getUsersManager().updateUserExtSource(ac.getSession(),
-          parms.read("userExtSource", UserExtSource.class));
+      return ac.getUsersManager()
+          .updateUserExtSource(ac.getSession(), parms.read("userExtSource", UserExtSource.class));
     }
   },
 
@@ -589,8 +580,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUserExtSources {
     @Override
     public List<UserExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUserExtSources(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getUsersManager().getUserExtSources(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -612,12 +602,10 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public List<RichUserExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("attrsNames")) {
-        return ac.getUsersManager().getRichUserExtSources(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        return ac.getUsersManager().getRichUserExtSources(ac.getSession(), ac.getUserById(parms.readInt("user")),
             parms.readList("attrsNames", String.class));
       } else {
-        return ac.getUsersManager().getRichUserExtSources(ac.getSession(),
-            ac.getUserById(parms.readInt("user")));
+        return ac.getUsersManager().getRichUserExtSources(ac.getSession(), ac.getUserById(parms.readInt("user")));
       }
     }
   },
@@ -633,8 +621,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getUsersManager().addUserExtSource(ac.getSession(),
-          ac.getUserById(parms.readInt("user")),
+      return ac.getUsersManager().addUserExtSource(ac.getSession(), ac.getUserById(parms.readInt("user")),
           parms.read("userExtSource", UserExtSource.class));
     }
   },
@@ -651,10 +638,8 @@ public enum UsersManagerMethod implements ManagerMethod {
     public RichUserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getUsersManager().addUserExtSourceWithAttributes(ac.getSession(),
-          ac.getUserById(parms.readInt("user")),
-          parms.read("userExtSource", UserExtSource.class),
-          parms.readList("attributes", Attribute.class));
+      return ac.getUsersManager().addUserExtSourceWithAttributes(ac.getSession(), ac.getUserById(parms.readInt("user")),
+          parms.read("userExtSource", UserExtSource.class), parms.readList("attributes", Attribute.class));
     }
   },
 
@@ -671,12 +656,10 @@ public enum UsersManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("force") && parms.readBoolean("force")) {
-        ac.getUsersManager().removeUserExtSource(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getUsersManager().removeUserExtSource(ac.getSession(), ac.getUserById(parms.readInt("user")),
             ac.getUserExtSourceById(parms.readInt("userExtSource")), true);
       } else {
-        ac.getUsersManager().removeUserExtSource(ac.getSession(),
-            ac.getUserById(parms.readInt("user")),
+        ac.getUsersManager().removeUserExtSource(ac.getSession(), ac.getUserById(parms.readInt("user")),
             ac.getUserExtSourceById(parms.readInt("userExtSource")));
       }
 
@@ -702,9 +685,8 @@ public enum UsersManagerMethod implements ManagerMethod {
         sources.add(ac.getUserExtSourceById(sourceId));
       }
 
-      ac.getUsersManager().removeUserExtSources(ac.getSession(),
-          ac.getUserById(parms.readInt("user")),
-          sources, parms.contains("force") && parms.readBoolean("force"));
+      ac.getUsersManager().removeUserExtSources(ac.getSession(), ac.getUserById(parms.readInt("user")), sources,
+          parms.contains("force") && parms.readBoolean("force"));
 
       return null;
     }
@@ -721,10 +703,8 @@ public enum UsersManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getUsersManager().moveUserExtSource(ac.getSession(),
-          ac.getUserById(parms.readInt("sourceUser")),
-          ac.getUserById(parms.readInt("targetUser")),
-          ac.getUserExtSourceById(parms.readInt("userExtSource")));
+      ac.getUsersManager().moveUserExtSource(ac.getSession(), ac.getUserById(parms.readInt("sourceUser")),
+          ac.getUserById(parms.readInt("targetUser")), ac.getUserExtSourceById(parms.readInt("userExtSource")));
       return null;
     }
   },
@@ -738,8 +718,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUserExtSourceById {
     @Override
     public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUserExtSourceById(ac.getSession(),
-          parms.readInt("userExtSource"));
+      return ac.getUsersManager().getUserExtSourceById(ac.getSession(), parms.readInt("userExtSource"));
     }
   },
 
@@ -753,8 +732,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUserExtSourceByExtLogin {
     @Override
     public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUserExtSourceByExtLogin(ac.getSession(),
-          parms.read("extSource", ExtSource.class),
+      return ac.getUsersManager().getUserExtSourceByExtLogin(ac.getSession(), parms.read("extSource", ExtSource.class),
           parms.readString("extSourceLogin"));
     }
   },
@@ -769,9 +747,9 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUserExtSourceByExtLoginAndExtSourceName {
     @Override
     public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUserExtSourceByExtLogin(ac.getSession(),
-          ac.getExtSourceByName(parms.readString("extSourceName")),
-          parms.readString("extSourceLogin"));
+      return ac.getUsersManager()
+          .getUserExtSourceByExtLogin(ac.getSession(), ac.getExtSourceByName(parms.readString("extSourceName")),
+              parms.readString("extSourceLogin"));
     }
   },
 
@@ -798,7 +776,8 @@ public enum UsersManagerMethod implements ManagerMethod {
    * - Map -> exactly match of "key=value"
    * - ArrayList -> exactly match of one of the value
    *
-   * @param attributeId int value used for founding attribute definition which has to exists, be unique and in userExtSource namespace
+   * @param attributeId int value used for founding attribute definition which has to exists, be unique and in
+   * userExtSource namespace
    * @param attributeValue String value used for searching
    * @return UserExtSource object found by attribute id and it's unique value
    */
@@ -812,7 +791,8 @@ public enum UsersManagerMethod implements ManagerMethod {
    * - Map -> exactly match of "key=value"
    * - ArrayList -> exactly match of one of the value
    *
-   * @param attributeName String value used for founding attribute definition which has to exists, be unique and in userExtSource namespace
+   * @param attributeName String value used for founding attribute definition which has to exists, be unique and in
+   * userExtSource namespace
    * @param attributeValue String value used for searching
    * @return UserExtSource object found by attribute name and it's unique value
    */
@@ -820,16 +800,14 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("attributeId")) {
-        return ac.getUsersManager().getUserExtSourceByUniqueAttributeValue(
-            ac.getSession(),
-            parms.readInt("attributeId"),
-            parms.readString("attributeValue"));
+        return ac.getUsersManager()
+            .getUserExtSourceByUniqueAttributeValue(ac.getSession(), parms.readInt("attributeId"),
+                parms.readString("attributeValue"));
       }
       if (parms.contains("attributeName")) {
-        return ac.getUsersManager().getUserExtSourceByUniqueAttributeValue(
-            ac.getSession(),
-            parms.readString("attributeName"),
-            parms.readString("attributeValue"));
+        return ac.getUsersManager()
+            .getUserExtSourceByUniqueAttributeValue(ac.getSession(), parms.readString("attributeName"),
+                parms.readString("attributeValue"));
       }
       throw new RpcException(RpcException.Type.MISSING_VALUE, "attrId or attrName");
     }
@@ -844,8 +822,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUserByMember {
     @Override
     public User call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUserByMember(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      return ac.getUsersManager().getUserByMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   },
 
@@ -858,8 +835,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   findUsers {
     @Override
     public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().findUsers(ac.getSession(),
-          parms.readString("searchString"));
+      return ac.getUsersManager().findUsers(ac.getSession(), parms.readString("searchString"));
     }
   },
 
@@ -872,8 +848,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   findRichUsers {
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().findRichUsers(ac.getSession(),
-          parms.readString("searchString"));
+      return ac.getUsersManager().findRichUsers(ac.getSession(), parms.readString("searchString"));
     }
   },
 
@@ -888,8 +863,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getUsersWithoutSpecificVo {
     @Override
     public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getUsersWithoutSpecificVo(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
+      return ac.getUsersManager().getUsersWithoutSpecificVo(ac.getSession(), ac.getVoById(parms.readInt("vo")),
           parms.readString("searchString"));
     }
   },
@@ -915,14 +889,12 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("searchString")) {
-        return ac.getUsersManager().findUsersByName(ac.getSession(),
-            parms.readString("searchString"));
-      } else if (parms.contains("titleBefore") && parms.contains("firstName") &&
-          parms.contains("middleName") && parms.contains("lastName") && parms.contains("titleAfter")) {
-        return ac.getUsersManager().findUsersByName(ac.getSession(),
-            parms.readString("titleBefore"), parms.readString("firstName"),
-            parms.readString("middleName"), parms.readString("lastName"),
-            parms.readString("titleAfter"));
+        return ac.getUsersManager().findUsersByName(ac.getSession(), parms.readString("searchString"));
+      } else if (parms.contains("titleBefore") && parms.contains("firstName") && parms.contains("middleName") &&
+                 parms.contains("lastName") && parms.contains("titleAfter")) {
+        return ac.getUsersManager()
+            .findUsersByName(ac.getSession(), parms.readString("titleBefore"), parms.readString("firstName"),
+                parms.readString("middleName"), parms.readString("lastName"), parms.readString("titleAfter"));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE,
             "searchString or (titleBefore and firstName and middleName and lastName and titleAfter)");
@@ -1012,8 +984,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getVosWhereUserIsAdmin {
     @Override
     public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getVosWhereUserIsAdmin(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getUsersManager().getVosWhereUserIsAdmin(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -1026,8 +997,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   getVosWhereUserIsMember {
     @Override
     public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getUsersManager().getVosWhereUserIsMember(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getUsersManager().getVosWhereUserIsMember(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -1050,12 +1020,10 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("vo")) {
-        return ac.getUsersManager().getGroupsWhereUserIsAdmin(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        return ac.getUsersManager().getGroupsWhereUserIsAdmin(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             ac.getUserById(parms.readInt("user")));
       } else {
-        return ac.getUsersManager().getGroupsWhereUserIsAdmin(ac.getSession(),
-            ac.getUserById(parms.readInt("user")));
+        return ac.getUsersManager().getGroupsWhereUserIsAdmin(ac.getSession(), ac.getUserById(parms.readInt("user")));
       }
     }
   },
@@ -1161,8 +1129,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getUsersManager().blockLogins(ac.getSession(),
-          parms.readList("logins", String.class),
+      ac.getUsersManager().blockLogins(ac.getSession(), parms.readList("logins", String.class),
           parms.contains("namespace") ? parms.readString("namespace") : null);
 
       return null;
@@ -1187,8 +1154,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getUsersManager().unblockLogins(ac.getSession(),
-          parms.readList("logins", String.class),
+      ac.getUsersManager().unblockLogins(ac.getSession(), parms.readList("logins", String.class),
           parms.contains("namespace") ? parms.readString("namespace") : null);
 
       return null;
@@ -1221,8 +1187,8 @@ public enum UsersManagerMethod implements ManagerMethod {
   getBlockedLoginsPage {
     @Override
     public Object call(ApiCaller ac, Deserializer params) throws PerunException {
-      return ac.getUsersManager().getBlockedLoginsPage(ac.getSession(),
-          params.read("query", BlockedLoginsPageQuery.class));
+      return ac.getUsersManager()
+          .getBlockedLoginsPage(ac.getSession(), params.read("query", BlockedLoginsPageQuery.class));
     }
   },
 
@@ -1270,7 +1236,8 @@ public enum UsersManagerMethod implements ManagerMethod {
    * @param login String Users login
    * @param namespace String Namespace
    * @param newPassword String New password
-   * @param oldPassword String Old password which will be checked. This parameter is required only if checkOldPassword is set to true.
+   * @param oldPassword String Old password which will be checked. This parameter is required only if
+   * checkOldPassword is set to true.
    * @param checkOldPassword boolean True if the oldPassword have to be checked. When omitted it defaults to false.
    * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
    * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
@@ -1281,7 +1248,8 @@ public enum UsersManagerMethod implements ManagerMethod {
    * @param user int User <code>id</code>
    * @param namespace String Namespace
    * @param newPassword String New password
-   * @param oldPassword String Old password which will be checked. This parameter is required only if checkOldPassword is set to true.
+   * @param oldPassword String Old password which will be checked. This parameter is required only if
+   * checkOldPassword is set to true.
    * @param checkOldPassword boolean True if the oldPassword have to be checked. When omitted it defaults to false.
    * @throw LoginNotExistsException When user doesn't have login in specified namespace
    * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
@@ -1306,8 +1274,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       }
       return null;
     }
-  },
-  /*#
+  }, /*#
    * Checks if the password reset request is valid. The request is valid, if it
    * was created, never used and hasn't expired yet.
    *
@@ -1326,8 +1293,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
       return null;
     }
-  },
-  /*#
+  }, /*#
    * Changes user password in defined login-namespace based on token parameter.
    *
    * @param token String token for the password reset request
@@ -1357,9 +1323,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 
       return null;
     }
-  },
-  /*#
-   * Reserves a random password in external authz system. User shouldn't be able to log-in (account disabled, password unknown to him).
+  }, /*#
+   * Reserves a random password in external authz system. User shouldn't be able to log-in (account disabled,
+   password unknown to him).
    * This is usefull when manager create account for others and later send them password reset request.
    *
    * @param user int User <code>id</code>
@@ -1378,8 +1344,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       return null;
 
     }
-  },
-  /*#
+  }, /*#
    * Reserves password for a user in specified login-namespace.
    *
    * @param user int User <code>id</code>
@@ -1415,8 +1380,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       return null;
 
     }
-  },
-  /*#
+  }, /*#
    * Validates password for a user in specified login-namespace. After that, user should be able to log-in
    * in external authz system using his credentials. It also creates UserExtSources and sets some required attributes.
    *
@@ -1449,8 +1413,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       return null;
 
     }
-  },
-  /*#
+  }, /*#
    * Delete password for a user in specified login-namespace.
    *
    * @param user int User <code>id</code>
@@ -1482,8 +1445,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       return null;
 
     }
-  },
-  /*#
+  }, /*#
    * Check, if login exists in given login-namespace. Not implemented for all namespaces.
    *
    * @param user int User <code>id</code>
@@ -1495,8 +1457,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       return ac.getUsersManager()
           .loginExist(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"));
     }
-  },
-  /*#
+  }, /*#
    * Validates password for a user in specified login-namespace. After that, user should be able to log-in
    * in external authz system using his credentials. It also creates UserExtSource and sets some required attributes.
    *
@@ -1518,8 +1479,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       return null;
 
     }
-  },
-  /*#
+  }, /*#
    * Set new login in namespace if login is available and user doesn't have login in that namespace.
    * !! Works only for service/guest users => specific users !!
    *
@@ -1541,8 +1501,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       return null;
 
     }
-  },
-  /*#
+  }, /*#
    * Request to change preferred email address of user.
    * Validation mail is sent on new address.
    *
@@ -1597,14 +1556,9 @@ public enum UsersManagerMethod implements ManagerMethod {
         }
       }
 
-      ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
-          referer,
-          ac.getUserById(parms.readInt("user")),
-          parms.readString("email"),
-          parms.contains("lang") ? parms.readString("lang") : null,
-          customPath,
-          parms.contains("idpFilter") ? parms.readString("idpFilter") : null
-      );
+      ac.getUsersManager().requestPreferredEmailChange(ac.getSession(), referer, ac.getUserById(parms.readInt("user")),
+          parms.readString("email"), parms.contains("lang") ? parms.readString("lang") : null, customPath,
+          parms.contains("idpFilter") ? parms.readString("idpFilter") : null);
 
       return null;
 
@@ -1629,8 +1583,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("token")) {
-        return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(),
-            ac.getUserById(parms.readInt("u")),
+        return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(), ac.getUserById(parms.readInt("u")),
             parms.readString("token"));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "token");
@@ -1650,7 +1603,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getUsersManager().validateSSHKey(ac.getSession(), parms.readString("sshKey"));
+      ac.getUsersManager().validateSshKey(ac.getSession(), parms.readString("sshKey"));
       return null;
     }
   },
@@ -1672,8 +1625,8 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getUsersManager().getPendingPreferredEmailChanges(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getUsersManager()
+          .getPendingPreferredEmailChanges(ac.getSession(), ac.getUserById(parms.readInt("user")));
 
     }
   },
@@ -1702,11 +1655,8 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      ac.getUsersManager().createAlternativePassword(ac.getSession(),
-          ac.getUserById(parms.readInt("user")),
-          parms.readString("description"),
-          parms.readString("loginNamespace"),
-          parms.readString("password"));
+      ac.getUsersManager().createAlternativePassword(ac.getSession(), ac.getUserById(parms.readInt("user")),
+          parms.readString("description"), parms.readString("loginNamespace"), parms.readString("password"));
 
       return null;
     }
@@ -1723,17 +1673,16 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      ac.getUsersManager().deleteAlternativePassword(ac.getSession(),
-          ac.getUserById(parms.readInt("user")),
-          parms.readString("loginNamespace"),
-          parms.readString("passwordId"));
+      ac.getUsersManager().deleteAlternativePassword(ac.getSession(), ac.getUserById(parms.readInt("user")),
+          parms.readString("loginNamespace"), parms.readString("passwordId"));
 
       return null;
     }
   },
 
   /*#
-   * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
+   * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as
+   *  a last one.
    *
    * @param userExtSource int UserExtSource <code>id</code>
    */
@@ -1741,8 +1690,8 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getUsersManager().updateUserExtSourceLastAccess(ac.getSession(),
-          ac.getUserExtSourceById(parms.readInt("userExtSource")));
+      ac.getUsersManager()
+          .updateUserExtSourceLastAccess(ac.getSession(), ac.getUserExtSourceById(parms.readInt("userExtSource")));
 
       return null;
     }
@@ -1784,15 +1733,12 @@ public enum UsersManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
       if (parms.contains("name")) {
         String name = parms.readString("name");
-        return ac.getUsersManager().generateAccount(ac.getSession(),
-            parms.readString("namespace"),
-            new HashMap<>() {{
-              put("urn:perun:user:attribute-def:core:lastName", name);
-            }});
+        HashMap<String, String> accParams = new HashMap<>();
+        accParams.put("urn:perun:user:attribute-def:core:lastName", name);
+        return ac.getUsersManager().generateAccount(ac.getSession(), parms.readString("namespace"), accParams);
       } else {
-        return ac.getUsersManager().generateAccount(ac.getSession(),
-            parms.readString("namespace"),
-            parms.read("parameters", HashMap.class));
+        return ac.getUsersManager()
+            .generateAccount(ac.getSession(), parms.readString("namespace"), parms.read("parameters", HashMap.class));
       }
     }
   },
@@ -1816,8 +1762,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getUsersManager().changePasswordRandom(ac.getSession(),
-          ac.getUserById(parms.readInt("userId")),
+      return ac.getUsersManager().changePasswordRandom(ac.getSession(), ac.getUserById(parms.readInt("userId")),
           parms.readString("loginNamespace"));
     }
   },
@@ -1844,10 +1789,9 @@ public enum UsersManagerMethod implements ManagerMethod {
   checkPasswordStrength {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getUsersManager().checkPasswordStrength(ac.getSession(),
-          parms.readString("password"),
-          parms.readString("namespace"),
-          parms.contains("login") ? parms.readString("login") : null);
+      ac.getUsersManager()
+          .checkPasswordStrength(ac.getSession(), parms.readString("password"), parms.readString("namespace"),
+              parms.contains("login") ? parms.readString("login") : null);
       return null;
     }
   },
@@ -1875,13 +1819,13 @@ public enum UsersManagerMethod implements ManagerMethod {
     public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       if (parms.contains("resource")) {
-        return ac.getUsersManager().getGroupsWhereUserIsActive(ac.getSession(),
-            ac.getResourceById(parms.readInt("resource")),
-            ac.getUserById(parms.readInt("user")));
+        return ac.getUsersManager()
+            .getGroupsWhereUserIsActive(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                ac.getUserById(parms.readInt("user")));
       } else {
-        return ac.getUsersManager().getGroupsWhereUserIsActive(ac.getSession(),
-            ac.getFacilityById(parms.readInt("facility")),
-            ac.getUserById(parms.readInt("user")));
+        return ac.getUsersManager()
+            .getGroupsWhereUserIsActive(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                ac.getUserById(parms.readInt("user")));
       }
 
 
@@ -1915,15 +1859,13 @@ public enum UsersManagerMethod implements ManagerMethod {
     public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       if (parms.contains("resource")) {
-        return ac.getUsersManager().getRichGroupsWhereUserIsActive(ac.getSession(),
-            ac.getResourceById(parms.readInt("resource")),
-            ac.getUserById(parms.readInt("user")),
-            parms.readList("attrNames", String.class));
+        return ac.getUsersManager()
+            .getRichGroupsWhereUserIsActive(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+                ac.getUserById(parms.readInt("user")), parms.readList("attrNames", String.class));
       } else {
-        return ac.getUsersManager().getRichGroupsWhereUserIsActive(ac.getSession(),
-            ac.getFacilityById(parms.readInt("facility")),
-            ac.getUserById(parms.readInt("user")),
-            parms.readList("attrNames", String.class));
+        return ac.getUsersManager()
+            .getRichGroupsWhereUserIsActive(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+                ac.getUserById(parms.readInt("user")), parms.readList("attrNames", String.class));
       }
 
     }
@@ -1952,8 +1894,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     public User call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getUsersManager().createServiceUser(ac.getSession(),
-          parms.read("candidate", Candidate.class),
+      return ac.getUsersManager().createServiceUser(ac.getSession(), parms.read("candidate", Candidate.class),
           parms.readList("specificUserOwners", User.class));
     }
   }

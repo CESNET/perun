@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,25 +37,18 @@ public class urn_perun_resource_attribute_def_def_m365LicenseGroup extends Resou
     try {
       Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
 
-      Attribute allowedLicenses = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(
-          perunSession, facility, A_FAC_m365AllowedLicensesPriorities);
+      Attribute allowedLicenses = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttribute(perunSession, facility, A_FAC_m365AllowedLicensesPriorities);
 
       LinkedHashMap<String, String> allowedLicensesMap = allowedLicenses.valueAsMap();
       if (!allowedLicensesMap.containsValue(licenseGroup)) {
         throw new WrongReferenceAttributeValueException(attribute, allowedLicenses,
             "The license group: " + licenseGroup +
-                " is not allowed for this Facility. (Not present in m365ALlowedLicensesPriorities facility attribute)");
+            " is not allowed for this Facility. (Not present in m365ALlowedLicensesPriorities facility attribute)");
       }
     } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
       throw new WrongReferenceAttributeValueException("Error checking attribute semantics.", e);
     }
-  }
-
-  @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_FAC_m365AllowedLicensesPriorities);
-    return dependencies;
   }
 
   @Override
@@ -68,5 +60,12 @@ public class urn_perun_resource_attribute_def_def_m365LicenseGroup extends Resou
     attr.setType(String.class.getName());
     attr.setDescription("Specify name of license the group represents");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_FAC_m365AllowedLicensesPriorities);
+    return dependencies;
   }
 }

@@ -1,9 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -12,10 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * @author Metodej Klang
@@ -24,13 +23,6 @@ public class ExtSourceUnityTest {
 
   @Spy
   private static ExtSourceUnity extSourceUnity;
-
-  @Before
-  public void setUp() throws Exception {
-    extSourceUnity = new ExtSourceUnity();
-
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   public void getUsersSubjectsTest() throws Exception {
@@ -45,8 +37,8 @@ public class ExtSourceUnityTest {
 
     HttpURLConnection http2 = mock(HttpURLConnection.class);
     doReturn(http2).when(extSourceUnity).createConnection("uriEntity/1/");
-    String input2 =
-        "{\"id\":1,\"name\":miles,\"state\":valid,\"identities\":[{\"typeId\":identifier,\"translationProfile\":profile,\"value\":xmorales}]}";
+    String input2 = "{\"id\":1,\"name\":miles,\"state\":valid,\"identities\":[{\"typeId\":identifier," +
+                    "\"translationProfile\":profile,\"value\":xmorales}]}";
     InputStream is2 = new ByteArrayInputStream(input2.getBytes());
     doReturn(is2).when(http2).getInputStream();
 
@@ -73,5 +65,12 @@ public class ExtSourceUnityTest {
     // test the method
     List<Map<String, String>> actualSubjects = extSourceUnity.getUsersSubjects();
     assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    extSourceUnity = new ExtSourceUnity();
+
+    MockitoAnnotations.initMocks(this);
   }
 }

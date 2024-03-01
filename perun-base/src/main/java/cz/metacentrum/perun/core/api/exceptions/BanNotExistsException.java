@@ -46,7 +46,7 @@ public class BanNotExistsException extends EntityNotExistsException {
    */
   public BanNotExistsException(Ban ban) {
     super("Ban of type: " + ban.getType() + " not exists for subjectID: " + ban.getSubjectId() + " and targetID: " +
-        ban.getTargetId());
+          ban.getTargetId());
     this.ban = ban;
   }
 

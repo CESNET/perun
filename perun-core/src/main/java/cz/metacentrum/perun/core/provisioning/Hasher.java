@@ -23,30 +23,6 @@ public interface Hasher {
   String hashFacility(Facility facility);
 
   /**
-   * Returns hash for resource.
-   *
-   * @param resource resource
-   * @return resource hash
-   */
-  String hashResource(Resource resource);
-
-  /**
-   * Returns hash for member.
-   *
-   * @param member member
-   * @return member hash
-   */
-  String hashMember(Member member);
-
-  /**
-   * Returns hash for vo.
-   *
-   * @param vo vo
-   * @return vo hash
-   */
-  String hashVo(Vo vo);
-
-  /**
    * Returns hash for group.
    *
    * @param group group
@@ -64,13 +40,12 @@ public interface Hasher {
   String hashGroupResource(Group group, Resource resource);
 
   /**
-   * Returns hash for member and resource.
+   * Returns hash for member.
    *
-   * @param member   member
-   * @param resource resource
-   * @return member-resource hash
+   * @param member member
+   * @return member hash
    */
-  String hashMemberResource(Member member, Resource resource);
+  String hashMember(Member member);
 
   /**
    * Returns hash for member and group.
@@ -80,6 +55,23 @@ public interface Hasher {
    * @return member-group hash
    */
   String hashMemberGroup(Member member, Group group);
+
+  /**
+   * Returns hash for member and resource.
+   *
+   * @param member   member
+   * @param resource resource
+   * @return member-resource hash
+   */
+  String hashMemberResource(Member member, Resource resource);
+
+  /**
+   * Returns hash for resource.
+   *
+   * @param resource resource
+   * @return resource hash
+   */
+  String hashResource(Resource resource);
 
   /**
    * Returns hash for user.
@@ -97,4 +89,12 @@ public interface Hasher {
    * @return user-facility hash
    */
   String hashUserFacility(User user, Facility facility);
+
+  /**
+   * Returns hash for vo.
+   *
+   * @param vo vo
+   * @return vo hash
+   */
+  String hashVo(Vo vo);
 }

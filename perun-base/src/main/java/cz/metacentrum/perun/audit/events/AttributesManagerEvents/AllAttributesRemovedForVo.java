@@ -18,13 +18,13 @@ public class AllAttributesRemovedForVo extends AuditEvent implements EngineIgnor
     this.message = formatMessage("All attributes removed for %s.", vo);
   }
 
-  public Vo getVo() {
-    return vo;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Vo getVo() {
+    return vo;
   }
 
   @Override

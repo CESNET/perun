@@ -1,102 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>perun</artifactId>
-		<groupId>cz.metacentrum</groupId>
-		<version>0.0.0-development</version>
-	</parent>
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>0.0.0-development</version>
+    </parent>
 
-	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-ldapc</artifactId>
-	<packaging>jar</packaging>
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-ldapc</artifactId>
+    <packaging>jar</packaging>
 
-	<name>perun-ldapc</name>
-	<description>LDAP connector which immediately pushes changes in Perun to LDAP</description>
+    <name>perun-ldapc</name>
+    <description>LDAP connector which immediately pushes changes in Perun to LDAP</description>
 
-	<properties>
-		<start-class>cz.metacentrum.perun.ldapc.main.LdapcStarter</start-class>
-		<!-- deploy the resulting jar to a Maven repo -->
-		<maven.deploy.skip>false</maven.deploy.skip>
-	</properties>
+    <properties>
+        <start-class>cz.metacentrum.perun.ldapc.main.LdapcStarter</start-class>
+        <!-- deploy the resulting jar to a Maven repo -->
+        <maven.deploy.skip>false</maven.deploy.skip>
+    </properties>
 
-	<!-- common build settings used by all profiles -->
-	<build>
-		<finalName>${project.name}</finalName>
-		<plugins>
+    <!-- common build settings used by all profiles -->
+    <build>
+        <finalName>${project.name}</finalName>
+        <plugins>
 
-			<!-- Package JAR with Main class and all libraries -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<!-- Main-Class taken from property ${start-class} -->
-			</plugin>
+            <!-- Package JAR with Main class and all libraries -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <!-- Main-Class taken from property ${start-class} -->
+            </plugin>
 
-		</plugins>
+        </plugins>
 
-		<resources>
-			<resource>
-				<!-- to set jdbc.properties path and logging folder -->
-				<directory>src/main/resources/</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
+        <resources>
+            <resource>
+                <!-- to set jdbc.properties path and logging folder -->
+                <directory>src/main/resources/</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
-	</build>
+    </build>
 
 
-	<dependencies>
+    <dependencies>
 
-		<!-- PERUN -->
+        <!-- PERUN -->
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<!-- SPRING -->
+        <!-- SPRING -->
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<!-- SPRING - LDAP -->
+        <!-- SPRING - LDAP -->
 
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-odm</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-odm</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-pool2</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
 
-		<!-- TESTS -->
+        <!-- TESTS -->
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 </project>

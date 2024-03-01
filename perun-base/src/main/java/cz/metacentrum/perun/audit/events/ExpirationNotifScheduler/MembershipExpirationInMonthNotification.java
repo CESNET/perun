@@ -25,13 +25,13 @@ public class MembershipExpirationInMonthNotification extends AuditEvent implemen
     return member;
   }
 
-  public Vo getVo() {
-    return vo;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Vo getVo() {
+    return vo;
   }
 
   @Override

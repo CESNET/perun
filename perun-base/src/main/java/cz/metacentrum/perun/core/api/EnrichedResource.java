@@ -20,22 +20,6 @@ public class EnrichedResource {
     this.attributes = attributes;
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
-  public void setResource(Resource resource) {
-    this.resource = resource;
-  }
-
-  public List<Attribute> getAttributes() {
-    return attributes;
-  }
-
-  public void setAttributes(List<Attribute> attributes) {
-    this.attributes = attributes;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -48,6 +32,22 @@ public class EnrichedResource {
     return Objects.equals(getResource(), that.getResource());
   }
 
+  public List<Attribute> getAttributes() {
+    return attributes;
+  }
+
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  public Resource getResource() {
+    return resource;
+  }
+
+  public void setResource(Resource resource) {
+    this.resource = resource;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(getResource());
@@ -55,9 +55,6 @@ public class EnrichedResource {
 
   @Override
   public String toString() {
-    return "EnrichedResource{" +
-        "resource=" + resource +
-        ", attributes=" + attributes +
-        '}';
+    return "EnrichedResource{" + "resource=" + resource + ", attributes=" + attributes + '}';
   }
 }

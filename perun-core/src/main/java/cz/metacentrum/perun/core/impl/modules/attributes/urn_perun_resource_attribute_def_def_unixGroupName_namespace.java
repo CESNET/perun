@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -35,17 +34,61 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
       AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace";
 
   @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
+  public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    //Need to know if this is remove or set, if value is null, its remove, otherway it is set
+    String groupNameNamespace = attribute.getFriendlyNameParameter();
+
+    try {
+      if (attribute.getValue() != null) {
+        //First need to find facility for the group
+        Facility facilityOfResource = session.getPerunBl().getResourcesManagerBl().getFacility(session, resource);
+        String gidNamespace = null;
+
+        //If facility has the same namespace of GroupName like attribute unixGroupName-namespace, then prepare
+        // gidNamespace
+        Attribute facilityGroupNameNamespace = session.getPerunBl().getAttributesManagerBl()
+            .getAttribute(session, facilityOfResource, A_F_unixGroupName_namespace);
+        if (facilityGroupNameNamespace.getValue() != null) {
+          if (groupNameNamespace.equals(facilityGroupNameNamespace.getValue())) {
+            Attribute facilityGIDNamespace = session.getPerunBl().getAttributesManagerBl()
+                .getAttribute(session, facilityOfResource, A_F_unixGID_namespace);
+            if (facilityGIDNamespace.getValue() != null) {
+              gidNamespace = (String) facilityGIDNamespace.getValue();
+            }
+          }
+        }
+
+        //If there is any gidNamespace which is need to be set, do it there
+        if (gidNamespace != null) {
+          Attribute resourceUnixGIDNamespace = session.getPerunBl().getAttributesManagerBl()
+              .getAttribute(session, resource, A_R_unixGID_namespace + ":" + gidNamespace);
+          if (resourceUnixGIDNamespace.getValue() == null) {
+            resourceUnixGIDNamespace = session.getPerunBl().getAttributesManagerBl()
+                .fillAttribute(session, resource, resourceUnixGIDNamespace);
+            if (resourceUnixGIDNamespace.getValue() == null) {
+              throw new WrongReferenceAttributeValueException(attribute, resourceUnixGIDNamespace);
+            }
+
+            try {
+              session.getPerunBl().getAttributesManagerBl().setAttribute(session, resource, resourceUnixGIDNamespace);
+            } catch (WrongAttributeValueException ex) {
+              throw new WrongReferenceAttributeValueException(attribute, resourceUnixGIDNamespace, ex);
+            }
+          } else {
+            session.getPerunBl().getAttributesManagerBl()
+                .checkAttributeSemantics(session, resource, resourceUnixGIDNamespace);
+          }
+        }
+
+      }
+      //Attribute value can be null, for now, no changes for removing some GroupName of this Resource
+    } catch (WrongAttributeAssignmentException ex) {
+      //TODO: need to add WrongAttributeAssignmentException to header of modules methods
+      throw new InternalErrorException(ex);
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
     }
-
-    //Check attribute regex
-    sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, defaultUnixGroupNamePattern);
-
-    //Check reserved unix group names
-    sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);
   }
 
   @Override
@@ -80,8 +123,10 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
           sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceUnixGroupName));
       //Remove self from the list of resources with the same namespace
       //FIXME This behavior is not correct, because there are two possible situations:
-      // - This is the Check right after setting a new value (correct behavior), we need to skip this value from checking
-      // - This is the Check without setting a new value (not correct), and if this resource is the only one with the value, we will lose the right for it
+      // - This is the Check right after setting a new value (correct behavior), we need to skip this value from
+      // checking
+      // - This is the Check without setting a new value (not correct), and if this resource is the only one with the
+      // value, we will lose the right for it
       resourcesWithSameGroupNameInTheSameNamespace.remove(resource);
 
       //If there is no group or resource with same GroupNameInTheSameNamespace, its ok
@@ -129,7 +174,8 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 
             if (compare > 0) {
               throw new WrongReferenceAttributeValueException(attribute, a, resource, null, r, null,
-                  "One of the group GIDs is from the same namespace like other resource GIDs but with different values.");
+                  "One of the group GIDs is from the same namespace like other resource GIDs but with different " +
+                  "values.");
             }
           }
         }
@@ -141,60 +187,17 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
   }
 
   @Override
-  public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    //Need to know if this is remove or set, if value is null, its remove, otherway it is set
-    String groupNameNamespace = attribute.getFriendlyNameParameter();
-
-    try {
-      if (attribute.getValue() != null) {
-        //First need to find facility for the group
-        Facility facilityOfResource = session.getPerunBl().getResourcesManagerBl().getFacility(session, resource);
-        String gidNamespace = null;
-
-        //If facility has the same namespace of GroupName like attribute unixGroupName-namespace, then prepare gidNamespace
-        Attribute facilityGroupNameNamespace = session.getPerunBl().getAttributesManagerBl()
-            .getAttribute(session, facilityOfResource, A_F_unixGroupName_namespace);
-        if (facilityGroupNameNamespace.getValue() != null) {
-          if (groupNameNamespace.equals(facilityGroupNameNamespace.getValue())) {
-            Attribute facilityGIDNamespace = session.getPerunBl().getAttributesManagerBl()
-                .getAttribute(session, facilityOfResource, A_F_unixGID_namespace);
-            if (facilityGIDNamespace.getValue() != null) {
-              gidNamespace = (String) facilityGIDNamespace.getValue();
-            }
-          }
-        }
-
-        //If there is any gidNamespace which is need to be set, do it there
-        if (gidNamespace != null) {
-          Attribute resourceUnixGIDNamespace = session.getPerunBl().getAttributesManagerBl()
-              .getAttribute(session, resource, A_R_unixGID_namespace + ":" + gidNamespace);
-          if (resourceUnixGIDNamespace.getValue() == null) {
-            resourceUnixGIDNamespace = session.getPerunBl().getAttributesManagerBl()
-                .fillAttribute(session, resource, resourceUnixGIDNamespace);
-            if (resourceUnixGIDNamespace.getValue() == null) {
-              throw new WrongReferenceAttributeValueException(attribute, resourceUnixGIDNamespace);
-            }
-
-            try {
-              session.getPerunBl().getAttributesManagerBl().setAttribute(session, resource, resourceUnixGIDNamespace);
-            } catch (WrongAttributeValueException ex) {
-              throw new WrongReferenceAttributeValueException(attribute, resourceUnixGIDNamespace, ex);
-            }
-          } else {
-            session.getPerunBl().getAttributesManagerBl()
-                .checkAttributeSemantics(session, resource, resourceUnixGIDNamespace);
-          }
-        }
-
-      }
-      //Attribute value can be null, for now, no changes for removing some GroupName of this Resource
-    } catch (WrongAttributeAssignmentException ex) {
-      //TODO: need to add WrongAttributeAssignmentException to header of modules methods
-      throw new InternalErrorException(ex);
-    } catch (AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
+  public void checkAttributeSyntax(PerunSessionImpl sess, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
     }
+
+    //Check attribute regex
+    sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, defaultUnixGroupNamePattern);
+
+    //Check reserved unix group names
+    sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);
   }
 
   @Override
@@ -208,12 +211,12 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
     return dependencies;
   }
 
-	/*public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("unixGroupName-namespace");
-		attr.setType(String.class.getName());
-		attr.setDescription("Unix group name namespace.");
-		return attr;
-	}*/
+  /*public AttributeDefinition getAttributeDefinition() {
+      AttributeDefinition attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+      attr.setFriendlyName("unixGroupName-namespace");
+      attr.setType(String.class.getName());
+      attr.setDescription("Unix group name namespace.");
+      return attr;
+  }*/
 }

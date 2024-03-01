@@ -13,15 +13,14 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_username
     extends urn_perun_user_attribute_def_def_login_namespace {
-  private final static String elixirUsername = "urn:perun:user:attribute-def:def:login-namespace:elixir";
-  private final static String bbmriUsername = "urn:perun:user:attribute-def:def:login-namespace:bbmri";
+  private static final String elixirUsername = "urn:perun:user:attribute-def:def:login-namespace:elixir";
+  private static final String bbmriUsername = "urn:perun:user:attribute-def:def:login-namespace:bbmri";
 
   private static final Pattern startWithLetterPattern = Pattern.compile("^[A-Za-z].*$");
   private static final Pattern onlyNumbersPattern = Pattern.compile("^[0-9]+$");
@@ -31,28 +30,6 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
   public void changedAttributeHook(PerunSessionImpl sess, User user, Attribute attribute) {
     trySetAttribute(sess, user, attribute, elixirUsername);
     trySetAttribute(sess, user, attribute, bbmriUsername);
-  }
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongAttributeValueException {
-    super.checkAttributeSyntax(sess, user, attribute);
-
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    String value = attribute.valueAsString();
-
-    Matcher onlyNumbersMatcher = onlyNumbersPattern.matcher(value);
-    if (onlyNumbersMatcher.matches()) {
-      throw new WrongAttributeValueException(attribute, user, "Login can not consist of only numbers.");
-    }
-
-    Matcher startWithLetterMatcher = startWithLetterPattern.matcher(value);
-    if (!startWithLetterMatcher.matches()) {
-      throw new WrongAttributeValueException(attribute, user, "Login must start with a letter.");
-    }
   }
 
   @Override
@@ -86,6 +63,39 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     }
   }
 
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    super.checkAttributeSyntax(sess, user, attribute);
+
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    String value = attribute.valueAsString();
+
+    Matcher onlyNumbersMatcher = onlyNumbersPattern.matcher(value);
+    if (onlyNumbersMatcher.matches()) {
+      throw new WrongAttributeValueException(attribute, user, "Login can not consist of only numbers.");
+    }
+
+    Matcher startWithLetterMatcher = startWithLetterPattern.matcher(value);
+    if (!startWithLetterMatcher.matches()) {
+      throw new WrongAttributeValueException(attribute, user, "Login must start with a letter.");
+    }
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("login-namespace:lifescienceid-username");
+    attr.setDisplayName("Lifescience username (login)");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login in namespaceid: lifescience");
+    return attr;
+  }
+
   /**
    * Set attribute if it is not filled yet
    */
@@ -109,16 +119,5 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
              WrongReferenceAttributeValueException e) {
       throw new InternalErrorException(e);
     }
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    attr.setFriendlyName("login-namespace:lifescienceid-username");
-    attr.setDisplayName("Lifescience username (login)");
-    attr.setType(String.class.getName());
-    attr.setDescription("Login in namespaceid: lifescience");
-    return attr;
   }
 }

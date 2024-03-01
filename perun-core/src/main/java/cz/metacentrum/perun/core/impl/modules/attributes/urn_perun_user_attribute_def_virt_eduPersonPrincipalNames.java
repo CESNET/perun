@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,16 +29,27 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
   private static final Pattern pattern = Pattern.compile("[^@]+@[^@]+");
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("eduPersonPrincipalNames");
+    attr.setDisplayName("EPPN");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("Extsource logins from IDP.");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 
     // prevent duplicate entries in EPPN
     Set<String> idpLogins = new HashSet<>();
     List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
-    for (UserExtSource uES : userExtSources) {
-      if (uES.getExtSource() != null) {
-        String login = uES.getLogin();
-        String type = uES.getExtSource().getType();
+    for (UserExtSource ues : userExtSources) {
+      if (ues.getExtSource() != null) {
+        String login = ues.getLogin();
+        String type = ues.getExtSource().getType();
 
         if (type != null && login != null) {
           // insert only EPPN formatted data
@@ -54,17 +64,6 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
     Attribute attribute = new Attribute(attributeDefinition);
     attribute.setValue(new ArrayList<>(idpLogins));
     return attribute;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("eduPersonPrincipalNames");
-    attr.setDisplayName("EPPN");
-    attr.setType(ArrayList.class.getName());
-    attr.setDescription("Extsource logins from IDP.");
-    return attr;
   }
 
   @Override

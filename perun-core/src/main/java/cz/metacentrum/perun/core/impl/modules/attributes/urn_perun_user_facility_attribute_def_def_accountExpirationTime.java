@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,11 +53,6 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime
       throw new WrongReferenceAttributeValueException(attribute, facilityAccExpAttribute, user, facility, facility,
           null, "this user_facility attribute cannot has higher value than same facility attribute");
     }
-  }
-
-  @Override
-  public List<String> getDependencies() {
-    return Collections.singletonList(A_F_D_accountExpirationTime);
   }
 
   @Override
@@ -101,5 +95,10 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime
     attr.setType(String.class.getName());
     attr.setDescription("Account expiration.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    return Collections.singletonList(A_F_D_accountExpirationTime);
   }
 }

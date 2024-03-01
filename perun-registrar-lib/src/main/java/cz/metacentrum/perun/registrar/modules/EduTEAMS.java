@@ -19,9 +19,8 @@ import java.util.List;
  * Module for eduTEAMS instance.
  *
  * <p>
- * If the application item 'nickname' contains a nonempty value, the value
- * is set into 'eduteams-nickname' user attribute. If the attribute definition
- * does not exist, this module does nothing.
+ * If the application item 'nickname' contains a nonempty value, the value is set into 'eduteams-nickname' user
+ * attribute. If the attribute definition does not exist, this module does nothing.
  * </p>
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>

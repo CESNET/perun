@@ -32,7 +32,7 @@ import java.util.Map;
 public class TestJSONParserTabItem implements TabItem, TabItemWithUrl {
 
 
-  public final static String URL = "json";
+  public static final String URL = "json";
   /**
    * Perun web session
    */

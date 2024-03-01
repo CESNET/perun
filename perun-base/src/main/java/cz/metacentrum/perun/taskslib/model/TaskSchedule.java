@@ -15,47 +15,9 @@ public class TaskSchedule implements Delayed {
     this.task = task;
   }
 
-  public void setBase(long base) {
-    this.base = base;
-  }
-
-  public long getDelay() {
-    return delay;
-  }
-
-  public void setDelay(long delay) {
-    this.delay = delay;
-  }
-
-  public Task getTask() {
-    return task;
-  }
-
-  public int getDelayCount() {
-    return delayCount;
-  }
-
-  public void setDelayCount(int delayCount) {
-    this.delayCount = delayCount;
-  }
-
-  @Override
-  public long getDelay(TimeUnit unit) {
-    return unit.convert(this.delay - (System.currentTimeMillis() - base), TimeUnit.MILLISECONDS);
-  }
-
   @Override
   public int compareTo(Delayed delayed) {
     return Long.compare(getDelay(TimeUnit.MILLISECONDS), delayed.getDelay(TimeUnit.MILLISECONDS));
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((task == null) ? 0 : task.hashCode());
-
-    return result;
   }
 
   @Override
@@ -83,15 +45,50 @@ public class TaskSchedule implements Delayed {
   }
 
   @Override
+  public long getDelay(TimeUnit unit) {
+    return unit.convert(this.delay - (System.currentTimeMillis() - base), TimeUnit.MILLISECONDS);
+  }
+
+  public long getDelay() {
+    return delay;
+  }
+
+  public void setDelay(long delay) {
+    this.delay = delay;
+  }
+
+  public int getDelayCount() {
+    return delayCount;
+  }
+
+  public void setDelayCount(int delayCount) {
+    this.delayCount = delayCount;
+  }
+
+  public Task getTask() {
+    return task;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((task == null) ? 0 : task.hashCode());
+
+    return result;
+  }
+
+  public void setBase(long base) {
+    this.base = base;
+  }
+
+  @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
-    return str.append(getClass().getSimpleName())
-        .append(":[base='").append(BeansUtils.getDateFormatter().format(base))
-        .append("', delay='").append((delay == 0) ? delay : delay / 1000).append("s")
-        .append("', remaining='").append(getDelay(TimeUnit.SECONDS)).append("s")
-        .append("', delayCount='").append(delayCount)
-        .append("', task='").append(task)
-        .append("']").toString();
+    return str.append(getClass().getSimpleName()).append(":[base='").append(BeansUtils.getDateFormatter().format(base))
+        .append("', delay='").append((delay == 0) ? delay : delay / 1000).append("s").append("', remaining='")
+        .append(getDelay(TimeUnit.SECONDS)).append("s").append("', delayCount='").append(delayCount).append("', task='")
+        .append(task).append("']").toString();
   }
 
 }

@@ -12,8 +12,8 @@ import java.util.function.Supplier;
 public class TestUtils {
 
   /**
-   * Interface used to define a function that can throw a checked exception.
-   * The exception is parsed in a RuntimeException and thrown.
+   * Interface used to define a function that can throw a checked exception. The exception is parsed in a
+   * RuntimeException and thrown.
    *
    * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
    */
@@ -33,8 +33,8 @@ public class TestUtils {
   }
 
   /**
-   * Interface used to define a supplier that can throw a checked exception.
-   * The exception is parsed in a RuntimeException and thrown.
+   * Interface used to define a supplier that can throw a checked exception. The exception is parsed in a
+   * RuntimeException and thrown.
    *
    * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
    */
@@ -54,8 +54,8 @@ public class TestUtils {
   }
 
   /**
-   * Interface used to define a consumer that can throw a checked exception.
-   * The exception is parsed in a RuntimeException and thrown.
+   * Interface used to define a consumer that can throw a checked exception. The exception is parsed in a
+   * RuntimeException and thrown.
    *
    * @param <T>
    */

@@ -1,13 +1,11 @@
 package cz.metacentrum.perun.cabinet.dao;
 
-import java.util.List;
-
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.util.List;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +40,33 @@ public interface AuthorshipManagerDao {
   void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
 
   /**
+   * Return all Authors of Publications. Empty list of none found.
+   *
+   * @return List of all Authors of Publications. Empty list of none found.
+   * @throws InternalErrorException When implementation fails
+   */
+  List<Author> getAllAuthors();
+
+  /**
+   * Return Author by its ID. If user is not author of any Publication, exception is thrown.
+   *
+   * @param id ID of Author to get
+   * @return Author by its ID.
+   * @throws CabinetException       When Author (User) has no Publications
+   * @throws InternalErrorException When implementation fails
+   */
+  Author getAuthorById(int id) throws CabinetException;
+
+  /**
+   * Return all Authors of Publication specified by its ID. Empty list of none found.
+   *
+   * @param id ID of Publication to look by
+   * @return List of Authors of Publication specified its ID. Empty list of none found.
+   * @throws InternalErrorException When implementation fails
+   */
+  List<Author> getAuthorsByPublicationId(int id);
+
+  /**
    * Get Authorship by its ID
    *
    * @param id ID to get Authorship by
@@ -50,24 +75,6 @@ public interface AuthorshipManagerDao {
    * @throws InternalErrorException When implementation fails
    */
   Authorship getAuthorshipById(int id) throws CabinetException;
-
-  /**
-   * Get Authorships by its User ID or empty list.
-   *
-   * @param id ID of user to get Authorships for
-   * @return Authorship by its user ID or empty list
-   * @throws InternalErrorException When implementation fails
-   */
-  List<Authorship> getAuthorshipsByUserId(int id);
-
-  /**
-   * Get Authorships by its Publication ID or empty list.
-   *
-   * @param id ID of publication to get Authorships for
-   * @return Authorship by its publication ID or empty list
-   * @throws InternalErrorException When implementation fails
-   */
-  List<Authorship> getAuthorshipsByPublicationId(int id);
 
   /**
    * Get Authorship by its user and publication IDs
@@ -81,30 +88,21 @@ public interface AuthorshipManagerDao {
   Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException;
 
   /**
-   * Return Author by its ID. If user is not author of any Publication, exception is thrown.
+   * Get Authorships by its Publication ID or empty list.
    *
-   * @param id ID of Author to get
-   * @return Author by its ID.
-   * @throws CabinetException       When Author (User) has no Publications
+   * @param id ID of publication to get Authorships for
+   * @return Authorship by its publication ID or empty list
    * @throws InternalErrorException When implementation fails
    */
-  Author getAuthorById(int id) throws CabinetException;
+  List<Authorship> getAuthorshipsByPublicationId(int id);
 
   /**
-   * Return all Authors of Publications. Empty list of none found.
+   * Get Authorships by its User ID or empty list.
    *
-   * @return List of all Authors of Publications. Empty list of none found.
+   * @param id ID of user to get Authorships for
+   * @return Authorship by its user ID or empty list
    * @throws InternalErrorException When implementation fails
    */
-  List<Author> getAllAuthors();
-
-  /**
-   * Return all Authors of Publication specified by its ID. Empty list of none found.
-   *
-   * @param id ID of Publication to look by
-   * @return List of Authors of Publication specified its ID. Empty list of none found.
-   * @throws InternalErrorException When implementation fails
-   */
-  List<Author> getAuthorsByPublicationId(int id);
+  List<Authorship> getAuthorshipsByUserId(int id);
 
 }

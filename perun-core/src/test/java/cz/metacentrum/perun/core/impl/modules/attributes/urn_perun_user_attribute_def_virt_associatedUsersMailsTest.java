@@ -1,5 +1,11 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -8,17 +14,10 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
@@ -37,35 +36,6 @@ public class urn_perun_user_attribute_def_virt_associatedUsersMailsTest {
   private final Attribute user2MailAttribute = setUpUserPreferredMailAttribute(mailAbc);
   private PerunSessionImpl sess;
 
-  @Before
-  public void setUp() throws Exception {
-    sess = mock(PerunSessionImpl.class);
-    PerunBl perunBl = mock(PerunBl.class);
-    AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
-    UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
-
-    when(sess.getPerunBl()).thenReturn(perunBl);
-    when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
-    when(perunBl.getUsersManagerBl()).thenReturn(usersManagerBl);
-
-    when(sess.getPerunBl().getUsersManagerBl().getUsersBySpecificUser(sess, specificUser))
-        .thenReturn(Arrays.asList(user1, user2));
-    when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user1, A_U_D_preferredMail))
-        .thenReturn(user1MailAttribute);
-    when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user2, A_U_D_preferredMail))
-        .thenReturn(user2MailAttribute);
-  }
-
-  private Attribute setUpUserPreferredMailAttribute(String mail) {
-    AttributeDefinition attrDef = new AttributeDefinition();
-    attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    attrDef.setFriendlyName("preferredMail");
-    attrDef.setType(String.class.getName());
-    Attribute attr = new Attribute(attrDef);
-    attr.setValue(mail);
-    return attr;
-  }
-
   @Test
   public void getAttributeValue() {
     List<String> attributeValue =
@@ -81,8 +51,8 @@ public class urn_perun_user_attribute_def_virt_associatedUsersMailsTest {
   public void getAttributeValueWithNullMail() throws Exception {
     // set user2's preferred mail to null
     Attribute nullUserMailAttribute = setUpUserPreferredMailAttribute(null);
-    when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user2, A_U_D_preferredMail))
-        .thenReturn(nullUserMailAttribute);
+    when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user2, A_U_D_preferredMail)).thenReturn(
+        nullUserMailAttribute);
 
     List<String> attributeValue =
         classInstance.getAttributeValue(sess, specificUser, classInstance.getAttributeDefinition()).valueAsList();
@@ -90,5 +60,34 @@ public class urn_perun_user_attribute_def_virt_associatedUsersMailsTest {
     // value shouldn't contain null mail
     assertEquals(1, attributeValue.size());
     assertTrue(attributeValue.contains(mailDef));
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    sess = mock(PerunSessionImpl.class);
+    PerunBl perunBl = mock(PerunBl.class);
+    AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
+    UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
+
+    when(sess.getPerunBl()).thenReturn(perunBl);
+    when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
+    when(perunBl.getUsersManagerBl()).thenReturn(usersManagerBl);
+
+    when(sess.getPerunBl().getUsersManagerBl().getUsersBySpecificUser(sess, specificUser)).thenReturn(
+        Arrays.asList(user1, user2));
+    when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user1, A_U_D_preferredMail)).thenReturn(
+        user1MailAttribute);
+    when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user2, A_U_D_preferredMail)).thenReturn(
+        user2MailAttribute);
+  }
+
+  private Attribute setUpUserPreferredMailAttribute(String mail) {
+    AttributeDefinition attrDef = new AttributeDefinition();
+    attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attrDef.setFriendlyName("preferredMail");
+    attrDef.setType(String.class.getName());
+    Attribute attr = new Attribute(attrDef);
+    attr.setValue(mail);
+    return attr;
   }
 }

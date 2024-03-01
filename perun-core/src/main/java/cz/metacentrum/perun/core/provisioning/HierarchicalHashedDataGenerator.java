@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.core.provisioning;
 
 
+import static java.util.stream.Collectors.toMap;
+
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.GenDataNode;
@@ -11,39 +13,18 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toMap;
-
 /**
  * Generates data in format:
  * <p>
- * attributes: {...hashes...}
- * hierarchy: {
- * "1": {    ** facility id **
- * members: {    ** all members on the facility **
- * "4" : 5,    ** member id : user id **
- * "6" : 7,    ** member id : user id **
- * ...
- * }
- * children: [
- * "2": {    ** resource id **
- * children: [],
- * voId: 30,
- * members: {    ** all members on the resource with id 2 **
- * "4" : 5    ** member id : user id **
- * }
- * },
- * "3": {
- * ...
- * }
- * ]
- * }
- * }
+ * attributes: {...hashes...} hierarchy: { "1": {    ** facility id ** members: {    ** all members on the facility **
+ * "4" : 5,    ** member id : user id ** "6" : 7,    ** member id : user id ** ... } children: [ "2": {    ** resource
+ * id ** children: [], voId: 30, members: {    ** all members on the resource with id 2 ** "4" : 5    ** member id :
+ * user id ** } }, "3": { ... } ] } }
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
@@ -86,21 +67,23 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
           .evaluateConsents(sess, service, facility, membersToEvaluate, consentEval));
     }
 
-    Map<Integer, GenDataNode> childNodes = resources.stream()
-        .collect(toMap(Resource::getId, this::getDataForResource));
+    Map<Integer, GenDataNode> childNodes = resources.stream().collect(toMap(Resource::getId, this::getDataForResource));
 
     dataProvider.getFacilityAttributesHashes();
     Map<String, Map<String, Object>> attributes = dataProvider.getAllFetchedAttributes();
 
-    Map<Integer, Integer> memberIdsToUserIds = membersWithConsent.stream()
-        .collect(toMap(Member::getId, Member::getUserId));
+    Map<Integer, Integer> memberIdsToUserIds =
+        membersWithConsent.stream().collect(toMap(Member::getId, Member::getUserId));
 
-    GenDataNode root = new GenDataNode.Builder()
-        .children(childNodes)
-        .members(memberIdsToUserIds)
-        .build();
+    GenDataNode root = new GenDataNode.Builder().children(childNodes).members(memberIdsToUserIds).build();
 
     return new HashedGenData(attributes, root, facility.getId());
+  }
+
+  private GenMemberDataNode getDataForMember(Resource resource, Member member) {
+    List<String> memberAttrHashes = dataProvider.getMemberAttributesHashes(resource, member);
+
+    return new GenMemberDataNode(memberAttrHashes);
   }
 
   private GenResourceDataNode getDataForResource(Resource resource) {
@@ -124,19 +107,9 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 
     members.forEach(member -> getDataForMember(resource, member));
 
-    Map<Integer, Integer> memberIdsToUserIds = members.stream()
-        .collect(toMap(Member::getId, Member::getUserId));
+    Map<Integer, Integer> memberIdsToUserIds = members.stream().collect(toMap(Member::getId, Member::getUserId));
 
-    return new GenResourceDataNode.Builder()
-        .members(memberIdsToUserIds)
-        .voId(resource.getVoId())
-        .build();
-  }
-
-  private GenMemberDataNode getDataForMember(Resource resource, Member member) {
-    List<String> memberAttrHashes = dataProvider.getMemberAttributesHashes(resource, member);
-
-    return new GenMemberDataNode(memberAttrHashes);
+    return new GenResourceDataNode.Builder().members(memberIdsToUserIds).voId(resource.getVoId()).build();
   }
 
   public static class Builder {
@@ -146,13 +119,12 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
     private boolean filterExpiredMembers = false;
     private boolean consentEval = false;
 
-    public Builder sess(PerunSessionImpl sess) {
-      this.sess = sess;
-      return this;
+    public HierarchicalHashedDataGenerator build() {
+      return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval);
     }
 
-    public Builder service(Service service) {
-      this.service = service;
+    public Builder consentEval(boolean consentEval) {
+      this.consentEval = consentEval;
       return this;
     }
 
@@ -166,13 +138,14 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
       return this;
     }
 
-    public Builder consentEval(boolean consentEval) {
-      this.consentEval = consentEval;
+    public Builder service(Service service) {
+      this.service = service;
       return this;
     }
 
-    public HierarchicalHashedDataGenerator build() {
-      return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval);
+    public Builder sess(PerunSessionImpl sess) {
+      this.sess = sess;
+      return this;
     }
   }
 }

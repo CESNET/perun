@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "rich-detail";
+  public static final String URL = "rich-detail";
   TabPanelForTabItems tabPanel;
   /**
    * member

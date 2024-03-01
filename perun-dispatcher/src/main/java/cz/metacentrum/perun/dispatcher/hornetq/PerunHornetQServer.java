@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service(value = "perunHornetQServer")
 public class PerunHornetQServer {
 
-  private final static Logger log = LoggerFactory.getLogger(PerunHornetQServer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PerunHornetQServer.class);
 
   private Properties dispatcherProperties;
   private FileConfiguration configuration = null;
@@ -36,15 +36,31 @@ public class PerunHornetQServer {
     return dispatcherProperties;
   }
 
-
-  @Resource(name = "dispatcherPropertiesBean")
-  public void setDispatcherProperties(Properties dispatcherProperties) {
-    this.dispatcherProperties = dispatcherProperties;
+  /**
+   * Gets JMS server manager
+   *
+   * @return JMS server manager
+   */
+  public JMSServerManager getJMSServerManager() {
+    return jmsServerManager;
   }
 
 
   // ----- methods -------------------------------------
 
+  /**
+   * TRUE if HornetQ server was correctly started.
+   *
+   * @return TRUE HornetQ is running / FALSE otherwise
+   */
+  public boolean isServerRunning() {
+    return serverRunning;
+  }
+
+  @Resource(name = "dispatcherPropertiesBean")
+  public void setDispatcherProperties(Properties dispatcherProperties) {
+    this.dispatcherProperties = dispatcherProperties;
+  }
 
   /**
    * Start and configure HornetQ server with default JMS queue (systemQueue).
@@ -52,7 +68,7 @@ public class PerunHornetQServer {
   public void startServer() {
     try {
 
-      log.debug("Starting HornetQ server...");
+      LOG.debug("Starting HornetQ server...");
       System.setProperty("perun.dispatcher.hornetq.remoting.netty.host",
           dispatcherProperties.getProperty("dispatcher.ip.address"));
       System.setProperty("perun.dispatcher.hornetq.remoting.netty.port",
@@ -71,10 +87,10 @@ public class PerunHornetQServer {
       jmsServerManager.setContext(null);
       jmsServerManager.start();
       serverRunning = true;
-      log.debug("HornetQ server started.");
+      LOG.debug("HornetQ server started.");
 
     } catch (Exception e) {
-      log.error("Can't start HornetQ server: {}", e);
+      LOG.error("Can't start HornetQ server: {}", e);
     }
   }
 
@@ -88,29 +104,11 @@ public class PerunHornetQServer {
         server.stop();
         configuration.stop();
         serverRunning = false;
-        log.debug("HornetQ server has stopped.");
+        LOG.debug("HornetQ server has stopped.");
       } catch (Exception e) {
-        log.error("Can't stop HornetQ server: {}", e);
+        LOG.error("Can't stop HornetQ server: {}", e);
       }
     }
-  }
-
-  /**
-   * Gets JMS server manager
-   *
-   * @return JMS server manager
-   */
-  public JMSServerManager getJMSServerManager() {
-    return jmsServerManager;
-  }
-
-  /**
-   * TRUE if HornetQ server was correctly started.
-   *
-   * @return TRUE HornetQ is running / FALSE otherwise
-   */
-  public boolean isServerRunning() {
-    return serverRunning;
   }
 
 }

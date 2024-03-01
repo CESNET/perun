@@ -16,6 +16,13 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
@@ -33,14 +40,6 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * RTMessage manager can create a new message and send it to RT like predefined service user.
  *
@@ -48,7 +47,7 @@ import java.util.regex.Pattern;
  */
 public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 
-  private final static org.slf4j.Logger log = LoggerFactory.getLogger(RTMessagesManagerBlImpl.class);
+  private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RTMessagesManagerBlImpl.class);
 
   private final PerunBl perunBl;
   private final String rtURL;
@@ -61,152 +60,6 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
     this.perunBl = perunBl;
     this.rtURL = rtURL;
     this.rtDefaultQueue = rtDefaultQueue;
-  }
-
-  public PerunBl getPerunBl() {
-    return this.perunBl;
-  }
-
-  @Override
-  public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) {
-    return sendMessageToRT(sess, voId, null, subject, text);
-  }
-
-  @Override
-  @Deprecated
-  public RTMessage sendMessageToRT(PerunSession sess, Member meber, String queue, String subject, String text) {
-    throw new InternalErrorException("This method is not supported now!");
-  }
-
-  @Override
-  public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) {
-    return sendMessageToRT(sess, 0, queue, subject, text);
-  }
-
-  @Override
-  public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) {
-    log.debug("Parameters of rtMessage are queue='" + queue + "', subject='{}' and text='{}'", subject, text);
-
-    //Get Email from User who get from session
-    String email;
-    User user = sess.getPerunPrincipal().getUser();
-
-    //try to get user/member email from user in session
-    if (user != null) {
-      email = findUserPreferredEmail(sess, user);
-    } else {
-      email = null;
-      log.info("Can't get user from session.");
-    }
-
-    //try to get email from additionalInformations in session (attribute mail)
-    if (email == null) {
-      Matcher emailMatcher;
-      Map<String, String> additionalInfo = sess.getPerunPrincipal().getAdditionalInformations();
-      //If there are some data in additionalInfo
-      if (additionalInfo != null) {
-        String mailInfo = additionalInfo.get("mail");
-        //If there is notnull attribute "mail" in map
-        if (mailInfo != null) {
-          //If attribute mail has separator ',' or ';'
-          if (mailInfo.contains(";")) {
-            String[] mailsFromInfo = mailInfo.split(";");
-            for (String mail : mailsFromInfo) {
-              emailMatcher = Utils.emailPattern.matcher(mail);
-              if (emailMatcher.matches()) {
-                email = mail;
-                break;
-              }
-            }
-          } else if (mailInfo.contains(",")) {
-            String[] mailsFromInfo = mailInfo.split(",");
-            for (String mail : mailsFromInfo) {
-              emailMatcher = Utils.emailPattern.matcher(mail);
-              if (emailMatcher.matches()) {
-                email = mail;
-                break;
-              }
-            }
-          } else {
-            //If there is no separator, test if this has format of email, if yes, save it to email
-            emailMatcher = Utils.emailPattern.matcher(mailInfo);
-            if (emailMatcher.matches()) {
-              email = mailInfo;
-            }
-          }
-        }
-      }
-    }
-
-    if (StringUtils.isNotBlank(BeansUtils.getCoreConfig().getRtSendToMail())) {
-
-      // redirect all RT messages to mail address
-      SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-      simpleMailMessage.setSubject("[" + queue + "] " + subject);
-
-      if (email != null) {
-        simpleMailMessage.setText("Requestor: " + email + "\n\n" + text);
-        simpleMailMessage.setReplyTo(email);
-      } else {
-        simpleMailMessage.setText("Requestor: UNKNOWN\n\n" + text);
-      }
-      simpleMailMessage.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
-      simpleMailMessage.setTo(BeansUtils.getCoreConfig().getRtSendToMail());
-
-      try {
-        log.trace("Message to be sent: {}", simpleMailMessage);
-        mailSender.send(simpleMailMessage);
-      } catch (MailException ex) {
-        log.error("RT message was not send to email address, due to an error.", ex);
-        throw new InternalErrorException(
-            "RT message was not send to email address, due to an error: " + ex.getMessage());
-      }
-
-      return new RTMessage(email, 0);
-
-    } else {
-
-      //Prepare sending message
-      HttpResponse response;
-      HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-      // just like cookie-policy: ignore cookies
-      httpClientBuilder.disableCookieManagement();
-      HttpClient httpClient = httpClientBuilder.build();
-
-      StringBuilder responseMessage = new StringBuilder();
-      String ticketNumber = "0";
-      try {
-        response = httpClient.execute(this.prepareDataAndGetHttpRequest(sess, voId, queue, email, subject, text));
-        BufferedReader bw = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-        //Reading response from RT
-        String line;
-        while ((line = bw.readLine()) != null) {
-          responseMessage.append(line);
-          responseMessage.append('\n');
-          //Matcher for ticketNumber
-          Matcher ticketNumberMatcher = this.ticketNumberPattern.matcher(line);
-          if (ticketNumberMatcher.find()) {
-            ticketNumber = ticketNumberMatcher.group(1);
-          }
-        }
-      } catch (IOException ex) {
-        throw new InternalErrorException("IOException has been throw while executing http request.", ex);
-      }
-
-      //Return message if response is ok, or throw exception with bad response
-      int ticketNum = Integer.parseInt(ticketNumber);
-      if (ticketNum != 0) {
-        RTMessage rtmessage = new RTMessage(email, ticketNum);
-        log.debug("RT message was send successfully and the ticket has number: " + ticketNum);
-        return rtmessage;
-      } else {
-        throw new InternalErrorException(
-            "RT message was not send due to error with RT returned this message: " + responseMessage.toString());
-      }
-
-    }
-
   }
 
   private String findUserPreferredEmail(PerunSession sess, User user) {
@@ -237,6 +90,10 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
       email = (String) userPreferredMail.getValue();
     }
     return email;
+  }
+
+  public PerunBl getPerunBl() {
+    return this.perunBl;
   }
 
   private HttpUriRequest prepareDataAndGetHttpRequest(PerunSession sess, int voId, String queue, String requestor,
@@ -295,12 +152,9 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
       entityBuilder.addPart("charset",
           new StringBody(StandardCharsets.UTF_8.toString(), ContentType.create("text/plain", Consts.UTF_8)));
       entityBuilder.addPart("Connection", new StringBody("Close", ContentType.create("text/plain", Consts.UTF_8)));
-      StringBody content = new StringBody("id: " + id + '\n' +
-          "Queue: " + queue + '\n' +
-          "Requestor: " + requestor + '\n' +
-          "Subject: " + subject + '\n' +
-          "Text: " + text,
-          ContentType.create("text/plain", Consts.UTF_8));
+      StringBody content = new StringBody(
+          "id: " + id + '\n' + "Queue: " + queue + '\n' + "Requestor: " + requestor + '\n' + "Subject: " + subject +
+          '\n' + "Text: " + text, ContentType.create("text/plain", Consts.UTF_8));
       entityBuilder.addPart("content", content);
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -319,6 +173,148 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
     post.setEntity(entityBuilder.build());
 
     return post;
+  }
+
+  @Override
+  @Deprecated
+  public RTMessage sendMessageToRT(PerunSession sess, Member meber, String queue, String subject, String text) {
+    throw new InternalErrorException("This method is not supported now!");
+  }
+
+  @Override
+  public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) {
+    return sendMessageToRT(sess, 0, queue, subject, text);
+  }
+
+  @Override
+  public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) {
+    return sendMessageToRT(sess, voId, null, subject, text);
+  }
+
+  @Override
+  public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) {
+    LOG.debug("Parameters of rtMessage are queue='" + queue + "', subject='{}' and text='{}'", subject, text);
+
+    //Get Email from User who get from session
+    String email;
+    User user = sess.getPerunPrincipal().getUser();
+
+    //try to get user/member email from user in session
+    if (user != null) {
+      email = findUserPreferredEmail(sess, user);
+    } else {
+      email = null;
+      LOG.info("Can't get user from session.");
+    }
+
+    //try to get email from additionalInformations in session (attribute mail)
+    if (email == null) {
+      Matcher emailMatcher;
+      Map<String, String> additionalInfo = sess.getPerunPrincipal().getAdditionalInformations();
+      //If there are some data in additionalInfo
+      if (additionalInfo != null) {
+        String mailInfo = additionalInfo.get("mail");
+        //If there is notnull attribute "mail" in map
+        if (mailInfo != null) {
+          //If attribute mail has separator ',' or ';'
+          if (mailInfo.contains(";")) {
+            String[] mailsFromInfo = mailInfo.split(";");
+            for (String mail : mailsFromInfo) {
+              emailMatcher = Utils.EMAIL_PATTERN.matcher(mail);
+              if (emailMatcher.matches()) {
+                email = mail;
+                break;
+              }
+            }
+          } else if (mailInfo.contains(",")) {
+            String[] mailsFromInfo = mailInfo.split(",");
+            for (String mail : mailsFromInfo) {
+              emailMatcher = Utils.EMAIL_PATTERN.matcher(mail);
+              if (emailMatcher.matches()) {
+                email = mail;
+                break;
+              }
+            }
+          } else {
+            //If there is no separator, test if this has format of email, if yes, save it to email
+            emailMatcher = Utils.EMAIL_PATTERN.matcher(mailInfo);
+            if (emailMatcher.matches()) {
+              email = mailInfo;
+            }
+          }
+        }
+      }
+    }
+
+    if (StringUtils.isNotBlank(BeansUtils.getCoreConfig().getRtSendToMail())) {
+
+      // redirect all RT messages to mail address
+      SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+      simpleMailMessage.setSubject("[" + queue + "] " + subject);
+
+      if (email != null) {
+        simpleMailMessage.setText("Requestor: " + email + "\n\n" + text);
+        simpleMailMessage.setReplyTo(email);
+      } else {
+        simpleMailMessage.setText("Requestor: UNKNOWN\n\n" + text);
+      }
+      simpleMailMessage.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
+      simpleMailMessage.setTo(BeansUtils.getCoreConfig().getRtSendToMail());
+
+      try {
+        LOG.trace("Message to be sent: {}", simpleMailMessage);
+        mailSender.send(simpleMailMessage);
+      } catch (MailException ex) {
+        LOG.error("RT message was not send to email address, due to an error.", ex);
+        throw new InternalErrorException(
+            "RT message was not send to email address, due to an error: " + ex.getMessage());
+      }
+
+      return new RTMessage(email, 0);
+
+    } else {
+
+      //Prepare sending message
+      HttpResponse response;
+      HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+      // just like cookie-policy: ignore cookies
+      httpClientBuilder.disableCookieManagement();
+      HttpClient httpClient = httpClientBuilder.build();
+
+      StringBuilder responseMessage = new StringBuilder();
+      String ticketNumber = "0";
+      try {
+        response = httpClient.execute(this.prepareDataAndGetHttpRequest(sess, voId, queue, email, subject, text));
+        BufferedReader bw = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+        //Reading response from RT
+        String line;
+        while ((line = bw.readLine()) != null) {
+          responseMessage.append(line);
+          responseMessage.append('\n');
+          //Matcher for ticketNumber
+          Matcher ticketNumberMatcher = this.ticketNumberPattern.matcher(line);
+          if (ticketNumberMatcher.find()) {
+            ticketNumber = ticketNumberMatcher.group(1);
+          }
+        }
+      } catch (IOException ex) {
+        throw new InternalErrorException("IOException has been throw while executing http request.", ex);
+      }
+
+      //Return message if response is ok, or throw exception with bad response
+      int ticketNum = Integer.parseInt(ticketNumber);
+      if (ticketNum != 0) {
+        RTMessage rtmessage = new RTMessage(email, ticketNum);
+        LOG.debug("RT message was send successfully and the ticket has number: " + ticketNum);
+        return rtmessage;
+      } else {
+        throw new InternalErrorException(
+            "RT message was not send due to error with RT returned this message: " + responseMessage.toString());
+      }
+
+    }
+
   }
 
 

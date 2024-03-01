@@ -27,7 +27,7 @@ import java.util.Map;
 public class TestAttributeTableTabItem implements TabItem, TabItemWithUrl {
 
 
-  public final static String URL = "attr-table";
+  public static final String URL = "attr-table";
   /**
    * Perun web session
    */

@@ -70,12 +70,12 @@ public class ServiceAlreadyBannedException extends PerunException {
   }
 
   /**
-   * Getter for the service
+   * Getter for the destination
    *
-   * @return service that is already blocked/banned
+   * @return destination on which the service is blocked/banned
    */
-  public Service getService() {
-    return service;
+  public Destination getDestination() {
+    return destination;
   }
 
   /**
@@ -88,12 +88,12 @@ public class ServiceAlreadyBannedException extends PerunException {
   }
 
   /**
-   * Getter for the destination
+   * Getter for the service
    *
-   * @return destination on which the service is blocked/banned
+   * @return service that is already blocked/banned
    */
-  public Destination getDestination() {
-    return destination;
+  public Service getService() {
+    return service;
   }
 
 }

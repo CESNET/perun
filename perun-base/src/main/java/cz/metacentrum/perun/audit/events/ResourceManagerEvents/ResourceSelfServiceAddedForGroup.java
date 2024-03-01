@@ -26,13 +26,13 @@ public class ResourceSelfServiceAddedForGroup extends AuditEvent implements Engi
     this.message = formatMessage("%s was added as ResourceSelfService for %s.", group, resource);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   public Resource getResource() {

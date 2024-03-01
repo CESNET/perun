@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +23,16 @@ public class urn_perun_user_attribute_def_virt_login_namespace_eurofusion_persis
     extends UserVirtualAttributesModuleAbstract {
 
   public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:eurofusion-persistent-shadow";
+
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:eurofusion-persistent");
+    attr.setDisplayName("EUROfusion login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login for EUROfusion. It is set automatically with first call.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
@@ -56,15 +65,5 @@ public class urn_perun_user_attribute_def_virt_login_namespace_eurofusion_persis
   @Override
   public List<String> getStrongDependencies() {
     return Collections.singletonList(SHADOW);
-  }
-
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("login-namespace:eurofusion-persistent");
-    attr.setDisplayName("EUROfusion login");
-    attr.setType(String.class.getName());
-    attr.setDescription("Login for EUROfusion. It is set automatically with first call.");
-    return attr;
   }
 }

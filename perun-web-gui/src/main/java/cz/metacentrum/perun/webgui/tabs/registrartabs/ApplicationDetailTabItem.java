@@ -54,7 +54,7 @@ import java.util.Map;
  */
 public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "appdetail";
+  public static final String URL = "appdetail";
   final ScrollPanel sp = new ScrollPanel();
   /**
    * Perun web session

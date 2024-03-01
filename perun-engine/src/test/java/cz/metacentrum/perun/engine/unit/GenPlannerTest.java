@@ -1,22 +1,28 @@
 package cz.metacentrum.perun.engine.unit;
 
+import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.GENERATING;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.engine.AbstractEngineTest;
+import cz.metacentrum.perun.engine.runners.GenPlanner;
 import cz.metacentrum.perun.engine.scheduling.GenWorker;
 import cz.metacentrum.perun.engine.scheduling.impl.BlockingGenExecutorCompletionService;
-import cz.metacentrum.perun.engine.runners.GenPlanner;
 import cz.metacentrum.perun.taskslib.model.Task;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
-
-import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.GENERATING;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Test;
 
 public class GenPlannerTest extends AbstractEngineTest {
   private BlockingGenExecutorCompletionService genCompletionServiceMock;
@@ -48,8 +54,7 @@ public class GenPlannerTest extends AbstractEngineTest {
     spy.run();
 
     verify(genCompletionServiceMock, times(1)).blockingSubmit(any(GenWorker.class));
-    verify(jmsQueueManagerMock, times(1)).reportTaskStatus(
-        eq(task1.getId()), eq(task1.getStatus()),
+    verify(jmsQueueManagerMock, times(1)).reportTaskStatus(eq(task1.getId()), eq(task1.getStatus()),
         eq(task1.getGenStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 
     assertEquals(GENERATING, task1.getStatus());

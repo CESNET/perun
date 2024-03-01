@@ -14,6 +14,33 @@ public class MemberCandidate {
 
   private RichUser richUser;
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    MemberCandidate that = (MemberCandidate) o;
+
+    if (candidate != null ? !candidate.equals(that.candidate) : that.candidate != null) {
+      return false;
+    }
+    if (member != null ? !member.equals(that.member) : that.member != null) {
+      return false;
+    }
+    return richUser != null ? richUser.equals(that.richUser) : that.richUser == null;
+  }
+
+  /**
+   * Returns bean name like VO, Member, Resource,...
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
+
   public Candidate getCandidate() {
     return candidate;
   }
@@ -38,33 +65,6 @@ public class MemberCandidate {
     this.richUser = richUser;
   }
 
-  /**
-   * Returns bean name like VO, Member, Resource,...
-   */
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    MemberCandidate that = (MemberCandidate) o;
-
-    if (candidate != null ? !candidate.equals(that.candidate) : that.candidate != null) {
-      return false;
-    }
-    if (member != null ? !member.equals(that.member) : that.member != null) {
-      return false;
-    }
-    return richUser != null ? richUser.equals(that.richUser) : that.richUser == null;
-  }
-
   @Override
   public int hashCode() {
     int result = candidate != null ? candidate.hashCode() : 0;
@@ -75,10 +75,7 @@ public class MemberCandidate {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + ":[" +
-        "candidate='" + candidate +
-        "', member='" + member +
-        "', richUser='" + richUser +
-        "']";
+    return getClass().getSimpleName() + ":[" + "candidate='" + candidate + "', member='" + member + "', richUser='" +
+           richUser + "']";
   }
 }

@@ -18,13 +18,8 @@ public class MailForGroupIdAdded extends AuditEvent implements EngineIgnoreEvent
   public MailForGroupIdAdded(ApplicationMail mail, Group group) {
     this.mail = mail;
     this.group = group;
-    this.message = formatMessage("Mail ID: %d of Type: %s/%s added for Group ID: %d.", mail.getId(),
-        mail.getMailType(), mail.getAppType(), group.getId());
-  }
-
-  @Override
-  public String getMessage() {
-    return message;
+    this.message = formatMessage("Mail ID: %d of Type: %s/%s added for Group ID: %d.", mail.getId(), mail.getMailType(),
+        mail.getAppType(), group.getId());
   }
 
   public Group getGroup() {
@@ -33,6 +28,11 @@ public class MailForGroupIdAdded extends AuditEvent implements EngineIgnoreEvent
 
   public ApplicationMail getMail() {
     return mail;
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
   }
 
   @Override

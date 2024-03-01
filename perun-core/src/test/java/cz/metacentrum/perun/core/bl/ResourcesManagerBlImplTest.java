@@ -13,6 +13,9 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,17 +26,11 @@ import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
 /**
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextHierarchy({
-    @ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})
-})
+@ContextHierarchy({@ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})})
 @Transactional(transactionManager = "springTransactionManager")
 public class ResourcesManagerBlImplTest {
 
@@ -57,76 +54,79 @@ public class ResourcesManagerBlImplTest {
   private Candidate candidate;
   private UserExtSource ues;
 
+  @Test
+  public void getAllowedMembersNotExpiredInGroup() throws Exception {
+    System.out.println("ResourcesManagerBlImpl.getAllowedMembersNotExpiredInGroups(resource)");
 
-  @Before
-  public void setUp() throws Exception {
-    perun.getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
+    List<Member> members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
+    Assert.assertEquals(1, members.size());
+    Assert.assertTrue(members.contains(member));
 
-    candidate = new Candidate();
-    candidate.setFirstName("some");
-    candidate.setId(0);
-    candidate.setMiddleName("");
-    candidate.setLastName("testingUser");
-    candidate.setTitleBefore("");
-    candidate.setTitleAfter("");
-    ues = new UserExtSource(extSource, "extLogin");
-    candidate.setUserExtSource(ues);
-    candidate.setAttributes(new HashMap<>());
+    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource2);
+    Assert.assertEquals(1, members.size());
+    Assert.assertTrue(members.contains(member2));
 
-    sess = perun.getPerunSession(
-        new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-            ExtSourcesManager.EXTSOURCE_INTERNAL),
-        new PerunClient());
+    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource3);
+    Assert.assertEquals(1, members.size());
+    Assert.assertTrue(members.contains(member2));
 
+    // expiring member2 in group2 should have effect
+    perun.getGroupsManagerBl().expireMemberInGroup(sess, member2, group2);
 
-    vo = new Vo(0, "ResourcesBlImplTestVo", "ResMgrBlImplTestVo");
-    vo = perun.getVosManagerBl().createVo(sess, vo);
+    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
+    Assert.assertEquals(1, members.size());
+    Assert.assertTrue(members.contains(member));
 
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource2);
+    Assert.assertTrue(members.isEmpty());
 
-    group = new Group("testGroup", "testGroup");
-    group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource3);
+    Assert.assertTrue(members.isEmpty());
 
-    perun.getGroupsManagerBl().addMember(sess, group, member);
+    // disabling member should have effect too
+    perun.getMembersManagerBl().disableMember(sess, member);
 
-    facility = new Facility(0, "testFac");
-    facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
-
-    resource = new Resource(0, "testRes", null, facility.getId(), vo.getId());
-    resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
-
-    perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
-
-    // second branch
-
-    vo2 = new Vo(0, "FacilitiesManagerBlImplTestVo2", "FacMgrBlImplTestVo2");
-    vo2 = perun.getVosManagerBl().createVo(sess, vo2);
-
-    member2 = perun.getMembersManagerBl().createMemberSync(sess, vo2, candidate);
-
-    group2 = new Group("testGroup", "testGroup");
-    group2 = perun.getGroupsManagerBl().createGroup(sess, vo2, group2);
-
-    perun.getGroupsManagerBl().addMember(sess, group2, member2);
-
-    resource2 = new Resource(0, "testRes2", null, facility.getId(), vo2.getId());
-    resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo2, facility);
-
-    // third branch
-
-    facility2 = new Facility(0, "testFac2");
-    facility2 = perun.getFacilitiesManagerBl().createFacility(sess, facility2);
-
-    resource3 = new Resource(0, "testRes3", null, facility2.getId(), vo2.getId());
-    resource3 = perun.getResourcesManagerBl().createResource(sess, resource3, vo2, facility2);
-
-    perun.getResourcesManagerBl()
-        .assignGroupToResources(sess, group2, Arrays.asList(resource2, resource3), false, false, false);
-
-    user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
+    Assert.assertTrue(members.isEmpty());
 
   }
 
+  @Test
+  public void getAllowedUsersNotExpiredTest() throws Exception {
+    System.out.println("ResourcesManagerBlImpl.getAllowedUsersNotExpiredInGrouús(resource)");
+
+    List<User> users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
+    Assert.assertEquals(1, users.size());
+    Assert.assertTrue(users.contains(user));
+
+    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource2);
+    Assert.assertEquals(1, users.size());
+    Assert.assertTrue(users.contains(user));
+
+    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource3);
+    Assert.assertEquals(1, users.size());
+    Assert.assertTrue(users.contains(user));
+
+    // expiring member2 in group2 should have effect
+    perun.getGroupsManagerBl().expireMemberInGroup(sess, member2, group2);
+
+    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
+    Assert.assertEquals(1, users.size());
+    Assert.assertTrue(users.contains(user));
+
+    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource2);
+    Assert.assertTrue(users.isEmpty());
+
+    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource3);
+    Assert.assertTrue(users.isEmpty());
+
+    // disabling member should have effect too
+    perun.getMembersManagerBl().disableMember(sess, member);
+
+    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
+    Assert.assertTrue(users.isEmpty());
+
+  }
 
   @Test
   public void getAssignedResourcesForUserAndVo() throws Exception {
@@ -210,30 +210,6 @@ public class ResourcesManagerBlImplTest {
   }
 
   @Test
-  public void isUserAssigned() throws Exception {
-    System.out.println("ResourcesManagerBlImpl.isUserAssigned(user, resource)");
-
-    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource));
-    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource2));
-    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource3));
-
-    // disabling member should have no effect
-    perun.getMembersManagerBl().disableMember(sess, member);
-
-    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource));
-    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource2));
-    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource3));
-
-    // removing member2 from group2 should have effect
-    perun.getGroupsManagerBl().removeMember(sess, group2, member2);
-
-    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource));
-    Assert.assertFalse(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource2));
-    Assert.assertFalse(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource3));
-
-  }
-
-  @Test
   public void isUserAllowed() throws Exception {
     System.out.println("ResourcesManagerBlImpl.isUserAllowed(user, resource)");
 
@@ -258,76 +234,93 @@ public class ResourcesManagerBlImplTest {
   }
 
   @Test
-  public void getAllowedUsersNotExpiredTest() throws Exception {
-    System.out.println("ResourcesManagerBlImpl.getAllowedUsersNotExpiredInGrouús(resource)");
+  public void isUserAssigned() throws Exception {
+    System.out.println("ResourcesManagerBlImpl.isUserAssigned(user, resource)");
 
-    List<User> users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
-    Assert.assertEquals(1, users.size());
-    Assert.assertTrue(users.contains(user));
+    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource));
+    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource2));
+    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource3));
 
-    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource2);
-    Assert.assertEquals(1, users.size());
-    Assert.assertTrue(users.contains(user));
-
-    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource3);
-    Assert.assertEquals(1, users.size());
-    Assert.assertTrue(users.contains(user));
-
-    // expiring member2 in group2 should have effect
-    perun.getGroupsManagerBl().expireMemberInGroup(sess, member2, group2);
-
-    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
-    Assert.assertEquals(1, users.size());
-    Assert.assertTrue(users.contains(user));
-
-    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource2);
-    Assert.assertTrue(users.isEmpty());
-
-    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource3);
-    Assert.assertTrue(users.isEmpty());
-
-    // disabling member should have effect too
+    // disabling member should have no effect
     perun.getMembersManagerBl().disableMember(sess, member);
 
-    users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
-    Assert.assertTrue(users.isEmpty());
+    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource));
+    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource2));
+    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource3));
+
+    // removing member2 from group2 should have effect
+    perun.getGroupsManagerBl().removeMember(sess, group2, member2);
+
+    Assert.assertTrue(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource));
+    Assert.assertFalse(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource2));
+    Assert.assertFalse(perun.getResourcesManagerBl().isUserAssigned(sess, user, resource3));
 
   }
 
-  @Test
-  public void getAllowedMembersNotExpiredInGroup() throws Exception {
-    System.out.println("ResourcesManagerBlImpl.getAllowedMembersNotExpiredInGroups(resource)");
+  @Before
+  public void setUp() throws Exception {
+    perun.getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
 
-    List<Member> members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
-    Assert.assertEquals(1, members.size());
-    Assert.assertTrue(members.contains(member));
+    candidate = new Candidate();
+    candidate.setFirstName("some");
+    candidate.setId(0);
+    candidate.setMiddleName("");
+    candidate.setLastName("testingUser");
+    candidate.setTitleBefore("");
+    candidate.setTitleAfter("");
+    ues = new UserExtSource(extSource, "extLogin");
+    candidate.setUserExtSource(ues);
+    candidate.setAttributes(new HashMap<>());
 
-    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource2);
-    Assert.assertEquals(1, members.size());
-    Assert.assertTrue(members.contains(member2));
+    sess = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 
-    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource3);
-    Assert.assertEquals(1, members.size());
-    Assert.assertTrue(members.contains(member2));
 
-    // expiring member2 in group2 should have effect
-    perun.getGroupsManagerBl().expireMemberInGroup(sess, member2, group2);
+    vo = new Vo(0, "ResourcesBlImplTestVo", "ResMgrBlImplTestVo");
+    vo = perun.getVosManagerBl().createVo(sess, vo);
 
-    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
-    Assert.assertEquals(1, members.size());
-    Assert.assertTrue(members.contains(member));
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 
-    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource2);
-    Assert.assertTrue(members.isEmpty());
+    group = new Group("testGroup", "testGroup");
+    group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
 
-    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource3);
-    Assert.assertTrue(members.isEmpty());
+    perun.getGroupsManagerBl().addMember(sess, group, member);
 
-    // disabling member should have effect too
-    perun.getMembersManagerBl().disableMember(sess, member);
+    facility = new Facility(0, "testFac");
+    facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 
-    members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
-    Assert.assertTrue(members.isEmpty());
+    resource = new Resource(0, "testRes", null, facility.getId(), vo.getId());
+    resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
+
+    perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource, false, false, false);
+
+    // second branch
+
+    vo2 = new Vo(0, "FacilitiesManagerBlImplTestVo2", "FacMgrBlImplTestVo2");
+    vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+    member2 = perun.getMembersManagerBl().createMemberSync(sess, vo2, candidate);
+
+    group2 = new Group("testGroup", "testGroup");
+    group2 = perun.getGroupsManagerBl().createGroup(sess, vo2, group2);
+
+    perun.getGroupsManagerBl().addMember(sess, group2, member2);
+
+    resource2 = new Resource(0, "testRes2", null, facility.getId(), vo2.getId());
+    resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo2, facility);
+
+    // third branch
+
+    facility2 = new Facility(0, "testFac2");
+    facility2 = perun.getFacilitiesManagerBl().createFacility(sess, facility2);
+
+    resource3 = new Resource(0, "testRes3", null, facility2.getId(), vo2.getId());
+    resource3 = perun.getResourcesManagerBl().createResource(sess, resource3, vo2, facility2);
+
+    perun.getResourcesManagerBl()
+        .assignGroupToResources(sess, group2, Arrays.asList(resource2, resource3), false, false, false);
+
+    user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
   }
 

@@ -14,11 +14,11 @@ public enum LdapOperation {
   REPLACE_ATTRIBUTE(2),  //security issue
   REMOVE_ATTRIBUTE(3);
 
-  private static final Map<Integer, LdapOperation> lookup = new HashMap<Integer, LdapOperation>();
+  private static final Map<Integer, LdapOperation> LOOKUP = new HashMap<Integer, LdapOperation>();
 
   static {
     for (LdapOperation s : EnumSet.allOf(LdapOperation.class)) {
-      lookup.put(s.getCode(), s);
+      LOOKUP.put(s.getCode(), s);
     }
   }
 
@@ -29,7 +29,7 @@ public enum LdapOperation {
   }
 
   public static LdapOperation getLdapOperation(int code) {
-    return lookup.get(code);
+    return LOOKUP.get(code);
   }
 
   public int getCode() {

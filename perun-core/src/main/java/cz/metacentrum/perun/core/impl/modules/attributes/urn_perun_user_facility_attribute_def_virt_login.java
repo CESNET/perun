@@ -38,8 +38,8 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
           .getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
       Attribute loginAttribute;
       if (loginNamespaceAttribute.getValue() != null) {
-        loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess,
-            user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespaceAttribute.getValue());
+        loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user,
+            AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespaceAttribute.getValue());
         if (attribute.getValue() == null) {
           throw new WrongReferenceAttributeValueException(loginAttribute, null, user, facility, "Login can't be null");
         }
@@ -83,8 +83,20 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
     return virtLoginAttribute;
   }
 
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+    attr.setFriendlyName("login");
+    attr.setDisplayName("Login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login if is set.");
+    return attr;
+  }
+
   /**
-   * Gets the value of the attribute f:login-namespace and then finds the value of the attribute u:login-namespace:[login-namespace]
+   * Gets the value of the attribute f:login-namespace and then finds the value of the attribute
+   * u:login-namespace:[login-namespace]
    */
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility,
@@ -113,6 +125,22 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
     }
 
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
+    dependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:*");
+    return dependencies;
+  }
+
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
+    strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":login-namespace" + ":*");
+    return strongDependencies;
   }
 
   @Override
@@ -147,32 +175,5 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
     } catch (WrongAttributeAssignmentException e) {
       throw new ConsistencyErrorException(e);
     }
-  }
-
-  @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
-    dependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:*");
-    return dependencies;
-  }
-
-  @Override
-  public List<String> getStrongDependencies() {
-    List<String> StrongDependencies = new ArrayList<>();
-    StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
-    StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":login-namespace" + ":*");
-    return StrongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-    attr.setFriendlyName("login");
-    attr.setDisplayName("Login");
-    attr.setType(String.class.getName());
-    attr.setDescription("Login if is set.");
-    return attr;
   }
 }

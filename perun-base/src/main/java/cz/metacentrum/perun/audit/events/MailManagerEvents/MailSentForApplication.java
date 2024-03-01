@@ -20,17 +20,17 @@ public class MailSentForApplication extends AuditEvent implements EngineIgnoreEv
     this.message = formatMessage("Mail of Type: %s sent for Application: %d", mailType, appId);
   }
 
-  @Override
-  public String getMessage() {
-    return message;
+  public int getAppId() {
+    return appId;
   }
 
   public ApplicationMail.MailType getMailType() {
     return mailType;
   }
 
-  public int getAppId() {
-    return appId;
+  @Override
+  public String getMessage() {
+    return message;
   }
 
   @Override

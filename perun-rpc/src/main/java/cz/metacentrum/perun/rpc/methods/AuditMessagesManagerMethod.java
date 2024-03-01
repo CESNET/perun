@@ -19,7 +19,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
    * @return List<AuditMessage> Audit messages
    */
   /*#
-   * Returns 100 newest audit messages from audit log. If there is a less messages than 100,
+   * Returns 100 newest audit messages from auditLOG. If there is a less messages than 100,
    * then all of them are returned.
    *
    * @return List<AuditMessage> Audit messages
@@ -68,7 +68,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Get page of audit messages. Query parameter specifies offset, page size and allows filtering  by name of event. Total count is only estimated.
+   * Get page of audit messages. Query parameter specifies offset, page size and allows filtering  by name of event.
+   * Total count is only estimated.
    *
    * @param query MessagesPageQuery Query with page information
    * @return Paginated<AuditMessage> page of requested audit messages
@@ -76,8 +77,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
   getMessagesPage {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAuditMessagesManager().getMessagesPage(ac.getSession(),
-          parms.read("query", MessagesPageQuery.class));
+      return ac.getAuditMessagesManager()
+          .getMessagesPage(ac.getSession(), parms.read("query", MessagesPageQuery.class));
     }
   },
 
@@ -118,8 +119,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getAuditMessagesManager().setLastProcessedId(ac.getSession(), parms.readString("consumerName"),
-          parms.readInt("lastProcessedId"));
+      ac.getAuditMessagesManager()
+          .setLastProcessedId(ac.getSession(), parms.readString("consumerName"), parms.readInt("lastProcessedId"));
       return null;
     }
   },
@@ -176,7 +177,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Log arbitrary auditer message/event to the audit log.
+   * Log arbitrary auditer message/event to the auditLOG.
    *
    * @param msg String Message to be logged
    */

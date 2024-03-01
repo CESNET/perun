@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class AllAuthorsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "authors";
+  public static final String URL = "authors";
   /**
    * Perun web session
    */

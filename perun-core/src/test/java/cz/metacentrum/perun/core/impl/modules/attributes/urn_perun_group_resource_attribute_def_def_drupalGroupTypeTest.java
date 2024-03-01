@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
@@ -8,8 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_group_resource_attribute_def_def_drupalGroupTypeTest {
 
@@ -26,12 +26,12 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupTypeTest {
     sess = mock(PerunSessionImpl.class);
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongValue() throws Exception {
-    System.out.println("testWrongValue()");
-    attributeToCheck.setValue("bad_value");
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue("public");
 
-    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
+    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
   @Test
@@ -53,11 +53,11 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupTypeTest {
     classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue("public");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongValue() throws Exception {
+    System.out.println("testWrongValue()");
+    attributeToCheck.setValue("bad_value");
 
-    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
+    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
   }
 }

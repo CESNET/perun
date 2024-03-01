@@ -14,7 +14,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class AuditLoggerStarter {
-  private final static Logger log = LoggerFactory.getLogger(AuditLoggerStarter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AuditLoggerStarter.class);
 
   private AuditLoggerManager auditLoggerManager;
   private AbstractApplicationContext springCtx;
@@ -68,12 +68,12 @@ public class AuditLoggerStarter {
       // Start processing events (run method in EventLoggerImpl)
       auditLoggerStarter.auditLoggerManager.startProcessingEvents();
     } catch (Exception e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
     }
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     Date date = new Date();
-    log.info(dateFormat.format(date) + ": Done. Perun-AuditLogger has started.");
+    LOG.info(dateFormat.format(date) + ": Done. Perun-AuditLogger has started.");
     System.out.println(dateFormat.format(date) + ": Done. Perun-AuditLogger has started.");
   }
 }

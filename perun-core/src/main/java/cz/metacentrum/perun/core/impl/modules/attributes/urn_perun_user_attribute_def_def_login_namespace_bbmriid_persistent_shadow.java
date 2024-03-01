@@ -5,19 +5,18 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.util.Random;
 
 /**
- * Class for filling bbmriid shadow value.
- * It is only storage! Use module login bbmriid_persistent for access the value.
+ * Class for filling bbmriid shadow value. It is only storage! Use module login bbmriid_persistent for access the
+ * value.
  */
 public class urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent_shadow
     extends urn_perun_user_attribute_def_def_login_namespace {
-  private final static String attrFriendlyName = "login-namespace:bbmriid-persistent-shadow";
-  private final static int lowestId = 2000;
-  private final static int randomBound = 10000;
-  private final static Random random = new Random();
+  private static final String attrFriendlyName = "login-namespace:bbmriid-persistent-shadow";
+  private static final int lowestId = 2000;
+  private static final int randomBound = 10000;
+  private static final Random random = new Random();
 
   @Override
   public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {

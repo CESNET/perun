@@ -52,9 +52,8 @@ public class PerunNotifTemplate {
    */
   private String name;
   /**
-   * Regexes to recognize affiliation to this template, if notifyTrigger
-   * waits for all regexes to execute notify, the regexes are taken from
-   * here.
+   * Regexes to recognize affiliation to this template, if notifyTrigger waits for all regexes to execute notify, the
+   * regexes are taken from here.
    * <p>
    * Relation saved in pn_template_regex
    */
@@ -66,11 +65,9 @@ public class PerunNotifTemplate {
    */
   private Set<PerunNotifReceiver> receivers;
   /**
-   * Holds primary properties which are parsed from message These
-   * properties are same for every auditerMessage which we collect
-   * Example: User is same in every message but content is different
-   * Properties are key which is className of object and values, which are
-   * properties retrievable from class
+   * Holds primary properties which are parsed from message These properties are same for every auditerMessage which we
+   * collect Example: User is same in every message but content is different Properties are key which is className of
+   * object and values, which are properties retrievable from class
    * <p>
    * Column primary_properties
    */
@@ -82,21 +79,18 @@ public class PerunNotifTemplate {
    */
   private PerunNotifNotifyTrigger notifyTrigger;
   /**
-   * Contains freemarker templates which are used to create content of
-   * result message
+   * Contains freemarker templates which are used to create content of result message
    */
   private List<PerunNotifTemplateMessage> perunNotifTemplateMessages;
   /**
-   * Defines millis of oldest message waiting to be sent. If message is
-   * older messages is always sent. Can be disabled, based on
-   * notifyTrigger
+   * Defines millis of oldest message waiting to be sent. If message is older messages is always sent. Can be disabled,
+   * based on notifyTrigger
    * <p>
    * Column oldest_message_time
    */
   private Long oldestMessageTime;
   /**
-   * Time to the youngest message, if message is younger we expect another
-   * message soon and we wait so we can aggregate
+   * Time to the youngest message, if message is younger we expect another message soon and we wait so we can aggregate
    * <p>
    * Column youngest_message_time
    */
@@ -139,99 +133,13 @@ public class PerunNotifTemplate {
     return result;
   }
 
-  public int getId() {
-    return id;
-  }
+  public void addPerunNotifRegex(PerunNotifRegex regex) {
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public Set<PerunNotifRegex> getMatchingRegexs() {
-    return matchingRegexs;
-  }
-
-  public void setMatchingRegexs(Set<PerunNotifRegex> matchingRegexs) {
-    this.matchingRegexs = matchingRegexs;
-  }
-
-  public Set<PerunNotifReceiver> getReceivers() {
-    return receivers;
-  }
-
-  public void setReceivers(List<? extends PerunNotifReceiver> receivers) {
-    if (receivers == null) {
-      this.receivers = null;
-    } else {
-      Set<PerunNotifReceiver> newReceivers = Collections.synchronizedSet(new HashSet<PerunNotifReceiver>());
-      newReceivers.addAll(receivers);
-      this.receivers = newReceivers;
-    }
-  }
-
-  public Map<String, List<String>> getPrimaryProperties() {
-    return primaryProperties;
-  }
-
-  public void setPrimaryProperties(Map<String, List<String>> primaryProperties) {
-    this.primaryProperties = primaryProperties;
-  }
-
-  public PerunNotifNotifyTrigger getNotifyTrigger() {
-    return notifyTrigger;
-  }
-
-  public void setNotifyTrigger(PerunNotifNotifyTrigger notifyTrigger) {
-    this.notifyTrigger = notifyTrigger;
-  }
-
-  public Long getOldestMessageTime() {
-    return oldestMessageTime;
-  }
-
-  public void setOldestMessageTime(Long oldestMessageTime) {
-    this.oldestMessageTime = oldestMessageTime;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Long getYoungestMessageTime() {
-    return youngestMessageTime;
-  }
-
-  public void setYoungestMessageTime(Long youngestMessageTime) {
-    this.youngestMessageTime = youngestMessageTime;
-  }
-
-  public List<PerunNotifTemplateMessage> getPerunNotifTemplateMessages() {
-    return perunNotifTemplateMessages;
-  }
-
-  public void setPerunNotifTemplateMessages(List<PerunNotifTemplateMessage> perunNotifTemplateMessages) {
-    this.perunNotifTemplateMessages = perunNotifTemplateMessages;
-  }
-
-  public String getSender() {
-    return sender;
-  }
-
-  public void setSender(String sender) {
-    this.sender = sender;
-  }
-
-  public void addReceiver(PerunNotifReceiver receiver) {
-
-    if (receivers == null) {
-      receivers = Collections.synchronizedSet(new HashSet<PerunNotifReceiver>());
+    if (matchingRegexs == null) {
+      matchingRegexs = new HashSet<PerunNotifRegex>();
     }
 
-    receivers.add(receiver);
+    matchingRegexs.add(regex);
   }
 
   public void addPerunNotifTemplateMessage(PerunNotifTemplateMessage message) {
@@ -243,18 +151,89 @@ public class PerunNotifTemplate {
     perunNotifTemplateMessages.add(message);
   }
 
-  public void addPerunNotifRegex(PerunNotifRegex regex) {
+  public void addReceiver(PerunNotifReceiver receiver) {
 
-    if (matchingRegexs == null) {
-      matchingRegexs = new HashSet<PerunNotifRegex>();
+    if (receivers == null) {
+      receivers = Collections.synchronizedSet(new HashSet<PerunNotifReceiver>());
     }
 
-    matchingRegexs.add(regex);
+    receivers.add(receiver);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof PerunNotifTemplate)) {
+      return false;
+    }
+
+    PerunNotifTemplate that = (PerunNotifTemplate) o;
+
+    if (id != that.id) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public Set<PerunNotifRegex> getMatchingRegexs() {
+    return matchingRegexs;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public PerunNotifNotifyTrigger getNotifyTrigger() {
+    return notifyTrigger;
+  }
+
+  public Long getOldestMessageTime() {
+    return oldestMessageTime;
+  }
+
+  public List<PerunNotifTemplateMessage> getPerunNotifTemplateMessages() {
+    return perunNotifTemplateMessages;
+  }
+
+  public Map<String, List<String>> getPrimaryProperties() {
+    return primaryProperties;
+  }
+
+  public Set<PerunNotifReceiver> getReceivers() {
+    return receivers;
+  }
+
+  public String getSender() {
+    return sender;
   }
 
   public String getSerializedPrimaryProperties() {
 
     return serializePropertiesMap(primaryProperties);
+  }
+
+  public Long getYoungestMessageTime() {
+    return youngestMessageTime;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = id;
+    result = 31 * result + (matchingRegexs != null ? matchingRegexs.hashCode() : 0);
+    result = 31 * result + (receivers != null ? receivers.hashCode() : 0);
+    result = 31 * result + (primaryProperties != null ? primaryProperties.hashCode() : 0);
+    result = 31 * result + (notifyTrigger != null ? notifyTrigger.hashCode() : 0);
+    result = 31 * result + (perunNotifTemplateMessages != null ? perunNotifTemplateMessages.hashCode() : 0);
+    result = 31 * result + (oldestMessageTime != null ? oldestMessageTime.hashCode() : 0);
+    result = 31 * result + (youngestMessageTime != null ? youngestMessageTime.hashCode() : 0);
+    return result;
   }
 
   private String serializePropertiesMap(Map<String, List<String>> map) {
@@ -279,43 +258,57 @@ public class PerunNotifTemplate {
     return builder.toString();
   }
 
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setMatchingRegexs(Set<PerunNotifRegex> matchingRegexs) {
+    this.matchingRegexs = matchingRegexs;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setNotifyTrigger(PerunNotifNotifyTrigger notifyTrigger) {
+    this.notifyTrigger = notifyTrigger;
+  }
+
+  public void setOldestMessageTime(Long oldestMessageTime) {
+    this.oldestMessageTime = oldestMessageTime;
+  }
+
+  public void setPerunNotifTemplateMessages(List<PerunNotifTemplateMessage> perunNotifTemplateMessages) {
+    this.perunNotifTemplateMessages = perunNotifTemplateMessages;
+  }
+
+  public void setPrimaryProperties(Map<String, List<String>> primaryProperties) {
+    this.primaryProperties = primaryProperties;
+  }
+
+  public void setReceivers(List<? extends PerunNotifReceiver> receivers) {
+    if (receivers == null) {
+      this.receivers = null;
+    } else {
+      Set<PerunNotifReceiver> newReceivers = Collections.synchronizedSet(new HashSet<PerunNotifReceiver>());
+      newReceivers.addAll(receivers);
+      this.receivers = newReceivers;
+    }
+  }
+
+  public void setSender(String sender) {
+    this.sender = sender;
+  }
+
+  public void setYoungestMessageTime(Long youngestMessageTime) {
+    this.youngestMessageTime = youngestMessageTime;
+  }
+
   @Override
   public String toString() {
     return "id: " + getId() + " primary properties: " + getSerializedPrimaryProperties() + " notify trigger: " +
-        getNotifyTrigger()
-        + " youngest message time: " + getYoungestMessageTime() + " oldest message time: " + getOldestMessageTime()
-        + " sender: " + getSender() + " name: " + getName();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof PerunNotifTemplate)) {
-      return false;
-    }
-
-    PerunNotifTemplate that = (PerunNotifTemplate) o;
-
-    if (id != that.id) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = id;
-    result = 31 * result + (matchingRegexs != null ? matchingRegexs.hashCode() : 0);
-    result = 31 * result + (receivers != null ? receivers.hashCode() : 0);
-    result = 31 * result + (primaryProperties != null ? primaryProperties.hashCode() : 0);
-    result = 31 * result + (notifyTrigger != null ? notifyTrigger.hashCode() : 0);
-    result = 31 * result + (perunNotifTemplateMessages != null ? perunNotifTemplateMessages.hashCode() : 0);
-    result = 31 * result + (oldestMessageTime != null ? oldestMessageTime.hashCode() : 0);
-    result = 31 * result + (youngestMessageTime != null ? youngestMessageTime.hashCode() : 0);
-    return result;
+           getNotifyTrigger() + " youngest message time: " + getYoungestMessageTime() + " oldest message time: " +
+           getOldestMessageTime() + " sender: " + getSender() + " name: " + getName();
   }
 
   public void update(PerunNotifTemplate updatedTemplate) {

@@ -1,14 +1,13 @@
 package cz.metacentrum.perun.cabinet;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-import java.util.Objects;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import org.junit.Test;
-
 import cz.metacentrum.perun.cabinet.model.Category;
+import java.util.List;
+import java.util.Objects;
+import org.junit.Test;
 
 /**
  * Integration tests of AuthorshipManager
@@ -30,15 +29,34 @@ public class CategoryManagerIntegrationTest extends CabinetBaseIntegrationTest {
   }
 
   @Test
-  public void updateCategoryTest() throws Exception {
-    System.out.println("CategoryManagerIntegrationTest.updateCategoryTest");
+  public void deleteCategoryTest() throws Exception {
+    System.out.println("CategoryManagerIntegrationTest.deleteCategoryTest");
 
-    Double oldRank = c1.getRank();
-    c1.setRank(2.0);
-    getCabinetManager().updateCategory(sess, c1);
+    Category c = new Category(0, "Patent4", 1.0);
+    c = getCabinetManager().createCategory(sess, c);
+    getCabinetManager().deleteCategory(sess, c);
 
-    assertTrue("Category rank was not changed during updated.", !Objects.equals(oldRank, c1.getRank()));
+    List<Category> categories = getCabinetManager().getCategories();
+    assertTrue(categories != null);
+    assertTrue(!categories.isEmpty());
+    assertTrue(!categories.contains(c));
 
+  }
+
+  @Test(expected = CabinetException.class)
+  public void deleteCategoryWhenNotExistTest() throws Exception {
+    System.out.println("CategoryManagerIntegrationTest.deleteCategoryWhenNotExistTest");
+
+    getCabinetManager().deleteCategory(sess, new Category(0, "test", 1.0));
+    // should throw exception
+  }
+
+  @Test(expected = CabinetException.class)
+  public void deleteCategoryWhenPublicationExistsTest() throws Exception {
+    System.out.println("CategoryManagerIntegrationTest.deleteCategoryWhenPublicationExistsTest");
+
+    getCabinetManager().deleteCategory(sess, c1);
+    // should throw exception
   }
 
   @Test
@@ -59,34 +77,15 @@ public class CategoryManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
   }
 
-  @Test(expected = CabinetException.class)
-  public void deleteCategoryWhenPublicationExistsTest() throws Exception {
-    System.out.println("CategoryManagerIntegrationTest.deleteCategoryWhenPublicationExistsTest");
-
-    getCabinetManager().deleteCategory(sess, c1);
-    // should throw exception
-  }
-
-  @Test(expected = CabinetException.class)
-  public void deleteCategoryWhenNotExistTest() throws Exception {
-    System.out.println("CategoryManagerIntegrationTest.deleteCategoryWhenNotExistTest");
-
-    getCabinetManager().deleteCategory(sess, new Category(0, "test", 1.0));
-    // should throw exception
-  }
-
   @Test
-  public void deleteCategoryTest() throws Exception {
-    System.out.println("CategoryManagerIntegrationTest.deleteCategoryTest");
+  public void updateCategoryTest() throws Exception {
+    System.out.println("CategoryManagerIntegrationTest.updateCategoryTest");
 
-    Category c = new Category(0, "Patent4", 1.0);
-    c = getCabinetManager().createCategory(sess, c);
-    getCabinetManager().deleteCategory(sess, c);
+    Double oldRank = c1.getRank();
+    c1.setRank(2.0);
+    getCabinetManager().updateCategory(sess, c1);
 
-    List<Category> categories = getCabinetManager().getCategories();
-    assertTrue(categories != null);
-    assertTrue(!categories.isEmpty());
-    assertTrue(!categories.contains(c));
+    assertTrue("Category rank was not changed during updated.", !Objects.equals(oldRank, c1.getRank()));
 
   }
 

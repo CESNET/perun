@@ -31,30 +31,6 @@ public class SchemaSCIM {
   public SchemaSCIM() {
   }
 
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -76,6 +52,18 @@ public class SchemaSCIM {
 
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
   @Override
   public int hashCode() {
     int result = getId() != null ? getId().hashCode() : 0;
@@ -84,12 +72,20 @@ public class SchemaSCIM {
     return result;
   }
 
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
   @Override
   public String toString() {
-    return "SchemaSCIM{" +
-        "id='" + id + '\'' +
-        ", name='" + name + '\'' +
-        ", description='" + description + '\'' +
-        '}';
+    return "SchemaSCIM{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", description='" + description + '\'' + '}';
   }
 }

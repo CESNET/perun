@@ -22,6 +22,14 @@ public class urn_perun_group_attribute_def_def_fromEmail extends GroupAttributes
   private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Group fromEmail cannot be null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
       throws WrongAttributeValueException {
     // null attribute
@@ -42,7 +50,8 @@ public class urn_perun_group_attribute_def_def_fromEmail extends GroupAttributes
 
       if (!match.matches()) {
         throw new WrongAttributeValueException(attribute, "Group : " + group.getName() + " has fromEmail " + fromEmail +
-            " which is not valid. It has to be in form \"header\" <correct email> or just correct email.");
+                                                          " which is not valid. It has to be in form \"header\" " +
+                                                          "<correct email> or just correct email.");
       } else {
 
         String[] emailParts = fromEmail.split("[<>]+");
@@ -52,14 +61,6 @@ public class urn_perun_group_attribute_def_def_fromEmail extends GroupAttributes
               "Group : " + group.getName() + " has email in <> " + emailParts[1] + " which is not valid.");
         }
       }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "Group fromEmail cannot be null.");
     }
   }
 

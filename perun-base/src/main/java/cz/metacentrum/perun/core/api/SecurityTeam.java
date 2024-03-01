@@ -36,45 +36,6 @@ public class SecurityTeam extends Auditable implements Comparable<PerunBean> {
     this.description = description;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
-            ", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription()))
-        .append(">").append(
-            ']').toString();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-        "id='").append(this.getId()).append('\'').append(
-        ", name='").append(name).append('\'').append(
-        ", description='").append(description).append('\'').append(
-        ']').toString();
-  }
-
   @Override
   public int compareTo(PerunBean perunBean) {
     if (perunBean == null) {
@@ -98,15 +59,6 @@ public class SecurityTeam extends Auditable implements Comparable<PerunBean> {
   }
 
   @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = 53 * hash + this.getId();
-    hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
-    hash = 53 * hash + (this.description != null ? this.description.hashCode() : 0);
-    return hash;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == null) {
       return false;
@@ -125,5 +77,50 @@ public class SecurityTeam extends Auditable implements Comparable<PerunBean> {
       return false;
     }
     return true;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 53 * hash + this.getId();
+    hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
+    hash = 53 * hash + (this.description != null ? this.description.hashCode() : 0);
+    return hash;
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">")
+        .append(", description=<")
+        .append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">").append(']')
+        .toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id='").append(this.getId()).append('\'')
+        .append(", name='").append(name).append('\'').append(", description='").append(description).append('\'')
+        .append(']').toString();
   }
 }

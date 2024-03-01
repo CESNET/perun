@@ -5,8 +5,8 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.utils.graphs.Node;
 
 /**
- * Implementation of {@link NodeGenerator} for nodes representing attribute moduels.
- * Label contains abbreviation for given attributeDefinition.
+ * Implementation of {@link NodeGenerator} for nodes representing attribute moduels. Label contains abbreviation for
+ * given attributeDefinition.
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */

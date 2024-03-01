@@ -21,12 +21,12 @@ public class AllAttributesRemovedForMemberAndGroup extends AuditEvent implements
     this.message = formatMessage("All attributes removed for %s and %s.", member, group);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public Group getGroup() {
     return group;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
   @Override

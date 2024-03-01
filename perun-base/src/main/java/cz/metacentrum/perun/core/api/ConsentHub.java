@@ -34,30 +34,6 @@ public class ConsentHub extends Auditable {
     this.facilities = facilities;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public boolean isEnforceConsents() {
-    return enforceConsents;
-  }
-
-  public void setEnforceConsents(boolean enforceConsents) {
-    this.enforceConsents = enforceConsents;
-  }
-
-  public List<Facility> getFacilities() {
-    return facilities;
-  }
-
-  public void setFacilities(List<Facility> facilities) {
-    this.facilities = facilities;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -73,21 +49,33 @@ public class ConsentHub extends Auditable {
     return Objects.equals(name, that.name);
   }
 
+  public List<Facility> getFacilities() {
+    return facilities;
+  }
+
+  public void setFacilities(List<Facility> facilities) {
+    this.facilities = facilities;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), name);
   }
 
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
+  public boolean isEnforceConsents() {
+    return enforceConsents;
+  }
 
-    return str.append(
-        "ConsentHub:[id='").append(getId()).append(
-        "', name='").append(name).append(
-        "', enforceConsents='").append(enforceConsents).append(
-        "', facilities='").append(facilities).append(
-        "']").toString();
+  public void setEnforceConsents(boolean enforceConsents) {
+    this.enforceConsents = enforceConsents;
   }
 
   @Override
@@ -105,11 +93,18 @@ public class ConsentHub extends Auditable {
       }
       facilitiesString = facilities.toString();
     }
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-        "id=<").append(getId()).append(">").append(
-        ", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
-        ", enforceConsents=<").append(isEnforceConsents()).append(">").append(
-        ", facilities=<").append(facilitiesString).append(">").append(
-        ']').toString();
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">")
+        .append(", enforceConsents=<").append(isEnforceConsents()).append(">").append(", facilities=<")
+        .append(facilitiesString).append(">").append(']').toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append("ConsentHub:[id='").append(getId()).append("', name='").append(name)
+        .append("', enforceConsents='").append(enforceConsents).append("', facilities='").append(facilities)
+        .append("']").toString();
   }
 }

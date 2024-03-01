@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "service-identities";
+  public static final String URL = "service-identities";
   private PerunWebSession session = PerunWebSession.getInstance();
   private User user;
   private int userId;

@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -9,10 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_group_resource_attribute_def_def_projectDataLimitTest {
 
@@ -34,12 +34,13 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimitTest {
         AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectDataQuota")).thenReturn(reqAttribute);
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongValue() throws Exception {
-    System.out.println("testWrongValue()");
-    attributeToCheck.setValue("0");
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue("22T");
+    reqAttribute.setValue("10M");
 
-    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
+    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
   @Test
@@ -59,13 +60,11 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimitTest {
     classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongValue() throws Exception {
+    System.out.println("testWrongValue()");
+    attributeToCheck.setValue("0");
 
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue("22T");
-    reqAttribute.setValue("10M");
-
-    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
+    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
   }
 }

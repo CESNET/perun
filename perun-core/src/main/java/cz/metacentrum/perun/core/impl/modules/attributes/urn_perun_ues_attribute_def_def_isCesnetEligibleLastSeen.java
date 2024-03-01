@@ -14,13 +14,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceAttributesModuleAbstract;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Attribute module for isCesnetEligibleLastSeen, value is String representing timestamp.
@@ -31,29 +30,12 @@ public class urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeen extends Us
 
   private static final String A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN =
       AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen";
-  private static final Logger log =
+  private static final Logger LOG =
       LoggerFactory.getLogger(urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeen.class);
 
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    dateFormat.setLenient(false);
-    try {
-      dateFormat.parse(attribute.valueAsString());
-    } catch (ParseException ex) {
-      throw new WrongAttributeValueException(attribute,
-          "Format of timestamp is not correct, it should be 'yyyy-MM-dd HH:mm:ss'", ex);
-    }
-  }
-
   /**
-   * When isCesnetEligibleLastSeen of a user's ext source is set, check if it is
-   * more recent than the user's current isCesnetEligibleLastSeen. If so, update it.
+   * When isCesnetEligibleLastSeen of a user's ext source is set, check if it is more recent than the user's current
+   * isCesnetEligibleLastSeen. If so, update it.
    *
    * @param session
    * @param ues
@@ -77,7 +59,7 @@ public class urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeen extends Us
       userIsCesnetEligible = session.getPerunBl().getAttributesManagerBl()
           .getAttribute(session, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
     } catch (AttributeNotExistsException ex) {
-      log.warn("Attribute {} doesn't exist.", A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
+      LOG.warn("Attribute {} doesn't exist.", A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
       return;
     } catch (WrongAttributeAssignmentException ex) {
       throw new InternalErrorException(ex);
@@ -96,6 +78,23 @@ public class urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeen extends Us
     } catch (ParseException | WrongAttributeAssignmentException | WrongAttributeValueException |
              WrongReferenceAttributeValueException ex) {
       throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    dateFormat.setLenient(false);
+    try {
+      dateFormat.parse(attribute.valueAsString());
+    } catch (ParseException ex) {
+      throw new WrongAttributeValueException(attribute,
+          "Format of timestamp is not correct, it should be 'yyyy-MM-dd HH:mm:ss'", ex);
     }
   }
 

@@ -9,8 +9,8 @@ import java.util.List;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
- * This entity represents one message from auditer. Is used to backup messages
- * during process of processing the message.
+ * This entity represents one message from auditer. Is used to backup messages during process of processing the
+ * message.
  *
  * @author tomas.tunkl
  */
@@ -60,26 +60,12 @@ public class PerunNotifAuditMessage {
     return id;
   }
 
-  public void setId(long id) {
-    this.id = id;
-  }
-
   public String getMessage() {
     return message;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  @Override
-  public String toString() {
-    return "id: " + getId() + " message: " + getMessage();
-  }
-
   /**
-   * Parses message from auditer to list of perunBeans, this parsing is
-   * done only once
+   * Parses message from auditer to list of perunBeans, this parsing is done only once
    *
    * @return
    * @throws InternalErrorException
@@ -90,5 +76,18 @@ public class PerunNotifAuditMessage {
       perunBeanList = AuditParser.parseLog(message);
     }
     return perunBeanList;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  @Override
+  public String toString() {
+    return "id: " + getId() + " message: " + getMessage();
   }
 }

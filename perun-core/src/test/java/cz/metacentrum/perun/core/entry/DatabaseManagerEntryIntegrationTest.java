@@ -1,15 +1,14 @@
 package cz.metacentrum.perun.core.entry;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Integration tests of DatabaseManager.
@@ -21,8 +20,20 @@ public class DatabaseManagerEntryIntegrationTest extends AbstractPerunIntegratio
   final Pattern versionPatter = Pattern.compile("^[1-9][0-9]*[.][1-9][0-9]*[.][1-9][0-9]*");
   private final String DATABASE_MANAGER = "DatabaseManager";
 
-  @Before
-  public void setUp() {
+  @Test
+  public void createProperty() throws Exception {
+    System.out.println(DATABASE_MANAGER + ".createProperty");
+    String property = "TEST";
+    perun.getDatabaseManagerBl().createProperty(property);
+    assertTrue(perun.getDatabaseManagerBl().propertyExists(property));
+  }
+
+  @Test(expected = InternalErrorException.class)
+  public void createTwiceTheSameProperty() throws Exception {
+    System.out.println(DATABASE_MANAGER + ".createTwiceTheSameProperty");
+    String property = "TEST";
+    perun.getDatabaseManagerBl().createProperty(property);
+    perun.getDatabaseManagerBl().createProperty(property);
   }
 
   @Test
@@ -48,31 +59,19 @@ public class DatabaseManagerEntryIntegrationTest extends AbstractPerunIntegratio
   }
 
   @Test
+  public void getTimeOfQueryPerformance() throws Exception {
+    System.out.println(DATABASE_MANAGER + ".getTimeOfQueryPerformance");
+    assertTrue(perun.getDatabaseManager().getTimeOfQueryPerformance(sess) > 0);
+  }
+
+  @Test
   public void propertyExists() throws Exception {
     System.out.println(DATABASE_MANAGER + ".propertyExists");
     String property = "TEST";
     assertFalse(perun.getDatabaseManagerBl().propertyExists(property));
   }
 
-  @Test
-  public void createProperty() throws Exception {
-    System.out.println(DATABASE_MANAGER + ".createProperty");
-    String property = "TEST";
-    perun.getDatabaseManagerBl().createProperty(property);
-    assertTrue(perun.getDatabaseManagerBl().propertyExists(property));
-  }
-
-  @Test(expected = InternalErrorException.class)
-  public void createTwiceTheSameProperty() throws Exception {
-    System.out.println(DATABASE_MANAGER + ".createTwiceTheSameProperty");
-    String property = "TEST";
-    perun.getDatabaseManagerBl().createProperty(property);
-    perun.getDatabaseManagerBl().createProperty(property);
-  }
-
-  @Test
-  public void getTimeOfQueryPerformance() throws Exception {
-    System.out.println(DATABASE_MANAGER + ".getTimeOfQueryPerformance");
-    assertTrue(perun.getDatabaseManager().getTimeOfQueryPerformance(sess) > 0);
+  @Before
+  public void setUp() {
   }
 }

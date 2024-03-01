@@ -18,13 +18,13 @@ public class AllGroupResourceAttributesRemovedForGroups extends AuditEvent imple
     this.message = formatMessage("All non-virtual group-resource attributes removed for all groups and %s.", resource);
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   @Override

@@ -8,14 +8,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Attribute represents list of scoped affiliations.
- * Value must be {member,affiliate,faculty}@DNS_name
+ * Attribute represents list of scoped affiliations. Value must be {member,affiliate,faculty}@DNS_name
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */

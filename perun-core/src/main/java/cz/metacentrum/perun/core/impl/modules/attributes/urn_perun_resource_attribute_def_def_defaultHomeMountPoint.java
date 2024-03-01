@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -32,28 +31,6 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 
   private static final String A_R_homeMountPoints = AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints";
   private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
-
-  /**
-   * Checks syntax of attribute value, allows valid unix paths only.
-   *
-   * @param perunSession perun session
-   * @param resource     resource for which you want to check validity of attribute
-   * @param attribute    attribute to check
-   * @throws InternalErrorException
-   * @throws WrongAttributeValueException
-   */
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    Matcher match = pattern.matcher(attribute.valueAsString());
-    if (!match.matches()) {
-      throw new WrongAttributeValueException(attribute, "Wrong def. mount point format");
-    }
-  }
 
   /**
    * Checks if the homemountpoint is contained in list of homemountpoint at underlying facility
@@ -95,6 +72,28 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
     }
   }
 
+  /**
+   * Checks syntax of attribute value, allows valid unix paths only.
+   *
+   * @param perunSession perun session
+   * @param resource     resource for which you want to check validity of attribute
+   * @param attribute    attribute to check
+   * @throws InternalErrorException
+   * @throws WrongAttributeValueException
+   */
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    Matcher match = pattern.matcher(attribute.valueAsString());
+    if (!match.matches()) {
+      throw new WrongAttributeValueException(attribute, "Wrong def. mount point format");
+    }
+  }
+
   @Override
   public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute)
       throws WrongAttributeAssignmentException {
@@ -115,13 +114,6 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependecies = new ArrayList<>();
-    dependecies.add(A_R_homeMountPoints);
-    return dependecies;
-  }
-
-  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
@@ -130,5 +122,12 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
     attr.setType(String.class.getName());
     attr.setDescription("Default home mount point for all members on this resource.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    dependecies.add(A_R_homeMountPoints);
+    return dependecies;
   }
 }

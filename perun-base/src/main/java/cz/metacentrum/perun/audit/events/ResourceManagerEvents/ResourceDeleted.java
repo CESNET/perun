@@ -20,6 +20,10 @@ public class ResourceDeleted extends AuditEvent {
     this.message = formatMessage("%s deleted.#%s.", resource, facility);
   }
 
+  public Facility getFacility() {
+    return facility;
+  }
+
   @Override
   public String getMessage() {
     return message;
@@ -27,10 +31,6 @@ public class ResourceDeleted extends AuditEvent {
 
   public Resource getResource() {
     return resource;
-  }
-
-  public Facility getFacility() {
-    return facility;
   }
 
   @Override

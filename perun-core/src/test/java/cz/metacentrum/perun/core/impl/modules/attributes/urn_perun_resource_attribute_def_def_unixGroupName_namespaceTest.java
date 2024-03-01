@@ -5,6 +5,9 @@
 
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -16,16 +19,12 @@ import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Norexan
@@ -63,28 +62,10 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespaceTest {
     when(sess.getPerunBl().getResourcesManagerBl()).thenReturn(resourcesManagerBl);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testSemanticsWithNullValue() throws Exception {
-    System.out.println("testSemanticsWithNullValue()");
-    attributeToCheck.setValue(null);
-
-    classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testGroupWithSameGIDAndNoRightsToUseIt() throws Exception {
-    System.out.println("testGroupWithSameGIDAndNoRightsToUseIt()");
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
     attributeToCheck.setValue("my name");
-    Group group2 = new Group();
-    List<Group> listOfGroups = new ArrayList<>();
-    listOfGroups.add(group2);
-    when(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, attributeToCheck)).thenReturn(listOfGroups);
-    when(sess.getPerunBl().getAttributesManagerBl().getAllAttributesStartWithNameWithoutNullValue(sess, resource,
-        AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:")).thenReturn(
-        Collections.singletonList(attributeToCheck));
-    when(sess.getPerunBl().getModulesUtilsBl()
-        .haveRightToWriteAttributeInAnyGroupOrResource(sess, listOfGroups, new ArrayList<>(), attributeToCheck,
-            attributeToCheck)).thenReturn(false);
 
     classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
   }
@@ -109,6 +90,24 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespaceTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testGroupWithSameGIDAndNoRightsToUseIt() throws Exception {
+    System.out.println("testGroupWithSameGIDAndNoRightsToUseIt()");
+    attributeToCheck.setValue("my name");
+    Group group2 = new Group();
+    List<Group> listOfGroups = new ArrayList<>();
+    listOfGroups.add(group2);
+    when(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, attributeToCheck)).thenReturn(listOfGroups);
+    when(sess.getPerunBl().getAttributesManagerBl().getAllAttributesStartWithNameWithoutNullValue(sess, resource,
+        AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:")).thenReturn(
+        Collections.singletonList(attributeToCheck));
+    when(sess.getPerunBl().getModulesUtilsBl()
+        .haveRightToWriteAttributeInAnyGroupOrResource(sess, listOfGroups, new ArrayList<>(), attributeToCheck,
+            attributeToCheck)).thenReturn(false);
+
+    classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
   public void testResourceWithSameGID() throws Exception {
     System.out.println("testResourceWithSameGID()");
     attributeToCheck.setValue("my name");
@@ -127,10 +126,10 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespaceTest {
     classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
   }
 
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue("my name");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testSemanticsWithNullValue() throws Exception {
+    System.out.println("testSemanticsWithNullValue()");
+    attributeToCheck.setValue(null);
 
     classInstance.checkAttributeSemantics(sess, resource, attributeToCheck);
   }

@@ -46,7 +46,7 @@ import java.util.Map;
  */
 public class SubgroupsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "subgps";
+  public static final String URL = "subgps";
   /**
    * Perun web session
    */

@@ -17,13 +17,13 @@ public class GroupUpdated extends AuditEvent {
     this.message = formatMessage("%s updated.", group);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   @Override

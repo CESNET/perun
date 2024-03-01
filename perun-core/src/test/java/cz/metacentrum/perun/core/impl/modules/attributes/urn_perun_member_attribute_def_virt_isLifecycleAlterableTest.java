@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
+import static org.junit.Assert.assertEquals;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -8,14 +11,10 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static cz.metacentrum.perun.core.blImpl.VosManagerBlImpl.A_MEMBER_DEF_MEMBER_ORGANIZATIONS;
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_member_attribute_def_virt_isLifecycleAlterableTest extends AbstractPerunIntegrationTest {
 
@@ -40,11 +39,41 @@ public class urn_perun_member_attribute_def_virt_isLifecycleAlterableTest extend
     memberOrgsAttrDef = setUpMemberOrgsAttrDef();
   }
 
-  @Test
-  public void testGetAttributeValueMemberOfHierarchicalParentVo() throws Exception {
-    System.out.println("testGetAttributeValue() - memberOfHierarchicalParentVo");
+  private Member setUpMember(Vo vo) throws Exception {
+    return perun.getMembersManagerBl().createMember(sess, vo, user);
+  }
 
-    ArrayList<String> memberOrganizations = new ArrayList<>(List.of(vo.getShortName()));
+  public AttributeDefinition setUpMemberOrgsAttrDef() throws Exception {
+    AttributeDefinition attrDef = new AttributeDefinition();
+    attrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+    attrDef.setDescription("Member organizations");
+    attrDef.setFriendlyName("memberOrganizations");
+    attrDef.setType(ArrayList.class.getName());
+
+    return perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+  }
+
+  private Attribute setUpMemberOrgsAttribute(ArrayList<String> voNames) {
+    Attribute attribute = new Attribute(memberOrgsAttrDef);
+    attribute.setValue(voNames);
+    return attribute;
+  }
+
+  private User setUpUser() {
+    User newUser = new User(1, "Jo", "Do", "", "", "");
+    return perun.getUsersManagerBl().createUser(sess, newUser);
+  }
+
+  private Vo setUpVo(int id) throws Exception {
+    Vo newVo = new Vo(id, "TestVo" + id, "TestVo" + id);
+    return perun.getVosManagerBl().createVo(sess, newVo);
+  }
+
+  @Test
+  public void testGetAttributeValueExpiredMemberOfHierarchicalMemberVo() throws Exception {
+    System.out.println("testGetAttributeValue() - expiredMemberOfHierarchicalMemberVo");
+
+    ArrayList<String> memberOrganizations = new ArrayList<>(List.of());
     member = setUpMember(vo);
     Attribute orgAttribute = setUpMemberOrgsAttribute(memberOrganizations);
     perun.getAttributesManagerBl().setAttribute(sess, member, orgAttribute);
@@ -69,10 +98,10 @@ public class urn_perun_member_attribute_def_virt_isLifecycleAlterableTest extend
   }
 
   @Test
-  public void testGetAttributeValueExpiredMemberOfHierarchicalMemberVo() throws Exception {
-    System.out.println("testGetAttributeValue() - expiredMemberOfHierarchicalMemberVo");
+  public void testGetAttributeValueMemberOfHierarchicalParentVo() throws Exception {
+    System.out.println("testGetAttributeValue() - memberOfHierarchicalParentVo");
 
-    ArrayList<String> memberOrganizations = new ArrayList<>(List.of());
+    ArrayList<String> memberOrganizations = new ArrayList<>(List.of(vo.getShortName()));
     member = setUpMember(vo);
     Attribute orgAttribute = setUpMemberOrgsAttribute(memberOrganizations);
     perun.getAttributesManagerBl().setAttribute(sess, member, orgAttribute);
@@ -90,35 +119,5 @@ public class urn_perun_member_attribute_def_virt_isLifecycleAlterableTest extend
     attribute.setValue(true);
     Attribute testAttr = classInstance.getAttributeValue((PerunSessionImpl) sess, member, attrDef);
     assertEquals(attribute, testAttr);
-  }
-
-  private Attribute setUpMemberOrgsAttribute(ArrayList<String> voNames) {
-    Attribute attribute = new Attribute(memberOrgsAttrDef);
-    attribute.setValue(voNames);
-    return attribute;
-  }
-
-  private User setUpUser() {
-    User newUser = new User(1, "Jo", "Do", "", "", "");
-    return perun.getUsersManagerBl().createUser(sess, newUser);
-  }
-
-  private Vo setUpVo(int id) throws Exception {
-    Vo newVo = new Vo(id, "TestVo" + id, "TestVo" + id);
-    return perun.getVosManagerBl().createVo(sess, newVo);
-  }
-
-  private Member setUpMember(Vo vo) throws Exception {
-    return perun.getMembersManagerBl().createMember(sess, vo, user);
-  }
-
-  public AttributeDefinition setUpMemberOrgsAttrDef() throws Exception {
-    AttributeDefinition attrDef = new AttributeDefinition();
-    attrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
-    attrDef.setDescription("Member organizations");
-    attrDef.setFriendlyName("memberOrganizations");
-    attrDef.setType(ArrayList.class.getName());
-
-    return perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
   }
 }

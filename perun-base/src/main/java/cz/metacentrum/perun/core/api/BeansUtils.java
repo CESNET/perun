@@ -31,24 +31,28 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
  */
 public class BeansUtils {
 
-  private final static Logger log = LoggerFactory.getLogger(BeansUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BeansUtils.class);
 
-  private final static Pattern patternForCommonNameParsing =
+  private static final Pattern PATTERN_FOR_COMMON_NAME_PARSING =
       Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
-  private final static Pattern richBeanNamePattern = Pattern.compile("^Rich([A-Z].*$)");
+  private static final Pattern RICH_BEAN_NAME_PATTERN = Pattern.compile("^Rich([A-Z].*$)");
   private static final char LIST_DELIMITER = ',';
   private static final char KEY_VALUE_DELIMITER = ':';
-  private final static int MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE = 1000;
-  private final static String MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX = ";";
-  private final static String configurationsLocations = "/etc/perun/";
-  private final static JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+  private static final int MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE = 1000;
+  private static final String MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX = ";";
+  private static final String CONFIGURATIONS_LOCATIONS = "/etc/perun/";
+  private static final JavaMailSenderImpl MAIL_SENDER = new JavaMailSenderImpl();
   private static CoreConfig coreConfig;
   private static boolean mailSenderInitialized = false;
   private static ObjectMapper objectMapper = new ObjectMapper();
 
+  private BeansUtils() {
+
+  }
+
   /**
-   * Method create formatter with default settings for perun timestamps and set lenient on false
-   * Timestamp format:  "yyyy-MM-dd HH:mm:ss.S" - "ex. 2014-01-01 10:10:10.0"
+   * Method create formatter with default settings for perun timestamps and set lenient on false Timestamp format:
+   * "yyyy-MM-dd HH:mm:ss.S" - "ex. 2014-01-01 10:10:10.0"
    * <p>
    * Lenient on false means that formatter will be more strict to creating timestamp from string
    * <p>
@@ -63,8 +67,8 @@ public class BeansUtils {
   }
 
   /**
-   * Method create formatter with default settings for perun timestamps (only date without time)
-   * and set lenient on false.
+   * Method create formatter with default settings for perun timestamps (only date without time) and set lenient on
+   * false.
    * <p>
    * Timestamp format:  "yyyy-MM-dd" - "ex. 2014-01-01"
    * <p>
@@ -81,12 +85,11 @@ public class BeansUtils {
   }
 
   /**
-   * This method take text and for every chars in "<>\" erase escaping
-   * also change '\0' to 'null' if it is escaped zero symbol.
+   * This method take text and for every chars in "<>\" erase escaping also change '\0' to 'null' if it is escaped zero
+   * symbol.
    * <p>
-   * Escaping char is \.
-   * Expecting: Before using this method, text must be escaped by using method createEscaping.
-   * So in text will never be string like "\\>", "\" or "\\\".
+   * Escaping char is \. Expecting: Before using this method, text must be escaped by using method createEscaping. So in
+   * text will never be string like "\\>", "\" or "\\\".
    * <p>
    * For every \ in text it put \\ and for every < it put \< and for every > it put \>
    *
@@ -106,9 +109,8 @@ public class BeansUtils {
   }
 
   /**
-   * This method take text and for every chars in "<>\" create escaping
-   * Escaping char is \.
-   * For every \\ in text it put \ and for every \< it put < and for every \> it put >
+   * This method take text and for every chars in "<>\" create escaping Escaping char is \. For every \\ in text it put
+   * \ and for every \< it put < and for every \> it put >
    *
    * @param text text from which will be erase escaping
    * @return escaped text
@@ -161,8 +163,7 @@ public class BeansUtils {
   }
 
   /**
-   * Return true, if char on position in text is escaped by '\' Return false,
-   * if not.
+   * Return true, if char on position in text is escaped by '\' Return false, if not.
    *
    * @param text     text in which will be searching
    * @param position position in text <0-text.length>
@@ -200,8 +201,8 @@ public class BeansUtils {
   }
 
   /**
-   * Converts attribute value to string (serialize object to string).
-   * This is a wrapper for passing value and type only for specific use.
+   * Converts attribute value to string (serialize object to string). This is a wrapper for passing value and type only
+   * for specific use.
    *
    * @param attributeValue value of the attribute
    * @param type           type of resulting attribute
@@ -239,8 +240,8 @@ public class BeansUtils {
 
     if (!Objects.equals(attributeType, attribute.getValue().getClass().getName())) {
       throw new InternalErrorException("Attribute's type mismatch " + attribute + ". The type of attribute's value (" +
-          attribute.getValue().getClass().getName() + ") doesn't match the type of attribute (" + attribute.getType() +
-          ").");
+                                       attribute.getValue().getClass().getName() +
+                                       ") doesn't match the type of attribute (" + attribute.getType() + ").");
     }
 
     if (Objects.equals(attributeType, String.class.getName())) {
@@ -297,10 +298,8 @@ public class BeansUtils {
   }
 
   /**
-   * This method get map created by example : {<key1>=<value1>, <key2>=<value2>}
-   * Keys and values are escaped for "\", "<" and ">"
-   * Example of escaping key="key\\s\>" is "key\s>"
-   * Return Map<String, String> attribute to value.
+   * This method get map created by example : {<key1>=<value1>, <key2>=<value2>} Keys and values are escaped for "\",
+   * "<" and ">" Example of escaping key="key\\s\>" is "key\s>" Return Map<String, String> attribute to value.
    *
    * @param text text from which will be parsed map
    * @return map<string, string> attributes
@@ -350,19 +349,15 @@ public class BeansUtils {
   }
 
   /**
-   * From the given list, parses all values separated by the comma ',' char.
-   * The value has to end with the comma ',' char.
+   * From the given list, parses all values separated by the comma ',' char. The value has to end with the comma ','
+   * char.
    * <p>
-   * All escaped commas '{backslash},' will not be used to split the value. If there is a
-   * backslash character:
-   * * it must be either follow by the comma ',' meaning that this
-   * comma is not used for split; or
-   * * it must be paired with another backslash '{backslash}{backslash}'. In that case, this double
-   * backslash in the result value would be replaced by a single back slash.
+   * All escaped commas '{backslash},' will not be used to split the value. If there is a backslash character: * it must
+   * be either follow by the comma ',' meaning that this comma is not used for split; or * it must be paired with
+   * another backslash '{backslash}{backslash}'. In that case, this double backslash in the result value would be
+   * replaced by a single back slash.
    * <p>
-   * Example:
-   * input: 'value1,val{backslash}ue2,val{backslash},ue3,'
-   * result: ['value1', 'val{backslash}ue2', val,ue3']
+   * Example: input: 'value1,val{backslash}ue2,val{backslash},ue3,' result: ['value1', 'val{backslash}ue2', val,ue3']
    *
    * @param value value to be parsed
    * @return list of parsed values
@@ -373,8 +368,8 @@ public class BeansUtils {
     //join items which was splited on escaped LIST_DELIMITER
     for (int i = 0; i < array.length - 1; i++) { //itarate to lenght -1  ... last array item is always empty
       String item = array[i];
-      while (item.matches(
-          "^(.*[^\\\\])?(\\\\\\\\)*\\\\$")) { //item last char is '\' . Next item start with ',', so we need to concat this items.
+      while (item.matches("^(.*[^\\\\])?(\\\\\\\\)*\\\\$")) { //item last char is '\' .
+        // Next item start with ',', so we need to concat this items.
         item = item.substring(0, item.length() - 1);  //cut off last char ('\')
         try {
           item = item.concat(Character.toString(LIST_DELIMITER)).concat(array[i + 1]);
@@ -433,8 +428,8 @@ public class BeansUtils {
       for (int i = 0; i < array.length - 1; i++) {  //itarate to lenght -1  ... last array item is always empty
         String mapEntry = array[i];
 
-        while (mapEntry.matches(
-            "^(.*[^\\\\])?(\\\\\\\\)*\\\\$")) { //mapEntry last char is '\' . Next mapEntry start with ',', so we need to concat this mapEntries.
+        while (mapEntry.matches("^(.*[^\\\\])?(\\\\\\\\)*\\\\$")) { //mapEntry last char is '\' .
+          // Next mapEntry start with ',', so we need to concat this mapEntries.
           mapEntry = mapEntry.substring(0, mapEntry.length() - 1);  //cut off last char ('\')
           try {
             mapEntry = mapEntry.concat(Character.toString(LIST_DELIMITER)).concat(array[i + 1]);
@@ -454,7 +449,7 @@ public class BeansUtils {
           if (delimiterIndex == -1) {
             throw new ConsistencyErrorException(
                 "Bad format in attribute value. KEY_VALUE_DELIMITER not found. Attribute value='" + stringValue +
-                    "', processed entry='" + mapEntry + "'");
+                "', processed entry='" + mapEntry + "'");
           }
 
           //check if this delimiter is not escaped
@@ -504,8 +499,8 @@ public class BeansUtils {
    * Converts string representation of an attribute value to the LinkedHashMap
    *
    * @param attributesAsString Map attribute in String representation.
-   * @return LinkedHashMap with key values pairs extracted from the input
-   * or an empty map when the input parameter is an empty string or null.
+   * @return LinkedHashMap with key values pairs extracted from the input or an empty map when the input parameter is an
+   * empty string or null.
    */
   @SuppressWarnings("unchecked") // It is ok, we know that stringToAttributeValue always returns LinkedHashMap or null
   public static LinkedHashMap<String, String> stringToMapOfAttributes(String attributesAsString) {
@@ -521,9 +516,7 @@ public class BeansUtils {
    * <p>
    * RichObject mean: starts with "Rich" and continue with Upper Letter [A-Z]
    * <p>
-   * Ex.: RichGroup -> Group, RichUser -> User
-   * Ex.: RichardObject -> RichardObject
-   * Ex.: Null -> Null
+   * Ex.: RichGroup -> Group, RichUser -> User Ex.: RichardObject -> RichardObject Ex.: Null -> Null
    *
    * @param beanName bean Name of PerunBean (simple name of object)
    * @return converted beanName (without Rich part)
@@ -533,7 +526,7 @@ public class BeansUtils {
       return beanName;
     }
 
-    Matcher richBeanNameMatcher = richBeanNamePattern.matcher(beanName);
+    Matcher richBeanNameMatcher = RICH_BEAN_NAME_PATTERN.matcher(beanName);
     if (richBeanNameMatcher.find()) {
       return richBeanNameMatcher.group(1);
     }
@@ -542,8 +535,8 @@ public class BeansUtils {
   }
 
   /**
-   * Create a string with set of IN clause. Every in clause has maximum 1000 ids.
-   * Identifier means for what IN clause is calling (Like 'table.id')
+   * Create a string with set of IN clause. Every in clause has maximum 1000 ids. Identifier means for what IN clause is
+   * calling (Like 'table.id')
    * <p>
    * Reason for using is compatibility with oracle and other dbs.
    * <p>
@@ -552,19 +545,19 @@ public class BeansUtils {
    * @param beans list of perun beans
    * @return string with some sql IN clause
    */
-  public static String prepareInSQLClause(String identifier, List<? extends PerunBean> beans) {
+  public static String prepareInSqlClause(String identifier, List<? extends PerunBean> beans) {
     //get Ids
     List<Integer> beansIds = new ArrayList<>();
     for (PerunBean pb : beans) {
       beansIds.add(pb.getId());
     }
-    return BeansUtils.prepareInSQLClause(beansIds, identifier);
+    return BeansUtils.prepareInSqlClause(beansIds, identifier);
   }
 
 
   /**
-   * Create a string with set of IN clause. Every in clause has maximum 1000 ids.
-   * Identifier means for what IN clause is calling (Like 'table.id')
+   * Create a string with set of IN clause. Every in clause has maximum 1000 ids. Identifier means for what IN clause is
+   * calling (Like 'table.id')
    * <p>
    * Reason for using is compatibility with oracle and other dbs.
    * <p>
@@ -573,7 +566,7 @@ public class BeansUtils {
    * @param beansIds list of perun bean ids
    * @return string with some sql IN clause
    */
-  public static String prepareInSQLClause(List<Integer> beansIds, String identifier) {
+  public static String prepareInSqlClause(List<Integer> beansIds, String identifier) {
     StringBuilder sb = new StringBuilder();
     //use or in sql clause
     boolean useOr = false;
@@ -637,8 +630,8 @@ public class BeansUtils {
    * @return value of the property
    */
   public static String getPropertyFromCustomConfiguration(String propertyFile, String propertyName) {
-    log.trace("Entering getPropertyFromCustomConfiguration: propertyFile='" + propertyFile + "' propertyName='" +
-        propertyName + "'");
+    LOG.trace("Entering getPropertyFromCustomConfiguration: propertyFile='" + propertyFile + "' propertyName='" +
+              propertyName + "'");
     notNull(propertyName, "propertyName");
     notNull(propertyFile, "propertyFile");
 
@@ -647,7 +640,7 @@ public class BeansUtils {
     try {
       // Get the path to the perun.properties file
       BufferedInputStream is =
-          new BufferedInputStream(new FileInputStream(BeansUtils.configurationsLocations + propertyFile));
+          new BufferedInputStream(new FileInputStream(BeansUtils.CONFIGURATIONS_LOCATIONS + propertyFile));
       properties.load(is);
       is.close();
 
@@ -671,7 +664,7 @@ public class BeansUtils {
    * @return all properties with values
    */
   public static Map<String, String> getAllPropertiesFromCustomConfiguration(String propertyFile) {
-    log.trace("Entering getAllPropertiesFromCustomConfiguration: propertyFile='" + propertyFile + "'");
+    LOG.trace("Entering getAllPropertiesFromCustomConfiguration: propertyFile='" + propertyFile + "'");
     notNull(propertyFile, "propertyFile");
 
     // Load properties file with configuration
@@ -680,7 +673,7 @@ public class BeansUtils {
 
       // Get the path to the perun.properties file
       BufferedInputStream is =
-          new BufferedInputStream(new FileInputStream(BeansUtils.configurationsLocations + propertyFile));
+          new BufferedInputStream(new FileInputStream(BeansUtils.CONFIGURATIONS_LOCATIONS + propertyFile));
       properties.load(is);
       is.close();
 
@@ -700,8 +693,7 @@ public class BeansUtils {
 
 
   /**
-   * True if this instance of perun is read only.
-   * False if not.
+   * True if this instance of perun is read only. False if not.
    *
    * @return true or false (readOnly or not)
    */
@@ -710,8 +702,7 @@ public class BeansUtils {
   }
 
   /**
-   * True if DB initializator is enabled, false if not
-   * Default is false
+   * True if DB initializator is enabled, false if not Default is false
    *
    * @return true if enabled, false if disabled
    */
@@ -785,8 +776,8 @@ public class BeansUtils {
 
 
   /**
-   * Returns abbreviation in format [Entity]:[V/D/C]:[friendlyName]
-   * [Entity] is something like 'U' for user, 'G-R' for group-resource etc.
+   * Returns abbreviation in format [Entity]:[V/D/C]:[friendlyName] [Entity] is something like 'U' for user, 'G-R' for
+   * group-resource etc.
    *
    * @param ad attribute definition
    * @return abbreviation in format [Entity]:[V/D/C]:[friendlyName]
@@ -835,8 +826,7 @@ public class BeansUtils {
   }
 
   /**
-   * Return instance of JavaMailSender with shared Perun configuration
-   * used to send mail notifications by.
+   * Return instance of JavaMailSender with shared Perun configuration used to send mail notifications by.
    *
    * @return single instance of JavaMailSender
    */
@@ -844,7 +834,7 @@ public class BeansUtils {
 
     if (mailSenderInitialized) {
 
-      return mailSender;
+      return MAIL_SENDER;
 
     } else {
 
@@ -862,24 +852,24 @@ public class BeansUtils {
         mailProps.setProperty("mail.smtp.from", smtpFrom);
       }
 
-      mailSender.setJavaMailProperties(mailProps);
+      MAIL_SENDER.setJavaMailProperties(mailProps);
 
       if (BeansUtils.getCoreConfig().isSmtpAuth()) {
-        mailSender.setUsername(BeansUtils.getCoreConfig().getSmtpUser());
-        mailSender.setPassword(BeansUtils.getCoreConfig().getSmtpPass());
+        MAIL_SENDER.setUsername(BeansUtils.getCoreConfig().getSmtpUser());
+        MAIL_SENDER.setPassword(BeansUtils.getCoreConfig().getSmtpPass());
       }
 
       mailSenderInitialized = true;
 
-      return mailSender;
+      return MAIL_SENDER;
 
     }
 
   }
 
   /**
-   * Convert object richMember to object candidate.
-   * PrimaryUserExtSource is used as the main userExtSource for candidate object
+   * Convert object richMember to object candidate. PrimaryUserExtSource is used as the main userExtSource for candidate
+   * object
    *
    * @param richMember
    * @param primaryUserExtSource main userExtSource for candidate object

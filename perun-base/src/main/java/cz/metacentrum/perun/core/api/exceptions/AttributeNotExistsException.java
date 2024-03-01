@@ -2,9 +2,9 @@ package cz.metacentrum.perun.core.api.exceptions;
 
 
 /**
- * This exception is thrown when the attribute definition does not exist in the database. However, if the attribute definition exists
- * but the attribute values is not set for the given entity, this exception does not raise and the situation
- * is usually resolved by returning Attribute object with null value instead.
+ * This exception is thrown when the attribute definition does not exist in the database. However, if the attribute
+ * definition exists but the attribute values is not set for the given entity, this exception does not raise and the
+ * situation is usually resolved by returning Attribute object with null value instead.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
  */

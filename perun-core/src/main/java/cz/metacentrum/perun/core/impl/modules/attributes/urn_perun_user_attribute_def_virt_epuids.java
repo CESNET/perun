@@ -13,13 +13,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 public class urn_perun_user_attribute_def_virt_epuids extends UserVirtualAttributeCollectedFromUserExtSource {
 
   @Override
-  public String getSourceAttributeFriendlyName() {
-    return "epuid";
-  }
-
-  @Override
-  public String getDestinationAttributeFriendlyName() {
-    return "epuids";
+  public String getDestinationAttributeDescription() {
+    return "All eduPersonUniqueIds of a user";
   }
 
   @Override
@@ -28,8 +23,13 @@ public class urn_perun_user_attribute_def_virt_epuids extends UserVirtualAttribu
   }
 
   @Override
-  public String getDestinationAttributeDescription() {
-    return "All eduPersonUniqueIds of a user";
+  public String getDestinationAttributeFriendlyName() {
+    return "epuids";
+  }
+
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "epuid";
   }
 
 }

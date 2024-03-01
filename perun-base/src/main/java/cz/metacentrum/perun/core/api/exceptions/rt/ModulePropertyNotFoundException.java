@@ -3,8 +3,7 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
- * This exception is thrown when the loading of module configuration property
- * is not found or it fails.
+ * This exception is thrown when the loading of module configuration property is not found or it fails.
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */

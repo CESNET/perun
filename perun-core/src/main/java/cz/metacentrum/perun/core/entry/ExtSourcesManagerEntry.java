@@ -24,13 +24,11 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ExtSourcesManager entry logic.
@@ -39,7 +37,7 @@ import java.util.Map;
  */
 public class ExtSourcesManagerEntry implements ExtSourcesManager {
 
-  final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerEntry.class);
+  static final Logger LOG = LoggerFactory.getLogger(ExtSourcesManagerEntry.class);
 
   private ExtSourcesManagerBl extSourcesManagerBl;
   private PerunBl perunBl;
@@ -51,109 +49,6 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
   }
 
   public ExtSourcesManagerEntry() {
-  }
-
-  //FIXME delete this method
-  public ExtSourcesManagerImplApi getExtSourcesManagerImpl() {
-    throw new InternalErrorException("Unsupported method!");
-  }
-
-  @Override
-  public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes)
-      throws ExtSourceExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "createExtSource_ExtSource_Map<String_String>_policy")) {
-      throw new PrivilegeException(sess, "createExtSource");
-    }
-
-    Utils.notNull(extSource, "extSource");
-
-    return getExtSourcesManagerBl().createExtSource(sess, extSource, attributes);
-  }
-
-  @Override
-  public void deleteExtSource(PerunSession sess, ExtSource extSource)
-      throws ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException {
-    Utils.checkPerunSession(sess);
-
-    getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "deleteExtSource_ExtSource_policy", extSource)) {
-      throw new PrivilegeException(sess, "deleteExtSource");
-    }
-
-    getExtSourcesManagerBl().deleteExtSource(sess, extSource);
-  }
-
-  @Override
-  public ExtSource getExtSourceById(PerunSession sess, int id) throws ExtSourceNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getExtSourceById_int_policy")) {
-      throw new PrivilegeException(sess, "getExtSourceById");
-    }
-
-    return getExtSourcesManagerBl().getExtSourceById(sess, id);
-  }
-
-  @Override
-  public ExtSource getExtSourceByName(PerunSession sess, String name)
-      throws ExtSourceNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getExtSourceByName_String_policy")) {
-      throw new PrivilegeException(sess, "getExtSourceByName");
-    }
-
-    Utils.notNull(name, "name");
-
-    return getExtSourcesManagerBl().getExtSourceByName(sess, name);
-  }
-
-  @Override
-  public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getVoExtSources_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getVoExtSources");
-    }
-
-    return getExtSourcesManagerBl().getVoExtSources(sess, vo);
-  }
-
-  @Override
-  public List<ExtSource> getGroupExtSources(PerunSession sess, Group group)
-      throws PrivilegeException, GroupNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getGroupExtSources_Group_policy", group)) {
-      throw new PrivilegeException(sess, "getGroupExtSources");
-    }
-
-    return getExtSourcesManagerBl().getGroupExtSources(sess, group);
-  }
-
-  @Override
-  public List<ExtSource> getExtSources(PerunSession sess) throws PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getExtSources_policy")) {
-      throw new PrivilegeException(sess, "getExtSources");
-    }
-
-    return getExtSourcesManagerBl().getExtSources(sess);
   }
 
   @Override
@@ -173,24 +68,6 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
   }
 
   @Override
-  public void addExtSources(PerunSession sess, Vo vo, List<ExtSource> sources)
-      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-    for (ExtSource src : sources) {
-      getExtSourcesManagerBl().checkExtSourceExists(sess, src);
-    }
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "addExtSource_Vo_ExtSource_policy", vo)) {
-      throw new PrivilegeException(sess, "addExtSources");
-    }
-
-    getExtSourcesManagerBl().addExtSources(sess, vo, sources);
-  }
-
-  @Override
   public void addExtSource(PerunSession sess, Group group, ExtSource source)
       throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException,
       ExtSourceAlreadyAssignedException, ExtSourceNotAssignedException, VoNotExistsException {
@@ -206,6 +83,24 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
     }
 
     getExtSourcesManagerBl().addExtSource(sess, group, source);
+  }
+
+  @Override
+  public void addExtSources(PerunSession sess, Vo vo, List<ExtSource> sources)
+      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    for (ExtSource src : sources) {
+      getExtSourcesManagerBl().checkExtSourceExists(sess, src);
+    }
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "addExtSource_Vo_ExtSource_policy", vo)) {
+      throw new PrivilegeException(sess, "addExtSources");
+    }
+
+    getExtSourcesManagerBl().addExtSources(sess, vo, sources);
   }
 
   @Override
@@ -240,134 +135,48 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
   }
 
   @Override
-  public void removeExtSource(PerunSession sess, Vo vo, ExtSource source)
-      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceAlreadyRemovedException {
+  public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes)
+      throws ExtSourceExistsException, PrivilegeException {
     Utils.checkPerunSession(sess);
 
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-    getExtSourcesManagerBl().checkExtSourceExists(sess, source);
-
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Vo_ExtSource_policy", Arrays.asList(vo, source))) {
-      throw new PrivilegeException(sess, "removeExtSource");
+    if (!AuthzResolver.authorizedInternal(sess, "createExtSource_ExtSource_Map<String_String>_policy")) {
+      throw new PrivilegeException(sess, "createExtSource");
     }
 
-    getExtSourcesManagerBl().removeExtSource(sess, vo, source);
+    Utils.notNull(extSource, "extSource");
+
+    return getExtSourcesManagerBl().createExtSource(sess, extSource, attributes);
   }
 
   @Override
-  public void removeExtSources(PerunSession sess, Vo vo, List<ExtSource> sources)
-      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceAlreadyRemovedException {
+  public void deleteExtSource(PerunSession sess, ExtSource extSource)
+      throws ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException {
     Utils.checkPerunSession(sess);
 
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-    for (ExtSource src : sources) {
-      getExtSourcesManagerBl().checkExtSourceExists(sess, src);
-    }
+    getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Vo_ExtSource_policy", vo)) {
-      throw new PrivilegeException(sess, "removeExtSources");
+    if (!AuthzResolver.authorizedInternal(sess, "deleteExtSource_ExtSource_policy", extSource)) {
+      throw new PrivilegeException(sess, "deleteExtSource");
     }
 
-    getExtSourcesManagerBl().removeExtSources(sess, vo, sources);
+    getExtSourcesManagerBl().deleteExtSource(sess, extSource);
   }
 
   @Override
-  public void removeExtSource(PerunSession sess, Group group, ExtSource source)
-      throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceAlreadyRemovedException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-    getExtSourcesManagerBl().checkExtSourceExists(sess, source);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Group_ExtSource_policy",
-        Arrays.asList(group, source))) {
-      throw new PrivilegeException(sess, "removeExtSource");
-    }
-
-    getExtSourcesManagerBl().removeExtSource(sess, group, source);
-  }
-
-  @Override
-  public void removeExtSources(PerunSession sess, Group group, List<ExtSource> sources)
-      throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
-      ExtSourceAlreadyRemovedException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-    for (ExtSource src : sources) {
-      getExtSourcesManagerBl().checkExtSourceExists(sess, src);
-    }
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Group_ExtSource_policy", group)) {
-      throw new PrivilegeException(sess, "removeExtSources");
-    }
-
-    getExtSourcesManagerBl().removeExtSources(sess, group, sources);
-  }
-
-  @Override
-  public List<User> getInvalidUsers(PerunSession sess, ExtSource source)
+  public Map<String, String> getAttributes(PerunSession sess, ExtSource extSource)
       throws PrivilegeException, ExtSourceNotExistsException {
     Utils.checkPerunSession(sess);
 
-    getExtSourcesManagerBl().checkExtSourceExists(sess, source);
+    getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getInvalidUsers_ExtSource_policy", source)) {
-      throw new PrivilegeException(sess, "removeExtSource");
+    if (!AuthzResolver.authorizedInternal(sess, "getAttributes_ExtSource_policy", extSource)) {
+      throw new PrivilegeException(sess, "getAttributes");
     }
 
-    return getExtSourcesManagerBl().getInvalidUsers(sess, source);
-  }
-
-  @Override
-  public void loadExtSourcesDefinitions(PerunSession sess) throws PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "loadExtSourcesDefinitions_policy")) {
-      throw new PrivilegeException(sess, "loadExtSourcesDefinitions");
-    }
-
-    getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
-  }
-
-  /**
-   * Gets the extSourcesManagerBl for this instance.
-   *
-   * @return extSourceManagerImpl
-   */
-  public ExtSourcesManagerBl getExtSourcesManagerBl() {
-    return this.extSourcesManagerBl;
-  }
-
-  /**
-   * Sets the extSourcesManagerBl for this instance.
-   *
-   * @param extSourcesManagerBl The extSourcesManagerBl.
-   */
-  public void setExtSourcesManagerBl(ExtSourcesManagerBl extSourcesManagerBl) {
-    this.extSourcesManagerBl = extSourcesManagerBl;
-  }
-
-  public PerunBl getPerunBl() {
-    return this.perunBl;
-  }
-
-  /**
-   * Sets the perunBl for this instance.
-   *
-   * @param perunBl The perunBl.
-   */
-  public void setPerunBl(PerunBl perunBl) {
-    this.perunBl = perunBl;
+    return getExtSourcesManagerBl().getAttributes(extSource);
   }
 
   @Override
@@ -394,7 +203,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
         } catch (ExtSourceUnsupportedOperationException e) {
           // silently skip
         } catch (Exception e) {
-          log.error("Failed to close connection to extsource", e);
+          LOG.error("Failed to close connection to extsource", e);
         }
       }
     }
@@ -419,17 +228,206 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
   }
 
   @Override
-  public Map<String, String> getAttributes(PerunSession sess, ExtSource extSource)
+  public ExtSource getExtSourceById(PerunSession sess, int id) throws ExtSourceNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getExtSourceById_int_policy")) {
+      throw new PrivilegeException(sess, "getExtSourceById");
+    }
+
+    return getExtSourcesManagerBl().getExtSourceById(sess, id);
+  }
+
+  @Override
+  public ExtSource getExtSourceByName(PerunSession sess, String name)
+      throws ExtSourceNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getExtSourceByName_String_policy")) {
+      throw new PrivilegeException(sess, "getExtSourceByName");
+    }
+
+    Utils.notNull(name, "name");
+
+    return getExtSourcesManagerBl().getExtSourceByName(sess, name);
+  }
+
+  @Override
+  public List<ExtSource> getExtSources(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getExtSources_policy")) {
+      throw new PrivilegeException(sess, "getExtSources");
+    }
+
+    return getExtSourcesManagerBl().getExtSources(sess);
+  }
+
+  /**
+   * Gets the extSourcesManagerBl for this instance.
+   *
+   * @return extSourceManagerImpl
+   */
+  public ExtSourcesManagerBl getExtSourcesManagerBl() {
+    return this.extSourcesManagerBl;
+  }
+
+  //FIXME delete this method
+  public ExtSourcesManagerImplApi getExtSourcesManagerImpl() {
+    throw new InternalErrorException("Unsupported method!");
+  }
+
+  @Override
+  public List<ExtSource> getGroupExtSources(PerunSession sess, Group group)
+      throws PrivilegeException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getGroupExtSources_Group_policy", group)) {
+      throw new PrivilegeException(sess, "getGroupExtSources");
+    }
+
+    return getExtSourcesManagerBl().getGroupExtSources(sess, group);
+  }
+
+  @Override
+  public List<User> getInvalidUsers(PerunSession sess, ExtSource source)
       throws PrivilegeException, ExtSourceNotExistsException {
     Utils.checkPerunSession(sess);
 
-    getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
+    getExtSourcesManagerBl().checkExtSourceExists(sess, source);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getAttributes_ExtSource_policy", extSource)) {
-      throw new PrivilegeException(sess, "getAttributes");
+    if (!AuthzResolver.authorizedInternal(sess, "getInvalidUsers_ExtSource_policy", source)) {
+      throw new PrivilegeException(sess, "removeExtSource");
     }
 
-    return getExtSourcesManagerBl().getAttributes(extSource);
+    return getExtSourcesManagerBl().getInvalidUsers(sess, source);
+  }
+
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
+
+  @Override
+  public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getVoExtSources_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getVoExtSources");
+    }
+
+    return getExtSourcesManagerBl().getVoExtSources(sess, vo);
+  }
+
+  @Override
+  public void loadExtSourcesDefinitions(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "loadExtSourcesDefinitions_policy")) {
+      throw new PrivilegeException(sess, "loadExtSourcesDefinitions");
+    }
+
+    getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
+  }
+
+  @Override
+  public void removeExtSource(PerunSession sess, Vo vo, ExtSource source)
+      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceAlreadyRemovedException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    getExtSourcesManagerBl().checkExtSourceExists(sess, source);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Vo_ExtSource_policy", Arrays.asList(vo, source))) {
+      throw new PrivilegeException(sess, "removeExtSource");
+    }
+
+    getExtSourcesManagerBl().removeExtSource(sess, vo, source);
+  }
+
+  @Override
+  public void removeExtSource(PerunSession sess, Group group, ExtSource source)
+      throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceAlreadyRemovedException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+    getExtSourcesManagerBl().checkExtSourceExists(sess, source);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Group_ExtSource_policy",
+        Arrays.asList(group, source))) {
+      throw new PrivilegeException(sess, "removeExtSource");
+    }
+
+    getExtSourcesManagerBl().removeExtSource(sess, group, source);
+  }
+
+  @Override
+  public void removeExtSources(PerunSession sess, Vo vo, List<ExtSource> sources)
+      throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceAlreadyRemovedException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    for (ExtSource src : sources) {
+      getExtSourcesManagerBl().checkExtSourceExists(sess, src);
+    }
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Vo_ExtSource_policy", vo)) {
+      throw new PrivilegeException(sess, "removeExtSources");
+    }
+
+    getExtSourcesManagerBl().removeExtSources(sess, vo, sources);
+  }
+
+  @Override
+  public void removeExtSources(PerunSession sess, Group group, List<ExtSource> sources)
+      throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException,
+      ExtSourceAlreadyRemovedException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+    for (ExtSource src : sources) {
+      getExtSourcesManagerBl().checkExtSourceExists(sess, src);
+    }
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "removeExtSource_Group_ExtSource_policy", group)) {
+      throw new PrivilegeException(sess, "removeExtSources");
+    }
+
+    getExtSourcesManagerBl().removeExtSources(sess, group, sources);
+  }
+
+  /**
+   * Sets the extSourcesManagerBl for this instance.
+   *
+   * @param extSourcesManagerBl The extSourcesManagerBl.
+   */
+  public void setExtSourcesManagerBl(ExtSourcesManagerBl extSourcesManagerBl) {
+    this.extSourcesManagerBl = extSourcesManagerBl;
+  }
+
+  /**
+   * Sets the perunBl for this instance.
+   *
+   * @param perunBl The perunBl.
+   */
+  public void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
   }
 }

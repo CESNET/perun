@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
  */
 public class LifescienceHostel extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LifescienceHostel.class);
 
-  private final static String LIFESCIENCE_HOSTEL_NS = "login-namespace:lifescience-hostel";
-  private final static String LS_HOSTEL_SCOPE = "@lifescience-hostel.org";
-  private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://login.bbmri-eric.eu/lshostel/";
+  private static final String LIFESCIENCE_HOSTEL_NS = "login-namespace:lifescience-hostel";
+  private static final String LS_HOSTEL_SCOPE = "@lifescience-hostel.org";
+  private static final String LS_HOSTEL_EXT_SOURCE_NAME = "https://login.bbmri-eric.eu/lshostel/";
 
   /**
    * Create proper UserExtSource
@@ -42,7 +42,7 @@ public class LifescienceHostel extends DefaultRegistrarModule {
 
     if (user == null) {
 
-      log.error("At the end of approval action, we should have user present in application: {}", app);
+      LOG.error("At the end of approval action, we should have user present in application: {}", app);
 
     } else {
 

@@ -59,12 +59,12 @@ public class MemberGroupMismatchException extends PerunException {
     this.group = group;
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public Group getGroup() {
     return group;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
 }

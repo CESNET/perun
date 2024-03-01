@@ -8,10 +8,9 @@ import java.util.Set;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
- * Object which can be found in regex from auditer. Contains properties, which
- * holds functions, these functions can be used to get neccessary informations
- * about real object using java reflection, one object has unique name across
- * other objects.
+ * Object which can be found in regex from auditer. Contains properties, which holds functions, these functions can be
+ * used to get neccessary informations about real object using java reflection, one object has unique name across other
+ * objects.
  * <p>
  * Table pn_object
  *
@@ -24,8 +23,7 @@ public class PerunNotifObject {
    */
   private static final String SET_DELIMITER = ";";
   /**
-   * RowMapper to load entity from db row Uses java reflection to resolve
-   * class
+   * RowMapper to load entity from db row Uses java reflection to resolve class
    */
   public static final RowMapper<PerunNotifObject> PERUN_NOTIF_OBJECT = new RowMapper<PerunNotifObject>() {
 
@@ -99,38 +97,6 @@ public class PerunNotifObject {
     return result;
   }
 
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Set<String> getProperties() {
-    return properties;
-  }
-
-  public void setProperties(Set<String> properties) {
-    this.properties = properties;
-  }
-
-  public Class getObjectClass() {
-    return objectClass;
-  }
-
-  public void setObjectClass(Class objectClass) {
-    this.objectClass = objectClass;
-  }
-
   public void addProperty(String value) {
 
     if (properties == null) {
@@ -138,6 +104,38 @@ public class PerunNotifObject {
     }
 
     properties.add(value);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+
+    if (this == obj) {
+      return true;
+    }
+
+    if (!(obj instanceof PerunNotifObject)) {
+      return false;
+    }
+
+    PerunNotifObject perunObject = (PerunNotifObject) obj;
+
+    return perunObject.getId().equals(this.getId());
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Class getObjectClass() {
+    return objectClass;
+  }
+
+  public Set<String> getProperties() {
+    return properties;
   }
 
   /**
@@ -160,25 +158,33 @@ public class PerunNotifObject {
   }
 
   @Override
-  public String toString() {
-    return "id: " + getId() + " name: " + getName() + " properties: " + getProperties() + " object class: " +
-        getObjectClass();
+  public int hashCode() {
+    int result = id != null ? id.hashCode() : 0;
+    result = 31 * result + (name != null ? name.hashCode() : 0);
+    result = 31 * result + (properties != null ? properties.hashCode() : 0);
+    return result;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setObjectClass(Class objectClass) {
+    this.objectClass = objectClass;
+  }
+
+  public void setProperties(Set<String> properties) {
+    this.properties = properties;
   }
 
   @Override
-  public boolean equals(Object obj) {
-
-    if (this == obj) {
-      return true;
-    }
-
-    if (!(obj instanceof PerunNotifObject)) {
-      return false;
-    }
-
-    PerunNotifObject perunObject = (PerunNotifObject) obj;
-
-    return perunObject.getId().equals(this.getId());
+  public String toString() {
+    return "id: " + getId() + " name: " + getName() + " properties: " + getProperties() + " object class: " +
+           getObjectClass();
   }
 
   /**
@@ -191,13 +197,5 @@ public class PerunNotifObject {
     this.setName(newObject.getName());
     this.setProperties(newObject.getProperties());
     this.setObjectClass(newObject.getObjectClass());
-  }
-
-  @Override
-  public int hashCode() {
-    int result = id != null ? id.hashCode() : 0;
-    result = 31 * result + (name != null ? name.hashCode() : 0);
-    result = 31 * result + (properties != null ? properties.hashCode() : 0);
-    return result;
   }
 }

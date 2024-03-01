@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.Vo;
@@ -23,11 +22,9 @@ import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
@@ -70,6 +67,15 @@ public class TasksManagerEntry implements TasksManager {
   }
 
   @Override
+  public void deleteTaskResults(PerunSession sess, Task task, Destination destination) throws PrivilegeException {
+    Facility facility = task.getFacility();
+    if (!AuthzResolver.authorizedInternal(sess, "deleteTaskResults_Task_Destination_policy", facility)) {
+      throw new PrivilegeException(sess, "deleteTaskResults");
+    }
+    tasksManagerBl.deleteTaskResults(sess, task.getId(), destination.getId());
+  }
+
+  @Override
   public void deleteTaskResultsByIds(PerunSession sess, List<Integer> taskResultIds)
       throws PrivilegeException, FacilityMismatchException {
     Utils.notNull(sess, "sess");
@@ -95,15 +101,6 @@ public class TasksManagerEntry implements TasksManager {
       }
       tasksManagerBl.deleteTaskResultById(sess, resultId);
     }
-  }
-
-  @Override
-  public void deleteTaskResults(PerunSession sess, Task task, Destination destination) throws PrivilegeException {
-    Facility facility = task.getFacility();
-    if (!AuthzResolver.authorizedInternal(sess, "deleteTaskResults_Task_Destination_policy", facility)) {
-      throw new PrivilegeException(sess, "deleteTaskResults");
-    }
-    tasksManagerBl.deleteTaskResults(sess, task.getId(), destination.getId());
   }
 
   @Override
@@ -210,6 +207,13 @@ public class TasksManagerEntry implements TasksManager {
     return tasksManagerBl.getTaskResults(perunSession);
   }
 
+  public List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames) {
+    Utils.notNull(session, "session");
+
+    //FIXME check privileges, probably only some monitoring system can request these data
+    return tasksManagerBl.getTaskResultsByDestinations(session, destinationsNames);
+  }
+
   @Override
   public List<TaskResult> getTaskResultsByTask(PerunSession sess, int taskId) throws PrivilegeException {
     Utils.notNull(sess, "sess");
@@ -222,13 +226,6 @@ public class TasksManagerEntry implements TasksManager {
     }
 
     return tasksManagerBl.getTaskResultsByTask(sess, taskId);
-  }
-
-  public List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames) {
-    Utils.notNull(session, "session");
-
-    //FIXME check privileges, probably only some monitoring system can request these data
-    return tasksManagerBl.getTaskResultsByDestinations(session, destinationsNames);
   }
 
   @Override
@@ -301,6 +298,14 @@ public class TasksManagerEntry implements TasksManager {
     return tasksManagerBl.listAllTasksInState(perunSession, state);
   }
 
+  public void setPerunBl(PerunBl perunBl) {
+    this.perun = perunBl;
+  }
+
+  public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
+    this.tasksManagerBl = tasksManagerBl;
+  }
+
   @Override
   public void suspendTasksPropagation(PerunSession perunSession, boolean suspend) throws PrivilegeException {
     // Authorization
@@ -308,14 +313,5 @@ public class TasksManagerEntry implements TasksManager {
       throw new PrivilegeException(perunSession, "suspendTasksPropagation");
     }
     tasksManagerBl.suspendTasksPropagation(perunSession, suspend);
-  }
-
-
-  public void setPerunBl(PerunBl perunBl) {
-    this.perun = perunBl;
-  }
-
-  public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
-    this.tasksManagerBl = tasksManagerBl;
   }
 }

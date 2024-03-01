@@ -14,31 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Authoritative group module.
- * If some group has authoritativeGroup attribute set to 1 (true), synchronizator
- * can remove member from whole vo if this group was the last authoritative and
- * synchronizator remove member from this group.
+ * Authoritative group module. If some group has authoritativeGroup attribute set to 1 (true), synchronizator can remove
+ * member from whole vo if this group was the last authoritative and synchronizator remove member from this group.
  *
  * @author Michal Stava  stavamichal@gmail.com
  */
 public class urn_perun_group_attribute_def_def_authoritativeGroup extends GroupAttributesModuleAbstract
     implements GroupAttributesModuleImplApi {
 
-  private final static Logger log = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_authoritativeGroup.class);
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
-      throws WrongAttributeValueException {
-    //Null value is ok, means no settings for group
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    Integer value = attribute.valueAsInteger();
-    if (value < 0 || value > 1) {
-      throw new WrongAttributeValueException(attribute, group, "Attribute can have only value 1 or 0 (true or false).");
-    }
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_authoritativeGroup.class);
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
@@ -51,6 +35,20 @@ public class urn_perun_group_attribute_def_def_authoritativeGroup extends GroupA
     if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
       throw new WrongReferenceAttributeValueException(attribute, null, group, null,
           "Members group is authoritative automatic, there is not allowed to set this attribute for members group.");
+    }
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Null value is ok, means no settings for group
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    Integer value = attribute.valueAsInteger();
+    if (value < 0 || value > 1) {
+      throw new WrongAttributeValueException(attribute, group, "Attribute can have only value 1 or 0 (true or false).");
     }
   }
 

@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @org.springframework.stereotype.Service(value = "ldapcManager")
 public class LdapcManagerImpl implements LdapcManager {
 
-  private final static Logger log = LoggerFactory.getLogger(LdapcManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapcManagerImpl.class);
 
   private Thread eventProcessorThread;
   @Autowired
@@ -43,17 +43,45 @@ public class LdapcManagerImpl implements LdapcManager {
   private Perun perunBl;
   private PerunSession perunSession;
 
+  public Perun getPerunBl() {
+    return perunBl;
+  }
+
+  public PerunPrincipal getPerunPrincipal() {
+    return perunPrincipal;
+  }
+
+  public PerunSession getPerunSession() {
+    if (perunSession == null) {
+      this.perunSession = perunBl.getPerunSession(perunPrincipal, new PerunClient());
+    }
+    return perunSession;
+  }
+
+  @Override
+  public void setLastProcessedId(int lastProcessedId) {
+    eventDispatcher.setLastProcessedIdNumber(lastProcessedId);
+  }
+
+  public void setPerunBl(Perun perunBl) {
+    this.perunBl = perunBl;
+  }
+
+  public void setPerunPrincipal(PerunPrincipal perunPrincipal) {
+    this.perunPrincipal = perunPrincipal;
+  }
+
   public void startProcessingEvents() {
     eventProcessorThread = new Thread(eventDispatcher);
     eventProcessorThread.start();
 
-    log.debug("Event processor thread started.");
+    LOG.debug("Event processor thread started.");
     System.out.println("Event processor thread started.");
   }
 
   public void stopProcessingEvents() {
     eventProcessorThread.interrupt();
-    log.debug("Event processor thread interrupted.");
+    LOG.debug("Event processor thread interrupted.");
     System.out.println("Event processor thread interrupted.");
   }
 
@@ -66,10 +94,11 @@ public class LdapcManagerImpl implements LdapcManager {
       groupSynchronizer.synchronizeGroups();
 
       int lastProcessedMessageId = ((PerunBl) getPerunBl()).getAuditMessagesManagerBl().getLastMessageId(perunSession);
-      // ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
+      // ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties
+      // .getLdapConsumerName(), lastProcessedMessageId);
       eventDispatcher.setLastProcessedIdNumber(lastProcessedMessageId);
     } catch (Exception e) {
-      log.error("Error synchronizing to LDAP", e);
+      LOG.error("Error synchronizing to LDAP", e);
       throw new InternalErrorException(e);
     }
   }
@@ -77,33 +106,5 @@ public class LdapcManagerImpl implements LdapcManager {
   public void synchronizeReplica() {
     // let original method to do the work under our transaction settings
     synchronize();
-  }
-
-  public Perun getPerunBl() {
-    return perunBl;
-  }
-
-  public void setPerunBl(Perun perunBl) {
-    this.perunBl = perunBl;
-  }
-
-  public PerunSession getPerunSession() {
-    if (perunSession == null) {
-      this.perunSession = perunBl.getPerunSession(perunPrincipal, new PerunClient());
-    }
-    return perunSession;
-  }
-
-  public PerunPrincipal getPerunPrincipal() {
-    return perunPrincipal;
-  }
-
-  public void setPerunPrincipal(PerunPrincipal perunPrincipal) {
-    this.perunPrincipal = perunPrincipal;
-  }
-
-  @Override
-  public void setLastProcessedId(int lastProcessedId) {
-    eventDispatcher.setLastProcessedIdNumber(lastProcessedId);
   }
 }

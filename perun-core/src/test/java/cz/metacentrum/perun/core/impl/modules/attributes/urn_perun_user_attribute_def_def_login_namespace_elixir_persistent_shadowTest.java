@@ -1,21 +1,20 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import java.util.ArrayList;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Testing class for login-namespace elixir persistent shadow attribute
@@ -35,6 +34,12 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
     session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
     user = new User();
     user.setId(123456);
+  }
+
+  @Ignore
+  @Test
+  public void testChangedAttributeHookElixirNamespace() {
+    System.out.println("testChangedAttributeHook()");
   }
 
   @Test
@@ -79,11 +84,5 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 
     Attribute output = classInstance.fillAttribute(session, user, attribute);
     assertEquals("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org", output.getValue());
-  }
-
-  @Ignore
-  @Test
-  public void testChangedAttributeHookElixirNamespace() {
-    System.out.println("testChangedAttributeHook()");
   }
 }

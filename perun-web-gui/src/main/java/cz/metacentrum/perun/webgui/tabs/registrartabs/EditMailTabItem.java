@@ -48,7 +48,7 @@ import java.util.Map;
  */
 public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "app-mail-edit";
+  public static final String URL = "app-mail-edit";
   /**
    * Perun web session
    */

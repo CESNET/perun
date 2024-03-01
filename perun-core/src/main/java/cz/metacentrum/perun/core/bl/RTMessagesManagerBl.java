@@ -61,8 +61,7 @@ public interface RTMessagesManagerBl {
    * This method get needed information and by predefined service user send message to RT which try to create new ticket
    * For basic usage this method is for error msg from users of perun.
    * <p>
-   * voId is there especially for searching voAttribute rtVoQueue
-   * queue define concrete queue in RT
+   * voId is there especially for searching voAttribute rtVoQueue queue define concrete queue in RT
    *
    * @param sess    (also to get user from it)
    * @param voId    id of vo, where user is member

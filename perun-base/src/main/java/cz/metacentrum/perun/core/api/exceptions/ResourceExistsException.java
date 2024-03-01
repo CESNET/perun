@@ -3,7 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Resource;
 
 /**
- * This exception is thrown when the resource could not be created/updated because there is already a resource with the same name
+ * This exception is thrown when the resource could not be created/updated because there is already a resource with the
+ * same name
  *
  * @author Oliver Mrázik
  */

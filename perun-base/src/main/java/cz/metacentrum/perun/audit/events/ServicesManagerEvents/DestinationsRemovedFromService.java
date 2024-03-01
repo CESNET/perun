@@ -20,13 +20,13 @@ public class DestinationsRemovedFromService extends AuditEvent {
     this.message = formatMessage("All destinations removed from %s and %s.", service, facility);
   }
 
+  public Facility getFacility() {
+    return facility;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Facility getFacility() {
-    return facility;
   }
 
   public Service getService() {

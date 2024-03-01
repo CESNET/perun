@@ -1,8 +1,7 @@
 package cz.metacentrum.perun.scim.api.entities;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
 
 /**
@@ -50,62 +49,6 @@ public class ResourceTypeSCIM {
   public ResourceTypeSCIM() {
   }
 
-  public List<String> getSchemas() {
-    return schemas;
-  }
-
-  public void setSchemas(List<String> schemas) {
-    this.schemas = schemas;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getEndpoint() {
-    return endpoint;
-  }
-
-  public void setEndpoint(String endpoint) {
-    this.endpoint = endpoint;
-  }
-
-  public String getSchema() {
-    return schema;
-  }
-
-  public void setSchema(String schema) {
-    this.schema = schema;
-  }
-
-  public Meta getMeta() {
-    return meta;
-  }
-
-  public void setMeta(Meta meta) {
-    this.meta = meta;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -139,6 +82,34 @@ public class ResourceTypeSCIM {
 
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public String getEndpoint() {
+    return endpoint;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public Meta getMeta() {
+    return meta;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getSchema() {
+    return schema;
+  }
+
+  public List<String> getSchemas() {
+    return schemas;
+  }
+
   @Override
   public int hashCode() {
     int result = getSchemas() != null ? getSchemas().hashCode() : 0;
@@ -151,16 +122,38 @@ public class ResourceTypeSCIM {
     return result;
   }
 
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setEndpoint(String endpoint) {
+    this.endpoint = endpoint;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setMeta(Meta meta) {
+    this.meta = meta;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setSchema(String schema) {
+    this.schema = schema;
+  }
+
+  public void setSchemas(List<String> schemas) {
+    this.schemas = schemas;
+  }
+
   @Override
   public String toString() {
-    return "ResourceTypeSCIM{" +
-        "schemas=" + schemas +
-        ", id='" + id + '\'' +
-        ", name='" + name + '\'' +
-        ", description='" + description + '\'' +
-        ", endpoint='" + endpoint + '\'' +
-        ", schema='" + schema + '\'' +
-        ", meta=" + meta +
-        '}';
+    return "ResourceTypeSCIM{" + "schemas=" + schemas + ", id='" + id + '\'' + ", name='" + name + '\'' +
+           ", description='" + description + '\'' + ", endpoint='" + endpoint + '\'' + ", schema='" + schema + '\'' +
+           ", meta=" + meta + '}';
   }
 }

@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +17,7 @@ import java.util.List;
 public class urn_perun_user_attribute_def_def_cscaleResearchField extends UserAttributesModuleAbstract
     implements UserAttributesModuleImplApi {
 
-  private final static List<String> allowedValues =
+  private static final List<String> allowedValues =
       Arrays.asList("atmosphere", "climate", "emergency", "energy", "land", "marine", "security", "other");
 
   /**
@@ -38,7 +37,8 @@ public class urn_perun_user_attribute_def_def_cscaleResearchField extends UserAt
 
     if (!allowedValues.contains(attribute.valueAsString())) {
       throw new WrongAttributeValueException(attribute,
-          "Attribute must have one of allowed values: atmosphere, climate, emergency, energy, land, marine, security, other.");
+          "Attribute must have one of allowed values: atmosphere, climate, emergency, energy, land, marine, security," +
+          " other.");
     }
   }
 

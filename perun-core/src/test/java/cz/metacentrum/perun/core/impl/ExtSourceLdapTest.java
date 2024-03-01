@@ -1,10 +1,15 @@
 package cz.metacentrum.perun.core.impl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -12,17 +17,10 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * @author Metodej Klang
@@ -31,17 +29,6 @@ public class ExtSourceLdapTest {
 
   @Spy
   private static ExtSourceLdap extSourceLdap;
-
-  @Before
-  public void setUp() throws Exception {
-    extSourceLdap = new ExtSourceLdap();
-
-    MockitoAnnotations.initMocks(this);
-
-    extSourceLdap.mapping = new HashMap<>();
-    extSourceLdap.mapping.put("cn", "{firstName}");
-    extSourceLdap.mapping.put("dc", "{dc}");
-  }
 
   @Test
   public void getUsersSubjectsNullQueryTest() throws Exception {
@@ -110,5 +97,16 @@ public class ExtSourceLdapTest {
     // test the method
     List<Map<String, String>> actualSubjects = extSourceLdap.getUsersSubjects();
     assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    extSourceLdap = new ExtSourceLdap();
+
+    MockitoAnnotations.initMocks(this);
+
+    extSourceLdap.mapping = new HashMap<>();
+    extSourceLdap.mapping.put("cn", "{firstName}");
+    extSourceLdap.mapping.put("dc", "{dc}");
   }
 }

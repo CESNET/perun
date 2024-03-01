@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Implementation of {@link LogDelegate} of {@link org.hornetq.core.server.HornetQServer}.
  * <p>
- * It passes log messages to {@link org.slf4j.Logger} created by {@link org.slf4j.LoggerFactory}
- * so that we can use Perun logback.xml configuration to manager HornetQ logging.
+ * It passes log messages to {@link org.slf4j.Logger} created by {@link org.slf4j.LoggerFactory} so that we can use
+ * Perun logback.xml configuration to manager HornetQ logging.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */

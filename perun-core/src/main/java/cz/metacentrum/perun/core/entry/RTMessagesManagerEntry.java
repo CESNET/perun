@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessage;
 import cz.metacentrum.perun.core.api.RTMessagesManager;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
@@ -29,6 +28,14 @@ public class RTMessagesManagerEntry implements RTMessagesManager {
   public RTMessagesManagerEntry() {
   }
 
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
+
+  public RTMessagesManagerBl getRTMessagesManagerBl() {
+    return this.rtMessagesManagerBl;
+  }
+
   @Override
   @Deprecated
   public RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text)
@@ -42,21 +49,21 @@ public class RTMessagesManagerEntry implements RTMessagesManager {
   }
 
   @Override
-  public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) {
-    Utils.checkPerunSession(sess);
-
-    AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
-
-    return rtMessagesManagerBl.sendMessageToRT(sess, voId, queue, subject, text);
-  }
-
-  @Override
   public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) {
     Utils.checkPerunSession(sess);
 
     AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
 
     return rtMessagesManagerBl.sendMessageToRT(sess, queue, subject, text);
+  }
+
+  @Override
+  public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) {
+    Utils.checkPerunSession(sess);
+
+    AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
+
+    return rtMessagesManagerBl.sendMessageToRT(sess, voId, queue, subject, text);
   }
 
   @Override
@@ -68,16 +75,8 @@ public class RTMessagesManagerEntry implements RTMessagesManager {
     return rtMessagesManagerBl.sendMessageToRT(sess, voId, subject, text);
   }
 
-  public PerunBl getPerunBl() {
-    return this.perunBl;
-  }
-
   public void setPerunBl(PerunBl perunBl) {
     this.perunBl = perunBl;
-  }
-
-  public RTMessagesManagerBl getRTMessagesManagerBl() {
-    return this.rtMessagesManagerBl;
   }
 
   public void setRTMessagesManagerBl(RTMessagesManagerBl rtMessagesManagerBl) {

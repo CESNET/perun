@@ -123,104 +123,6 @@ public class UsersPageQuery {
     this.consentStatuses = consentStatuses;
   }
 
-
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public UsersOrderColumn getSortColumn() {
-    return sortColumn;
-  }
-
-  public void setSortColumn(UsersOrderColumn sortColumn) {
-    this.sortColumn = sortColumn;
-  }
-
-  public String getSearchString() {
-    return searchString;
-  }
-
-  public void setSearchString(String searchString) {
-    this.searchString = searchString;
-  }
-
-  public boolean isWithoutVo() {
-    return withoutVo;
-  }
-
-  public void setWithoutVo(boolean withoutVo) {
-    this.withoutVo = withoutVo;
-  }
-
-  public Integer getVoId() {
-    return voId;
-  }
-
-  public void setVoId(Integer groupId) {
-    this.voId = groupId;
-  }
-
-  public Integer getResourceId() {
-    return resourceId;
-  }
-
-  public void setResourceId(Integer resourceId) {
-    this.resourceId = resourceId;
-  }
-
-  public Integer getFacilityId() {
-    return facilityId;
-  }
-
-  public void setFacilityId(Integer facilityId) {
-    this.facilityId = facilityId;
-  }
-
-  public boolean isOnlyAllowed() {
-    return onlyAllowed;
-  }
-
-  public void setOnlyAllowed(boolean onlyAllowed) {
-    this.onlyAllowed = onlyAllowed;
-  }
-
-  public Integer getServiceId() {
-    return serviceId;
-  }
-
-  public void setServiceId(Integer serviceId) {
-    this.serviceId = serviceId;
-  }
-
-
-  public List<ConsentStatus> getConsentStatuses() {
-    return consentStatuses;
-  }
-
-  public void setConsentStatuses(List<ConsentStatus> consentStatuses) {
-    this.consentStatuses = consentStatuses;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -268,6 +170,86 @@ public class UsersPageQuery {
     return Objects.equals(facilityId, that.facilityId);
   }
 
+  public List<ConsentStatus> getConsentStatuses() {
+    return consentStatuses;
+  }
+
+  public void setConsentStatuses(List<ConsentStatus> consentStatuses) {
+    this.consentStatuses = consentStatuses;
+  }
+
+  public Integer getFacilityId() {
+    return facilityId;
+  }
+
+  public void setFacilityId(Integer facilityId) {
+    this.facilityId = facilityId;
+  }
+
+  public int getOffset() {
+    return offset;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public SortingOrder getOrder() {
+    return order;
+  }
+
+  public void setOrder(SortingOrder order) {
+    this.order = order;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
+  }
+
+  public Integer getResourceId() {
+    return resourceId;
+  }
+
+  public void setResourceId(Integer resourceId) {
+    this.resourceId = resourceId;
+  }
+
+  public String getSearchString() {
+    return searchString;
+  }
+
+  public void setSearchString(String searchString) {
+    this.searchString = searchString;
+  }
+
+  public Integer getServiceId() {
+    return serviceId;
+  }
+
+  public void setServiceId(Integer serviceId) {
+    this.serviceId = serviceId;
+  }
+
+  public UsersOrderColumn getSortColumn() {
+    return sortColumn;
+  }
+
+  public void setSortColumn(UsersOrderColumn sortColumn) {
+    this.sortColumn = sortColumn;
+  }
+
+  public Integer getVoId() {
+    return voId;
+  }
+
+  public void setVoId(Integer groupId) {
+    this.voId = groupId;
+  }
+
   @Override
   public int hashCode() {
     int result = pageSize;
@@ -283,5 +265,21 @@ public class UsersPageQuery {
     result = 31 * result + (consentStatuses != null ? consentStatuses.hashCode() : 0);
     result = 31 * result + (onlyAllowed ? 1 : 0);
     return result;
+  }
+
+  public boolean isOnlyAllowed() {
+    return onlyAllowed;
+  }
+
+  public void setOnlyAllowed(boolean onlyAllowed) {
+    this.onlyAllowed = onlyAllowed;
+  }
+
+  public boolean isWithoutVo() {
+    return withoutVo;
+  }
+
+  public void setWithoutVo(boolean withoutVo) {
+    this.withoutVo = withoutVo;
   }
 }

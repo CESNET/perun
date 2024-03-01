@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class FacilityHostsSettingsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "hostssettings";
+  public static final String URL = "hostssettings";
   /**
    * Perun web session
    */

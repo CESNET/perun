@@ -3,9 +3,8 @@ package cz.metacentrum.perun.registrar.exceptions;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 
 /**
- * Custom exception thrown by Registrar when user submits same application, which is already
- * processed by another thread. Prevents multiple application creation when code doesn't see
- * uncommitted data in DB and passes inner tests.
+ * Custom exception thrown by Registrar when user submits same application, which is already processed by another
+ * thread. Prevents multiple application creation when code doesn't see uncommitted data in DB and passes inner tests.
  * <p>
  * This exception is silently skipped in GUI
  *

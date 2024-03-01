@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.scim;
 
-import cz.metacentrum.perun.core.api.PerunSession;
-
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.BASE_PATH;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.GROUPS_PATH;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.RESOURCE_TYPES_PATH;
@@ -9,24 +7,22 @@ import static cz.metacentrum.perun.scim.api.SCIMDefaults.SCHEMAS_PATH;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.SERVICE_PROVIDER_CONFIGS_PATH;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.USERS_PATH;
 
-import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.scim.api.endpoints.GroupResourceEndpointController;
 import cz.metacentrum.perun.scim.api.endpoints.ResourceTypesEndpointController;
 import cz.metacentrum.perun.scim.api.endpoints.SchemasEndpointController;
 import cz.metacentrum.perun.scim.api.endpoints.ServiceProviderConfigsEndpointController;
 import cz.metacentrum.perun.scim.api.endpoints.UserResourceEndpointController;
-
+import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
 import javax.ws.rs.core.Response;
-
 import org.springframework.stereotype.Component;
 
 /**
  * SCIM protocol
  * <p>
- * SCIM (System for Cross-domain Identity Management) is a protocol for
- * cross-domain access to information about users and groups. With SCIM protocol
- * it is possible to create/update/get/delete resources. Currently only get
- * methods are supported.
+ * SCIM (System for Cross-domain Identity Management) is a protocol for cross-domain access to information about users
+ * and groups. With SCIM protocol it is possible to create/update/get/delete resources. Currently only get methods are
+ * supported.
  *
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @date 08.10.2016

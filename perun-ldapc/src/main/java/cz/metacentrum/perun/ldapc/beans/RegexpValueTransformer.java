@@ -2,27 +2,21 @@ package cz.metacentrum.perun.ldapc.beans;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
-
 import java.util.List;
 
 /**
- * Value transformer, which applies list of regular expresion substitutions ({@link RegexpSubst})
- * to the each value of attribute.
+ * Value transformer, which applies list of regular expresion substitutions ({@link RegexpSubst}) to the each value of
+ * attribute.
  */
 public class RegexpValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
   /**
-   * List of applied regex replace operations.
-   * Initialized from the Spring context.
+   * List of applied regex replace operations. Initialized from the Spring context.
    */
   private List<RegexpSubst> replaceList;
 
   public List<RegexpSubst> getReplaceList() {
     return replaceList;
-  }
-
-  public void setReplaceList(List<RegexpSubst> replaceList) {
-    this.replaceList = replaceList;
   }
 
   @Override
@@ -42,6 +36,10 @@ public class RegexpValueTransformer extends ValueTransformerBase implements Attr
   @Override
   public Boolean isReduce() {
     return false;
+  }
+
+  public void setReplaceList(List<RegexpSubst> replaceList) {
+    this.replaceList = replaceList;
   }
 
 }

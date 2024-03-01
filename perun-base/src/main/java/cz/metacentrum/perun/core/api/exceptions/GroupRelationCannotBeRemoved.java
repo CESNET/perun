@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * Exception thrown when group relation cannot be removed.
- * f.e. when it's part of the hierarchical structure of the groups
+ * Exception thrown when group relation cannot be removed. f.e. when it's part of the hierarchical structure of the
+ * groups
  *
  * @author Simona Kruppova
  */

@@ -4,13 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Holds information about tag which we already gone through User: tomastunkl
- * Date: 29.09.12 Time: 23:46 To change this template use File | Settings | File
- * Templates.
+ * Holds information about tag which we already gone through User: tomastunkl Date: 29.09.12 Time: 23:46 To change this
+ * template use File | Settings | File Templates.
  */
 public class TagHolder {
 
-  private static final Logger logger = LoggerFactory.getLogger(TagHolder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TagHolder.class);
   private int startTagPosition;
   private int endTagPosition;
   private TagType type;
@@ -42,7 +41,7 @@ public class TagHolder {
     String name = trimmedTag.substring(0, spaceLocation);
     TagType newType = TagType.resolve(name);
     if (newType == null) {
-      logger.warn("Tag type not recognized: " + name);
+      LOGGER.warn("Tag type not recognized: " + name);
       return null;
     }
 
@@ -60,43 +59,43 @@ public class TagHolder {
     return result;
   }
 
-  public int getStartTagPosition() {
-    return startTagPosition;
-  }
-
-  public void setStartTagPosition(int startTagPosition) {
-    this.startTagPosition = startTagPosition;
-  }
-
   public int getEndTagPosition() {
     return endTagPosition;
-  }
-
-  public void setEndTagPosition(int endTagPosition) {
-    this.endTagPosition = endTagPosition;
-  }
-
-  public TagType getType() {
-    return type;
-  }
-
-  public void setType(TagType type) {
-    this.type = type;
   }
 
   public String getExpression() {
     return expression;
   }
 
-  public void setExpression(String expression) {
-    this.expression = expression;
+  public int getStartTagPosition() {
+    return startTagPosition;
+  }
+
+  public TagType getType() {
+    return type;
   }
 
   public boolean isStartTag() {
     return startTag;
   }
 
+  public void setEndTagPosition(int endTagPosition) {
+    this.endTagPosition = endTagPosition;
+  }
+
+  public void setExpression(String expression) {
+    this.expression = expression;
+  }
+
   public void setStartTag(boolean startTag) {
     this.startTag = startTag;
+  }
+
+  public void setStartTagPosition(int startTagPosition) {
+    this.startTagPosition = startTagPosition;
+  }
+
+  public void setType(TagType type) {
+    this.type = type;
   }
 }

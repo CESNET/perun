@@ -7,24 +7,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Implementation of {@link GraphGenerator }. Creates graph from given definition
- * without duplicated edges and without nodes that has no edges.
+ * Implementation of {@link GraphGenerator }. Creates graph from given definition without duplicated edges and without
+ * nodes that has no edges.
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public class NoDuplicatedEdgesGraphGenerator<T> implements GraphGenerator<T> {
-
-  @Override
-  public Graph generate(NodeGenerator<T> nodeGenerator, GraphDefinition<T> graphDefinition) {
-    Graph graph = new Graph();
-    Long identifier = 0L;
-
-    for (GraphEdge.Type edgeType : graphDefinition.getEdgeTypes()) {
-      addDataFromDependencies(graphDefinition.getEdgeData(edgeType), graph, edgeType, identifier, nodeGenerator);
-    }
-
-    return graph;
-  }
 
   /**
    * Adds data to given graph with specified edge type.
@@ -60,5 +48,17 @@ public class NoDuplicatedEdgesGraphGenerator<T> implements GraphGenerator<T> {
         graph.createEdge(sourceNode, destinationNode, edgeType);
       }
     }
+  }
+
+  @Override
+  public Graph generate(NodeGenerator<T> nodeGenerator, GraphDefinition<T> graphDefinition) {
+    Graph graph = new Graph();
+    Long identifier = 0L;
+
+    for (GraphEdge.Type edgeType : graphDefinition.getEdgeTypes()) {
+      addDataFromDependencies(graphDefinition.getEdgeData(edgeType), graph, edgeType, identifier, nodeGenerator);
+    }
+
+    return graph;
   }
 }

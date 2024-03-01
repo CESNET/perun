@@ -5,8 +5,8 @@ import cz.metacentrum.perun.core.api.PerunBean;
 /**
  * Checked version of PerunBeanNotSupportedException.
  * <p>
- * This exception is thrown when somewhere in code is object PerunBean but
- * this one is not supported there for some reason.
+ * This exception is thrown when somewhere in code is object PerunBean but this one is not supported there for some
+ * reason.
  *
  * @author Michal Stava
  */

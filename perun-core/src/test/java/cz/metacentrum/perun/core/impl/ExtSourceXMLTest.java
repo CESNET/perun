@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,9 +10,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * @author Metodej Klang
@@ -23,13 +22,6 @@ public class ExtSourceXMLTest {
 
   @Spy
   private static ExtSourceXML extSourceXML;
-
-  @Before
-  public void setUp() throws Exception {
-    extSourceXML = new ExtSourceXML();
-
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   public void getUsersSubjectsTest() throws Exception {
@@ -61,5 +53,12 @@ public class ExtSourceXMLTest {
     // test the method
     List<Map<String, String>> actualSubjects = extSourceXML.getUsersSubjects();
     assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    extSourceXML = new ExtSourceXML();
+
+    MockitoAnnotations.initMocks(this);
   }
 }

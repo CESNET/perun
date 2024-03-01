@@ -4,9 +4,6 @@ import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,23 +13,59 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PerunPoliciesContainer stores a list of perun policies and map of role management rules..
  */
 public class PerunPoliciesContainer {
 
-  private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PerunBasicDataSource.class);
   private Set<PerunPolicy> perunPolicies = new HashSet<>();
   private Map<String, RoleManagementRules> rolesManagementRules = new HashMap<>();
 
-  public void setPerunPolicies(Set<PerunPolicy> perunPolicies) {
-    this.perunPolicies = perunPolicies;
+  /**
+   * Fetch policy and all its (also nested) included policies. Method detects and skips cycles.
+   *
+   * @param policyName is a policy definition for which will be policy and its all included policies fetched.
+   * @return all included policies together with the policy defined by policyName.
+   * @throws PolicyNotExistsException when the given policyName does not exist in the PerunPoliciesContainer.
+   */
+  public List<PerunPolicy> fetchPolicyWithAllIncludedPolicies(String policyName) throws PolicyNotExistsException {
+    Map<String, PerunPolicy> allIncludedPolicies = new HashMap<>();
+    Queue<String> policiesToCheck = new LinkedList<>();
+    policiesToCheck.add(policyName);
+
+    while (!policiesToCheck.isEmpty()) {
+      String policy = policiesToCheck.remove();
+      if (allIncludedPolicies.containsKey(policy)) {
+        LOG.warn("Policy {} creates a cycle in the included policies of the policy {}", policy, policyName);
+        continue;
+      }
+      PerunPolicy policyToCheck = getPerunPolicy(policy);
+      allIncludedPolicies.put(policy, policyToCheck);
+      policiesToCheck.addAll(policyToCheck.getIncludePolicies());
+    }
+    return new ArrayList<>(allIncludedPolicies.values());
   }
 
+  /**
+   * Return all loaded perun policies.
+   *
+   * @return all loaded policies
+   */
+  public Set<PerunPolicy> getAllPolicies() {
+    return Collections.unmodifiableSet(perunPolicies);
+  }
 
-  public void setRolesManagementRules(Map<String, RoleManagementRules> rolesManagementRules) {
-    this.rolesManagementRules = rolesManagementRules;
+  /**
+   * Return all loaded roles management rules.
+   *
+   * @return all roles management rules
+   */
+  public List<RoleManagementRules> getAllRolesManagementRules() {
+    return Collections.unmodifiableList(new ArrayList<>(rolesManagementRules.values()));
   }
 
   /**
@@ -68,47 +101,11 @@ public class PerunPoliciesContainer {
     }
   }
 
-  /**
-   * Fetch policy and all its (also nested) included policies.
-   * Method detects and skips cycles.
-   *
-   * @param policyName is a policy definition for which will be policy and its all included policies fetched.
-   * @return all included policies together with the policy defined by policyName.
-   * @throws PolicyNotExistsException when the given policyName does not exist in the PerunPoliciesContainer.
-   */
-  public List<PerunPolicy> fetchPolicyWithAllIncludedPolicies(String policyName) throws PolicyNotExistsException {
-    Map<String, PerunPolicy> allIncludedPolicies = new HashMap<>();
-    Queue<String> policiesToCheck = new LinkedList<>();
-    policiesToCheck.add(policyName);
-
-    while (!policiesToCheck.isEmpty()) {
-      String policy = policiesToCheck.remove();
-      if (allIncludedPolicies.containsKey(policy)) {
-        log.warn("Policy {} creates a cycle in the included policies of the policy {}", policy, policyName);
-        continue;
-      }
-      PerunPolicy policyToCheck = getPerunPolicy(policy);
-      allIncludedPolicies.put(policy, policyToCheck);
-      policiesToCheck.addAll(policyToCheck.getIncludePolicies());
-    }
-    return new ArrayList<>(allIncludedPolicies.values());
+  public void setPerunPolicies(Set<PerunPolicy> perunPolicies) {
+    this.perunPolicies = perunPolicies;
   }
 
-  /**
-   * Return all loaded perun policies.
-   *
-   * @return all loaded policies
-   */
-  public Set<PerunPolicy> getAllPolicies() {
-    return Collections.unmodifiableSet(perunPolicies);
-  }
-
-  /**
-   * Return all loaded roles management rules.
-   *
-   * @return all roles management rules
-   */
-  public List<RoleManagementRules> getAllRolesManagementRules() {
-    return Collections.unmodifiableList(new ArrayList<>(rolesManagementRules.values()));
+  public void setRolesManagementRules(Map<String, RoleManagementRules> rolesManagementRules) {
+    this.rolesManagementRules = rolesManagementRules;
   }
 }

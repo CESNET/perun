@@ -32,27 +32,28 @@ import org.slf4j.LoggerFactory;
  * @author Tamás Balogh
  * @see <a href="https://rcauth.eu/policy">https://rcauth.eu/policy</a>
  * <p>
- * Module which generates userExtSource containing generated DN for ELIXIR CILogon service.
- * More details are available at https://wiki.geant.org/display/AARC/RCauth.eu-CILogon-like-TTS-pilot
+ * Module which generates userExtSource containing generated DN for ELIXIR CILogon service. More details are available
+ * at https://wiki.geant.org/display/AARC/RCauth.eu-CILogon-like-TTS-pilot
  * <p>
- * Implementation must be kept in sync with: https://github.com/ttomttom/aarc-delegation-server/blob/master/src/main/java/org/delegserver/oauth2/generator/DNGenerator.java#L483
+ * Implementation must be kept in sync with:
+ * https://github.com/ttomttom/aarc-delegation-server/blob/master/src/main/java/org/delegserver/oauth2/generator
+ * /DNGenerator.java#L483
  */
 public class ELIXIRCILogonDNGenerator extends DefaultRegistrarModule {
 
-  final static Logger log = LoggerFactory.getLogger(ELIXIRCILogonDNGenerator.class);
+  static final Logger LOG = LoggerFactory.getLogger(ELIXIRCILogonDNGenerator.class);
 
-  private final static String LOGINATTRIBUTE = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
-  private final static String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=ELIXIR/CN=";
-  private final static String CADN =
+  private static final String LOGINATTRIBUTE = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
+  private static final String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=ELIXIR/CN=";
+  private static final String CADN =
       "/DC=eu/DC=rcauth/O=Certification Authorities/CN=Research and Collaboration Authentication Pilot G1 CA";
 
   private static final String RDN_TRUNCATE_SIGN = "...";
   private static final int RDN_MAX_SIZE = 64;
 
   /**
-   * All new members will get new userExtSource with generated DN according to the CILogon rules:
-   * echo -n "eppn" | openssl dgst -sha256 -binary | base64 | head -c16
-   * where eppn is eduPersonPrincipalName
+   * All new members will get new userExtSource with generated DN according to the CILogon rules: echo -n "eppn" |
+   * openssl dgst -sha256 -binary | base64 | head -c16 where eppn is eduPersonPrincipalName
    */
   @Override
   public Application approveApplication(PerunSession session, Application app)
@@ -87,12 +88,13 @@ public class ELIXIRCILogonDNGenerator extends DefaultRegistrarModule {
       byte[] digest = md.digest();
       String hash = Base64.encodeBase64String(digest);
       // Get just first 16 bytes as is described in EU CILogon - RCauth.eu CA requirements
-      String CILogonHash = hash.substring(0, 16);
+      String ciLogonHash = hash.substring(0, 16);
       // Based on the RCauth.eu policy, every '/' and '+' must be replaced with '-'
-      CILogonHash = CILogonHash.replaceAll("/|\\+", "-");
+      ciLogonHash = ciLogonHash.replaceAll("/|\\+", "-");
 
-      // Generate the DN, it must look like /DC=eu/DC=rcauth/DC=rcauth-clients/O=elixir-europe.org/CN=Michal Prochazka rdkfo3rdkfo3kdo
-      String dn = DNPREFIX + displayName + " " + CILogonHash;
+      // Generate the DN, it must look like /DC=eu/DC=rcauth/DC=rcauth-clients/O=elixir-europe.org/CN=Michal
+      // Prochazka rdkfo3rdkfo3kdo
+      String dn = DNPREFIX + displayName + " " + ciLogonHash;
 
       // Store the userExtSource
       ExtSource extSource =
@@ -111,16 +113,14 @@ public class ELIXIRCILogonDNGenerator extends DefaultRegistrarModule {
   }
 
   /**
-   * Implementation of the general truncating rule outlined in the RCauth Policy Document
-   * ( https://rcauth.eu/policy ) in section 3.1.2. It takes an RDN as input and checks its
-   * UTF-8 encoded byte size. In case it's larger than the size provided in the parameters,
-   * the RDN will get truncated to 61 UTF-8 bytes (or less in case the bordering byte is
-   * in the middle of a UTF-8 character definition) with RDN_TRUNCATE_SIGN appended to the
-   * end.
+   * Implementation of the general truncating rule outlined in the RCauth Policy Document ( https://rcauth.eu/policy )
+   * in section 3.1.2. It takes an RDN as input and checks its UTF-8 encoded byte size. In case it's larger than the
+   * size provided in the parameters, the RDN will get truncated to 61 UTF-8 bytes (or less in case the bordering byte
+   * is in the middle of a UTF-8 character definition) with RDN_TRUNCATE_SIGN appended to the end.
    *
    * @param rdn  Input RDN to be truncated in case it's too large
-   * @param size The size to which the RDN should be truncated. This value defaults to
-   *             RDN_MAX_SIZE (64 bytes) in case the size provided is less then or equal to 0
+   * @param size The size to which the RDN should be truncated. This value defaults to RDN_MAX_SIZE (64 bytes) in case
+   *             the size provided is less then or equal to 0
    * @return Truncated RDN
    */
   private String truncate(String rdn, int size) {

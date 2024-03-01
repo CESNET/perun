@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 /**
  * This class wraps AuditerConsumer for Dispatcher.
  * <p>
- * It ensure continuous reading of audit messages and convert them to Events,
- * which are then pushed to EventQueue for further processing by EventProcessor.
+ * It ensure continuous reading of audit messages and convert them to Events, which are then pushed to EventQueue for
+ * further processing by EventProcessor.
  * <p>
  * Its started by DispatcherManager when Spring context is initialized.
  *
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 @Service(value = "auditerListener")
 public class AuditerListener extends AbstractRunner {
 
-  private final static Logger log = LoggerFactory.getLogger(AuditerListener.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AuditerListener.class);
 
   private BlockingQueue<Event> eventQueue;
   private Properties dispatcherProperties;
@@ -44,34 +44,17 @@ public class AuditerListener extends AbstractRunner {
 
   // ----- setters -------------------------------------
 
-  public BlockingQueue<Event> getEventQueue() {
-    return eventQueue;
-  }
-
-  @Resource(name = "eventQueue")
-  public void setEventQueue(BlockingQueue<Event> eventQueue) {
-    this.eventQueue = eventQueue;
-  }
-
   public Properties getDispatcherProperties() {
     return dispatcherProperties;
   }
 
-  @Resource(name = "dispatcherPropertiesBean")
-  public void setDispatcherProperties(Properties dispatcherProperties) {
-    this.dispatcherProperties = dispatcherProperties;
+  public BlockingQueue<Event> getEventQueue() {
+    return eventQueue;
   }
 
   public Perun getPerun() {
     return perun;
   }
-
-  @Autowired
-  public void setPerun(Perun perun) {
-    this.perun = perun;
-  }
-
-  // ----- methods -------------------------------------
 
   @Override
   public void run() {
@@ -82,14 +65,12 @@ public class AuditerListener extends AbstractRunner {
 
       try {
         if (sess == null) {
-          sess = perun.getPerunSession(new PerunPrincipal(
-                  dispatcherProperties.getProperty("perun.principal.name"),
-                  dispatcherProperties.getProperty("perun.principal.extSourceName"),
-                  dispatcherProperties.getProperty("perun.principal.extSourceType")),
-              new PerunClient());
+          sess = perun.getPerunSession(new PerunPrincipal(dispatcherProperties.getProperty("perun.principal.name"),
+              dispatcherProperties.getProperty("perun.principal.extSourceName"),
+              dispatcherProperties.getProperty("perun.principal.extSourceType")), new PerunClient());
         }
       } catch (InternalErrorException e1) {
-        log.error("Error establishing perun session in AuditerListener.", e1);
+        LOG.error("Error establishing perun session in AuditerListener.", e1);
         // we can't continue without session
         stop();
       }
@@ -114,16 +95,33 @@ public class AuditerListener extends AbstractRunner {
           }
           Thread.sleep(1000);
         } catch (InternalErrorException | PrivilegeException ex) {
-          log.error("AuditerListener couldn't get AuditEvents.", ex);
+          LOG.error("AuditerListener couldn't get AuditEvents.", ex);
           Thread.sleep(1000);
         }
       }
-      log.debug("AuditerListener has stopped.");
+      LOG.debug("AuditerListener has stopped.");
     } catch (InterruptedException e) {
-      log.error("Error in AuditerListener: {}" + e);
+      LOG.error("Error in AuditerListener: {}" + e);
       throw new RuntimeException("Somebody has interrupted us...", e);
     }
 
+  }
+
+  @Resource(name = "dispatcherPropertiesBean")
+  public void setDispatcherProperties(Properties dispatcherProperties) {
+    this.dispatcherProperties = dispatcherProperties;
+  }
+
+  @Resource(name = "eventQueue")
+  public void setEventQueue(BlockingQueue<Event> eventQueue) {
+    this.eventQueue = eventQueue;
+  }
+
+  // ----- methods -------------------------------------
+
+  @Autowired
+  public void setPerun(Perun perun) {
+    this.perun = perun;
   }
 
 }

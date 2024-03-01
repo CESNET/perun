@@ -18,13 +18,13 @@ public class ConsentCreated extends AuditEvent {
     this.message = formatMessage("Created consent: %s", consent);
   }
 
+  public Consent getConsent() {
+    return consent;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Consent getConsent() {
-    return consent;
   }
 
   @Override

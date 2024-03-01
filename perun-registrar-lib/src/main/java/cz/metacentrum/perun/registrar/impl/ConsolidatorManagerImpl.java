@@ -74,8 +74,8 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
  */
 public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
-  private final static Logger log = LoggerFactory.getLogger(ConsolidatorManagerImpl.class);
-  private final static Set<String> extSourcesWithMultipleIdentifiers =
+  private static final Logger LOG = LoggerFactory.getLogger(ConsolidatorManagerImpl.class);
+  private static final Set<String> EXT_SOURCES_MULTIPLE_IDENTIFIERS =
       BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
   private static ObjectMapper objectMapper = new ObjectMapper();
   private static UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
@@ -88,38 +88,15 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
   // expiring thread safe map cache
   private ExpiringMap<String, Map<String, Object>> requestCache;
 
-  public void setRegistrarManager(RegistrarManager registrarManager) {
-    this.registrarManager = registrarManager;
-  }
-
-  public void setDataSource(DataSource dataSource) {
-    this.jdbc = new JdbcPerunTemplate(dataSource);
-    this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
-  }
-
-  protected void initialize() throws PerunException {
-
-    // gets session for a system principal "perunRegistrar"
-    final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
-        ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-        ExtSourcesManager.EXTSOURCE_INTERNAL);
-    registrarSession = perun.getPerunSession(pp, new PerunClient());
-
-    // cache expires after 5 minutes from creation
-    requestCache =
-        ExpiringMap.builder().expiration(5, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.CREATED).build();
-
+  @Override
+  public List<EnrichedIdentity> checkForSimilarRichIdentities(PerunSession sess) throws PerunException {
+    return convertToEnrichedIdentities(findSimilarRichUsers(sess));
   }
 
   @Override
   public List<Identity> checkForSimilarUsers(PerunSession sess) throws PerunException {
     return convertToIdentities(findSimilarRichUsers(sess));
 
-  }
-
-  @Override
-  public List<EnrichedIdentity> checkForSimilarRichIdentities(PerunSession sess) throws PerunException {
-    return convertToEnrichedIdentities(findSimilarRichUsers(sess));
   }
 
   @Override
@@ -187,14 +164,12 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
     //Authorization
     if (app.getGroup() != null) {
       if (!AuthzResolver.authorizedInternal(sess, "group-checkForSimilarUsers_int_policy",
-          Arrays.asList(app.getGroup(), app.getVo())) &&
-          !AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+          Arrays.asList(app.getGroup(), app.getVo())) && !AuthzResolver.selfAuthorizedForApplication(sess, app)) {
         throw new PrivilegeException("checkForSimilarUsers");
       }
     } else {
       if (!AuthzResolver.authorizedInternal(sess, "vo-checkForSimilarUsers_int_policy",
-          Collections.singletonList(app.getVo())) &&
-          !AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+          Collections.singletonList(app.getVo())) && !AuthzResolver.selfAuthorizedForApplication(sess, app)) {
         throw new PrivilegeException("checkForSimilarUsers");
       }
     }
@@ -271,12 +246,10 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
               Map<String, String> nameMap = Utils.parseCommonName(name);
               // drop name titles to spread search
               String newName = "";
-              if (nameMap.get("firstName") != null
-                  && !nameMap.get("firstName").isEmpty()) {
+              if (nameMap.get("firstName") != null && !nameMap.get("firstName").isEmpty()) {
                 newName += nameMap.get("firstName") + " ";
               }
-              if (nameMap.get("lastName") != null
-                  && !nameMap.get("lastName").isEmpty()) {
+              if (nameMap.get("lastName") != null && !nameMap.get("lastName").isEmpty()) {
                 newName += nameMap.get("lastName");
               }
               // fill parsed name instead of input
@@ -285,7 +258,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
               }
             }
           } catch (Exception ex) {
-            log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for similar users.",
+            LOG.error("[REGISTRAR] Unable to parse new user's display/common name when searching for similar users.",
                 ex);
           }
           if (name != null && !name.isEmpty()) {
@@ -331,187 +304,6 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
   }
 
   @Override
-  public String getConsolidatorToken(PerunSession sess) throws PerunException {
-
-    Map<String, Object> value = new HashMap<>();
-
-    String actor = sess.getPerunPrincipal().getActor();
-    String extSourceName = sess.getPerunPrincipal().getExtSourceName();
-    String extSourceType = sess.getPerunPrincipal().getExtSourceType();
-    Integer extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
-    User user = sess.getPerunPrincipal().getUser();
-
-    value.put("actor", actor);
-    value.put("extSourceName", extSourceName);
-    value.put("extSourceType", extSourceType);
-    value.put("extSourceLoa", extSourceLoa);
-    value.put("user", user);
-    value.put("additionalInformation", sess.getPerunPrincipal().getAdditionalInformations());
-
-    // create token from actual properties
-    String token = registrarManager.getMailManager().getMessageAuthenticationCode(
-        System.currentTimeMillis() + actor + extSourceName + extSourceType + extSourceLoa);
-
-    requestCache.putIfAbsent(token, value);
-
-    return token;
-
-  }
-
-  @Override
-  public List<UserExtSource> consolidateIdentityUsingToken(PerunSession sess, String token) throws PerunException {
-
-    Map<String, Object> originalIdentity = requestCache.get(token);
-
-    if (originalIdentity == null) {
-      InvalidTokenException ex = new InvalidTokenException(
-          "Your token for joining identities is no longer valid. Please retry from the start.");
-      log.info("Token {} for joining identities is no longer valid for current identity: {}",
-          StringUtils.join(
-              Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
-                  sess.getPerunPrincipal().getExtSourceType()), " | "), token, ex);
-      throw ex;
-    }
-
-    User originalUser = (User) originalIdentity.get("user");
-    User currentUser = sess.getPerunPrincipal().getUser();
-
-    if (originalUser == null && currentUser == null) {
-      IdentityUnknownException ex = new IdentityUnknownException(
-          "Neither original or current identity is know to Perun. Please use at least one identity known to Perun.");
-      ex.setLogin((String) originalIdentity.get("actor"));
-      ex.setSource2((String) originalIdentity.get("extSourceName"));
-      ex.setSourceType2((String) originalIdentity.get("extSourceType"));
-      ex.setLogin2(sess.getPerunPrincipal().getActor());
-      ex.setSource2(sess.getPerunPrincipal().getExtSourceName());
-      ex.setSourceType2(sess.getPerunPrincipal().getExtSourceType());
-      log.warn("None of identities is known to Perun. Current identity: {}, previous identity: {}",
-          StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "),
-          StringUtils.join(Arrays.asList(ex.getLogin2(), ex.getSource2(), ex.getSourceType2()), " | "));
-      throw ex;
-    }
-
-    Map<String, String> additionalAttributes = objectMapper.convertValue(originalIdentity.get("additionalInformation"),
-        new TypeReference<LinkedHashMap<String, String>>() {
-        });
-    String shibIdentityProvider =
-        sess.getPerunPrincipal().getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
-
-    boolean sameIdentity = false;
-
-    if (shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider) &&
-        originalIdentity.get("extSourceName").equals(sess.getPerunPrincipal().getExtSourceName())) {
-
-      String userAdditionalIdentifiers = sess.getPerunPrincipal().getAdditionalInformations()
-          .get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
-      String originalIdentityAdditionalIdentifiers =
-          additionalAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
-      if (userAdditionalIdentifiers == null) {
-        throw new InternalErrorException("Entry " + UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME +
-            " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
-      }
-      List<String> identifiersInIntersection = BeansUtils.additionalIdentifiersIntersection(userAdditionalIdentifiers,
-          originalIdentityAdditionalIdentifiers);
-      if (!identifiersInIntersection.isEmpty()) {
-        sameIdentity = true;
-      }
-    } else if (originalIdentity.get("extSourceName").equals(sess.getPerunPrincipal().getExtSourceName()) &&
-        originalIdentity.get("actor").equals(sess.getPerunPrincipal().getActor()) &&
-        originalIdentity.get("extSourceType").equals(sess.getPerunPrincipal().getExtSourceType())) {
-      sameIdentity = true;
-    }
-
-    if (sameIdentity) {
-      IdentityIsSameException ex = new IdentityIsSameException(
-          "You tried to join same identity with itself. Please try again but select different identity.");
-      ex.setLogin(sess.getPerunPrincipal().getActor());
-      ex.setSource(sess.getPerunPrincipal().getExtSourceName());
-      ex.setSourceType(sess.getPerunPrincipal().getExtSourceType());
-      log.warn("User tried to join identity with itself. Identity: {}",
-          StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "));
-      throw ex;
-    }
-
-    if (originalUser != null && originalUser.equals(currentUser)) {
-      IdentitiesAlreadyJoinedException ex =
-          new IdentitiesAlreadyJoinedException("You already have both identities joined.");
-      log.warn("User already have both identities joined. User: {}, Current identity: {}, Original identity: {}",
-          originalUser,
-          StringUtils.join(
-              Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
-                  sess.getPerunPrincipal().getExtSourceType()), " | "),
-          StringUtils.join(
-              Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"),
-                  (String) originalIdentity.get("extSourceType")), " | "));
-      throw ex;
-    }
-
-    if (originalUser != null && currentUser != null && !originalUser.equals(currentUser)) {
-      IdentityAlreadyInUseException ex = new IdentityAlreadyInUseException(
-          "Your identity is already associated with a different user. If you are really the same person, please contact support to help you.",
-          originalUser, currentUser);
-      log.warn(
-          "Identity to be joined is already used by different user. Current user: {}, Current identity: {}, Original user: {}, Original identity: {}",
-          currentUser, StringUtils.join(
-              Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
-                  sess.getPerunPrincipal().getExtSourceType()), " | "),
-          originalUser, StringUtils.join(
-              Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"),
-                  (String) originalIdentity.get("extSourceType")), " | "));
-      throw ex;
-    }
-
-    UserExtSource newUes = null;
-    // merge original identity into current user
-    if (originalUser == null) {
-      UserExtSource ues = createExtSourceAndUserExtSource(currentUser, (String) originalIdentity.get("actor"),
-          (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType"),
-          (Integer) originalIdentity.get("extSourceLoa"));
-      ((PerunBlImpl) perun).setUserExtSourceAttributes(sess, ues, additionalAttributes);
-      log.info("{} joined identities. Current identity: {}, Original identity: {}", currentUser,
-          StringUtils.join(
-              Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
-                  sess.getPerunPrincipal().getExtSourceType(), " | ")),
-          StringUtils.join(
-              Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"),
-                  (String) originalIdentity.get("extSourceType")), " | "));
-      newUes = ues;
-    }
-
-    // merge current identity into original user
-    if (currentUser == null) {
-      UserExtSource ues = createExtSourceAndUserExtSource(originalUser, sess.getPerunPrincipal().getActor(),
-          sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(),
-          sess.getPerunPrincipal().getExtSourceLoa());
-      ((PerunBlImpl) perun).setUserExtSourceAttributes(sess, ues, sess.getPerunPrincipal().getAdditionalInformations());
-      log.info("{} joined identities. Current identity: {}, Original identity: {}", originalUser,
-          StringUtils.join(
-              Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
-                  sess.getPerunPrincipal().getExtSourceType(), " | ")),
-          StringUtils.join(
-              Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"),
-                  (String) originalIdentity.get("extSourceType")), " | "));
-      newUes = ues;
-    }
-
-
-    AuthzResolverBlImpl.refreshSession(sess);
-
-    requestCache.remove(token);
-
-    if (BeansUtils.getCoreConfig().isSendIdentityAlerts()) {
-      try {
-        Utils.sendIdentityAddedAlerts(sess, newUes);
-      } catch (Exception e) {
-        log.error("Failed to send identity added alerts.", e);
-      }
-    }
-
-    return perun.getUsersManagerBl().getUserExtSources(sess, sess.getPerunPrincipal().getUser());
-
-  }
-
-  @Override
   public void consolidate(PerunSession sess, String accessToken) throws PerunException {
     Map<String, String> additionalInformationNonCaller = new HashMap<>();
     UserInfoEndpointResponse userInfoNonCaller = userInfoEndpointCall.getUserInfoEndpointData(accessToken,
@@ -519,7 +311,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
     if (StringUtils.isEmpty(userInfoNonCaller.getSub()) || StringUtils.isEmpty(userInfoNonCaller.getIssuer()) ||
         StringUtils.isEmpty(sess.getPerunPrincipal().getActor()) ||
         StringUtils.isEmpty(sess.getPerunPrincipal().getExtSourceName())) {
-      log.error("Call to user info endpoint didn't found original issuer or original sub.");
+      LOG.error("Call to user info endpoint didn't found original issuer or original sub.");
       throw new InternalErrorException("Call to user info endpoint didn't found original issuer or original sub.");
     }
 
@@ -536,7 +328,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
     }
 
     User userCaller = sess.getPerunPrincipal().getUser();
-    log.info("User who called consolidation is: {}, Previously logged user is: {}", userCaller, userNonCaller);
+    LOG.info("User who called consolidation is: {}, Previously logged user is: {}", userCaller, userNonCaller);
 
     //checking if the two identity which we are want to consolidate are not the same
     //if they are the same, the consolidator doesn't make sense
@@ -544,7 +336,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
         userInfoNonCaller.getSub().equals(sess.getPerunPrincipal().getActor())) {
       IdentityIsSameException ex = new IdentityIsSameException(
           "You tried to join same identity with itself. Please try again but select different identity.");
-      log.warn("User tried to join identity with itself.");
+      LOG.warn("User tried to join identity with itself.");
       throw ex;
     }
 
@@ -558,7 +350,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
       ex.setLogin2(sess.getPerunPrincipal().getActor());
       ex.setSource2(sess.getPerunPrincipal().getExtSourceName());
       ex.setSourceType2(sess.getPerunPrincipal().getExtSourceType());
-      log.warn("None of identities is known to Perun. Current identity: {}, previous identity: {}",
+      LOG.warn("None of identities is known to Perun. Current identity: {}, previous identity: {}",
           StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "),
           StringUtils.join(Arrays.asList(ex.getLogin2(), ex.getSource2(), ex.getSourceType2()), " | "));
       throw ex;
@@ -569,9 +361,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
       if (userCaller.getId() == userNonCaller.getId()) {
         IdentitiesAlreadyJoinedException ex =
             new IdentitiesAlreadyJoinedException("You already have both identities joined.");
-        log.warn("User already have both identities joined. User: {}, Current identity: {}, Original identity: {}",
-            userCaller,
-            StringUtils.join(
+        LOG.warn("User already have both identities joined. User: {}, Current identity: {}, Original identity: {}",
+            userCaller, StringUtils.join(
                 Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
                     sess.getPerunPrincipal().getExtSourceType()), " | "),
             StringUtils.join(Arrays.asList(ues.getLogin(), ues.getExtSource().getName(), ues.getExtSource().getType()),
@@ -579,14 +370,12 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
         throw ex;
       } else {
         IdentityAlreadyInUseException ex = new IdentityAlreadyInUseException(
-            "Your identity is already associated with a different user. If you are really the same person, please contact support to help you.",
-            userCaller, userNonCaller);
-        log.warn(
-            "Identity to be joined is already used by different user. Current user: {}, Current identity: {}, Original user: {}, Original identity: {}",
-            userCaller, StringUtils.join(
+            "Your identity is already associated with a different user. If you are really the same person," +
+            " please contact support to help you.", userCaller, userNonCaller);
+        LOG.warn("Identity to be joined is already used by different user. Current user: {}, Current identity: {}," +
+                 " Original user: {}, Original identity: {}", userCaller, StringUtils.join(
                 Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
-                    sess.getPerunPrincipal().getExtSourceType()), " | "),
-            userNonCaller,
+                    sess.getPerunPrincipal().getExtSourceType()), " | "), userNonCaller,
             StringUtils.join(Arrays.asList(ues.getLogin(), ues.getExtSource().getName(), ues.getExtSource().getType()),
                 " | "));
         throw ex;
@@ -595,16 +384,15 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
     UserExtSource createdUes;
     //create nw Extsource and add it to existing user
     if (userCaller != null) {
-      createdUes = createExtSourceAndUserExtSource(userCaller, userInfoNonCaller.getSub(),
-          userInfoNonCaller.getIssuer(), sess.getPerunPrincipal().getExtSourceType(),
-          sess.getPerunPrincipal().getExtSourceLoa());
+      createdUes =
+          createExtSourceAndUserExtSource(userCaller, userInfoNonCaller.getSub(), userInfoNonCaller.getIssuer(),
+              sess.getPerunPrincipal().getExtSourceType(), sess.getPerunPrincipal().getExtSourceLoa());
 
       ((PerunBlImpl) perun).setUserExtSourceAttributes(sess, createdUes, additionalInformationNonCaller);
-      log.info("{} joined identities. Current identity: {}, Original identity: {}", userCaller,
-          StringUtils.join(
-              Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
-                  sess.getPerunPrincipal().getExtSourceType(), " | ")),
-          StringUtils.join(Arrays.asList(userInfoNonCaller.getSub(), userInfoNonCaller.getIssuer(),
+      LOG.info("{} joined identities. Current identity: {}, Original identity: {}", userCaller, StringUtils.join(
+          Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
+              sess.getPerunPrincipal().getExtSourceType(), " | ")), StringUtils.join(
+          Arrays.asList(userInfoNonCaller.getSub(), userInfoNonCaller.getIssuer(),
               sess.getPerunPrincipal().getExtSourceType()), " | "));
     } else {
       createdUes = createExtSourceAndUserExtSource(userNonCaller, sess.getPerunPrincipal().getActor(),
@@ -612,11 +400,10 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
           sess.getPerunPrincipal().getExtSourceLoa());
       ((PerunBlImpl) perun).setUserExtSourceAttributes(sess, createdUes,
           sess.getPerunPrincipal().getAdditionalInformations());
-      log.info("{} joined identities. Current identity: {}, Original identity: {}", userNonCaller,
-          StringUtils.join(
-              Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
-                  sess.getPerunPrincipal().getExtSourceType(), " | ")),
-          StringUtils.join(Arrays.asList(userInfoNonCaller.getSub(), userInfoNonCaller.getIssuer(),
+      LOG.info("{} joined identities. Current identity: {}, Original identity: {}", userNonCaller, StringUtils.join(
+          Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
+              sess.getPerunPrincipal().getExtSourceType(), " | ")), StringUtils.join(
+          Arrays.asList(userInfoNonCaller.getSub(), userInfoNonCaller.getIssuer(),
               sess.getPerunPrincipal().getExtSourceType()), " | "));
 
     }
@@ -627,103 +414,160 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
       try {
         Utils.sendIdentityAddedAlerts(sess, createdUes);
       } catch (Exception e) {
-        log.error("Failed to send identity added alerts.", e);
+        LOG.error("Failed to send identity added alerts.", e);
       }
     }
   }
 
+  @Override
+  public List<UserExtSource> consolidateIdentityUsingToken(PerunSession sess, String token) throws PerunException {
 
-  /**
-   * Creates ExtSource and UserExtSource if necessary for the purpose of joining users identities.
-   *
-   * @param user          User to add UES to
-   * @param actor         Actor to add
-   * @param extSourceName ExtSource name to add
-   * @param extSourceType ExtSource type to add
-   * @param loa           loa in ext source
-   * @return created UserExtSource
-   * @throws PerunException when anything fails
-   */
-  private UserExtSource createExtSourceAndUserExtSource(User user, String actor, String extSourceName,
-                                                        String extSourceType, int loa) throws PerunException {
+    Map<String, Object> originalIdentity = requestCache.get(token);
 
-    ExtSource extSource = new ExtSource(extSourceName, extSourceType);
-    try {
-      extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, extSourceName);
-    } catch (ExtSourceNotExistsException ex) {
-      extSource = perun.getExtSourcesManagerBl().createExtSource(registrarSession, extSource, null);
+    if (originalIdentity == null) {
+      InvalidTokenException ex = new InvalidTokenException(
+          "Your token for joining identities is no longer valid. Please retry from the start.");
+      LOG.info("Token {} for joining identities is no longer valid for current identity: {}", StringUtils.join(
+          Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
+              sess.getPerunPrincipal().getExtSourceType()), " | "), token, ex);
+      throw ex;
     }
 
-    UserExtSource ues = new UserExtSource();
-    ues.setLogin(actor);
-    ues.setLoa(loa);
-    ues.setExtSource(extSource);
-    ues.setUserId(user.getId());
+    User originalUser = (User) originalIdentity.get("user");
+    User currentUser = sess.getPerunPrincipal().getUser();
 
-    return perun.getUsersManagerBl().addUserExtSource(registrarSession, user, ues);
-
-  }
-
-  /**
-   * Retrieves whole application object from DB
-   * (authz in parent methods)
-   *
-   * @param sess  PerunSession for Authz and to resolve User
-   * @param vo    VO to get application for
-   * @param group Group
-   * @return application object / null if not exists
-   */
-  private Application getLatestApplication(PerunSession sess, Vo vo, Group group, Application.AppType type) {
-    List<Application> allApplications = new ArrayList<>();
-    if (group != null) {
-      allApplications.addAll(
-          jdbc.query(RegistrarManagerImpl.APP_SELECT + " where a.vo_id=? and a.group_id=? and a.apptype=?",
-              RegistrarManagerImpl.APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type)));
-    } else {
-      allApplications.addAll(jdbc.query(RegistrarManagerImpl.APP_SELECT + " where a.vo_id=? and a.apptype=?",
-          RegistrarManagerImpl.APP_MAPPER, vo.getId(), String.valueOf(type)));
+    if (originalUser == null && currentUser == null) {
+      IdentityUnknownException ex = new IdentityUnknownException(
+          "Neither original or current identity is know to Perun. Please use at least one identity known to Perun.");
+      ex.setLogin((String) originalIdentity.get("actor"));
+      ex.setSource2((String) originalIdentity.get("extSourceName"));
+      ex.setSourceType2((String) originalIdentity.get("extSourceType"));
+      ex.setLogin2(sess.getPerunPrincipal().getActor());
+      ex.setSource2(sess.getPerunPrincipal().getExtSourceName());
+      ex.setSourceType2(sess.getPerunPrincipal().getExtSourceType());
+      LOG.warn("None of identities is known to Perun. Current identity: {}, previous identity: {}",
+          StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "),
+          StringUtils.join(Arrays.asList(ex.getLogin2(), ex.getSource2(), ex.getSourceType2()), " | "));
+      throw ex;
     }
 
-    List<Application> userApplications = registrarManager.filterPrincipalApplications(sess, allApplications);
+    Map<String, String> additionalAttributes = objectMapper.convertValue(originalIdentity.get("additionalInformation"),
+        new TypeReference<LinkedHashMap<String, String>>() {
+        });
+    String shibIdentityProvider =
+        sess.getPerunPrincipal().getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
 
-    if (userApplications.isEmpty()) {
-      return null;
-    } else {
-      return userApplications.stream()
-          .max(comparing(Application::getId))
-          .get();
-    }
-  }
+    boolean sameIdentity = false;
 
-  /**
-   * Convert RichUsers to Identity objects with obfuscated email address and limited set of ext sources.
-   * Service users are removed from the list.
-   *
-   * @param list RichUsers to convert
-   * @return list of Identities without service ones
-   */
-  private List<Identity> convertToIdentities(List<RichUser> list) {
-    List<EnrichedIdentity> enrichedIdentities = convertToEnrichedIdentities(list);
-    List<Identity> identities = new ArrayList<>();
-    for (EnrichedIdentity enrichedIdentity : enrichedIdentities) {
-      Identity identity = new Identity();
-      identity.setId(enrichedIdentity.getId());
-      identity.setEmail(enrichedIdentity.getEmail());
-      identity.setName(enrichedIdentity.getName());
-      identity.setOrganization(enrichedIdentity.getOrganization());
-      List<ExtSource> extSources = new ArrayList<>();
-      for (EnrichedExtSource enrichedExtSource : enrichedIdentity.getIdentities()) {
-        extSources.add(enrichedExtSource.getExtSource());
+    if (shibIdentityProvider != null && EXT_SOURCES_MULTIPLE_IDENTIFIERS.contains(shibIdentityProvider) &&
+        originalIdentity.get("extSourceName").equals(sess.getPerunPrincipal().getExtSourceName())) {
+
+      String userAdditionalIdentifiers = sess.getPerunPrincipal().getAdditionalInformations()
+          .get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+      String originalIdentityAdditionalIdentifiers =
+          additionalAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+      if (userAdditionalIdentifiers == null) {
+        throw new InternalErrorException("Entry " + UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME +
+                                         " is not defined in the principal's additional information. Either it was " +
+                                         "not provided by external source" +
+                                         " used for sign-in or the mapping configuration is wrong.");
       }
-      identity.setIdentities(extSources);
-      identities.add(identity);
+      List<String> identifiersInIntersection = BeansUtils.additionalIdentifiersIntersection(userAdditionalIdentifiers,
+          originalIdentityAdditionalIdentifiers);
+      if (!identifiersInIntersection.isEmpty()) {
+        sameIdentity = true;
+      }
+    } else if (originalIdentity.get("extSourceName").equals(sess.getPerunPrincipal().getExtSourceName()) &&
+               originalIdentity.get("actor").equals(sess.getPerunPrincipal().getActor()) &&
+               originalIdentity.get("extSourceType").equals(sess.getPerunPrincipal().getExtSourceType())) {
+      sameIdentity = true;
     }
-    return identities;
+
+    if (sameIdentity) {
+      IdentityIsSameException ex = new IdentityIsSameException(
+          "You tried to join same identity with itself. Please try again but select different identity.");
+      ex.setLogin(sess.getPerunPrincipal().getActor());
+      ex.setSource(sess.getPerunPrincipal().getExtSourceName());
+      ex.setSourceType(sess.getPerunPrincipal().getExtSourceType());
+      LOG.warn("User tried to join identity with itself. Identity: {}",
+          StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "));
+      throw ex;
+    }
+
+    if (originalUser != null && originalUser.equals(currentUser)) {
+      IdentitiesAlreadyJoinedException ex =
+          new IdentitiesAlreadyJoinedException("You already have both identities joined.");
+      LOG.warn("User already have both identities joined. User: {}, Current identity: {}, Original identity: {}",
+          originalUser, StringUtils.join(
+              Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
+                  sess.getPerunPrincipal().getExtSourceType()), " | "), StringUtils.join(
+              Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"),
+                  (String) originalIdentity.get("extSourceType")), " | "));
+      throw ex;
+    }
+
+    if (originalUser != null && currentUser != null && !originalUser.equals(currentUser)) {
+      IdentityAlreadyInUseException ex = new IdentityAlreadyInUseException(
+          "Your identity is already associated with a different user. If you are really the same person," +
+          " please contact support to help you.", originalUser, currentUser);
+      LOG.warn("Identity to be joined is already used by different user. Current user: {}, Current identity: {}," +
+               " Original user: {}, Original identity: {}", currentUser, StringUtils.join(
+          Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
+              sess.getPerunPrincipal().getExtSourceType()), " | "), originalUser, StringUtils.join(
+          Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"),
+              (String) originalIdentity.get("extSourceType")), " | "));
+      throw ex;
+    }
+
+    UserExtSource newUes = null;
+    // merge original identity into current user
+    if (originalUser == null) {
+      UserExtSource ues = createExtSourceAndUserExtSource(currentUser, (String) originalIdentity.get("actor"),
+          (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType"),
+          (Integer) originalIdentity.get("extSourceLoa"));
+      ((PerunBlImpl) perun).setUserExtSourceAttributes(sess, ues, additionalAttributes);
+      LOG.info("{} joined identities. Current identity: {}, Original identity: {}", currentUser, StringUtils.join(
+          Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
+              sess.getPerunPrincipal().getExtSourceType(), " | ")), StringUtils.join(
+          Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"),
+              (String) originalIdentity.get("extSourceType")), " | "));
+      newUes = ues;
+    }
+
+    // merge current identity into original user
+    if (currentUser == null) {
+      UserExtSource ues = createExtSourceAndUserExtSource(originalUser, sess.getPerunPrincipal().getActor(),
+          sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(),
+          sess.getPerunPrincipal().getExtSourceLoa());
+      ((PerunBlImpl) perun).setUserExtSourceAttributes(sess, ues, sess.getPerunPrincipal().getAdditionalInformations());
+      LOG.info("{} joined identities. Current identity: {}, Original identity: {}", originalUser, StringUtils.join(
+          Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
+              sess.getPerunPrincipal().getExtSourceType(), " | ")), StringUtils.join(
+          Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"),
+              (String) originalIdentity.get("extSourceType")), " | "));
+      newUes = ues;
+    }
+
+
+    AuthzResolverBlImpl.refreshSession(sess);
+
+    requestCache.remove(token);
+
+    if (BeansUtils.getCoreConfig().isSendIdentityAlerts()) {
+      try {
+        Utils.sendIdentityAddedAlerts(sess, newUes);
+      } catch (Exception e) {
+        LOG.error("Failed to send identity added alerts.", e);
+      }
+    }
+
+    return perun.getUsersManagerBl().getUserExtSources(sess, sess.getPerunPrincipal().getUser());
+
   }
 
   /**
-   * Convert RichUsers to EnrichedIdentity objects with obfuscated email address and limited set of ext sources.
-   * Service users are removed from the list.
+   * Convert RichUsers to EnrichedIdentity objects with obfuscated email address and limited set of ext sources. Service
+   * users are removed from the list.
    *
    * @param list RichUsers to convert
    * @return list of EnrichedIdentities without service ones
@@ -783,16 +627,15 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
                   "https://extidp.cesnet.cz/idp/shibboleth&authnContextClassRef=urn:cesnet:extidp:authn:" + type);
             }
 
-						/* WE NO LONGER WANT TO SPECIFY source IdPs for ELIXIR, just reference the proxy itself
-						else if (ues.getExtSource().getName().equals("https://login.elixir-czech.org/idp/")) {
-							// FIXME - hack Elixir proxy IdP to let us know proper identity source
-							String type = ues.getLogin().split("@")[1];
-							ues.getExtSource().setName("https://login.elixir-czech.org/idp/@"+type);
-						}
-						*/
-
-            // FOR FOREIGN PROXIES WHICH CREATES NEW IDENTITY ON ANY ATTRIBUTE CHANGE WE MUST USE
-            // SOURCING IDENTITY, SO USER CAN RELATE
+            /*WE NO LONGER WANT TO SPECIFY source IdPs for ELIXIR, just reference the proxy itself
+            else if (ues.getExtSource().getName().equals("https://login.elixir-czech.org/idp/")) {
+              // FIXME - hack Elixir proxy IdP to let us know proper identity source
+              String type = ues.getLogin().split("@")[1];
+              ues.getExtSource().setName("https://login.elixir-czech.org/idp/@" + type);
+            }
+           */
+            // FOR FOREIGN PROXIES WHICH CREATES NEW IDENTITY ON ANY ATTRIBUTE CHANGE WE MUST USE SOURCING IDENTITY,
+            // SO USER CAN RELATE
             try {
               Attribute uesAttr = perun.getAttributesManagerBl()
                   .getAttribute(registrarSession, ues, AttributesManager.NS_UES_ATTR_DEF + ":authenticating-authority");
@@ -809,7 +652,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
               nameAttr = perun.getAttributesManagerBl()
                   .getAttribute(registrarSession, ues, AttributesManager.NS_UES_ATTR_DEF + ":sourceIdPName");
             } catch (Exception e) {
-              log.debug("Failed to get sourceIdpName attribute" + e);
+              LOG.debug("Failed to get sourceIdpName attribute" + e);
             }
             var richExtSource = new EnrichedExtSource(ues.getExtSource());
             if (nameAttr != null && nameAttr.getValue() != null) {
@@ -831,6 +674,63 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
     }
 
     return result;
+
+  }
+
+  /**
+   * Convert RichUsers to Identity objects with obfuscated email address and limited set of ext sources. Service users
+   * are removed from the list.
+   *
+   * @param list RichUsers to convert
+   * @return list of Identities without service ones
+   */
+  private List<Identity> convertToIdentities(List<RichUser> list) {
+    List<EnrichedIdentity> enrichedIdentities = convertToEnrichedIdentities(list);
+    List<Identity> identities = new ArrayList<>();
+    for (EnrichedIdentity enrichedIdentity : enrichedIdentities) {
+      Identity identity = new Identity();
+      identity.setId(enrichedIdentity.getId());
+      identity.setEmail(enrichedIdentity.getEmail());
+      identity.setName(enrichedIdentity.getName());
+      identity.setOrganization(enrichedIdentity.getOrganization());
+      List<ExtSource> extSources = new ArrayList<>();
+      for (EnrichedExtSource enrichedExtSource : enrichedIdentity.getIdentities()) {
+        extSources.add(enrichedExtSource.getExtSource());
+      }
+      identity.setIdentities(extSources);
+      identities.add(identity);
+    }
+    return identities;
+  }
+
+  /**
+   * Creates ExtSource and UserExtSource if necessary for the purpose of joining users identities.
+   *
+   * @param user          User to add UES to
+   * @param actor         Actor to add
+   * @param extSourceName ExtSource name to add
+   * @param extSourceType ExtSource type to add
+   * @param loa           loa in ext source
+   * @return created UserExtSource
+   * @throws PerunException when anything fails
+   */
+  private UserExtSource createExtSourceAndUserExtSource(User user, String actor, String extSourceName,
+                                                        String extSourceType, int loa) throws PerunException {
+
+    ExtSource extSource = new ExtSource(extSourceName, extSourceType);
+    try {
+      extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, extSourceName);
+    } catch (ExtSourceNotExistsException ex) {
+      extSource = perun.getExtSourcesManagerBl().createExtSource(registrarSession, extSource, null);
+    }
+
+    UserExtSource ues = new UserExtSource();
+    ues.setLogin(actor);
+    ues.setLoa(loa);
+    ues.setExtSource(extSource);
+    ues.setUserId(user.getId());
+
+    return perun.getUsersManagerBl().addUserExtSource(registrarSession, user, ues);
 
   }
 
@@ -896,6 +796,84 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
     }
     return new ArrayList<>(res);
+  }
+
+  @Override
+  public String getConsolidatorToken(PerunSession sess) throws PerunException {
+
+    Map<String, Object> value = new HashMap<>();
+
+    String actor = sess.getPerunPrincipal().getActor();
+    String extSourceName = sess.getPerunPrincipal().getExtSourceName();
+    String extSourceType = sess.getPerunPrincipal().getExtSourceType();
+    Integer extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
+    User user = sess.getPerunPrincipal().getUser();
+
+    value.put("actor", actor);
+    value.put("extSourceName", extSourceName);
+    value.put("extSourceType", extSourceType);
+    value.put("extSourceLoa", extSourceLoa);
+    value.put("user", user);
+    value.put("additionalInformation", sess.getPerunPrincipal().getAdditionalInformations());
+
+    // create token from actual properties
+    String token = registrarManager.getMailManager().getMessageAuthenticationCode(
+        System.currentTimeMillis() + actor + extSourceName + extSourceType + extSourceLoa);
+
+    requestCache.putIfAbsent(token, value);
+
+    return token;
+
+  }
+
+  /**
+   * Retrieves whole application object from DB (authz in parent methods)
+   *
+   * @param sess  PerunSession for Authz and to resolve User
+   * @param vo    VO to get application for
+   * @param group Group
+   * @return application object / null if not exists
+   */
+  private Application getLatestApplication(PerunSession sess, Vo vo, Group group, Application.AppType type) {
+    List<Application> allApplications = new ArrayList<>();
+    if (group != null) {
+      allApplications.addAll(
+          jdbc.query(RegistrarManagerImpl.APP_SELECT + " where a.vo_id=? and a.group_id=? and a.apptype=?",
+              RegistrarManagerImpl.APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type)));
+    } else {
+      allApplications.addAll(jdbc.query(RegistrarManagerImpl.APP_SELECT + " where a.vo_id=? and a.apptype=?",
+          RegistrarManagerImpl.APP_MAPPER, vo.getId(), String.valueOf(type)));
+    }
+
+    List<Application> userApplications = registrarManager.filterPrincipalApplications(sess, allApplications);
+
+    if (userApplications.isEmpty()) {
+      return null;
+    } else {
+      return userApplications.stream().max(comparing(Application::getId)).get();
+    }
+  }
+
+  protected void initialize() throws PerunException {
+
+    // gets session for a system principal "perunRegistrar"
+    final PerunPrincipal pp = new PerunPrincipal("perunRegistrar", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL);
+    registrarSession = perun.getPerunSession(pp, new PerunClient());
+
+    // cache expires after 5 minutes from creation
+    requestCache =
+        ExpiringMap.builder().expiration(5, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.CREATED).build();
+
+  }
+
+  public void setDataSource(DataSource dataSource) {
+    this.jdbc = new JdbcPerunTemplate(dataSource);
+    this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+  }
+
+  public void setRegistrarManager(RegistrarManager registrarManager) {
+    this.registrarManager = registrarManager;
   }
 
 }

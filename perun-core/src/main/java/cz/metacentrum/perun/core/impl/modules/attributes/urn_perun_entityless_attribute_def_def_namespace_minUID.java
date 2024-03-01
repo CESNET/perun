@@ -5,14 +5,12 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -23,15 +21,6 @@ public class urn_perun_entityless_attribute_def_def_namespace_minUID extends Ent
     implements EntitylessAttributesModuleImplApi {
 
   private static final String A_E_namespaceMaxUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID";
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
-      throws WrongAttributeValueException {
-    Integer minUID = attribute.valueAsInteger();
-    if (minUID != null && minUID < 1) {
-      throw new WrongAttributeValueException(attribute, "Attribute value must be bigger than 0.");
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute)
@@ -52,6 +41,15 @@ public class urn_perun_entityless_attribute_def_def_namespace_minUID extends Ent
       }
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException("Attribute namespace-maxUID is supposed to exist.", ex);
+    }
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute)
+      throws WrongAttributeValueException {
+    Integer minUID = attribute.valueAsInteger();
+    if (minUID != null && minUID < 1) {
+      throw new WrongAttributeValueException(attribute, "Attribute value must be bigger than 0.");
     }
   }
 

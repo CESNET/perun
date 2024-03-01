@@ -1,71 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<parent>
-		<artifactId>perun</artifactId>
-		<groupId>cz.metacentrum</groupId>
-		<version>0.0.0-development</version>
-	</parent>
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>0.0.0-development</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-integration</artifactId>
-	<packaging>jar</packaging>
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-integration</artifactId>
+    <packaging>jar</packaging>
 
-	<name>perun-integration</name>
-	<description>Tools which will be used to integrate the Perun system with another tool.</description>
+    <name>perun-integration</name>
+    <description>Tools which will be used to integrate the Perun system with another tool.</description>
 
-	<properties>
-	</properties>
+    <properties>
+    </properties>
 
-	<!-- common module build setting used by all profile -->
-	<build>
-		<resources>
-			<resource>
-				<!-- get common resources -->
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
+    <!-- common module build setting used by all profile -->
+    <build>
+        <resources>
+            <resource>
+                <!-- get common resources -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
-	<dependencies>
-		<!-- PERUN -->
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependencies>
+        <!-- PERUN -->
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<!-- TESTS -->
+        <!-- TESTS -->
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<!-- imports logback-test.xml for test from perun-base -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <!-- imports logback-test.xml for test from perun-base -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>perun-base</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>

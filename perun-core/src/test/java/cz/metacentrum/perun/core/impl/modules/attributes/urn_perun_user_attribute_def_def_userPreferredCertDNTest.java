@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
@@ -7,14 +10,10 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_attribute_def_def_userPreferredCertDNTest {
 
@@ -42,10 +41,12 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDNTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckWithPreferredValueButNoCertificates() throws Exception {
-    System.out.println("testCheckWithPreferredValueButNoCertificates()");
-    reqAttribute.setValue(null);
-    attributeToCheck.setValue("example");
+  public void testCheckWithInvalidPreferredValue() throws Exception {
+    System.out.println("testCheckWithInvalidPreferredValue()");
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put("example", "example");
+    reqAttribute.setValue(value);
+    attributeToCheck.setValue("bad_example");
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
@@ -62,12 +63,10 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDNTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckWithInvalidPreferredValue() throws Exception {
-    System.out.println("testCheckWithInvalidPreferredValue()");
-    Map<String, String> value = new LinkedHashMap<>();
-    value.put("example", "example");
-    reqAttribute.setValue(value);
-    attributeToCheck.setValue("bad_example");
+  public void testCheckWithPreferredValueButNoCertificates() throws Exception {
+    System.out.println("testCheckWithPreferredValueButNoCertificates()");
+    reqAttribute.setValue(null);
+    attributeToCheck.setValue("example");
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }

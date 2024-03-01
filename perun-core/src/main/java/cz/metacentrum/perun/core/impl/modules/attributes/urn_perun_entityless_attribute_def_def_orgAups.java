@@ -17,8 +17,7 @@ import org.json.JSONObject;
 /**
  * This attribute holds all AUPs for each organization/infrastructure managed by Perun and accessed by its ProxyIdP.
  * <p>
- * Keys in a map are infrastructure identifiers
- * Value is JSON array representation of all AUPs
+ * Keys in a map are infrastructure identifiers Value is JSON array representation of all AUPs
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */

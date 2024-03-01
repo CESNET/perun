@@ -35,9 +35,8 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
   private static final String UID_POLICY_INCREMENT = "increment";
 
   /**
-   * Checks the new UID of the user. The new UID must
-   * not be lower than the min UID or greater than the max UID. Also no collision between
-   * existing user and the new user is allowed.
+   * Checks the new UID of the user. The new UID must not be lower than the min UID or greater than the max UID. Also no
+   * collision between existing user and the new user is allowed.
    */
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
@@ -80,7 +79,8 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
           "UID " + uid + " is higher than max " + max);
     }
 
-    // Get all users who have set attribute urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], with the value.
+    // Get all users who have set attribute urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], with
+    // the value.
     List<User> usersWithUid = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
     usersWithUid.remove(user); //remove self
     if (!usersWithUid.isEmpty()) {
@@ -89,13 +89,12 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
       }
       throw new WrongReferenceAttributeValueException(attribute,
           "UID " + attribute.getValue() + " is already occupied by " + usersWithUid.get(0) + ". We can't set it for " +
-              user + ".");
+          user + ".");
     }
   }
 
   /**
-   * Fills the new UID for the user at the specified facility. First empty slot
-   * in range (minUID, maxUID) is returned.
+   * Fills the new UID for the user at the specified facility. First empty slot in range (minUID, maxUID) is returned.
    */
   @Override
   public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute)
@@ -174,12 +173,12 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
     return dependencies;
   }
 
-	/*public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("uid-namespace");
-		attr.setType(Integer.class.getName());
-		attr.setDescription("Uid namespace.");
-		return attr;
-	}*/
+  /*public AttributeDefinition getAttributeDefinition() {
+        AttributeDefinition attr = new AttributeDefinition();
+        attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+        attr.setFriendlyName("uid-namespace");
+        attr.setType(Integer.class.getName());
+        attr.setDescription("Uid namespace.");
+        return attr;
+    }*/
 }

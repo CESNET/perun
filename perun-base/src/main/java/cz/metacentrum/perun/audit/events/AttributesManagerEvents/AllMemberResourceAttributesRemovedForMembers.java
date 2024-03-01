@@ -19,13 +19,13 @@ public class AllMemberResourceAttributesRemovedForMembers extends AuditEvent imp
         formatMessage("All non-virtual member-resource attributes removed for all members and %s.", resource);
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   @Override

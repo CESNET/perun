@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -50,66 +49,66 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
     //Initialize MapOfExtSource
     initializeMapOfExtSourceName();
 
-    for (UserExtSource uES : extSources) {
-      String uEName = uES.getExtSource().getName();
-      String uELoa = String.valueOf(uES.getLoa());
+    for (UserExtSource ues : extSources) {
+      String uesName = ues.getExtSource().getName();
+      String uesLoa = String.valueOf(ues.getLoa());
 
-      if (uES.getCreatedAt() != null) {
+      if (ues.getCreatedAt() != null) {
         Date testingDate = null;
         Date lastUsedDate;
         boolean parsed = true;
         try {
-          testingDate = BeansUtils.getDateFormatter().parse(uES.getCreatedAt());
+          testingDate = BeansUtils.getDateFormatter().parse(ues.getCreatedAt());
         } catch (Exception ex) {
           //Not Parsed correctly
           parsed = false;
         }
         if (parsed) {
           if (userExtSourceForCreating == null || userExtSourceForCreating.getCreatedAt() == null) {
-            userExtSourceForCreating = uES;
+            userExtSourceForCreating = ues;
           } else {
             try {
               lastUsedDate = BeansUtils.getDateFormatter().parse(userExtSourceForCreating.getCreatedAt());
               if (testingDate != null && testingDate.compareTo(lastUsedDate) < 0) {
-                userExtSourceForCreating = uES;
+                userExtSourceForCreating = ues;
               }
             } catch (Exception ex) {
               //Not Parsed correctly
-              userExtSourceForCreating = uES;
+              userExtSourceForCreating = ues;
             }
           }
         }
       }
 
-      if (uES.getModifiedAt() != null) {
+      if (ues.getModifiedAt() != null) {
         Date testingDate = null;
         Date lastUsedDate;
         boolean parsed = true;
         try {
-          testingDate = BeansUtils.getDateFormatter().parse(uES.getModifiedAt());
+          testingDate = BeansUtils.getDateFormatter().parse(ues.getModifiedAt());
         } catch (Exception ex) {
           //Not Parsed correctly
           parsed = false;
         }
         if (parsed) {
           if (userExtSourceForModifiing == null || userExtSourceForModifiing.getModifiedAt() == null) {
-            userExtSourceForModifiing = uES;
+            userExtSourceForModifiing = ues;
           } else {
             try {
               lastUsedDate = BeansUtils.getDateFormatter().parse(userExtSourceForModifiing.getModifiedAt());
               if (testingDate != null && testingDate.compareTo(lastUsedDate) < 0) {
-                userExtSourceForModifiing = uES;
+                userExtSourceForModifiing = ues;
               }
             } catch (Exception ex) {
               //Not Parsed correctly
-              userExtSourceForModifiing = uES;
+              userExtSourceForModifiing = ues;
             }
           }
         }
       }
 
-      String uESimpleName = getSimpleNameOfExtSource(uEName, version.equals("cs"));
-      organizationsWithLoa.put(uESimpleName, uELoa);
+      String uesSimpleName = getSimpleNameOfExtSource(uesName, version.equals("cs"));
+      organizationsWithLoa.put(uesSimpleName, uesLoa);
     }
 
     //Set created,modified by userExtSources
@@ -127,8 +126,8 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 
   /**
    * This method get simple name of some existing extSource (if is known), if isn't known return default extSourceName
-   * if giveMeCzechLanguage is true = return czech Simple Name of ExtSource
-   * if giveMeCzechLanguage is false = return english Simple Name of ExtSource
+   * if giveMeCzechLanguage is true = return czech Simple Name of ExtSource if giveMeCzechLanguage is false = return
+   * english Simple Name of ExtSource
    *
    * @param extSourceName       default extSourceName (example: https://www.vutbr.cz/SSO/saml2/idp)
    * @param giveMeCzechLanguage if true return czech, if false return english
@@ -197,7 +196,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
     mapOfExtSourcesNames.put("https://login.ics.muni.cz/idp/shibboleth", new Pair("MetaCentrum", "MetaCentrum"));
   }
 
-	/*public AttributeDefinition getAttributeDefinition() {
-		return null;
-	}*/
+  /*public AttributeDefinition getAttributeDefinition() {
+      return null;
+  }*/
 }

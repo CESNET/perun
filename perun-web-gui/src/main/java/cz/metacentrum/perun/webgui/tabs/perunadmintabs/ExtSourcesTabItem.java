@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class ExtSourcesTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "extsrc";
+  public static final String URL = "extsrc";
   /**
    * Perun web session
    */

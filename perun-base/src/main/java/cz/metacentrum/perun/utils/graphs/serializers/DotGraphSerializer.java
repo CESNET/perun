@@ -12,29 +12,15 @@ import java.util.Set;
  */
 public class DotGraphSerializer implements GraphSerializer {
 
-  @Override
-  public String generateTextFileContent(Graph graph) {
-    StringBuilder edgesStringBuilder = new StringBuilder();
-
-    generateHeader(edgesStringBuilder);
-    generateBody(edgesStringBuilder, graph);
-    generateFooter(edgesStringBuilder);
-
-    return edgesStringBuilder.toString();
-  }
-
-  private void generateHeader(StringBuilder builder) {
-    builder.append(
-        "digraph strongDependencies {\n" +
-            "\tgraph [nodesep=0.5, ranksep=0.5];\n" +
-            "\trankdir=LR;\n" +
-            "\tnode [shape=box]\n"
-    );
-  }
-
   private void generateBody(StringBuilder builder, Graph graph) {
     generateNodesData(builder, graph.getNodes().keySet());
     generateEdgesData(builder, graph);
+  }
+
+  private void generateEdgeData(StringBuilder builder, GraphEdge edge) {
+    builder.append("\t\"").append(edge.getSourceNode().getLabel()).append("\" -> \"")
+        .append(edge.getTargetNode().getLabel()).append("\" [").append("style=").append(edge.getType().getStyle())
+        .append("];\n");
   }
 
   private void generateEdgesData(StringBuilder builder, Graph graph) {
@@ -45,26 +31,31 @@ public class DotGraphSerializer implements GraphSerializer {
     }
   }
 
+  private void generateFooter(StringBuilder builder) {
+    builder.append("}\n");
+  }
+
+  private void generateHeader(StringBuilder builder) {
+    builder.append("digraph strongDependencies {\n" + "\tgraph [nodesep=0.5, ranksep=0.5];\n" + "\trankdir=LR;\n" +
+                   "\tnode [shape=box]\n");
+  }
+
   private void generateNodesData(StringBuilder builder, Set<Node> nodes) {
     for (Node node : nodes) {
-      builder.append("\t\"").append(node.getLabel()).append("\" [\n")
-          .append("\t\tfillcolor=\"").append(node.getFillColor()).append("\"\n")
-          .append("\t\tstyle=\"").append(node.getStyle()).append("\"\n")
+      builder.append("\t\"").append(node.getLabel()).append("\" [\n").append("\t\tfillcolor=\"")
+          .append(node.getFillColor()).append("\"\n").append("\t\tstyle=\"").append(node.getStyle()).append("\"\n")
           .append("\t]\n");
     }
   }
 
-  private void generateEdgeData(StringBuilder builder, GraphEdge edge) {
-    builder.append("\t\"")
-        .append(edge.getSourceNode().getLabel())
-        .append("\" -> \"")
-        .append(edge.getTargetNode().getLabel())
-        .append("\" [")
-        .append("style=").append(edge.getType().getStyle())
-        .append("];\n");
-  }
+  @Override
+  public String generateTextFileContent(Graph graph) {
+    StringBuilder edgesStringBuilder = new StringBuilder();
 
-  private void generateFooter(StringBuilder builder) {
-    builder.append("}\n");
+    generateHeader(edgesStringBuilder);
+    generateBody(edgesStringBuilder, graph);
+    generateFooter(edgesStringBuilder);
+
+    return edgesStringBuilder.toString();
   }
 }

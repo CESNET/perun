@@ -26,29 +26,29 @@ import java.util.Map;
  */
 public final class JsonSerializer implements Serializer {
 
-  private static final ObjectMapper mapper = new ObjectMapper();
-  private static final Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
-  private static final JsonFactory jsonFactory = new JsonFactory();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
+  private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
   static {
 
     JavaTimeModule module = new JavaTimeModule();
-    mapper.registerModule(module);
+    MAPPER.registerModule(module);
     // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
-    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    mixinMap.put(Attribute.class, AttributeMixIn.class);
-    mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-    mixinMap.put(User.class, UserMixIn.class);
+    MIXIN_MAP.put(Attribute.class, AttributeMixIn.class);
+    MIXIN_MAP.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+    MIXIN_MAP.put(User.class, UserMixIn.class);
 
-    mapper.setMixIns(mixinMap);
+    MAPPER.setMixIns(MIXIN_MAP);
   }
 
   static {
     //FIXME removed disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
     //jsonFactory.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
-    jsonFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)
-        .setCodec(mapper);
+    JSON_FACTORY.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)
+        .setCodec(MAPPER);
   }
 
   private OutputStream out;
@@ -63,7 +63,7 @@ public final class JsonSerializer implements Serializer {
 
   @Override
   public void write(Object object) throws IOException {
-    JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    JsonGenerator gen = JSON_FACTORY.createGenerator(out, JsonEncoding.UTF8);
 
     if (object instanceof Throwable) {
       throw new IllegalArgumentException("Tried to serialize a throwable object using write()", (Throwable) object);

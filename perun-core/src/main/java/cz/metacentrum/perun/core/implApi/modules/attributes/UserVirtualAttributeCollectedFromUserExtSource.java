@@ -20,9 +20,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,82 +27,50 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Common ancestor class for user virtual attributes that just collect values from userExtSource attributes.
  * <p>
- * For a given user, collects string values of userExtSource attributes with friendly name specified
- * by getSourceAttributeFriendlyName(), and splits them at character ';' which is used by mod_shib to join multiple values,
+ * For a given user, collects string values of userExtSource attributes with friendly name specified by
+ * getSourceAttributeFriendlyName(), and splits them at character ';' which is used by mod_shib to join multiple values,
  * and stores all values into virtual user attribute with friendly name specified by
  * getDestinationAttributeFriendlyName().
  *
  * @author Martin Kuba makub@ics.muni.cz
  */
-public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends UserVirtualAttributeCollectedFromUserExtSource.ModifyValueContext>
+public abstract class UserVirtualAttributeCollectedFromUserExtSource
+    <T extends UserVirtualAttributeCollectedFromUserExtSource.ModifyValueContext>
     extends UserVirtualAttributesModuleAbstract {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   /**
-   * Specifies friendly (short) name of attribute from namespace urn:perun:ues:attribute-def:def
-   * whose values are to be collected.
-   *
-   * @return short name of userExtSource attribute which is source of values
-   */
-  public abstract String getSourceAttributeFriendlyName();
-
-  /**
-   * Gets full URN of the UserExtSource attribute used for computing rhis attribute value.
-   *
-   * @return full source attribute URN
-   */
-  public final String getSourceAttributeName() {
-    return AttributesManager.NS_UES_ATTR_DEF + ":" + getSourceAttributeFriendlyName();
-  }
-
-  /**
-   * Specifies friendly (short) name of attribute from namespace urn:perun:user:attribute-def:virt
-   * where values will be stored
+   * Specifies friendly (short) name of attribute from namespace urn:perun:user:attribute-def:virt where values will be
+   * stored
    *
    * @return short name of user attribute which is destination for collected values
    */
   public abstract String getDestinationAttributeFriendlyName();
 
   /**
-   * Gets full URN of this virtual user attribute.
+   * Specifies friendly (short) name of attribute from namespace urn:perun:ues:attribute-def:def whose values are to be
+   * collected.
    *
-   * @return full destination attribute URN
+   * @return short name of userExtSource attribute which is source of values
    */
-  public final String getDestinationAttributeName() {
-    return AttributesManager.NS_USER_ATTR_VIRT + ":" + getDestinationAttributeFriendlyName();
-  }
+  public abstract String getSourceAttributeFriendlyName();
 
-  public String getDestinationAttributeDisplayName() {
-    return getDestinationAttributeFriendlyName();
-  }
-
-  public String getDestinationAttributeDescription() {
-    return "Collected values of userExtSource attribute " + getDestinationAttributeFriendlyName();
-  }
-
-  /**
-   * Override this method if you need to modify the original values. The default implementation makes no modification.
-   * Return null if the value should be skipped.
-   *
-   * @param session PerunSession
-   * @param ctx     context initialized in initModifyValueContext method
-   * @param ues     UserExtSource
-   * @param value   of userExtSource attribute
-   * @return modified value or null to skip the value
-   */
-  public String modifyValue(PerunSession session, T ctx, UserExtSource ues, String value) {
-    return value;
-  }
-
-  protected T initModifyValueContext(PerunSessionImpl sess, User user,
-                                     AttributeDefinition destinationAttributeDefinition) {
-    //noinspection unchecked
-    return (T) new ModifyValueContext(sess, user, destinationAttributeDefinition);
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    String friendlyName = getDestinationAttributeFriendlyName();
+    attr.setFriendlyName(friendlyName);
+    attr.setDisplayName(getDestinationAttributeDisplayName());
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription(getDestinationAttributeDescription());
+    return attr;
   }
 
   @Override
@@ -145,7 +110,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
         }
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
         log.error("cannot read " + sourceAttributeFriendlyName + " from userExtSource " + userExtSource.getId() +
-            " of user " + user.getId(), e);
+                  " of user " + user.getId(), e);
       }
     }
 
@@ -154,19 +119,21 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
     return destinationAttribute;
   }
 
-  /**
-   * Checks configuration properties idpLoginValidity if last access is not outdated. Skips non-idp ext sources.
-   *
-   * @param ues user extsource to be checked
-   * @return true if ues is of type IdP and its last access is not outdated, false otherwise
-   */
-  private boolean isLastAccessValid(UserExtSource ues) {
-    if (!ExtSourcesManager.EXTSOURCE_IDP.equals(ues.getExtSource().getType())) {
-      return true;
-    }
+  public String getDestinationAttributeDescription() {
+    return "Collected values of userExtSource attribute " + getDestinationAttributeFriendlyName();
+  }
 
-    LocalDateTime lastAccess = LocalDateTime.parse(ues.getLastAccess(), Utils.lastAccessFormatter);
-    return lastAccess.plusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity()).isAfter(LocalDateTime.now());
+  public String getDestinationAttributeDisplayName() {
+    return getDestinationAttributeFriendlyName();
+  }
+
+  /**
+   * Gets full URN of this virtual user attribute.
+   *
+   * @return full destination attribute URN
+   */
+  public final String getDestinationAttributeName() {
+    return AttributesManager.NS_USER_ATTR_VIRT + ":" + getDestinationAttributeFriendlyName();
   }
 
   public List<AttributeHandleIdentifier> getHandleIdentifiers() {
@@ -198,6 +165,50 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
     return handleIdenfiers;
   }
 
+  /**
+   * Gets full URN of the UserExtSource attribute used for computing rhis attribute value.
+   *
+   * @return full source attribute URN
+   */
+  public final String getSourceAttributeName() {
+    return AttributesManager.NS_UES_ATTR_DEF + ":" + getSourceAttributeFriendlyName();
+  }
+
+  protected T initModifyValueContext(PerunSessionImpl sess, User user,
+                                     AttributeDefinition destinationAttributeDefinition) {
+    //noinspection unchecked
+    return (T) new ModifyValueContext(sess, user, destinationAttributeDefinition);
+  }
+
+  /**
+   * Checks configuration properties idpLoginValidity if last access is not outdated. Skips non-idp ext sources.
+   *
+   * @param ues user extsource to be checked
+   * @return true if ues is of type IdP and its last access is not outdated, false otherwise
+   */
+  private boolean isLastAccessValid(UserExtSource ues) {
+    if (!ExtSourcesManager.EXTSOURCE_IDP.equals(ues.getExtSource().getType())) {
+      return true;
+    }
+
+    LocalDateTime lastAccess = LocalDateTime.parse(ues.getLastAccess(), Utils.LAST_ACCESS_FORMATTER);
+    return lastAccess.plusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity()).isAfter(LocalDateTime.now());
+  }
+
+  /**
+   * Override this method if you need to modify the original values. The default implementation makes no modification.
+   * Return null if the value should be skipped.
+   *
+   * @param session PerunSession
+   * @param ctx     context initialized in initModifyValueContext method
+   * @param ues     UserExtSource
+   * @param value   of userExtSource attribute
+   * @return modified value or null to skip the value
+   */
+  public String modifyValue(PerunSession session, T ctx, UserExtSource ues, String value) {
+    return value;
+  }
+
   @Override
   public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message)
       throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
@@ -224,30 +235,18 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
     return resolvingMessages;
   }
 
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    String friendlyName = getDestinationAttributeFriendlyName();
-    attr.setFriendlyName(friendlyName);
-    attr.setDisplayName(getDestinationAttributeDisplayName());
-    attr.setType(ArrayList.class.getName());
-    attr.setDescription(getDestinationAttributeDescription());
-    return attr;
-  }
-
   /**
    * Functional interface for controlling AuditEvents.
    * <p>
-   * Modules can overwrite method shouldBeEventHandled to change or add events that should
-   * handled. Events that should be handled are events which make modules to produce another
-   * AuditEvent.
+   * Modules can overwrite method shouldBeEventHandled to change or add events that should handled. Events that should
+   * be handled are events which make modules to produce another AuditEvent.
    */
   @FunctionalInterface
   public interface AttributeHandleIdentifier {
 
     /**
-     * Determines whether given auditEvent should be handled. If it should be the method
-     * returns userId of user from the auditEvent, otherwise returns null.
+     * Determines whether given auditEvent should be handled. If it should be the method returns userId of user from the
+     * auditEvent, otherwise returns null.
      *
      * @param auditEvent given auditEvent
      * @return userId of user from auditEvent, otherwise null
@@ -266,17 +265,17 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
       this.destinationAttributeDefinition = destinationAttributeDefinition;
     }
 
+    @SuppressWarnings("unused")
+    public AttributeDefinition getDestinationAttributeDefinition() {
+      return destinationAttributeDefinition;
+    }
+
     public PerunSessionImpl getSession() {
       return session;
     }
 
     public User getUser() {
       return user;
-    }
-
-    @SuppressWarnings("unused")
-    public AttributeDefinition getDestinationAttributeDefinition() {
-      return destinationAttributeDefinition;
     }
   }
 }

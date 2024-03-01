@@ -38,10 +38,10 @@ public class IntegrationManagerDaoImpl implements IntegrationManagerDao {
   @Override
   public List<GroupMemberRelation> getGroupMemberRelations(PerunSession sess) {
     return jdbc.query(
-        "SELECT gm.member_id AS member_id, gm.group_id AS group_id, gm.source_group_id AS source_group_id, "
-            + "gm.source_group_status AS source_group_status, gm.membership_type AS membership_type, "
-            + "g.name AS group_name, g.parent_group_id AS parent_group_id, m.user_id AS user_id "
-            + " FROM groups_members gm JOIN groups g ON gm.group_id = g.id JOIN members m ON gm.member_id = m.id",
+        "SELECT gm.member_id AS member_id, gm.group_id AS group_id, gm.source_group_id AS source_group_id, " +
+        "gm.source_group_status AS source_group_status, gm.membership_type AS membership_type, " +
+        "g.name AS group_name, g.parent_group_id AS parent_group_id, m.user_id AS user_id " +
+        " FROM groups_members gm JOIN groups g ON gm.group_id = g.id JOIN members m ON gm.member_id = m.id",
         GROUP_MEMBERS_EXTRACTOR);
   }
 

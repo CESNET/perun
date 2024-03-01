@@ -1,5 +1,19 @@
 package cz.metacentrum.perun.core.entry;
 
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -34,14 +48,6 @@ import cz.metacentrum.perun.core.impl.ExtSourceLdap;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,20 +58,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * Integration tests of group structure synchronization.
@@ -74,7 +73,7 @@ import static org.mockito.Mockito.when;
  * @author Erik Horváth
  */
 public class GroupAndGroupStructureSynchronizationIntegrationTest extends AbstractPerunIntegrationTest {
-  private final static String CLASS_NAME = "GroupsManager.";
+  private static final String CLASS_NAME = "GroupsManager.";
   private static final String EXT_SOURCE_NAME = "GroupSyncExtSource";
   private static final String ADDITIONAL_STRING = "additionalString";
   private static final String ADDITIONAL_LIST = "additionalList";
@@ -105,162 +104,6 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
   //Be aware that spy annotation does not work for all managers!
   @Spy
   private ExtSourcesManagerBl extSourceManagerBl;
-
-  @Before
-  public void setUpBeforeEveryMethod() throws Exception {
-    //perun from AbstractPerunIntegrationTest need to be assigned to our perun object in which we are injecting mocks.
-    this.perun = (PerunBlImpl) super.perun;
-
-    //Injected mocks would preserve in the perun object even after this test class,
-    //because it is created by Spring in parent class and it is is used by other tests classes again.
-    //To prevent this situation, we need to back up the real extSourceManagerBl and set it back to the perun after tests finish.
-    extSourceManagerBlBackup = perun.getExtSourcesManagerBl();
-
-    groupsManagerBl = perun.getGroupsManagerBl();
-    extSourceManagerBl = perun.getExtSourcesManagerBl();
-    attributesManagerBl = perun.getAttributesManagerBl();
-
-    vo = setUpVo();
-    setUpBaseGroup(vo);
-    setUpFacility();
-    setUpResources();
-    setUpGroup(vo);
-    setUpMember(vo);
-
-    MockitoAnnotations.initMocks(this);
-
-    doReturn(essa).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class), any(String.class));
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-    when(extSourceManagerBl.getExtSourceByName(sess, extSourceForUserCreation.getName())).thenReturn(
-        extSourceForUserCreation);
-    //noinspection ResultOfMethodCallIgnored
-    doReturn(EXT_SOURCE_NAME).when((ExtSourceLdap) essa).getName();
-    doNothing().when(extSourceManagerBl).addExtSource(any(PerunSession.class), any(Group.class), any(ExtSource.class));
-  }
-
-
-  @After
-  public void cleanUp() {
-    perun.setExtSourcesManagerBl(extSourceManagerBlBackup);
-    Mockito.reset(extSourceManagerBl);
-  }
-
-  @Test
-  public void addGroupUnderBaseGroupTest() throws Exception {
-    System.out.println(CLASS_NAME + "addGroupUnderBaseGroupTest");
-
-    // setup
-    final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
-    List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    // tested method
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    // asserts
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-
-    assertTrue("New sub group should be created under base group!", 1 == subGroups.size());
-
-    Group createdGroup = subGroups.get(0);
-    assertGroup(testGroup.getGroupName(), baseGroup.getId(), testGroup.getDescription(), createdGroup);
-  }
-
-  @Test
-  public void addGroupParentDoesNotExist() throws Exception {
-    System.out.println(CLASS_NAME + "addGroupParentDoesNotExist");
-
-    final TestGroup testGroup =
-        new TestGroup("createdGroup", "createdGroup", "nonExistingParent", "group's parent does not exist");
-    List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-
-    assertTrue("New sub group under base group should be created!", 1 == subGroups.size());
-
-    Group createdGroup = subGroups.get(0);
-    assertGroup(testGroup.getGroupName(), baseGroup.getId(), testGroup.getDescription(), createdGroup);
-  }
-
-  @Test
-  public void addMultipleGroupsToBaseGroup() throws Exception {
-    System.out.println(CLASS_NAME + "addMultipleGroupsToBaseGroup");
-
-    final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "description of group A");
-    final TestGroup testGroupB = new TestGroup("groupB", "groupB", null, "description of group B");
-    List<Map<String, String>> subjects = Arrays.asList(testGroupA.toMap(), testGroupB.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-
-    assertTrue("2 new sub groups under base group should be created!", 2 == subGroups.size());
-  }
-
-  @Test
-  public void addGroupsToBaseGroupInDifferentOrder() throws Exception {
-    System.out.println(CLASS_NAME + "addGroupsToBaseGroupInDifferentOrder");
-
-    final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "description of group A");
-    final TestGroup testGroupB = new TestGroup("groupB", "groupB", "groupA", "description of group B");
-    List<Map<String, String>> subjects = Arrays.asList(testGroupB.toMap(), testGroupA.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-
-    Group groupA = groupsManagerBl.getGroupByName(sess, vo, "baseGroup:groupA");
-    Group groupB = groupsManagerBl.getGroupByName(sess, vo, "baseGroup:groupA:groupB");
-
-    assertTrue("1 new sub group under base group should be created!", 1 == subGroups.size());
-    assertTrue("groupA should be created under base group!", subGroups.contains(groupA));
-    assertTrue("groupB should be created under groupA!", groupsManagerBl.getSubGroups(sess, groupA).contains(groupB));
-  }
-
-  @Test
-  public void addGroupAsSubGroupTest() throws Exception {
-    System.out.println(CLASS_NAME + "addGroupAsSubGroupTest");
-
-    // setup
-    final Group subGroup = new Group("baseSubGroup", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subGroup);
-    setLoginToGroup(baseGroup, subGroup, "baseSubGroup");
-
-    final TestGroup subTestGroup =
-        new TestGroup(subGroup.getShortName(), "baseSubGroup", null, subGroup.getDescription());
-    List<Map<String, String>> subjects = new ArrayList<>();
-    subjects.add(subTestGroup.toMap());
-
-    final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", "baseSubGroup",
-        "child of subgroup (baseGroup -> subGroup -> [this group])");
-    subjects.add(testGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    // tested method
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    // assertions
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, subGroup);
-
-    assertTrue("New sub group under base group should be created!", 1 == subGroups.size());
-
-    Group createdGroup = subGroups.get(0);
-    assertGroup(testGroup.getGroupName(), subGroup.getId(), testGroup.getDescription(), createdGroup);
-  }
 
   @Test
   public void addComplexSubTreeTest() throws Exception {
@@ -300,13 +143,45 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
   }
 
   @Test
-  public void removeGroupUnderBaseGroupTest() throws Exception {
-    System.out.println(CLASS_NAME + "removeGroupUnderBaseGroupTest");
+  public void addGroupAsSubGroupTest() throws Exception {
+    System.out.println(CLASS_NAME + "addGroupAsSubGroupTest");
 
+    // setup
     final Group subGroup = new Group("baseSubGroup", "child of base group");
     groupsManagerBl.createGroup(sess, baseGroup, subGroup);
+    setLoginToGroup(baseGroup, subGroup, "baseSubGroup");
 
+    final TestGroup subTestGroup =
+        new TestGroup(subGroup.getShortName(), "baseSubGroup", null, subGroup.getDescription());
     List<Map<String, String>> subjects = new ArrayList<>();
+    subjects.add(subTestGroup.toMap());
+
+    final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", "baseSubGroup",
+        "child of subgroup (baseGroup -> subGroup -> [this group])");
+    subjects.add(testGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    // tested method
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    // assertions
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, subGroup);
+
+    assertTrue("New sub group under base group should be created!", 1 == subGroups.size());
+
+    Group createdGroup = subGroups.get(0);
+    assertGroup(testGroup.getGroupName(), subGroup.getId(), testGroup.getDescription(), createdGroup);
+  }
+
+  @Test
+  public void addGroupParentDoesNotExist() throws Exception {
+    System.out.println(CLASS_NAME + "addGroupParentDoesNotExist");
+
+    final TestGroup testGroup =
+        new TestGroup("createdGroup", "createdGroup", "nonExistingParent", "group's parent does not exist");
+    List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
     when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
     List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
@@ -315,24 +190,19 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
     List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-    assertTrue("List of sub groups of base group should be empty!", subGroups.isEmpty());
+    assertTrue("New sub group under base group should be created!", 1 == subGroups.size());
+
+    Group createdGroup = subGroups.get(0);
+    assertGroup(testGroup.getGroupName(), baseGroup.getId(), testGroup.getDescription(), createdGroup);
   }
 
   @Test
-  public void removeLeafGroupTest() throws Exception {
-    System.out.println(CLASS_NAME + "removeLeafGroupTest");
+  public void addGroupUnderBaseGroupTest() throws Exception {
+    System.out.println(CLASS_NAME + "addGroupUnderBaseGroupTest");
 
     // setup
-    final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "subBaseGroup");
-
-    final Group subGroup = new Group("subGroup", "child of sub base group");
-    groupsManagerBl.createGroup(sess, subBaseGroup, subGroup);
-    setLoginToGroup(baseGroup, subGroup, "subGroup");
-
-    final TestGroup subBaseTestGroup = new TestGroup("subGroup", "subGroup", null, "child of base group");
-    List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
+    final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
+    List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
     when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
     // tested method
@@ -343,165 +213,39 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
     List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-    assertTrue("Leaf group should be removed!", 1 == subGroups.size());
+    assertTrue("New sub group should be created under base group!", 1 == subGroups.size());
 
-    Group returnedGroup = subGroups.get(0);
-    assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), returnedGroup);
+    Group createdGroup = subGroups.get(0);
+    assertGroup(testGroup.getGroupName(), baseGroup.getId(), testGroup.getDescription(), createdGroup);
   }
 
   @Test
-  public void removeIntermediaryGroupTest() throws Exception {
-    System.out.println(CLASS_NAME + "removeIntermediaryGroupTest");
+  public void addGroupsToBaseGroupInDifferentOrder() throws Exception {
+    System.out.println(CLASS_NAME + "addGroupsToBaseGroupInDifferentOrder");
 
-    final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "baseSubGroup");
-
-    final Group interGroup = new Group("interGroup", "child of sub base group");
-    groupsManagerBl.createGroup(sess, subBaseGroup, interGroup);
-    setLoginToGroup(baseGroup, interGroup, "interGroup");
-
-    final Group leafGroup = new Group("leafGroup", "leaf group");
-    groupsManagerBl.createGroup(sess, interGroup, leafGroup);
-    setLoginToGroup(baseGroup, leafGroup, "leafGroup");
-
-    final TestGroup subBaseTestGroup = new TestGroup("baseSubGroup", "baseSubGroup", null, "child of base group");
-    final TestGroup leafTestGroup = new TestGroup("leafGroup", "leafGroup", "baseSubGroup", "leaf group");
-    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), leafTestGroup.toMap());
+    final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "description of group A");
+    final TestGroup testGroupB = new TestGroup("groupB", "groupB", "groupA", "description of group B");
+    List<Map<String, String>> subjects = Arrays.asList(testGroupB.toMap(), testGroupA.toMap());
     when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
+    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
     List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
-    Group baseGroupChild = subGroups.get(0);
-    assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), baseGroupChild);
+    Group groupA = groupsManagerBl.getGroupByName(sess, vo, "baseGroup:groupA");
+    Group groupB = groupsManagerBl.getGroupByName(sess, vo, "baseGroup:groupA:groupB");
 
-    subGroups = groupsManagerBl.getSubGroups(sess, baseGroupChild);
-
-    assertTrue("Child of base group should have only one child!", 1 == subGroups.size());
-    Group subBaseGroupChild = subGroups.get(0);
-    assertGroup(leafTestGroup.getGroupName(), baseGroupChild.getId(), leafTestGroup.getDescription(),
-        subBaseGroupChild);
-
-    assertTrue("Leaf group should not have any children!",
-        0 == groupsManagerBl.getSubGroupsCount(sess, subBaseGroupChild));
+    assertTrue("1 new sub group under base group should be created!", 1 == subGroups.size());
+    assertTrue("groupA should be created under base group!", subGroups.contains(groupA));
+    assertTrue("groupB should be created under groupA!", groupsManagerBl.getSubGroups(sess, groupA).contains(groupB));
   }
 
   @Test
-  public void replaceStructureWithPrefix() throws Exception {
-    System.out.println(CLASS_NAME + "removeIntermediaryGroupTestWithPrefix");
+  public void addMultipleGroupsToBaseGroup() throws Exception {
+    System.out.println(CLASS_NAME + "addMultipleGroupsToBaseGroup");
 
-    String loginPrefix = "prefix-";
-    setLoginPrefixForStructure(baseGroup, loginPrefix);
-
-    final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "baseSubGroup");
-
-    final Group interGroup = new Group("interGroup", "child of sub base group");
-    groupsManagerBl.createGroup(sess, subBaseGroup, interGroup);
-    setLoginToGroup(baseGroup, interGroup, "interGroup");
-
-    final Group leafGroup = new Group("leafGroup", "leaf group");
-    groupsManagerBl.createGroup(sess, interGroup, leafGroup);
-    setLoginToGroup(baseGroup, leafGroup, loginPrefix + "leafGroup");
-
-    final TestGroup subBaseTestGroup = new TestGroup("baseSubGroup", "baseSubGroup", null, "child of base group");
-    final TestGroup leafTestGroup = new TestGroup("leafGroup", "leafGroup", "baseSubGroup", "leaf group");
-    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), leafTestGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-
-    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
-    Group baseGroupChild = subGroups.get(0);
-    assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), baseGroupChild);
-    assertEquals(loginPrefix + "baseSubGroup",
-        perun.getAttributesManagerBl().getAttribute(sess, baseGroupChild, getLoginNameForBaseGroup(baseGroup))
-            .valueAsString());
-
-    subGroups = groupsManagerBl.getSubGroups(sess, baseGroupChild);
-
-    assertTrue("Child of base group should have only one child!", 1 == subGroups.size());
-    Group subBaseGroupChild = subGroups.get(0);
-    assertGroup(leafTestGroup.getGroupName(), baseGroupChild.getId(), leafTestGroup.getDescription(),
-        subBaseGroupChild);
-    assertEquals(loginPrefix + "leafGroup",
-        perun.getAttributesManagerBl().getAttribute(sess, subBaseGroupChild, getLoginNameForBaseGroup(baseGroup))
-            .valueAsString());
-
-    assertTrue("Leaf group should not have any children!",
-        0 == groupsManagerBl.getSubGroupsCount(sess, subBaseGroupChild));
-  }
-
-  @Test
-  public void modifyGroupLoginTest() throws Exception {
-    System.out.println(CLASS_NAME + "modifyGroupLoginTest");
-
-    final Group subBaseGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "group1");
-
-    final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "modified", null, "child of base group");
-    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
-    Group subBaseGroupChild = subGroups.get(0);
-    assertGroup(modifiedSubBaseTestGroup.getGroupName(), baseGroup.getId(), modifiedSubBaseTestGroup.getDescription(),
-        subBaseGroupChild);
-  }
-
-  @Test
-  public void modifyGroupDetailsTest() throws Exception {
-    System.out.println(CLASS_NAME + "modifyGroupDetailsTest");
-
-    final Group subBaseGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "group1");
-
-    final TestGroup modifiedSubBaseTestGroup = new TestGroup("modifiedName", "group1", null, "modifiedDescription");
-    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
-    Group subBaseGroupChild = subGroups.get(0);
-    assertGroup(modifiedSubBaseTestGroup.getGroupName(), baseGroup.getId(), modifiedSubBaseTestGroup.getDescription(),
-        subBaseGroupChild);
-  }
-
-  @Test
-  public void modifyParentGroupTest() throws Exception {
-    System.out.println(CLASS_NAME + "modifyParentGroupTest");
-
-    final Group groupA = new Group("groupA", "group A");
-    groupsManagerBl.createGroup(sess, baseGroup, groupA);
-    setLoginToGroup(baseGroup, groupA, "groupA");
-
-    final Group groupB = new Group("groupB", "group B");
-    groupsManagerBl.createGroup(sess, baseGroup, groupB);
-    setLoginToGroup(baseGroup, groupB, "groupB");
-
-    final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "group A");
-    final TestGroup testGroupB = new TestGroup("groupB", "groupB", "groupA", "group B");
+    final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "description of group A");
+    final TestGroup testGroupB = new TestGroup("groupB", "groupB", null, "description of group B");
     List<Map<String, String>> subjects = Arrays.asList(testGroupA.toMap(), testGroupB.toMap());
     when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -510,118 +254,37 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     assertTrue("No groups should be skipped!", skipped.isEmpty());
 
     List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
 
-    Group subBaseGroup = subGroups.get(0);
-    assertGroup(testGroupA.getGroupName(), baseGroup.getId(), testGroupA.getDescription(), subBaseGroup);
-
-    subGroups = groupsManagerBl.getSubGroups(sess, subBaseGroup);
-    assertTrue("Child of base group should have exactly one child!", 1 == subGroups.size());
-
-    Group childOfBaseGroup = subGroups.get(0);
-    assertGroup(testGroupB.getGroupName(), groupA.getId(), testGroupB.getDescription(), childOfBaseGroup);
+    assertTrue("2 new sub groups under base group should be created!", 2 == subGroups.size());
   }
 
   @Test
-  public void mergeGroupAttributeTestList() throws Exception {
-    System.out.println(CLASS_NAME + "mergeGroupAttributeTestList");
-
-    final Group subBaseGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "group1");
-
-    AttributeDefinition additionalAttr = setGroupAttribute("list", ArrayList.class.getName());
-
-    Attribute attribute = new Attribute(additionalAttr, new ArrayList<>(List.of("val0", "val1")));
-    attributesManagerBl.setAttribute(sess, subBaseGroup, attribute);
-
-    final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "child of base group");
-    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
-    subjects.get(0).put(additionalAttr.getName(), "val1,val2,");
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-    doReturn(Map.of("mergeGroupAttributes", attribute.getName())).when(extSourceManagerBl)
-        .getAttributes((ExtSourceLdap) essa);
-
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    attribute = attributesManagerBl.getAttribute(sess, subBaseGroup, additionalAttr.getName());
-    assertThat(attribute.valueAsList()).containsExactly("val0", "val1", "val2");
-  }
-
-  @Test
-  public void overwriteGroupAttributeTestList() throws Exception {
-    System.out.println(CLASS_NAME + "overwriteGroupAttributeTestList");
-
-    final Group subBaseGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "group1");
-
-    AttributeDefinition additionalAttr = setGroupAttribute("list", ArrayList.class.getName());
-
-    Attribute attribute = new Attribute(additionalAttr, new ArrayList<>(List.of("val0", "val1")));
-    attributesManagerBl.setAttribute(sess, subBaseGroup, attribute);
-
-    final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "child of base group");
-    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
-    subjects.get(0).put(additionalAttr.getName(), "val1,val2,");
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    attribute = attributesManagerBl.getAttribute(sess, subBaseGroup, additionalAttr.getName());
-    assertThat(attribute.valueAsList()).containsExactly("val1", "val2");
-  }
-
-  @Test
-  public void removeAllGroupsTest() throws Exception {
-    System.out.println(CLASS_NAME + "removeAllGroupsTest");
-
-    final Group subGroupA = new Group("baseSubGroupA", "child A of base group");
-    final Group subGroupB = new Group("baseSubGroupB", "child B of base group");
-    final Group subSubGroup1 = new Group("subGroup1", "child 1 of sub group A");
-    groupsManagerBl.createGroup(sess, baseGroup, subGroupA);
-    setLoginToGroup(baseGroup, subGroupA, "subGroupA");
-    groupsManagerBl.createGroup(sess, baseGroup, subGroupB);
-    setLoginToGroup(baseGroup, subGroupB, "subGroupB");
-    groupsManagerBl.createGroup(sess, subGroupA, subSubGroup1);
-    setLoginToGroup(baseGroup, subSubGroup1, "subSubGroup1");
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-
-    assertTrue("List of sub groups of base group should be empty!", subGroups.isEmpty());
-  }
-
-  @Test
-  public void additionalStringAttributeIsSet() throws Exception {
-    System.out.println(CLASS_NAME + "additionalStringAttributeIsSet");
+  public void additionalAttributeIsUpdated() throws Exception {
+    System.out.println(CLASS_NAME + "modifyGroupDescriptionTest");
+    String updatedValue = "updatedValue";
 
     AttributeDefinition additionalAttr = setGroupAttribute(ADDITIONAL_STRING);
 
-    // setup
-    final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
-    List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
-    subjects.get(0).put(additionalAttr.getName(), "val1");
+    final Group subBaseGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "group1");
+    attributesManagerBl.setAttribute(sess, subBaseGroup, new Attribute(additionalAttr, "old"));
+
+    final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "modified");
+    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
+    subjects.get(0).put(additionalAttr.getName(), updatedValue);
     when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
-    // tested method
     groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
     List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-    Group createdGroup = subGroups.get(0);
+    assertThat(subGroups).hasSize(1);
 
-    Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, createdGroup, additionalAttr.getName());
-    assertThat(attribute.getValue()).isEqualTo("val1");
+    Group updatedGroup = subGroups.get(0);
+
+    Attribute updatedAttribute = attributesManagerBl.getAttribute(sess, updatedGroup, additionalAttr.getName());
+
+    assertThat(updatedAttribute.getValue()).isEqualTo(updatedValue);
   }
 
   @Test
@@ -655,9 +318,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     // setup
     final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
     final TestGroup otherGroup = new TestGroup("otherGroup", "otherGroup", null, "group is child of base group");
-    List<Map<String, String>> subjects = Stream.of(testGroup, otherGroup)
-        .map(TestGroup::toMap)
-        .collect(toList());
+    List<Map<String, String>> subjects = Stream.of(testGroup, otherGroup).map(TestGroup::toMap).collect(toList());
 
     subjects.get(0).put(additionalAttr.getName(), "val1");
     when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
@@ -673,922 +334,25 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
   }
 
   @Test
-  public void additionalAttributeIsUpdated() throws Exception {
-    System.out.println(CLASS_NAME + "modifyGroupDescriptionTest");
-    String updatedValue = "updatedValue";
+  public void additionalStringAttributeIsSet() throws Exception {
+    System.out.println(CLASS_NAME + "additionalStringAttributeIsSet");
 
     AttributeDefinition additionalAttr = setGroupAttribute(ADDITIONAL_STRING);
 
-    final Group subBaseGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "group1");
-    attributesManagerBl.setAttribute(sess, subBaseGroup, new Attribute(additionalAttr, "old"));
-
-    final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "modified");
-    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
-    subjects.get(0).put(additionalAttr.getName(), updatedValue);
+    // setup
+    final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
+    List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
+    subjects.get(0).put(additionalAttr.getName(), "val1");
     when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
+    // tested method
     groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
     List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-    assertThat(subGroups).hasSize(1);
+    Group createdGroup = subGroups.get(0);
 
-    Group updatedGroup = subGroups.get(0);
-
-    Attribute updatedAttribute = attributesManagerBl.getAttribute(sess, updatedGroup, additionalAttr.getName());
-
-    assertThat(updatedAttribute.getValue()).isEqualTo(updatedValue);
-  }
-
-  @Test
-  public void resourceIsNotSetToTheBaseGroupWhenNoLoginIsSpecified() throws Exception {
-    System.out.println(CLASS_NAME + "resourceIsSetToTheBaseGroupWhenNoLoginIsSpecified");
-
-    final Group subBaseGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "group1");
-    setSynchronizationResourcesAttribute(resource1.getId());
-
-    final TestGroup subBaseTestGroup =
-        new TestGroup("group1", "group1", null, subBaseGroup.getDescription());
-    List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
-
-    assertThat(baseGroupResources).doesNotContain(resource1);
-  }
-
-  @Test
-  public void resourceIsSetToTheSubgroupsOfTheBaseGroup() throws Exception {
-    System.out.println(CLASS_NAME + "resourceIsSetToTheSubgroupsOfTheBaseGroup");
-
-    final Group subBaseGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
-    setLoginToGroup(baseGroup, subBaseGroup, "group1");
-
-    setSynchronizationResourcesAttribute(resource1.getId());
-
-    final TestGroup subBaseTestGroup =
-        new TestGroup("group1", "group1", null, subBaseGroup.getDescription());
-    List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subBaseGroup);
-
-    assertThat(subGroupResources).contains(resource1);
-  }
-
-  @Test
-  public void resourceIsSetToASubGroupInTheStructure() throws Exception {
-    System.out.println(CLASS_NAME + "resourceIsSetToASubGroupInTheStructure");
-
-    final Group subGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subGroup);
-    setLoginToGroup(baseGroup, subGroup, "group1");
-
-    final Group otherSubGroup = new Group("group2", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
-    setLoginToGroup(baseGroup, otherSubGroup, "group2");
-
-    setSynchronizationResourcesAttribute(resource1.getId(), "group1");
-
-    final TestGroup subBaseTestGroup =
-        new TestGroup("group1", "group1", null, subGroup.getDescription());
-    final TestGroup otherSubBaseTestGroup =
-        new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
-    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
-    List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
-    List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
-
-    assertThat(baseGroupResources).doesNotContain(resource1);
-    assertThat(subGroupResources).contains(resource1);
-    assertThat(otherSubGroupResources).doesNotContain(resource1);
-  }
-
-  @Test
-  public void resourceIsSetToMultipleTrees() throws Exception {
-    System.out.println(CLASS_NAME + "resourceIsSetToMultipleTrees");
-
-    final Group subGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subGroup);
-    setLoginToGroup(baseGroup, subGroup, "group1");
-
-    final Group otherSubGroup = new Group("group2", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
-    setLoginToGroup(baseGroup, otherSubGroup, "group2");
-
-    setSynchronizationResourcesAttribute(resource1.getId(), "group1", "group2");
-
-    final TestGroup subBaseTestGroup =
-        new TestGroup("group1", "group1", null, subGroup.getDescription());
-    final TestGroup otherSubBaseTestGroup =
-        new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
-    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
-    List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
-    List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
-
-    assertThat(baseGroupResources).doesNotContain(resource1);
-    assertThat(subGroupResources).contains(resource1);
-    assertThat(otherSubGroupResources).contains(resource1);
-  }
-
-  @Test
-  public void multipleResourcesAreSetToMultipleTrees() throws Exception {
-    System.out.println(CLASS_NAME + "resourceIsSetToMultipleTrees");
-
-    final Group subGroup = new Group("group1", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, subGroup);
-    setLoginToGroup(baseGroup, subGroup, "group1");
-
-    final Group otherSubGroup = new Group("group2", "child of base group");
-    groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
-    setLoginToGroup(baseGroup, otherSubGroup, "group2");
-
-    setSynchronizationResourcesAttribute(resource1.getId(), "group1");
-    setSynchronizationResourcesAttribute(resource2.getId(), "group2");
-
-    final TestGroup subBaseTestGroup =
-        new TestGroup("group1", "group1", null, subGroup.getDescription());
-    final TestGroup otherSubBaseTestGroup =
-        new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
-    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
-    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-    List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
-    List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
-    List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
-
-    assertThat(baseGroupResources).doesNotContain(resource1, resource2);
-    assertThat(subGroupResources).containsOnly(resource1);
-    assertThat(otherSubGroupResources).containsOnly(resource2);
-  }
-
-  @Test
-  public void synchronizeGroupRemoveMember() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupRemoveMember");
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    groupsManagerBl.addMember(sess, group, member);
-
-    assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
-  }
-
-  @Test
-  public void synchronizeGroupRemoveMemberInAuthoritativeGroup() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupRemoveMemberInAuthoritativeGroup");
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    groupsManagerBl.addMember(sess, group, member);
-
-    Attribute attribute = perun.getAttributesManagerBl()
-        .getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup");
-    attribute.setValue(1);
-    attributesManagerBl.setAttribute(sess, group, attribute);
-
-    assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
-  }
-
-  @Test
-  public void synchronizeGroupRemoveMemberInMembersGroup() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupRemoveMemberInMembersGroup");
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    groupsManagerBl.addMember(sess, group, member);
-    group.setName(VosManager.MEMBERS_GROUP);
-
-    assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
-  }
-
-  @Test
-  public void synchronizeGroupRemoveInvalidMemberInMembersGroup() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupRemoveInvalidMemberInMembersGroup");
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    perun.getMembersManagerBl().setStatus(sess, member, Status.INVALID);
-    groupsManagerBl.addMember(sess, group, member);
-    group.setName(VosManager.MEMBERS_GROUP);
-
-    assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
-  }
-
-  @Test
-  public void synchronizeGroupAddMissingMember() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMember");
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
-  }
-
-  @Test
-  public void synchronizeGroupAddMissingMemberWhileCandidateAlreadyMember() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMemberWhileCandidateAlreadyMember");
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
-  }
-
-  @Test
-  public void synchronizeGroupUpdateUserAttributeOfMember() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupUpdateUserAttributeOfMember");
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-    groupsManagerBl.addMember(sess, group, member);
-
-    Attribute attribute = new Attribute();
-    String namespace = "user-test-unique-attribute:specialNamespace";
-    attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    attribute.setFriendlyName(namespace + "1");
-    attribute.setType(String.class.getName());
-    attribute.setValue("UserAttribute");
-    assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, attribute));
-
-    Map<String, String> candidateAttrs = new HashMap<>();
-    candidateAttrs.put(attribute.getName(), attribute.valueAsString());
-    candidate.setAttributes(candidateAttrs);
-
-    Map<String, String> map = new HashMap<>();
-    map.put("overwriteUserAttributes", attribute.getName());
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-    doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap) essa);
-
-    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-
-    assertNotEquals(candidate.getAttributes().get(attribute.getName()),
-        attributesManagerBl.getAttribute(sess, user, attribute.getName()).valueAsString());
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(candidate.getAttributes().get(attribute.getName()),
-        attributesManagerBl.getAttribute(sess, user, attribute.getName()).valueAsString());
-  }
-
-  @Test
-  public void synchronizeGroupUpdateFirstNameOfMember() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupUpdateFirstNameOfMember");
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-    groupsManagerBl.addMember(sess, group, member);
-    candidate.setFirstName("metodej");
-
-    Attribute attribute = perun.getAttributesManagerBl()
-        .getAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member),
-            AttributesManager.NS_USER_ATTR_CORE + ":firstName");
-
-    Map<String, String> candidateAttrs = new HashMap<>();
-    candidateAttrs.put(attribute.getName(), attribute.valueAsString());
-    candidate.setAttributes(candidateAttrs);
-
-    Map<String, String> map = new HashMap<>();
-    map.put("overwriteUserAttributes", attribute.getName());
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-    doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap) essa);
-
-    assertNotEquals(candidate.getFirstName(), perun.getUsersManagerBl().getUserByMember(sess, member).getFirstName());
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(candidate.getFirstName(), perun.getUsersManagerBl().getUserByMember(sess, member).getFirstName());
-  }
-
-  @Test
-  public void synchronizeGroupMergeMemberAttributeValue() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupMergeMemberAttributeValue");
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-    groupsManagerBl.addMember(sess, group, member);
-    candidate.setFirstName("metodej");
-
-    Attribute attribute = new Attribute();
-    String namespace = "member-test-unique-attribute:specialNamespace";
-    attribute.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
-    attribute.setFriendlyName(namespace + "1");
-    attribute.setType(ArrayList.class.getName());
-    attribute.setValue(Stream.of("value1", "value2").collect(Collectors.toList()));
-    assertNotNull("unable to create member attribute", attributesManagerBl.createAttribute(sess, attribute));
-
-    Map<String, String> candidateAttrs = new HashMap<>();
-    candidateAttrs.put(attribute.getName(), "value2,value3");
-    candidate.setAttributes(candidateAttrs);
-    attributesManagerBl.setAttribute(sess, member, attribute);
-
-    Map<String, String> map = new HashMap<>();
-    map.put("mergeMemberAttributes", attribute.getName());
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-    doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap) essa);
-
-    assertEquals(2, attributesManagerBl.getAttribute(sess, member, attribute.getName()).valueAsList().size());
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(3, attributesManagerBl.getAttribute(sess, member, attribute.getName()).valueAsList().size());
-  }
-
-  @Test
-  public void synchronizeGroupUpdateExistingMemberStatus() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupUpdateExistingMemberStatus");
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-    perun.getMembersManagerBl().setStatus(sess, member, Status.DISABLED);
-    groupsManagerBl.addMember(sess, group, member);
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
-  }
-
-  @Test
-  public void synchronizeGroupUpdateMembershipStatusToExpired() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusToExpired");
-    String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    attributes.put("status", "EXPIRED");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-    candidate.setExpectedSyncGroupStatus("EXPIRED");
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-    groupsManagerBl.addMember(sess, group, member);
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
-    assertEquals(LocalDate.now().toString(),
-        attributesManagerBl.getAttribute(sess, member, group, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
-  }
-
-  @Test
-  public void synchronizeExpiredGroupStatusMemberNotInVO() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeExpiredGroupStatusMemberNotInVO");
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    attributes.put("status", "EXPIRED");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-    candidate.setExpectedSyncGroupStatus("EXPIRED");
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
-  }
-
-  @Test
-  public void synchronizeGroupUpdateMembershipStatusToDefaultValid() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusToDefaultValid");
-
-    Group groupWithExpiration = new Group("GroupsManagerTestGroup2", "testovaci2");
-    groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-    // status is null but default should be valid
-    candidate.setExpectedSyncGroupStatus(null);
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-    groupsManagerBl.addMember(sess, groupWithExpiration, member);
-    groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
-
-    setUpGroupWithExpiration(groupWithExpiration);
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
-    assertEquals(MemberGroupStatus.VALID,
-        groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
-    assertEquals(LocalDate.now().plusMonths(1).toString(),
-        attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
-  }
-
-  @Test
-  public void synchronizeGroupUpdateMembershipStatusFromExpiredToValid() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusFromExpiredToValid");
-
-    Group groupWithExpiration = new Group("GroupsManagerTestGroup2", "testovaci2");
-    groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-    // status is null but default should be valid
-    candidate.setExpectedSyncGroupStatus(null);
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-    groupsManagerBl.addMember(sess, groupWithExpiration, member);
-    groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
-
-    setUpGroupWithExpiration(groupWithExpiration);
-
-    Attribute groupMembExpirAttr =
-        attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION);
-    groupMembExpirAttr.setValue(LocalDate.now().toString());
-    attributesManagerBl.setAttribute(sess, member, groupWithExpiration, groupMembExpirAttr);
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
-    assertEquals(MemberGroupStatus.VALID,
-        groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
-    assertEquals(LocalDate.now().plusMonths(1).toString(),
-        attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
-  }
-
-  @Test
-  public void lightweightSynchronizationAlreadyGroupMemberExtendGroupStatus() throws Exception {
-    System.out.println(CLASS_NAME + "lightweightSynchronizationAlreadyGroupMemberExtendGroupStatus");
-
-    String synchronizedUserLogin = "metodej";
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Group groupWithExpiration = new Group("GroupsManagerTestGroup2", "testovaci2");
-    groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
-
-    Attribute lightweightSynchronizationAttr = attributesManagerBl.getAttribute(sess, groupWithExpiration,
-        GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
-    lightweightSynchronizationAttr.setValue(true);
-    attributesManagerBl.setAttribute(sess, groupWithExpiration, lightweightSynchronizationAttr);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", synchronizedUserLogin);
-    attributes.put("status", "VALID");
-    // add the ues to additional ueses to get the user in the lightweight synchronization
-    String uesName = "additionalUesName";
-    attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING,
-        uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
-    subjects.add(attributes);
-
-    Candidate candidate = setUpCandidate();
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-
-    UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
-    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-    user.setFirstName(synchronizedUserLogin);
-    perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
-    groupsManagerBl.addMember(sess, groupWithExpiration, member);
-    groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
-
-    setUpGroupWithExpiration(groupWithExpiration);
-
-    when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
-    assertEquals(MemberGroupStatus.VALID,
-        groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
-    assertEquals(LocalDate.now().plusMonths(1).toString(),
-        attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
-  }
-
-  @Test
-  public void lightweightSynchronizationAddExpiredGroupMember() throws Exception {
-    System.out.println(CLASS_NAME + "lightweightSynchronizationAddExpiredGroupMember");
-
-    String synchronizedUserLogin = "metodej";
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute lightweightSynchronizationAttr =
-        attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
-    lightweightSynchronizationAttr.setValue(true);
-    attributesManagerBl.setAttribute(sess, group, lightweightSynchronizationAttr);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", synchronizedUserLogin);
-    attributes.put("status", "EXPIRED");
-    // add the ues to additional ueses to get the user in the lightweight synchronization
-    String uesName = "additionalUesName";
-    attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING,
-        uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
-    subjects.add(attributes);
-
-    Candidate candidate = setUpCandidate();
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-
-    UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
-    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-    user.setFirstName(synchronizedUserLogin);
-    perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
-
-    when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
-  }
-
-  @Test
-  public void lightweightSynchronizationMemberNotInVO() throws Exception {
-    System.out.println(CLASS_NAME + "lightweightSynchronizationMemberNotInVO");
-
-    String synchronizedUserLogin = "metodej";
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute lightweightSynchronizationAttr =
-        attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
-    lightweightSynchronizationAttr.setValue(true);
-    attributesManagerBl.setAttribute(sess, group, lightweightSynchronizationAttr);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", synchronizedUserLogin);
-    attributes.put("status", "VALID");
-    // add the ues to additional ueses to get the user in the lightweight synchronization
-    String uesName = "additionalUesName";
-    attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING,
-        uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
-    subjects.add(attributes);
-
-    Candidate candidate = setUpCandidate();
-
-    Vo newVo = new Vo(1, "OtherVO", "OtherVo");
-    Vo otherVo = perun.getVosManagerBl().createVo(sess, newVo);
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, otherVo, candidate);
-
-    UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
-    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-    user.setFirstName(synchronizedUserLogin);
-    perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
-
-    when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    groupsManagerBl.synchronizeGroup(sess, group);
-    assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
-  }
-
-  @Test
-  public void synchronizeGroupUpdateMemberOrganizationsAttribute() throws Exception {
-    System.out.println(CLASS_NAME + "synchronizeGroupUpdateMemberOrganizationsAttribute");
-
-    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
-        extSourceForUserCreation);
-
-    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, group, attr);
-
-    List<Map<String, String>> subjects = new ArrayList<>();
-    Map<String, String> attributes = new HashMap<>();
-    attributes.put("login", "metodej");
-    subjects.add(attributes);
-    Candidate candidate = setUpCandidate();
-
-    Vo memberVo = new Vo(0, "UserManagerTestVo2", "memberVo");
-    memberVo = perun.getVosManagerBl().createVo(sess, memberVo);
-
-    member = perun.getMembersManagerBl().createMemberSync(sess, memberVo, candidate);
-    perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
-
-    Member newMember =
-        perun.getMembersManagerBl().getMemberByUser(sess, vo, perun.getUsersManagerBl().getUserByMember(sess, member));
-
-    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
-        new CandidateSync(candidate));
-    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
-
-    Attribute memberOrganizations = perun.getAttributesManager()
-        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-    ArrayList<String> currentMemberOrganizations = memberOrganizations.valueAsList();
-    assertThat(currentMemberOrganizations).containsOnly(memberVo.getShortName());
-
-    Attribute memberOrganizationsHistory = perun.getAttributesManager()
-        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-    ArrayList<String> currentMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
-    assertThat(currentMemberOrganizationsHistory).containsOnly(memberVo.getShortName());
-
-    groupsManagerBl.synchronizeGroup(sess, group);
-
-    memberOrganizations = perun.getAttributesManager()
-        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-    currentMemberOrganizations = memberOrganizations.valueAsList();
-    assertThat(currentMemberOrganizations).containsOnly(vo.getShortName(), memberVo.getShortName());
-
-    memberOrganizationsHistory = perun.getAttributesManager()
-        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
-    currentMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
-    assertThat(currentMemberOrganizationsHistory).containsOnly(vo.getShortName(), memberVo.getShortName());
-  }
-
-  // PRIVATE METHODS
-
-  private void setSynchronizationResourcesAttribute(int resourceId, String... logins) throws Exception {
-    Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, baseGroup, A_G_D_SYNC_RESOURCES);
-    if (attribute.getValue() == null) {
-      attribute.setValue(new LinkedHashMap<>());
-    }
-    StringBuilder groupLogins = new StringBuilder();
-    for (String login : logins) {
-      groupLogins.append(login).append(",");
-    }
-    attribute.valueAsMap().put(String.valueOf(resourceId), groupLogins.toString());
-    perun.getAttributesManagerBl().setAttribute(sess, baseGroup, attribute);
-  }
-
-  private Vo setUpVo() throws Exception {
-
-    Vo newVo = new Vo(0, "UserManagerTestVo", "UMTestVo");
-    Vo returnedVo = perun.getVosManagerBl().createVo(sess, newVo);
-    // create test VO in database
-    assertNotNull("unable to create testing Vo", returnedVo);
-
-    return returnedVo;
-
-  }
-
-  private void setUpBaseGroup(Vo vo) throws Exception {
-    extSource = extSourceManagerBl.createExtSource(sess, extSource, null);
-
-    Group returnedGroup = groupsManagerBl.createGroup(sess, vo, baseGroup);
-
-    extSourceManagerBl.addExtSource(sess, vo, extSource);
-    Attribute attr = attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    attr.setValue(extSource.getName());
-    attributesManagerBl.setAttribute(sess, baseGroup, attr);
-    extSourceManagerBl.addExtSource(sess, baseGroup, extSource);
-
-    Attribute membersQuery = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
-        .getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
-    membersQuery.setValue("SELECT * from members where groupName='?';");
-    attributesManagerBl.setAttribute(sess, baseGroup, membersQuery);
-
-    Attribute interval = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
-        .getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
-    interval.setValue("1");
-    attributesManagerBl.setAttribute(sess, baseGroup, interval);
-
-    AttributeDefinition loginAttrDef = setGroupAttribute("groupLogin");
-
-    Attribute structureLoginName = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
-        .getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME));
-    structureLoginName.setValue(loginAttrDef.getName());
-    attributesManagerBl.setAttribute(sess, baseGroup, structureLoginName);
-
-    // create test Group in database
-    assertNotNull("unable to create testing Group", returnedGroup);
-  }
-
-  private String getLoginNameForBaseGroup(Group baseGroup) throws Exception {
-    return attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME)
-        .valueAsString();
-  }
-
-  private void setLoginToGroup(Group baseGroup, Group groupToSetLoginFor, String login) throws Exception {
-    String baseGroupAttrLoginName = getLoginNameForBaseGroup(baseGroup);
-    Attribute loginAttr = new Attribute(attributesManagerBl.getAttributeDefinition(sess, baseGroupAttrLoginName));
-    loginAttr.setValue(login);
-    attributesManagerBl.setAttribute(sess, groupToSetLoginFor, loginAttr);
-  }
-
-  private void setUpGroupWithExpiration(Group groupWithExpiration)
-      throws AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,
-      WrongReferenceAttributeValueException {
-    Attribute expirationRulesAttribute = new Attribute(attributesManagerBl.getAttributeDefinition(sess,
-        AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules"));
-    Map<String, String> values = new LinkedHashMap<>();
-    values.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+1m");
-    expirationRulesAttribute.setValue(values);
-    attributesManagerBl.setAttribute(sess, groupWithExpiration, expirationRulesAttribute);
-  }
-
-  private void setLoginPrefixForStructure(Group baseGroup, String prefix) throws Exception {
-    Attribute loginPrefixAttribute = new Attribute(
-        attributesManagerBl.getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_LOGIN_PREFIX_ATTRNAME));
-    loginPrefixAttribute.setValue(prefix);
-    attributesManagerBl.setAttribute(sess, baseGroup, loginPrefixAttribute);
-  }
-
-  /**
-   * Created structure text visualization:
-   * <p>
-   * Layer 0:                       [rootGroup]
-   * /         \
-   * Layer 1:        --------[groupA]     [groupB]
-   * /         /     \          \
-   * Layer 2: [group1] [group2]   [group3]   [group4]
-   * |          |
-   * Layer 3:          [groupI]   [groupII]
-   * |
-   * Layer 4:        [groupRed]
-   */
-  private List<Map<String, String>> makeComplexGroupTreeSample(String rootGroupLogin) {
-    // 1st layer
-    TestGroup groupA = new TestGroup("groupA", "groupA", rootGroupLogin, "group A is child of root group");
-    TestGroup groupB = new TestGroup("groupB", "groupB", rootGroupLogin, "group B is child of root group");
-    // 2nd layer
-    TestGroup group1 = new TestGroup("group1", "group1", groupA.getLogin(), "group 1 is child of group A");
-    TestGroup group2 = new TestGroup("group2", "group2", groupA.getLogin(), "group 2 is child of group A");
-    TestGroup group3 = new TestGroup("group3", "group3", groupA.getLogin(), "group 3 is child of group A");
-    TestGroup group4 = new TestGroup("group4", "group4", groupB.getLogin(), "group 4 is child of group B");
-    // 3rd layer
-    TestGroup groupI = new TestGroup("groupI", "groupI", group2.getLogin(), "group I is child of group 2");
-    TestGroup groupII = new TestGroup("groupII", "groupII", group3.getLogin(), "group II is child of group 3");
-    // 4th layer
-    TestGroup groupRed = new TestGroup("groupRed", "groupRed", groupI.getLogin(), "group Red is child of group I");
-
-    return Arrays.asList(groupA.toMap(), groupB.toMap(),
-        group1.toMap(), group2.toMap(), group3.toMap(), group4.toMap(),
-        groupI.toMap(), groupII.toMap(),
-        groupRed.toMap());
+    Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, createdGroup, additionalAttr.getName());
+    assertThat(attribute.getValue()).isEqualTo("val1");
   }
 
   private void assertComplexGroupTree(Group rootGroup, List<Group> allGroupsInTree) {
@@ -1657,6 +421,624 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     assertEquals("Group A should have correct description!", expectedDescription, group.getDescription());
   }
 
+  @After
+  public void cleanUp() {
+    perun.setExtSourcesManagerBl(extSourceManagerBlBackup);
+    Mockito.reset(extSourceManagerBl);
+  }
+
+  private String getLoginNameForBaseGroup(Group baseGroup) throws Exception {
+    return attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME)
+        .valueAsString();
+  }
+
+  @Test
+  public void lightweightSynchronizationAddExpiredGroupMember() throws Exception {
+    System.out.println(CLASS_NAME + "lightweightSynchronizationAddExpiredGroupMember");
+
+    String synchronizedUserLogin = "metodej";
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute lightweightSynchronizationAttr =
+        attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+    lightweightSynchronizationAttr.setValue(true);
+    attributesManagerBl.setAttribute(sess, group, lightweightSynchronizationAttr);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", synchronizedUserLogin);
+    attributes.put("status", "EXPIRED");
+    // add the ues to additional ueses to get the user in the lightweight synchronization
+    String uesName = "additionalUesName";
+    attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING,
+        uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
+    subjects.add(attributes);
+
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+    UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    user.setFirstName(synchronizedUserLogin);
+    perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+
+    when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
+  }
+
+  @Test
+  public void lightweightSynchronizationAlreadyGroupMemberExtendGroupStatus() throws Exception {
+    System.out.println(CLASS_NAME + "lightweightSynchronizationAlreadyGroupMemberExtendGroupStatus");
+
+    String synchronizedUserLogin = "metodej";
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Group groupWithExpiration = new Group("GroupsManagerTestGroup2", "testovaci2");
+    groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
+
+    Attribute lightweightSynchronizationAttr = attributesManagerBl.getAttribute(sess, groupWithExpiration,
+        GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+    lightweightSynchronizationAttr.setValue(true);
+    attributesManagerBl.setAttribute(sess, groupWithExpiration, lightweightSynchronizationAttr);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", synchronizedUserLogin);
+    attributes.put("status", "VALID");
+    // add the ues to additional ueses to get the user in the lightweight synchronization
+    String uesName = "additionalUesName";
+    attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING,
+        uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
+    subjects.add(attributes);
+
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+    UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    user.setFirstName(synchronizedUserLogin);
+    perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+    groupsManagerBl.addMember(sess, groupWithExpiration, member);
+    groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
+
+    setUpGroupWithExpiration(groupWithExpiration);
+
+    when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
+    assertEquals(MemberGroupStatus.VALID,
+        groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
+    assertEquals(LocalDate.now().plusMonths(1).toString(),
+        attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+  }
+
+  @Test
+  public void lightweightSynchronizationMemberNotInVO() throws Exception {
+    System.out.println(CLASS_NAME + "lightweightSynchronizationMemberNotInVO");
+
+    String synchronizedUserLogin = "metodej";
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute lightweightSynchronizationAttr =
+        attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+    lightweightSynchronizationAttr.setValue(true);
+    attributesManagerBl.setAttribute(sess, group, lightweightSynchronizationAttr);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", synchronizedUserLogin);
+    attributes.put("status", "VALID");
+    // add the ues to additional ueses to get the user in the lightweight synchronization
+    String uesName = "additionalUesName";
+    attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING,
+        uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
+    subjects.add(attributes);
+
+    Candidate candidate = setUpCandidate();
+
+    Vo newVo = new Vo(1, "OtherVO", "OtherVo");
+    Vo otherVo = perun.getVosManagerBl().createVo(sess, newVo);
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, otherVo, candidate);
+
+    UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    user.setFirstName(synchronizedUserLogin);
+    perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+
+    when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+  }
+
+  /**
+   * Created structure text visualization:
+   * <p>
+   * Layer 0:                       [rootGroup] /         \ Layer 1:        --------[groupA]     [groupB] /         / \
+   * \ Layer 2: [group1] [group2]   [group3]   [group4] |          | Layer 3:          [groupI]   [groupII] | Layer 4:
+   * [groupRed]
+   */
+  private List<Map<String, String>> makeComplexGroupTreeSample(String rootGroupLogin) {
+    // 1st layer
+    TestGroup groupA = new TestGroup("groupA", "groupA", rootGroupLogin, "group A is child of root group");
+    TestGroup groupB = new TestGroup("groupB", "groupB", rootGroupLogin, "group B is child of root group");
+    // 2nd layer
+    TestGroup group1 = new TestGroup("group1", "group1", groupA.getLogin(), "group 1 is child of group A");
+    TestGroup group2 = new TestGroup("group2", "group2", groupA.getLogin(), "group 2 is child of group A");
+    TestGroup group3 = new TestGroup("group3", "group3", groupA.getLogin(), "group 3 is child of group A");
+    TestGroup group4 = new TestGroup("group4", "group4", groupB.getLogin(), "group 4 is child of group B");
+    // 3rd layer
+    TestGroup groupI = new TestGroup("groupI", "groupI", group2.getLogin(), "group I is child of group 2");
+    TestGroup groupII = new TestGroup("groupII", "groupII", group3.getLogin(), "group II is child of group 3");
+    // 4th layer
+    TestGroup groupRed = new TestGroup("groupRed", "groupRed", groupI.getLogin(), "group Red is child of group I");
+
+    return Arrays.asList(groupA.toMap(), groupB.toMap(), group1.toMap(), group2.toMap(), group3.toMap(), group4.toMap(),
+        groupI.toMap(), groupII.toMap(), groupRed.toMap());
+  }
+
+  @Test
+  public void mergeGroupAttributeTestList() throws Exception {
+    System.out.println(CLASS_NAME + "mergeGroupAttributeTestList");
+
+    final Group subBaseGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "group1");
+
+    AttributeDefinition additionalAttr = setGroupAttribute("list", ArrayList.class.getName());
+
+    Attribute attribute = new Attribute(additionalAttr, new ArrayList<>(List.of("val0", "val1")));
+    attributesManagerBl.setAttribute(sess, subBaseGroup, attribute);
+
+    final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "child of base group");
+    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
+    subjects.get(0).put(additionalAttr.getName(), "val1,val2,");
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+    doReturn(Map.of("mergeGroupAttributes", attribute.getName())).when(extSourceManagerBl)
+        .getAttributes((ExtSourceLdap) essa);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    attribute = attributesManagerBl.getAttribute(sess, subBaseGroup, additionalAttr.getName());
+    assertThat(attribute.valueAsList()).containsExactly("val0", "val1", "val2");
+  }
+
+  @Test
+  public void modifyGroupDetailsTest() throws Exception {
+    System.out.println(CLASS_NAME + "modifyGroupDetailsTest");
+
+    final Group subBaseGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "group1");
+
+    final TestGroup modifiedSubBaseTestGroup = new TestGroup("modifiedName", "group1", null, "modifiedDescription");
+    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+    Group subBaseGroupChild = subGroups.get(0);
+    assertGroup(modifiedSubBaseTestGroup.getGroupName(), baseGroup.getId(), modifiedSubBaseTestGroup.getDescription(),
+        subBaseGroupChild);
+  }
+
+  @Test
+  public void modifyGroupLoginTest() throws Exception {
+    System.out.println(CLASS_NAME + "modifyGroupLoginTest");
+
+    final Group subBaseGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "group1");
+
+    final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "modified", null, "child of base group");
+    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+    Group subBaseGroupChild = subGroups.get(0);
+    assertGroup(modifiedSubBaseTestGroup.getGroupName(), baseGroup.getId(), modifiedSubBaseTestGroup.getDescription(),
+        subBaseGroupChild);
+  }
+
+  @Test
+  public void modifyParentGroupTest() throws Exception {
+    System.out.println(CLASS_NAME + "modifyParentGroupTest");
+
+    final Group groupA = new Group("groupA", "group A");
+    groupsManagerBl.createGroup(sess, baseGroup, groupA);
+    setLoginToGroup(baseGroup, groupA, "groupA");
+
+    final Group groupB = new Group("groupB", "group B");
+    groupsManagerBl.createGroup(sess, baseGroup, groupB);
+    setLoginToGroup(baseGroup, groupB, "groupB");
+
+    final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "group A");
+    final TestGroup testGroupB = new TestGroup("groupB", "groupB", "groupA", "group B");
+    List<Map<String, String>> subjects = Arrays.asList(testGroupA.toMap(), testGroupB.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+
+    Group subBaseGroup = subGroups.get(0);
+    assertGroup(testGroupA.getGroupName(), baseGroup.getId(), testGroupA.getDescription(), subBaseGroup);
+
+    subGroups = groupsManagerBl.getSubGroups(sess, subBaseGroup);
+    assertTrue("Child of base group should have exactly one child!", 1 == subGroups.size());
+
+    Group childOfBaseGroup = subGroups.get(0);
+    assertGroup(testGroupB.getGroupName(), groupA.getId(), testGroupB.getDescription(), childOfBaseGroup);
+  }
+
+  @Test
+  public void multipleResourcesAreSetToMultipleTrees() throws Exception {
+    System.out.println(CLASS_NAME + "resourceIsSetToMultipleTrees");
+
+    final Group subGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subGroup);
+    setLoginToGroup(baseGroup, subGroup, "group1");
+
+    final Group otherSubGroup = new Group("group2", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
+    setLoginToGroup(baseGroup, otherSubGroup, "group2");
+
+    setSynchronizationResourcesAttribute(resource1.getId(), "group1");
+    setSynchronizationResourcesAttribute(resource2.getId(), "group2");
+
+    final TestGroup subBaseTestGroup = new TestGroup("group1", "group1", null, subGroup.getDescription());
+    final TestGroup otherSubBaseTestGroup = new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
+    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
+    List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
+    List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
+
+    assertThat(baseGroupResources).doesNotContain(resource1, resource2);
+    assertThat(subGroupResources).containsOnly(resource1);
+    assertThat(otherSubGroupResources).containsOnly(resource2);
+  }
+
+  @Test
+  public void overwriteGroupAttributeTestList() throws Exception {
+    System.out.println(CLASS_NAME + "overwriteGroupAttributeTestList");
+
+    final Group subBaseGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "group1");
+
+    AttributeDefinition additionalAttr = setGroupAttribute("list", ArrayList.class.getName());
+
+    Attribute attribute = new Attribute(additionalAttr, new ArrayList<>(List.of("val0", "val1")));
+    attributesManagerBl.setAttribute(sess, subBaseGroup, attribute);
+
+    final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "child of base group");
+    List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
+    subjects.get(0).put(additionalAttr.getName(), "val1,val2,");
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    attribute = attributesManagerBl.getAttribute(sess, subBaseGroup, additionalAttr.getName());
+    assertThat(attribute.valueAsList()).containsExactly("val1", "val2");
+  }
+
+  @Test
+  public void removeAllGroupsTest() throws Exception {
+    System.out.println(CLASS_NAME + "removeAllGroupsTest");
+
+    final Group subGroupA = new Group("baseSubGroupA", "child A of base group");
+    final Group subGroupB = new Group("baseSubGroupB", "child B of base group");
+    final Group subSubGroup1 = new Group("subGroup1", "child 1 of sub group A");
+    groupsManagerBl.createGroup(sess, baseGroup, subGroupA);
+    setLoginToGroup(baseGroup, subGroupA, "subGroupA");
+    groupsManagerBl.createGroup(sess, baseGroup, subGroupB);
+    setLoginToGroup(baseGroup, subGroupB, "subGroupB");
+    groupsManagerBl.createGroup(sess, subGroupA, subSubGroup1);
+    setLoginToGroup(baseGroup, subSubGroup1, "subSubGroup1");
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+
+    assertTrue("List of sub groups of base group should be empty!", subGroups.isEmpty());
+  }
+
+  @Test
+  public void removeGroupUnderBaseGroupTest() throws Exception {
+    System.out.println(CLASS_NAME + "removeGroupUnderBaseGroupTest");
+
+    final Group subGroup = new Group("baseSubGroup", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subGroup);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+
+    assertTrue("List of sub groups of base group should be empty!", subGroups.isEmpty());
+  }
+
+  @Test
+  public void removeIntermediaryGroupTest() throws Exception {
+    System.out.println(CLASS_NAME + "removeIntermediaryGroupTest");
+
+    final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "baseSubGroup");
+
+    final Group interGroup = new Group("interGroup", "child of sub base group");
+    groupsManagerBl.createGroup(sess, subBaseGroup, interGroup);
+    setLoginToGroup(baseGroup, interGroup, "interGroup");
+
+    final Group leafGroup = new Group("leafGroup", "leaf group");
+    groupsManagerBl.createGroup(sess, interGroup, leafGroup);
+    setLoginToGroup(baseGroup, leafGroup, "leafGroup");
+
+    final TestGroup subBaseTestGroup = new TestGroup("baseSubGroup", "baseSubGroup", null, "child of base group");
+    final TestGroup leafTestGroup = new TestGroup("leafGroup", "leafGroup", "baseSubGroup", "leaf group");
+    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), leafTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+
+    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+    Group baseGroupChild = subGroups.get(0);
+    assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), baseGroupChild);
+
+    subGroups = groupsManagerBl.getSubGroups(sess, baseGroupChild);
+
+    assertTrue("Child of base group should have only one child!", 1 == subGroups.size());
+    Group subBaseGroupChild = subGroups.get(0);
+    assertGroup(leafTestGroup.getGroupName(), baseGroupChild.getId(), leafTestGroup.getDescription(),
+        subBaseGroupChild);
+
+    assertTrue("Leaf group should not have any children!",
+        0 == groupsManagerBl.getSubGroupsCount(sess, subBaseGroupChild));
+  }
+
+  @Test
+  public void removeLeafGroupTest() throws Exception {
+    System.out.println(CLASS_NAME + "removeLeafGroupTest");
+
+    // setup
+    final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "subBaseGroup");
+
+    final Group subGroup = new Group("subGroup", "child of sub base group");
+    groupsManagerBl.createGroup(sess, subBaseGroup, subGroup);
+    setLoginToGroup(baseGroup, subGroup, "subGroup");
+
+    final TestGroup subBaseTestGroup = new TestGroup("subGroup", "subGroup", null, "child of base group");
+    List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    // tested method
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    // asserts
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+
+    assertTrue("Leaf group should be removed!", 1 == subGroups.size());
+
+    Group returnedGroup = subGroups.get(0);
+    assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), returnedGroup);
+  }
+
+  @Test
+  public void replaceStructureWithPrefix() throws Exception {
+    System.out.println(CLASS_NAME + "removeIntermediaryGroupTestWithPrefix");
+
+    String loginPrefix = "prefix-";
+    setLoginPrefixForStructure(baseGroup, loginPrefix);
+
+    final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "baseSubGroup");
+
+    final Group interGroup = new Group("interGroup", "child of sub base group");
+    groupsManagerBl.createGroup(sess, subBaseGroup, interGroup);
+    setLoginToGroup(baseGroup, interGroup, "interGroup");
+
+    final Group leafGroup = new Group("leafGroup", "leaf group");
+    groupsManagerBl.createGroup(sess, interGroup, leafGroup);
+    setLoginToGroup(baseGroup, leafGroup, loginPrefix + "leafGroup");
+
+    final TestGroup subBaseTestGroup = new TestGroup("baseSubGroup", "baseSubGroup", null, "child of base group");
+    final TestGroup leafTestGroup = new TestGroup("leafGroup", "leafGroup", "baseSubGroup", "leaf group");
+    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), leafTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+    List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+
+    assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+    Group baseGroupChild = subGroups.get(0);
+    assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), baseGroupChild);
+    assertEquals(loginPrefix + "baseSubGroup",
+        perun.getAttributesManagerBl().getAttribute(sess, baseGroupChild, getLoginNameForBaseGroup(baseGroup))
+            .valueAsString());
+
+    subGroups = groupsManagerBl.getSubGroups(sess, baseGroupChild);
+
+    assertTrue("Child of base group should have only one child!", 1 == subGroups.size());
+    Group subBaseGroupChild = subGroups.get(0);
+    assertGroup(leafTestGroup.getGroupName(), baseGroupChild.getId(), leafTestGroup.getDescription(),
+        subBaseGroupChild);
+    assertEquals(loginPrefix + "leafGroup",
+        perun.getAttributesManagerBl().getAttribute(sess, subBaseGroupChild, getLoginNameForBaseGroup(baseGroup))
+            .valueAsString());
+
+    assertTrue("Leaf group should not have any children!",
+        0 == groupsManagerBl.getSubGroupsCount(sess, subBaseGroupChild));
+  }
+
+  @Test
+  public void resourceIsNotSetToTheBaseGroupWhenNoLoginIsSpecified() throws Exception {
+    System.out.println(CLASS_NAME + "resourceIsSetToTheBaseGroupWhenNoLoginIsSpecified");
+
+    final Group subBaseGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "group1");
+    setSynchronizationResourcesAttribute(resource1.getId());
+
+    final TestGroup subBaseTestGroup = new TestGroup("group1", "group1", null, subBaseGroup.getDescription());
+    List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
+
+    assertThat(baseGroupResources).doesNotContain(resource1);
+  }
+
+  @Test
+  public void resourceIsSetToASubGroupInTheStructure() throws Exception {
+    System.out.println(CLASS_NAME + "resourceIsSetToASubGroupInTheStructure");
+
+    final Group subGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subGroup);
+    setLoginToGroup(baseGroup, subGroup, "group1");
+
+    final Group otherSubGroup = new Group("group2", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
+    setLoginToGroup(baseGroup, otherSubGroup, "group2");
+
+    setSynchronizationResourcesAttribute(resource1.getId(), "group1");
+
+    final TestGroup subBaseTestGroup = new TestGroup("group1", "group1", null, subGroup.getDescription());
+    final TestGroup otherSubBaseTestGroup = new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
+    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
+    List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
+    List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
+
+    assertThat(baseGroupResources).doesNotContain(resource1);
+    assertThat(subGroupResources).contains(resource1);
+    assertThat(otherSubGroupResources).doesNotContain(resource1);
+  }
+
+  @Test
+  public void resourceIsSetToMultipleTrees() throws Exception {
+    System.out.println(CLASS_NAME + "resourceIsSetToMultipleTrees");
+
+    final Group subGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subGroup);
+    setLoginToGroup(baseGroup, subGroup, "group1");
+
+    final Group otherSubGroup = new Group("group2", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
+    setLoginToGroup(baseGroup, otherSubGroup, "group2");
+
+    setSynchronizationResourcesAttribute(resource1.getId(), "group1", "group2");
+
+    final TestGroup subBaseTestGroup = new TestGroup("group1", "group1", null, subGroup.getDescription());
+    final TestGroup otherSubBaseTestGroup = new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
+    List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
+    List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
+    List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
+
+    assertThat(baseGroupResources).doesNotContain(resource1);
+    assertThat(subGroupResources).contains(resource1);
+    assertThat(otherSubGroupResources).contains(resource1);
+  }
+
+  @Test
+  public void resourceIsSetToTheSubgroupsOfTheBaseGroup() throws Exception {
+    System.out.println(CLASS_NAME + "resourceIsSetToTheSubgroupsOfTheBaseGroup");
+
+    final Group subBaseGroup = new Group("group1", "child of base group");
+    groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+    setLoginToGroup(baseGroup, subBaseGroup, "group1");
+
+    setSynchronizationResourcesAttribute(resource1.getId());
+
+    final TestGroup subBaseTestGroup = new TestGroup("group1", "group1", null, subBaseGroup.getDescription());
+    List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
+    when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+    List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subBaseGroup);
+
+    assertThat(subGroupResources).contains(resource1);
+  }
+
+  private AttributeDefinition setGroupAttribute(String name) throws Exception {
+    return setGroupAttribute(name, String.class.getName());
+  }
+
   private AttributeDefinition setGroupAttribute(String name, String type) throws Exception {
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
@@ -1669,34 +1051,97 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     return attribute;
   }
 
-  private AttributeDefinition setGroupAttribute(String name) throws Exception {
-    return setGroupAttribute(name, String.class.getName());
+  private void setLoginPrefixForStructure(Group baseGroup, String prefix) throws Exception {
+    Attribute loginPrefixAttribute = new Attribute(
+        attributesManagerBl.getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_LOGIN_PREFIX_ATTRNAME));
+    loginPrefixAttribute.setValue(prefix);
+    attributesManagerBl.setAttribute(sess, baseGroup, loginPrefixAttribute);
   }
 
-  private void setUpResources() throws Exception {
-    resource1 = new Resource(-1, "resource1", "", facility.getId());
-    resource1 = perun.getResourcesManagerBl().createResource(sess, resource1, vo, facility);
-
-    resource2 = new Resource(-1, "resource2", "", facility.getId());
-    resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo, facility);
+  private void setLoginToGroup(Group baseGroup, Group groupToSetLoginFor, String login) throws Exception {
+    String baseGroupAttrLoginName = getLoginNameForBaseGroup(baseGroup);
+    Attribute loginAttr = new Attribute(attributesManagerBl.getAttributeDefinition(sess, baseGroupAttrLoginName));
+    loginAttr.setValue(login);
+    attributesManagerBl.setAttribute(sess, groupToSetLoginFor, loginAttr);
   }
 
-  private Facility setUpFacility() throws Exception {
-    facility = new Facility(-1, "Facility");
-    facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
-    return facility;
+  private void setSynchronizationResourcesAttribute(int resourceId, String... logins) throws Exception {
+    Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, baseGroup, A_G_D_SYNC_RESOURCES);
+    if (attribute.getValue() == null) {
+      attribute.setValue(new LinkedHashMap<>());
+    }
+    StringBuilder groupLogins = new StringBuilder();
+    for (String login : logins) {
+      groupLogins.append(login).append(",");
+    }
+    attribute.valueAsMap().put(String.valueOf(resourceId), groupLogins.toString());
+    perun.getAttributesManagerBl().setAttribute(sess, baseGroup, attribute);
   }
 
-  private void setUpGroup(Vo vo) throws Exception {
-    group = new Group("GroupsManagerTestGroup1", "testovaci1");
-    group = groupsManagerBl.createGroup(sess, vo, group);
-    assertNotNull("unable to create testing Group", group);
+  private void setUpBaseGroup(Vo vo) throws Exception {
+    extSource = extSourceManagerBl.createExtSource(sess, extSource, null);
+
+    Group returnedGroup = groupsManagerBl.createGroup(sess, vo, baseGroup);
+
+    extSourceManagerBl.addExtSource(sess, vo, extSource);
+    Attribute attr = attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, baseGroup, attr);
+    extSourceManagerBl.addExtSource(sess, baseGroup, extSource);
+
+    Attribute membersQuery = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
+        .getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+    membersQuery.setValue("SELECT * from members where groupName='?';");
+    attributesManagerBl.setAttribute(sess, baseGroup, membersQuery);
+
+    Attribute interval = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
+        .getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+    interval.setValue("1");
+    attributesManagerBl.setAttribute(sess, baseGroup, interval);
+
+    AttributeDefinition loginAttrDef = setGroupAttribute("groupLogin");
+
+    Attribute structureLoginName = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
+        .getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME));
+    structureLoginName.setValue(loginAttrDef.getName());
+    attributesManagerBl.setAttribute(sess, baseGroup, structureLoginName);
+
+    // create test Group in database
+    assertNotNull("unable to create testing Group", returnedGroup);
   }
 
-  private void setUpMember(Vo vo) throws Exception {
-    Candidate candidate = setUpCandidate();
-    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
-    assertNotNull("No member created", member);
+  @Before
+  public void setUpBeforeEveryMethod() throws Exception {
+    //perun from AbstractPerunIntegrationTest need to be assigned to our perun object in which we are injecting mocks.
+    this.perun = (PerunBlImpl) super.perun;
+
+    //Injected mocks would preserve in the perun object even after this test class,
+    //because it is created by Spring in parent class and it is is used by other tests classes again.
+    //To prevent this situation, we need to back up the real extSourceManagerBl and set it back to the perun after
+    // tests finish.
+    extSourceManagerBlBackup = perun.getExtSourcesManagerBl();
+
+    groupsManagerBl = perun.getGroupsManagerBl();
+    extSourceManagerBl = perun.getExtSourcesManagerBl();
+    attributesManagerBl = perun.getAttributesManagerBl();
+
+    vo = setUpVo();
+    setUpBaseGroup(vo);
+    setUpFacility();
+    setUpResources();
+    setUpGroup(vo);
+    setUpMember(vo);
+
+    MockitoAnnotations.initMocks(this);
+
+    doReturn(essa).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class), any(String.class));
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+    when(extSourceManagerBl.getExtSourceByName(sess, extSourceForUserCreation.getName())).thenReturn(
+        extSourceForUserCreation);
+    //noinspection ResultOfMethodCallIgnored
+    doReturn(EXT_SOURCE_NAME).when((ExtSourceLdap) essa).getName();
+    doNothing().when(extSourceManagerBl).addExtSource(any(PerunSession.class), any(Group.class), any(ExtSource.class));
   }
 
   private Candidate setUpCandidate() {
@@ -1717,6 +1162,542 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     return candidate;
   }
 
+  private Facility setUpFacility() throws Exception {
+    facility = new Facility(-1, "Facility");
+    facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+    return facility;
+  }
+
+  private void setUpGroup(Vo vo) throws Exception {
+    group = new Group("GroupsManagerTestGroup1", "testovaci1");
+    group = groupsManagerBl.createGroup(sess, vo, group);
+    assertNotNull("unable to create testing Group", group);
+  }
+
+  private void setUpGroupWithExpiration(Group groupWithExpiration)
+      throws AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,
+      WrongReferenceAttributeValueException {
+    Attribute expirationRulesAttribute = new Attribute(attributesManagerBl.getAttributeDefinition(sess,
+        AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules"));
+    Map<String, String> values = new LinkedHashMap<>();
+    values.put(AbstractMembershipExpirationRulesModule.MEMBERSHIP_PERIOD_KEY_NAME, "+1m");
+    expirationRulesAttribute.setValue(values);
+    attributesManagerBl.setAttribute(sess, groupWithExpiration, expirationRulesAttribute);
+  }
+
+  private void setUpMember(Vo vo) throws Exception {
+    Candidate candidate = setUpCandidate();
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    assertNotNull("No member created", member);
+  }
+
+  // PRIVATE METHODS
+
+  private void setUpResources() throws Exception {
+    resource1 = new Resource(-1, "resource1", "", facility.getId());
+    resource1 = perun.getResourcesManagerBl().createResource(sess, resource1, vo, facility);
+
+    resource2 = new Resource(-1, "resource2", "", facility.getId());
+    resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo, facility);
+  }
+
+  private Vo setUpVo() throws Exception {
+
+    Vo newVo = new Vo(0, "UserManagerTestVo", "UMTestVo");
+    Vo returnedVo = perun.getVosManagerBl().createVo(sess, newVo);
+    // create test VO in database
+    assertNotNull("unable to create testing Vo", returnedVo);
+
+    return returnedVo;
+
+  }
+
+  @Test
+  public void synchronizeExpiredGroupStatusMemberNotInVO() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeExpiredGroupStatusMemberNotInVO");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    attributes.put("status", "EXPIRED");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+    candidate.setExpectedSyncGroupStatus("EXPIRED");
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
+  }
+
+  @Test
+  public void synchronizeGroupAddMissingMember() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMember");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
+  }
+
+  @Test
+  public void synchronizeGroupAddMissingMemberWhileCandidateAlreadyMember() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMemberWhileCandidateAlreadyMember");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
+  }
+
+  @Test
+  public void synchronizeGroupMergeMemberAttributeValue() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupMergeMemberAttributeValue");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    groupsManagerBl.addMember(sess, group, member);
+    candidate.setFirstName("metodej");
+
+    Attribute attribute = new Attribute();
+    String namespace = "member-test-unique-attribute:specialNamespace";
+    attribute.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+    attribute.setFriendlyName(namespace + "1");
+    attribute.setType(ArrayList.class.getName());
+    attribute.setValue(Stream.of("value1", "value2").collect(Collectors.toList()));
+    assertNotNull("unable to create member attribute", attributesManagerBl.createAttribute(sess, attribute));
+
+    Map<String, String> candidateAttrs = new HashMap<>();
+    candidateAttrs.put(attribute.getName(), "value2,value3");
+    candidate.setAttributes(candidateAttrs);
+    attributesManagerBl.setAttribute(sess, member, attribute);
+
+    Map<String, String> map = new HashMap<>();
+    map.put("mergeMemberAttributes", attribute.getName());
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+    doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap) essa);
+
+    assertEquals(2, attributesManagerBl.getAttribute(sess, member, attribute.getName()).valueAsList().size());
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(3, attributesManagerBl.getAttribute(sess, member, attribute.getName()).valueAsList().size());
+  }
+
+  @Test
+  public void synchronizeGroupRemoveInvalidMemberInMembersGroup() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupRemoveInvalidMemberInMembersGroup");
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    perun.getMembersManagerBl().setStatus(sess, member, Status.INVALID);
+    groupsManagerBl.addMember(sess, group, member);
+    group.setName(VosManager.MEMBERS_GROUP);
+
+    assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+  }
+
+  @Test
+  public void synchronizeGroupRemoveMember() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupRemoveMember");
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    groupsManagerBl.addMember(sess, group, member);
+
+    assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+  }
+
+  @Test
+  public void synchronizeGroupRemoveMemberInAuthoritativeGroup() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupRemoveMemberInAuthoritativeGroup");
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    groupsManagerBl.addMember(sess, group, member);
+
+    Attribute attribute = perun.getAttributesManagerBl()
+        .getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup");
+    attribute.setValue(1);
+    attributesManagerBl.setAttribute(sess, group, attribute);
+
+    assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+  }
+
+  @Test
+  public void synchronizeGroupRemoveMemberInMembersGroup() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupRemoveMemberInMembersGroup");
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    groupsManagerBl.addMember(sess, group, member);
+    group.setName(VosManager.MEMBERS_GROUP);
+
+    assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+  }
+
+  @Test
+  public void synchronizeGroupUpdateExistingMemberStatus() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupUpdateExistingMemberStatus");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    perun.getMembersManagerBl().setStatus(sess, member, Status.DISABLED);
+    groupsManagerBl.addMember(sess, group, member);
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+  }
+
+  @Test
+  public void synchronizeGroupUpdateFirstNameOfMember() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupUpdateFirstNameOfMember");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    groupsManagerBl.addMember(sess, group, member);
+    candidate.setFirstName("metodej");
+
+    Attribute attribute = perun.getAttributesManagerBl()
+        .getAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member),
+            AttributesManager.NS_USER_ATTR_CORE + ":firstName");
+
+    Map<String, String> candidateAttrs = new HashMap<>();
+    candidateAttrs.put(attribute.getName(), attribute.valueAsString());
+    candidate.setAttributes(candidateAttrs);
+
+    Map<String, String> map = new HashMap<>();
+    map.put("overwriteUserAttributes", attribute.getName());
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+    doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap) essa);
+
+    assertNotEquals(candidate.getFirstName(), perun.getUsersManagerBl().getUserByMember(sess, member).getFirstName());
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(candidate.getFirstName(), perun.getUsersManagerBl().getUserByMember(sess, member).getFirstName());
+  }
+
+  @Test
+  public void synchronizeGroupUpdateMemberOrganizationsAttribute() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupUpdateMemberOrganizationsAttribute");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+
+    Vo memberVo = new Vo(0, "UserManagerTestVo2", "memberVo");
+    memberVo = perun.getVosManagerBl().createVo(sess, memberVo);
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, memberVo, candidate);
+    perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+
+    Member newMember =
+        perun.getMembersManagerBl().getMemberByUser(sess, vo, perun.getUsersManagerBl().getUserByMember(sess, member));
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    Attribute memberOrganizations = perun.getAttributesManager()
+        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+    ArrayList<String> currentMemberOrganizations = memberOrganizations.valueAsList();
+    assertThat(currentMemberOrganizations).containsOnly(memberVo.getShortName());
+
+    Attribute memberOrganizationsHistory = perun.getAttributesManager()
+        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+    ArrayList<String> currentMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
+    assertThat(currentMemberOrganizationsHistory).containsOnly(memberVo.getShortName());
+
+    groupsManagerBl.synchronizeGroup(sess, group);
+
+    memberOrganizations = perun.getAttributesManager()
+        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+    currentMemberOrganizations = memberOrganizations.valueAsList();
+    assertThat(currentMemberOrganizations).containsOnly(vo.getShortName(), memberVo.getShortName());
+
+    memberOrganizationsHistory = perun.getAttributesManager()
+        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+    currentMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
+    assertThat(currentMemberOrganizationsHistory).containsOnly(vo.getShortName(), memberVo.getShortName());
+  }
+
+  @Test
+  public void synchronizeGroupUpdateMembershipStatusFromExpiredToValid() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusFromExpiredToValid");
+
+    Group groupWithExpiration = new Group("GroupsManagerTestGroup2", "testovaci2");
+    groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+    // status is null but default should be valid
+    candidate.setExpectedSyncGroupStatus(null);
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    groupsManagerBl.addMember(sess, groupWithExpiration, member);
+    groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
+
+    setUpGroupWithExpiration(groupWithExpiration);
+
+    Attribute groupMembExpirAttr =
+        attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION);
+    groupMembExpirAttr.setValue(LocalDate.now().toString());
+    attributesManagerBl.setAttribute(sess, member, groupWithExpiration, groupMembExpirAttr);
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
+    assertEquals(MemberGroupStatus.VALID,
+        groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
+    assertEquals(LocalDate.now().plusMonths(1).toString(),
+        attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+  }
+
+  @Test
+  public void synchronizeGroupUpdateMembershipStatusToDefaultValid() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusToDefaultValid");
+
+    Group groupWithExpiration = new Group("GroupsManagerTestGroup2", "testovaci2");
+    groupWithExpiration = groupsManagerBl.createGroup(sess, vo, groupWithExpiration);
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, groupWithExpiration, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, groupWithExpiration, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+    // status is null but default should be valid
+    candidate.setExpectedSyncGroupStatus(null);
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    groupsManagerBl.addMember(sess, groupWithExpiration, member);
+    groupsManagerBl.expireMemberInGroup(sess, member, groupWithExpiration);
+
+    setUpGroupWithExpiration(groupWithExpiration);
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, groupWithExpiration);
+    assertEquals(MemberGroupStatus.VALID,
+        groupsManagerBl.getGroupMembers(sess, groupWithExpiration).get(0).getGroupStatus());
+    assertEquals(LocalDate.now().plusMonths(1).toString(),
+        attributesManagerBl.getAttribute(sess, member, groupWithExpiration, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+  }
+
+  @Test
+  public void synchronizeGroupUpdateMembershipStatusToExpired() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusToExpired");
+    String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    attributes.put("status", "EXPIRED");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+    candidate.setExpectedSyncGroupStatus("EXPIRED");
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    groupsManagerBl.addMember(sess, group, member);
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
+    assertEquals(LocalDate.now().toString(),
+        attributesManagerBl.getAttribute(sess, member, group, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+  }
+
+  @Test
+  public void synchronizeGroupUpdateUserAttributeOfMember() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupUpdateUserAttributeOfMember");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    groupsManagerBl.addMember(sess, group, member);
+
+    Attribute attribute = new Attribute();
+    String namespace = "user-test-unique-attribute:specialNamespace";
+    attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attribute.setFriendlyName(namespace + "1");
+    attribute.setType(String.class.getName());
+    attribute.setValue("UserAttribute");
+    assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, attribute));
+
+    Map<String, String> candidateAttrs = new HashMap<>();
+    candidateAttrs.put(attribute.getName(), attribute.valueAsString());
+    candidate.setAttributes(candidateAttrs);
+
+    Map<String, String> map = new HashMap<>();
+    map.put("overwriteUserAttributes", attribute.getName());
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+    doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap) essa);
+
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+    assertNotEquals(candidate.getAttributes().get(attribute.getName()),
+        attributesManagerBl.getAttribute(sess, user, attribute.getName()).valueAsString());
+    groupsManagerBl.synchronizeGroup(sess, group);
+    assertEquals(candidate.getAttributes().get(attribute.getName()),
+        attributesManagerBl.getAttribute(sess, user, attribute.getName()).valueAsString());
+  }
+
   private class TestGroup {
     private final String groupName;
     private final String login;
@@ -1730,6 +1711,10 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
       this.description = description;
     }
 
+    public String getDescription() {
+      return description;
+    }
+
     public String getGroupName() {
       return groupName;
     }
@@ -1740,10 +1725,6 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
     public String getParentGroupLogin() {
       return parentGroupLogin;
-    }
-
-    public String getDescription() {
-      return description;
     }
 
     public Map<String, String> toMap() {

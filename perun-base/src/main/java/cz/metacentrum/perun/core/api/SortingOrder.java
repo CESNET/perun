@@ -4,8 +4,7 @@ package cz.metacentrum.perun.core.api;
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public enum SortingOrder {
-  ASCENDING("ASC"),
-  DESCENDING("DESC");
+  ASCENDING("ASC"), DESCENDING("DESC");
 
   private final String sqlValue;
 

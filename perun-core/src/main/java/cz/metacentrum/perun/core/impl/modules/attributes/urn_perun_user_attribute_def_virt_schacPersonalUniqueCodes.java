@@ -11,13 +11,13 @@ public class urn_perun_user_attribute_def_virt_schacPersonalUniqueCodes
     extends UserVirtualAttributeCollectedFromUserExtSource {
 
   @Override
-  public String getSourceAttributeFriendlyName() {
-    return "schacPersonalUniqueCode";
+  public String getDestinationAttributeFriendlyName() {
+    return "schacPersonalUniqueCodes";
   }
 
   @Override
-  public String getDestinationAttributeFriendlyName() {
-    return "schacPersonalUniqueCodes";
+  public String getSourceAttributeFriendlyName() {
+    return "schacPersonalUniqueCode";
   }
 
 }

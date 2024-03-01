@@ -39,8 +39,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("owner")) {
-        return ac.getOwnersManager().createOwner(ac.getSession(),
-            parms.read("owner", Owner.class));
+        return ac.getOwnersManager().createOwner(ac.getSession(), parms.read("owner", Owner.class));
       } else if (parms.contains("name") && parms.contains("contact") && parms.contains("ownerType")) {
         String name = parms.readString("name");
         String contact = parms.readString("contact");
@@ -108,10 +107,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
         force = parms.readBoolean("force");
       }
 
-      ac.getOwnersManager().deleteOwners(ac.getSession(),
-          owners,
-          force
-      );
+      ac.getOwnersManager().deleteOwners(ac.getSession(), owners, force);
       return null;
     }
   },

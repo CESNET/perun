@@ -13,7 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,93 +28,10 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
 
 
   /**
-   * Attribute value should be a valid JSON.
-   * These specific values are allowed:
-   * empty string or null
-   * {"all":true}
-   * {"include_categories":["str1","str2"]}
-   * {"include_categories":["str1","str2"],"exclude_rps":["rp1","rp2"]}
-   *
-   * @param perunSession PerunSession
-   * @param user         User
-   * @param attribute    Attribute of the user.
-   * @throws WrongAttributeValueException
-   */
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute)
-      throws WrongAttributeValueException {
-    String val = attribute.valueAsString();
-
-    // Null or empty string are allowed
-    if (val == null || val.isEmpty()) {
-      return;
-    }
-
-    // Should be string in valid JSON format
-    try {
-      final ObjectMapper mapper = new ObjectMapper();
-      JsonNode root = mapper.readTree(val);
-
-      // Check "all"
-      if (root.has("all") && root.size() == 1) {
-        return;
-      }
-
-      int validNodes = 0;
-      // Check "include_categories"
-      if (root.has("include_categories")) {
-        isStringArrayNode(root.get("include_categories"), "include_categories");
-        validNodes += 1;
-
-        // Check "exclude_rps"
-        if (root.has("exclude_rps")) {
-          isStringArrayNode(root.get("exclude_rps"), "exclude_rps");
-          validNodes += 1;
-        }
-      }
-
-      // Check for NO additional nodes
-      if (root.size() == validNodes) {
-        return;
-      }
-
-      throw new WrongAttributeValueException(
-          "Attribute value " + val + " has incorrect format." +
-              " Allowed values are:" +
-              " empty string or null," +
-              " {\"all\":true}," +
-              " {\"include_categories\":[\"str1\",\"str2\"]}," +
-              " {\"include_categories\":[\"str1\",\"str2\"],\"exclude_rps\":[\"rp1\",\"rp2\"]}");
-    } catch (JsonProcessingException e) {
-      throw new WrongAttributeValueException("Attribute value " + val + " is not a valid JSON.");
-    }
-  }
-
-  /**
-   * Checks that node is an array and all values are strings
-   *
-   * @param node JsonNode
-   * @throws WrongAttributeValueException
-   */
-  private void isStringArrayNode(JsonNode node, String name) throws WrongAttributeValueException {
-    // Check property is valid array
-    if (node.isArray()) {
-      // Check all items of array are string like
-      for (Iterator<JsonNode> it = node.elements(); it.hasNext(); ) {
-        JsonNode value = it.next();
-        if (!value.isTextual()) {
-          throw new WrongAttributeValueException("Property '" + name + "' has non textual value " + value);
-        }
-      }
-    } else {
-      throw new WrongAttributeValueException("Property '" + name + "' is not an array.");
-    }
-  }
-
-  /**
-   * The following restrictions are placed on the attribute value:
-   * {"include_categories":["str1","str2"]} str1, str2 is an existing key in the entityless attribute mfaCategories
-   * {"include_categories":["str1","str2"],"exclude_rps":["rp1","rp2"]} str1, str2 is an existing key in the entityless attribute mfaCategories and rp1, rp2 must exist inside the category
+   * The following restrictions are placed on the attribute value: {"include_categories":["str1","str2"]} str1, str2 is
+   * an existing key in the entityless attribute mfaCategories
+   * {"include_categories":["str1","str2"],"exclude_rps":["rp1","rp2"]} str1, str2 is an existing key in the entityless
+   * attribute mfaCategories and rp1, rp2 must exist inside the category
    *
    * @param perunSession PerunSession
    * @param user         User
@@ -209,6 +125,62 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
   }
 
   /**
+   * Attribute value should be a valid JSON. These specific values are allowed: empty string or null {"all":true}
+   * {"include_categories":["str1","str2"]} {"include_categories":["str1","str2"],"exclude_rps":["rp1","rp2"]}
+   *
+   * @param perunSession PerunSession
+   * @param user         User
+   * @param attribute    Attribute of the user.
+   * @throws WrongAttributeValueException
+   */
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    String val = attribute.valueAsString();
+
+    // Null or empty string are allowed
+    if (val == null || val.isEmpty()) {
+      return;
+    }
+
+    // Should be string in valid JSON format
+    try {
+      final ObjectMapper mapper = new ObjectMapper();
+      JsonNode root = mapper.readTree(val);
+
+      // Check "all"
+      if (root.has("all") && root.size() == 1) {
+        return;
+      }
+
+      int validNodes = 0;
+      // Check "include_categories"
+      if (root.has("include_categories")) {
+        isStringArrayNode(root.get("include_categories"), "include_categories");
+        validNodes += 1;
+
+        // Check "exclude_rps"
+        if (root.has("exclude_rps")) {
+          isStringArrayNode(root.get("exclude_rps"), "exclude_rps");
+          validNodes += 1;
+        }
+      }
+
+      // Check for NO additional nodes
+      if (root.size() == validNodes) {
+        return;
+      }
+
+      throw new WrongAttributeValueException(
+          "Attribute value " + val + " has incorrect format." + " Allowed values are:" + " empty string or null," +
+          " {\"all\":true}," + " {\"include_categories\":[\"str1\",\"str2\"]}," +
+          " {\"include_categories\":[\"str1\",\"str2\"],\"exclude_rps\":[\"rp1\",\"rp2\"]}");
+    } catch (JsonProcessingException e) {
+      throw new WrongAttributeValueException("Attribute value " + val + " is not a valid JSON.");
+    }
+  }
+
+  /**
    * Add all elements of node to a set
    *
    * @param node JsonNode
@@ -218,6 +190,27 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
     for (Iterator<JsonNode> it = node.elements(); it.hasNext(); ) {
       JsonNode next = it.next();
       set.add(next.textValue());
+    }
+  }
+
+  /**
+   * Checks that node is an array and all values are strings
+   *
+   * @param node JsonNode
+   * @throws WrongAttributeValueException
+   */
+  private void isStringArrayNode(JsonNode node, String name) throws WrongAttributeValueException {
+    // Check property is valid array
+    if (node.isArray()) {
+      // Check all items of array are string like
+      for (Iterator<JsonNode> it = node.elements(); it.hasNext(); ) {
+        JsonNode value = it.next();
+        if (!value.isTextual()) {
+          throw new WrongAttributeValueException("Property '" + name + "' has non textual value " + value);
+        }
+      }
+    } else {
+      throw new WrongAttributeValueException("Property '" + name + "' is not an array.");
     }
   }
 }

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
@@ -14,9 +17,6 @@ import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModul
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsupTest {
 
@@ -57,13 +57,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsupTest {
         AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:vsup")).thenReturn(attribute);
   }
 
-  @Test
-  public void testCorrectSyntax() throws Exception {
-    System.out.println("testCheckAttributeSyntax()");
-    String value = "my_example";
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithWrongValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+    String value = "not_same_value";
     attributeToCheck.setValue(value);
 
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
 
   @Test(expected = WrongAttributeValueException.class)
@@ -84,12 +84,12 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsupTest {
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsWithWrongValue() throws Exception {
-    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
-    String value = "not_same_value";
+  @Test
+  public void testCorrectSyntax() throws Exception {
+    System.out.println("testCheckAttributeSyntax()");
+    String value = "my_example";
     attributeToCheck.setValue(value);
 
-    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
   }
 }

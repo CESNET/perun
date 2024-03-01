@@ -18,21 +18,22 @@ public class MailForGroupIdUpdated extends AuditEvent implements EngineIgnoreEve
   public MailForGroupIdUpdated(ApplicationMail mail, Group group) {
     this.mail = mail;
     this.group = group;
-    this.message = formatMessage("Mail ID: %d of Type: %s/%s updated for Group ID: %d.", mail.getId(),
-        mail.getMailType(), mail.getAppType(), group.getId());
+    this.message =
+        formatMessage("Mail ID: %d of Type: %s/%s updated for Group ID: %d.", mail.getId(), mail.getMailType(),
+            mail.getAppType(), group.getId());
   }
 
-  @Override
-  public String getMessage() {
-    return message;
+  public Group getGroup() {
+    return group;
   }
 
   public ApplicationMail getMail() {
     return mail;
   }
 
-  public Group getGroup() {
-    return group;
+  @Override
+  public String getMessage() {
+    return message;
   }
 
   @Override

@@ -16,20 +16,16 @@ public abstract class AuditEvent {
 
   protected String name = getClass().getName();
 
-  /**
-   * Get message that should be logged.
-   *
-   * @return message
-   */
-  public abstract String getMessage();
-
-  /**
-   * Get name of the event class
-   *
-   * @return name of event class
-   */
-  public String getName() {
-    return name;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AuditEvent that = (AuditEvent) o;
+    return Objects.equals(getMessage(), that.getMessage());
   }
 
   /**
@@ -77,16 +73,20 @@ public abstract class AuditEvent {
     return formattedObjects;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    AuditEvent that = (AuditEvent) o;
-    return Objects.equals(getMessage(), that.getMessage());
+  /**
+   * Get message that should be logged.
+   *
+   * @return message
+   */
+  public abstract String getMessage();
+
+  /**
+   * Get name of the event class
+   *
+   * @return name of event class
+   */
+  public String getName() {
+    return name;
   }
 
   @Override

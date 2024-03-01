@@ -17,17 +17,18 @@ public class SponsorshipExpired extends AuditEvent implements EngineIgnoreEvent 
 
   public SponsorshipExpired(EnrichedSponsorship sponsorship) {
     this.sponsorship = sponsorship;
-    this.message = formatMessage("Sponsorship of member %s by sponsor %s has expired.",
-        sponsorship.getSponsoredMember(), sponsorship.getSponsor());
-  }
-
-  public EnrichedSponsorship getSponsorship() {
-    return sponsorship;
+    this.message =
+        formatMessage("Sponsorship of member %s by sponsor %s has expired.", sponsorship.getSponsoredMember(),
+            sponsorship.getSponsor());
   }
 
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public EnrichedSponsorship getSponsorship() {
+    return sponsorship;
   }
 
   @Override

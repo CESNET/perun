@@ -14,13 +14,13 @@ public class urn_perun_user_attribute_def_virt_schacHomeOrganizations
     extends UserVirtualAttributeCollectedFromUserExtSource {
 
   @Override
-  public String getSourceAttributeFriendlyName() {
-    return "schacHomeOrganization";
+  public String getDestinationAttributeFriendlyName() {
+    return "schacHomeOrganizations";
   }
 
   @Override
-  public String getDestinationAttributeFriendlyName() {
-    return "schacHomeOrganizations";
+  public String getSourceAttributeFriendlyName() {
+    return "schacHomeOrganization";
   }
 
 }

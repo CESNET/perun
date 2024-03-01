@@ -21,16 +21,6 @@ public class GenDataNode {
     this.members = members;
   }
 
-  @JsonProperty("c")
-  public Map<Integer, GenDataNode> getChildren() {
-    return Collections.unmodifiableMap(children);
-  }
-
-  @JsonProperty("m")
-  public Map<Integer, Integer> getMembers() {
-    return Collections.unmodifiableMap(members);
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -40,8 +30,17 @@ public class GenDataNode {
       return false;
     }
     GenDataNode that = (GenDataNode) o;
-    return Objects.equals(children, that.children) &&
-        Objects.equals(members, that.members);
+    return Objects.equals(children, that.children) && Objects.equals(members, that.members);
+  }
+
+  @JsonProperty("c")
+  public Map<Integer, GenDataNode> getChildren() {
+    return Collections.unmodifiableMap(children);
+  }
+
+  @JsonProperty("m")
+  public Map<Integer, Integer> getMembers() {
+    return Collections.unmodifiableMap(members);
   }
 
   @Override
@@ -54,8 +53,8 @@ public class GenDataNode {
     private Map<Integer, GenDataNode> children = new HashMap<>();
     private Map<Integer, Integer> members = new HashMap<>();
 
-    public Builder hashes() {
-      return this;
+    public GenDataNode build() {
+      return new GenDataNode(children, members);
     }
 
     public Builder children(Map<Integer, GenDataNode> children) {
@@ -63,13 +62,13 @@ public class GenDataNode {
       return this;
     }
 
-    public Builder members(Map<Integer, Integer> members) {
-      this.members = members;
+    public Builder hashes() {
       return this;
     }
 
-    public GenDataNode build() {
-      return new GenDataNode(children, members);
+    public Builder members(Map<Integer, Integer> members) {
+      this.members = members;
+      return this;
     }
   }
 }

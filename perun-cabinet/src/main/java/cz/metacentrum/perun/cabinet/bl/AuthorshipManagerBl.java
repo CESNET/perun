@@ -1,11 +1,10 @@
 package cz.metacentrum.perun.cabinet.bl;
 
-import java.util.List;
-
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.util.List;
 
 /**
  * Interface for handling Authorship entity in Cabinet.
@@ -16,79 +15,15 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 public interface AuthorshipManagerBl {
 
   /**
-   * Creates Authorship. Everything except current date must be already set in Authorship object.
-   * Authorship is checked for existence before creation.
-   * When authorship is successfully created, users priority coefficient is updated.
-   *
-   * @param sess       PerunSession
-   * @param authorship Authorship to be created
-   * @return Created authorship
-   * @throws CabinetException       When authorship already exists or other exception occurs
-   * @throws InternalErrorException When implementation fails
-   */
-  Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
-
-  /**
-   * Resolves whether given authorship exists. Authorship is assumed to exists
-   * if: a/ id property is provided and this authorship with the id is in db.
-   * or b/ if property publicationId and userId are set in some authorship in
-   * db. otherwise returns false
+   * Resolves whether given authorship exists. Authorship is assumed to exists if: a/ id property is provided and this
+   * authorship with the id is in db. or b/ if property publicationId and userId are set in some authorship in db.
+   * otherwise returns false
    *
    * @param authorship Authorship to compare
    * @return TRUE if authorship exists / FALSE otherwise
    * @throws InternalErrorException When implementation fails
    */
   boolean authorshipExists(Authorship authorship);
-
-  /**
-   * Delete Authorship by its ID. After deletion users "priorityCoefficient" is recalculated.
-   *
-   * @param sess       PerunSession
-   * @param authorship Authorship to delete by its ID
-   * @throws CabinetException       When Authorship by ID doesn't exist
-   * @throws InternalErrorException When implementation fails
-   */
-  void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
-
-  /**
-   * Get Authorship by its ID
-   *
-   * @param id ID to get Authorship by
-   * @return Authorship by its ID
-   * @throws CabinetException       When Authorship by ID doesn't exists
-   * @throws InternalErrorException When implementation fails
-   */
-  Authorship getAuthorshipById(int id) throws CabinetException;
-
-
-  /**
-   * Get Authorships by its User ID or empty list.
-   *
-   * @param id ID of user to get Authorships for
-   * @return Authorship by its user ID or empty list
-   * @throws InternalErrorException When implementation fails
-   */
-  List<Authorship> getAuthorshipsByUserId(int id);
-
-  /**
-   * Get Authorships by its Publication ID or empty list.
-   *
-   * @param id ID of publication to get Authorships for
-   * @return Authorship by its publication ID or empty list
-   * @throws InternalErrorException When implementation fails
-   */
-  List<Authorship> getAuthorshipsByPublicationId(int id);
-
-  /**
-   * Get Authorship by its user and publication IDs
-   *
-   * @param userId        ID of User to get Authorship by
-   * @param publicationId ID of Publication to get Authorship by
-   * @return Authorship by its user and publication IDs
-   * @throws CabinetException       When Authorship by IDs doesn't exists
-   * @throws InternalErrorException When implementation fails
-   */
-  Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException;
 
   /**
    * Calculates new priorityCoefficient value based on current state of all users publications.
@@ -104,8 +39,8 @@ public interface AuthorshipManagerBl {
   double calculateNewRank(int userId) throws CabinetException;
 
   /**
-   * Calculates new priorityCoefficient value based on passed Authorships.
-   * This should be called immediately after any update so Authorship would be "current".
+   * Calculates new priorityCoefficient value based on passed Authorships. This should be called immediately after any
+   * update so Authorship would be "current".
    * <p>
    * Used function is SUM on category.rank and publication.rank for each of user publications.
    * <p>
@@ -119,14 +54,38 @@ public interface AuthorshipManagerBl {
   double calculateNewRank(List<Authorship> authorships) throws CabinetException;
 
   /**
-   * Return Author by its ID. If user is not author of any Publication, exception is thrown.
+   * Creates Authorship. Everything except current date must be already set in Authorship object. Authorship is checked
+   * for existence before creation. When authorship is successfully created, users priority coefficient is updated.
    *
-   * @param id ID of Author to get
-   * @return Author by its ID.
-   * @throws CabinetException       When Author (User) has no Publications
+   * @param sess       PerunSession
+   * @param authorship Authorship to be created
+   * @return Created authorship
+   * @throws CabinetException       When authorship already exists or other exception occurs
    * @throws InternalErrorException When implementation fails
    */
-  Author getAuthorById(int id) throws CabinetException;
+  Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
+
+  /**
+   * Delete Authorship by its ID. After deletion users "priorityCoefficient" is recalculated.
+   *
+   * @param sess       PerunSession
+   * @param authorship Authorship to delete by its ID
+   * @throws CabinetException       When Authorship by ID doesn't exist
+   * @throws InternalErrorException When implementation fails
+   */
+  void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
+
+  /**
+   * Search through all users of Perun in order to allow publication author to add colleagues as co-authors. Response
+   * data are filtered, so only sub-set of users personal information is provided.
+   *
+   * @param sess         PerunSession for authz
+   * @param searchString String to search users by
+   * @return List of new possible authors
+   * @throws CabinetException
+   * @throws InternalErrorException
+   */
+  List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException;
 
   /**
    * Return all Authors of Publications. Empty list of none found.
@@ -137,13 +96,14 @@ public interface AuthorshipManagerBl {
   List<Author> getAllAuthors();
 
   /**
-   * Return all Authors of Publication specified by its ID. Empty list of none found.
+   * Return Author by its ID. If user is not author of any Publication, exception is thrown.
    *
-   * @param id ID of Publication to look by
-   * @return List of Authors of Publication specified its ID. Empty list of none found.
+   * @param id ID of Author to get
+   * @return Author by its ID.
+   * @throws CabinetException       When Author (User) has no Publications
    * @throws InternalErrorException When implementation fails
    */
-  List<Author> getAuthorsByPublicationId(int id);
+  Author getAuthorById(int id) throws CabinetException;
 
   /**
    * Return all Authors of Publication specified by Authorships ID. Empty list of none found.
@@ -157,15 +117,51 @@ public interface AuthorshipManagerBl {
   List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException;
 
   /**
-   * Search through all users of Perun in order to allow publication author to add colleagues as co-authors.
-   * Response data are filtered, so only sub-set of users personal information is provided.
+   * Return all Authors of Publication specified by its ID. Empty list of none found.
    *
-   * @param sess         PerunSession for authz
-   * @param searchString String to search users by
-   * @return List of new possible authors
-   * @throws CabinetException
-   * @throws InternalErrorException
+   * @param id ID of Publication to look by
+   * @return List of Authors of Publication specified its ID. Empty list of none found.
+   * @throws InternalErrorException When implementation fails
    */
-  List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException;
+  List<Author> getAuthorsByPublicationId(int id);
+
+  /**
+   * Get Authorship by its ID
+   *
+   * @param id ID to get Authorship by
+   * @return Authorship by its ID
+   * @throws CabinetException       When Authorship by ID doesn't exists
+   * @throws InternalErrorException When implementation fails
+   */
+  Authorship getAuthorshipById(int id) throws CabinetException;
+
+  /**
+   * Get Authorship by its user and publication IDs
+   *
+   * @param userId        ID of User to get Authorship by
+   * @param publicationId ID of Publication to get Authorship by
+   * @return Authorship by its user and publication IDs
+   * @throws CabinetException       When Authorship by IDs doesn't exists
+   * @throws InternalErrorException When implementation fails
+   */
+  Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException;
+
+  /**
+   * Get Authorships by its Publication ID or empty list.
+   *
+   * @param id ID of publication to get Authorships for
+   * @return Authorship by its publication ID or empty list
+   * @throws InternalErrorException When implementation fails
+   */
+  List<Authorship> getAuthorshipsByPublicationId(int id);
+
+  /**
+   * Get Authorships by its User ID or empty list.
+   *
+   * @param id ID of user to get Authorships for
+   * @return Authorship by its user ID or empty list
+   * @throws InternalErrorException When implementation fails
+   */
+  List<Authorship> getAuthorshipsByUserId(int id);
 
 }

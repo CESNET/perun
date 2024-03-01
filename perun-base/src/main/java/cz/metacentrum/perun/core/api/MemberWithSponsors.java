@@ -26,22 +26,6 @@ public class MemberWithSponsors {
     this.member = member;
   }
 
-  public Member getMember() {
-    return member;
-  }
-
-  public void setMember(RichMember member) {
-    this.member = member;
-  }
-
-  public List<Sponsor> getSponsors() {
-    return sponsors;
-  }
-
-  public void setSponsors(List<Sponsor> sponsors) {
-    this.sponsors = sponsors;
-  }
-
   public void addSponsor(Sponsor sponsor) {
     if (this.sponsors == null) {
       this.sponsors = new ArrayList<>();
@@ -59,6 +43,22 @@ public class MemberWithSponsors {
     }
     MemberWithSponsors that = (MemberWithSponsors) o;
     return Objects.equals(member, that.member);
+  }
+
+  public Member getMember() {
+    return member;
+  }
+
+  public void setMember(RichMember member) {
+    this.member = member;
+  }
+
+  public List<Sponsor> getSponsors() {
+    return sponsors;
+  }
+
+  public void setSponsors(List<Sponsor> sponsors) {
+    this.sponsors = sponsors;
   }
 
   @Override

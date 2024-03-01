@@ -26,17 +26,15 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Reacts on audit messages about adding, removing... member to group.
- * When member is added or validated it will create userExtSource with appropriate attributes.
- * When member is removed or expired it will remove the userExtSource.
+ * Reacts on audit messages about adding, removing... member to group. When member is added or validated it will create
+ * userExtSource with appropriate attributes. When member is removed or expired it will remove the userExtSource.
  *
  * @author Ľuboslav Halama lubo.halama@gmail.com
  */
@@ -71,35 +69,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
   private static final String A_UES_D_schacPersonalUniqueCodeFriendlyName =
       AttributesManager.NS_UES_ATTR_DEF + ":" + schacPersonalUniqueCodeFriendlyName;
 
-  private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_studentIdentifiers.class);
-
-  @Override
-  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
-    List<AuditEvent> resolvingMessages = new ArrayList<>();
-    if (message == null) {
-      return resolvingMessages;
-    }
-
-    if (message instanceof DirectMemberAddedToGroup) {
-      processAddUserExtSource(sess, ((DirectMemberAddedToGroup) message).getGroup(),
-          ((DirectMemberAddedToGroup) message).getMember());
-    } else if (message instanceof IndirectMemberAddedToGroup) {
-      processAddUserExtSource(sess, ((IndirectMemberAddedToGroup) message).getGroup(),
-          ((IndirectMemberAddedToGroup) message).getMember());
-    } else if (message instanceof MemberValidatedInGroup) {
-      processAddUserExtSource(sess, ((MemberValidatedInGroup) message).getGroup(),
-          ((MemberValidatedInGroup) message).getMember());
-    } else if (message instanceof MemberRemovedFromGroupTotally) {
-      processRemoveUserExtSource(sess, ((MemberRemovedFromGroupTotally) message).getGroup(),
-          ((MemberRemovedFromGroupTotally) message).getMember());
-    } else if (message instanceof MemberExpiredInGroup) {
-      processRemoveUserExtSource(sess, ((MemberExpiredInGroup) message).getGroup(),
-          ((MemberExpiredInGroup) message).getMember());
-    }
-
-    return resolvingMessages;
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_studentIdentifiers.class);
 
   @Override
   public AttributeDefinition getAttributeDefinition() {
@@ -108,8 +78,8 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
     attr.setFriendlyName("studentIdentifiers");
     attr.setDisplayName("student identifiers");
     attr.setType(ArrayList.class.getName());
-    attr.setDescription("Virtual attribute, which creates and removes userExtSource" +
-        " with identifiers according to audit events.");
+    attr.setDescription(
+        "Virtual attribute, which creates and removes userExtSource" + " with identifiers according to audit events.");
     return attr;
   }
 
@@ -212,20 +182,72 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
     }
   }
 
-  /**
-   * Fetches ExtSource from the database.
-   *
-   * @param sess PerunSession
-   * @param name ExtSource name
-   * @return ExtSource
-   */
-  private ExtSource tryGetExtSource(PerunSessionImpl sess, String name) {
-    try {
-      return sess.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, name);
-    } catch (ExtSourceNotExistsException e) {
-      //Should not happened
-      throw new InternalErrorException(e);
+  @Override
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message)
+      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+    List<AuditEvent> resolvingMessages = new ArrayList<>();
+    if (message == null) {
+      return resolvingMessages;
     }
+
+    if (message instanceof DirectMemberAddedToGroup) {
+      processAddUserExtSource(sess, ((DirectMemberAddedToGroup) message).getGroup(),
+          ((DirectMemberAddedToGroup) message).getMember());
+    } else if (message instanceof IndirectMemberAddedToGroup) {
+      processAddUserExtSource(sess, ((IndirectMemberAddedToGroup) message).getGroup(),
+          ((IndirectMemberAddedToGroup) message).getMember());
+    } else if (message instanceof MemberValidatedInGroup) {
+      processAddUserExtSource(sess, ((MemberValidatedInGroup) message).getGroup(),
+          ((MemberValidatedInGroup) message).getMember());
+    } else if (message instanceof MemberRemovedFromGroupTotally) {
+      processRemoveUserExtSource(sess, ((MemberRemovedFromGroupTotally) message).getGroup(),
+          ((MemberRemovedFromGroupTotally) message).getMember());
+    } else if (message instanceof MemberExpiredInGroup) {
+      processRemoveUserExtSource(sess, ((MemberExpiredInGroup) message).getGroup(),
+          ((MemberExpiredInGroup) message).getMember());
+    }
+
+    return resolvingMessages;
+  }
+
+  /**
+   * Fetches group attribute if it is possible
+   *
+   * @param sess          PerunSession
+   * @param group         Group for which the attribute will be fetched
+   * @param attributeName full name of the attribute
+   * @return Attribute
+   */
+  private Attribute tryGetAttribute(PerunSessionImpl sess, Group group, String attributeName) {
+    try {
+      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, attributeName);
+    } catch (WrongAttributeAssignmentException e) {
+      throw new InternalErrorException("Wrong assignment of " + attributeName + " for group " + group.getId(), e);
+    } catch (AttributeNotExistsException e) {
+      LOG.debug("Attribute " + attributeName + " of group " + group.getId() + " does not exist, values will be skipped",
+          e);
+    }
+    return null;
+  }
+
+  /**
+   * Fetches user attribute if it is possible
+   *
+   * @param sess          PerunSession
+   * @param user          User for which the attribute will be fetched
+   * @param attributeName full name of the attribute
+   * @return Attribute
+   */
+  private Attribute tryGetAttribute(PerunSessionImpl sess, User user, String attributeName) {
+    try {
+      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attributeName);
+    } catch (WrongAttributeAssignmentException e) {
+      throw new InternalErrorException("Wrong assignment of " + attributeName + " for user " + user.getId(), e);
+    } catch (AttributeNotExistsException e) {
+      LOG.debug("Attribute " + attributeName + " of user " + user.getId() + " does not exist, values will be skipped",
+          e);
+    }
+    return null;
   }
 
   /**
@@ -248,43 +270,19 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiers extends UserVi
   }
 
   /**
-   * Fetches group attribute if it is possible
+   * Fetches ExtSource from the database.
    *
-   * @param sess          PerunSession
-   * @param group         Group for which the attribute will be fetched
-   * @param attributeName full name of the attribute
-   * @return Attribute
+   * @param sess PerunSession
+   * @param name ExtSource name
+   * @return ExtSource
    */
-  private Attribute tryGetAttribute(PerunSessionImpl sess, Group group, String attributeName) {
+  private ExtSource tryGetExtSource(PerunSessionImpl sess, String name) {
     try {
-      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, attributeName);
-    } catch (WrongAttributeAssignmentException e) {
-      throw new InternalErrorException("Wrong assignment of " + attributeName + " for group " + group.getId(), e);
-    } catch (AttributeNotExistsException e) {
-      log.debug("Attribute " + attributeName + " of group " + group.getId() + " does not exist, values will be skipped",
-          e);
+      return sess.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, name);
+    } catch (ExtSourceNotExistsException e) {
+      //Should not happened
+      throw new InternalErrorException(e);
     }
-    return null;
-  }
-
-  /**
-   * Fetches user attribute if it is possible
-   *
-   * @param sess          PerunSession
-   * @param user          User for which the attribute will be fetched
-   * @param attributeName full name of the attribute
-   * @return Attribute
-   */
-  private Attribute tryGetAttribute(PerunSessionImpl sess, User user, String attributeName) {
-    try {
-      return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attributeName);
-    } catch (WrongAttributeAssignmentException e) {
-      throw new InternalErrorException("Wrong assignment of " + attributeName + " for user " + user.getId(), e);
-    } catch (AttributeNotExistsException e) {
-      log.debug("Attribute " + attributeName + " of user " + user.getId() + " does not exist, values will be skipped",
-          e);
-    }
-    return null;
   }
 
 }

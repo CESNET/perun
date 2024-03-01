@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import static cz.metacentrum.perun.core.impl.Utils.emailPattern;
+import static cz.metacentrum.perun.core.impl.Utils.EMAIL_PATTERN;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -23,14 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Returns list of member's mails, by default preferredMail and memberMail.
- * Returned attributes are configurable, supports string and list values of member or user attributes with email format.
+ * Returns list of member's mails, by default preferredMail and memberMail. Returned attributes are configurable,
+ * supports string and list values of member or user attributes with email format.
  * <p>
  * Example configuration:
  * <p>
- * attributeNames:
- * - urn:perun:user:attribute-def:def:preferredMail
- * - urn:perun:member:attribute-def:def:mail
+ * attributeNames: - urn:perun:user:attribute-def:def:preferredMail - urn:perun:member:attribute-def:def:mail
  *
  * @author Johana Supikova <xsupikova@fi.muni.cz>
  */
@@ -38,12 +36,23 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_member_attribute_def_virt_mails extends MemberVirtualAttributesModuleAbstract
     implements MemberVirtualAttributesModuleImplApi {
 
-  final static Logger log = LoggerFactory.getLogger(urn_perun_member_attribute_def_virt_mails.class);
-  private final static String ATTRIBUTE_NAMES_PROPERTY = "attributeNames";
+  static final Logger LOG = LoggerFactory.getLogger(urn_perun_member_attribute_def_virt_mails.class);
+  private static final String ATTRIBUTE_NAMES_PROPERTY = "attributeNames";
   final ModulesConfigLoader loader = new ModulesYamlConfigLoader();
-  private final List<String> defaultAttributeNames = List.of(
-      AttributesManager.NS_USER_ATTR_DEF + ":preferredMail",
-      AttributesManager.NS_MEMBER_ATTR_DEF + ":mail");
+  private final List<String> defaultAttributeNames =
+      List.of(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail", AttributesManager.NS_MEMBER_ATTR_DEF + ":mail");
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_VIRT);
+    attr.setFriendlyName("mails");
+    attr.setDisplayName("Mails");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription(
+        "Returns email addresses of member, if not configured otherwise, uses preferredMail and memberMail.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDef) {
@@ -69,7 +78,7 @@ public class urn_perun_member_attribute_def_virt_mails extends MemberVirtualAttr
         } else if (emailAttrDef.startsWith(AttributesManager.NS_MEMBER_ATTR_DEF)) {
           attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, member, emailAttrDef);
         } else {
-          log.trace("getAttributeValue(unsupported attribute type={})", emailAttrDef);
+          LOG.trace("getAttributeValue(unsupported attribute type={})", emailAttrDef);
           continue;
         }
 
@@ -80,26 +89,26 @@ public class urn_perun_member_attribute_def_virt_mails extends MemberVirtualAttr
           }
           attributeValues = List.of(attribute.valueAsString());
         } else if (attribute.getType().equals(List.class.getName()) ||
-            attribute.getType().equals(ArrayList.class.getName())) {
+                   attribute.getType().equals(ArrayList.class.getName())) {
           if (attribute.valueAsList() == null) {
             continue;
           }
           attributeValues = attribute.valueAsList();
         } else {
-          log.trace("getAttributeValue(unsupported attribute type={})", attribute.getType());
+          LOG.trace("getAttributeValue(unsupported attribute type={})", attribute.getType());
           continue;
         }
 
         for (String mail : attributeValues) {
-          Matcher emailMatcher = emailPattern.matcher(mail);
+          Matcher emailMatcher = EMAIL_PATTERN.matcher(mail);
           if (!emailMatcher.matches()) {
-            log.trace("getAttributeValue(unsupported email format={})", mail);
+            LOG.trace("getAttributeValue(unsupported email format={})", mail);
             continue;
           }
           allMails.add(mail);
         }
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-        log.trace("getAttributeValue(member={},attribute={},failedEmailAttribute={})", member, attributeDef,
+        LOG.trace("getAttributeValue(member={},attribute={},failedEmailAttribute={})", member, attributeDef,
             emailAttrDef);
       }
     }
@@ -107,17 +116,5 @@ public class urn_perun_member_attribute_def_virt_mails extends MemberVirtualAttr
     newAttribute.setValue(new ArrayList<>(new HashSet<>(allMails)));
     return newAttribute;
 
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_VIRT);
-    attr.setFriendlyName("mails");
-    attr.setDisplayName("Mails");
-    attr.setType(ArrayList.class.getName());
-    attr.setDescription(
-        "Returns email addresses of member, if not configured otherwise, uses preferredMail and memberMail.");
-    return attr;
   }
 }

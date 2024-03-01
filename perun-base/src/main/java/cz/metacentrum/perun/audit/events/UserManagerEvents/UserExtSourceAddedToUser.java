@@ -25,12 +25,12 @@ public class UserExtSourceAddedToUser extends AuditEvent {
     return message;
   }
 
-  public UserExtSource getUserExtSource() {
-    return userExtSource;
-  }
-
   public User getUser() {
     return user;
+  }
+
+  public UserExtSource getUserExtSource() {
+    return userExtSource;
   }
 
   @Override

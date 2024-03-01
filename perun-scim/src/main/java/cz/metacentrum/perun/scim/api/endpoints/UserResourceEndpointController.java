@@ -1,32 +1,26 @@
 package cz.metacentrum.perun.scim.api.endpoints;
 
+import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_USER;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.scim.api.entities.UserSCIM;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.scim.api.entities.EmailSCIM;
-
+import cz.metacentrum.perun.scim.api.entities.UserSCIM;
+import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
-
-import java.io.IOException;
-
-import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_USER;
-
+import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.Response;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Endpoint controller, that returns all user resources.
@@ -43,6 +37,31 @@ public class UserResourceEndpointController {
   public UserResourceEndpointController(PerunSession session) {
     this.session = session;
     this.perunBl = (PerunBl) session.getPerun();
+  }
+
+  private EmailSCIM getEmail(User perunUser) {
+    Attribute preferredEmailAttribute = new Attribute();
+    EmailSCIM email = new EmailSCIM();
+
+    try {
+      preferredEmailAttribute = perunBl.getAttributesManagerBl()
+          .getAttribute(session, perunUser, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+      if (preferredEmailAttribute.getValue() != null) {
+        email.setValue(preferredEmailAttribute.getValue().toString());
+        email.setPrimary(true);
+        email.setType("preferred email");
+        return email;
+      }
+    } catch (InternalErrorException ex) {
+      log.error("Internal exception occured while getting preferred email of user " + perunUser.getId(), ex);
+    } catch (AttributeNotExistsException ex) {
+      log.error("Attribute preferredMail doesn't exist for user " + perunUser.getId(), ex);
+    } catch (WrongAttributeAssignmentException ex) {
+      log.error(
+          "Trying to assign attribute to the wrong entity while getting preferred email of user " + perunUser.getId(),
+          ex);
+    }
+    return null;
   }
 
   public Response getUser(String identifier) throws SCIMException {
@@ -86,30 +105,5 @@ public class UserResourceEndpointController {
     result.setSchemas(schemas);
 
     return result;
-  }
-
-  private EmailSCIM getEmail(User perunUser) {
-    Attribute preferredEmailAttribute = new Attribute();
-    EmailSCIM email = new EmailSCIM();
-
-    try {
-      preferredEmailAttribute = perunBl.getAttributesManagerBl()
-          .getAttribute(session, perunUser, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
-      if (preferredEmailAttribute.getValue() != null) {
-        email.setValue(preferredEmailAttribute.getValue().toString());
-        email.setPrimary(true);
-        email.setType("preferred email");
-        return email;
-      }
-    } catch (InternalErrorException ex) {
-      log.error("Internal exception occured while getting preferred email of user " + perunUser.getId(), ex);
-    } catch (AttributeNotExistsException ex) {
-      log.error("Attribute preferredMail doesn't exist for user " + perunUser.getId(), ex);
-    } catch (WrongAttributeAssignmentException ex) {
-      log.error(
-          "Trying to assign attribute to the wrong entity while getting preferred email of user " + perunUser.getId(),
-          ex);
-    }
-    return null;
   }
 }

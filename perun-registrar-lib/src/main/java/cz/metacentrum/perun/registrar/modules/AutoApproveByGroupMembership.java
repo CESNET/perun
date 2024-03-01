@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AutoApproveByGroupMembership extends DefaultRegistrarModule {
-  private static final Logger log = LoggerFactory.getLogger(AutoApproveByGroupMembership.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AutoApproveByGroupMembership.class);
 
   private static final String AUTOAPPROVEBYGROUPMEMBERSHIP_GROUP_ATTRNAME =
       AttributesManager.NS_GROUP_ATTR_DEF + ":autoApproveByGroupMembership";
@@ -50,9 +50,9 @@ public class AutoApproveByGroupMembership extends DefaultRegistrarModule {
         if (user != null) {
           member = perun.getMembersManager().getMemberByUser(sess, app.getVo(), user);
         } else {
-          log.error(
+          LOG.error(
               "[REGISTRAR] User is not member of VO, therefore it is not possible to auto-approve group application: " +
-                  app);
+              app);
           return false;
         }
       } else {
@@ -60,17 +60,16 @@ public class AutoApproveByGroupMembership extends DefaultRegistrarModule {
       }
     } catch (MemberNotExistsException | UserNotExistsException | UserExtSourceNotExistsException |
              ExtSourceNotExistsException ex) {
-      log.error(
+      LOG.error(
           "[REGISTRAR] User is not member of VO, therefore it is not possible to auto-approve group application: " +
-              app);
+          app);
       return false;
     }
 
     Attribute autoApproveGroupIds =
         perun.getAttributesManagerBl().getAttribute(sess, app.getGroup(), AUTOAPPROVEBYGROUPMEMBERSHIP_GROUP_ATTRNAME)
-            .valueAsList() != null ?
-            perun.getAttributesManagerBl()
-                .getAttribute(sess, app.getGroup(), AUTOAPPROVEBYGROUPMEMBERSHIP_GROUP_ATTRNAME) :
+            .valueAsList() != null ? perun.getAttributesManagerBl()
+            .getAttribute(sess, app.getGroup(), AUTOAPPROVEBYGROUPMEMBERSHIP_GROUP_ATTRNAME) :
             perun.getAttributesManagerBl().getAttribute(sess, app.getVo(), AUTOAPPROVEBYGROUPMEMBERSHIP_VO_ATTRNAME);
 
     if (autoApproveGroupIds.valueAsList() != null) {
@@ -82,12 +81,13 @@ public class AutoApproveByGroupMembership extends DefaultRegistrarModule {
           }
         } catch (GroupNotExistsException ex) {
           if (perun.getAttributesManagerBl()
-              .getAttribute(sess, app.getGroup(), AUTOAPPROVEBYGROUPMEMBERSHIP_GROUP_ATTRNAME).valueAsList() != null) {
-            log.error("[REGISTRAR] Attribute autoApproveByGroupMembership for group " + app.getGroup() +
-                " contains invalid group ID: " + id);
+                  .getAttribute(sess, app.getGroup(), AUTOAPPROVEBYGROUPMEMBERSHIP_GROUP_ATTRNAME).valueAsList() !=
+              null) {
+            LOG.error("[REGISTRAR] Attribute autoApproveByGroupMembership for group " + app.getGroup() +
+                      " contains invalid group ID: " + id);
           } else {
-            log.error("[REGISTRAR] Attribute autoApproveByGroupMembership for VO " + app.getVo() +
-                " contains invalid group ID: " + id);
+            LOG.error("[REGISTRAR] Attribute autoApproveByGroupMembership for VO " + app.getVo() +
+                      " contains invalid group ID: " + id);
           }
         }
       }

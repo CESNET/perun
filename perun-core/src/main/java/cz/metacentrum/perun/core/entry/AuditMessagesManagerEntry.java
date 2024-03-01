@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +25,45 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
   private PerunBl perunBl;
 
   public AuditMessagesManagerEntry() {
+  }
+
+  @Override
+  public void createAuditerConsumer(PerunSession perunSession, String consumerName) throws PrivilegeException {
+    if (!AuthzResolver.authorizedInternal(perunSession, "createAuditerConsumer_String_policy")) {
+      throw new PrivilegeException(perunSession, "createAuditerConsumer");
+    }
+    getAuditMessagesManagerBl().createAuditerConsumer(perunSession, consumerName);
+  }
+
+  @Override
+  public List<String> findAllPossibleEvents(PerunSession sess) {
+    return getAuditMessagesManagerBl().findAllPossibleEvents(sess);
+  }
+
+  @Override
+  public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) {
+    // anybody can call this method
+    return getAuditMessagesManagerBl().getAllAuditerConsumers(perunSession);
+  }
+
+  /**
+   * Gets the AuditMessagesManagerBl for this instance.
+   *
+   * @return The AuditMessagesManagerBl.
+   */
+  public AuditMessagesManagerBl getAuditMessagesManagerBl() {
+    return this.auditMessagesManagerBl;
+  }
+
+  @Override
+  public int getAuditerMessagesCount(PerunSession perunSession) {
+    return getAuditMessagesManagerBl().getAuditerMessagesCount(perunSession);
+  }
+
+  @Override
+  public int getLastMessageId(PerunSession perunSession) {
+    // anybody can call this method
+    return getAuditMessagesManagerBl().getLastMessageId(perunSession);
   }
 
   @Override
@@ -70,27 +108,16 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
     return getAuditMessagesManagerBl().getMessagesPage(perunSession, query);
   }
 
-  @Override
-  public List<String> findAllPossibleEvents(PerunSession sess) {
-    return getAuditMessagesManagerBl().findAllPossibleEvents(sess);
+  public PerunBl getPerunBl() {
+    return this.perunBl;
   }
 
   @Override
-  public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName)
-      throws PrivilegeException {
-    if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerMessages_String_policy")) {
-      throw new PrivilegeException(perunSession, "pollConsumerMessages");
+  public void log(PerunSession perunSession, String message) throws PrivilegeException {
+    if (!AuthzResolver.authorizedInternal(perunSession, "log_String_policy")) {
+      throw new PrivilegeException(perunSession, "log");
     }
-    return getAuditMessagesManagerBl().pollConsumerMessages(perunSession, consumerName);
-  }
-
-  @Override
-  public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId)
-      throws PrivilegeException {
-    if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerMessages_String_int_policy")) {
-      throw new PrivilegeException(perunSession, "pollConsumerMessages");
-    }
-    return getAuditMessagesManagerBl().pollConsumerMessages(perunSession, consumerName, lastProcessedId);
+    getAuditMessagesManagerBl().log(perunSession, message);
   }
 
   @Override
@@ -111,54 +138,21 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
   }
 
   @Override
-  public void createAuditerConsumer(PerunSession perunSession, String consumerName) throws PrivilegeException {
-    if (!AuthzResolver.authorizedInternal(perunSession, "createAuditerConsumer_String_policy")) {
-      throw new PrivilegeException(perunSession, "createAuditerConsumer");
-    }
-    getAuditMessagesManagerBl().createAuditerConsumer(perunSession, consumerName);
-  }
-
-  @Override
-  public void log(PerunSession perunSession, String message) throws PrivilegeException {
-    if (!AuthzResolver.authorizedInternal(perunSession, "log_String_policy")) {
-      throw new PrivilegeException(perunSession, "log");
-    }
-    getAuditMessagesManagerBl().log(perunSession, message);
-  }
-
-  @Override
-  public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) {
-    // anybody can call this method
-    return getAuditMessagesManagerBl().getAllAuditerConsumers(perunSession);
-  }
-
-  @Override
-  public int getLastMessageId(PerunSession perunSession) {
-    // anybody can call this method
-    return getAuditMessagesManagerBl().getLastMessageId(perunSession);
-  }
-
-  @Override
-  public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId)
+  public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName)
       throws PrivilegeException {
-    if (!AuthzResolver.authorizedInternal(perunSession, "setLastProcessedId_String_int_policy")) {
-      throw new PrivilegeException(perunSession, "setLastProcessedId");
+    if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerMessages_String_policy")) {
+      throw new PrivilegeException(perunSession, "pollConsumerMessages");
     }
-    getAuditMessagesManagerBl().setLastProcessedId(perunSession, consumerName, lastProcessedId);
+    return getAuditMessagesManagerBl().pollConsumerMessages(perunSession, consumerName);
   }
 
   @Override
-  public int getAuditerMessagesCount(PerunSession perunSession) {
-    return getAuditMessagesManagerBl().getAuditerMessagesCount(perunSession);
-  }
-
-  /**
-   * Gets the AuditMessagesManagerBl for this instance.
-   *
-   * @return The AuditMessagesManagerBl.
-   */
-  public AuditMessagesManagerBl getAuditMessagesManagerBl() {
-    return this.auditMessagesManagerBl;
+  public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId)
+      throws PrivilegeException {
+    if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerMessages_String_int_policy")) {
+      throw new PrivilegeException(perunSession, "pollConsumerMessages");
+    }
+    return getAuditMessagesManagerBl().pollConsumerMessages(perunSession, consumerName, lastProcessedId);
   }
 
   /**
@@ -170,8 +164,13 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
     this.auditMessagesManagerBl = auditMessagesManagerBl;
   }
 
-  public PerunBl getPerunBl() {
-    return this.perunBl;
+  @Override
+  public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId)
+      throws PrivilegeException {
+    if (!AuthzResolver.authorizedInternal(perunSession, "setLastProcessedId_String_int_policy")) {
+      throw new PrivilegeException(perunSession, "setLastProcessedId");
+    }
+    getAuditMessagesManagerBl().setLastProcessedId(perunSession, consumerName, lastProcessedId);
   }
 
   /**

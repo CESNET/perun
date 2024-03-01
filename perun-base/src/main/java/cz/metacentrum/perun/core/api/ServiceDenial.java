@@ -8,12 +8,12 @@ public class ServiceDenial extends Auditable {
   private int facilityId;
   private int destinationId;
 
-  public int getServiceId() {
-    return serviceId;
+  public int getDestinationId() {
+    return destinationId;
   }
 
-  public void setServiceId(int serviceId) {
-    this.serviceId = serviceId;
+  public void setDestinationId(int destinationId) {
+    this.destinationId = destinationId;
   }
 
   public int getFacilityId() {
@@ -24,31 +24,23 @@ public class ServiceDenial extends Auditable {
     this.facilityId = facilityId;
   }
 
-  public int getDestinationId() {
-    return destinationId;
+  public int getServiceId() {
+    return serviceId;
   }
 
-  public void setDestinationId(int destinationId) {
-    this.destinationId = destinationId;
-  }
-
-  @Override
-  public String toString() {
-    return "ServiceDenial: [" +
-        "id='" + getId() +
-        "', serviceId='" + serviceId +
-        "', facilityId='" + facilityId +
-        "', destinationId='" + destinationId +
-        "']";
+  public void setServiceId(int serviceId) {
+    this.serviceId = serviceId;
   }
 
   @Override
   public String serializeToString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id=<" + getId() + ">" +
-        ", facilityId=<" + getFacilityId() + ">" +
-        ", serviceId=<" + getServiceId() + ">" +
-        ", destinationId=<" + getDestinationId() + ">" +
-        "]";
+    return this.getClass().getSimpleName() + ":[" + "id=<" + getId() + ">" + ", facilityId=<" + getFacilityId() + ">" +
+           ", serviceId=<" + getServiceId() + ">" + ", destinationId=<" + getDestinationId() + ">" + "]";
+  }
+
+  @Override
+  public String toString() {
+    return "ServiceDenial: [" + "id='" + getId() + "', serviceId='" + serviceId + "', facilityId='" + facilityId +
+           "', destinationId='" + destinationId + "']";
   }
 }

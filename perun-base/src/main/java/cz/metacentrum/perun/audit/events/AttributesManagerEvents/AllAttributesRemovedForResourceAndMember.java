@@ -21,10 +21,6 @@ public class AllAttributesRemovedForResourceAndMember extends AuditEvent impleme
     this.message = formatMessage("All attributes removed for %s and %s.", resource, member);
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
   public Member getMember() {
     return member;
   }
@@ -32,6 +28,10 @@ public class AllAttributesRemovedForResourceAndMember extends AuditEvent impleme
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   @Override

@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
@@ -37,32 +36,12 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
   private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
 
   //Definition of K = KB, M = MB etc.
-  final long K = 1024;
-  final long M = K * 1024;
-  final long G = M * 1024;
-  final long T = G * 1024;
-  final long P = T * 1024;
-  final long E = P * 1024;
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    Matcher testMatcher = testingPattern.matcher(attribute.valueAsString());
-    if (!testMatcher.find()) {
-      throw new WrongAttributeValueException(attribute, resource, group,
-          "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
-    }
-
-    BigDecimal limitNumber = ModulesUtilsBlImpl.getNumberAndUnitFromString(attribute.valueAsString()).getLeft();
-
-    if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
-      throw new WrongAttributeValueException(attribute, attribute + " can't be less than 0.");
-    }
-  }
+  static final long K = 1024;
+  static final long M = K * 1024;
+  static final long G = M * 1024;
+  static final long T = G * 1024;
+  static final long P = T * 1024;
+  static final long E = P * 1024;
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource,
@@ -89,7 +68,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException(
           "Attribute with projectDataQuota from resource " + resource.getId() + " and group + " + group.getId() +
-              " could not obtain.", ex);
+          " could not obtain.", ex);
     } catch (GroupResourceMismatchException ex) {
       throw new InternalErrorException(ex);
     }
@@ -115,7 +94,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
             "Try to set limited limit, but there is still set unlimited Quota.");
       }
     } else if ((quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) &&
-        (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) && projectDataQuotaLetter != null) {
+               (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) && projectDataQuotaLetter != null) {
 
       switch (projectDataLimitLetter) {
         case "K":
@@ -167,8 +146,23 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
   }
 
   @Override
-  public List<String> getDependencies() {
-    return Collections.singletonList(A_GR_projectDataQuota);
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    Matcher testMatcher = testingPattern.matcher(attribute.valueAsString());
+    if (!testMatcher.find()) {
+      throw new WrongAttributeValueException(attribute, resource, group,
+          "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
+    }
+
+    BigDecimal limitNumber = ModulesUtilsBlImpl.getNumberAndUnitFromString(attribute.valueAsString()).getLeft();
+
+    if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+      throw new WrongAttributeValueException(attribute, attribute + " can't be less than 0.");
+    }
   }
 
   @Override
@@ -180,5 +174,10 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
     attr.setType(String.class.getName());
     attr.setDescription("Project hard quota including units (M,G,T, ...), G is default.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    return Collections.singletonList(A_GR_projectDataQuota);
   }
 }

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class represents a node in the hierarchy of hashed data for provisioning.
- * This node is meant for a resource and additionally, contains vo id.
+ * This class represents a node in the hierarchy of hashed data for provisioning. This node is meant for a resource and
+ * additionally, contains vo id.
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
@@ -17,11 +17,6 @@ public class GenResourceDataNode extends GenDataNode {
   private GenResourceDataNode(Map<Integer, GenDataNode> children, Map<Integer, Integer> members, Integer vo) {
     super(children, members);
     this.voId = vo;
-  }
-
-  @JsonProperty("v")
-  public Integer getVoId() {
-    return voId;
   }
 
   @Override
@@ -41,6 +36,11 @@ public class GenResourceDataNode extends GenDataNode {
     return getVoId() != null ? getVoId().equals(that.getVoId()) : that.getVoId() == null;
   }
 
+  @JsonProperty("v")
+  public Integer getVoId() {
+    return voId;
+  }
+
   @Override
   public int hashCode() {
     int result = super.hashCode();
@@ -54,12 +54,16 @@ public class GenResourceDataNode extends GenDataNode {
     private Map<Integer, Integer> members = new HashMap<>();
     private Integer voId;
 
-    public Builder hashes() {
-      return this;
+    public GenResourceDataNode build() {
+      return new GenResourceDataNode(children, members, voId);
     }
 
     public Builder children(Map<Integer, GenDataNode> children) {
       this.children = children;
+      return this;
+    }
+
+    public Builder hashes() {
       return this;
     }
 
@@ -71,10 +75,6 @@ public class GenResourceDataNode extends GenDataNode {
     public Builder voId(Integer voId) {
       this.voId = voId;
       return this;
-    }
-
-    public GenResourceDataNode build() {
-      return new GenResourceDataNode(children, members, voId);
     }
   }
 }

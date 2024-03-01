@@ -13,37 +13,19 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Synchronization enabled
  * <p>
- * true if synchronization is enabled and attributes synchronizationInterval, groupMembersQuery and groupExtSource are all filled in
- * false if not
- * empty if there is no setting (means not synchronized)
+ * true if synchronization is enabled and attributes synchronizationInterval, groupMembersQuery and groupExtSource are
+ * all filled in false if not empty if there is no setting (means not synchronized)
  *
  * @author Michal Stava  stavamichal@gmail.com
  */
 public class urn_perun_group_attribute_def_def_synchronizationEnabled extends GroupAttributesModuleAbstract
     implements GroupAttributesModuleImplApi {
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
-      throws WrongAttributeValueException {
-    //Null value is ok, means no settings for group
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    String attrValue = attribute.valueAsString();
-
-    if (!attrValue.equals("true") && !attrValue.equals("false")) {
-      throw new WrongAttributeValueException(attribute, group,
-          "If attribute is not null, only string 'true' or 'false' is correct format.");
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
@@ -85,12 +67,19 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(GroupsManager.GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME);
-    dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-    dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    return dependencies;
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Null value is ok, means no settings for group
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    String attrValue = attribute.valueAsString();
+
+    if (!attrValue.equals("true") && !attrValue.equals("false")) {
+      throw new WrongAttributeValueException(attribute, group,
+          "If attribute is not null, only string 'true' or 'false' is correct format.");
+    }
   }
 
   @Override
@@ -102,5 +91,14 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
     attr.setType(String.class.getName());
     attr.setDescription("Enables group synchronization from external source.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(GroupsManager.GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME);
+    dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+    dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    return dependencies;
   }
 }

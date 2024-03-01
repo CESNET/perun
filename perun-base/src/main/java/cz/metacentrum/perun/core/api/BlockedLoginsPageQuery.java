@@ -54,55 +54,6 @@ public class BlockedLoginsPageQuery {
     this.namespaces = namespaces;
   }
 
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public BlockedLoginsOrderColumn getSortColumn() {
-    return sortColumn;
-  }
-
-  public void setSortColumn(BlockedLoginsOrderColumn sortColumn) {
-    this.sortColumn = sortColumn;
-  }
-
-  public List<String> getNamespaces() {
-    return namespaces;
-  }
-
-  public void setNamespaces(List<String> namespaces) {
-    this.namespaces = namespaces;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public String getSearchString() {
-    return searchString;
-  }
-
-  public void setSearchString(String searchString) {
-    this.searchString = searchString;
-  }
-
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -127,6 +78,54 @@ public class BlockedLoginsPageQuery {
       return false;
     }
     return Objects.equals(searchString, that.searchString);
+  }
+
+  public List<String> getNamespaces() {
+    return namespaces;
+  }
+
+  public void setNamespaces(List<String> namespaces) {
+    this.namespaces = namespaces;
+  }
+
+  public int getOffset() {
+    return offset;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public SortingOrder getOrder() {
+    return order;
+  }
+
+  public void setOrder(SortingOrder order) {
+    this.order = order;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
+  }
+
+  public String getSearchString() {
+    return searchString;
+  }
+
+  public void setSearchString(String searchString) {
+    this.searchString = searchString;
+  }
+
+  public BlockedLoginsOrderColumn getSortColumn() {
+    return sortColumn;
+  }
+
+  public void setSortColumn(BlockedLoginsOrderColumn sortColumn) {
+    this.sortColumn = sortColumn;
   }
 
   @Override

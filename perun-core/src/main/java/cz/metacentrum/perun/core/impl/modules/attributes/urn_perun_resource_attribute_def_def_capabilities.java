@@ -13,11 +13,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Module for capabilities according to AARC specification. i.e. specification of resource and optional actions.
- * Syntax:
- * value=“res:RESOURCE[:CHILD-RESOURCE1][:CHILD-RESOURCE2]...[:act:ACTION[,ACTION]...]”
- * Example1: value=“res:RESOURCE1:CHILD-RESOURCE1:CHILD-RESOURCE2:act:ACTION1,ACTION2,ACTION3”
- * Example2: value=“res:RESOURCE1:CHILD-RESOURCE1:CHILD-RESOURCE2”
+ * Module for capabilities according to AARC specification. i.e. specification of resource and optional actions. Syntax:
+ * value=“res:RESOURCE[:CHILD-RESOURCE1][:CHILD-RESOURCE2]...[:act:ACTION[,ACTION]...]” Example1:
+ * value=“res:RESOURCE1:CHILD-RESOURCE1:CHILD-RESOURCE2:act:ACTION1,ACTION2,ACTION3” Example2:
+ * value=“res:RESOURCE1:CHILD-RESOURCE1:CHILD-RESOURCE2”
  *
  * @author Ondrej Ernst
  * @see urn_perun_facility_attribute_def_def_capabilities
@@ -28,8 +27,8 @@ public class urn_perun_resource_attribute_def_def_capabilities extends ResourceA
   private static final String RESOURCE_ALLOWED_CHARACTERS = "[\\-a-zA-Z0-9()+,.=@;$_!*']";
   private static final String ACTION_ALLOWED_CHARACTERS = "[\\-a-zA-Z0-9()+.:=@;$_!*']";
   private static final String NOT_ALLOWED_PARTS = "?!(:act$|:act:|.*:,|.*,:|.*::|.*:$)";
-  protected static final Pattern PATTERN = Pattern.compile("res((" + NOT_ALLOWED_PARTS + ")(:" +
-      RESOURCE_ALLOWED_CHARACTERS + "+))+(:act:((" + ACTION_ALLOWED_CHARACTERS +
+  protected static final Pattern PATTERN = Pattern.compile(
+      "res((" + NOT_ALLOWED_PARTS + ")(:" + RESOURCE_ALLOWED_CHARACTERS + "+))+(:act:((" + ACTION_ALLOWED_CHARACTERS +
       "+,)*(" + ACTION_ALLOWED_CHARACTERS + "+)))?");
 
 
@@ -42,8 +41,9 @@ public class urn_perun_resource_attribute_def_def_capabilities extends ResourceA
     List<String> values = attribute.valueAsList();
     for (String value : values) {
       if (!PATTERN.matcher(value).matches()) {
-        throw new WrongAttributeValueException(attribute, resource.getName() +
-            " has attribute whose value is not valid. Example of valid value: res:RESOURCE[:CHILD-RESOURCE1][:CHILD-RESOURCE2]...[:act:ACTION[,ACTION]...]");
+        throw new WrongAttributeValueException(attribute,
+            resource.getName() + " has attribute whose value is not valid. Example of valid value: " +
+            "res:RESOURCE[:CHILD-RESOURCE1][:CHILD-RESOURCE2]...[:act:ACTION[,ACTION]...]");
       }
     }
   }

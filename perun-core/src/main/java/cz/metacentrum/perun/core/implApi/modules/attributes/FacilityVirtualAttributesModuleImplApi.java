@@ -22,23 +22,10 @@ public interface FacilityVirtualAttributesModuleImplApi
    * @param facility     facility which is needed for computing the value
    * @param attribute    attribute to operate on
    * @return
-   * @throws InternalErrorException if an exception is raised in particular
-   *                                implementation, the exception is wrapped in InternalErrorException
+   * @throws InternalErrorException if an exception is raised in particular implementation, the exception is wrapped in
+   *                                InternalErrorException
    */
   Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute);
-
-  /**
-   * Method sets attributes' values which are dependent on this virtual attribute.
-   *
-   * @param perunSession
-   * @param facility     facility which is needed for computing the value
-   * @param attribute    attribute to operate on
-   * @return true if attribute was really changed
-   * @throws InternalErrorException if an exception is raised in particular
-   *                                implementation, the exception is wrapped in InternalErrorException
-   */
-  boolean setAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
-      throws WrongReferenceAttributeValueException;
 
   /**
    * Currently do nothing.
@@ -47,8 +34,21 @@ public interface FacilityVirtualAttributesModuleImplApi
    * @param facility     facility which is needed for computing the value
    * @param attribute    attribute to operate on
    * @return
-   * @throws InternalErrorException if an exception is raised in particular
-   *                                implementation, the exception is wrapped in InternalErrorException
+   * @throws InternalErrorException if an exception is raised in particular implementation, the exception is wrapped in
+   *                                InternalErrorException
    */
   void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute);
+
+  /**
+   * Method sets attributes' values which are dependent on this virtual attribute.
+   *
+   * @param perunSession
+   * @param facility     facility which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return true if attribute was really changed
+   * @throws InternalErrorException if an exception is raised in particular implementation, the exception is wrapped in
+   *                                InternalErrorException
+   */
+  boolean setAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException;
 }

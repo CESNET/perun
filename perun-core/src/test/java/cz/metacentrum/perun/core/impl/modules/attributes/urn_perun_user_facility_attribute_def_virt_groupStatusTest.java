@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.User;
@@ -7,8 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_facility_attribute_def_virt_groupStatusTest {
 
@@ -26,14 +26,6 @@ public class urn_perun_user_facility_attribute_def_virt_groupStatusTest {
 
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testSyntaxWithWrongStatus() throws Exception {
-    System.out.println("testSyntaxWithWrongStatus()");
-    attributeToCheck.setValue("bad_example");
-
-    classInstance.checkAttributeSyntax(sess, user, facility, attributeToCheck);
-  }
-
   @Test
   public void testSyntaxCorrect() throws Exception {
     System.out.println("testSyntaxCorrect()");
@@ -42,6 +34,14 @@ public class urn_perun_user_facility_attribute_def_virt_groupStatusTest {
     classInstance.checkAttributeSyntax(sess, user, facility, attributeToCheck);
 
     attributeToCheck.setValue("EXPIRED");
+    classInstance.checkAttributeSyntax(sess, user, facility, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testSyntaxWithWrongStatus() throws Exception {
+    System.out.println("testSyntaxWithWrongStatus()");
+    attributeToCheck.setValue("bad_example");
+
     classInstance.checkAttributeSyntax(sess, user, facility, attributeToCheck);
   }
 }

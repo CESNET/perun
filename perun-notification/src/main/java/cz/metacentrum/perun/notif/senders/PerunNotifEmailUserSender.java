@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
  */
 public class PerunNotifEmailUserSender implements PerunNotifSender {
 
-  private static final Logger logger = LoggerFactory.getLogger(PerunNotifEmailUserSender.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PerunNotifEmailUserSender.class);
 
   @Autowired
   private PerunBl perun;
@@ -40,19 +40,15 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 
   private PerunSession session;
 
-  @PostConstruct
-  public void init() throws Exception {
-    session = NotifUtils.getPerunSession(perun);
-  }
-
   @Override
   public boolean canHandle(PerunNotifTypeOfReceiver typeOfReceiver) {
 
-    if (typeOfReceiver != null && typeOfReceiver.equals(PerunNotifTypeOfReceiver.EMAIL_USER)) {
-      return true;
-    } else {
-      return false;
-    }
+    return typeOfReceiver != null && typeOfReceiver.equals(PerunNotifTypeOfReceiver.EMAIL_USER);
+  }
+
+  @PostConstruct
+  public void init() throws Exception {
+    session = NotifUtils.getPerunSession(perun);
   }
 
   @Override
@@ -65,7 +61,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
       PerunNotifReceiver receiver = messageDto.getReceiver();
       PoolMessage dto = messageDto.getPoolMessage();
 
-      logger.debug("Creating email for user, receiver: {}", receiver.getId());
+      LOGGER.debug("Creating email for user, receiver: {}", receiver.getId());
       PerunNotifEmailMessageToSendDto emailDto = new PerunNotifEmailMessageToSendDto();
       emailDto.setMessage(messageDto.getMessageToSend());
       emailDto.setSubject(messageDto.getSubject());
@@ -73,7 +69,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 
       String sender = messageDto.getSender();
       emailDto.setSender(sender);
-      logger.debug("Calculated sender for receiver: {}, sender: {}", receiver.getId(), sender);
+      LOGGER.debug("Calculated sender for receiver: {}, sender: {}", receiver.getId(), sender);
 
       String myReceiverId = dto.getKeyAttributes().get(receiver.getTarget());
       if (myReceiverId == null || myReceiverId.isEmpty()) {
@@ -85,8 +81,8 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
         try {
           id = Integer.valueOf(myReceiverId);
         } catch (NumberFormatException ex) {
-          logger.error("Cannot resolve id: {}, error: {}", id, ex.getMessage());
-          logger.debug("ST:", ex);
+          LOGGER.error("Cannot resolve id: {}, error: {}", id, ex.getMessage());
+          LOGGER.debug("ST:", ex);
         }
         if (id != null) {
           try {
@@ -97,14 +93,14 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
               emailDto.setReceiver((String) emailAttribute.getValue());
             }
           } catch (UserNotExistsException ex) {
-            logger.error("Cannot found user with id: {}, ex: {}", id, ex.getMessage());
-            logger.debug("ST:", ex);
+            LOGGER.error("Cannot found user with id: {}, ex: {}", id, ex.getMessage());
+            LOGGER.debug("ST:", ex);
           } catch (AttributeNotExistsException ex) {
-            logger.warn("Cannot found email for user with id: {}, ex: {}", id, ex.getMessage());
-            logger.debug("ST:", ex);
+            LOGGER.warn("Cannot found email for user with id: {}, ex: {}", id, ex.getMessage());
+            LOGGER.debug("ST:", ex);
           } catch (Exception ex) {
-            logger.error("Error during user email recognition, ex: {}", ex.getMessage());
-            logger.debug("ST:", ex);
+            LOGGER.error("Error during user email recognition, ex: {}", ex.getMessage());
+            LOGGER.debug("ST:", ex);
           }
         }
       }

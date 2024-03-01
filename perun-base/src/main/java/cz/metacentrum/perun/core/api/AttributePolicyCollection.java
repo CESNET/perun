@@ -6,9 +6,8 @@ import java.util.Objects;
 /**
  * Represents a policy collection of an attribute.
  * <p>
- * User has rights to perform an action (READ/WRITE) on the attribute,
- * if he satisfies all policies in at least one of the attribute policy
- * collections with given action.
+ * User has rights to perform an action (READ/WRITE) on the attribute, if he satisfies all policies in at least one of
+ * the attribute policy collections with given action.
  *
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
@@ -28,38 +27,6 @@ public class AttributePolicyCollection {
     this.policies = policies;
   }
 
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public int getAttributeId() {
-    return attributeId;
-  }
-
-  public void setAttributeId(int attributeId) {
-    this.attributeId = attributeId;
-  }
-
-  public AttributeAction getAction() {
-    return action;
-  }
-
-  public void setAction(AttributeAction action) {
-    this.action = action;
-  }
-
-  public List<AttributePolicy> getPolicies() {
-    return policies;
-  }
-
-  public void setPolicies(List<AttributePolicy> policies) {
-    this.policies = policies;
-  }
-
   public void addPolicy(AttributePolicy policy) {
     policies.add(policy);
   }
@@ -73,8 +40,40 @@ public class AttributePolicyCollection {
       return false;
     }
     AttributePolicyCollection that = (AttributePolicyCollection) o;
-    return getId() == that.getId() && getAttributeId() == that.getAttributeId()
-        && getAction() == that.getAction() && Objects.equals(getPolicies(), that.getPolicies());
+    return getId() == that.getId() && getAttributeId() == that.getAttributeId() && getAction() == that.getAction() &&
+           Objects.equals(getPolicies(), that.getPolicies());
+  }
+
+  public AttributeAction getAction() {
+    return action;
+  }
+
+  public void setAction(AttributeAction action) {
+    this.action = action;
+  }
+
+  public int getAttributeId() {
+    return attributeId;
+  }
+
+  public void setAttributeId(int attributeId) {
+    this.attributeId = attributeId;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public List<AttributePolicy> getPolicies() {
+    return policies;
+  }
+
+  public void setPolicies(List<AttributePolicy> policies) {
+    this.policies = policies;
   }
 
   @Override
@@ -84,11 +83,7 @@ public class AttributePolicyCollection {
 
   @Override
   public String toString() {
-    return "AttributePolicyCollection{" +
-        "id=" + id +
-        ", attributeId=" + attributeId +
-        ", action=" + action +
-        ", policies=" + policies +
-        '}';
+    return "AttributePolicyCollection{" + "id=" + id + ", attributeId=" + attributeId + ", action=" + action +
+           ", policies=" + policies + '}';
   }
 }

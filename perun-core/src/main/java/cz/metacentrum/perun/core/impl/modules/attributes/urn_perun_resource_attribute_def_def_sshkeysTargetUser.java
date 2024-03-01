@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +23,15 @@ public class urn_perun_resource_attribute_def_def_sshkeysTargetUser extends Reso
   private static final Pattern pattern = Pattern.compile("^(?!-)[-_.a-zA-Z0-9]+$");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
+          "Name of the user can't be empty");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
       throws WrongAttributeValueException {
     String key = attribute.valueAsString();
@@ -35,16 +43,8 @@ public class urn_perun_resource_attribute_def_def_sshkeysTargetUser extends Reso
 
     if (!match.matches()) {
       throw new WrongAttributeValueException(attribute, resource,
-          "Bad format of attribute sshkeysTargetUser (only letters, numbers and '.' '_' '-' are allowed. Cannot begin with '-').");
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
-          "Name of the user can't be empty");
+          "Bad format of attribute sshkeysTargetUser (only letters, numbers and '.' '_' '-' are allowed. Cannot begin" +
+          " with '-').");
     }
   }
 

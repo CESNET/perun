@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class SecurityTeamBlacklistTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "black";
+  public static final String URL = "black";
   /**
    * Perun web session
    */

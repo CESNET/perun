@@ -23,6 +23,9 @@ public class NotifUtils {
 
   public static PerunSession session = null;
 
+  private NotifUtils() {
+  }
+
   public static Map<String, String> parseMap(String row) {
 
     if (row == null) {
@@ -44,8 +47,8 @@ public class NotifUtils {
 
   public static List<PerunBean> parseMessage(String message) {
 
-    List<PerunBean> result = new ArrayList<PerunBean>();
 
+    List<PerunBean> result = new ArrayList<PerunBean>();
     cz.metacentrum.perun.core.api.User user = new cz.metacentrum.perun.core.api.User();
     user.setId(92979);
     user.setTitleBefore("Bc.");
@@ -96,8 +99,7 @@ public class NotifUtils {
       if (perun != null) {
         session = perun.getPerunSession(
             new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-                ExtSourcesManager.EXTSOURCE_INTERNAL),
-            new PerunClient());
+                ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
       } else {
         throw new InternalErrorException("PerunBl is null");
       }

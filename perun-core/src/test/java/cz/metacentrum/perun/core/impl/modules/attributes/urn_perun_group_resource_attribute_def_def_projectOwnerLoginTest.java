@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -9,14 +13,9 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_group_resource_attribute_def_def_projectOwnerLoginTest {
 
@@ -51,12 +50,11 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLoginTest {
         Collections.singletonList(user));
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongValue() throws Exception {
-    System.out.println("testWrongValue()");
-    attributeToCheck.setValue("@value");
-
-    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue("correct_value");
+    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
   @Test
@@ -76,10 +74,11 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLoginTest {
     classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue("correct_value");
-    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongValue() throws Exception {
+    System.out.println("testWrongValue()");
+    attributeToCheck.setValue("@value");
+
+    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
   }
 }

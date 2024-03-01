@@ -6,7 +6,7 @@ import java.util.UUID;
 /**
  * Vo entity.
  */
-public class Vo extends Auditable implements Comparable<PerunBean>, HasUUID {
+public class Vo extends Auditable implements Comparable<PerunBean>, HasUuid {
   private String name;
   private String shortName;
   private UUID uuid;
@@ -69,12 +69,46 @@ public class Vo extends Auditable implements Comparable<PerunBean>, HasUUID {
   }
 
   @Override
-  public UUID getUuid() {
-    return uuid;
+  public int compareTo(PerunBean perunBean) {
+    if (perunBean == null) {
+      throw new NullPointerException("PerunBean to compare with is null.");
+    }
+    if (perunBean instanceof Vo) {
+      Vo vo = (Vo) perunBean;
+      if (this.getName() == null && vo.getName() != null) {
+        return -1;
+      }
+      if (vo.getName() == null && this.getName() != null) {
+        return 1;
+      }
+      if (this.getName() == null && vo.getName() == null) {
+        return 0;
+      }
+      return this.getName().compareToIgnoreCase(vo.getName());
+    } else {
+      return (this.getId() - perunBean.getId());
+    }
   }
 
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final Vo other = (Vo) obj;
+    if (this.getId() != other.getId()) {
+      return false;
+    }
+    if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+      return false;
+    }
+    if ((this.shortName == null) ? (other.shortName != null) : !this.shortName.equals(other.shortName)) {
+      return false;
+    }
+    return true;
   }
 
   public String getName() {
@@ -100,50 +134,12 @@ public class Vo extends Auditable implements Comparable<PerunBean>, HasUUID {
   }
 
   @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", uuid=<").append(getUuid()).append(">").append(
-            ", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
-            ", shortName=<").append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">")
-        .append(
-            ']').toString();
+  public UUID getUuid() {
+    return uuid;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-        "id='").append(this.getId()).append('\'').append(
-        ", uuid='").append(uuid).append('\'').append(
-        ", name='").append(name).append('\'').append(
-        ", shortName='").append(shortName).append('\'').append(
-        ']').toString();
-  }
-
-  @Override
-  public int compareTo(PerunBean perunBean) {
-    if (perunBean == null) {
-      throw new NullPointerException("PerunBean to compare with is null.");
-    }
-    if (perunBean instanceof Vo) {
-      Vo vo = (Vo) perunBean;
-      if (this.getName() == null && vo.getName() != null) {
-        return -1;
-      }
-      if (vo.getName() == null && this.getName() != null) {
-        return 1;
-      }
-      if (this.getName() == null && vo.getName() == null) {
-        return 0;
-      }
-      return this.getName().compareToIgnoreCase(vo.getName());
-    } else {
-      return (this.getId() - perunBean.getId());
-    }
+  public void setUuid(UUID uuid) {
+    this.uuid = uuid;
   }
 
   @Override
@@ -156,23 +152,22 @@ public class Vo extends Auditable implements Comparable<PerunBean>, HasUUID {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final Vo other = (Vo) obj;
-    if (this.getId() != other.getId()) {
-      return false;
-    }
-    if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
-      return false;
-    }
-    if ((this.shortName == null) ? (other.shortName != null) : !this.shortName.equals(other.shortName)) {
-      return false;
-    }
-    return true;
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", uuid=<").append(getUuid()).append(">").append(", name=<")
+        .append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(", shortName=<")
+        .append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">").append(']')
+        .toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id='").append(this.getId()).append('\'')
+        .append(", uuid='").append(uuid).append('\'').append(", name='").append(name).append('\'')
+        .append(", shortName='").append(shortName).append('\'').append(']').toString();
   }
 }

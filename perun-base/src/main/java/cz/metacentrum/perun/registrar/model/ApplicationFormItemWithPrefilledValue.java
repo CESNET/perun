@@ -17,6 +17,23 @@ public class ApplicationFormItemWithPrefilledValue {
     this.prefilledValue = prefilledValue;
   }
 
+  public String getAssuranceLevel() {
+    return assuranceLevel;
+  }
+
+  public void setAssuranceLevel(String assuranceLevel) {
+    this.assuranceLevel = assuranceLevel;
+  }
+
+  /**
+   * Return bean name as PerunBean does.
+   *
+   * @return Class simple name (beanName)
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
+
   public ApplicationFormItem getFormItem() {
     return formItem;
   }
@@ -33,14 +50,6 @@ public class ApplicationFormItemWithPrefilledValue {
     this.prefilledValue = prefilledValue;
   }
 
-  public String getAssuranceLevel() {
-    return assuranceLevel;
-  }
-
-  public void setAssuranceLevel(String assuranceLevel) {
-    this.assuranceLevel = assuranceLevel;
-  }
-
   public boolean isGenerated() {
     return generated;
   }
@@ -49,23 +58,11 @@ public class ApplicationFormItemWithPrefilledValue {
     this.generated = generated;
   }
 
-  /**
-   * Return bean name as PerunBean does.
-   *
-   * @return Class simple name (beanName)
-   */
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
-  }
-
   @Override
   public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "formItem='" + getFormItem().toString() + '\'' +
-        ", prefilledValue='" + getPrefilledValue() + '\'' +
-        ", assuranceLevel='" + getAssuranceLevel() + '\'' +
-        ", generated='" + isGenerated() + '\'' +
-        ']';
+    return this.getClass().getSimpleName() + ":[" + "formItem='" + getFormItem().toString() + '\'' +
+           ", prefilledValue='" + getPrefilledValue() + '\'' + ", assuranceLevel='" + getAssuranceLevel() + '\'' +
+           ", generated='" + isGenerated() + '\'' + ']';
   }
 
 }

@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.VosManager;
@@ -8,8 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_group_attribute_def_def_authoritativeGroupTest {
 
@@ -23,14 +23,6 @@ public class urn_perun_group_attribute_def_def_authoritativeGroupTest {
     classInstance = new urn_perun_group_attribute_def_def_authoritativeGroup();
     sess = mock(PerunSessionImpl.class);
     attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void testCheckSmallValue() throws Exception {
-    System.out.println("testCheckSmallValue()");
-    attributeToCheck.setValue(-1);
-
-    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
   }
 
   @Test(expected = WrongAttributeValueException.class)
@@ -48,6 +40,14 @@ public class urn_perun_group_attribute_def_def_authoritativeGroupTest {
     group.setName(VosManager.MEMBERS_GROUP);
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckSmallValue() throws Exception {
+    System.out.println("testCheckSmallValue()");
+    attributeToCheck.setValue(-1);
+
+    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
   }
 
   @Test

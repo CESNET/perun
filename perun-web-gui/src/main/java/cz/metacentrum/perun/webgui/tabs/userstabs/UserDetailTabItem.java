@@ -90,7 +90,7 @@ import java.util.Map;
  */
 public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "detail";
+  public static final String URL = "detail";
   // downloadable file tag counter, otherwise browser returns same document.
   private static int counter = 0;
   /**

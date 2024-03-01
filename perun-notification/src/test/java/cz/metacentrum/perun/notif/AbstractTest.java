@@ -59,11 +59,14 @@ public class AbstractTest {
     }
   }
 
-  @Before
-  public void startSmtpServer() {
-    if (smtpServer == null) {
-      smtpServer = SimpleSmtpServer.start(8086);
-    }
+  @Test
+  public void dummyTest() {
+    System.out.println("Dummy test to prevent: NoRunnableMethodsException");
+  }
+
+  public Connection getConnection() throws SQLException {
+    // classic Autowire dataSource does not work
+    return ((SimpleDriverDataSource) appContext.getBean("dataSource")).getConnection();
   }
 
   @Before
@@ -73,21 +76,18 @@ public class AbstractTest {
     sess = perun.getPerunSession(pp, new PerunClient());
   }
 
+  @Before
+  public void startSmtpServer() {
+    if (smtpServer == null) {
+      smtpServer = SimpleSmtpServer.start(8086);
+    }
+  }
+
   @After
   public void stopSmtpServer() {
     if (smtpServer != null) {
       smtpServer.stop();
       smtpServer = null;
     }
-  }
-
-  @Test
-  public void dummyTest() {
-    System.out.println("Dummy test to prevent: NoRunnableMethodsException");
-  }
-
-  public Connection getConnection() throws SQLException {
-    // classic Autowire dataSource does not work
-    return ((SimpleDriverDataSource) appContext.getBean("dataSource")).getConnection();
   }
 }

@@ -1,13 +1,9 @@
 package cz.metacentrum.perun.cabinet.dao.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import static cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl.AUTHOR_ROW_MAPPER;
+import static cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl.AUTHOR_SELECT_QUERY;
+import static cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl.THANKS_FOR_GUI_ROW_MAPPER;
+import static cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl.THANKS_FOR_GUI_SELECT_QUERY;
 
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
@@ -22,19 +18,21 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.Utils;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.sql.DataSource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
-import javax.sql.DataSource;
-
-import static cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl.AUTHOR_ROW_MAPPER;
-import static cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl.AUTHOR_SELECT_QUERY;
-import static cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl.THANKS_FOR_GUI_ROW_MAPPER;
-import static cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl.THANKS_FOR_GUI_SELECT_QUERY;
 
 /**
  * Class of DAO layer for handling Publication entity.
@@ -44,18 +42,28 @@ import static cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl.THANKS_
  */
 public class PublicationManagerDaoImpl implements PublicationManagerDao {
 
-  private final static String PUBLICATION_SELECT_QUERY = "cabinet_publications.id as publication_id, " +
-      "cabinet_publications.externalId as publication_externalId, cabinet_publications.publicationSystemId as publication_pubSystemId," +
-      "cabinet_publications.title as publication_title, cabinet_publications.year as publication_year, cabinet_publications.main as publication_main, " +
-      "cabinet_publications.isbn as publication_isbn, cabinet_publications.categoryId as publication_categoryId, " +
-      "cabinet_publications.createdBy as publication_createdBy, cabinet_publications.created_by_uid as publication_created_by_uid, " +
-      "cabinet_publications.modified_by_uid as publication_modified_by_uid, cabinet_publications.rank as publication_rank, " +
-      "cabinet_publications.doi as publication_doi, cabinet_publications.locked as publication_locked, " +
-      "cabinet_publications.createdDate as publication_createdDate";
-  private final static String RICH_PUBLICATION_SELECT_QUERY =
+  private static final String PUBLICATION_SELECT_QUERY = "cabinet_publications.id as publication_id, " +
+                                                         "cabinet_publications.externalId as publication_externalId, " +
+                                                         "cabinet_publications.publicationSystemId as " +
+                                                         "publication_pubSystemId," +
+                                                         "cabinet_publications.title as publication_title, " +
+                                                         "cabinet_publications.year as publication_year, " +
+                                                         "cabinet_publications.main as publication_main, " +
+                                                         "cabinet_publications.isbn as publication_isbn, " +
+                                                         "cabinet_publications.categoryId as publication_categoryId, " +
+                                                         "cabinet_publications.createdBy as publication_createdBy, " +
+                                                         "cabinet_publications.created_by_uid as " +
+                                                         "publication_created_by_uid, " +
+                                                         "cabinet_publications.modified_by_uid as " +
+                                                         "publication_modified_by_uid, cabinet_publications.rank as " +
+                                                         "publication_rank, " +
+                                                         "cabinet_publications.doi as publication_doi, " +
+                                                         "cabinet_publications.locked as publication_locked, " +
+                                                         "cabinet_publications.createdDate as publication_createdDate";
+  private static final String RICH_PUBLICATION_SELECT_QUERY =
       PUBLICATION_SELECT_QUERY + ", cabinet_publication_systems.friendlyName as ps_friendlyName, " +
-          "cabinet_categories.name as category_name, " + AUTHOR_SELECT_QUERY + ", " + THANKS_FOR_GUI_SELECT_QUERY;
-  private final static RowMapper<Publication> PUBLICATION_ROW_MAPPER = new RowMapper<Publication>() {
+      "cabinet_categories.name as category_name, " + AUTHOR_SELECT_QUERY + ", " + THANKS_FOR_GUI_SELECT_QUERY;
+  private static final RowMapper<Publication> PUBLICATION_ROW_MAPPER = new RowMapper<Publication>() {
     @Override
     public Publication mapRow(ResultSet resultSet, int i) throws SQLException {
 
@@ -84,7 +92,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 
     }
   };
-  private final static ResultSetExtractor<List<PublicationForGUI>> PUBLICATION_ROW_EXTRACTOR =
+  private static final ResultSetExtractor<List<PublicationForGUI>> PUBLICATION_ROW_EXTRACTOR =
       new ResultSetExtractor<List<PublicationForGUI>>() {
         @Override
         public List<PublicationForGUI> extractData(ResultSet resultSet) throws SQLException {
@@ -140,37 +148,16 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
       // Set the new Category id
       int newId = Utils.getNewId(jdbc, "cabinet_publications_id_seq");
       jdbc.update("insert into cabinet_publications (id, externalId, publicationSystemId, title, year, main," +
-              " isbn, categoryId, createdBy, createdDate, rank, doi, locked, created_by_uid, modified_by_uid)" +
-              " values (?,?,?,?,?,?,?,?,?," + Compatibility.getSysdate() + ",?,?,?,?,?)",
-          newId, (publication.getExternalId() == 0) ? newId : publication.getExternalId(),
-          publication.getPublicationSystemId(),
-          publication.getTitle(), publication.getYear(), publication.getMain(), publication.getIsbn(),
-          publication.getCategoryId(),
-          sess.getPerunPrincipal().getActor(), publication.getRank(), publication.getDoi(), publication.getLocked(),
-          sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+                  " isbn, categoryId, createdBy, createdDate, rank, doi, locked, created_by_uid, modified_by_uid)" +
+                  " values (?,?,?,?,?,?,?,?,?," + Compatibility.getSysdate() + ",?,?,?,?,?)", newId,
+          (publication.getExternalId() == 0) ? newId : publication.getExternalId(),
+          publication.getPublicationSystemId(), publication.getTitle(), publication.getYear(), publication.getMain(),
+          publication.getIsbn(), publication.getCategoryId(), sess.getPerunPrincipal().getActor(),
+          publication.getRank(), publication.getDoi(), publication.getLocked(), sess.getPerunPrincipal().getUserId(),
+          sess.getPerunPrincipal().getUserId());
       publication.setId(newId);
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
-    }
-    return publication;
-  }
-
-  @Override
-  public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException {
-    try {
-      int rows =
-          jdbc.update("update cabinet_publications set title=?, year=?, main=?, isbn=?, categoryId=?, rank=?, doi=?" +
-                  " where id=?", publication.getTitle(), publication.getYear(), publication.getMain(),
-              publication.getIsbn(),
-              publication.getCategoryId(), publication.getRank(), publication.getDoi(), publication.getId());
-      if (rows == 0) {
-        throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS);
-      }
-      if (rows > 1) {
-        throw new ConsistencyErrorException("There are multiple Publications with same id: " + publication.getId());
-      }
-    } catch (RuntimeException err) {
-      throw new InternalErrorException(err);
     }
     return publication;
   }
@@ -188,10 +175,11 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
   }
 
   @Override
-  public Publication getPublicationById(int id) throws CabinetException {
+  public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException {
     try {
       return jdbc.queryForObject("select " + PUBLICATION_SELECT_QUERY +
-          " from cabinet_publications where id=?", PUBLICATION_ROW_MAPPER, id);
+                                 " from cabinet_publications where externalId=? and publicationSystemId=?",
+          PUBLICATION_ROW_MAPPER, externalId, publicationSystem);
     } catch (EmptyResultDataAccessException ex) {
       throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS, ex);
     } catch (RuntimeException err) {
@@ -200,11 +188,10 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
   }
 
   @Override
-  public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException {
+  public Publication getPublicationById(int id) throws CabinetException {
     try {
-      return jdbc.queryForObject("select " + PUBLICATION_SELECT_QUERY +
-              " from cabinet_publications where externalId=? and publicationSystemId=?",
-          PUBLICATION_ROW_MAPPER, externalId, publicationSystem);
+      return jdbc.queryForObject("select " + PUBLICATION_SELECT_QUERY + " from cabinet_publications where id=?",
+          PUBLICATION_ROW_MAPPER, id);
     } catch (EmptyResultDataAccessException ex) {
       throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS, ex);
     } catch (RuntimeException err) {
@@ -216,7 +203,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
   public List<Publication> getPublicationsByCategoryId(int categoryId) {
     try {
       return jdbc.query("select " + PUBLICATION_SELECT_QUERY +
-              " from cabinet_publications where categoryId=? order by cabinet_publications.year DESC",
+                        " from cabinet_publications where categoryId=? order by cabinet_publications.year DESC",
           PUBLICATION_ROW_MAPPER, categoryId);
     } catch (EmptyResultDataAccessException ex) {
       return new ArrayList<>();
@@ -226,11 +213,96 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
   }
 
   @Override
+  public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) {
+
+    String select = "select " + PUBLICATION_SELECT_QUERY + " from cabinet_publications " +
+                    " left outer join cabinet_authorships on cabinet_publications.id = cabinet_authorships" +
+                    ".publicationId" +
+                    " left outer join users on cabinet_authorships.userId = users.id" + " where ";
+
+    List<Object> params = new ArrayList<Object>() {
+    };
+    boolean first = true;
+
+    // only year since
+    if (yearSince > 0 && yearTill < 1) {
+      if (!first) {
+        select = select + " and ";
+      }
+      select = select + "cabinet_publications.year >= ?";
+      params.add(yearSince);
+      first = false;
+    }
+    // only year till
+    if (yearTill > 0 && yearSince < 1) {
+      if (!first) {
+        select = select + " and ";
+      }
+      select = select + "cabinet_publications.year <= ?";
+      params.add(yearTill);
+      first = false;
+    }
+    // both dates
+    if (yearSince > 0 && yearTill > 0) {
+      if (!first) {
+        select = select + " and ";
+      }
+      select = select + "(cabinet_publications.year between ? and ?)";
+      params.add(yearSince);
+      params.add(yearTill);
+      first = false;
+    }
+
+    if (userId > 0) {
+      if (!first) {
+        select = select + " and ";
+      }
+      select = select + "users.id = ?";
+      params.add(userId);
+      first = false;
+    }
+
+    if (first) {
+      select = select + " 1=1 ";
+    }
+
+    try {
+      return jdbc.query(select + " order by cabinet_publications.year DESC", PUBLICATION_ROW_MAPPER, params.toArray());
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+
+  }
+
+  @Override
+  public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem)
+      throws CabinetException {
+    try {
+      return (PublicationForGUI) jdbc.queryForObject(
+          "select " + RICH_PUBLICATION_SELECT_QUERY + " from cabinet_publications " +
+          " left outer join cabinet_publication_systems on cabinet_publications.publicationSystemId = " +
+          "cabinet_publication_systems.id" +
+          " left outer join cabinet_categories on cabinet_publications.categoryId = cabinet_categories.id" +
+          " left outer join cabinet_thanks on cabinet_publications.id = cabinet_thanks.publicationId" +
+          " left outer join owners on cabinet_thanks.ownerId = owners.id" +
+          " left outer join cabinet_authorships on cabinet_publications.id = cabinet_authorships.publicationId" +
+          " left outer join users on cabinet_authorships.userId = users.id" +
+          " where cabinet_publications.externalId=? and cabinet_publications.publicationSystemId=?" +
+          " order by cabinet_publications.year DESC", PUBLICATION_ROW_EXTRACTOR, externalId, publicationSystem);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS, ex);
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
+
+  @Override
   public PublicationForGUI getRichPublicationById(int id) throws CabinetException {
     try {
-      return (PublicationForGUI) jdbc.queryForObject("select " + RICH_PUBLICATION_SELECT_QUERY +
-          " from cabinet_publications " +
-          " left outer join cabinet_publication_systems on cabinet_publications.publicationSystemId = cabinet_publication_systems.id" +
+      return (PublicationForGUI) jdbc.queryForObject(
+          "select " + RICH_PUBLICATION_SELECT_QUERY + " from cabinet_publications " +
+          " left outer join cabinet_publication_systems on cabinet_publications.publicationSystemId = " +
+          "cabinet_publication_systems.id" +
           " left outer join cabinet_categories on cabinet_publications.categoryId = cabinet_categories.id" +
           " left outer join cabinet_thanks on cabinet_publications.id = cabinet_thanks.publicationId" +
           " left outer join owners on cabinet_thanks.ownerId = owners.id" +
@@ -245,38 +317,17 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
   }
 
   @Override
-  public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem)
-      throws CabinetException {
-    try {
-      return (PublicationForGUI) jdbc.queryForObject("select " + RICH_PUBLICATION_SELECT_QUERY +
-              " from cabinet_publications " +
-              " left outer join cabinet_publication_systems on cabinet_publications.publicationSystemId = cabinet_publication_systems.id" +
-              " left outer join cabinet_categories on cabinet_publications.categoryId = cabinet_categories.id" +
-              " left outer join cabinet_thanks on cabinet_publications.id = cabinet_thanks.publicationId" +
-              " left outer join owners on cabinet_thanks.ownerId = owners.id" +
-              " left outer join cabinet_authorships on cabinet_publications.id = cabinet_authorships.publicationId" +
-              " left outer join users on cabinet_authorships.userId = users.id" +
-              " where cabinet_publications.externalId=? and cabinet_publications.publicationSystemId=?" +
-              " order by cabinet_publications.year DESC",
-          PUBLICATION_ROW_EXTRACTOR, externalId, publicationSystem);
-    } catch (EmptyResultDataAccessException ex) {
-      throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS, ex);
-    } catch (RuntimeException err) {
-      throw new InternalErrorException(err);
-    }
-  }
-
-  @Override
   public List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) {
 
     String select = "select " + RICH_PUBLICATION_SELECT_QUERY + " from cabinet_publications " +
-        " left outer join cabinet_publication_systems on cabinet_publications.publicationSystemId = cabinet_publication_systems.id" +
-        " left outer join cabinet_categories on cabinet_publications.categoryId = cabinet_categories.id" +
-        " left outer join cabinet_thanks on cabinet_publications.id = cabinet_thanks.publicationId" +
-        " left outer join owners on cabinet_thanks.ownerId = owners.id" +
-        " left outer join cabinet_authorships on cabinet_publications.id = cabinet_authorships.publicationId" +
-        " left outer join users on cabinet_authorships.userId = users.id" +
-        " where ";
+                    " left outer join cabinet_publication_systems on cabinet_publications.publicationSystemId = " +
+                    "cabinet_publication_systems.id" +
+                    " left outer join cabinet_categories on cabinet_publications.categoryId = cabinet_categories.id" +
+                    " left outer join cabinet_thanks on cabinet_publications.id = cabinet_thanks.publicationId" +
+                    " left outer join owners on cabinet_thanks.ownerId = owners.id" +
+                    " left outer join cabinet_authorships on cabinet_publications.id = cabinet_authorships" +
+                    ".publicationId" +
+                    " left outer join users on cabinet_authorships.userId = users.id" + " where ";
 
     List<Object> params = new ArrayList<Object>() {
     };
@@ -389,68 +440,6 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
   }
 
   @Override
-  public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) {
-
-    String select = "select " + PUBLICATION_SELECT_QUERY + " from cabinet_publications " +
-        " left outer join cabinet_authorships on cabinet_publications.id = cabinet_authorships.publicationId" +
-        " left outer join users on cabinet_authorships.userId = users.id" +
-        " where ";
-
-    List<Object> params = new ArrayList<Object>() {
-    };
-    boolean first = true;
-
-    // only year since
-    if (yearSince > 0 && yearTill < 1) {
-      if (!first) {
-        select = select + " and ";
-      }
-      select = select + "cabinet_publications.year >= ?";
-      params.add(yearSince);
-      first = false;
-    }
-    // only year till
-    if (yearTill > 0 && yearSince < 1) {
-      if (!first) {
-        select = select + " and ";
-      }
-      select = select + "cabinet_publications.year <= ?";
-      params.add(yearTill);
-      first = false;
-    }
-    // both dates
-    if (yearSince > 0 && yearTill > 0) {
-      if (!first) {
-        select = select + " and ";
-      }
-      select = select + "(cabinet_publications.year between ? and ?)";
-      params.add(yearSince);
-      params.add(yearTill);
-      first = false;
-    }
-
-    if (userId > 0) {
-      if (!first) {
-        select = select + " and ";
-      }
-      select = select + "users.id = ?";
-      params.add(userId);
-      first = false;
-    }
-
-    if (first) {
-      select = select + " 1=1 ";
-    }
-
-    try {
-      return jdbc.query(select + " order by cabinet_publications.year DESC", PUBLICATION_ROW_MAPPER, params.toArray());
-    } catch (RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-
-  }
-
-  @Override
   public void lockPublications(boolean lockState, List<Publication> pubs) {
 
     MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -467,6 +456,25 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
       throw new InternalErrorException(ex);
     }
 
+  }
+
+  @Override
+  public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException {
+    try {
+      int rows = jdbc.update(
+          "update cabinet_publications set title=?, year=?, main=?, isbn=?, categoryId=?, rank=?, doi=?" +
+          " where id=?", publication.getTitle(), publication.getYear(), publication.getMain(), publication.getIsbn(),
+          publication.getCategoryId(), publication.getRank(), publication.getDoi(), publication.getId());
+      if (rows == 0) {
+        throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS);
+      }
+      if (rows > 1) {
+        throw new ConsistencyErrorException("There are multiple Publications with same id: " + publication.getId());
+      }
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+    return publication;
   }
 
 }

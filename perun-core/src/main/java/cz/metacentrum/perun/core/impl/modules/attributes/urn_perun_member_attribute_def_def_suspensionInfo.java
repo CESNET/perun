@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
  */
 public class urn_perun_member_attribute_def_def_suspensionInfo extends MemberAttributesModuleAbstract {
 
-  private final static String A_M_D_suspensionInfo = AttributesManager.NS_MEMBER_ATTR_DEF + ":suspensionInfo";
-  private final static Logger log = LoggerFactory.getLogger(urn_perun_member_attribute_def_def_suspensionInfo.class);
+  private static final String A_M_D_suspensionInfo = AttributesManager.NS_MEMBER_ATTR_DEF + ":suspensionInfo";
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_member_attribute_def_def_suspensionInfo.class);
 
   @Override
   public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute)
@@ -59,6 +59,35 @@ public class urn_perun_member_attribute_def_def_suspensionInfo extends MemberAtt
     }
   }
 
+  private void clearSuspensionInfo(PerunSessionImpl session, Member member)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+    if (member != null) {
+      try {
+        Attribute attribute =
+            session.getPerunBl().getAttributesManagerBl().getAttribute(session, member, A_M_D_suspensionInfo);
+        attribute.setValue(new LinkedHashMap<String, String>());
+        session.getPerunBl().getAttributesManagerBl().setAttribute(session, member, attribute);
+      } catch (AttributeNotExistsException e) {
+        //suspensionInfo is an optional attribute and it doesn't have to be set.
+      } catch (WrongAttributeValueException | InternalErrorException e) {
+        LOG.error(
+            "Can't resolve auditer's message for " + this.getClass().getSimpleName() + " module because of exception.",
+            e);
+      }
+    }
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+    attr.setFriendlyName("suspensionInfo");
+    attr.setDisplayName("Suspension Info");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription("Suspension info of a member.");
+    return attr;
+  }
+
   @Override
   public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl session, AuditEvent message)
       throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
@@ -76,34 +105,5 @@ public class urn_perun_member_attribute_def_def_suspensionInfo extends MemberAtt
     clearSuspensionInfo(session, member);
 
     return new ArrayList<>();
-  }
-
-  private void clearSuspensionInfo(PerunSessionImpl session, Member member)
-      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-    if (member != null) {
-      try {
-        Attribute attribute =
-            session.getPerunBl().getAttributesManagerBl().getAttribute(session, member, A_M_D_suspensionInfo);
-        attribute.setValue(new LinkedHashMap<String, String>());
-        session.getPerunBl().getAttributesManagerBl().setAttribute(session, member, attribute);
-      } catch (AttributeNotExistsException e) {
-        //suspensionInfo is an optional attribute and it doesn't have to be set.
-      } catch (WrongAttributeValueException | InternalErrorException e) {
-        log.error(
-            "Can't resolve auditer's message for " + this.getClass().getSimpleName() + " module because of exception.",
-            e);
-      }
-    }
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
-    attr.setFriendlyName("suspensionInfo");
-    attr.setDisplayName("Suspension Info");
-    attr.setType(LinkedHashMap.class.getName());
-    attr.setDescription("Suspension info of a member.");
-    return attr;
   }
 }

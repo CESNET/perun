@@ -31,6 +31,27 @@ public class EventServiceResolverTest extends AbstractDispatcherTest {
   @Autowired
   private EventServiceResolver eventServiceResolver;
 
+  @Test
+  public void parseEventTest() throws ServiceNotExistsException, InvalidEventMessageException, PrivilegeException {
+    System.out.println("EventServiceResolver.parseEventTest()");
+
+    AuditEvent auditEvent = new DirectMemberAddedToGroup(member1, group1);
+
+    Event event = new Event();
+    event.setTimeStamp(System.currentTimeMillis());
+    event.setHeader("portishead");
+    event.setData(auditEvent);
+    Map<Facility, Set<Service>> resolvedServices = eventServiceResolver.resolveEvent(event.getData());
+
+    Assert.assertTrue("We should resolved only one facility-service", resolvedServices.size() == 1);
+
+    Set<Service> resolved = resolvedServices.get(facility1);
+    Assert.assertTrue("We should have 2 service", resolved.size() == 2);
+    Assert.assertTrue("Our Service 1 is missing", resolved.contains(service1));
+    Assert.assertTrue("Our Service 2 is missing", resolved.contains(service2));
+
+  }
+
   @Before
   public void setupTests() throws Exception {
 
@@ -52,27 +73,6 @@ public class EventServiceResolverTest extends AbstractDispatcherTest {
 
     // assign the group to resource
     perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1, false, false, false);
-
-  }
-
-  @Test
-  public void parseEventTest() throws ServiceNotExistsException, InvalidEventMessageException, PrivilegeException {
-    System.out.println("EventServiceResolver.parseEventTest()");
-
-    AuditEvent auditEvent = new DirectMemberAddedToGroup(member1, group1);
-
-    Event event = new Event();
-    event.setTimeStamp(System.currentTimeMillis());
-    event.setHeader("portishead");
-    event.setData(auditEvent);
-    Map<Facility, Set<Service>> resolvedServices = eventServiceResolver.resolveEvent(event.getData());
-
-    Assert.assertTrue("We should resolved only one facility-service", resolvedServices.size() == 1);
-
-    Set<Service> resolved = resolvedServices.get(facility1);
-    Assert.assertTrue("We should have 2 service", resolved.size() == 2);
-    Assert.assertTrue("Our Service 1 is missing", resolved.contains(service1));
-    Assert.assertTrue("Our Service 2 is missing", resolved.contains(service2));
 
   }
 

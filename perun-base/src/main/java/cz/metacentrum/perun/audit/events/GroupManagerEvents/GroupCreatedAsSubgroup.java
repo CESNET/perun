@@ -22,13 +22,13 @@ public class GroupCreatedAsSubgroup extends AuditEvent {
     this.message = formatMessage("%s created in %s as subgroup of %s", group, vo, parentGroup);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   public Group getParentGroup() {

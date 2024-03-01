@@ -2,21 +2,20 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoginNamespacesRulesConfigContainer {
 
-  private static final Logger log = LoggerFactory.getLogger(LoginNamespacesRulesConfigContainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LoginNamespacesRulesConfigContainer.class);
 
   private Map<String, NamespaceRules> namespacesRules = new HashMap<>();
 
-  public void setNamespacesRules(Map<String, NamespaceRules> namespacesRules) {
-    this.namespacesRules = namespacesRules;
+  public List<NamespaceRules> getAllNamespacesRules() {
+    return List.copyOf(namespacesRules.values());
   }
 
   /**
@@ -35,7 +34,7 @@ public class LoginNamespacesRulesConfigContainer {
     return namespacesRules.get(namespace);
   }
 
-  public List<NamespaceRules> getAllNamespacesRules() {
-    return List.copyOf(namespacesRules.values());
+  public void setNamespacesRules(Map<String, NamespaceRules> namespacesRules) {
+    this.namespacesRules = namespacesRules;
   }
 }

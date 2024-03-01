@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,17 @@ public class urn_perun_user_attribute_def_virt_userOrganizations extends UserVir
     implements UserVirtualAttributesModuleImplApi {
 
   private static final String A_M_organization = AttributesManager.NS_MEMBER_ATTR_DEF + ":organization";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("userOrganizations");
+    attr.setDisplayName("User's Organizations");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription("Map of vos where user is member to member attribute of organization.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl perunSession, User user,
@@ -56,16 +66,5 @@ public class urn_perun_user_attribute_def_virt_userOrganizations extends UserVir
     Attribute attribute = new Attribute(attributeDefinition);
     attribute.setValue(userOrganizations);
     return attribute;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("userOrganizations");
-    attr.setDisplayName("User's Organizations");
-    attr.setType(LinkedHashMap.class.getName());
-    attr.setDescription("Map of vos where user is member to member attribute of organization.");
-    return attr;
   }
 }

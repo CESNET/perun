@@ -13,13 +13,6 @@ import java.util.Map;
 public interface PerunNotifPoolMessageManager {
 
   /**
-   * Saves all poolMessages to db
-   *
-   * @param poolMessages
-   */
-  public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages);
-
-  /**
    * Creates new perunNotifPoolMessages for templates and perunMessage
    *
    * @param templates
@@ -31,9 +24,15 @@ public interface PerunNotifPoolMessageManager {
       Map<Integer, List<PerunNotifTemplate>> templates, PerunNotifAuditMessage perunAuditMessage);
 
   /**
-   * Process poolMessages from db. Orders them by templateId and
-   * keyAttributes and checks conditionals set in templates whether sent
-   * notification or not. Procesed messages are removed from db.
+   * Process poolMessages from db. Orders them by templateId and keyAttributes and checks conditionals set in templates
+   * whether sent notification or not. Procesed messages are removed from db.
    */
   public void processPerunNotifPoolMessagesFromDb();
+
+  /**
+   * Saves all poolMessages to db
+   *
+   * @param poolMessages
+   */
+  public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages);
 }

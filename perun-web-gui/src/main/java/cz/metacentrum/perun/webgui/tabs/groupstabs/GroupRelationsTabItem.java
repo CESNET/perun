@@ -48,7 +48,7 @@ import java.util.Map;
  */
 public class GroupRelationsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "relations";
+  public static final String URL = "relations";
   /**
    * Perun web session
    */

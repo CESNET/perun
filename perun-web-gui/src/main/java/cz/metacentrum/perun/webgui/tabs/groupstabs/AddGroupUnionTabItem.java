@@ -44,7 +44,7 @@ import java.util.List;
  */
 public class AddGroupUnionTabItem implements TabItem {
 
-  public final static String URL = "add-grp-union";
+  public static final String URL = "add-grp-union";
   //data
   public int groupId;
   /**

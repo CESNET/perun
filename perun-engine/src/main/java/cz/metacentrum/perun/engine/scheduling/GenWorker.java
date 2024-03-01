@@ -13,17 +13,17 @@ public interface GenWorker extends EngineWorker<Task> {
   Task call() throws Exception;
 
   /**
-   * Return ID of Task associated with this GenWorker
-   *
-   * @return ID of Task
-   */
-  Integer getTaskId();
-
-  /**
    * Return Task associated with this GenWorker
    *
    * @return Task
    */
   Task getTask();
+
+  /**
+   * Return ID of Task associated with this GenWorker
+   *
+   * @return ID of Task
+   */
+  Integer getTaskId();
 
 }

@@ -80,125 +80,8 @@ public class PerunPrincipal {
   }
 
   public PerunPrincipal(Application app, Map<String, String> additionalAttributes) {
-    this(
-        app.getCreatedBy(),
-        app.getExtSourceName(),
-        app.getExtSourceType(),
-        app.getExtSourceLoa(),
-        additionalAttributes
-    );
-  }
-
-  /**
-   * Returns actor string representation.
-   *
-   * @return string representing actor
-   */
-  public String getActor() {
-    return actor;
-  }
-
-  @Override
-  public String toString() {
-    return new StringBuilder(getClass().getSimpleName()).append(":[")
-        .append("actor='").append(actor).append("', ")
-        .append("user='").append((user != null ? user : "null")).append("', ")
-        .append("extSourceName='").append(extSourceName).append("', ")
-        .append("authzRoles='").append(authzRoles).append("', ")
-        .append("rolesUpdatedAt='").append(rolesUpdatedAt).append("' ")
-        .append("authzInitialized='").append(authzInitialized).append("']").toString();
-  }
-
-  public String getExtSourceName() {
-    return extSourceName;
-  }
-
-  public void setExtSourceName(String extSourceName) {
-    this.extSourceName = extSourceName;
-  }
-
-  public boolean isAuthzInitialized() {
-    return authzInitialized;
-  }
-
-  public void setAuthzInitialized(boolean authzInitialized) {
-    this.authzInitialized = authzInitialized;
-  }
-
-  public User getUser() {
-    return this.user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
-
-  public int getUserId() {
-    if (this.user == null) {
-      return -1;
-    }
-    return this.user.getId();
-  }
-
-  public AuthzRoles getRoles() {
-    //return (AuthzRoles) Collections.unmodifiableMap(authzRoles);
-    return this.authzRoles;
-  }
-
-  public void setRoles(AuthzRoles authzRoles) {
-    this.authzRoles = authzRoles;
-  }
-
-  public Map<String, String> getAdditionalInformations() {
-    return additionalInformations;
-  }
-
-  public void setAdditionalInformations(Map<String, String> additionalInformations) {
-    this.additionalInformations = additionalInformations;
-  }
-
-  public String getExtSourceType() {
-    return extSourceType;
-  }
-
-  public void setExtSourceType(String extSourceType) {
-    this.extSourceType = extSourceType;
-  }
-
-  public int getExtSourceLoa() {
-    return extSourceLoa;
-  }
-
-  public void setExtSourceLoa(int extSourceLoa) {
-    this.extSourceLoa = extSourceLoa;
-  }
-
-  public long getRolesUpdatedAt() {
-    return rolesUpdatedAt;
-  }
-
-  public void setRolesUpdatedAt(long rolesUpdatedAt) {
-    this.rolesUpdatedAt = rolesUpdatedAt;
-  }
-
-  public String getReferer() {
-    return referer;
-  }
-
-  public void setReferer(String referer) {
-    this.referer = referer;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((actor == null) ? 0 : actor.hashCode());
-    result = prime * result
-        + ((extSourceName == null) ? 0 : extSourceName.hashCode());
-    result = prime * result + ((user == null) ? 0 : user.hashCode());
-    result = prime * result + extSourceLoa;
-    return result;
+    this(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(),
+        additionalAttributes);
   }
 
   @Override
@@ -235,5 +118,114 @@ public class PerunPrincipal {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Returns actor string representation.
+   *
+   * @return string representing actor
+   */
+  public String getActor() {
+    return actor;
+  }
+
+  public Map<String, String> getAdditionalInformations() {
+    return additionalInformations;
+  }
+
+  public void setAdditionalInformations(Map<String, String> additionalInformations) {
+    this.additionalInformations = additionalInformations;
+  }
+
+  public int getExtSourceLoa() {
+    return extSourceLoa;
+  }
+
+  public void setExtSourceLoa(int extSourceLoa) {
+    this.extSourceLoa = extSourceLoa;
+  }
+
+  public String getExtSourceName() {
+    return extSourceName;
+  }
+
+  public void setExtSourceName(String extSourceName) {
+    this.extSourceName = extSourceName;
+  }
+
+  public String getExtSourceType() {
+    return extSourceType;
+  }
+
+  public void setExtSourceType(String extSourceType) {
+    this.extSourceType = extSourceType;
+  }
+
+  public String getReferer() {
+    return referer;
+  }
+
+  public void setReferer(String referer) {
+    this.referer = referer;
+  }
+
+  public AuthzRoles getRoles() {
+    //return (AuthzRoles) Collections.unmodifiableMap(authzRoles);
+    return this.authzRoles;
+  }
+
+  public void setRoles(AuthzRoles authzRoles) {
+    this.authzRoles = authzRoles;
+  }
+
+  public long getRolesUpdatedAt() {
+    return rolesUpdatedAt;
+  }
+
+  public void setRolesUpdatedAt(long rolesUpdatedAt) {
+    this.rolesUpdatedAt = rolesUpdatedAt;
+  }
+
+  public User getUser() {
+    return this.user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public int getUserId() {
+    if (this.user == null) {
+      return -1;
+    }
+    return this.user.getId();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((actor == null) ? 0 : actor.hashCode());
+    result = prime * result + ((extSourceName == null) ? 0 : extSourceName.hashCode());
+    result = prime * result + ((user == null) ? 0 : user.hashCode());
+    result = prime * result + extSourceLoa;
+    return result;
+  }
+
+  public boolean isAuthzInitialized() {
+    return authzInitialized;
+  }
+
+  public void setAuthzInitialized(boolean authzInitialized) {
+    this.authzInitialized = authzInitialized;
+  }
+
+  @Override
+  public String toString() {
+    return new StringBuilder(getClass().getSimpleName()).append(":[").append("actor='").append(actor).append("', ")
+        .append("user='").append((user != null ? user : "null")).append("', ").append("extSourceName='")
+        .append(extSourceName).append("', ").append("authzRoles='").append(authzRoles).append("', ")
+        .append("rolesUpdatedAt='").append(rolesUpdatedAt).append("' ").append("authzInitialized='")
+        .append(authzInitialized).append("']").toString();
   }
 }

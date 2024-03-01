@@ -42,108 +42,12 @@ import org.slf4j.LoggerFactory;
  */
 public class Vsup extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(Vsup.class);
-
-  @Override
-  public void canBeApproved(PerunSession session, Application app) throws PerunException {
-
-    List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
-
-    if (app.getUser() == null) {
-
-      for (ApplicationFormItemData item : data) {
-        if (item.getFormItem() != null &&
-            Objects.equals(AttributesManager.NS_USER_ATTR_DEF + ":birthNumber",
-                item.getFormItem().getPerunDestinationAttribute())) {
-
-          // if application contains birth number, try to map to existing user
-          String rc = item.getValue();
-          if (rc != null && !rc.isEmpty()) {
-
-            try {
-              User user = ((PerunBl) session.getPerun()).getUsersManagerBl()
-                  .getUserByExtSourceNameAndExtLogin(session, "RC", rc);
-              throw new CantBeApprovedException(
-                  "Application has the same birth number " + rc + " as user " + user.getDisplayName() + " with id " +
-                      user.getId() +
-                      " that is already in Perun and thus would be merged with him.", null, null, null, true,
-                  app.getId());
-            } catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException ex) {
-              log.warn("Couldn't find or set user to application {} by RC: {}", app, ex);
-            }
-          }
-          break;
-        }
-      }
-    }
-  }
-
-  @Override
-  public Application beforeApprove(PerunSession session, Application app)
-      throws RegistrarException, PrivilegeException {
-
-    List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
-
-    if (app.getUser() == null) {
-
-      for (ApplicationFormItemData item : data) {
-        if (item.getFormItem() != null &&
-            Objects.equals(AttributesManager.NS_USER_ATTR_DEF + ":birthNumber",
-                item.getFormItem().getPerunDestinationAttribute())) {
-
-          // if application contains birth number, try to map to existing user
-          String rc = item.getValue();
-          if (rc != null && !rc.isEmpty()) {
-
-            try {
-              User user = ((PerunBl) session.getPerun()).getUsersManagerBl()
-                  .getUserByExtSourceNameAndExtLogin(session, "RC", rc);
-              app.setUser(user);
-              registrar.updateApplicationUser(session, app);
-              log.debug("Existing user found by RC for {}", app);
-            } catch (Exception ex) {
-              log.warn("Couldn't find or set user to application {} by RC: {}", app, ex);
-            }
-
-            // associate existing user with the identity used on registration form
-            if (app.getUser() != null) {
-              PerunBl perunBl = (PerunBl) session.getPerun();
-              ExtSource es = perunBl.getExtSourcesManager()
-                  .checkOrCreateExtSource(session, app.getExtSourceName(), app.getExtSourceType());
-              UserExtSource ues = new UserExtSource(es, app.getExtSourceLoa(), app.getCreatedBy());
-              try {
-                ues = perunBl.getUsersManagerBl().addUserExtSource(session, app.getUser(), ues);
-                log.debug("{} associated with {} from application {}", app.getUser(), ues, app);
-              } catch (UserExtSourceExistsException ex) {
-                // we can ignore, user will be paired with application
-                log.warn("{} already had identity associated from application {}", app.getUser(), app);
-              }
-              try {
-                Member member = ((PerunBl) session.getPerun()).getMembersManagerBl()
-                    .getMemberByUser(session, app.getVo(), app.getUser());
-                // user is already a member, switch application type
-                if (Application.AppType.INITIAL.equals(app.getType())) {
-                  app.setType(Application.AppType.EXTENSION);
-                  registrar.updateApplicationType(session, app);
-                  log.debug("Updating application type to EXTENSION since we matched user which is VO member!");
-                }
-              } catch (MemberNotExistsException e) {
-                // OK state
-              }
-            }
-
-          }
-          break;
-        }
-      }
-    }
-    return app;
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(Vsup.class);
 
   /**
-   * Set "membershipExpiration" attribute value to "expirationManual" so it's consumed by services.
-   * Set value only if membershipExpiration is after manual, or manual is empty.
-   * If membershipExpiration is null, set 4000-01-01 as unlimited.
+   * Set "membershipExpiration" attribute value to "expirationManual" so it's consumed by services. Set value only if
+   * membershipExpiration is after manual, or manual is empty. If membershipExpiration is null, set 4000-01-01 as
+   * unlimited.
    * <p>
    * Create userExtSource RC to user for future merging.
    */
@@ -158,7 +62,7 @@ public class Vsup extends DefaultRegistrarModule {
     User user = app.getUser();
 
     if (user == null) {
-      log.error("At the end of approval action, we should have user present in application: {}", app);
+      LOG.error("At the end of approval action, we should have user present in application: {}", app);
     } else {
 
       Member member = perun.getMembersManagerBl().getMemberByUser(session, vo, user);
@@ -176,7 +80,7 @@ public class Vsup extends DefaultRegistrarModule {
         try {
           membershipExpiration = df.parse(expiration);
         } catch (ParseException e) {
-          log.error("Can't parse manual expiration date.", e);
+          LOG.error("Can't parse manual expiration date.", e);
         }
 
       }
@@ -192,7 +96,7 @@ public class Vsup extends DefaultRegistrarModule {
         try {
           manualExpiration = df.parse(expiration);
         } catch (ParseException e) {
-          log.error("Can't parse manual expiration date.", e);
+          LOG.error("Can't parse manual expiration date.", e);
         }
 
       }
@@ -228,9 +132,8 @@ public class Vsup extends DefaultRegistrarModule {
       // ignore because application's id is not null
     }
     for (ApplicationFormItemData item : data) {
-      if (item.getFormItem() != null &&
-          Objects.equals(AttributesManager.NS_USER_ATTR_DEF + ":birthNumber",
-              item.getFormItem().getPerunDestinationAttribute())) {
+      if (item.getFormItem() != null && Objects.equals(AttributesManager.NS_USER_ATTR_DEF + ":birthNumber",
+          item.getFormItem().getPerunDestinationAttribute())) {
 
         String rc = item.getValue();
         if (rc != null && !rc.isEmpty()) {
@@ -240,7 +143,7 @@ public class Vsup extends DefaultRegistrarModule {
           try {
             perun.getUsersManagerBl().addUserExtSource(session, app.getUser(), ues);
           } catch (UserExtSourceExistsException e) {
-            log.info("User external source from RC already created.");
+            LOG.info("User external source from RC already created.");
           }
         }
         break;
@@ -249,6 +152,99 @@ public class Vsup extends DefaultRegistrarModule {
 
     return app;
 
+  }
+
+  @Override
+  public Application beforeApprove(PerunSession session, Application app)
+      throws RegistrarException, PrivilegeException {
+
+    List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
+
+    if (app.getUser() == null) {
+
+      for (ApplicationFormItemData item : data) {
+        if (item.getFormItem() != null && Objects.equals(AttributesManager.NS_USER_ATTR_DEF + ":birthNumber",
+            item.getFormItem().getPerunDestinationAttribute())) {
+
+          // if application contains birth number, try to map to existing user
+          String rc = item.getValue();
+          if (rc != null && !rc.isEmpty()) {
+
+            try {
+              User user = ((PerunBl) session.getPerun()).getUsersManagerBl()
+                  .getUserByExtSourceNameAndExtLogin(session, "RC", rc);
+              app.setUser(user);
+              registrar.updateApplicationUser(session, app);
+              LOG.debug("Existing user found by RC for {}", app);
+            } catch (Exception ex) {
+              LOG.warn("Couldn't find or set user to application {} by RC: {}", app, ex);
+            }
+
+            // associate existing user with the identity used on registration form
+            if (app.getUser() != null) {
+              PerunBl perunBl = (PerunBl) session.getPerun();
+              ExtSource es = perunBl.getExtSourcesManager()
+                  .checkOrCreateExtSource(session, app.getExtSourceName(), app.getExtSourceType());
+              UserExtSource ues = new UserExtSource(es, app.getExtSourceLoa(), app.getCreatedBy());
+              try {
+                ues = perunBl.getUsersManagerBl().addUserExtSource(session, app.getUser(), ues);
+                LOG.debug("{} associated with {} from application {}", app.getUser(), ues, app);
+              } catch (UserExtSourceExistsException ex) {
+                // we can ignore, user will be paired with application
+                LOG.warn("{} already had identity associated from application {}", app.getUser(), app);
+              }
+              try {
+                Member member = ((PerunBl) session.getPerun()).getMembersManagerBl()
+                    .getMemberByUser(session, app.getVo(), app.getUser());
+                // user is already a member, switch application type
+                if (Application.AppType.INITIAL.equals(app.getType())) {
+                  app.setType(Application.AppType.EXTENSION);
+                  registrar.updateApplicationType(session, app);
+                  LOG.debug("Updating application type to EXTENSION since we matched user which is VO member!");
+                }
+              } catch (MemberNotExistsException e) {
+                // OK state
+              }
+            }
+
+          }
+          break;
+        }
+      }
+    }
+    return app;
+  }
+
+  @Override
+  public void canBeApproved(PerunSession session, Application app) throws PerunException {
+
+    List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
+
+    if (app.getUser() == null) {
+
+      for (ApplicationFormItemData item : data) {
+        if (item.getFormItem() != null && Objects.equals(AttributesManager.NS_USER_ATTR_DEF + ":birthNumber",
+            item.getFormItem().getPerunDestinationAttribute())) {
+
+          // if application contains birth number, try to map to existing user
+          String rc = item.getValue();
+          if (rc != null && !rc.isEmpty()) {
+
+            try {
+              User user = ((PerunBl) session.getPerun()).getUsersManagerBl()
+                  .getUserByExtSourceNameAndExtLogin(session, "RC", rc);
+              throw new CantBeApprovedException(
+                  "Application has the same birth number " + rc + " as user " + user.getDisplayName() + " with id " +
+                  user.getId() + " that is already in Perun and thus would be merged with him.", null, null, null, true,
+                  app.getId());
+            } catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException ex) {
+              LOG.warn("Couldn't find or set user to application {} by RC: {}", app, ex);
+            }
+          }
+          break;
+        }
+      }
+    }
   }
 
 }

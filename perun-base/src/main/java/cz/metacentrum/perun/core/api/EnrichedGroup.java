@@ -17,22 +17,6 @@ public class EnrichedGroup {
     this.attributes = attributes;
   }
 
-  public Group getGroup() {
-    return group;
-  }
-
-  public void setGroup(Group group) {
-    this.group = group;
-  }
-
-  public List<Attribute> getAttributes() {
-    return attributes;
-  }
-
-  public void setAttributes(List<Attribute> attributes) {
-    this.attributes = attributes;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -45,6 +29,22 @@ public class EnrichedGroup {
     return getGroup().equals(that.getGroup());
   }
 
+  public List<Attribute> getAttributes() {
+    return attributes;
+  }
+
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  public Group getGroup() {
+    return group;
+  }
+
+  public void setGroup(Group group) {
+    this.group = group;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(getGroup());
@@ -52,9 +52,6 @@ public class EnrichedGroup {
 
   @Override
   public String toString() {
-    return "EnrichedGroup{" +
-        "group=" + group +
-        ", attributes=" + attributes +
-        '}';
+    return "EnrichedGroup{" + "group=" + group + ", attributes=" + attributes + '}';
   }
 }

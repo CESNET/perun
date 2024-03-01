@@ -25,34 +25,35 @@ public class InvitationSentEvent extends AuditEvent {
     this.group = group;
     this.vo = vo;
 
-    this.message = formatMessage("Invitation to %s, sent by %s, to email: %s, in language: %s.",
-        (group != null) ? group : vo, sender, email, language);
+    this.message =
+        formatMessage("Invitation to %s, sent by %s, to email: %s, in language: %s.", (group != null) ? group : vo,
+            sender, email, language);
 
-  }
-
-  public User getSender() {
-    return sender;
   }
 
   public String getEmail() {
     return email;
   }
 
-  public String getLanguage() {
-    return language;
-  }
-
-  public Vo getVo() {
-    return vo;
-  }
-
   public Group getGroup() {
     return group;
+  }
+
+  public String getLanguage() {
+    return language;
   }
 
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public User getSender() {
+    return sender;
+  }
+
+  public Vo getVo() {
+    return vo;
   }
 
   @Override

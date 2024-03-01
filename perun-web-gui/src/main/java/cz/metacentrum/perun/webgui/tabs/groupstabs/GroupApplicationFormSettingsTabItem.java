@@ -48,7 +48,7 @@ import java.util.Map;
  */
 public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "appl-form";
+  public static final String URL = "appl-form";
   // source list with items
   protected ArrayList<ApplicationFormItem> sourceList;
   /**

@@ -3,8 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Group;
 
 /**
- * Exception thrown when the group cannot be moved, because it's not allowed
- * f.e. Destination group is subGroup of Moving group, Moving group is already in destination group as subGroup...
+ * Exception thrown when the group cannot be moved, because it's not allowed f.e. Destination group is subGroup of
+ * Moving group, Moving group is already in destination group as subGroup...
  *
  * @author Peter Balcirak
  */
@@ -61,20 +61,20 @@ public class GroupMoveNotAllowedException extends PerunException {
   }
 
   /**
-   * Getter for the moving group
-   *
-   * @return group to be moved
-   */
-  public Group getMovingGroup() {
-    return movingGroup;
-  }
-
-  /**
    * The group to which the moving group is moved
    *
    * @return destination group
    */
   public Group getDestinationGroup() {
     return destinationGroup;
+  }
+
+  /**
+   * Getter for the moving group
+   *
+   * @return group to be moved
+   */
+  public Group getMovingGroup() {
+    return movingGroup;
   }
 }

@@ -16,9 +16,8 @@ import java.util.Map;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
- * Represents message in pool waiting to be sent. This message can be send based
- * on conditions which has to be met. These messages are aggregated together
- * with messages which has same keyAttributes, templateId.
+ * Represents message in pool waiting to be sent. This message can be send based on conditions which has to be met.
+ * These messages are aggregated together with messages which has same keyAttributes, templateId.
  * <p>
  * Table pn_pool_message
  *
@@ -53,24 +52,23 @@ public class PerunNotifPoolMessage {
   private Integer templateId;
 
   /**
-   * Key attributes which are used to recognize two messages for same
-   * user, templateId must be same, and keyAttributes must be same
+   * Key attributes which are used to recognize two messages for same user, templateId must be same, and keyAttributes
+   * must be same
    * <p>
    * Column key_attributes
    */
   private Map<String, String> keyAttributes;
 
   /**
-   * Date of creation of pool message, this attribute can be reset after
-   * application restart
+   * Date of creation of pool message, this attribute can be reset after application restart
    * <p>
    * Column name created
    */
   private Instant created;
 
   /**
-   * Holds creating auditer message which was used for creation Will be
-   * used for parsing to retrieve of list of perun beans
+   * Holds creating auditer message which was used for creation Will be used for parsing to retrieve of list of perun
+   * beans
    * <p>
    * Column name notif_message
    */
@@ -109,36 +107,24 @@ public class PerunNotifPoolMessage {
     return serializedKeyAttributes.toString();
   }
 
+  public Instant getCreated() {
+    return created;
+  }
+
   public Integer getId() {
     return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public Integer getRegexId() {
-    return regexId;
-  }
-
-  public void setRegexId(Integer regexId) {
-    this.regexId = regexId;
-  }
-
-  public Integer getTemplateId() {
-    return templateId;
-  }
-
-  public void setTemplateId(Integer templateId) {
-    this.templateId = templateId;
   }
 
   public Map<String, String> getKeyAttributes() {
     return keyAttributes;
   }
 
-  public void setKeyAttributes(Map<String, String> keyAttributes) {
-    this.keyAttributes = keyAttributes;
+  public String getNotifMessage() {
+    return notifMessage;
+  }
+
+  public Integer getRegexId() {
+    return regexId;
   }
 
   public String getSerializedKeyAttributes() throws UnsupportedEncodingException {
@@ -146,43 +132,53 @@ public class PerunNotifPoolMessage {
     return serializeMap(keyAttributes);
   }
 
-  public Instant getCreated() {
-    return created;
+  public Integer getTemplateId() {
+    return templateId;
   }
 
   public void setCreated(Instant created) {
     this.created = created;
   }
 
-  public String getNotifMessage() {
-    return notifMessage;
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public void setKeyAttributes(Map<String, String> keyAttributes) {
+    this.keyAttributes = keyAttributes;
   }
 
   public void setNotifMessage(String notifMessage) {
     this.notifMessage = notifMessage;
   }
 
+  public void setRegexId(Integer regexId) {
+    this.regexId = regexId;
+  }
+
+  public void setTemplateId(Integer templateId) {
+    this.templateId = templateId;
+  }
+
   @Override
   public String toString() {
     try {
-      return "id: " + getId() + " regex id: " + getRegexId() + " template id: " + getTemplateId()
-          + " key attributes:" + getSerializedKeyAttributes() + " created: " + getCreated()
-          + " notif message: " + getNotifMessage();
+      return "id: " + getId() + " regex id: " + getRegexId() + " template id: " + getTemplateId() + " key attributes:" +
+             getSerializedKeyAttributes() + " created: " + getCreated() + " notif message: " + getNotifMessage();
     } catch (UnsupportedEncodingException ex) {
-      return "id: " + getId() + " regex id: " + getRegexId() + " template id: " + getTemplateId()
-          + " key attributes: CANNOT SERIALIZE !" + " created: " + getCreated()
-          + " notif message: " + getNotifMessage();
+      return "id: " + getId() + " regex id: " + getRegexId() + " template id: " + getTemplateId() +
+             " key attributes: CANNOT SERIALIZE !" + " created: " + getCreated() + " notif message: " +
+             getNotifMessage();
     }
   }
 
   /**
-   * extracts from result all perunNotifPoolMessages which are in format:
-   * Integer is templateId, perunNotifPoolMessageProcessDto holds messages
-   * with same templateId and keyAttributes
+   * extracts from result all perunNotifPoolMessages which are in format: Integer is templateId,
+   * perunNotifPoolMessageProcessDto holds messages with same templateId and keyAttributes
    *
    * @author tomas.tunkl
    */
-  public static final class PERUN_NOTIF_POOL_MESSAGE_EXTRACTOR
+  public static final class PerunNotifPoolMessageExtractor
       implements ResultSetExtractor<Map<Integer, List<PoolMessage>>> {
 
     @Override

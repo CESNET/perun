@@ -1,116 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>perun</artifactId>
-		<groupId>cz.metacentrum</groupId>
-		<version>0.0.0-development</version>
-	</parent>
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>0.0.0-development</version>
+    </parent>
 
-	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-openapi</artifactId>
-	<packaging>jar</packaging>
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-openapi</artifactId>
+    <packaging>jar</packaging>
 
-	<name>perun-openapi</name>
-	<description>OpenAPI specification of Perun RPC API and its Java client</description>
+    <name>perun-openapi</name>
+    <description>OpenAPI specification of Perun RPC API and its Java client</description>
 
-	<properties>
-		<!-- deploy the resulting jar to a Maven repo-->
-		<maven.deploy.skip>false</maven.deploy.skip>
-	</properties>
+    <properties>
+        <!-- deploy the resulting jar to a Maven repo-->
+        <maven.deploy.skip>false</maven.deploy.skip>
+    </properties>
 
-	<build>
-		<plugins>
-			<!-- generate a Java client from OpenAPI specification of Perun RPC API-->
-			<plugin>
-				<groupId>org.openapitools</groupId>
-				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>6.6.0</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<!-- see https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator-maven-plugin/README.md -->
-							<inputSpec>${project.basedir}/openapi.yml</inputSpec>
-							<generatorName>java</generatorName>
-							<apiPackage>cz.metacentrum.perun.openapi</apiPackage>
-							<modelPackage>cz.metacentrum.perun.openapi.model</modelPackage>
-							<invokerPackage>cz.metacentrum.perun.openapi.invoker</invokerPackage>
-							<verbose>false</verbose>
-							<generateApiTests>false</generateApiTests>
-							<generateModelTests>false</generateModelTests>
-							<generateApiDocumentation>false</generateApiDocumentation>
-							<generateModelDocumentation>false</generateModelDocumentation>
-							<configOptions>
-								<dateLibrary>java8</dateLibrary>
-								<library>resttemplate</library>
-								<java8>true</java8>
-								<!-- options for generating target/generated-sources/openapi/pom.xml which is not used -->
-								<licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-								<licenseName>Apache 2.0</licenseName>
-								<developerName>Martin Kuba</developerName>
-								<developerEmail>makub@ics.muni.cz</developerEmail>
-								<developerOrganization>CESNET</developerOrganization>
-								<developerOrganizationUrl>https://www.cesnet.cz/</developerOrganizationUrl>
-								<groupId>cz.metacentrum.perun</groupId>
-								<artifactId>perun_openapi</artifactId>
-								<artifactVersion>${project.parent.version}</artifactVersion>
-								<artifactDescription>Perun RPC API in Java</artifactDescription>
-								<scmUrl>https://gitlab.ics.muni.cz/perun/perun-idm/perun</scmUrl>
-							</configOptions>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <!-- generate a Java client from OpenAPI specification of Perun RPC API-->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>6.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <!-- see https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator-maven-plugin/README.md -->
+                            <inputSpec>${project.basedir}/openapi.yml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <apiPackage>cz.metacentrum.perun.openapi</apiPackage>
+                            <modelPackage>cz.metacentrum.perun.openapi.model</modelPackage>
+                            <invokerPackage>cz.metacentrum.perun.openapi.invoker</invokerPackage>
+                            <verbose>false</verbose>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <configOptions>
+                                <dateLibrary>java8</dateLibrary>
+                                <library>resttemplate</library>
+                                <java8>true</java8>
+                                <!-- options for generating target/generated-sources/openapi/pom.xml which is not used -->
+                                <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+                                <licenseName>Apache 2.0</licenseName>
+                                <developerName>Martin Kuba</developerName>
+                                <developerEmail>makub@ics.muni.cz</developerEmail>
+                                <developerOrganization>CESNET</developerOrganization>
+                                <developerOrganizationUrl>https://www.cesnet.cz/</developerOrganizationUrl>
+                                <groupId>cz.metacentrum.perun</groupId>
+                                <artifactId>perun_openapi</artifactId>
+                                <artifactVersion>${project.parent.version}</artifactVersion>
+                                <artifactDescription>Perun RPC API in Java</artifactDescription>
+                                <scmUrl>https://gitlab.ics.muni.cz/perun/perun-idm/perun</scmUrl>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>javax.annotation-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jsr310</artifactId>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>3.0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>1.6.12</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openapitools</groupId>
-			<artifactId>jackson-databind-nullable</artifactId>
-			<version>0.2.6</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>1.6.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

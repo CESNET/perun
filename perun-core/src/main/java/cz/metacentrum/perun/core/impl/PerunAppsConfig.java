@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.impl;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +35,9 @@ public class PerunAppsConfig {
     for (Brand brand : instance.getBrands()) {
       PerunAppsConfig.NewApps newApps = brand.getNewApps();
       if (domain.equals(brand.getOldGuiDomain()) || domain.equals(newApps.getAdmin()) ||
-          domain.equals(newApps.getProfile())
-          || domain.equals(newApps.getPublications()) || domain.equals(newApps.getPwdReset()) ||
-          domain.equals(newApps.getApi())
-          || domain.equals(newApps.getConsolidator()) || domain.equals(newApps.getLinker())) {
+          domain.equals(newApps.getProfile()) || domain.equals(newApps.getPublications()) ||
+          domain.equals(newApps.getPwdReset()) || domain.equals(newApps.getApi()) ||
+          domain.equals(newApps.getConsolidator()) || domain.equals(newApps.getLinker())) {
         return brand;
       }
     }
@@ -47,18 +45,12 @@ public class PerunAppsConfig {
   }
 
   /**
-   * Iterates brands and searches for such that contains vo's shortname.
-   * If none found, returns default branding.
+   * Iterates brands and searches for such that contains vo's shortname. If none found, returns default branding.
    */
   public static Brand getBrandContainingVo(String voShortname) {
-    Brand defaultBrand = instance.getBrands()
-        .stream()
-        .filter(brand -> brand.getName().equals("default"))
-        .findFirst()
-        .orElse(null);
-    return instance.getBrands().stream()
-        .filter(brand -> brand.getVoShortnames().contains(voShortname))
-        .findFirst()
+    Brand defaultBrand =
+        instance.getBrands().stream().filter(brand -> brand.getName().equals("default")).findFirst().orElse(null);
+    return instance.getBrands().stream().filter(brand -> brand.getVoShortnames().contains(voShortname)).findFirst()
         .orElse(defaultBrand);
   }
 
@@ -74,9 +66,7 @@ public class PerunAppsConfig {
 
   @Override
   public String toString() {
-    return "PerunAppsConfig{" +
-        "brands=" + brands +
-        '}';
+    return "PerunAppsConfig{" + "brands=" + brands + '}';
   }
 
   /**
@@ -95,29 +85,9 @@ public class PerunAppsConfig {
       return name;
     }
 
-    @JsonSetter("name")
-    public void setName(String name) {
-      this.name = name;
-    }
-
     @JsonGetter("newApps")
     public NewApps getNewApps() {
       return newApps;
-    }
-
-    @JsonSetter("new_apps")
-    public void setNewApps(NewApps newApps) {
-      this.newApps = newApps;
-    }
-
-    @JsonGetter("voShortnames")
-    public List<String> getVoShortnames() {
-      return voShortnames;
-    }
-
-    @JsonSetter("vos")
-    public void setVoShortnames(List<String> voShortnames) {
-      this.voShortnames = voShortnames;
     }
 
     @JsonGetter("oldGuiAlert")
@@ -125,14 +95,29 @@ public class PerunAppsConfig {
       return oldGuiAlert;
     }
 
-    @JsonSetter("old_gui_alert")
-    public void setOldGuiAlert(String oldGuiAlert) {
-      this.oldGuiAlert = oldGuiAlert;
-    }
-
     @JsonGetter("oldGuiDomain")
     public String getOldGuiDomain() {
       return oldGuiDomain;
+    }
+
+    @JsonGetter("voShortnames")
+    public List<String> getVoShortnames() {
+      return voShortnames;
+    }
+
+    @JsonSetter("name")
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    @JsonSetter("new_apps")
+    public void setNewApps(NewApps newApps) {
+      this.newApps = newApps;
+    }
+
+    @JsonSetter("old_gui_alert")
+    public void setOldGuiAlert(String oldGuiAlert) {
+      this.oldGuiAlert = oldGuiAlert;
     }
 
     @JsonSetter("old_gui_domain")
@@ -140,15 +125,15 @@ public class PerunAppsConfig {
       this.oldGuiDomain = oldGuiDomain;
     }
 
+    @JsonSetter("vos")
+    public void setVoShortnames(List<String> voShortnames) {
+      this.voShortnames = voShortnames;
+    }
+
     @Override
     public String toString() {
-      return "Brand{" +
-          "name='" + name + '\'' +
-          ", oldGuiDomain='" + oldGuiDomain + '\'' +
-          ", oldGuiAlert='" + oldGuiAlert + '\'' +
-          ", newApps=" + newApps +
-          ", vos=" + voShortnames +
-          '}';
+      return "Brand{" + "name='" + name + '\'' + ", oldGuiDomain='" + oldGuiDomain + '\'' + ", oldGuiAlert='" +
+             oldGuiAlert + '\'' + ", newApps=" + newApps + ", vos=" + voShortnames + '}';
     }
   }
 
@@ -171,24 +156,14 @@ public class PerunAppsConfig {
 
     private String publications;
 
-    @JsonGetter("api")
-    public String getApi() {
-      return api;
-    }
-
-    @JsonSetter("api")
-    public void setApi(String api) {
-      this.api = api;
-    }
-
     @JsonGetter("admin")
     public String getAdmin() {
       return admin;
     }
 
-    @JsonSetter("admin")
-    public void setAdmin(String admin) {
-      this.admin = admin;
+    @JsonGetter("api")
+    public String getApi() {
+      return api;
     }
 
     @JsonGetter("consolidator")
@@ -196,19 +171,9 @@ public class PerunAppsConfig {
       return consolidator;
     }
 
-    @JsonSetter("consolidator")
-    public void setConsolidator(String consolidator) {
-      this.consolidator = consolidator;
-    }
-
     @JsonGetter("linker")
     public String getLinker() {
       return linker;
-    }
-
-    @JsonSetter("linker")
-    public void setLinker(String linker) {
-      this.linker = linker;
     }
 
     @JsonGetter("profile")
@@ -216,9 +181,9 @@ public class PerunAppsConfig {
       return profile;
     }
 
-    @JsonSetter("profile")
-    public void setProfile(String profile) {
-      this.profile = profile;
+    @JsonGetter("publications")
+    public String getPublications() {
+      return publications;
     }
 
     @JsonGetter("pwdReset")
@@ -226,14 +191,29 @@ public class PerunAppsConfig {
       return pwdReset;
     }
 
-    @JsonSetter("pwd_reset")
-    public void setPwdReset(String pwdReset) {
-      this.pwdReset = pwdReset;
+    @JsonSetter("admin")
+    public void setAdmin(String admin) {
+      this.admin = admin;
     }
 
-    @JsonGetter("publications")
-    public String getPublications() {
-      return publications;
+    @JsonSetter("api")
+    public void setApi(String api) {
+      this.api = api;
+    }
+
+    @JsonSetter("consolidator")
+    public void setConsolidator(String consolidator) {
+      this.consolidator = consolidator;
+    }
+
+    @JsonSetter("linker")
+    public void setLinker(String linker) {
+      this.linker = linker;
+    }
+
+    @JsonSetter("profile")
+    public void setProfile(String profile) {
+      this.profile = profile;
     }
 
     @JsonSetter("publications")
@@ -241,17 +221,16 @@ public class PerunAppsConfig {
       this.publications = publications;
     }
 
+    @JsonSetter("pwd_reset")
+    public void setPwdReset(String pwdReset) {
+      this.pwdReset = pwdReset;
+    }
+
     @Override
     public String toString() {
-      return "NewApps{" +
-          "api='" + api + '\'' +
-          ", admin='" + admin + '\'' +
-          ", consolidator='" + consolidator + '\'' +
-          ", linker='" + linker + '\'' +
-          ", profile='" + profile + '\'' +
-          ", pwdReset='" + pwdReset + '\'' +
-          ", publications='" + publications + '\'' +
-          '}';
+      return "NewApps{" + "api='" + api + '\'' + ", admin='" + admin + '\'' + ", consolidator='" + consolidator + '\'' +
+             ", linker='" + linker + '\'' + ", profile='" + profile + '\'' + ", pwdReset='" + pwdReset + '\'' +
+             ", publications='" + publications + '\'' + '}';
     }
   }
 }

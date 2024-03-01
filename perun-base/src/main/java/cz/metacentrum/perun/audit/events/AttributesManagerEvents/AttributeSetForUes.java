@@ -27,13 +27,13 @@ public class AttributeSetForUes extends AuditEvent {
     return attribute;
   }
 
-  public UserExtSource getUes() {
-    return ues;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public UserExtSource getUes() {
+    return ues;
   }
 
   @Override

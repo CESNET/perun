@@ -34,14 +34,6 @@ public class Task implements Serializable {
   private boolean propagationForced;
 
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + id;
-    return result;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
@@ -65,12 +57,8 @@ public class Task implements Serializable {
     return true;
   }
 
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
   }
 
   public int getDelay() {
@@ -81,68 +69,40 @@ public class Task implements Serializable {
     this.delay = delay;
   }
 
-  public int getRecurrence() {
-    return recurrence;
+  public List<Destination> getDestinations() {
+    return destinations;
   }
 
-  public void setRecurrence(int recurrence) {
-    this.recurrence = recurrence;
+  public void setDestinations(List<Destination> destinations) {
+    this.destinations = destinations;
   }
 
-  public LocalDateTime getStartTime() {
-    return startTime;
+  public LocalDateTime getEndTime() {
+    return endTime;
   }
 
-  public void setStartTime(LocalDateTime startTime) {
-    this.startTime = startTime;
+  public void setEndTime(LocalDateTime endTime) {
+    this.endTime = endTime;
   }
 
-  public void setStartTime(Long startTime) {
-    if (startTime != null) {
-      this.startTime = Instant.ofEpochMilli(startTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+  public void setEndTime(Long endTime) {
+    if (endTime != null) {
+      this.endTime = Instant.ofEpochMilli(endTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
     } else {
-      this.startTime = null;
+      this.endTime = null;
     }
   }
 
-  public Long getStartTimeAsLong() {
-    return (startTime == null) ? null : startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  public Long getEndTimeAsLong() {
+    return (endTime == null) ? null : endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
   }
 
-  public LocalDateTime getSchedule() {
-    return schedule;
+  public Facility getFacility() {
+    return facility;
   }
 
-  public void setSchedule(LocalDateTime schedule) {
-    this.schedule = schedule;
-  }
-
-  public void setSchedule(Long schedule) {
-    if (schedule != null) {
-      this.schedule = Instant.ofEpochMilli(schedule).atZone(ZoneId.systemDefault()).toLocalDateTime();
-    } else {
-      this.schedule = null;
-    }
-  }
-
-  public Long getScheduleAsLong() {
-    return (schedule == null) ? null : schedule.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-  }
-
-  public int getServiceId() {
-    if (service != null) {
-      return service.getId();
-    } else {
-      return -1;
-    }
-  }
-
-  public Service getService() {
-    return service;
-  }
-
-  public void setService(Service service) {
-    this.service = service;
+  public void setFacility(Facility facility) {
+    this.facility = facility;
   }
 
   public int getFacilityId() {
@@ -171,6 +131,62 @@ public class Task implements Serializable {
 
   public Long getGenEndTimeAsLong() {
     return (genEndTime == null) ? null : genEndTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
+
+  public LocalDateTime getGenStartTime() {
+    return genStartTime;
+  }
+
+  public void setGenStartTime(LocalDateTime genStartTime) {
+    this.genStartTime = genStartTime;
+  }
+
+  public void setGenStartTime(Long genStartTime) {
+    if (genStartTime != null) {
+      this.genStartTime = Instant.ofEpochMilli(genStartTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.genStartTime = null;
+    }
+  }
+
+  public Long getGenStartTimeAsLong() {
+    return (genStartTime == null) ? null : genStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public int getRecurrence() {
+    return recurrence;
+  }
+
+  public void setRecurrence(int recurrence) {
+    this.recurrence = recurrence;
+  }
+
+  public LocalDateTime getSchedule() {
+    return schedule;
+  }
+
+  public void setSchedule(LocalDateTime schedule) {
+    this.schedule = schedule;
+  }
+
+  public void setSchedule(Long schedule) {
+    if (schedule != null) {
+      this.schedule = Instant.ofEpochMilli(schedule).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.schedule = null;
+    }
+  }
+
+  public Long getScheduleAsLong() {
+    return (schedule == null) ? null : schedule.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
   }
 
   public LocalDateTime getSendEndTime() {
@@ -213,26 +229,6 @@ public class Task implements Serializable {
     return (sendStartTime == null) ? null : sendStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
   }
 
-  public LocalDateTime getGenStartTime() {
-    return genStartTime;
-  }
-
-  public void setGenStartTime(LocalDateTime genStartTime) {
-    this.genStartTime = genStartTime;
-  }
-
-  public void setGenStartTime(Long genStartTime) {
-    if (genStartTime != null) {
-      this.genStartTime = Instant.ofEpochMilli(genStartTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
-    } else {
-      this.genStartTime = null;
-    }
-  }
-
-  public Long getGenStartTimeAsLong() {
-    return (genStartTime == null) ? null : genStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-  }
-
   public LocalDateTime getSentToEngine() {
     return sentToEngine;
   }
@@ -253,40 +249,40 @@ public class Task implements Serializable {
     return (sentToEngine == null) ? null : sentToEngine.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
   }
 
-  public LocalDateTime getEndTime() {
-    return endTime;
+  public Service getService() {
+    return service;
   }
 
-  public void setEndTime(LocalDateTime endTime) {
-    this.endTime = endTime;
+  public void setService(Service service) {
+    this.service = service;
   }
 
-  public void setEndTime(Long endTime) {
-    if (endTime != null) {
-      this.endTime = Instant.ofEpochMilli(endTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+  public int getServiceId() {
+    if (service != null) {
+      return service.getId();
     } else {
-      this.endTime = null;
+      return -1;
     }
   }
 
-  public Long getEndTimeAsLong() {
-    return (endTime == null) ? null : endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  public LocalDateTime getStartTime() {
+    return startTime;
   }
 
-  public Facility getFacility() {
-    return facility;
+  public void setStartTime(LocalDateTime startTime) {
+    this.startTime = startTime;
   }
 
-  public void setFacility(Facility facility) {
-    this.facility = facility;
+  public void setStartTime(Long startTime) {
+    if (startTime != null) {
+      this.startTime = Instant.ofEpochMilli(startTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.startTime = null;
+    }
   }
 
-  public List<Destination> getDestinations() {
-    return destinations;
-  }
-
-  public void setDestinations(List<Destination> destinations) {
-    this.destinations = destinations;
+  public Long getStartTimeAsLong() {
+    return (startTime == null) ? null : startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
   }
 
   public TaskStatus getStatus() {
@@ -297,32 +293,20 @@ public class Task implements Serializable {
     this.status = status;
   }
 
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + id;
+    return result;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-    return str.append(getClass().getSimpleName())
-        .append(":[id='").append(id)
-        .append("', status='").append(status)
-        .append("', delay='").append(delay)
-        .append("', recurrence='").append(recurrence)
-        .append("', sourceUpdated='").append(sourceUpdated)
-        .append("', forced='").append(propagationForced)
-        .append("', schedule='").append(schedule)
-        .append("', startTime='").append(startTime)
-        .append("', endTime='").append(endTime)
-        .append("', sentToEngine='").append(sentToEngine)
-        .append("', genStartTime='").append(genStartTime)
-        .append("', genEndTime='").append(genEndTime)
-        .append("', sendStartTime='").append(sendStartTime)
-        .append("', sendEndTime='").append(sendEndTime)
-        .append("', service='").append(service)
-        .append("', facility='").append(facility)
-        .append("', destinations='").append(destinations)
-        .append("']").toString();
+  public boolean isPropagationForced() {
+    return propagationForced;
+  }
+
+  public void setPropagationForced(boolean propagationForced) {
+    this.propagationForced = propagationForced;
   }
 
   public boolean isSourceUpdated() {
@@ -333,12 +317,17 @@ public class Task implements Serializable {
     this.sourceUpdated = sourceUpdated;
   }
 
-  public boolean isPropagationForced() {
-    return propagationForced;
-  }
-
-  public void setPropagationForced(boolean propagationForced) {
-    this.propagationForced = propagationForced;
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+    return str.append(getClass().getSimpleName()).append(":[id='").append(id).append("', status='").append(status)
+        .append("', delay='").append(delay).append("', recurrence='").append(recurrence).append("', sourceUpdated='")
+        .append(sourceUpdated).append("', forced='").append(propagationForced).append("', schedule='").append(schedule)
+        .append("', startTime='").append(startTime).append("', endTime='").append(endTime).append("', sentToEngine='")
+        .append(sentToEngine).append("', genStartTime='").append(genStartTime).append("', genEndTime='")
+        .append(genEndTime).append("', sendStartTime='").append(sendStartTime).append("', sendEndTime='")
+        .append(sendEndTime).append("', service='").append(service).append("', facility='").append(facility)
+        .append("', destinations='").append(destinations).append("']").toString();
   }
 
   public enum TaskStatus {

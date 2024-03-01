@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when the ExtSource has not been assigned to the vo or
- * when trying to remove an association with the group/vo that it is not been assigned to.
+ * This exception is thrown when the ExtSource has not been assigned to the vo or when trying to remove an association
+ * with the group/vo that it is not been assigned to.
  *
  * @author Slavek Licehammer
  */

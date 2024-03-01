@@ -18,13 +18,13 @@ public class DestinationCreated extends AuditEvent implements EngineIgnoreEvent 
     this.message = formatMessage("%s created.", destination);
   }
 
+  public Destination getDestination() {
+    return destination;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Destination getDestination() {
-    return destination;
   }
 
   @Override

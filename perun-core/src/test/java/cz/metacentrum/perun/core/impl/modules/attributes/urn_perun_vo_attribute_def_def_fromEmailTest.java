@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -9,9 +12,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_vo_attribute_def_def_fromEmailTest {
 
@@ -67,6 +67,14 @@ public class urn_perun_vo_attribute_def_def_fromEmailTest {
   }
 
   @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue(correctEmail);
+
+    classInstance.checkAttributeSemantics(session, vo, attributeToCheck);
+  }
+
+  @Test
   public void testCorrectSyntax() throws Exception {
     System.out.println("testCorrectSyntax()");
 
@@ -75,13 +83,5 @@ public class urn_perun_vo_attribute_def_def_fromEmailTest {
 
     attributeToCheck.setValue(correctEmailWithHeader);
     classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
-  }
-
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue(correctEmail);
-
-    classInstance.checkAttributeSemantics(session, vo, attributeToCheck);
   }
 }

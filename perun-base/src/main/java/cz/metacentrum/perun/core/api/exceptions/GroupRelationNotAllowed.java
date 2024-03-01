@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * Exception thrown when the group relation cannot be created, because it's not allowed
- * f.e. it would create cycle, one of the groups is members group...
+ * Exception thrown when the group relation cannot be created, because it's not allowed f.e. it would create cycle, one
+ * of the groups is members group...
  *
  * @author Simona Kruppova
  */

@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.util.List;
 
 /**
@@ -29,7 +28,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_admin_meta
       throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Value can't be null");
     }
 
-    // Get all users who have set attribute urn:perun:member:attribute-def:def:login-namespace:[login-namespace], with the value.
+    // Get all users who have set attribute urn:perun:member:attribute-def:def:login-namespace:[login-namespace],
+    // with the value.
     List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute, true);
 
     usersWithSameLogin.remove(user); //remove self

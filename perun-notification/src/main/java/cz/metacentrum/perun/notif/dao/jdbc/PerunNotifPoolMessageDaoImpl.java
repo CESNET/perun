@@ -28,37 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRED)
 public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements PerunNotifPoolMessageDao {
 
-  private static final Logger logger = LoggerFactory.getLogger(PerunNotifPoolMessageDao.class);
-
-  public void savePerunNotifPoolMessage(PerunNotifPoolMessage message) {
-
-    logger.debug("Saving perunNotifPoolMessage to db, message: {}", message);
-    int newMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_pool_message_id_seq");
-    logger.debug("New id created for poolMessage: {}", newMessageId);
-
-    String serializedKeyAttributes = null;
-    try {
-      logger.debug("Serializing keyAttributes to string, key: {}", message.getKeyAttributes());
-      serializedKeyAttributes = message.getSerializedKeyAttributes();
-      logger.debug("KeyAttributes serialized: {}", serializedKeyAttributes);
-    } catch (UnsupportedEncodingException ex) {
-      logger.error("Error during encoding map for perunNotifPoolMessage.", ex);
-      throw new InternalErrorException(ex);
-    }
-
-    if (message.getCreated() == null) {
-      message.setCreated(Instant.now());
-    }
-    this.getJdbcTemplate().update(
-        "insert into pn_pool_message" + "(id, regex_id, template_id, key_attributes, notif_message, created) " +
-            "values (?,?,?,?,?,?)",
-        newMessageId, message.getRegexId(), message.getTemplateId(), serializedKeyAttributes, message.getNotifMessage(),
-        new Timestamp(message.getCreated().toEpochMilli()));
-
-    message.setId(newMessageId);
-
-    logger.debug("PoolMessage saved: {}", message);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(PerunNotifPoolMessageDao.class);
 
   @Override
   public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing() {
@@ -66,21 +36,13 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
     Duration days = Duration.ofDays(10);
     removeOldPoolMessages(days.toMillis());
 
-    logger.debug("Getting all poolMessages from db.");
+    LOGGER.debug("Getting all poolMessages from db.");
     Map<Integer, List<PoolMessage>> result = this.getJdbcTemplate()
         .query("SELECT * FROM pn_pool_message ORDER BY key_attributes ASC, template_id ASC, created ASC ",
-            new PerunNotifPoolMessage.PERUN_NOTIF_POOL_MESSAGE_EXTRACTOR());
-    logger.debug("Pool messages retrieved from db: {}", result);
+            new PerunNotifPoolMessage.PerunNotifPoolMessageExtractor());
+    LOGGER.debug("Pool messages retrieved from db: {}", result);
 
     return result;
-  }
-
-  @Override
-  public void setAllCreatedToNow() {
-
-    logger.debug("Setting created for PoolMessages to now in db.");
-    this.getJdbcTemplate()
-        .update("update pn_pool_message set created = ? where 1=1", new Timestamp(Instant.now().toEpochMilli()));
   }
 
   @Override
@@ -90,13 +52,11 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
       return;
     }
 
-    logger.debug("Removing poolMessages from db with ids: {}", proccessedIds);
+    LOGGER.debug("Removing poolMessages from db with ids: {}", proccessedIds);
     this.getJdbcTemplate().update("delete from pn_pool_message where id " + Compatibility.getStructureForInClause(),
-        preparedStatement ->
-            preparedStatement.setArray(1,
-                DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(new ArrayList<>(proccessedIds),
-                    preparedStatement)));
-    logger.debug("PoolMessages with id: {}, removed.", proccessedIds);
+        preparedStatement -> preparedStatement.setArray(1,
+            DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(new ArrayList<>(proccessedIds), preparedStatement)));
+    LOGGER.debug("PoolMessages with id: {}, removed.", proccessedIds);
   }
 
   private void removeOldPoolMessages(long olderThan) {
@@ -111,5 +71,42 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
     }
 
     removeAllPoolMessages(proccessedIds);
+  }
+
+  public void savePerunNotifPoolMessage(PerunNotifPoolMessage message) {
+
+    LOGGER.debug("Saving perunNotifPoolMessage to db, message: {}", message);
+    int newMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_pool_message_id_seq");
+    LOGGER.debug("New id created for poolMessage: {}", newMessageId);
+
+    String serializedKeyAttributes = null;
+    try {
+      LOGGER.debug("Serializing keyAttributes to string, key: {}", message.getKeyAttributes());
+      serializedKeyAttributes = message.getSerializedKeyAttributes();
+      LOGGER.debug("KeyAttributes serialized: {}", serializedKeyAttributes);
+    } catch (UnsupportedEncodingException ex) {
+      LOGGER.error("Error during encoding map for perunNotifPoolMessage.", ex);
+      throw new InternalErrorException(ex);
+    }
+
+    if (message.getCreated() == null) {
+      message.setCreated(Instant.now());
+    }
+    this.getJdbcTemplate().update(
+        "insert into pn_pool_message" + "(id, regex_id, template_id, key_attributes, notif_message, created) " +
+        "values (?,?,?,?,?,?)", newMessageId, message.getRegexId(), message.getTemplateId(), serializedKeyAttributes,
+        message.getNotifMessage(), new Timestamp(message.getCreated().toEpochMilli()));
+
+    message.setId(newMessageId);
+
+    LOGGER.debug("PoolMessage saved: {}", message);
+  }
+
+  @Override
+  public void setAllCreatedToNow() {
+
+    LOGGER.debug("Setting created for PoolMessages to now in db.");
+    this.getJdbcTemplate()
+        .update("update pn_pool_message set created = ? where 1=1", new Timestamp(Instant.now().toEpochMilli()));
   }
 }

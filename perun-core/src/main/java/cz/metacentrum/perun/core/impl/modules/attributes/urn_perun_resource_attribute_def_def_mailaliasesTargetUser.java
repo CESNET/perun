@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +23,15 @@ public class urn_perun_resource_attribute_def_def_mailaliasesTargetUser extends 
   private static final Pattern userPattern = Pattern.compile("^[-a-zA-Z0-9_]+$");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
+          "Attribute value can't be null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
       throws WrongAttributeValueException {
     if (attribute.getValue() == null) {
@@ -35,15 +43,6 @@ public class urn_perun_resource_attribute_def_def_mailaliasesTargetUser extends 
     if (!userMatcher.matches()) {
       throw new WrongAttributeValueException(attribute, resource, null,
           "Matcher must match to ^[-a-zA-Z0-9_]+$ pattern.");
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
-          "Attribute value can't be null.");
     }
   }
 

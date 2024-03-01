@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 
 /**
@@ -28,7 +27,7 @@ public class urn_perun_user_attribute_def_def_mailaliasesGenericMail extends Use
     }
     String attributeValue = attribute.valueAsString();
 
-    Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);
+    Matcher emailMatcher = Utils.EMAIL_PATTERN.matcher(attributeValue);
     if (!emailMatcher.find()) {
       throw new WrongAttributeValueException(attribute, user, "Email is not in correct form.");
     }

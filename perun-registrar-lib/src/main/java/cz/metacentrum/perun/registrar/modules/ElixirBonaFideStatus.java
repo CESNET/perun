@@ -26,27 +26,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Registration module for ElixirBonaFideStatus.
- * Contains logic if the user can acquire bonaFideStatus defined by ELIXIR.
+ * Registration module for ElixirBonaFideStatus. Contains logic if the user can acquire bonaFideStatus defined by
+ * ELIXIR.
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
 public class ElixirBonaFideStatus extends DefaultRegistrarModule {
 
-  final static Logger log = LoggerFactory.getLogger(ElixirBonaFideStatus.class);
+  static final Logger LOG = LoggerFactory.getLogger(ElixirBonaFideStatus.class);
 
   private static final String USER_BONA_FIDE_STATUS_ATTR_NAME = "bonaFideStatus";
   private static final String USER_BONA_FIDE_STATUS_REMS_ATTR_NAME = "elixirBonaFideStatusREMS";
   private static final String USER_AFFILIATIONS_ATTR_NAME = "voPersonExternalAffiliation";
   private static final String GROUP_ATESTATION_ATTR_NAME = "attestation";
 
-  private static final String A_U_D_userBonaFideStatus =
+  private static final String A_U_D_USER_BONA_FIDE_STATUS =
       AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_ATTR_NAME;
-  private static final String A_U_D_userBonaFideStatusRems =
+  private static final String A_U_D_USER_BONA_FIDE_STATUS_REMS =
       AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
-  private static final String A_U_D_userVoPersonExternalAffiliation =
+  private static final String A_U_D_USER_VO_PERSON_EXTERNAL_AFFILIATION =
       AttributesManager.NS_USER_ATTR_VIRT + ':' + USER_AFFILIATIONS_ATTR_NAME;
-  private static final String A_G_D_groupAttestation =
+  private static final String A_G_D_GROUP_ATTESTATION =
       AttributesManager.NS_GROUP_ATTR_DEF + ':' + GROUP_ATESTATION_ATTR_NAME;
 
   /**
@@ -60,11 +60,11 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
     Group group = app.getGroup();
 
     AttributesManager am = session.getPerun().getAttributesManager();
-    Attribute attestation = am.getAttribute(session, group, A_G_D_groupAttestation);
+    Attribute attestation = am.getAttribute(session, group, A_G_D_GROUP_ATTESTATION);
 
     String newValue = attestation.valueAsString();
 
-    Attribute bonaFideStatus = am.getAttribute(session, user, A_U_D_userBonaFideStatus);
+    Attribute bonaFideStatus = am.getAttribute(session, user, A_U_D_USER_BONA_FIDE_STATUS);
 
     List<String> value = new ArrayList<>();
     if (bonaFideStatus.getValue() != null && bonaFideStatus.valueAsList() != null) {
@@ -89,7 +89,7 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
     AttributesManagerBl am = ((PerunBl) session.getPerun()).getAttributesManagerBl();
     Attribute attestation;
     try {
-      attestation = am.getAttribute(session, group, A_G_D_groupAttestation);
+      attestation = am.getAttribute(session, group, A_G_D_GROUP_ATTESTATION);
     } catch (Exception e) {
       throw new InternalErrorException(e.getMessage(), e);
     }
@@ -119,7 +119,7 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
     }
     AttributesManagerBl am = ((PerunBl) session.getPerun()).getAttributesManagerBl();
 
-    Attribute affiliations = am.getAttribute(session, user, A_U_D_userVoPersonExternalAffiliation);
+    Attribute affiliations = am.getAttribute(session, user, A_U_D_USER_VO_PERSON_EXTERNAL_AFFILIATION);
 
     if (affiliations.getValue() != null) {
       List<String> val = affiliations.valueAsList();
@@ -130,7 +130,7 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
       }
     }
 
-    Attribute rems = am.getAttribute(session, user, A_U_D_userBonaFideStatusRems);
+    Attribute rems = am.getAttribute(session, user, A_U_D_USER_BONA_FIDE_STATUS_REMS);
 
     if (rems.getValue() != null) {
       return;

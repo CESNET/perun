@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "connect-identity";
+  public static final String URL = "connect-identity";
   /**
    * User id
    */

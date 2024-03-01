@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "ext-sources";
+  public static final String URL = "ext-sources";
   /**
    * Perun web session
    */

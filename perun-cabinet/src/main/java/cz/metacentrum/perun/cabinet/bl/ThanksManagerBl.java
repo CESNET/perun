@@ -1,11 +1,10 @@
 package cz.metacentrum.perun.cabinet.bl;
 
-import java.util.List;
-
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.util.List;
 
 /**
  * Interface for handling Thanks entity in Cabinet.
@@ -36,13 +35,22 @@ public interface ThanksManagerBl {
   void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException;
 
   /**
-   * Check if same Thanks exists by ID or OwnerId,PublicationId combination.
+   * Get ThanksForGUI of Publication specified by its ID or empty list.
    *
-   * @param thanks Thanks to check by
-   * @return TRUE = Thanks for same Owner and Publication or with same ID exists / FALSE = Same Thanks not found
+   * @param publicationId ID of Publication to get Thanks for
+   * @return List of Publications Thanks
    * @throws InternalErrorException When implementation fails
    */
-  boolean thanksExist(Thanks thanks);
+  List<ThanksForGUI> getRichThanksByPublicationId(int publicationId);
+
+  /**
+   * Get ThanksForGUI of User specified by its ID or empty list.
+   *
+   * @param userId ID of User to get Thanks for
+   * @return List of Publications Thanks
+   * @throws InternalErrorException When implementation fails
+   */
+  List<ThanksForGUI> getRichThanksByUserId(int userId);
 
   /**
    * Get Thanks by its ID. Throws exception, if not exists.
@@ -64,21 +72,12 @@ public interface ThanksManagerBl {
   List<Thanks> getThanksByPublicationId(int publicationId);
 
   /**
-   * Get ThanksForGUI of Publication specified by its ID or empty list.
+   * Check if same Thanks exists by ID or OwnerId,PublicationId combination.
    *
-   * @param publicationId ID of Publication to get Thanks for
-   * @return List of Publications Thanks
+   * @param thanks Thanks to check by
+   * @return TRUE = Thanks for same Owner and Publication or with same ID exists / FALSE = Same Thanks not found
    * @throws InternalErrorException When implementation fails
    */
-  List<ThanksForGUI> getRichThanksByPublicationId(int publicationId);
-
-  /**
-   * Get ThanksForGUI of User specified by its ID or empty list.
-   *
-   * @param userId ID of User to get Thanks for
-   * @return List of Publications Thanks
-   * @throws InternalErrorException When implementation fails
-   */
-  List<ThanksForGUI> getRichThanksByUserId(int userId);
+  boolean thanksExist(Thanks thanks);
 
 }

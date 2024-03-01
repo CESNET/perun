@@ -13,11 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
 public interface ConfigManagerBl {
 
   /**
-   * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
-   */
-  void reloadAppsConfig();
-
-  /**
    * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
    *
    * @param requestUrl url of request
@@ -27,4 +22,9 @@ public interface ConfigManagerBl {
    */
   OidcConfig getPerunOidcConfig(String requestUrl)
       throws OidcConfigNotExistsException, OidcConfigFileNotExistsException;
+
+  /**
+   * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
+   */
+  void reloadAppsConfig();
 }

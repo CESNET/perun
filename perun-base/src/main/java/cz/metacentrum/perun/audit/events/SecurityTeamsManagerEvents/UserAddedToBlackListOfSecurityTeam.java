@@ -23,21 +23,21 @@ public class UserAddedToBlackListOfSecurityTeam extends AuditEvent implements En
     this.message = formatMessage("%s add to blacklist of %s with description '%s'.", user, securityTeam, description);
   }
 
+  public String getDescription() {
+    return description;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public User getUser() {
-    return user;
   }
 
   public SecurityTeam getSecurityTeam() {
     return securityTeam;
   }
 
-  public String getDescription() {
-    return description;
+  public User getUser() {
+    return user;
   }
 
   @Override

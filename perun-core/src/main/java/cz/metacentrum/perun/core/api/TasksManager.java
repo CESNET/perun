@@ -46,6 +46,16 @@ public interface TasksManager {
   void deleteTaskResultById(PerunSession sess, int taskResultId) throws PrivilegeException;
 
   /**
+   * Delete all TaskResults related to specified Task and Destination
+   *
+   * @param sess        PerunSession
+   * @param task        Task to have TaskResults deleted
+   * @param destination Destination to have TasksResults deleted
+   * @throws PrivilegeException
+   */
+  void deleteTaskResults(PerunSession sess, Task task, Destination destination) throws PrivilegeException;
+
+  /**
    * Delete TaskResults by their IDs. TaskResults are expected to be from the same facility.
    *
    * @param sess          sess
@@ -55,16 +65,6 @@ public interface TasksManager {
    */
   void deleteTaskResultsByIds(PerunSession sess, List<Integer> taskResultIds)
       throws PrivilegeException, FacilityMismatchException;
-
-  /**
-   * Delete all TaskResults related to specified Task and Destination
-   *
-   * @param sess        PerunSession
-   * @param task        Task to have TaskResults deleted
-   * @param destination Destination to have TasksResults deleted
-   * @throws PrivilegeException
-   */
-  void deleteTaskResults(PerunSession sess, Task task, Destination destination) throws PrivilegeException;
 
   /**
    * Return propagation status of all facilities in Perun
@@ -91,10 +91,11 @@ public interface TasksManager {
       throws PrivilegeException, VoNotExistsException, FacilityNotExistsException;
 
   /**
-   * Returns list of ServiceStates for given facility. It lists states for all services, which are currently
-   * assigned to the facility or has any Task related to this facility.
+   * Returns list of ServiceStates for given facility. It lists states for all services, which are currently assigned to
+   * the facility or has any Task related to this facility.
    * <p>
-   * So results are returned even when there was no previous propagation of such service or service is no longer assigned.
+   * So results are returned even when there was no previous propagation of such service or service is no longer
+   * assigned.
    *
    * @param sess     PerunSession
    * @param facility
@@ -172,6 +173,15 @@ public interface TasksManager {
   List<TaskResult> getTaskResults(PerunSession perunSession);
 
   /**
+   * Returns task results for defined destinations (string representation).
+   *
+   * @param session
+   * @param destinationsNames
+   * @return list of tasks results
+   */
+  List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames);
+
+  /**
    * Get all TaskResult's for given Task
    *
    * @param sess
@@ -180,15 +190,6 @@ public interface TasksManager {
    * @throws PrivilegeException
    */
   List<TaskResult> getTaskResultsByTask(PerunSession sess, int taskId) throws PrivilegeException;
-
-  /**
-   * Returns task results for defined destinations (string representation).
-   *
-   * @param session
-   * @param destinationsNames
-   * @return list of tasks results
-   */
-  List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames);
 
   // TODO - add more methods
 

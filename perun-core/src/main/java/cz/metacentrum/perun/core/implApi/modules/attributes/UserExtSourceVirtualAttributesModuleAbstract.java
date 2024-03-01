@@ -5,14 +5,13 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Abstract class for UserExtSource Virtual Attributes modules.
- * Implements methods for modules to perform default function.
- * In the function that the method in the module does nothing, it is not necessary to implement it, simply extend this abstract class.
+ * Abstract class for UserExtSource Virtual Attributes modules. Implements methods for modules to perform default
+ * function. In the function that the method in the module does nothing, it is not necessary to implement it, simply
+ * extend this abstract class.
  *
  * @author Jan Zvěřina <zverina.jan@email.cz>
  */
@@ -25,8 +24,9 @@ public abstract class UserExtSourceVirtualAttributesModuleAbstract extends UserE
   }
 
   @Override
-  public boolean setAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) {
-    return false;
+  public List<String> getStrongDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    return dependecies;
   }
 
   @Override
@@ -40,8 +40,7 @@ public abstract class UserExtSourceVirtualAttributesModuleAbstract extends UserE
   }
 
   @Override
-  public List<String> getStrongDependencies() {
-    List<String> dependecies = new ArrayList<>();
-    return dependecies;
+  public boolean setAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) {
+    return false;
   }
 }

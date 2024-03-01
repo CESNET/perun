@@ -6,15 +6,14 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NamingException;
 
-import java.util.regex.Pattern;
-
 public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
 
-  private final static Logger log = LoggerFactory.getLogger(FacilityAttributeProcessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FacilityAttributeProcessor.class);
 
   private static Pattern facilitySetPattern = Pattern.compile(" set for Facility:\\[(.*)\\]");
   private static Pattern facilityRemovePattern = Pattern.compile(" removed for Facility:\\[(.*)\\]");
@@ -27,17 +26,17 @@ public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
         facilityVirtualChangePattern);
   }
 
-  public void processAttributeSet(String msg, MessageBeans beans) {
+  public void processAllAttributesRemoved(String msg, MessageBeans beans) {
 
     // ensure we have the correct beans available
-    if (beans.getAttribute() == null || beans.getFacility() == null) {
+    if (beans.getFacility() == null) {
       return;
     }
     try {
-      log.debug("Setting attribute {} for facility {}", beans.getAttribute(), beans.getFacility());
-      perunFacility.modifyEntry(beans.getFacility(), beans.getAttribute());
-    } catch (NamingException | InternalErrorException e) {
-      log.error("Error setting attribute:", e);
+      LOG.debug("Removing all attributes from facility {}", beans.getFacility());
+      perunFacility.removeAllAttributes(beans.getFacility());
+    } catch (NamingException e) {
+      LOG.error("Error removing attributes:", e);
     }
   }
 
@@ -48,24 +47,24 @@ public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
       return;
     }
     try {
-      log.debug("Removing attribute {} from facility {}", beans.getAttributeDef(), beans.getFacility());
+      LOG.debug("Removing attribute {} from facility {}", beans.getAttributeDef(), beans.getFacility());
       perunFacility.modifyEntry(beans.getFacility(), beans.getAttributeDef());
     } catch (NamingException | InternalErrorException e) {
-      log.error("Error removing attribute:", e);
+      LOG.error("Error removing attribute:", e);
     }
   }
 
-  public void processAllAttributesRemoved(String msg, MessageBeans beans) {
+  public void processAttributeSet(String msg, MessageBeans beans) {
 
     // ensure we have the correct beans available
-    if (beans.getFacility() == null) {
+    if (beans.getAttribute() == null || beans.getFacility() == null) {
       return;
     }
     try {
-      log.debug("Removing all attributes from facility {}", beans.getFacility());
-      perunFacility.removeAllAttributes(beans.getFacility());
-    } catch (NamingException e) {
-      log.error("Error removing attributes:", e);
+      LOG.debug("Setting attribute {} for facility {}", beans.getAttribute(), beans.getFacility());
+      perunFacility.modifyEntry(beans.getFacility(), beans.getAttribute());
+    } catch (NamingException | InternalErrorException e) {
+      LOG.error("Error setting attribute:", e);
     }
   }
 
@@ -75,15 +74,15 @@ public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
       return;
     }
     try {
-      Attribute virtAttr = perun.getAttributesManagerBl().
-          getAttribute(ldapcManager.getPerunSession(), beans.getFacility(), beans.getAttribute().getName());
+      Attribute virtAttr = perun.getAttributesManagerBl()
+          .getAttribute(ldapcManager.getPerunSession(), beans.getFacility(), beans.getAttribute().getName());
 
-      log.debug("Changing virtual attribute {} for facility {}", virtAttr, beans.getFacility());
+      LOG.debug("Changing virtual attribute {} for facility {}", virtAttr, beans.getFacility());
       perunFacility.modifyEntry(beans.getFacility(), virtAttr);
 
     } catch (InternalErrorException | AttributeNotExistsException | WrongAttributeAssignmentException |
              NamingException e) {
-      log.error("Error changing virtual attribute:", e);
+      LOG.error("Error changing virtual attribute:", e);
     }
   }
 }

@@ -26,8 +26,10 @@ public class Application {
   private String createdAt;
   private String modifiedBy;
   private String modifiedAt;
+
   public Application() {
   }
+
   public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName,
                      String extSourceType, User user) {
     this.id = id;
@@ -47,52 +49,45 @@ public class Application {
     this.extSourceLoa = extSourceLoa;
   }
 
-  public int getId() {
-    return id;
+  public String getAutoApproveError() {
+    return autoApproveError;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  public void setAutoApproveError(String error) {
+    this.autoApproveError = error;
   }
 
-  public Vo getVo() {
-    return vo;
+  /**
+   * Return bean name as PerunBean does.
+   *
+   * @return Class simple name (beanName)
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
   }
 
-  public void setVo(Vo vo) {
-    this.vo = vo;
+  public String getCreatedAt() {
+    return createdAt;
   }
 
-  public Group getGroup() {
-    return group;
+  public void setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
   }
 
-  public void setGroup(Group group) {
-    this.group = group;
+  public String getCreatedBy() {
+    return createdBy;
   }
 
-  public AppType getType() {
-    return type;
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
   }
 
-  public void setType(AppType type) {
-    this.type = type;
+  public int getExtSourceLoa() {
+    return extSourceLoa;
   }
 
-  public String getFedInfo() {
-    return fedInfo;
-  }
-
-  public void setFedInfo(String fedInfo) {
-    this.fedInfo = fedInfo;
-  }
-
-  public AppState getState() {
-    return state;
-  }
-
-  public void setState(AppState state) {
-    this.state = state;
+  public void setExtSourceLoa(int extSourceLoa) {
+    this.extSourceLoa = extSourceLoa;
   }
 
   public String getExtSourceName() {
@@ -111,44 +106,28 @@ public class Application {
     this.extSourceType = extSourceType;
   }
 
-  public User getUser() {
-    return user;
+  public String getFedInfo() {
+    return fedInfo;
   }
 
-  public void setUser(User user) {
-    this.user = user;
+  public void setFedInfo(String fedInfo) {
+    this.fedInfo = fedInfo;
   }
 
-  public int getExtSourceLoa() {
-    return extSourceLoa;
+  public Group getGroup() {
+    return group;
   }
 
-  public void setExtSourceLoa(int extSourceLoa) {
-    this.extSourceLoa = extSourceLoa;
+  public void setGroup(Group group) {
+    this.group = group;
   }
 
-  public String getCreatedBy() {
-    return createdBy;
+  public int getId() {
+    return id;
   }
 
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  public String getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(String createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public String getModifiedBy() {
-    return modifiedBy;
-  }
-
-  public void setModifiedBy(String modifiedBy) {
-    this.modifiedBy = modifiedBy;
+  public void setId(int id) {
+    this.id = id;
   }
 
   public String getModifiedAt() {
@@ -159,45 +138,63 @@ public class Application {
     this.modifiedAt = modifiedAt;
   }
 
-  public String getAutoApproveError() {
-    return autoApproveError;
+  public String getModifiedBy() {
+    return modifiedBy;
   }
 
-  public void setAutoApproveError(String error) {
-    this.autoApproveError = error;
+  public void setModifiedBy(String modifiedBy) {
+    this.modifiedBy = modifiedBy;
   }
 
-  /**
-   * Return bean name as PerunBean does.
-   *
-   * @return Class simple name (beanName)
-   */
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
+  public AppState getState() {
+    return state;
+  }
+
+  public void setState(AppState state) {
+    this.state = state;
+  }
+
+  public AppType getType() {
+    return type;
+  }
+
+  public void setType(AppType type) {
+    this.type = type;
+  }
+
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public Vo getVo() {
+    return vo;
+  }
+
+  public void setVo(Vo vo) {
+    this.vo = vo;
   }
 
   @Override
   public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id='" + getId() + '\'' +
-        ", vo='" + getVo() + '\'' +
-        ", group='" + getGroup() + '\'' +
-        ", fedInfo='" + getFedInfo() + '\'' +
-        ", type='" + getType().toString() + '\'' +
-        ", state='" + getState().toString() + '\'' +
-        ", autoApproveError='" + getAutoApproveError() + '\'' +
-        ", extSourceName='" + getExtSourceName() + '\'' +
-        ", extSourceType='" + getExtSourceType() + '\'' +
-        ", extSourceLoa='" + getExtSourceLoa() + '\'' +
-        ", user='" + getUser() + '\'' +
-        ", created_at='" + getCreatedAt() + '\'' +
-        ", created_by='" + getCreatedBy() + '\'' +
-        ", modified_at='" + getModifiedAt() + '\'' +
-        ", modified_by='" + getModifiedBy() + '\'' + ']';
+    return this.getClass().getSimpleName() + ":[" + "id='" + getId() + '\'' + ", vo='" + getVo() + '\'' + ", group='" +
+           getGroup() + '\'' + ", fedInfo='" + getFedInfo() + '\'' + ", type='" + getType().toString() + '\'' +
+           ", state='" + getState().toString() + '\'' + ", autoApproveError='" + getAutoApproveError() + '\'' +
+           ", extSourceName='" + getExtSourceName() + '\'' + ", extSourceType='" + getExtSourceType() + '\'' +
+           ", extSourceLoa='" + getExtSourceLoa() + '\'' + ", user='" + getUser() + '\'' + ", created_at='" +
+           getCreatedAt() + '\'' + ", created_by='" + getCreatedBy() + '\'' + ", modified_at='" + getModifiedAt() +
+           '\'' + ", modified_by='" + getModifiedBy() + '\'' + ']';
   }
 
-  public static enum AppState {NEW, VERIFIED, APPROVED, REJECTED}
+  public static enum AppState {
+    NEW, VERIFIED, APPROVED, REJECTED
+  }
 
-  public static enum AppType {INITIAL, EXTENSION, EMBEDDED}
+  public static enum AppType {
+    INITIAL, EXTENSION, EMBEDDED
+  }
 
 }

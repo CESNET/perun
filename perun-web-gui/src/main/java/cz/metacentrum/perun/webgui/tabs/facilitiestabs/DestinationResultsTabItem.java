@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "dest-result";
+  public static final String URL = "dest-result";
   /**
    * Perun web session
    */

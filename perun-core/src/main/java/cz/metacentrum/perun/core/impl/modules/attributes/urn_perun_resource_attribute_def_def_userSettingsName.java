@@ -28,7 +28,8 @@ public class urn_perun_resource_attribute_def_def_userSettingsName extends Resou
     attr.setDisplayName("User settings name");
     attr.setType(String.class.getName());
     attr.setDescription(
-        "Name displayed in user profile resource settings. To display certain resource in user profile settings this attribute value needs to be set.");
+        "Name displayed in user profile resource settings. To display certain resource in user profile settings this " +
+        "attribute value needs to be set.");
     return attr;
   }
 }

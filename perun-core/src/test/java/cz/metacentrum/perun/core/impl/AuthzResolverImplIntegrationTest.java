@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
@@ -19,17 +23,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTest {
 
@@ -43,96 +42,12 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
   private AuthzResolverImplApi authzResolverImpl;
   private int userLoginSequence = 0;
 
-
-  @Before
-  public void setUp() throws Exception {
-    authzResolverImpl = (AuthzResolverImplApi) ReflectionTestUtils.getField(
-        AuthzResolverBlImpl.class, "authzResolverImpl"
-    );
-
-    createdVo = perun.getVosManagerBl().createVo(sess, new Vo(1, "", ""));
-    perun.getUsersManagerBl().createUser(sess, user1);
-    perun.getUsersManagerBl().createUser(sess, user2);
-    perun.getUsersManagerBl().createUser(sess, user3);
-    perun.getUsersManagerBl().createUser(sess, user4);
-  }
-
-  @Test
-  public void setRole() throws Exception {
-    System.out.println(CLASS_NAME + "setRole");
-
-    Map<String, Integer> mapping = prepareMapping(user1);
-
-    authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
-    AuthzRoles userRoles = AuthzResolverBlImpl.getUserRoles(sess, user1, true);
-
-    assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
-  }
-
-  @Test
-  public void getRolesOnlyValid() throws Exception {
-    System.out.println(CLASS_NAME + "getRolesOnlyValid");
-    Member member1 = createSomeMember(createdVo);
-    User testUser = perun.getUsersManagerBl().getUserByMember(sess, member1);
-    Group testGroup = setUpGroup(createdVo, member1, "testGroup");
-
-    Vo anotherCreatedVo = perun.getVosManagerBl().createVo(sess, new Vo(2, "another VO", "another VO"));
-
-    AuthzResolver.setRole(sess, testUser, anotherCreatedVo, Role.VOADMIN);
-    AuthzResolver.setRole(sess, testGroup, createdVo, Role.VOADMIN);
-
-    AuthzRoles userRoles = authzResolverImpl.getRoles(testUser, true);
-    assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
-
-    perun.getMembersManagerBl().invalidateMember(sess, member1);
-
-    userRoles = authzResolverImpl.getRoles(testUser, true);
-    assertFalse(userRoles.hasRole(Role.VOADMIN, createdVo));
-    assertTrue(userRoles.hasRole(Role.VOADMIN, anotherCreatedVo));
-
-    perun.getMembersManagerBl().validateMember(sess, member1);
-    userRoles = authzResolverImpl.getRoles(testUser, true);
-    assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
-    assertTrue(userRoles.hasRole(Role.VOADMIN, anotherCreatedVo));
-
-    perun.getGroupsManagerBl().expireMemberInGroup(sess, member1, testGroup);
-
-    userRoles = authzResolverImpl.getRoles(testUser, true);
-    assertFalse(userRoles.hasRole(Role.VOADMIN, createdVo));
-    assertTrue(userRoles.hasRole(Role.VOADMIN, anotherCreatedVo));
-  }
-
-  @Test
-  public void getUserRolesFromAuthorizedGroupsOnly() throws Exception {
-    System.out.println(CLASS_NAME + "getUserRolesFromAuthorizedGroupsOnly");
-
-    Member testMember = createSomeMember(createdVo);
-    User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
-    Group testGroup = setUpGroup(createdVo, testMember, "testGroup");
-
-    // set role for group
-    AuthzResolver.setRole(sess, testGroup, createdVo, Role.VOADMIN);
-
-    // check that user has VO
-    AuthzRoles userRoles = authzResolverImpl.getRolesObtainedFromAuthorizedGroupMemberships(testUser);
-    assertEquals(1, userRoles.size());
-    assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
-  }
-
-  @Test
-  public void getUserRolesWithoutAuthorizedGroupsBased() throws Exception {
-    System.out.println(CLASS_NAME + "getUserRolesWithoutAuthorizedGroupsBased");
-
-    Member testMember = createSomeMember(createdVo);
-    User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
-    Group testGroup = setUpGroup(createdVo, testMember, "testGroup");
-
-    // set role for group
-    AuthzResolver.setRole(sess, testGroup, createdVo, Role.VOADMIN);
-
-    // check that user has VO
-    AuthzRoles userRoles = authzResolverImpl.getRoles(testUser, false);
-    assertFalse(userRoles.hasRole(Role.VOADMIN, createdVo));
+  private Member createSomeMember(final Vo createdVo)
+      throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
+      WrongReferenceAttributeValueException {
+    final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
+    final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
+    return createdMember;
   }
 
   @Test
@@ -214,34 +129,69 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
   }
 
   @Test
-  public void unsetRole() throws Exception {
-    System.out.println(CLASS_NAME + "unsetRole");
+  public void getRolesOnlyValid() throws Exception {
+    System.out.println(CLASS_NAME + "getRolesOnlyValid");
+    Member member1 = createSomeMember(createdVo);
+    User testUser = perun.getUsersManagerBl().getUserByMember(sess, member1);
+    Group testGroup = setUpGroup(createdVo, member1, "testGroup");
 
-    Map<String, Integer> mapping = prepareMapping(user2);
+    Vo anotherCreatedVo = perun.getVosManagerBl().createVo(sess, new Vo(2, "another VO", "another VO"));
 
-    authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
-    authzResolverImpl.unsetRole(sess, mapping, Role.VOADMIN);
+    AuthzResolver.setRole(sess, testUser, anotherCreatedVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, testGroup, createdVo, Role.VOADMIN);
 
-    assertFalse(AuthzResolverBlImpl.getUserRoleNames(sess, user2).contains(Role.VOADMIN));
+    AuthzRoles userRoles = authzResolverImpl.getRoles(testUser, true);
+    assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
+
+    perun.getMembersManagerBl().invalidateMember(sess, member1);
+
+    userRoles = authzResolverImpl.getRoles(testUser, true);
+    assertFalse(userRoles.hasRole(Role.VOADMIN, createdVo));
+    assertTrue(userRoles.hasRole(Role.VOADMIN, anotherCreatedVo));
+
+    perun.getMembersManagerBl().validateMember(sess, member1);
+    userRoles = authzResolverImpl.getRoles(testUser, true);
+    assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
+    assertTrue(userRoles.hasRole(Role.VOADMIN, anotherCreatedVo));
+
+    perun.getGroupsManagerBl().expireMemberInGroup(sess, member1, testGroup);
+
+    userRoles = authzResolverImpl.getRoles(testUser, true);
+    assertFalse(userRoles.hasRole(Role.VOADMIN, createdVo));
+    assertTrue(userRoles.hasRole(Role.VOADMIN, anotherCreatedVo));
   }
 
-  @Test(expected = RoleNotSetException.class)
-  public void unsetRoleWhichIsNotSet() throws Exception {
-    System.out.println(CLASS_NAME + "unsetRoleWhichIsNotSet");
+  @Test
+  public void getUserRolesFromAuthorizedGroupsOnly() throws Exception {
+    System.out.println(CLASS_NAME + "getUserRolesFromAuthorizedGroupsOnly");
 
-    Map<String, Integer> mapping = prepareMapping(user3);
+    Member testMember = createSomeMember(createdVo);
+    User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+    Group testGroup = setUpGroup(createdVo, testMember, "testGroup");
 
-    authzResolverImpl.unsetRole(sess, mapping, Role.VOADMIN);
+    // set role for group
+    AuthzResolver.setRole(sess, testGroup, createdVo, Role.VOADMIN);
+
+    // check that user has VO
+    AuthzRoles userRoles = authzResolverImpl.getRolesObtainedFromAuthorizedGroupMemberships(testUser);
+    assertEquals(1, userRoles.size());
+    assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
   }
 
-  @Test(expected = RoleAlreadySetException.class)
-  public void setRoleWhichIsAlreadySet() throws Exception {
-    System.out.println(CLASS_NAME + "setRoleWhichIsAlreadySet");
+  @Test
+  public void getUserRolesWithoutAuthorizedGroupsBased() throws Exception {
+    System.out.println(CLASS_NAME + "getUserRolesWithoutAuthorizedGroupsBased");
 
-    Map<String, Integer> mapping = prepareMapping(user4);
+    Member testMember = createSomeMember(createdVo);
+    User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+    Group testGroup = setUpGroup(createdVo, testMember, "testGroup");
 
-    authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
-    authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
+    // set role for group
+    AuthzResolver.setRole(sess, testGroup, createdVo, Role.VOADMIN);
+
+    // check that user has VO
+    AuthzRoles userRoles = authzResolverImpl.getRoles(testUser, false);
+    assertFalse(userRoles.hasRole(Role.VOADMIN, createdVo));
   }
 
   private Map<String, Integer> prepareMapping(User user) {
@@ -254,14 +204,38 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
     return mapping;
   }
 
-  private Group setUpGroup(Vo vo, Member member, String name) throws Exception {
+  @Test
+  public void setRole() throws Exception {
+    System.out.println(CLASS_NAME + "setRole");
 
-    Group group = new Group(name, "test group");
-    group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+    Map<String, Integer> mapping = prepareMapping(user1);
 
-    perun.getGroupsManagerBl().addMember(sess, group, member);
+    authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
+    AuthzRoles userRoles = AuthzResolverBlImpl.getUserRoles(sess, user1, true);
 
-    return group;
+    assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
+  }
+
+  @Test(expected = RoleAlreadySetException.class)
+  public void setRoleWhichIsAlreadySet() throws Exception {
+    System.out.println(CLASS_NAME + "setRoleWhichIsAlreadySet");
+
+    Map<String, Integer> mapping = prepareMapping(user4);
+
+    authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
+    authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    authzResolverImpl =
+        (AuthzResolverImplApi) ReflectionTestUtils.getField(AuthzResolverBlImpl.class, "authzResolverImpl");
+
+    createdVo = perun.getVosManagerBl().createVo(sess, new Vo(1, "", ""));
+    perun.getUsersManagerBl().createUser(sess, user1);
+    perun.getUsersManagerBl().createUser(sess, user2);
+    perun.getUsersManagerBl().createUser(sess, user3);
+    perun.getUsersManagerBl().createUser(sess, user4);
   }
 
   private Candidate setUpCandidate(String login) {
@@ -283,11 +257,34 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
 
   }
 
-  private Member createSomeMember(final Vo createdVo)
-      throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException {
-    final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
-    final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
-    return createdMember;
+  private Group setUpGroup(Vo vo, Member member, String name) throws Exception {
+
+    Group group = new Group(name, "test group");
+    group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+
+    perun.getGroupsManagerBl().addMember(sess, group, member);
+
+    return group;
+  }
+
+  @Test
+  public void unsetRole() throws Exception {
+    System.out.println(CLASS_NAME + "unsetRole");
+
+    Map<String, Integer> mapping = prepareMapping(user2);
+
+    authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
+    authzResolverImpl.unsetRole(sess, mapping, Role.VOADMIN);
+
+    assertFalse(AuthzResolverBlImpl.getUserRoleNames(sess, user2).contains(Role.VOADMIN));
+  }
+
+  @Test(expected = RoleNotSetException.class)
+  public void unsetRoleWhichIsNotSet() throws Exception {
+    System.out.println(CLASS_NAME + "unsetRoleWhichIsNotSet");
+
+    Map<String, Integer> mapping = prepareMapping(user3);
+
+    authzResolverImpl.unsetRole(sess, mapping, Role.VOADMIN);
   }
 }

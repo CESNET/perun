@@ -24,12 +24,17 @@ public class MessagesPageQuery {
     this.selectedEvents = selectedEvents;
   }
 
-  public int getPageSize() {
-    return pageSize;
-  }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof MessagesPageQuery that)) {
+      return false;
+    }
 
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
+    return (getPageSize() == that.getPageSize()) && (getOffset() == that.getOffset()) &&
+           (getOrder() == that.getOrder()) && (Objects.equals(getSelectedEvents(), that.getSelectedEvents()));
   }
 
   public int getOffset() {
@@ -48,27 +53,20 @@ public class MessagesPageQuery {
     this.order = order;
   }
 
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
+  }
+
   public List<String> getSelectedEvents() {
     return this.selectedEvents;
   }
 
   public void setSelectedEvents(List<String> selectedEvents) {
     this.selectedEvents = selectedEvents;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof MessagesPageQuery that)) {
-      return false;
-    }
-
-    return (getPageSize() == that.getPageSize())
-        && (getOffset() == that.getOffset())
-        && (getOrder() == that.getOrder())
-        && (Objects.equals(getSelectedEvents(), that.getSelectedEvents()));
   }
 
   @Override

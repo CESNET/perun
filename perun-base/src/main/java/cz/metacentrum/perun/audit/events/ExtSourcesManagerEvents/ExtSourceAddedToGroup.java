@@ -21,10 +21,6 @@ public class ExtSourceAddedToGroup extends AuditEvent implements EngineIgnoreEve
     this.message = formatMessage("%s added to %s.", source, group);
   }
 
-  public ExtSource getSource() {
-    return source;
-  }
-
   public Group getGroup() {
     return group;
   }
@@ -32,6 +28,10 @@ public class ExtSourceAddedToGroup extends AuditEvent implements EngineIgnoreEve
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public ExtSource getSource() {
+    return source;
   }
 
   @Override

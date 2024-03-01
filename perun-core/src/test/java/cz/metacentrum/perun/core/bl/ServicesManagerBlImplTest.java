@@ -1,5 +1,10 @@
 package cz.metacentrum.perun.core.bl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Destination;
@@ -16,18 +21,12 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
-
+import java.util.ArrayList;
+import java.util.List;
+import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,23 +37,11 @@ import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author Michal Karm Babacek
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextHierarchy({
-    @ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})
-})
+@ContextHierarchy({@ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})})
 @Transactional(transactionManager = "springTransactionManager")
 public class ServicesManagerBlImplTest {
   //TODO content of this class should be moved to ServicesManagerEntryIntegrationTest
@@ -83,6 +70,29 @@ public class ServicesManagerBlImplTest {
   private ServicesPackage servicesPackage;
   private Task task;
 
+  public DataSource getDataSource() {
+    return dataSource;
+  }
+
+  public Perun getPerun() {
+    return perun;
+  }
+
+  public ServicesManager getServicesManager() {
+    return servicesManager;
+  }
+
+  public void setDataSource(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+
+  public void setPerun(Perun perun) {
+    this.perun = perun;
+  }
+
+  public void setServicesManager(ServicesManager servicesManager) {
+    this.servicesManager = servicesManager;
+  }
 
   /*
    * Tables with reference to service:
@@ -97,10 +107,8 @@ public class ServicesManagerBlImplTest {
    */
   @Before
   public void setUp() throws Exception {
-    perunSession = perun.getPerunSession(
-        new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-            ExtSourcesManager.EXTSOURCE_INTERNAL),
-        new PerunClient());
+    perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 
     jdbcTemplate = new JdbcPerunTemplate(dataSource);
 
@@ -210,28 +218,11 @@ public class ServicesManagerBlImplTest {
   }
 
   @Test
-  public void testDeleteService() throws Exception {
-    System.out.println("ServicesManagerBlImplTest.testDeleteService");
+  public void testBanServiceOnDestination() throws Exception {
+    System.out.println("ServiceDenialDaoTest.blockServiceOnDestination");
 
-    // service denials (set up here, otherwise it breaks other test)
     ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
-
-    ((PerunBl) perun).getServicesManagerBl().deleteService(perunSession, testService1, true);
-  }
-
-  @Test
-  public void testIsServiceDeniedOnFacility() {
-    System.out.println("ServiceDenialDaoTest.isServiceBlockedOnFacility");
-
-    assertFalse(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService1, facility1));
-
-  }
-
-  @Test
-  public void testIsServiceDeniedOnDestination() {
-    System.out.println("ServiceDenialDaoTest.isServiceBlockedOnDestination");
-
-    assertFalse(
+    assertTrue(
         ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService1, testDestinationId1));
 
   }
@@ -246,28 +237,85 @@ public class ServicesManagerBlImplTest {
   }
 
   @Test
-  public void testBanServiceOnDestination() throws Exception {
-    System.out.println("ServiceDenialDaoTest.blockServiceOnDestination");
+  public void testDeleteService() throws Exception {
+    System.out.println("ServicesManagerBlImplTest.testDeleteService");
+
+    // service denials (set up here, otherwise it breaks other test)
+    ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
+
+    ((PerunBl) perun).getServicesManagerBl().deleteService(perunSession, testService1, true);
+  }
+
+  @Test
+  public void testFreeAllDenialsOnDestination() throws Exception {
+    System.out.println("ServiceDenialDaoTest.unblockAllServicesOnDestination");
 
     ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
+    ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService2, testDestinationId1);
+
+    ((PerunBl) perun).getServicesManagerBl().unblockAllServicesOnDestination(perunSession, testDestinationId1);
+    assertFalse(
+        ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService1, testDestinationId1));
+    assertFalse(
+        ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService2, testDestinationId1));
+
+  }
+
+  @Test
+  public void testFreeAllDenialsOnFacility() throws Exception {
+    System.out.println("ServiceDenialDaoTest.unblockAllServicesOnFacility");
+
+    ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService1, facility1);
+    ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService2, facility1);
+    ((PerunBl) perun).getServicesManagerBl().unblockAllServicesOnFacility(perunSession, facility1);
+    assertFalse(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService1, facility1));
+    assertFalse(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService2, facility1));
+
+  }
+
+  @Test
+  public void testFreeDenialOfServiceOnDestination() throws Exception {
+    System.out.println("ServiceDenialDaoTest.unblockServiceOnDestination");
+
+    ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
+    ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService2, testDestinationId1);
+
+    ((PerunBl) perun).getServicesManagerBl()
+        .unblockServiceOnDestination(perunSession, testService2, testDestinationId1);
     assertTrue(
+        ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService1, testDestinationId1));
+    assertFalse(
+        ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService2, testDestinationId1));
+
+  }
+
+  @Test
+  public void testFreeDenialOfServiceOnFacility() throws Exception {
+    System.out.println("ServiceDenialDaoTest.unblockServiceOnFacility");
+
+    ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService1, facility1);
+    ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService2, facility1);
+
+    ((PerunBl) perun).getServicesManagerBl().unblockServiceOnFacility(perunSession, testService2, facility1);
+    assertTrue(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService1, facility1));
+    assertFalse(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService2, facility1));
+
+  }
+
+  @Test
+  public void testIsServiceDeniedOnDestination() {
+    System.out.println("ServiceDenialDaoTest.isServiceBlockedOnDestination");
+
+    assertFalse(
         ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService1, testDestinationId1));
 
   }
 
   @Test
-  public void testListDenialsForFacility() throws Exception {
-    System.out.println("ServiceDenialDaoTest.getServicesBlockedOnFacility");
-    ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService1, facility1);
-    ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService2, facility1);
+  public void testIsServiceDeniedOnFacility() {
+    System.out.println("ServiceDenialDaoTest.isServiceBlockedOnFacility");
 
-    List<Service> deniedServices =
-        ((PerunBl) perun).getServicesManagerBl().getServicesBlockedOnFacility(perunSession, facility1);
-    assertNotNull(deniedServices);
-    assertEquals(deniedServices.size(), 2);
-
-    assertEquals(((PerunBl) perun).getServicesManagerBl().getServicesBlockedOnFacility(perunSession, facility2).size(),
-        0);
+    assertFalse(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService1, facility1));
 
   }
 
@@ -290,83 +338,19 @@ public class ServicesManagerBlImplTest {
   }
 
   @Test
-  public void testFreeAllDenialsOnFacility() throws Exception {
-    System.out.println("ServiceDenialDaoTest.unblockAllServicesOnFacility");
-
-    ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService1, facility1);
-    ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService2, facility1);
-    ((PerunBl) perun).getServicesManagerBl().unblockAllServicesOnFacility(perunSession, facility1);
-    assertFalse(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService1, facility1));
-    assertFalse(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService2, facility1));
-
-  }
-
-  @Test
-  public void testFreeAllDenialsOnDestination() throws Exception {
-    System.out.println("ServiceDenialDaoTest.unblockAllServicesOnDestination");
-
-    ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
-    ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService2, testDestinationId1);
-
-    ((PerunBl) perun).getServicesManagerBl().unblockAllServicesOnDestination(perunSession, testDestinationId1);
-    assertFalse(
-        ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService1, testDestinationId1));
-    assertFalse(
-        ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService2, testDestinationId1));
-
-  }
-
-  @Test
-  public void testFreeDenialOfServiceOnFacility() throws Exception {
-    System.out.println("ServiceDenialDaoTest.unblockServiceOnFacility");
-
+  public void testListDenialsForFacility() throws Exception {
+    System.out.println("ServiceDenialDaoTest.getServicesBlockedOnFacility");
     ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService1, facility1);
     ((PerunBl) perun).getServicesManagerBl().blockServiceOnFacility(perunSession, testService2, facility1);
 
-    ((PerunBl) perun).getServicesManagerBl().unblockServiceOnFacility(perunSession, testService2, facility1);
-    assertTrue(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService1, facility1));
-    assertFalse(((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(testService2, facility1));
+    List<Service> deniedServices =
+        ((PerunBl) perun).getServicesManagerBl().getServicesBlockedOnFacility(perunSession, facility1);
+    assertNotNull(deniedServices);
+    assertEquals(deniedServices.size(), 2);
 
-  }
+    assertEquals(((PerunBl) perun).getServicesManagerBl().getServicesBlockedOnFacility(perunSession, facility2).size(),
+        0);
 
-  @Test
-  public void testFreeDenialOfServiceOnDestination() throws Exception {
-    System.out.println("ServiceDenialDaoTest.unblockServiceOnDestination");
-
-    ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
-    ((PerunBl) perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService2, testDestinationId1);
-
-    ((PerunBl) perun).getServicesManagerBl()
-        .unblockServiceOnDestination(perunSession, testService2, testDestinationId1);
-    assertTrue(
-        ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService1, testDestinationId1));
-    assertFalse(
-        ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(testService2, testDestinationId1));
-
-  }
-
-  public ServicesManager getServicesManager() {
-    return servicesManager;
-  }
-
-  public void setServicesManager(ServicesManager servicesManager) {
-    this.servicesManager = servicesManager;
-  }
-
-  public DataSource getDataSource() {
-    return dataSource;
-  }
-
-  public void setDataSource(DataSource dataSource) {
-    this.dataSource = dataSource;
-  }
-
-  public Perun getPerun() {
-    return perun;
-  }
-
-  public void setPerun(Perun perun) {
-    this.perun = perun;
   }
 
 }

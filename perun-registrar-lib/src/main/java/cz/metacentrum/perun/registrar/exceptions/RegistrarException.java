@@ -3,8 +3,7 @@ package cz.metacentrum.perun.registrar.exceptions;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 
 /**
- * Custom exception thrown by Registrar.
- * It's processed in GUI and shows raw message text.
+ * Custom exception thrown by Registrar. It's processed in GUI and shows raw message text.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */

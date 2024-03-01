@@ -16,13 +16,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 public class urn_perun_user_attribute_def_virt_anonymized extends UserVirtualAttributesModuleAbstract
     implements UserVirtualAttributesModuleImplApi {
   @Override
-  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-    Attribute attribute = new Attribute(attributeDefinition);
-    attribute.setValue(sess.getPerunBl().getUsersManagerBl().isUserAnonymized(sess, user));
-    return attribute;
-  }
-
-  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
@@ -31,5 +24,12 @@ public class urn_perun_user_attribute_def_virt_anonymized extends UserVirtualAtt
     attr.setType(Boolean.class.getName());
     attr.setDescription("Anonymization flag (user was anonymized).");
     return attr;
+  }
+
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute attribute = new Attribute(attributeDefinition);
+    attribute.setValue(sess.getPerunBl().getUsersManagerBl().isUserAnonymized(sess, user));
+    return attribute;
   }
 }

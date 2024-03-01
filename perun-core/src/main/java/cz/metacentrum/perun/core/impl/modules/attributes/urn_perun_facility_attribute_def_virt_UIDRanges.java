@@ -44,6 +44,17 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
   }
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
+    attr.setFriendlyName("UIDRanges");
+    attr.setDisplayName("UID ranges in set namespace for the Facility");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription("Computed UID ranges in set namespace for the facility");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility,
                                      AttributeDefinition attributeDefinition) {
     Attribute attribute = new Attribute(attributeDefinition);
@@ -56,9 +67,11 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
   }
 
   @Override
-  public void removeAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
-    //Not suported yet.
-    throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_FAC_uidNamespace);
+    dependencies.add(A_E_namespaceUIDRanges);
+    return dependencies;
   }
 
   private Attribute getNamespaceUIDRangesAttribute(PerunSessionImpl sess, String uidNamespace) {
@@ -71,6 +84,14 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
     }
   }
 
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(A_FAC_uidNamespace);
+    strongDependencies.add(A_E_namespaceUIDRanges);
+    return strongDependencies;
+  }
+
   private Attribute getUidNamespaceAttribute(PerunSessionImpl sess, Facility facility) {
     try {
       return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_uidNamespace);
@@ -80,30 +101,9 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_FAC_uidNamespace);
-    dependencies.add(A_E_namespaceUIDRanges);
-    return dependencies;
-  }
-
-  @Override
-  public List<String> getStrongDependencies() {
-    List<String> strongDependencies = new ArrayList<>();
-    strongDependencies.add(A_FAC_uidNamespace);
-    strongDependencies.add(A_E_namespaceUIDRanges);
-    return strongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
-    attr.setFriendlyName("UIDRanges");
-    attr.setDisplayName("UID ranges in set namespace for the Facility");
-    attr.setType(LinkedHashMap.class.getName());
-    attr.setDescription("Computed UID ranges in set namespace for the facility");
-    return attr;
+  public void removeAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
+    //Not suported yet.
+    throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
   }
 
 }

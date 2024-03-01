@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,21 +30,6 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
       AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGroupName";
   private static final String A_GR_systemIsUnixGroup =
       AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isSystemUnixGroup";
-
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource,
-                                 AttributeDefinition attributeDefinition) {
-    return new Attribute(attributeDefinition);
-  }
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    Integer gid = attribute.valueAsInteger();
-    if (gid != null && gid < 1) {
-      throw new WrongAttributeValueException(attribute, "GID number less than 1 is not allowed value.");
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
@@ -80,7 +64,8 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
     List<Pair<Group, Resource>> listGroupPairsResource =
         sess.getPerunBl().getGroupsManagerBl().getGroupResourcePairsByAttribute(sess, attribute);
 
-    //Searching through all pairs and if is not checking group/resource/attribute, then try for being on the same facility, if yes then throw exception but only if these groups have not the same GroupName too.
+    //Searching through all pairs and if is not checking group/resource/attribute, then try for being on the same
+    // facility, if yes then throw exception but only if these groups have not the same GroupName too.
     for (Pair<Group, Resource> p : listGroupPairsResource) {
       if (!p.getLeft().equals(group) || !p.getRight().equals(resource)) {
         Facility facilityForTest = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, p.getRight());
@@ -117,11 +102,18 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_GR_systemUnixGroupName);
-    dependencies.add(A_GR_systemIsUnixGroup);
-    return dependencies;
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    Integer gid = attribute.valueAsInteger();
+    if (gid != null && gid < 1) {
+      throw new WrongAttributeValueException(attribute, "GID number less than 1 is not allowed value.");
+    }
+  }
+
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource,
+                                 AttributeDefinition attributeDefinition) {
+    return new Attribute(attributeDefinition);
   }
 
   @Override
@@ -133,5 +125,13 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
     attr.setType(Integer.class.getName());
     attr.setDescription("GID of the system unix group.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_GR_systemUnixGroupName);
+    dependencies.add(A_GR_systemIsUnixGroup);
+    return dependencies;
   }
 }

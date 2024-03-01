@@ -24,6 +24,17 @@ public class urn_perun_member_attribute_def_virt_isSuspended extends MemberVirtu
     implements MemberVirtualAttributesModuleImplApi {
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_VIRT);
+    attr.setFriendlyName("isSuspended");
+    attr.setDisplayName("Suspended in VO");
+    attr.setType(Boolean.class.getName());
+    attr.setDescription("If member is suspended in the Vo at this moment.");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) {
     Attribute attribute = new Attribute(attributeDefinition);
 
@@ -33,23 +44,10 @@ public class urn_perun_member_attribute_def_virt_isSuspended extends MemberVirtu
       attribute.setValue(false);
     } else {
       Date startOfToday = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-      attribute.setValue(ban.get()
-          .getValidityTo()
-          .after(startOfToday));
+      attribute.setValue(ban.get().getValidityTo().after(startOfToday));
     }
 
     return attribute;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_VIRT);
-    attr.setFriendlyName("isSuspended");
-    attr.setDisplayName("Suspended in VO");
-    attr.setType(Boolean.class.getName());
-    attr.setDescription("If member is suspended in the Vo at this moment.");
-    return attr;
   }
 
 }

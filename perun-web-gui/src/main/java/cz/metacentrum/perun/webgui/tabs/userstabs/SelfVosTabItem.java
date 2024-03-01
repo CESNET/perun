@@ -63,7 +63,7 @@ import java.util.Map;
  */
 public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "vos";
+  public static final String URL = "vos";
   PerunWebSession session = PerunWebSession.getInstance();
   private SimplePanel contentWidget = new SimplePanel();
   private Label titleWidget = new Label("Loading user");

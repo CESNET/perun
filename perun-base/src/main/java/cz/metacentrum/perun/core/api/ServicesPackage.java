@@ -24,58 +24,6 @@ public class ServicesPackage extends Auditable implements Comparable<PerunBean> 
     this.name = name;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + this.getId();
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    ServicesPackage other = (ServicesPackage) obj;
-    if (this.getId() != other.getId()) {
-      return false;
-    }
-    return true;
-  }
-
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(getClass().getSimpleName()).append(":[").append(
-        "id='").append(this.getId()).append("'").append(
-        "description='").append(description).append("'").append(
-        "name='").append(name).append("'").append(
-        "]").toString();
-  }
-
   @Override
   public int compareTo(PerunBean perunBean) {
     if (perunBean == null) {
@@ -115,5 +63,55 @@ public class ServicesPackage extends Auditable implements Comparable<PerunBean> 
     } else {
       return (this.getId() - perunBean.getId());
     }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ServicesPackage other = (ServicesPackage) obj;
+    if (this.getId() != other.getId()) {
+      return false;
+    }
+    return true;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + this.getId();
+    return result;
+  }
+
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(getClass().getSimpleName()).append(":[").append("id='").append(this.getId()).append("'")
+        .append("description='").append(description).append("'").append("name='").append(name).append("'").append("]")
+        .toString();
   }
 }

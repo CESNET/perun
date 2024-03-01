@@ -55,26 +55,6 @@ public class Graph {
     return newNodesToSearch;
   }
 
-  /**
-   * Find nodes that belong to component for given node.
-   *
-   * @param node node
-   * @return Set of nodes that belong to the same component as given Node.
-   */
-  public Set<Node> getComponentNodes(Node node) {
-    Node graphDefinitionNode = nodes.get(node);
-
-    if (graphDefinitionNode == null) {
-      return Collections.singleton(node);
-    }
-
-    return findComponentNodes(graphDefinitionNode);
-  }
-
-  public void addNodes(Set<Node> nodes) {
-    nodes.forEach(this::addNode);
-  }
-
   public void addNode(Node node) {
     if (nodes.keySet().contains(node)) {
       return;
@@ -83,28 +63,8 @@ public class Graph {
     edges.put(node, new HashSet<>());
   }
 
-  public void removeNodes(Set<Node> nodes) {
-    nodes.forEach(this::removeNode);
-  }
-
-  public void removeNode(Node node) {
-    node.getAllEdges().forEach(this::removeEdge);
-
-    nodes.remove(node);
-    edges.remove(node);
-
-    for (GraphEdge edge : node.getInComingEdges()) {
-      edge.getSourceNode().removeOutComingEdge(edge);
-    }
-    for (GraphEdge edge : node.getOutComingEdges()) {
-      edge.getSourceNode().removeInComingEdge(edge);
-    }
-  }
-
-  public void removeEdge(GraphEdge edge) {
-    edges.get(edge.getSourceNode()).remove(edge);
-    edge.getSourceNode().removeOutComingEdge(edge);
-    edge.getTargetNode().removeInComingEdge(edge);
+  public void addNodes(Set<Node> nodes) {
+    nodes.forEach(this::addNode);
   }
 
   public void createEdge(Node source, Node target, GraphEdge.Type type) {
@@ -126,14 +86,6 @@ public class Graph {
     edges.get(source).add(edge);
   }
 
-  public Map<Node, Node> getNodes() {
-    return Collections.unmodifiableMap(nodes);
-  }
-
-  public Map<Node, Set<GraphEdge>> getEdges() {
-    return Collections.unmodifiableMap(edges);
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -143,13 +95,60 @@ public class Graph {
       return false;
     }
     Graph graph = (Graph) o;
-    return Objects.equals(nodes, graph.nodes) &&
-        Objects.equals(edges, graph.edges);
+    return Objects.equals(nodes, graph.nodes) && Objects.equals(edges, graph.edges);
+  }
+
+  /**
+   * Find nodes that belong to component for given node.
+   *
+   * @param node node
+   * @return Set of nodes that belong to the same component as given Node.
+   */
+  public Set<Node> getComponentNodes(Node node) {
+    Node graphDefinitionNode = nodes.get(node);
+
+    if (graphDefinitionNode == null) {
+      return Collections.singleton(node);
+    }
+
+    return findComponentNodes(graphDefinitionNode);
+  }
+
+  public Map<Node, Set<GraphEdge>> getEdges() {
+    return Collections.unmodifiableMap(edges);
+  }
+
+  public Map<Node, Node> getNodes() {
+    return Collections.unmodifiableMap(nodes);
   }
 
   @Override
   public int hashCode() {
 
     return Objects.hash(nodes, edges);
+  }
+
+  public void removeEdge(GraphEdge edge) {
+    edges.get(edge.getSourceNode()).remove(edge);
+    edge.getSourceNode().removeOutComingEdge(edge);
+    edge.getTargetNode().removeInComingEdge(edge);
+  }
+
+  public void removeNode(Node node) {
+    node.getAllEdges().forEach(this::removeEdge);
+
+    nodes.remove(node);
+    edges.remove(node);
+
+    for (GraphEdge edge : node.getInComingEdges()) {
+      edge.getSourceNode().removeOutComingEdge(edge);
+    }
+    for (GraphEdge edge : node.getOutComingEdges()) {
+      edge.getSourceNode().removeInComingEdge(edge);
+    }
+  }
+
+  public void removeNodes(Set<Node> nodes) {
+    nodes.forEach(this::removeNode);
   }
 }

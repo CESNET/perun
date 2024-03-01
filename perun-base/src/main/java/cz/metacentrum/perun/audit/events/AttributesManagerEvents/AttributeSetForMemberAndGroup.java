@@ -30,12 +30,12 @@ public class AttributeSetForMemberAndGroup extends AuditEvent {
     return attribute;
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public Group getGroup() {
     return group;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
   @Override

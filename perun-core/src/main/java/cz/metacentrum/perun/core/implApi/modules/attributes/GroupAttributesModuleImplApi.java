@@ -17,48 +17,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi {
 
   /**
-   * Checks if value of this group attribute has valid syntax.
-   *
-   * @param perunSession perun session
-   * @param group        string for which you want to check validity of attribute
-   * @param attribute    attribute to check
-   * @throws InternalErrorException       if an exception is raised in particular
-   *                                      implementation, the exception is wrapped in InternalErrorException
-   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
-   */
-  void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute)
-      throws WrongAttributeValueException;
-
-  /**
-   * Checks if value of this group attribute has valid semantics.
-   *
-   * @param perunSession perun session
-   * @param group        group
-   * @param attribute    attribute to check
-   * @throws InternalErrorException                if an exception is raised in particular
-   *                                               implementation, the exception is wrapped in InternalErrorException
-   * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
-   * @throws WrongAttributeAssignmentException     if attribute does not belong to appropriate entity
-   */
-
-  void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute)
-      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
-
-  /**
-   * This method MAY fill an attribute at the specified resource.
-   *
-   * @param perunSession perun session
-   * @param group        group
-   * @param attribute    attribute to fill in
-   * @return
-   * @throws InternalErrorException            if an exception is raised in particular
-   *                                           implementation, the exception is wrapped in InternalErrorException
-   * @throws WrongAttributeAssignmentException
-   */
-  Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute)
-      throws WrongAttributeAssignmentException;
-
-  /**
    * If you need to do some further work with other modules, this method do that
    *
    * @param session   session
@@ -67,4 +25,46 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi {
    */
   void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute)
       throws WrongReferenceAttributeValueException;
+
+  /**
+   * Checks if value of this group attribute has valid semantics.
+   *
+   * @param perunSession perun session
+   * @param group        group
+   * @param attribute    attribute to check
+   * @throws InternalErrorException                if an exception is raised in particular implementation, the exception
+   *                                               is wrapped in InternalErrorException
+   * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+   * @throws WrongAttributeAssignmentException     if attribute does not belong to appropriate entity
+   */
+
+  void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+  /**
+   * Checks if value of this group attribute has valid syntax.
+   *
+   * @param perunSession perun session
+   * @param group        string for which you want to check validity of attribute
+   * @param attribute    attribute to check
+   * @throws InternalErrorException       if an exception is raised in particular implementation, the exception is
+   *                                      wrapped in InternalErrorException
+   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+   */
+  void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute)
+      throws WrongAttributeValueException;
+
+  /**
+   * This method MAY fill an attribute at the specified resource.
+   *
+   * @param perunSession perun session
+   * @param group        group
+   * @param attribute    attribute to fill in
+   * @return
+   * @throws InternalErrorException            if an exception is raised in particular implementation, the exception is
+   *                                           wrapped in InternalErrorException
+   * @throws WrongAttributeAssignmentException
+   */
+  Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException;
 }

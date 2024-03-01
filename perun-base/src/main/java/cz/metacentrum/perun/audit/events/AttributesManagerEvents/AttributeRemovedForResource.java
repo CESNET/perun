@@ -27,13 +27,13 @@ public class AttributeRemovedForResource extends AuditEvent {
     return attribute;
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   @Override

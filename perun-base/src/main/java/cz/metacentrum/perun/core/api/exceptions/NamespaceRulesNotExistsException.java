@@ -1,7 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when trying to get a namespace rules which does not exist in the LoginNamespacesRulesConfigContainer
+ * This exception is thrown when trying to get a namespace rules which does not exist in the
+ * LoginNamespacesRulesConfigContainer
  *
  * @author Peter Balčirák
  */

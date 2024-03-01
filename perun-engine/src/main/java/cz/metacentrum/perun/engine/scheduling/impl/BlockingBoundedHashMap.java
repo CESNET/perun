@@ -1,16 +1,15 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
 import cz.metacentrum.perun.engine.scheduling.BlockingBoundedMap;
-import org.springframework.util.Assert;
-
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
+import org.springframework.util.Assert;
 
 /**
- * Implementation of BlockingBoundedMap<K,V> using ConcurrentHashMap and Semaphore.
- * Allow holding only specified number of keys. Any thread waits on blockingPut() call if full.
+ * Implementation of BlockingBoundedMap<K,V> using ConcurrentHashMap and Semaphore. Allow holding only specified number
+ * of keys. Any thread waits on blockingPut() call if full.
  * <p>
  * Used to hold currently executing tasks in Engine.
  *
@@ -43,6 +42,11 @@ public class BlockingBoundedHashMap<K, V> implements BlockingBoundedMap<K, V> {
   }
 
   @Override
+  public Collection<K> keySet() {
+    return map.keySet();
+  }
+
+  @Override
   public V remove(K key) {
     V removed = map.remove(key);
     if (removed != null) {
@@ -54,11 +58,6 @@ public class BlockingBoundedHashMap<K, V> implements BlockingBoundedMap<K, V> {
   @Override
   public Collection<V> values() {
     return map.values();
-  }
-
-  @Override
-  public Collection<K> keySet() {
-    return map.keySet();
   }
 
 }

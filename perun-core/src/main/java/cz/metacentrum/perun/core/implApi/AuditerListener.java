@@ -10,8 +10,7 @@ package cz.metacentrum.perun.core.implApi;
 public interface AuditerListener {
 
   /**
-   * This method process received message.
-   * Auditer sends messages via this method.
+   * This method process received message. Auditer sends messages via this method.
    *
    * @param message received message (from auditer)
    */

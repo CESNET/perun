@@ -3,7 +3,6 @@ package cz.metacentrum.perun.scim.api.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.List;
 
 /**
@@ -50,64 +49,6 @@ public class GroupSCIM {
     resource = new Resource();
   }
 
-  public List<String> getSchemas() {
-    return schemas;
-  }
-
-  public void setSchemas(List<String> schemas) {
-    this.schemas = schemas;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
-
-  public List<MemberSCIM> getMembers() {
-    return members;
-  }
-
-  public void setMembers(List<MemberSCIM> members) {
-    this.members = members;
-  }
-
-  public Long getId() {
-    return resource.getId();
-  }
-
-  public void setId(Long id) {
-    resource.setId(id);
-  }
-
-  public Long getExternalId() {
-    return resource.getExternalId();
-  }
-
-  public void setExternalId(Long externalId) {
-    resource.setExternalId(externalId);
-  }
-
-  public Meta getMeta() {
-    return resource.getMeta();
-  }
-
-  public void setMeta(Meta meta) {
-    resource.setMeta(meta);
-  }
-
-  @JsonIgnore
-  public Resource getResource() {
-    return resource;
-  }
-
-  @JsonIgnore
-  public void setResource(Resource resource) {
-    this.resource = resource;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -133,6 +74,35 @@ public class GroupSCIM {
 
   }
 
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public Long getExternalId() {
+    return resource.getExternalId();
+  }
+
+  public Long getId() {
+    return resource.getId();
+  }
+
+  public List<MemberSCIM> getMembers() {
+    return members;
+  }
+
+  public Meta getMeta() {
+    return resource.getMeta();
+  }
+
+  @JsonIgnore
+  public Resource getResource() {
+    return resource;
+  }
+
+  public List<String> getSchemas() {
+    return schemas;
+  }
+
   @Override
   public int hashCode() {
     int result = super.hashCode();
@@ -143,12 +113,37 @@ public class GroupSCIM {
     return result;
   }
 
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
+
+  public void setExternalId(Long externalId) {
+    resource.setExternalId(externalId);
+  }
+
+  public void setId(Long id) {
+    resource.setId(id);
+  }
+
+  public void setMembers(List<MemberSCIM> members) {
+    this.members = members;
+  }
+
+  public void setMeta(Meta meta) {
+    resource.setMeta(meta);
+  }
+
+  @JsonIgnore
+  public void setResource(Resource resource) {
+    this.resource = resource;
+  }
+
+  public void setSchemas(List<String> schemas) {
+    this.schemas = schemas;
+  }
+
   @Override
   public String toString() {
-    return "GroupSCIM{" +
-        "schemas=" + schemas +
-        ", displayName='" + displayName + '\'' +
-        ", members=" + members +
-        '}';
+    return "GroupSCIM{" + "schemas=" + schemas + ", displayName='" + displayName + '\'' + ", members=" + members + '}';
   }
 }

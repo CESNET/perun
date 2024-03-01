@@ -51,7 +51,18 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
   private static final String A_U_D_o365EmailAddressesMU =
       AttributesManager.NS_USER_ATTR_DEF + ":" + o365MailsFriendlyName;
 
-  private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_tcsMails_mu.class);
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_tcsMails_mu.class);
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("tcsMails:mu");
+    attr.setDisplayName("Computed TCS mails for MU");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("All mails for TCS. Computed from different emails in Perun.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
@@ -97,11 +108,11 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
           }
         } else {
           //unexpected type of value, log it and skip the attribute
-          log.error("Unexpected type of attribute (should be String or ArrayList) {}. It will be skipped.",
+          LOG.error("Unexpected type of attribute (should be String or ArrayList) {}. It will be skipped.",
               sourceAttribute);
         }
       } else {
-        log.warn("When counting value of attribute {} we are missing source attribute {}. It will be skipped.",
+        LOG.warn("When counting value of attribute {} we are missing source attribute {}. It will be skipped.",
             this.getAttributeDefinition(), attrName);
       }
     }
@@ -111,34 +122,9 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
   }
 
   @Override
-  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message)
-      throws AttributeNotExistsException {
-    List<AuditEvent> resolvingMessages = new ArrayList<>();
-
-    // handle source user attributes changes
-    if (message instanceof AttributeSetForUser &&
-        isAffectedAttribute(((AttributeSetForUser) message).getAttribute().getFriendlyName())) {
-      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
-          .getAttributeDefinition(perunSession, this.getAttributeDefinition().getName());
-      resolvingMessages.add(
-          new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeSetForUser) message).getUser()));
-
-    } else if (message instanceof AttributeRemovedForUser &&
-        isAffectedAttribute(((AttributeRemovedForUser) message).getAttribute().getFriendlyName())) {
-      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
-          .getAttributeDefinition(perunSession, this.getAttributeDefinition().getName());
-      resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition),
-          ((AttributeRemovedForUser) message).getUser()));
-
-    } else if (message instanceof AllAttributesRemovedForUser) {
-      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
-          .getAttributeDefinition(perunSession, this.getAttributeDefinition().getName());
-      resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition),
-          ((AllAttributesRemovedForUser) message).getUser()));
-
-    }
-
-    return resolvingMessages;
+  public List<String> getStrongDependencies() {
+    return Arrays.asList(A_U_D_preferredMail, A_U_D_ISMail, A_U_D_publicAliasMails, A_U_D_privateAliasMails,
+        A_U_D_o365EmailAddressesMU);
   }
 
   /**
@@ -164,24 +150,34 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
   }
 
   @Override
-  public List<String> getStrongDependencies() {
-    return Arrays.asList(
-        A_U_D_preferredMail,
-        A_U_D_ISMail,
-        A_U_D_publicAliasMails,
-        A_U_D_privateAliasMails,
-        A_U_D_o365EmailAddressesMU);
-  }
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message)
+      throws AttributeNotExistsException {
+    List<AuditEvent> resolvingMessages = new ArrayList<>();
 
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("tcsMails:mu");
-    attr.setDisplayName("Computed TCS mails for MU");
-    attr.setType(ArrayList.class.getName());
-    attr.setDescription("All mails for TCS. Computed from different emails in Perun.");
-    return attr;
+    // handle source user attributes changes
+    if (message instanceof AttributeSetForUser &&
+        isAffectedAttribute(((AttributeSetForUser) message).getAttribute().getFriendlyName())) {
+      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(perunSession, this.getAttributeDefinition().getName());
+      resolvingMessages.add(
+          new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeSetForUser) message).getUser()));
+
+    } else if (message instanceof AttributeRemovedForUser &&
+               isAffectedAttribute(((AttributeRemovedForUser) message).getAttribute().getFriendlyName())) {
+      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(perunSession, this.getAttributeDefinition().getName());
+      resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition),
+          ((AttributeRemovedForUser) message).getUser()));
+
+    } else if (message instanceof AllAttributesRemovedForUser) {
+      AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(perunSession, this.getAttributeDefinition().getName());
+      resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition),
+          ((AllAttributesRemovedForUser) message).getUser()));
+
+    }
+
+    return resolvingMessages;
   }
 
 }

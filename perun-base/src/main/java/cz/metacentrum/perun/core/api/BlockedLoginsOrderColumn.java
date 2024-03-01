@@ -26,15 +26,15 @@ public enum BlockedLoginsOrderColumn {
     // TODO add support for other languages
   }
 
+  public String getSqlJoin() {
+    return this.joinSql;
+  }
+
   public String getSqlOrderBy(BlockedLoginsPageQuery query) {
     return this.orderBySqlFunction.apply(query);
   }
 
   public String getSqlSelect() {
     return this.selectSql;
-  }
-
-  public String getSqlJoin() {
-    return this.joinSql;
   }
 }

@@ -21,10 +21,6 @@ public class ExtSourceRemovedFromGroup extends AuditEvent implements EngineIgnor
     this.message = formatMessage("%s removed from %s.", source, group);
   }
 
-  public ExtSource getSource() {
-    return source;
-  }
-
   public Group getGroup() {
     return group;
   }
@@ -32,6 +28,10 @@ public class ExtSourceRemovedFromGroup extends AuditEvent implements EngineIgnor
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public ExtSource getSource() {
+    return source;
   }
 
   @Override

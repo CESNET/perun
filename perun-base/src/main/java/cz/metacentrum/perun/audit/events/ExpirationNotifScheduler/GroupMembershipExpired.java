@@ -23,16 +23,16 @@ public class GroupMembershipExpired extends AuditEvent implements EngineIgnoreEv
     this.message = formatMessage("%s has expired %d days ago in %s.", member, daysAfterExpiration, group);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public int getDaysAfterExpiration() {
     return daysAfterExpiration;
   }
 
   public Group getGroup() {
     return group;
+  }
+
+  public Member getMember() {
+    return member;
   }
 
   @Override

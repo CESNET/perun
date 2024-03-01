@@ -31,53 +31,21 @@ import org.slf4j.LoggerFactory;
  */
 public class LifescienceidusernamePasswordManagerModule extends GenericPasswordManagerModule {
 
-  private final static Logger log = LoggerFactory.getLogger(LifescienceidusernamePasswordManagerModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LifescienceidusernamePasswordManagerModule.class);
 
-  private final static String VO_NAME = "lifescience_hostel";
-  private final static String LS_DOMAIN = "@hostel.aai.lifescience-ri.eu";
-  private final static String EXT_SOURCE_NAME = "https://hostel.aai.lifescience-ri.eu/lshostel/";
-  private final static String REGISTRAR = "perunRegistrar";
+  private static final String VO_NAME = "lifescience_hostel";
+  private static final String LS_DOMAIN = "@hostel.aai.lifescience-ri.eu";
+  private static final String EXT_SOURCE_NAME = "https://hostel.aai.lifescience-ri.eu/lshostel/";
+  private static final String REGISTRAR = "perunRegistrar";
 
   public LifescienceidusernamePasswordManagerModule() {
     // set proper namespace
     this.actualLoginNamespace = "lifescienceid-username";
   }
 
-  @Override
-  public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
-    // This block of code is intended for manual setup of local accounts. Not for registrations.
-    if (!sess.getPerunPrincipal().getActor().equals(REGISTRAR)) {
-      if (user == null) {
-        user = ((PerunBl) sess.getPerun()).getModulesUtilsBl()
-            .getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
-      }
-
-      if (!addUserToVo(sess, userLogin, user)) {
-        return;
-      }
-    }
-
-    // validate password
-    super.validatePassword(sess, userLogin, user);
-  }
-
-  @Override
-  public void changePassword(PerunSession sess, String userLogin, String newPassword)
-      throws InvalidLoginException, PasswordStrengthException {
-    User user = ((PerunBl) sess.getPerun()).getModulesUtilsBl()
-        .getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
-
-    if (!addUserToVo(sess, userLogin, user)) {
-      return;
-    }
-
-    // change password
-    super.changePassword(sess, userLogin, newPassword);
-  }
-
   private boolean addUserToVo(PerunSession sess, String userLogin, User user) {
     if (user == null) {
-      log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+      LOG.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
       return false;
     }
 
@@ -116,8 +84,41 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
              ExtendMembershipException | UserExtSourceExistsException ex) {
       throw new InternalErrorException(ex);
     } catch (AlreadyMemberException ignored) {
+      // ignore
     }
     return true;
+  }
+
+  @Override
+  public void changePassword(PerunSession sess, String userLogin, String newPassword)
+      throws InvalidLoginException, PasswordStrengthException {
+    User user = ((PerunBl) sess.getPerun()).getModulesUtilsBl()
+        .getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
+
+    if (!addUserToVo(sess, userLogin, user)) {
+      return;
+    }
+
+    // change password
+    super.changePassword(sess, userLogin, newPassword);
+  }
+
+  @Override
+  public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
+    // This block of code is intended for manual setup of local accounts. Not for registrations.
+    if (!sess.getPerunPrincipal().getActor().equals(REGISTRAR)) {
+      if (user == null) {
+        user = ((PerunBl) sess.getPerun()).getModulesUtilsBl()
+            .getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
+      }
+
+      if (!addUserToVo(sess, userLogin, user)) {
+        return;
+      }
+    }
+
+    // validate password
+    super.validatePassword(sess, userLogin, user);
   }
 
 }

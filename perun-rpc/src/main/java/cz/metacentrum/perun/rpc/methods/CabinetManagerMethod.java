@@ -88,7 +88,8 @@ public enum CabinetManagerMethod implements ManagerMethod {
   /*#
    * Creates new Category for Publications with specified name and rank.
    *
-   * Category object's parameter name must be non-empty, max 128 chars long and rank must be double with single digit after decimal point. Other parameters are ignored.
+   * Category object's parameter name must be non-empty, max 128 chars long and rank must be double with single digit
+   *  after decimal point. Other parameters are ignored.
    *
    * @param category Category new Category object, must contain: name, rank
    * @return Category Created Category with ID set
@@ -292,7 +293,8 @@ public enum CabinetManagerMethod implements ManagerMethod {
       if (ac.getCabinetManager().publicationExists(pub)) {
         // get for external pubs
         if (pub.getExternalId() != 0 && pub.getPublicationSystemId() != 0) {
-          // externalId and publicationSystemId are unique and checked before so we can safely return first and only publication.
+          // externalId and publicationSystemId are unique and checked before so we can safely return first and only
+          // publication.
           return ac.getCabinetManager()
               .getRichPublicationByExternalId(pub.getExternalId(), pub.getPublicationSystemId());
           // for internal pubs

@@ -36,20 +36,123 @@ import org.slf4j.LoggerFactory;
  */
 public class AppTest extends AbstractTest {
 
-  private static final Logger logger = LoggerFactory.getLogger(AppTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppTest.class);
 
   private int userId;
   private int memberId;
   private int voId;
+
+  private void prepareData() throws PerunException {
+    // user
+    User user = new User();
+    user.setFirstName("John");
+    user.setMiddleName("");
+    user.setLastName("Smith");
+    user.setTitleBefore("");
+    user.setTitleAfter("");
+    User newUser = perun.getUsersManagerBl().createUser(sess, user);
+    userId = newUser.getId();
+
+    // vo
+    Vo vo = new Vo(0, "NotifTestVo", "NTestVo");
+    Vo newVo = perun.getVosManager().createVo(sess, vo);
+    voId = newVo.getId();
+
+    // member
+    Member member = perun.getMembersManagerBl().createMember(sess, newVo, newUser);
+    memberId = member.getId();
+
+    // attribute preferred laguage
+    AttributeDefinition attrDef = perun.getAttributesManagerBl()
+        .getAttributeDefinition(sess, "urn:perun:user:attribute-def:def:preferredLanguage");
+    Attribute attr = new Attribute(attrDef);
+    attr.setValue("cs");
+    System.out.println("attribute: " + perun.getAttributesManagerBl()
+        .getAttribute(sess, user, "urn:perun:user:attribute-def:def:preferredLanguage"));
+    perun.getAttributesManagerBl().setAttribute(sess, user, attr);
+
+    // template
+    PerunNotifTemplate template = new PerunNotifTemplate();
+    Map<String, List<String>> properties = new HashMap<>();
+    properties.put("cz.metacentrum.perun.core.api.Member", new ArrayList<>(Arrays.asList("getId()", "getUserId()")));
+    properties.put("METHOD", new ArrayList<>(Arrays.asList(
+        "getAttributesManagerBl().getAttribute(cz.metacentrum.perun.core.api.PerunSession, getUsersManagerBl()" +
+        ".getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member), " +
+        "\"urn:perun:user:attribute-def:def:preferredLanguage\").getValue().equals(\"en\")",
+        "getUsersManagerBl().getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core" +
+        ".api.Member).getId()",
+        "getAttributesManagerBl().getAttribute(cz.metacentrum.perun.core.api.PerunSession, getUsersManagerBl()" +
+        ".getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member), " +
+        "\"urn:perun:user:attribute-def:def:preferredLanguage\").getValue().equals(\"cs\")")));
+    template.setPrimaryProperties(properties);
+    template.setNotifyTrigger(PerunNotifNotifyTrigger.ALL_REGEX_IDS);
+    template.setYoungestMessageTime(10L);
+    template.setOldestMessageTime(20L);
+    template.setSender("noreply@meta.cz");
+
+    // regex for creation
+    PerunNotifRegex regexC = new PerunNotifRegex();
+    regexC.setNote("Member created");
+    regexC.setRegex("Member:.* created\\.");
+    PerunNotifRegex newRegexC = manager.createPerunNotifRegex(sess, regexC);
+    template.addPerunNotifRegex(newRegexC);
+
+    // regex for validation
+    PerunNotifRegex regexV = new PerunNotifRegex();
+    regexV.setNote("Member validated");
+    regexV.setRegex("Member:.* validated\\.");
+    PerunNotifRegex newRegexV = manager.createPerunNotifRegex(sess, regexV);
+    template.addPerunNotifRegex(newRegexV);
+
+    // template message english
+    PerunNotifTemplateMessage messageEn = new PerunNotifTemplateMessage();
+    messageEn.setMessage("Good day," + "thank you for Your registration to virtual organization MetaCentrum VO," +
+                         "activity MetaCentrum association CESNET, which focuses on sophisticated computation." +
+                         "Name: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() + "\"][\"Member\"]).getFirstName()}<br/>" +
+                         "Surname: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() + "\"][\"Member\"]).getLastName()}<br/>" +
+                         "Accounts are valid on machines till $membershipExpiration");
+    messageEn.setLocale(Locale.forLanguageTag("en"));
+    messageEn.setSubject("Subject");
+    template.addPerunNotifTemplateMessage(messageEn);
+
+    // template message czech
+    PerunNotifTemplateMessage messageCs = new PerunNotifTemplateMessage();
+    messageCs.setMessage("Dobrý den,\n" + "  děkujeme za Vaši registraci do virtualni organizace MetaCentrum VO,\n" +
+                         "aktivity MetaCentrum sdružení CESNET, zaměřené na náročné výpočty.\n" +
+                         "  Váš účet je nyní propagován na všechny servery, plně funkční bude\n" + "během hodiny.\n" +
+                         "  Jméno: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() + "\"][\"Member\"]).getFirstName()}<br/>\n" +
+                         "  Přijmení: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() + "\"][\"Member\"]).getLastName()}<br/>\n" +
+                         "Jazyk: ${perun.getAttributesManagerBl().getAttribute(perunSession, perun.getUsersManagerBl" +
+                         "().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() +
+                         "\"][\"Member\"]), \"urn:perun:user:attribute-def:def:preferredLanguage\").getValue()}");
+    messageCs.setLocale(Locale.forLanguageTag("cs"));
+    messageCs.setSubject("Subject");
+    template.addPerunNotifTemplateMessage(messageCs);
+
+    // receiver
+    PerunNotifReceiver receiver = new PerunNotifReceiver();
+    receiver.setLocale("cs");
+    receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
+    receiver.setTarget("cz.metacentrum.perun.core.api.Member.getUserId");
+    template.setReceivers(new ArrayList<>(Arrays.asList(receiver)));
+
+    manager.createPerunNotifTemplate(sess, template);
+
+  }
 
   @Test
   public void testNotificationListener() throws Exception {
     prepareData();
 
     schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId +
-        ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] created.");
+                                               ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] created.");
     schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId +
-        ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] validated.");
+                                               ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] validated.");
 
     schedulingManager.doNotification();
 
@@ -61,7 +164,7 @@ public class AppTest extends AbstractTest {
           try {
             Thread.sleep(1000);
           } catch (Exception ex) {
-            logger.error("Error during sleep.", ex);
+            LOGGER.error("Error during sleep.", ex);
           }
         } else {
           doWait = false;
@@ -73,7 +176,7 @@ public class AppTest extends AbstractTest {
     }
 
     if (smtpServer.getReceivedEmailSize() > 0) {
-
+      // do something
     } else {
       fail("Email not received.");
     }
@@ -200,109 +303,10 @@ public class AppTest extends AbstractTest {
     templateFromDb = manager.getPerunNotifTemplateById(sess, template.getId());
     assertTrue(templateFromDb.getMatchingRegexs() == null || templateFromDb.getMatchingRegexs().isEmpty());
     assertTrue(templateFromDb.getPerunNotifTemplateMessages() == null ||
-        templateFromDb.getPerunNotifTemplateMessages().isEmpty());
+               templateFromDb.getPerunNotifTemplateMessages().isEmpty());
     assertTrue(templateFromDb.getReceivers() == null || templateFromDb.getReceivers().isEmpty());
 
     manager.removePerunNotifTemplateById(sess, template.getId());
     assertNull(manager.getPerunNotifTemplateById(sess, template.getId()));
-  }
-
-  private void prepareData() throws PerunException {
-    // user
-    User user = new User();
-    user.setFirstName("John");
-    user.setMiddleName("");
-    user.setLastName("Smith");
-    user.setTitleBefore("");
-    user.setTitleAfter("");
-    User newUser = perun.getUsersManagerBl().createUser(sess, user);
-    userId = newUser.getId();
-
-    // vo
-    Vo vo = new Vo(0, "NotifTestVo", "NTestVo");
-    Vo newVo = perun.getVosManager().createVo(sess, vo);
-    voId = newVo.getId();
-
-    // member
-    Member member = perun.getMembersManagerBl().createMember(sess, newVo, newUser);
-    memberId = member.getId();
-
-    // attribute preferred laguage
-    AttributeDefinition attrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, "urn:perun:user:attribute-def:def:preferredLanguage");
-    Attribute attr = new Attribute(attrDef);
-    attr.setValue("cs");
-    System.out.println("attribute: " +
-        perun.getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:preferredLanguage"));
-    perun.getAttributesManagerBl().setAttribute(sess, user, attr);
-
-    // template
-    PerunNotifTemplate template = new PerunNotifTemplate();
-    Map<String, List<String>> properties = new HashMap<>();
-    properties.put("cz.metacentrum.perun.core.api.Member", new ArrayList<>(Arrays.asList("getId()", "getUserId()")));
-    properties.put("METHOD", new ArrayList<>(Arrays.asList(
-        "getAttributesManagerBl().getAttribute(cz.metacentrum.perun.core.api.PerunSession, getUsersManagerBl().getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member), \"urn:perun:user:attribute-def:def:preferredLanguage\").getValue().equals(\"en\")",
-        "getUsersManagerBl().getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member).getId()",
-        "getAttributesManagerBl().getAttribute(cz.metacentrum.perun.core.api.PerunSession, getUsersManagerBl().getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member), \"urn:perun:user:attribute-def:def:preferredLanguage\").getValue().equals(\"cs\")")));
-    template.setPrimaryProperties(properties);
-    template.setNotifyTrigger(PerunNotifNotifyTrigger.ALL_REGEX_IDS);
-    template.setYoungestMessageTime(10L);
-    template.setOldestMessageTime(20L);
-    template.setSender("noreply@meta.cz");
-
-    // regex for creation
-    PerunNotifRegex regexC = new PerunNotifRegex();
-    regexC.setNote("Member created");
-    regexC.setRegex("Member:.* created\\.");
-    PerunNotifRegex newRegexC = manager.createPerunNotifRegex(sess, regexC);
-    template.addPerunNotifRegex(newRegexC);
-
-    // regex for validation
-    PerunNotifRegex regexV = new PerunNotifRegex();
-    regexV.setNote("Member validated");
-    regexV.setRegex("Member:.* validated\\.");
-    PerunNotifRegex newRegexV = manager.createPerunNotifRegex(sess, regexV);
-    template.addPerunNotifRegex(newRegexV);
-
-    // template message english
-    PerunNotifTemplateMessage messageEn = new PerunNotifTemplateMessage();
-    messageEn.setMessage("Good day,"
-        + "thank you for Your registration to virtual organization MetaCentrum VO,"
-        + "activity MetaCentrum association CESNET, which focuses on sophisticated computation."
-        + "Name: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" + newRegexC.getId() +
-        "\"][\"Member\"]).getFirstName()}<br/>"
-        + "Surname: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" + newRegexC.getId() +
-        "\"][\"Member\"]).getLastName()}<br/>"
-        + "Accounts are valid on machines till $membershipExpiration");
-    messageEn.setLocale(Locale.forLanguageTag("en"));
-    messageEn.setSubject("Subject");
-    template.addPerunNotifTemplateMessage(messageEn);
-
-    // template message czech
-    PerunNotifTemplateMessage messageCs = new PerunNotifTemplateMessage();
-    messageCs.setMessage("Dobrý den,\n" +
-        "  děkujeme za Vaši registraci do virtualni organizace MetaCentrum VO,\n" +
-        "aktivity MetaCentrum sdružení CESNET, zaměřené na náročné výpočty.\n" +
-        "  Váš účet je nyní propagován na všechny servery, plně funkční bude\n" +
-        "během hodiny.\n" +
-        "  Jméno: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" + newRegexC.getId() +
-        "\"][\"Member\"]).getFirstName()}<br/>\n" +
-        "  Přijmení: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
-        newRegexC.getId() + "\"][\"Member\"]).getLastName()}<br/>\n" +
-        "Jazyk: ${perun.getAttributesManagerBl().getAttribute(perunSession, perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
-        newRegexC.getId() + "\"][\"Member\"]), \"urn:perun:user:attribute-def:def:preferredLanguage\").getValue()}");
-    messageCs.setLocale(Locale.forLanguageTag("cs"));
-    messageCs.setSubject("Subject");
-    template.addPerunNotifTemplateMessage(messageCs);
-
-    // receiver
-    PerunNotifReceiver receiver = new PerunNotifReceiver();
-    receiver.setLocale("cs");
-    receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
-    receiver.setTarget("cz.metacentrum.perun.core.api.Member.getUserId");
-    template.setReceivers(new ArrayList<>(Arrays.asList(receiver)));
-
-    manager.createPerunNotifTemplate(sess, template);
-
   }
 }

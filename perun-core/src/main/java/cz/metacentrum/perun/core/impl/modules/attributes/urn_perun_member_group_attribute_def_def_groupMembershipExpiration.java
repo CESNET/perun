@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttributesModuleImplApi;
-
 import java.text.ParseException;
 import java.util.Date;
 
@@ -22,36 +21,11 @@ import java.util.Date;
 public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration
     extends MemberGroupAttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
   @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute)
-      throws WrongAttributeValueException {
-    String membershipExpTime = attribute.valueAsString();
-
-	  if (membershipExpTime == null) {
-		  return; // NULL is ok
-	  }
-
-    Date testDate;
-
-    try {
-      testDate = BeansUtils.getDateFormatterWithoutTime().parse(membershipExpTime);
-
-    } catch (ParseException ex) {
-
-      throw new WrongAttributeValueException(attribute, "Date parsing failed", ex);
-    }
-
-    if (!BeansUtils.getDateFormatterWithoutTime().format(testDate).equals(membershipExpTime)) {
-
-      throw new WrongAttributeValueException(attribute, "Wrong format yyyy-MM-dd expected.");
-    }
-  }
-
-  @Override
   public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) {
     String value = null;
-	  if (attribute.getValue() != null) {
-		  value = (String) attribute.getValue();
-	  }
+    if (attribute.getValue() != null) {
+      value = (String) attribute.getValue();
+    }
     //If there is some value and member is in status expired or disabled
 
     // find out members status in given group
@@ -70,6 +44,31 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration
       if (expirationDate.compareTo(date) > 0) {
         session.getPerunBl().getGroupsManagerBl().validateMemberInGroup(session, member, group);
       }
+    }
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    String membershipExpTime = attribute.valueAsString();
+
+    if (membershipExpTime == null) {
+      return; // NULL is ok
+    }
+
+    Date testDate;
+
+    try {
+      testDate = BeansUtils.getDateFormatterWithoutTime().parse(membershipExpTime);
+
+    } catch (ParseException ex) {
+
+      throw new WrongAttributeValueException(attribute, "Date parsing failed", ex);
+    }
+
+    if (!BeansUtils.getDateFormatterWithoutTime().format(testDate).equals(membershipExpTime)) {
+
+      throw new WrongAttributeValueException(attribute, "Wrong format yyyy-MM-dd expected.");
     }
   }
 

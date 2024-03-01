@@ -53,12 +53,12 @@ public class ApplicationsPageQuery {
     this.states = states;
   }
 
-  public ApplicationsPageQuery(int pageSize, int offset, SortingOrder Order, ApplicationsOrderColumn sortColumn,
+  public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states,
                                Boolean includeGroupApplications) {
     this.pageSize = pageSize;
     this.offset = offset;
-    this.order = Order;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.includeGroupApplications = includeGroupApplications;
     this.searchString = searchString;
@@ -189,11 +189,11 @@ public class ApplicationsPageQuery {
     this.groupId = groupId;
   }
 
-  public ApplicationsPageQuery(int pageSize, int offset, SortingOrder Order, ApplicationsOrderColumn sortColumn,
+  public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states) {
     this.pageSize = pageSize;
     this.offset = offset;
-    this.order = Order;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.states = states;
@@ -210,102 +210,6 @@ public class ApplicationsPageQuery {
     this.states = states;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
-  }
-
-  public Integer getGroupId() {
-    return groupId;
-  }
-
-  public void setGroupId(Integer groupId) {
-    this.groupId = groupId;
-  }
-
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public Boolean getGetDetails() {
-    return getDetails;
-  }
-
-  public void setGetDetails(Boolean getDetails) {
-    this.getDetails = getDetails;
-  }
-
-  public ApplicationsOrderColumn getSortColumn() {
-    return sortColumn;
-  }
-
-  public void setSortColumn(ApplicationsOrderColumn sortColumn) {
-    this.sortColumn = sortColumn;
-  }
-
-  public String getSearchString() {
-    return searchString;
-  }
-
-  public void setSearchString(String searchString) {
-    this.searchString = searchString;
-  }
-
-  public List<Application.AppState> getStates() {
-    return states;
-  }
-
-  public void setStates(List<Application.AppState> states) {
-    this.states = states;
-  }
-
-  public LocalDate getDateFrom() {
-    return dateFrom;
-  }
-
-  public void setDateFrom(LocalDate dateFrom) {
-    this.dateFrom = dateFrom;
-  }
-
-  public LocalDate getDateTo() {
-    return dateTo;
-  }
-
-  public void setDateTo(LocalDate dateTo) {
-    this.dateTo = dateTo;
-  }
-
-  public Integer getUserId() {
-    return userId;
-  }
-
-  public void setUserId(Integer userId) {
-    this.userId = userId;
-  }
-
-  public Boolean getIncludeGroupApplications() {
-    return includeGroupApplications;
-  }
-
-  public void setIncludeGroupApplications(Boolean includeGroupApplications) {
-    this.includeGroupApplications = includeGroupApplications;
   }
 
   @Override
@@ -354,6 +258,102 @@ public class ApplicationsPageQuery {
       return false;
     }
     return getDateTo() == that.getDateTo();
+  }
+
+  public LocalDate getDateFrom() {
+    return dateFrom;
+  }
+
+  public void setDateFrom(LocalDate dateFrom) {
+    this.dateFrom = dateFrom;
+  }
+
+  public LocalDate getDateTo() {
+    return dateTo;
+  }
+
+  public void setDateTo(LocalDate dateTo) {
+    this.dateTo = dateTo;
+  }
+
+  public Boolean getGetDetails() {
+    return getDetails;
+  }
+
+  public void setGetDetails(Boolean getDetails) {
+    this.getDetails = getDetails;
+  }
+
+  public Integer getGroupId() {
+    return groupId;
+  }
+
+  public void setGroupId(Integer groupId) {
+    this.groupId = groupId;
+  }
+
+  public Boolean getIncludeGroupApplications() {
+    return includeGroupApplications;
+  }
+
+  public void setIncludeGroupApplications(Boolean includeGroupApplications) {
+    this.includeGroupApplications = includeGroupApplications;
+  }
+
+  public int getOffset() {
+    return offset;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public SortingOrder getOrder() {
+    return order;
+  }
+
+  public void setOrder(SortingOrder order) {
+    this.order = order;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
+  }
+
+  public String getSearchString() {
+    return searchString;
+  }
+
+  public void setSearchString(String searchString) {
+    this.searchString = searchString;
+  }
+
+  public ApplicationsOrderColumn getSortColumn() {
+    return sortColumn;
+  }
+
+  public void setSortColumn(ApplicationsOrderColumn sortColumn) {
+    this.sortColumn = sortColumn;
+  }
+
+  public List<Application.AppState> getStates() {
+    return states;
+  }
+
+  public void setStates(List<Application.AppState> states) {
+    this.states = states;
+  }
+
+  public Integer getUserId() {
+    return userId;
+  }
+
+  public void setUserId(Integer userId) {
+    this.userId = userId;
   }
 
   @Override

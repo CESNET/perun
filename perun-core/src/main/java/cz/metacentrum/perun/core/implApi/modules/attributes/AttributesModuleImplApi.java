@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.util.List;
 
 /**
@@ -20,15 +19,11 @@ import java.util.List;
 public interface AttributesModuleImplApi {
 
   /**
-   * Get list of attributes whose value are used in checking of validity of this attribute.
-   * In other words any change of these attributes' values can cause that value of this attribute is no longer valid.
-   * <p>
-   * An attribute should depend on all attributes which values are used in method "checkAttributeSemantics" defined in attribute module.
+   * Return attributes definition which is represented by the module
    *
-   * @return list of attributes this attribute depends on
-   * @see cz.metacentrum.perun.core.bl.AttributesManagerBl#checkAttributeDependencies(PerunSession, RichAttribute)
+   * @return attribute definition
    */
-  List<String> getDependencies();
+  AttributeDefinition getAttributeDefinition();
 
   /**
    * Return list of roles, which are authorized to work with this module
@@ -38,14 +33,20 @@ public interface AttributesModuleImplApi {
   List<String> getAuthorizedRoles();
 
   /**
-   * Return attributes definition which is represented by the module
+   * Get list of attributes whose value are used in checking of validity of this attribute. In other words any change of
+   * these attributes' values can cause that value of this attribute is no longer valid.
+   * <p>
+   * An attribute should depend on all attributes which values are used in method "checkAttributeSemantics" defined in
+   * attribute module.
    *
-   * @return attribute definition
+   * @return list of attributes this attribute depends on
+   * @see cz.metacentrum.perun.core.bl.AttributesManagerBl#checkAttributeDependencies(PerunSession, RichAttribute)
    */
-  AttributeDefinition getAttributeDefinition();
+  List<String> getDependencies();
 
   /**
-   * Gets message from auditer and resolves if it is needed to add another messages to DB about virtualAttribute changes.
+   * Gets message from auditer and resolves if it is needed to add another messages to DB about virtualAttribute
+   * changes.
    *
    * @param perunSession
    * @param message

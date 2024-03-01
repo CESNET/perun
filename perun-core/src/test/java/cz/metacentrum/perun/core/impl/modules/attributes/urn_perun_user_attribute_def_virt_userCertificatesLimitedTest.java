@@ -1,5 +1,11 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
@@ -7,18 +13,11 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_attribute_def_virt_userCertificatesLimitedTest {
 
@@ -28,8 +27,8 @@ public class urn_perun_user_attribute_def_virt_userCertificatesLimitedTest {
   private static Attribute mockedCertificateAttribute;
   private static Attribute mockedExpirationsAttribute;
   private static Attribute virtAttributeCertificates;
-  private static String newestCertificate = "-----BEGIN CERTIFICATE-----\n" +
-      "MIIDrTCCApWgAwIBAgIUFTbqf5jA2frptU28GUTkSBxrOBgwDQYJKoZIhvcNAQEL\n" +
+  private static String newestCertificate =
+      "-----BEGIN CERTIFICATE-----\n" + "MIIDrTCCApWgAwIBAgIUFTbqf5jA2frptU28GUTkSBxrOBgwDQYJKoZIhvcNAQEL\n" +
       "BQAwZjELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM\n" +
       "GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDEfMB0GCSqGSIb3DQEJARYQdGVzdEBl\n" +
       "eGFtcGxlLm9yZzAeFw0yMDA1MTkwODU4NDRaFw0yMTA1MTkwODU4NDRaMGYxCzAJ\n" +
@@ -48,10 +47,9 @@ public class urn_perun_user_attribute_def_virt_userCertificatesLimitedTest {
       "IV61Wp2bzkFM+CP2Bz/khwdbnjQ8PrBeRJUw54P2Be96GEVONHlxMBY5RkFRnmGT\n" +
       "LCntxIT7tYW+HbpwCG3tbB5tZKnunEUUka9QWu1Ddj0IqOVsw4tCwbmNKFzMATBN\n" +
       "scfCfD7TXfR77CKS7LJxqZofHWp25+4ybNYV2LjvTL1W9EiMgX+RXSR+crpQ5X69\n" +
-      "rO+rrGm1X0tBAiDz1CVvAEX8d8PxKaVd7MTWG42Jjqd8\n" +
-      "-----END CERTIFICATE-----";
-  private static String oldestCertificate = "-----BEGIN CERTIFICATE-----\n" +
-      "MIIDrTCCApWgAwIBAgIUIUUTLFEn1nXnGwjjdmQPnNSqhrUwDQYJKoZIhvcNAQEL\n" +
+      "rO+rrGm1X0tBAiDz1CVvAEX8d8PxKaVd7MTWG42Jjqd8\n" + "-----END CERTIFICATE-----";
+  private static String oldestCertificate =
+      "-----BEGIN CERTIFICATE-----\n" + "MIIDrTCCApWgAwIBAgIUIUUTLFEn1nXnGwjjdmQPnNSqhrUwDQYJKoZIhvcNAQEL\n" +
       "BQAwZjELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM\n" +
       "GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDEfMB0GCSqGSIb3DQEJARYQdGVzdEBl\n" +
       "eGFtcGxlLmNvbTAeFw0yMDA1MTkwOTAwMjBaFw0yMTAzMTUwOTAwMjBaMGYxCzAJ\n" +
@@ -70,8 +68,7 @@ public class urn_perun_user_attribute_def_virt_userCertificatesLimitedTest {
       "2EN5gYRrhScEuoO2LZO9O+HPxqpr6h2+9tCU7ise3yxnqqt9GZmlrfeC32eAJ9HC\n" +
       "43FDhimZitLMbFOcywtqBFKEMtZicSDszdO9fWSx5Q2NZ2sVvwEv813B2ld2VUE+\n" +
       "0+pyHkZfX26B2mwtqbcq6QBfDmR4PVYs6aIF9j5GP3JZvYNEovSNeIXfDMkql9Xh\n" +
-      "Xk4L/AAyBQfje3i9pwveR6So3MUB4ikDH/elRTPT45rB\n" +
-      "-----END CERTIFICATE-----";
+      "Xk4L/AAyBQfje3i9pwveR6So3MUB4ikDH/elRTPT45rB\n" + "-----END CERTIFICATE-----";
   private static Map<String, String> moreCertificates = generateMoreThanTenCertificates();
   private static Map<String, String> moreCertsExpiration =
       ModulesUtilsBlImpl.retrieveCertificatesExpiration(moreCertificates);
@@ -130,6 +127,16 @@ public class urn_perun_user_attribute_def_virt_userCertificatesLimitedTest {
   }
 
   @Test
+  public void testGetAttributeValueWithLessThanTen() {
+    System.out.println("testGetAttributeValueWithLessThanTen()");
+
+    when(mockedCertificateAttribute.valueAsMap()).thenReturn((LinkedHashMap<String, String>) lessCertificates);
+    when(mockedExpirationsAttribute.valueAsMap()).thenReturn((LinkedHashMap<String, String>) lessCertsExpiration);
+
+    assertEquals(3, classInstance.getAttributeValue(session, user, virtAttributeCertificates).valueAsList().size());
+  }
+
+  @Test
   public void testGetAttributeValueWithMoreThanTen() {
     System.out.println("testGetAttributeValueWithMoreThanTen()");
 
@@ -139,16 +146,6 @@ public class urn_perun_user_attribute_def_virt_userCertificatesLimitedTest {
     List<String> result = classInstance.getAttributeValue(session, user, virtAttributeCertificates).valueAsList();
 
     assertFalse(result.contains(oldestCertificate));
-  }
-
-  @Test
-  public void testGetAttributeValueWithLessThanTen() {
-    System.out.println("testGetAttributeValueWithLessThanTen()");
-
-    when(mockedCertificateAttribute.valueAsMap()).thenReturn((LinkedHashMap<String, String>) lessCertificates);
-    when(mockedExpirationsAttribute.valueAsMap()).thenReturn((LinkedHashMap<String, String>) lessCertsExpiration);
-
-    assertEquals(3, classInstance.getAttributeValue(session, user, virtAttributeCertificates).valueAsList().size());
   }
 
 }

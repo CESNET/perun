@@ -10,16 +10,12 @@ import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.DirectoryScopes;
 import com.google.api.services.directory.model.Member;
 import com.google.api.services.directory.model.Members;
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -27,6 +23,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Ext source implementation for Google Groups.
@@ -36,7 +34,7 @@ import java.util.Map;
  */
 public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
 
-  private final static Logger log = LoggerFactory.getLogger(ExtSourceGoogle.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ExtSourceGoogle.class);
   /**
    * Application name.
    */
@@ -77,38 +75,195 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
    */
   private static Credential authorize() {
     try {
-      GoogleCredential credential = new GoogleCredential.Builder()
-          .setTransport(HTTP_TRANSPORT)
-          .setJsonFactory(JSON_FACTORY)
-          .setServiceAccountId(SERVICE_ACCOUNT_EMAIL)
-          .setServiceAccountScopes(SCOPES)
-          .setServiceAccountUser(USER_EMAIL)
-          .setServiceAccountPrivateKeyFromP12File(
-              new java.io.File(SERVICE_ACCOUNT_PKCS12_FILE_PATH))
-          .build();
+      GoogleCredential credential =
+          new GoogleCredential.Builder().setTransport(HTTP_TRANSPORT).setJsonFactory(JSON_FACTORY)
+              .setServiceAccountId(SERVICE_ACCOUNT_EMAIL).setServiceAccountScopes(SCOPES)
+              .setServiceAccountUser(USER_EMAIL)
+              .setServiceAccountPrivateKeyFromP12File(new java.io.File(SERVICE_ACCOUNT_PKCS12_FILE_PATH)).build();
 
       return credential;
     } catch (IOException ex) {
-      log.error("Problem with I/O operation while building GoogleCredential object in authorize() method.", ex);
+      LOG.error("Problem with I/O operation while building GoogleCredential object in authorize() method.", ex);
     } catch (GeneralSecurityException ex) {
-      log.error("Problem with security while building GoogleCredential object in authorize() method.", ex);
+      LOG.error("Problem with security while building GoogleCredential object in authorize() method.", ex);
     }
 
     return null;
   }
 
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException(
-        "For Google Groups using this method is not optimized, use findSubjects instead.");
+  public void close() throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException("Using this method is not supported for Google Groups.");
   }
 
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException(
-        "For Google Groups using this method is not optimized, use findSubjects instead.");
+  /**
+   * Searching for members in group specified by groupName class variable by an email address. Email address doesn't
+   * have to be full, we are searching for substrings, not exact match.
+   * <p>
+   * When we find suitable members, we send their ID's one by one to processGoogleMappingAttribute() method to create
+   * map from suitable attributes. All these maps for each user (until maxResults number is reached) are stored together
+   * in list, that is returned by method.
+   *
+   * @param value part of email address
+   * @return List<Map < String, String>>, list of maps returned by processGoogleMappingAttribute() method
+   * @throws InternalErrorException
+   */
+  private List<Map<String, String>> executeQueryTypeContains(String value) {
+    List<Map<String, String>> subjects = new ArrayList<>();
+
+    try {
+      Members result = service.members().list(groupName).execute();
+      List<Member> membersInGroup = result.getMembers();
+
+      for (Member member : membersInGroup) {
+        Map<String, String> map = new HashMap<>();
+
+        if (member.getEmail().contains(value)) {
+          map = processGoogleMappingAttribute(member.getId());
+        }
+
+        if (!map.isEmpty()) {
+          subjects.add(map);
+        }
+      }
+    } catch (IOException ex) {
+      LOG.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
+    }
+
+    return subjects;
+  }
+
+  /**
+   * Searching for member with email address specified in 'value' variable in group specified by groupName class
+   * variable.
+   * <p>
+   * When we find suitable member, we send his ID to processGoogleMappingAttribute() method to create map from suitable
+   * attributes. All these maps for each user (until maxResults number is reached) are stored together in list, that is
+   * returned by method.
+   *
+   * @param value      member's ID
+   * @param maxResults max number of results for this query that should be returned by this method
+   * @return List<Map < String, String>>, list of maps returned by processGoogleMappingAttribute() method
+   * @throws InternalErrorException
+   */
+  private List<Map<String, String>> executeQueryTypeEmail(String value, int maxResults) {
+    List<Map<String, String>> subjects = new ArrayList<>();
+
+    try {
+
+      Members result = service.members().list(groupName).execute();
+      List<Member> membersInGroup = result.getMembers();
+
+      for (Member member : membersInGroup) {
+        Map<String, String> map = new HashMap<>();
+
+        if (member.getEmail().equals(value)) {
+          map = processGoogleMappingAttribute(member.getId());
+        }
+
+        if (!map.isEmpty()) {
+          subjects.add(map);
+        }
+
+        if (maxResults > 0) {
+          if (subjects.size() >= maxResults) {
+            break;
+          }
+        }
+      }
+    } catch (IOException ex) {
+      LOG.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
+    }
+
+    return subjects;
+  }
+
+  /**
+   * Searching for members in group specified by 'value' variable.
+   * <p>
+   * When we find these members, we their ID's one by one to processGoogleMappingAttribute() method to create map from
+   * suitable attributes. All these maps for each user (until maxResults number is reached) are stored together in list,
+   * that is returned by method.
+   *
+   * @param value      group email address, like groupname@domain.com, NOT only groupname
+   * @param maxResults max number of results for this query that should be returned by this method
+   * @return List<Map < String, String>>, list of maps returned by processGoogleMappingAttribute() method
+   * @throws InternalErrorException
+   */
+  private List<Map<String, String>> executeQueryTypeGroupSubjects(String value, int maxResults) {
+    List<Map<String, String>> subjects = new ArrayList<>();
+
+    if (value.contains("@" + this.domainName)) {
+      try {
+        Members result = service.members().list(value).execute();
+        List<Member> membersInGroup = result.getMembers();
+
+        for (Member member : membersInGroup) {
+          Map<String, String> map = processGoogleMappingAttribute(member.getId());
+
+          if (!map.isEmpty()) {
+            subjects.add(map);
+          }
+
+          if (maxResults > 0) {
+            if (subjects.size() >= maxResults) {
+              break;
+            }
+          }
+        }
+      } catch (IOException ex) {
+        LOG.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
+      }
+    } else {
+      throw new IllegalArgumentException(
+          "You are trying to get users from nonexistin group, please check name if your group name is something like " +
+          "'groupname@domainname.com'.");
+    }
+
+    return subjects;
+  }
+
+  /**
+   * Searching for member with ID specified in 'value' variable in group specified by groupName class variable.
+   * <p>
+   * When we reach that concrete member, we send his ID to processGoogleMappingAttribute() method to create map from
+   * suitable attributes. All these maps for each user (until maxResults number is reached) are stored together in list,
+   * that is returned by method.
+   *
+   * @param value      member's ID
+   * @param maxResults max number of results for this query that should be returned by this method
+   * @return List<Map < String, String>>, list of maps returned by processGoogleMappingAttribute() method
+   * @throws InternalErrorException
+   */
+  private List<Map<String, String>> executeQueryTypeID(String value, int maxResults) {
+    List<Map<String, String>> subjects = new ArrayList<>();
+
+    try {
+      Members result = service.members().list(groupName).execute();
+      List<Member> membersInGroup = result.getMembers();
+
+      for (Member member : membersInGroup) {
+        Map<String, String> map = new HashMap<>();
+
+        if (member.getId().equals(value)) {
+          map = processGoogleMappingAttribute(member.getId());
+        }
+
+        if (!map.isEmpty()) {
+          subjects.add(map);
+        }
+
+        if (maxResults > 0) {
+          if (subjects.size() >= maxResults) {
+            break;
+          }
+        }
+      }
+    } catch (IOException ex) {
+      LOG.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
+    }
+
+    return subjects;
   }
 
   @Override
@@ -148,12 +303,57 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
       return querySource(query, maxResults);
 
     } catch (IOException ex) {
-      log.error("IOException in findSubjects() method while parsing data from Google Groups", ex);
+      LOG.error("IOException in findSubjects() method while parsing data from Google Groups", ex);
     } catch (GeneralSecurityException ex) {
-      log.error("GeneralSecurityException while trying to connect to Google Apps account", ex);
+      LOG.error("GeneralSecurityException while trying to connect to Google Apps account", ex);
     }
 
     return null;
+  }
+
+  @Override
+  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException(
+        "For Google Groups using this method is not optimized, use findSubjects instead.");
+  }
+
+  @Override
+  public List<Map<String, String>> findSubjectsLogins(String searchString)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException(
+        "For Google Groups using this method is not optimized, use findSubjects instead.");
+  }
+
+  /**
+   * Build and returns a Directory service object authorized with the service accounts that act on behalf of the given
+   * user.
+   *
+   * @return Directory service object that is ready to make requests.
+   */
+  public Directory getDirectoryService() {
+
+    Directory serviceLocal =
+        new Directory.Builder(HTTP_TRANSPORT, JSON_FACTORY, authorize()).setApplicationName(APPLICATION_NAME).build();
+
+    return serviceLocal;
+  }
+
+  public String getDomainName() {
+    return USER_EMAIL.substring(USER_EMAIL.indexOf("@") + 1);
+  }
+
+  @Override
+  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
+    // Get the query for the group subjects
+    String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+
+    //If there is no query for group, throw exception
+    if (queryForGroup == null) {
+      throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
+    }
+
+    return getUsersOrGroupSubjects(queryForGroup);
   }
 
   @Override
@@ -197,38 +397,18 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
       return subjects.get(0);
 
     } catch (IOException ex) {
-      log.error("IOException in getSubjectByLogin() method while parsing data from Google Groups", ex);
+      LOG.error("IOException in getSubjectByLogin() method while parsing data from Google Groups", ex);
     } catch (GeneralSecurityException ex) {
-      log.error("GeneralSecurityException while trying to connect to Google Apps account", ex);
+      LOG.error("GeneralSecurityException while trying to connect to Google Apps account", ex);
     }
 
     return null;
   }
 
   @Override
-  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
-    // Get the query for the group subjects
-    String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-
-    //If there is no query for group, throw exception
-    if (queryForGroup == null) {
-      throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
-    }
-
-    return getUsersOrGroupSubjects(queryForGroup);
-  }
-
-  @Override
-  public List<Map<String, String>> getUsersSubjects() {
-    // Get the query for the user subjects
-    String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
-
-    //If there is no query for users, throw exception
-    if (queryForUsers == null) {
-      throw new InternalErrorException("usersQuery can't be null");
-    }
-
-    return getUsersOrGroupSubjects(queryForUsers);
+  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
   }
 
   private List<Map<String, String>> getUsersOrGroupSubjects(String queryToGetSubjects) {
@@ -250,22 +430,24 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
       return querySource(queryToGetSubjects, 0);
 
     } catch (IOException ex) {
-      log.error("IOException in getGroupSubjects() method while parsing data from Google Groups", ex);
+      LOG.error("IOException in getGroupSubjects() method while parsing data from Google Groups", ex);
     } catch (GeneralSecurityException ex) {
-      log.error("GeneralSecurityException while trying to connect to Google Apps account", ex);
+      LOG.error("GeneralSecurityException while trying to connect to Google Apps account", ex);
     }
     return null;
   }
 
   @Override
-  public void close() throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException("Using this method is not supported for Google Groups.");
-  }
+  public List<Map<String, String>> getUsersSubjects() {
+    // Get the query for the user subjects
+    String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
 
-  @Override
-  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
+    //If there is no query for users, throw exception
+    if (queryForUsers == null) {
+      throw new InternalErrorException("usersQuery can't be null");
+    }
+
+    return getUsersOrGroupSubjects(queryForUsers);
   }
 
   /**
@@ -281,10 +463,9 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
     ExtSourceGoogle.SERVICE_ACCOUNT_PKCS12_FILE_PATH = getAttributes().get("p12File");
     ExtSourceGoogle.JSON_FACTORY = GsonFactory.getDefaultInstance();
     ExtSourceGoogle.HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-    ExtSourceGoogle.SCOPES = Arrays.asList(DirectoryScopes.ADMIN_DIRECTORY_USER,
-        DirectoryScopes.ADMIN_DIRECTORY_USER_READONLY,
-        DirectoryScopes.ADMIN_DIRECTORY_GROUP,
-        DirectoryScopes.ADMIN_DIRECTORY_GROUP_MEMBER);
+    ExtSourceGoogle.SCOPES =
+        Arrays.asList(DirectoryScopes.ADMIN_DIRECTORY_USER, DirectoryScopes.ADMIN_DIRECTORY_USER_READONLY,
+            DirectoryScopes.ADMIN_DIRECTORY_GROUP, DirectoryScopes.ADMIN_DIRECTORY_GROUP_MEMBER);
 
     this.service = this.getDirectoryService();
 
@@ -295,17 +476,14 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
   }
 
   /**
-   * Setting values for attributes in 'googleMapping' attribute from
-   * /etc/perun/perun-extSources.xml file.
+   * Setting values for attributes in 'googleMapping' attribute from /etc/perun/perun-extSources.xml file.
    * <p>
    * It's possible to fill these attributes for Google Groups ExtSource: -
    * urn:perun:user:attribute-def:virt:logins-namespace:google={userID}, -
-   * urn:perun:facility:attribute-def:def:googleGroupsDomain={domainName},
-   * -
+   * urn:perun:facility:attribute-def:def:googleGroupsDomain={domainName}, -
    * urn:perun:group:attribute-def:def:googleGroupName-namespace:einfra.cesnet.cz={groupName}
    * <p>
-   * All other attributes have to be filled in directly in XML file (without
-   * curly brackets).
+   * All other attributes have to be filled in directly in XML file (without curly brackets).
    *
    * @param id member's ID
    * @return Map<String, String>, like <name,value>
@@ -347,7 +525,8 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
             break;
           default:
             throw new IllegalArgumentException(
-                "Value in curly brackets in googleMapping attribute can be word 'userID' or 'domainName' or 'groupName', nothing else.");
+                "Value in curly brackets in googleMapping attribute can be word 'userID' or 'domainName' or " +
+                "'groupName', nothing else.");
         }
       } else {
         map.put(name.trim(), value.trim());
@@ -359,201 +538,15 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
   }
 
   /**
-   * Searching for member with ID specified in 'value' variable in group
-   * specified by groupName class variable.
+   * Method differs 2 types of queries: - "exact queries" with '=' symbol - "containing queries" with keyword
+   * 'contains'
    * <p>
-   * When we reach that concrete member, we send his ID to
-   * processGoogleMappingAttribute() method to create map from suitable
-   * attributes. All these maps for each user (until maxResults number is
-   * reached) are stored together in list, that is returned by method.
+   * It's possible to use "exact queries" for 'id' or 'email' and "containing queries" for 'email'.
    *
-   * @param value      member's ID
-   * @param maxResults max number of results for this query that should be
-   *                   returned by this method
-   * @return List<Map < String, String>>, list of maps returned by
-   * processGoogleMappingAttribute() method
-   * @throws InternalErrorException
-   */
-  private List<Map<String, String>> executeQueryTypeID(String value, int maxResults) {
-    List<Map<String, String>> subjects = new ArrayList<>();
-
-    try {
-      Members result = service.members().list(groupName).execute();
-      List<Member> membersInGroup = result.getMembers();
-
-      for (Member member : membersInGroup) {
-        Map<String, String> map = new HashMap<>();
-
-        if (member.getId().equals(value)) {
-          map = processGoogleMappingAttribute(member.getId());
-        }
-
-        if (!map.isEmpty()) {
-          subjects.add(map);
-        }
-
-        if (maxResults > 0) {
-          if (subjects.size() >= maxResults) {
-            break;
-          }
-        }
-      }
-    } catch (IOException ex) {
-      log.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
-    }
-
-    return subjects;
-  }
-
-  /**
-   * Searching for member with email address specified in 'value' variable in
-   * group specified by groupName class variable.
-   * <p>
-   * When we find suitable member, we send his ID to
-   * processGoogleMappingAttribute() method to create map from suitable
-   * attributes. All these maps for each user (until maxResults number is
-   * reached) are stored together in list, that is returned by method.
-   *
-   * @param value      member's ID
-   * @param maxResults max number of results for this query that should be
-   *                   returned by this method
-   * @return List<Map < String, String>>, list of maps returned by
-   * processGoogleMappingAttribute() method
-   * @throws InternalErrorException
-   */
-  private List<Map<String, String>> executeQueryTypeEmail(String value, int maxResults) {
-    List<Map<String, String>> subjects = new ArrayList<>();
-
-    try {
-
-      Members result = service.members().list(groupName).execute();
-      List<Member> membersInGroup = result.getMembers();
-
-      for (Member member : membersInGroup) {
-        Map<String, String> map = new HashMap<>();
-
-        if (member.getEmail().equals(value)) {
-          map = processGoogleMappingAttribute(member.getId());
-        }
-
-        if (!map.isEmpty()) {
-          subjects.add(map);
-        }
-
-        if (maxResults > 0) {
-          if (subjects.size() >= maxResults) {
-            break;
-          }
-        }
-      }
-    } catch (IOException ex) {
-      log.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
-    }
-
-    return subjects;
-  }
-
-  /**
-   * Searching for members in group specified by 'value' variable.
-   * <p>
-   * When we find these members, we their ID's one by one to
-   * processGoogleMappingAttribute() method to create map from suitable
-   * attributes. All these maps for each user (until maxResults number is
-   * reached) are stored together in list, that is returned by method.
-   *
-   * @param value      group email address, like groupname@domain.com, NOT only
-   *                   groupname
-   * @param maxResults max number of results for this query that should be
-   *                   returned by this method
-   * @return List<Map < String, String>>, list of maps returned by
-   * processGoogleMappingAttribute() method
-   * @throws InternalErrorException
-   */
-  private List<Map<String, String>> executeQueryTypeGroupSubjects(String value, int maxResults) {
-    List<Map<String, String>> subjects = new ArrayList<>();
-
-    if (value.contains("@" + this.domainName)) {
-      try {
-        Members result = service.members().list(value).execute();
-        List<Member> membersInGroup = result.getMembers();
-
-        for (Member member : membersInGroup) {
-          Map<String, String> map = processGoogleMappingAttribute(member.getId());
-
-          if (!map.isEmpty()) {
-            subjects.add(map);
-          }
-
-          if (maxResults > 0) {
-            if (subjects.size() >= maxResults) {
-              break;
-            }
-          }
-        }
-      } catch (IOException ex) {
-        log.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
-      }
-    } else {
-      throw new IllegalArgumentException(
-          "You are trying to get users from nonexistin group, please check name if your group name is something like 'groupname@domainname.com'.");
-    }
-
-    return subjects;
-  }
-
-  /**
-   * Searching for members in group specified by groupName class variable by
-   * an email address. Email address doesn't have to be full, we are searching
-   * for substrings, not exact match.
-   * <p>
-   * When we find suitable members, we send their ID's one by one to
-   * processGoogleMappingAttribute() method to create map from suitable
-   * attributes. All these maps for each user (until maxResults number is
-   * reached) are stored together in list, that is returned by method.
-   *
-   * @param value part of email address
-   * @return List<Map < String, String>>, list of maps returned by
-   * processGoogleMappingAttribute() method
-   * @throws InternalErrorException
-   */
-  private List<Map<String, String>> executeQueryTypeContains(String value) {
-    List<Map<String, String>> subjects = new ArrayList<>();
-
-    try {
-      Members result = service.members().list(groupName).execute();
-      List<Member> membersInGroup = result.getMembers();
-
-      for (Member member : membersInGroup) {
-        Map<String, String> map = new HashMap<>();
-
-        if (member.getEmail().contains(value)) {
-          map = processGoogleMappingAttribute(member.getId());
-        }
-
-        if (!map.isEmpty()) {
-          subjects.add(map);
-        }
-      }
-    } catch (IOException ex) {
-      log.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
-    }
-
-    return subjects;
-  }
-
-  /**
-   * Method differs 2 types of queries: - "exact queries" with '=' symbol -
-   * "containing queries" with keyword 'contains'
-   * <p>
-   * It's possible to use "exact queries" for 'id' or 'email' and "containing
-   * queries" for 'email'.
-   *
-   * @param query      query which differs other queries from each other, it has to
-   *                   contain either '=' symbol or 'contains' keyword
-   * @param maxResults max number of results for this query that should be
-   *                   returned by this method
-   * @return List<Map < String, String>>, list of maps returned by suitable
-   * executing method
+   * @param query      query which differs other queries from each other, it has to contain either '=' symbol or
+   *                   'contains' keyword
+   * @param maxResults max number of results for this query that should be returned by this method
+   * @return List<Map < String, String>>, list of maps returned by suitable executing method
    * @throws InternalErrorException
    */
   private List<Map<String, String>> querySource(String query, int maxResults) {
@@ -603,23 +596,5 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
     }
 
     return subjects;
-  }
-
-  public String getDomainName() {
-    return USER_EMAIL.substring(USER_EMAIL.indexOf("@") + 1);
-  }
-
-  /**
-   * Build and returns a Directory service object authorized with the service
-   * accounts that act on behalf of the given user.
-   *
-   * @return Directory service object that is ready to make requests.
-   */
-  public Directory getDirectoryService() {
-
-    Directory serviceLocal = new Directory.Builder(HTTP_TRANSPORT, JSON_FACTORY, authorize())
-        .setApplicationName(APPLICATION_NAME).build();
-
-    return serviceLocal;
   }
 }

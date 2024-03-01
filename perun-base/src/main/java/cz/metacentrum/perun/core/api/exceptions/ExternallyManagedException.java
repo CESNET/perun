@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception raises when group is externally managed
- * which means that group membership is managed by external source (group synchronization) and thus manual changes to the group membership are prohibited.
+ * This exception raises when group is externally managed which means that group membership is managed by external
+ * source (group synchronization) and thus manual changes to the group membership are prohibited.
  *
  * @author Jan Zvěřina <zverina.jan@email.cz>
  */

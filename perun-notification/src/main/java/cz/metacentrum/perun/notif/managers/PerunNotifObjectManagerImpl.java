@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service("perunNotifObjectManager")
 public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
 
-  private static final Logger logger = LoggerFactory.getLogger(PerunNotifObjectManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PerunNotifObjectManager.class);
 
   @Autowired
   private PerunNotifObjectDao perunNotifObjectDao;
@@ -24,25 +24,24 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
   private PerunNotifRegexManager perunNotifRegexManager;
 
   @Override
+  public PerunNotifObject createPerunNotifObject(PerunNotifObject object) {
+
+    PerunNotifObject perunNotifObject = perunNotifObjectDao.createPerunNotifObject(object);
+
+    perunNotifRegexManager.addObjectToCache(object);
+
+    return perunNotifObject;
+  }
+
+  @Override
+  public List<PerunNotifObject> getAllPerunNotifObjects() {
+    return perunNotifObjectDao.getAll();
+  }
+
+  @Override
   public PerunNotifObject getPerunNotifObjectById(int id) {
 
     return perunNotifObjectDao.getPerunNotifObjectById(id);
-  }
-
-  @Override
-  public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) {
-
-    PerunNotifObject newObject = perunNotifObjectDao.updatePerunNotifObject(object);
-
-    perunNotifRegexManager.addObjectToCache(newObject);
-
-    return newObject;
-  }
-
-  @Override
-  public void removePerunNotifRegexObjectRelation(int regexId, int objectId) {
-
-    perunNotifObjectDao.removePerunNotifObjectRegexRelation(regexId, objectId);
   }
 
   @Override
@@ -58,31 +57,32 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
   }
 
   @Override
+  public void removePerunNotifRegexObjectRelation(int regexId, int objectId) {
+
+    perunNotifObjectDao.removePerunNotifObjectRegexRelation(regexId, objectId);
+  }
+
+  @Override
   public void saveObjectRegexRelation(int regexId, int objectId) {
 
     if (perunNotifObjectDao.isObjectRelation(regexId, objectId)) {
-      logger.debug("Relation between object: {}, template: {} exists", objectId, regexId);
+      LOGGER.debug("Relation between object: {}, template: {} exists", objectId, regexId);
       //Relation exists
       return;
     } else {
-      logger.debug("Saving relation between object: {}, template: {}", objectId, regexId);
+      LOGGER.debug("Saving relation between object: {}, template: {}", objectId, regexId);
       perunNotifObjectDao.saveObjectRelation(regexId, objectId);
     }
   }
 
   @Override
-  public PerunNotifObject createPerunNotifObject(PerunNotifObject object) {
+  public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) {
 
-    PerunNotifObject perunNotifObject = perunNotifObjectDao.createPerunNotifObject(object);
+    PerunNotifObject newObject = perunNotifObjectDao.updatePerunNotifObject(object);
 
-    perunNotifRegexManager.addObjectToCache(object);
+    perunNotifRegexManager.addObjectToCache(newObject);
 
-    return perunNotifObject;
-  }
-
-  @Override
-  public List<PerunNotifObject> getAllPerunNotifObjects() {
-    return perunNotifObjectDao.getAll();
+    return newObject;
   }
 
 }

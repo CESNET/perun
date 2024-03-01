@@ -20,13 +20,13 @@ public class PropagationPlannedOnService extends AuditEvent {
     this.message = formatMessage("propagation planned: On %s.", service);
   }
 
-  public Service getService() {
-    return service;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Service getService() {
+    return service;
   }
 
   @Override

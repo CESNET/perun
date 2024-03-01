@@ -8,13 +8,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Module for service 'rt' used for setting output file name
- * The path is always '/tmp/{name}'
+ * Module for service 'rt' used for setting output file name The path is always '/tmp/{name}'
  *
  * @author Michal Stava <stavamichal@gmail.com>
  * @date 9.8.2019
@@ -50,7 +48,8 @@ public class urn_perun_facility_attribute_def_def_rtOutputFileName extends Facil
     attr.setDisplayName("RT output file name");
     attr.setType(String.class.getName());
     attr.setDescription(
-        "Name of the file to which will Perun save the output file from the service 'rt' in the end device. It is always '/tmp/{nameOfTheFile}'.");
+        "Name of the file to which will Perun save the output file from the service 'rt' in the end device. It is " +
+        "always '/tmp/{nameOfTheFile}'.");
     return attr;
   }
 }

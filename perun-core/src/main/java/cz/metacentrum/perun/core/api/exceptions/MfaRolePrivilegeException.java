@@ -28,6 +28,6 @@ public class MfaRolePrivilegeException extends MfaPrivilegeException {
 
   public MfaRolePrivilegeException(PerunSession sess, String role) {
     super("Principal " + sess.getPerunPrincipal().getActor() + " has role " + role +
-        " requiring MFA, but is not authorized by MFA");
+          " requiring MFA, but is not authorized by MFA");
   }
 }

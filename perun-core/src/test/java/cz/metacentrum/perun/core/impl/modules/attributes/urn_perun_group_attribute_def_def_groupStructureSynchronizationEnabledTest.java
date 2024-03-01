@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -10,11 +13,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnabledTest {
 
@@ -49,6 +47,25 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
         .getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME)).thenReturn(reqAttribute);
   }
 
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue(true);
+    reqAttribute.setValue("false");
+
+    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testGroupInAutoRegister() throws Exception {
+    System.out.println("testGroupInAutoRegister()");
+    attributeToCheck.setValue(true);
+
+    when(sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)).thenReturn(true);
+
+    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+  }
+
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void testGroupSyncEnabled() throws Exception {
     System.out.println("testGroupSyncEnabled()");
@@ -66,25 +83,6 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
     Attribute attribute = new Attribute();
     when(sess.getPerunBl().getAttributesManagerBl()
         .getAttribute(sess, group, GroupsManager.GROUPSQUERY_ATTRNAME)).thenReturn(attribute);
-
-    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testGroupInAutoRegister() throws Exception {
-    System.out.println("testGroupInAutoRegister()");
-    attributeToCheck.setValue(true);
-
-    when(sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)).thenReturn(true);
-
-    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
-  }
-
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue(true);
-    reqAttribute.setValue("false");
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
   }

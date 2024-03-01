@@ -24,106 +24,10 @@ public class ApplicationForm {
   public ApplicationForm() {
   }
 
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public Vo getVo() {
-    return vo;
-  }
-
-  public void setVo(Vo vo) {
-    this.vo = vo;
-  }
-
-  public Group getGroup() {
-    return group;
-  }
-
-  public void setGroup(Group group) {
-    this.group = group;
-  }
-
-  public boolean isAutomaticApproval() {
-    return automaticApproval;
-  }
-
-  public void setAutomaticApproval(boolean automaticApproval) {
-    this.automaticApproval = automaticApproval;
-  }
-
-  public boolean isAutomaticApprovalExtension() {
-    return automaticApprovalExtension;
-  }
-
-  public void setAutomaticApprovalExtension(boolean automaticApproval) {
-    this.automaticApprovalExtension = automaticApproval;
-  }
-
-  public boolean isAutomaticApprovalEmbedded() {
-    return automaticApprovalEmbedded;
-  }
-
-  public void setAutomaticApprovalEmbedded(boolean automaticApprovalEmbedded) {
-    this.automaticApprovalEmbedded = automaticApprovalEmbedded;
-  }
-
-  public List<String> getModuleClassNames() {
-    return new ArrayList<>(moduleClassNames);
-  }
-
-  public void setModuleClassNames(List<String> moduleClassNames) {
-    this.moduleClassNames.clear();
-    for (String moduleClassName : moduleClassNames) {
-      if (StringUtils.hasText(moduleClassName)) {
-        this.moduleClassNames.add(moduleClassName);
-      }
-    }
-  }
-
   public void addModuleClassName(String moduleClassName) {
     if (StringUtils.hasText(moduleClassName)) {
       this.moduleClassNames.add(moduleClassName);
     }
-  }
-
-  public void removeModuleClassName(String moduleClassName) {
-    if (StringUtils.hasText(moduleClassName)) {
-      this.moduleClassNames.remove(moduleClassName);
-    }
-  }
-
-  /**
-   * Return bean name as PerunBean does.
-   *
-   * @return Class simple name (beanName)
-   */
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
-  }
-
-  @Override
-  public String toString() {
-    return this.getClass().getSimpleName() + ":[" +
-        "id='" + getId() + '\'' +
-        ", vo='" + getVo() + '\'' +
-        ", group='" + getGroup() + '\'' +
-        ", automaticApproval='" + isAutomaticApproval() + '\'' +
-        ", automaticApprovalExtension='" + isAutomaticApprovalExtension() + '\'' +
-        ", moduleClassNames='" + getModuleClassNames() + '\'' +
-        "]";
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + id;
-    return result;
   }
 
   @Override
@@ -142,6 +46,98 @@ public class ApplicationForm {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Return bean name as PerunBean does.
+   *
+   * @return Class simple name (beanName)
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
+
+  public Group getGroup() {
+    return group;
+  }
+
+  public void setGroup(Group group) {
+    this.group = group;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public List<String> getModuleClassNames() {
+    return new ArrayList<>(moduleClassNames);
+  }
+
+  public void setModuleClassNames(List<String> moduleClassNames) {
+    this.moduleClassNames.clear();
+    for (String moduleClassName : moduleClassNames) {
+      if (StringUtils.hasText(moduleClassName)) {
+        this.moduleClassNames.add(moduleClassName);
+      }
+    }
+  }
+
+  public Vo getVo() {
+    return vo;
+  }
+
+  public void setVo(Vo vo) {
+    this.vo = vo;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + id;
+    return result;
+  }
+
+  public boolean isAutomaticApproval() {
+    return automaticApproval;
+  }
+
+  public void setAutomaticApproval(boolean automaticApproval) {
+    this.automaticApproval = automaticApproval;
+  }
+
+  public boolean isAutomaticApprovalEmbedded() {
+    return automaticApprovalEmbedded;
+  }
+
+  public void setAutomaticApprovalEmbedded(boolean automaticApprovalEmbedded) {
+    this.automaticApprovalEmbedded = automaticApprovalEmbedded;
+  }
+
+  public boolean isAutomaticApprovalExtension() {
+    return automaticApprovalExtension;
+  }
+
+  public void setAutomaticApprovalExtension(boolean automaticApproval) {
+    this.automaticApprovalExtension = automaticApproval;
+  }
+
+  public void removeModuleClassName(String moduleClassName) {
+    if (StringUtils.hasText(moduleClassName)) {
+      this.moduleClassNames.remove(moduleClassName);
+    }
+  }
+
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName() + ":[" + "id='" + getId() + '\'' + ", vo='" + getVo() + '\'' + ", group='" +
+           getGroup() + '\'' + ", automaticApproval='" + isAutomaticApproval() + '\'' +
+           ", automaticApprovalExtension='" + isAutomaticApprovalExtension() + '\'' + ", moduleClassNames='" +
+           getModuleClassNames() + '\'' + "]";
   }
 
 }

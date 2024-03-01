@@ -1,27 +1,20 @@
 package cz.metacentrum.perun.scim.api.endpoints;
 
+import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_USER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.scim.AbstractSCIMTest;
-
-import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_USER;
-
 import cz.metacentrum.perun.scim.api.entities.UserSCIM;
-
-import org.junit.Test;
-
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Testing class for handling user resources from Perun in SCIM protocol format.
@@ -33,6 +26,22 @@ public class UserResourceEndpointControllerTest extends AbstractSCIMTest {
 
   private UserResourceEndpointController controller;
   private ObjectMapper mapper;
+
+  private UserSCIM prepareExpectedResult() throws Exception {
+    User user1 = createUser(1, "firstName1", "lastName1");
+    Long userId = new Long(user1.getId());
+
+    UserSCIM user = new UserSCIM();
+    user.setId(userId);
+    user.setName(user1.getDisplayName());
+    user.setDisplayName(user1.getDisplayName());
+    user.setUserName(userId.toString());
+    List<String> schemas = new ArrayList<>();
+    schemas.add(URN_USER);
+    user.setSchemas(schemas);
+
+    return user;
+  }
 
   @Before
   public void setUp() throws SCIMException, IOException, Exception {
@@ -51,23 +60,7 @@ public class UserResourceEndpointControllerTest extends AbstractSCIMTest {
     if (result.getStatus() != 200) {
       fail();
     }
-    assertEquals("expected user should equal with result obtained from SCIM REST API",
-        expectedResponse.getEntity(), result.getEntity());
-  }
-
-  private UserSCIM prepareExpectedResult() throws Exception {
-    User user1 = createUser(1, "firstName1", "lastName1");
-    Long userId = new Long(user1.getId());
-
-    UserSCIM user = new UserSCIM();
-    user.setId(userId);
-    user.setName(user1.getDisplayName());
-    user.setDisplayName(user1.getDisplayName());
-    user.setUserName(userId.toString());
-    List<String> schemas = new ArrayList<>();
-    schemas.add(URN_USER);
-    user.setSchemas(schemas);
-
-    return user;
+    assertEquals("expected user should equal with result obtained from SCIM REST API", expectedResponse.getEntity(),
+        result.getEntity());
   }
 }

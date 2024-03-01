@@ -22,17 +22,17 @@ public class FormItemUpdated extends AuditEvent implements EngineIgnoreEvent {
         form.getVo().getId(), ((form.getGroup() != null) ? " groupID=" + form.getGroup().getId() : ""), item.getId());
   }
 
-  @Override
-  public String getMessage() {
-    return message;
-  }
-
   public ApplicationForm getForm() {
     return form;
   }
 
   public ApplicationFormItem getItem() {
     return item;
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
   }
 
   @Override

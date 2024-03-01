@@ -1,5 +1,10 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -11,18 +16,12 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_attribute_def_virt_userEligibilitiesTest {
 
@@ -33,6 +32,26 @@ public class urn_perun_user_attribute_def_virt_userEligibilitiesTest {
   private static Attribute uesAttribute2;
   private static Attribute userEligibilitiesAttribute;
   private static AttributeDefinition userEligibilitiesAttributeDefinition;
+
+  @Test
+  public void getEligibilitiesAttributeValue() throws Exception {
+    System.out.println("getEligibilitiesAttributeValue()");
+
+    Attribute attr = classInstance.getAttributeValue(session, user, userEligibilitiesAttributeDefinition);
+    Map<String, String> values = (LinkedHashMap<String, String>) attr.getValue();
+
+    assertEquals(2, values.size());
+    assertTrue(values.keySet().containsAll(List.of("cesnet", "mu")));
+
+    for (String key : values.keySet()) {
+      String value = values.get(key);
+      if (key.equals("cesnet")) {
+        assertEquals("9999999", value);
+      } else {
+        assertEquals("1000000", value);
+      }
+    }
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -51,7 +70,7 @@ public class urn_perun_user_attribute_def_virt_userEligibilitiesTest {
     userEligibilitiesAttributeDefinition.setType(HashMap.class.getName());
     userEligibilitiesAttributeDefinition.setDescription(
         "Virtual attribute, which collects all eligibilities user ext source attributes " +
-            "with keys and values (map). Only the highest value is selected for each key.");
+        "with keys and values (map). Only the highest value is selected for each key.");
     userEligibilitiesAttribute = new Attribute(userEligibilitiesAttributeDefinition);
 
     AttributeDefinition attrDef = new AttributeDefinition();
@@ -77,33 +96,13 @@ public class urn_perun_user_attribute_def_virt_userEligibilitiesTest {
     when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
         List.of(extSource, extSource2));
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, user, AttributesManager.NS_USER_ATTR_VIRT + ":userEligibilities"))
-        .thenReturn(userEligibilitiesAttribute);
+        .getAttribute(session, user, AttributesManager.NS_USER_ATTR_VIRT + ":userEligibilities")).thenReturn(
+        userEligibilitiesAttribute);
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, extSource, AttributesManager.NS_UES_ATTR_DEF + ":eligibilities"))
-        .thenReturn(uesAttribute1);
+        .getAttribute(session, extSource, AttributesManager.NS_UES_ATTR_DEF + ":eligibilities")).thenReturn(
+        uesAttribute1);
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, extSource2, AttributesManager.NS_UES_ATTR_DEF + ":eligibilities"))
-        .thenReturn(uesAttribute2);
-  }
-
-  @Test
-  public void getEligibilitiesAttributeValue() throws Exception {
-    System.out.println("getEligibilitiesAttributeValue()");
-
-    Attribute attr = classInstance.getAttributeValue(session, user, userEligibilitiesAttributeDefinition);
-    Map<String, String> values = (LinkedHashMap<String, String>) attr.getValue();
-
-    assertEquals(2, values.size());
-    assertTrue(values.keySet().containsAll(List.of("cesnet", "mu")));
-
-    for (String key : values.keySet()) {
-      String value = values.get(key);
-      if (key.equals("cesnet")) {
-        assertEquals("9999999", value);
-      } else {
-        assertEquals("1000000", value);
-      }
-    }
+        .getAttribute(session, extSource2, AttributesManager.NS_UES_ATTR_DEF + ":eligibilities")).thenReturn(
+        uesAttribute2);
   }
 }

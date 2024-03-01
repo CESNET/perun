@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 public class EinfraVerified extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(EinfraVerified.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EinfraVerified.class);
 
   @Override
   public Application approveApplication(PerunSession session, Application app)

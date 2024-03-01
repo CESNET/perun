@@ -1,133 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>perun</artifactId>
-		<groupId>cz.metacentrum</groupId>
-		<version>0.0.0-development</version>
-	</parent>
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>0.0.0-development</version>
+    </parent>
 
-	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-rpc</artifactId>
-	<packaging>war</packaging>
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-rpc</artifactId>
+    <packaging>war</packaging>
 
-	<name>perun-rpc</name>
-	<description>RPC interface provided by Perun to communicate with GUI,CLI and any other external system (maven webapp 8081)</description>
+    <name>perun-rpc</name>
+    <description>RPC interface provided by Perun to communicate with GUI,CLI and any other external system (maven webapp
+        8081)
+    </description>
 
-	<properties>
-		<skipTests>true</skipTests>
-		<!-- deploy the resulting jar to a Maven repo -->
-		<maven.deploy.skip>false</maven.deploy.skip>
-	</properties>
+    <properties>
+        <skipTests>true</skipTests>
+        <!-- deploy the resulting jar to a Maven repo -->
+        <maven.deploy.skip>false</maven.deploy.skip>
+    </properties>
 
-	<!-- common module build settings used by all profiles -->
-	<build>
-		<finalName>${project.name}</finalName>
-		<plugins>
+    <!-- common module build settings used by all profiles -->
+    <build>
+        <finalName>${project.name}</finalName>
+        <plugins>
 
-			<!-- Allow to run Perun locally in Tomcat container by command "mvn cargo:run"
-				Server is started at ajp://localhost:8009/perun-rpc/
-				You need to setup Apache web server to provide (or fake) authentication in AJP headers
-				and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
-			<plugin>
-				<groupId>org.codehaus.cargo</groupId>
-				<artifactId>cargo-maven3-plugin</artifactId>
-				<version>1.10.12</version>
-				<configuration>
-					<container>
-						<containerId>tomcat9x</containerId>
-						<artifactInstaller>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat</artifactId>
-							<version>${tomcat.version}</version>
-						</artifactInstaller>
-						<systemProperties>
-							<!-- Force running against real DB -->
-							<spring.profiles.active>production</spring.profiles.active>
-						</systemProperties>
-						<!-- uncomment in case that dispatcher init takes too long
-						<timeout>600000</timeout>
-						 -->
-					</container>
-					<configuration>
-						<home>${basedir}/target/cargo/tomcat9x</home>
-						<files>
-							<copy>
-								<file>${basedir}/tomcat.xml</file>
-								<tofile>conf/server.xml</tofile>
-								<configfile>true</configfile>
-								<overwrite>true</overwrite>
-							</copy>
-						</files>
-					</configuration>
-					<deployables>
-						<deployable>
-							<groupId>cz.metacentrum.perun</groupId>
-							<artifactId>perun-rpc</artifactId>
-							<type>war</type>
-							<!-- force using renamed war -->
-							<location>target/perun-rpc.war</location>
-							<properties>
-								<context>/perun-rpc</context>
-							</properties>
-						</deployable>
-					</deployables>
-				</configuration>
-			</plugin>
+            <!-- Allow to run Perun locally in Tomcat container by command "mvn cargo:run"
+                Server is started at ajp://localhost:8009/perun-rpc/
+                You need to setup Apache web server to provide (or fake) authentication in AJP headers
+                and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven3-plugin</artifactId>
+                <version>1.10.12</version>
+                <configuration>
+                    <container>
+                        <containerId>tomcat9x</containerId>
+                        <artifactInstaller>
+                            <groupId>org.apache.tomcat</groupId>
+                            <artifactId>tomcat</artifactId>
+                            <version>${tomcat.version}</version>
+                        </artifactInstaller>
+                        <systemProperties>
+                            <!-- Force running against real DB -->
+                            <spring.profiles.active>production</spring.profiles.active>
+                        </systemProperties>
+                        <!-- uncomment in case that dispatcher init takes too long
+                        <timeout>600000</timeout>
+                         -->
+                    </container>
+                    <configuration>
+                        <home>${basedir}/target/cargo/tomcat9x</home>
+                        <files>
+                            <copy>
+                                <file>${basedir}/tomcat.xml</file>
+                                <tofile>conf/server.xml</tofile>
+                                <configfile>true</configfile>
+                                <overwrite>true</overwrite>
+                            </copy>
+                        </files>
+                    </configuration>
+                    <deployables>
+                        <deployable>
+                            <groupId>cz.metacentrum.perun</groupId>
+                            <artifactId>perun-rpc</artifactId>
+                            <type>war</type>
+                            <!-- force using renamed war -->
+                            <location>target/perun-rpc.war</location>
+                            <properties>
+                                <context>/perun-rpc</context>
+                            </properties>
+                        </deployable>
+                    </deployables>
+                </configuration>
+            </plugin>
 
-		</plugins>
+        </plugins>
 
-	</build>
+    </build>
 
-	<dependencies>
+    <dependencies>
 
-		<!-- PERUN -->
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-cabinet</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <!-- PERUN -->
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-cabinet</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-registrar-lib</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-registrar-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-notification</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-notification</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-scim</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-scim</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-dispatcher</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-dispatcher</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<!-- OTHERS -->
+        <!-- OTHERS -->
 
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-servlet-api</artifactId>
-			<version>${tomcat.version}</version>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>${tomcat.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>cz.metacentrum.perun</groupId>
             <artifactId>perun-integration</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-	</dependencies>
+    </dependencies>
 
 </project>

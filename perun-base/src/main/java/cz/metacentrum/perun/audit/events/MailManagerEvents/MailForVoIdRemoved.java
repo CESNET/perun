@@ -18,17 +18,17 @@ public class MailForVoIdRemoved extends AuditEvent implements EngineIgnoreEvent 
   public MailForVoIdRemoved(ApplicationMail mail, Vo vo) {
     this.mail = mail;
     this.vo = vo;
-    this.message = formatMessage("Mail ID: %d of Type: %s/%s removed for VO ID: %d.", mail.getId(),
-        mail.getMailType(), mail.getAppType(), vo.getId());
+    this.message = formatMessage("Mail ID: %d of Type: %s/%s removed for VO ID: %d.", mail.getId(), mail.getMailType(),
+        mail.getAppType(), vo.getId());
+  }
+
+  public ApplicationMail getMail() {
+    return mail;
   }
 
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public ApplicationMail getMail() {
-    return mail;
   }
 
   public Vo getVo() {

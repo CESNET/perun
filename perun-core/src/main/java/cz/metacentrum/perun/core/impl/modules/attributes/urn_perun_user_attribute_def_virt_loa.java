@@ -26,7 +26,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Module for user virtual attribute loa
  * <p>
- * This module return the highest value from user's UserExtSources LoAs. If the attribute value is null throw WrongAttributeValueException.
+ * This module return the highest value from user's UserExtSources LoAs. If the attribute value is null throw
+ * WrongAttributeValueException.
  *
  * @author Pavel Vyskocil vyskocilpavel@muni.cz
  */
@@ -34,7 +35,7 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
     implements UserVirtualAttributesModuleImplApi {
 
   private static final String A_U_V_LOA = AttributesManager.NS_USER_ATTR_VIRT + ":" + "loa";
-  private static final Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_loa.class);
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_loa.class);
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
@@ -42,6 +43,17 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
     if (attribute.getValue() == null) {
       throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Attribute value is null.");
     }
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("loa");
+    attr.setDisplayName("Level of assurance");
+    attr.setType(Integer.class.getName());
+    attr.setDescription("The highest value of LoA from all user's userExtSources.");
+    return attr;
   }
 
   @Override
@@ -67,15 +79,23 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
     return attribute;
   }
 
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("loa");
-    attr.setDisplayName("Level of assurance");
-    attr.setType(Integer.class.getName());
-    attr.setDescription("The highest value of LoA from all user's userExtSources.");
-    return attr;
+  /**
+   * Resolve and create new auditer message about LOA attribute change.
+   *
+   * @param sess PerunSession
+   * @param user User to resolve LoA messages
+   * @return List of new messages or empty list
+   * @throws InternalErrorException
+   * @throws AttributeNotExistsException
+   * @throws WrongAttributeAssignmentException
+   */
+  private AuditEvent resolveEvent(PerunSessionImpl sess, User user)
+      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+
+    AttributeDefinition attributeDefinition =
+        sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_LOA);
+    return new AttributeChangedForUser(new Attribute(attributeDefinition), user);
+
   }
 
   @Override
@@ -98,35 +118,16 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
         sess.getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
         resolvingMessages.add(resolveEvent(sess, user));
       } else if (message instanceof UserExtSourceUpdated) {
-        resolvingMessages.add(resolveEvent(sess, sess.getPerunBl().getUsersManagerBl().getUserById(
-            sess, ((UserExtSourceUpdated) message).getUserExtSource().getUserId())));
+        resolvingMessages.add(resolveEvent(sess, sess.getPerunBl().getUsersManagerBl()
+            .getUserById(sess, ((UserExtSourceUpdated) message).getUserExtSource().getUserId())));
       }
     } catch (UserNotExistsException e) {
-      log.warn(
+      LOG.warn(
           "User {} associated with event {} no longer exists while resolving virtual attribute value change for LoA.",
           user, message.getName());
     }
 
     return resolvingMessages;
-
-  }
-
-  /**
-   * Resolve and create new auditer message about LOA attribute change.
-   *
-   * @param sess PerunSession
-   * @param user User to resolve LoA messages
-   * @return List of new messages or empty list
-   * @throws InternalErrorException
-   * @throws AttributeNotExistsException
-   * @throws WrongAttributeAssignmentException
-   */
-  private AuditEvent resolveEvent(PerunSessionImpl sess, User user)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
-
-    AttributeDefinition attributeDefinition =
-        sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_LOA);
-    return new AttributeChangedForUser(new Attribute(attributeDefinition), user);
 
   }
 

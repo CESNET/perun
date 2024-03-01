@@ -11,18 +11,17 @@ import java.util.Set;
  * <b>Class that defines relations in graph.</b>
  *
  * <p>
- * New relations can be added with method 'addEntitiesData' where the expected format
- * is a {@link Map} of {@link T} entities where every entity has a {@link Set} of target entities.
- * In other words, there is an oriented Edge between enetity and its target entities.
- * After specifying entities data, you have to set edge type with method 'withEdgeType'.
+ * New relations can be added with method 'addEntitiesData' where the expected format is a {@link Map} of {@link T}
+ * entities where every entity has a {@link Set} of target entities. In other words, there is an oriented Edge between
+ * enetity and its target entities. After specifying entities data, you have to set edge type with method
+ * 'withEdgeType'.
  * <p>
  * Example: graphDefinition.addEntitiesData(data).withEdgeType(GraphEdge.Type.BOLD);
  * </p>
  *
  * <p>
- * New relations can also be added with method 'addEntity'. After specifying the entity,
- * you have to set target entities with method 'withTargetEntities'. After that you must set
- * the graph edge type.
+ * New relations can also be added with method 'addEntity'. After specifying the entity, you have to set target entities
+ * with method 'withTargetEntities'. After that you must set the graph edge type.
  * <p>
  * Example: graphDefinition.addEntity(entity).withTargetEntities(targetEntities).withEdgeType(GraphEdge.Type.BOLD);
  * </p>
@@ -33,17 +32,8 @@ public class GraphDefinition<T> {
 
   private Map<GraphEdge.Type, Map<T, Set<T>>> data = new HashMap<>();
 
-  Set<GraphEdge.Type> getEdgeTypes() {
-    return Collections.unmodifiableSet(data.keySet());
-  }
-
-  Map<T, Set<T>> getEdgeData(GraphEdge.Type edgeType) {
-    return Collections.unmodifiableMap(data.get(edgeType));
-  }
-
   /**
-   * Method used to add entities data to definition. After calling this method
-   * you have to set the Graph edge type.
+   * Method used to add entities data to definition. After calling this method you have to set the Graph edge type.
    *
    * @param entityWithTargetEntities entities data
    * @return object defining that entities data has been set
@@ -53,8 +43,7 @@ public class GraphDefinition<T> {
   }
 
   /**
-   * Method used to add entity to definition. After calling this method
-   * you have to set the target entities.
+   * Method used to add entity to definition. After calling this method you have to set the target entities.
    *
    * @param entity entity
    * @return object defining that entity data has been set
@@ -63,9 +52,17 @@ public class GraphDefinition<T> {
     return new AddEntity(entity, this);
   }
 
+  Map<T, Set<T>> getEdgeData(GraphEdge.Type edgeType) {
+    return Collections.unmodifiableMap(data.get(edgeType));
+  }
+
+  Set<GraphEdge.Type> getEdgeTypes() {
+    return Collections.unmodifiableSet(data.keySet());
+  }
+
   /**
-   * Class representing the state of adding new data to the {@link GraphDefinition}.
-   * This state represents that entities data has been set and the graph edge type needs to be set.
+   * Class representing the state of adding new data to the {@link GraphDefinition}. This state represents that entities
+   * data has been set and the graph edge type needs to be set.
    */
   public class AddEntitiesData {
     private Map<T, Set<T>> entityWithTargetEntities;
@@ -99,8 +96,8 @@ public class GraphDefinition<T> {
   }
 
   /**
-   * Class representing the state of adding new entity to the {@link GraphDefinition}.
-   * This state represents that entity has been set and target entities need to be set.
+   * Class representing the state of adding new entity to the {@link GraphDefinition}. This state represents that entity
+   * has been set and target entities need to be set.
    */
   public class AddEntity {
     private T entity;
@@ -123,9 +120,8 @@ public class GraphDefinition<T> {
   }
 
   /**
-   * Class representing the state of adding target entities.
-   * This state represents that target entities has been set for entity specified before
-   * and the graph edge type needs to be set.
+   * Class representing the state of adding target entities. This state represents that target entities has been set for
+   * entity specified before and the graph edge type needs to be set.
    */
   public class WithTargetEntities {
     private GraphDefinition<T> graphDefinition;

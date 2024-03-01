@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -8,15 +12,10 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_group_resource_attribute_def_def_projectNameTest {
 
@@ -55,12 +54,13 @@ public class urn_perun_group_resource_attribute_def_def_projectNameTest {
         AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectName")).thenReturn(reqAttribute);
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongValue() throws Exception {
-    System.out.println("testWrongValue()");
-    attributeToCheck.setValue("bad@value");
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue("correct_value");
+    reqAttribute.setValue("another_correct_value");
 
-    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
+    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
   @Test
@@ -72,15 +72,6 @@ public class urn_perun_group_resource_attribute_def_def_projectNameTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testSemanticsReqAttributeWithNullValue() throws Exception {
-    System.out.println("testSemanticsReqAttributeWithNullValue()");
-    attributeToCheck.setValue("correct_value");
-    reqAttribute.setValue(null);
-
-    classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
   public void testSemanticsMultipleGroupsWithSameName() throws Exception {
     System.out.println("testSemanticsMultipleGroupsWithSameName()");
     attributeToCheck.setValue("correct_value");
@@ -89,12 +80,20 @@ public class urn_perun_group_resource_attribute_def_def_projectNameTest {
     classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
   }
 
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testSemanticsReqAttributeWithNullValue() throws Exception {
+    System.out.println("testSemanticsReqAttributeWithNullValue()");
     attributeToCheck.setValue("correct_value");
-    reqAttribute.setValue("another_correct_value");
+    reqAttribute.setValue(null);
 
     classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongValue() throws Exception {
+    System.out.println("testWrongValue()");
+    attributeToCheck.setValue("bad@value");
+
+    classInstance.checkAttributeSyntax(sess, group, resource, attributeToCheck);
   }
 }

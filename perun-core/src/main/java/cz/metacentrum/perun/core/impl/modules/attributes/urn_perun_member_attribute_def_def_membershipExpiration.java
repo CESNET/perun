@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleImplApi;
-
 import java.text.ParseException;
 import java.util.Date;
 
@@ -24,9 +23,31 @@ import java.util.Date;
 public class urn_perun_member_attribute_def_def_membershipExpiration extends MemberAttributesModuleAbstract
     implements MemberAttributesModuleImplApi {
 
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) {
+    String value = null;
+    if (attribute.getValue() != null) {
+      value = (String) attribute.getValue();
+    }
+    //If there is some value and member is in status expired or disabled
+    if (value != null && (member.getStatus().equals(Status.EXPIRED))) {
+      Date expirationDate;
+      try {
+        expirationDate = BeansUtils.getDateFormatterWithoutTime().parse(value);
+      } catch (ParseException ex) {
+        throw new InternalErrorException("Date parsing failed in setHook, even if parsing in checkMethod was correct.",
+            ex);
+      }
+      Date date = new Date();
+      if (expirationDate.compareTo(date) > 0) {
+        session.getPerunBl().getMembersManagerBl().validateMemberAsync(session, member);
+      }
+    }
+  }
+
   /**
-   * Checks if the corresponding attribute um:membershipExpiration is null or
-   * matches with regular expression yyyy-MM-dd
+   * Checks if the corresponding attribute um:membershipExpiration is null or matches with regular expression
+   * yyyy-MM-dd
    */
   @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute)
@@ -34,9 +55,9 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 
     String membershipExpTime = attribute.valueAsString();
 
-	  if (membershipExpTime == null) {
-		  return; // NULL is ok
-	  }
+    if (membershipExpTime == null) {
+      return; // NULL is ok
+    }
 
     Date testDate;
 
@@ -56,42 +77,19 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
   }
 
   /**
-   * Fill membership expiration time.
-   * If membership starts from Janury to September, time will be the last day of starting year,
-   * if membership start from October, to December, time will be the last day of next year.
+   * Fill membership expiration time. If membership starts from Janury to September, time will be the last day of
+   * starting year, if membership start from October, to December, time will be the last day of next year.
    */
   @Override
   public Attribute fillAttribute(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) {
-		/*Attribute ret = new Attribute(attribute);
-			Calendar now = Calendar.getInstance();
-			int currentMonth = now.get(Calendar.MONTH);
-			int currentYear = now.get(Calendar.YEAR);
+    /*Attribute ret = new Attribute(attribute);
+        Calendar now = Calendar.getInstance();
+        int currentMonth = now.get(Calendar.MONTH);
+        int currentYear = now.get(Calendar.YEAR);
 
-			if(currentMonth>8) currentYear++;
-			ret.setValue(currentYear + "-12-31");*/
+        if(currentMonth>8) currentYear++;
+        ret.setValue(currentYear + "-12-31");*/
     return new Attribute(attribute);
-  }
-
-  @Override
-  public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) {
-    String value = null;
-	  if (attribute.getValue() != null) {
-		  value = (String) attribute.getValue();
-	  }
-    //If there is some value and member is in status expired or disabled
-    if (value != null && (member.getStatus().equals(Status.EXPIRED))) {
-      Date expirationDate;
-      try {
-        expirationDate = BeansUtils.getDateFormatterWithoutTime().parse(value);
-      } catch (ParseException ex) {
-        throw new InternalErrorException("Date parsing failed in setHook, even if parsing in checkMethod was correct.",
-            ex);
-      }
-      Date date = new Date();
-		if (expirationDate.compareTo(date) > 0) {
-			session.getPerunBl().getMembersManagerBl().validateMemberAsync(session, member);
-		}
-    }
   }
 
   @Override

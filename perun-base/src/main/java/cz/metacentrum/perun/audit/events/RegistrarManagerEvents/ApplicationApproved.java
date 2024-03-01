@@ -15,17 +15,17 @@ public class ApplicationApproved extends AuditEvent implements EngineIgnoreEvent
 
   public ApplicationApproved(Application app) {
     this.app = app;
-    this.message = formatMessage("Application ID=%d voID=%d %s was approved.", app.getId(),
-        app.getVo().getId(), ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : ""));
+    this.message = formatMessage("Application ID=%d voID=%d %s was approved.", app.getId(), app.getVo().getId(),
+        ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : ""));
+  }
+
+  public Application getApp() {
+    return app;
   }
 
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Application getApp() {
-    return app;
   }
 
   @Override

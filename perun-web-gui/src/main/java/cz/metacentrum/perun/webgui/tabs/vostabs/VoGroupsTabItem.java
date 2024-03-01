@@ -48,7 +48,7 @@ import java.util.Map;
  */
 public class VoGroupsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "groups";
+  public static final String URL = "groups";
   /**
    * Perun web session
    */

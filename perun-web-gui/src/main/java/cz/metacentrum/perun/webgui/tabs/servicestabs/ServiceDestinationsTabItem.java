@@ -56,7 +56,7 @@ import java.util.Map;
  */
 public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "srv-dest";
+  public static final String URL = "srv-dest";
   /**
    * Perun web session
    */

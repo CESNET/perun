@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 "
        default-lazy-init="true"
-        >
+>
 
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
@@ -23,9 +23,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <!-- TODO documentation of taskExecutors -->
 
     <bean id="taskExecutorMessageProcess" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="3" />
-        <property name="maxPoolSize" value="3" />
-        <property name="queueCapacity" value="100000" />
+        <property name="corePoolSize" value="3"/>
+        <property name="maxPoolSize" value="3"/>
+        <property name="queueCapacity" value="100000"/>
 
         <!-- TODO
 		<property name="rejectedExecutionHandler" ref="callerRuns" />
@@ -36,11 +36,13 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 
     <bean id="schedulingPool" class="cz.metacentrum.perun.engine.scheduling.impl.SchedulingPoolImpl"/>
 
-    <bean id="genCompletionService" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingGenExecutorCompletionService">
+    <bean id="genCompletionService"
+          class="cz.metacentrum.perun.engine.scheduling.impl.BlockingGenExecutorCompletionService">
         <constructor-arg value="${engine.thread.gentasks.max}"/>
     </bean>
 
-    <bean id="sendCompletionService" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingSendExecutorCompletionService">
+    <bean id="sendCompletionService"
+          class="cz.metacentrum.perun.engine.scheduling.impl.BlockingSendExecutorCompletionService">
         <constructor-arg value="${engine.thread.sendtasks.max}"/>
     </bean>
 
@@ -57,51 +59,51 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 
     <!-- PROPERTIES  -->
 
-	<bean id="defaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<!-- set where perun-engine JSM runs -->
-				<prop key="engine.unique.id">1</prop>
-				<!-- set where perun-dispatcher JMS runs -->
-				<prop key="dispatcher.ip.address">127.0.0.1</prop>
-				<prop key="dispatcher.port">6071</prop>
-				<!-- set internal config -->
-				<prop key="perun.principal.name">perunEngine</prop>
-				<prop key="perun.principal.extSourceName">INTERNAL</prop>
-				<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-				<prop key="engine.cron.propagation">45 0/2 * * * ?</prop>
-				<prop key="engine.thread.gentasks.max">15</prop>
-				<prop key="engine.thread.sendtasks.max">150</prop>
-				<prop key="engine.genscript.path">gen</prop>
-				<prop key="engine.sendscript.path">send</prop>
-				<prop key="engine.propagation.timeout">180</prop>
-			</props>
-		</property>
-	</bean>
+    <bean id="defaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <!-- set where perun-engine JSM runs -->
+                <prop key="engine.unique.id">1</prop>
+                <!-- set where perun-dispatcher JMS runs -->
+                <prop key="dispatcher.ip.address">127.0.0.1</prop>
+                <prop key="dispatcher.port">6071</prop>
+                <!-- set internal config -->
+                <prop key="perun.principal.name">perunEngine</prop>
+                <prop key="perun.principal.extSourceName">INTERNAL</prop>
+                <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+                <prop key="engine.cron.propagation">45 0/2 * * * ?</prop>
+                <prop key="engine.thread.gentasks.max">15</prop>
+                <prop key="engine.thread.sendtasks.max">150</prop>
+                <prop key="engine.genscript.path">gen</prop>
+                <prop key="engine.sendscript.path">send</prop>
+                <prop key="engine.propagation.timeout">180</prop>
+            </props>
+        </property>
+    </bean>
 
-	<!-- pass properties values to Spring placeholders i.e. ${engine.port} -->
-	<context:property-placeholder properties-ref="propertiesBean"	ignore-unresolvable="true"/>
+    <!-- pass properties values to Spring placeholders i.e. ${engine.port} -->
+    <context:property-placeholder properties-ref="propertiesBean" ignore-unresolvable="true"/>
 
-	<!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
-	<beans profile="production">
-		<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="defaultProperties"/>
-			<property name="locations">
-				<list>
-					<!--suppress SpringModelInspection -->
-					<value>file:@perun.conf@perun-engine.properties</value>
-					<value>file:${perun.conf.custom}perun-engine.properties</value>
-				</list>
-			</property>
-			<property name="ignoreResourceNotFound" value="true"/>
-		</bean>
-	</beans>
+    <!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
+    <beans profile="production">
+        <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties" ref="defaultProperties"/>
+            <property name="locations">
+                <list>
+                    <!--suppress SpringModelInspection -->
+                    <value>file:@perun.conf@perun-engine.properties</value>
+                    <value>file:${perun.conf.custom}perun-engine.properties</value>
+                </list>
+            </property>
+            <property name="ignoreResourceNotFound" value="true"/>
+        </bean>
+    </beans>
 
-	<!-- active in Spring profile "default", packs just default properties as a bean -->
-	<beans profile="default">
-		<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="defaultProperties"/>
-		</bean>
-	</beans>
+    <!-- active in Spring profile "default", packs just default properties as a bean -->
+    <beans profile="default">
+        <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties" ref="defaultProperties"/>
+        </bean>
+    </beans>
 
 </beans>

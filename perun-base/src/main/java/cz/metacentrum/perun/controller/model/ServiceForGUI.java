@@ -22,22 +22,6 @@ public class ServiceForGUI extends Service {
     setEnabled(service.isEnabled());
   }
 
-  public boolean getAllowedOnFacility() {
-    return allowedOnFacility;
-  }
-
-  public void setAllowedOnFacility(boolean allowed) {
-    allowedOnFacility = allowed;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result;
-    return result;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -57,10 +41,25 @@ public class ServiceForGUI extends Service {
     return true;
   }
 
+  public boolean getAllowedOnFacility() {
+    return allowedOnFacility;
+  }
+
+  public void setAllowedOnFacility(boolean allowed) {
+    allowedOnFacility = allowed;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result;
+    return result;
+  }
+
   @Override
   public String toString() {
-    return "ServiceForGUI [allowedOnFacility=" + allowedOnFacility
-        + ", Service=" + super.toString() + "]";
+    return "ServiceForGUI [allowedOnFacility=" + allowedOnFacility + ", Service=" + super.toString() + "]";
   }
 
 }

@@ -3,8 +3,7 @@ package cz.metacentrum.perun.core.api.exceptions;
 /**
  * Checked version of RoleNotSupportedException.
  * <p>
- * This exception is thrown when somewhere in code is object Role but
- * this role is not supported there for some reason.
+ * This exception is thrown when somewhere in code is object Role but this role is not supported there for some reason.
  *
  * @author Michal Stava
  */

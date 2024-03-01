@@ -16,9 +16,8 @@ import java.util.Set;
 /**
  * Attribute represents CN (common name) of user in a CEITECs ActiveDirectory server.
  * <p>
- * It's value must be unique and have form of "lastName firstName [number]"
- * where number is optional and starts with 2 when more than one user
- * has same name.
+ * It's value must be unique and have form of "lastName firstName [number]" where number is optional and starts with 2
+ * when more than one user has same name.
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
@@ -103,8 +102,10 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
     attr.setDisplayName("CN in CEITEC AD");
     attr.setType(String.class.getName());
     attr.setDescription(
-        "Users CN in CEITEC AD, it must have form of \"lastName firstName [number]\" where number starts with 2 for users with same name.");
+        "Users CN in CEITEC AD, it must have form of \"lastName firstName [number]\" where number starts with 2 for " +
+        "users with same name.");
     return attr;
   }
+
 
 }

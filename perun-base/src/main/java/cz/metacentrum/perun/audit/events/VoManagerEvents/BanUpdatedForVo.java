@@ -18,13 +18,7 @@ public class BanUpdatedForVo extends AuditEvent {
     this.banOnVo = banOnVo;
     this.memberId = memberId;
     this.voId = voId;
-    this.message = formatMessage("Ban %s was updated for memberId %d on voId %d.", banOnVo, memberId,
-        voId);
-  }
-
-  @Override
-  public String getMessage() {
-    return message;
+    this.message = formatMessage("Ban %s was updated for memberId %d on voId %d.", banOnVo, memberId, voId);
   }
 
   public BanOnVo getBanOnVo() {
@@ -33,6 +27,11 @@ public class BanUpdatedForVo extends AuditEvent {
 
   public int getMemberId() {
     return memberId;
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
   }
 
   public int getVoId() {

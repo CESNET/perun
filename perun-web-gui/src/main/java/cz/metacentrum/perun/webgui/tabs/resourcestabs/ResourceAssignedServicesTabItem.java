@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "manage-services";
+  public static final String URL = "manage-services";
   /**
    * Perun web session
    */

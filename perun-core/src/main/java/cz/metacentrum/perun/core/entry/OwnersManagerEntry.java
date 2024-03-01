@@ -14,18 +14,16 @@ import cz.metacentrum.perun.core.bl.OwnersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public class OwnersManagerEntry implements OwnersManager {
 
-  final static Logger log = LoggerFactory.getLogger(OwnersManagerEntry.class);
+  static final Logger LOG = LoggerFactory.getLogger(OwnersManagerEntry.class);
 
   private OwnersManagerBl ownersManagerBl;
   private PerunBl perunBl;
@@ -39,11 +37,6 @@ public class OwnersManagerEntry implements OwnersManager {
   }
 
   public OwnersManagerEntry() {
-  }
-
-  /*FIXME delete this method */
-  public OwnersManagerImplApi getOwnersManagerImpl() {
-    throw new InternalErrorException("Unsupported method!");
   }
 
   @Override
@@ -146,19 +139,6 @@ public class OwnersManagerEntry implements OwnersManager {
     return getOwnersManagerBl().getOwners(sess);
   }
 
-  public PerunBl getPerunBl() {
-    return this.perunBl;
-  }
-
-  /**
-   * Sets the perunBl for this instance.
-   *
-   * @param perunBl The perunBl.
-   */
-  public void setPerunBl(PerunBl perunBl) {
-    this.perunBl = perunBl;
-  }
-
   /**
    * Gets the owners manager
    *
@@ -168,6 +148,15 @@ public class OwnersManagerEntry implements OwnersManager {
     return this.ownersManagerBl;
   }
 
+  /*FIXME delete this method */
+  public OwnersManagerImplApi getOwnersManagerImpl() {
+    throw new InternalErrorException("Unsupported method!");
+  }
+
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
+
   /**
    * Sets the ownersManagerBl for this instance.
    *
@@ -175,6 +164,15 @@ public class OwnersManagerEntry implements OwnersManager {
    */
   public void setOwnersManagerBl(OwnersManagerBl ownersManagerBl) {
     this.ownersManagerBl = ownersManagerBl;
+  }
+
+  /**
+   * Sets the perunBl for this instance.
+   *
+   * @param perunBl The perunBl.
+   */
+  public void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
   }
 
 

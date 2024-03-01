@@ -1,7 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when trying to create a group whose vo_id, name and parent_group (if set) are identical to those of another group
+ * This exception is thrown when trying to create a group whose vo_id, name and parent_group (if set) are identical to
+ * those of another group
  *
  * @author Martin Kuba
  */

@@ -25,7 +25,7 @@ import org.springframework.web.client.RestTemplate;
  */
 public class UserInfoEndpointCall {
 
-  private final static Logger log = LoggerFactory.getLogger(UserInfoEndpointCall.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UserInfoEndpointCall.class);
 
   private static JsonNode callUserInfo(String accessToken, String issuer) throws ExpiredTokenException {
     RestTemplate restTemplate = new RestTemplate();
@@ -39,78 +39,23 @@ public class UserInfoEndpointCall {
           restTemplate.exchange(config.path("userinfo_endpoint").textValue(), HttpMethod.GET, entity, JsonNode.class);
     } catch (HttpClientErrorException ex) {
       if (ex.getStatusCode() == HttpStatus.FORBIDDEN) {
-        log.error("Token {} is no longer valid for issuer: {}", accessToken, issuer);
+        LOG.error("Token {} is no longer valid for issuer: {}", accessToken, issuer);
         throw new ExpiredTokenException("Your token is no longer valid. Please retry from the start.");
       } else {
-        log.error("Failed to get userInfoResponse for access token: {}. The response code was: {}", accessToken,
+        LOG.error("Failed to get userInfoResponse for access token: {}. The response code was: {}", accessToken,
             ex.getStatusCode());
         throw new InternalErrorException(
             "Failed to get userInfoResponse for access token: " + accessToken + ". The response code was: " +
-                ex.getStatusCode());
+            ex.getStatusCode());
       }
     }
     JsonNode userInfo = userInfoResponse.getBody();
     if (StringUtils.isNotEmpty(userInfo.path("error").asText())) {
-      log.error("Call to user info endpoint failed, the error is: {}", userInfo);
+      LOG.error("Call to user info endpoint failed, the error is: {}", userInfo);
       throw new InternalErrorException("Call to user info endpoint failed, the error is" + userInfo);
     }
-    log.debug("user info retrieved: {}", userInfo);
+    LOG.debug("user info retrieved: {}", userInfo);
     return userInfo;
-  }
-
-  public UserInfoEndpointResponse getUserInfoEndpointData(String accessToken, String issuer,
-                                                          Map<String, String> additionalInformation)
-      throws ExpiredTokenException {
-    JsonNode userInfo = callUserInfo(accessToken, issuer);
-
-    fillAdditionalInformationWithDataFromUserInfo(userInfo, additionalInformation);
-
-    String extSourceName = getExtSourceName(userInfo);
-    String extSourceLogin = getExtSourceLogin(userInfo);
-    return new UserInfoEndpointResponse(extSourceName, extSourceLogin);
-  }
-
-  /**
-   * Parsing extsource login (sub) from user info.
-   * We are looking for the first nonempty property value that can be login
-   *
-   * @param userInfo
-   * @return extsource login
-   */
-  private String getExtSourceLogin(JsonNode userInfo) {
-    List<String> ExtSourceLoginOptions = BeansUtils.getCoreConfig().getUserInfoEndpointExtSourceLogin();
-    String login = "";
-    for (String property : ExtSourceLoginOptions) {
-      JsonNode loginNode = userInfo.path(property);
-      if (loginNode.isArray()) {
-        loginNode = loginNode.get(0);
-      }
-      if (loginNode.isTextual()) {
-        login = loginNode.asText();
-      }
-      if (StringUtils.isNotEmpty(login)) {
-        return login;
-      }
-    }
-    if (StringUtils.isEmpty(login)) {
-      log.info("user sub from user info endpoint was empty or null: {}", login);
-    }
-    return login;
-  }
-
-  /**
-   * Parsing extsource name from userinfo
-   *
-   * @param userInfo
-   * @return extsource name
-   */
-  private String getExtSourceName(JsonNode userInfo) {
-    String pathToExtSourceName = BeansUtils.getCoreConfig().getUserInfoEndpointExtSourceName();
-    String extSourceName = userInfo.path(pathToExtSourceName).asText();
-    if (StringUtils.isEmpty(extSourceName)) {
-      log.info("issuer from user info endpoint was empty or null: {}", extSourceName);
-    }
-    return extSourceName;
   }
 
   /**
@@ -156,5 +101,60 @@ public class UserInfoEndpointCall {
     if (StringUtils.isNotEmpty(idpName)) {
       additionalInformation.put("sourceIdPName", idpName);
     }
+  }
+
+  /**
+   * Parsing extsource login (sub) from user info. We are looking for the first nonempty property value that can be
+   * login
+   *
+   * @param userInfo
+   * @return extsource login
+   */
+  private String getExtSourceLogin(JsonNode userInfo) {
+    List<String> extSourceLoginOptions = BeansUtils.getCoreConfig().getUserInfoEndpointExtSourceLogin();
+    String login = "";
+    for (String property : extSourceLoginOptions) {
+      JsonNode loginNode = userInfo.path(property);
+      if (loginNode.isArray()) {
+        loginNode = loginNode.get(0);
+      }
+      if (loginNode.isTextual()) {
+        login = loginNode.asText();
+      }
+      if (StringUtils.isNotEmpty(login)) {
+        return login;
+      }
+    }
+    if (StringUtils.isEmpty(login)) {
+      LOG.info("user sub from user info endpoint was empty or null: {}", login);
+    }
+    return login;
+  }
+
+  /**
+   * Parsing extsource name from userinfo
+   *
+   * @param userInfo
+   * @return extsource name
+   */
+  private String getExtSourceName(JsonNode userInfo) {
+    String pathToExtSourceName = BeansUtils.getCoreConfig().getUserInfoEndpointExtSourceName();
+    String extSourceName = userInfo.path(pathToExtSourceName).asText();
+    if (StringUtils.isEmpty(extSourceName)) {
+      LOG.info("issuer from user info endpoint was empty or null: {}", extSourceName);
+    }
+    return extSourceName;
+  }
+
+  public UserInfoEndpointResponse getUserInfoEndpointData(String accessToken, String issuer,
+                                                          Map<String, String> additionalInformation)
+      throws ExpiredTokenException {
+    JsonNode userInfo = callUserInfo(accessToken, issuer);
+
+    fillAdditionalInformationWithDataFromUserInfo(userInfo, additionalInformation);
+
+    String extSourceName = getExtSourceName(userInfo);
+    String extSourceLogin = getExtSourceLogin(userInfo);
+    return new UserInfoEndpointResponse(extSourceName, extSourceLogin);
   }
 }

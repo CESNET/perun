@@ -18,6 +18,17 @@ import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -36,32 +47,20 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 /**
- * Implementation of ExtSource for IT4I SCS API. It is used to retrieve groups (projects) from IT4I
- * including group members (list of users einfra logins).
+ * Implementation of ExtSource for IT4I SCS API. It is used to retrieve groups (projects) from IT4I including group
+ * members (list of users einfra logins).
  * <p>
- * All synchronizations must be set to "lightweight" mode with fixed members ext source value to "PERUN"
- * as IT4I doesn't provide full user data and Perun is source of truth in this case.
+ * All synchronizations must be set to "lightweight" mode with fixed members ext source value to "PERUN" as IT4I doesn't
+ * provide full user data and Perun is source of truth in this case.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
 
-  private final static Logger log = LoggerFactory.getLogger(ExtSourceIT4I.class);
-  private final static String GROUP_PATH = "einfra-groups";
-  private final static String USER_PATH = "einfra-group-members";
+  private static final Logger LOG = LoggerFactory.getLogger(ExtSourceIT4I.class);
+  private static final String GROUP_PATH = "einfra-groups";
+  private static final String USER_PATH = "einfra-group-members";
   // this will allow us to keep session on all subsequent synchronization calls
   private static CookieStore cookieStore = new BasicCookieStore();
   private static AccessToken accessToken = null;
@@ -73,10 +72,34 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
   private String username;
   private String password;
 
+  /**
+   * Recursively build the IT4IGroups structure from the list of groups.
+   *
+   * @param structure   structure to put resolved groups to
+   * @param prefix      complete group prefix updated during recursive call like "top:", "top:parent:", ....
+   * @param parentLogin current parent group login
+   * @param groups      groups to process
+   */
+  private void buildGroupsStructure(Map<String, IT4IGroup> structure, String prefix, String parentLogin,
+                                    List<IT4IGroup> groups) {
+
+    for (IT4IGroup group : groups) {
+
+      String login = group.getLogin();
+      String groupParentLogin = group.getParentGroupLogin();
+
+      if (Objects.equals(parentLogin, groupParentLogin)) {
+        structure.put(prefix + login, group);
+        buildGroupsStructure(structure, prefix + login + ":", login, groups);
+      }
+
+    }
+
+  }
+
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
+  public void close() throws ExtSourceUnsupportedOperationException {
+    // no-op
   }
 
   @Override
@@ -86,8 +109,8 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
   }
 
   @Override
-  public Map<String, String> getSubjectByLogin(String login)
-      throws SubjectNotExistsException, ExtSourceUnsupportedOperationException {
+  public List<Map<String, String>> findSubjectsLogins(String searchString)
+      throws ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();
   }
 
@@ -136,16 +159,17 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
 
       List<Map<String, String>> result = new ArrayList<>();
 
-      // return list of mappings with only logins, they will be mapped to existing UES based on the group members ExtSource by sync logic.
+      // return list of mappings with only logins, they will be mapped to existing UES based on the group members
+      // ExtSource by sync logic.
       for (String userLogin : userLogins) {
         Map<String, String> map = new HashMap<>();
 
         // convert external einfra login to perun user ID based on the user:def:login-namespace:einfra attribute value
         User user = perunBl.getModulesUtilsBl().getUserByLoginInNamespace(session, userLogin, "einfra");
         if (user == null) {
-          log.warn(
-              "Subject with login '{}' skipped when retrieved from IT4I SCS since no related User was found in Perun with the same login!",
-              userLogin);
+          LOG.warn(
+              "Subject with login '{}' skipped when retrieved from IT4I SCS since no related User was found in Perun " +
+              "with the same login!", userLogin);
           continue;
         }
         // Check if proper UES exists and is mapped to the same user
@@ -156,9 +180,9 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
           ex = perunBl.getExtSourcesManagerBl().getExtSourceByName(session, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
           ues = perunBl.getUsersManagerBl().getUserExtSourceByExtLogin(session, ex, extLogin);
           if (!Objects.equals(user.getId(), ues.getUserId())) {
-            log.warn(
-                "Subject with login '{}' skipped when retrieved from IT4I SCS since login value in Perun attribute is not mapped to the same User as existing UserExtSource in Perun.",
-                userLogin);
+            LOG.warn(
+                "Subject with login '{}' skipped when retrieved from IT4I SCS since login value in Perun attribute is" +
+                " not mapped to the same User as existing UserExtSource in Perun.", userLogin);
             continue;
           }
 
@@ -166,13 +190,13 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
           result.add(map);
 
         } catch (ExtSourceNotExistsException e) {
-          log.warn(
+          LOG.warn(
               "Subject with login '{}' skipped when retrieved from IT4I SCS since there is no ExtSource named PERUN.",
               userLogin);
         } catch (UserExtSourceNotExistsException e) {
-          log.warn(
-              "Subject with login '{}' skipped when retrieved from IT4I SCS since there is no UserExtSource with same login in Perun!",
-              userLogin);
+          LOG.warn(
+              "Subject with login '{}' skipped when retrieved from IT4I SCS since there is no UserExtSource with same" +
+              " login in Perun!", userLogin);
         }
 
       }
@@ -186,8 +210,9 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
   }
 
   @Override
-  public void close() throws ExtSourceUnsupportedOperationException {
-    // no-op
+  public Map<String, String> getSubjectByLogin(String login)
+      throws SubjectNotExistsException, ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
   }
 
   @Override
@@ -241,8 +266,8 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
       for (IT4IGroup group : structure.values()) {
         Map<String, String> map = new HashMap<>();
         map.put(GroupsManagerBlImpl.GROUP_LOGIN, group.getLogin());
-        map.put(GroupsManagerBlImpl.GROUP_NAME, group.getGroup_name());
-        map.put(GroupsManagerBlImpl.PARENT_GROUP_LOGIN, group.getParent_group_login());
+        map.put(GroupsManagerBlImpl.GROUP_NAME, group.getGroupName());
+        map.put(GroupsManagerBlImpl.PARENT_GROUP_LOGIN, group.getParentGroupLogin());
         map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, group.getDescription());
         result.add(map);
       }
@@ -255,74 +280,16 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
 
   }
 
-  @Override
-  public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
-  }
-
   /**
-   * Initialize ExtSource by its configuration
-   */
-  private void init() {
-    tokenUrl = getAttributes().get("tokenUrl");
-    apiUrl = getAttributes().get("apiUrl");
-    username = getAttributes().get("username");
-    password = getAttributes().get("password");
-    if (this.session == null) {
-      this.session = perunBl.getPerunSession(pp, new PerunClient());
-    }
-  }
-
-  /**
-   * Converts list of all IT4I group to the structure based on the group login and parent login.
-   * Logins converted to the perun group naming format "top_group:sub_group:sub_sub_group" are used as keys in the mapping.
-   *
-   * @param it4IGroups List of groups retrieved from SCS
-   * @return Mapping of full group logins to the group
-   */
-  private Map<String, IT4IGroup> it4iGroupsToStructure(List<IT4IGroup> it4IGroups) {
-
-    Map<String, IT4IGroup> result = new HashMap<>();
-    buildGroupsStructure(result, "", null, it4IGroups);
-    return result;
-
-  }
-
-  /**
-   * Recursively build the IT4IGroups structure from the list of groups.
-   *
-   * @param structure   structure to put resolved groups to
-   * @param prefix      complete group prefix updated during recursive call like "top:", "top:parent:", ....
-   * @param parentLogin current parent group login
-   * @param groups      groups to process
-   */
-  private void buildGroupsStructure(Map<String, IT4IGroup> structure, String prefix, String parentLogin,
-                                    List<IT4IGroup> groups) {
-
-    for (IT4IGroup group : groups) {
-
-      String login = group.getLogin();
-      String groupParentLogin = group.getParent_group_login();
-
-      if (Objects.equals(parentLogin, groupParentLogin)) {
-        structure.put(prefix + login, group);
-        buildGroupsStructure(structure, prefix + login + ":", login, groups);
-      }
-
-    }
-
-  }
-
-  /**
-   * Retrieves access token value from the IT4I SCS API token endpoint.
-   * It re-uses value of existing valid token or replaces it with the new one.
+   * Retrieves access token value from the IT4I SCS API token endpoint. It re-uses value of existing valid token or
+   * replaces it with the new one.
    *
    * @return access token value
    */
   private synchronized String getToken() {
 
     if (accessToken != null && accessToken.isValid()) {
-      return accessToken.getAccess_token();
+      return accessToken.getAccessToken();
     }
 
     HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
@@ -358,12 +325,45 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
 
     try {
       accessToken = httpClient.execute(post, rh);
-      log.trace("{}", accessToken);
-      return accessToken.getAccess_token();
+      LOG.trace("{}", accessToken);
+      return accessToken.getAccessToken();
     } catch (IOException e) {
-      log.error("Couldn't contact token endpoint.", e);
+      LOG.error("Couldn't contact token endpoint.", e);
       return null;
     }
+
+  }
+
+  @Override
+  public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
+
+  /**
+   * Initialize ExtSource by its configuration
+   */
+  private void init() {
+    tokenUrl = getAttributes().get("tokenUrl");
+    apiUrl = getAttributes().get("apiUrl");
+    username = getAttributes().get("username");
+    password = getAttributes().get("password");
+    if (this.session == null) {
+      this.session = perunBl.getPerunSession(pp, new PerunClient());
+    }
+  }
+
+  /**
+   * Converts list of all IT4I group to the structure based on the group login and parent login. Logins converted to the
+   * perun group naming format "top_group:sub_group:sub_sub_group" are used as keys in the mapping.
+   *
+   * @param it4IGroups List of groups retrieved from SCS
+   * @return Mapping of full group logins to the group
+   */
+  private Map<String, IT4IGroup> it4iGroupsToStructure(List<IT4IGroup> it4IGroups) {
+
+    Map<String, IT4IGroup> result = new HashMap<>();
+    buildGroupsStructure(result, "", null, it4IGroups);
+    return result;
 
   }
 
@@ -373,71 +373,71 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
   static class IT4IGroup implements Comparable<IT4IGroup> {
 
     private String login;
-    private String parent_group_login;
-    private String group_name;
+    private String parentGroupLogin;
+    private String groupName;
     private String description;
     private List<String> members;
-
-    public String getLogin() {
-      return login;
-    }
-
-    public void setLogin(String login) {
-      this.login = login;
-    }
-
-    public String getParent_group_login() {
-      return parent_group_login;
-    }
-
-    public void setParent_group_login(String parent_group_login) {
-      this.parent_group_login = parent_group_login;
-    }
-
-    public String getGroup_name() {
-      return group_name;
-    }
-
-    public void setGroup_name(String group_name) {
-      this.group_name = group_name;
-    }
-
-    public String getDescription() {
-      return description;
-    }
-
-    public void setDescription(String description) {
-      this.description = description;
-    }
-
-    public List<String> getMembers() {
-      return members;
-    }
-
-    public void setMembers(List<String> members) {
-      this.members = members;
-    }
 
     @Override
     public int compareTo(ExtSourceIT4I.IT4IGroup o) {
       return login.compareTo(o.getLogin());
     }
 
+    public String getDescription() {
+      return description;
+    }
+
+    public String getGroupName() {
+      return groupName;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    public List<String> getMembers() {
+      return members;
+    }
+
+    public String getParentGroupLogin() {
+      return parentGroupLogin;
+    }
+
+    public void setDescription(String description) {
+      this.description = description;
+    }
+
+    public void setGroupName(String groupName) {
+      this.groupName = groupName;
+    }
+
+    public void setLogin(String login) {
+      this.login = login;
+    }
+
+    public void setMembers(List<String> members) {
+      this.members = members;
+    }
+
+    public void setParentGroupLogin(String parentGroupLogin) {
+      this.parentGroupLogin = parentGroupLogin;
+    }
+
   }
 
   /**
-   * Class represent access token returned from the IT4I SCS API token endpoint.
-   * We locally store time of creation to determine validity later on.
+   * Class represent access token returned from the IT4I SCS API token endpoint. We locally store time of creation to
+   * determine validity later on.
    */
   static class AccessToken {
     @JsonIgnore
     private final Instant createdIn;
-    private String access_token;
-    private long expires_in;
-    private long refresh_expires_in;
-    private String token_type;
+    private String accessToken;
+    private long expiresIn;
+    private long refreshExpiresIn;
+    private String tokenType;
     @JsonProperty(value = "not-before-policy")
-    private long not_before_policy;
+    private long notBeforePolicy;
     private String scope;
 
     public AccessToken() {
@@ -449,52 +449,28 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
      *
      * @return access token value
      */
-    public String getAccess_token() {
-      return access_token;
+    public String getAccessToken() {
+      return accessToken;
     }
 
-    public void setAccess_token(String access_token) {
-      this.access_token = access_token;
+    public long getExpiresIn() {
+      return expiresIn;
     }
 
-    public long getExpires_in() {
-      return expires_in;
+    public long getNotBeforePolicy() {
+      return notBeforePolicy;
     }
 
-    public void setExpires_in(long expires_in) {
-      this.expires_in = expires_in;
-    }
-
-    public long getRefresh_expires_in() {
-      return refresh_expires_in;
-    }
-
-    public void setRefresh_expires_in(long refresh_expires_in) {
-      this.refresh_expires_in = refresh_expires_in;
-    }
-
-    public String getToken_type() {
-      return token_type;
-    }
-
-    public void setToken_type(String token_type) {
-      this.token_type = token_type;
-    }
-
-    public long getNot_before_policy() {
-      return not_before_policy;
-    }
-
-    public void setNot_before_policy(long not_before_policy) {
-      this.not_before_policy = not_before_policy;
+    public long getRefreshExpiresIn() {
+      return refreshExpiresIn;
     }
 
     public String getScope() {
       return scope;
     }
 
-    public void setScope(String scope) {
-      this.scope = scope;
+    public String getTokenType() {
+      return tokenType;
     }
 
     /**
@@ -503,7 +479,31 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
      * @return TRUE if access token is still valid
      */
     public boolean isValid() {
-      return Instant.now().isBefore(createdIn.plus(getExpires_in(), ChronoUnit.SECONDS));
+      return Instant.now().isBefore(createdIn.plus(getExpiresIn(), ChronoUnit.SECONDS));
+    }
+
+    public void setAccessToken(String accessToken) {
+      this.accessToken = accessToken;
+    }
+
+    public void setExpiresIn(long expiresIn) {
+      this.expiresIn = expiresIn;
+    }
+
+    public void setNotBeforePolicy(long notBeforePolicy) {
+      this.notBeforePolicy = notBeforePolicy;
+    }
+
+    public void setRefreshExpiresIn(long refreshExpiresIn) {
+      this.refreshExpiresIn = refreshExpiresIn;
+    }
+
+    public void setScope(String scope) {
+      this.scope = scope;
+    }
+
+    public void setTokenType(String tokenType) {
+      this.tokenType = tokenType;
     }
 
   }

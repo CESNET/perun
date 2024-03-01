@@ -23,8 +23,8 @@ public class SponsorshipValidityUpdated extends AuditEvent {
     this.sponsoredMember = sponsoredMember;
     this.sponsor = sponsor;
     this.validity = validityTo;
-    this.message = formatMessage("Validity of sponsorship of %s by %s changed to %s.",
-        sponsoredMember, sponsor, (validityTo == null) ? "FOREVER" : validityTo.toString());
+    this.message = formatMessage("Validity of sponsorship of %s by %s changed to %s.", sponsoredMember, sponsor,
+        (validityTo == null) ? "FOREVER" : validityTo.toString());
   }
 
   @Override
@@ -32,12 +32,12 @@ public class SponsorshipValidityUpdated extends AuditEvent {
     return message;
   }
 
-  public Member getSponsoredMember() {
-    return sponsoredMember;
-  }
-
   public User getSponsor() {
     return sponsor;
+  }
+
+  public Member getSponsoredMember() {
+    return sponsoredMember;
   }
 
   public LocalDate getValidity() {

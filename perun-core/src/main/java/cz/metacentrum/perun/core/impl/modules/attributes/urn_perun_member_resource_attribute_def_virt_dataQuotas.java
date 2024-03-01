@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +36,20 @@ public class urn_perun_member_resource_attribute_def_virt_dataQuotas
   public static final String A_MR_dataQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataQuotas";
   public static final String A_MR_dataQuotasOverride =
       AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataQuotasOverride";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+    attr.setFriendlyName("dataQuotas");
+    attr.setDisplayName("Computed data quotas for a member on a resource");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription(
+        "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota' in (M, G, T, ...), G is " +
+        "default. Example: '10G:20T'. For every volume count final value of data quotas for this member on this " +
+        "resource.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource,
@@ -132,17 +145,5 @@ public class urn_perun_member_resource_attribute_def_virt_dataQuotas
     strongDependencies.add(A_MR_dataQuotas);
     strongDependencies.add(A_MR_dataQuotasOverride);
     return strongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
-    attr.setFriendlyName("dataQuotas");
-    attr.setDisplayName("Computed data quotas for a member on a resource");
-    attr.setType(LinkedHashMap.class.getName());
-    attr.setDescription(
-        "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota' in (M, G, T, ...), G is default. Example: '10G:20T'. For every volume count final value of data quotas for this member on this resource.");
-    return attr;
   }
 }

@@ -33,9 +33,9 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
-import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONLITE;
-import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
-import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONSIMPLE;
+import cz.metacentrum.perun.rpc.serializer.JsonSerializerJsonLite;
+import cz.metacentrum.perun.rpc.serializer.JsonSerializerJsonP;
+import cz.metacentrum.perun.rpc.serializer.JsonSerializerJsonSimple;
 import cz.metacentrum.perun.rpc.serializer.PdfSerializer;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
 import java.io.IOException;
@@ -84,16 +84,17 @@ import org.slf4j.LoggerFactory;
 public class Api extends HttpServlet {
 
   public static final String OIDC_CLAIM_SUB = "OIDC_CLAIM_sub";
-  private final static Logger log = LoggerFactory.getLogger(Api.class);
-  private final static String APICALLER = "apiCaller";
-  private final static String PERUNREQUESTS = "perunRequests";
-  private final static String PERUNREQUESTSURL = "getPendingRequests";
-  private final static String PERUNSTATUS = "getPerunStatus";
-  private final static String PERUNSTATISTICS = "getPerunStatistics";
-  private final static String PERUNSYSTEMTIME = "getPerunSystemTimeInMillis";
-  private final static String SCIMMANAGER = "scimManager";
-      // in milisec, if requests is done more than this time, remove it from list
-  private final static int timeToLiveWhenDone = 60 * 1000;
+  public static final String SHIBBOLETH_COOKIE_FORMAT = "^_shib.+$";
+  private static final Logger LOG = LoggerFactory.getLogger(Api.class);
+  private static final String APICALLER = "apiCaller";
+  private static final String PERUNREQUESTS = "perunRequests";
+  private static final String PERUNREQUESTSURL = "getPendingRequests";
+  private static final String PERUNSTATUS = "getPerunStatus";
+  private static final String PERUNSTATISTICS = "getPerunStatistics";
+  private static final String PERUNSYSTEMTIME = "getPerunSystemTimeInMillis";
+  private static final String SCIMMANAGER = "scimManager";
+  // in milisec, if requests is done more than this time, remove it from list
+  private static final int TIME_TO_LIVE_WHEN_DONE = 60 * 1000;
   private static final String SHIB_IDENTITY_PROVIDER = "Shib-Identity-Provider";
   private static final String SOURCE_IDP_ENTITY_ID = "sourceIdPEntityID";
   private static final String SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
@@ -158,10 +159,10 @@ public class Api extends HttpServlet {
       if (proxyIdPs.contains(shibIdentityProvider)) {
         return sourceIdpEntityId;
       } else {
-        log.warn("sourceIdPEntityID attribute found with value " + sourceIdpEntityId +
-            " in request but IdP with entityID: '" + shibIdentityProvider +
-            "' was not found in perun configuration property 'perun.proxyIdPs'=" + proxyIdPs +
-            ". serving classical entityID instead of sourceIdPEntityID.");
+        LOG.warn("sourceIdPEntityID attribute found with value " + sourceIdpEntityId +
+                 " in request but IdP with entityID: '" + shibIdentityProvider +
+                 "' was not found in perun configuration property 'perun.proxyIdPs'=" + proxyIdPs +
+                 ". serving classical entityID instead of sourceIdPEntityID.");
         return shibIdentityProvider;
       }
     } else {
@@ -252,10 +253,8 @@ public class Api extends HttpServlet {
       if (isNotEmpty(remoteUser)) {
         extLogin = remoteUser;
       }
-    }
-
-    // If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2
-    else if (isNotEmpty(getStringAttribute(req, OIDC_CLAIM_SUB))) {
+    } else if (isNotEmpty(getStringAttribute(req, OIDC_CLAIM_SUB))) {
+      // If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2
       String iss = getStringAttribute(req, OIDC_CLAIM_ISS);
       extLogin = getStringAttribute(req, OIDC_CLAIM_SUB);
       additionalInformations.put(ISSUER, iss);
@@ -299,23 +298,20 @@ public class Api extends HttpServlet {
           extSourceLoaString = "1";
         }
       }
-      log.debug("detected OIDC/OAuth2 client for sub={},iss={}", extLogin, iss);
-    }
-
-    // EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
-    else if (req.getAttribute(EXTSOURCE) != null) {
+      LOG.debug("detected OIDC/OAuth2 client for sub={},iss={}", extLogin, iss);
+    } else if (req.getAttribute(EXTSOURCE) != null) {
+      // EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
       extSourceName = getStringAttribute(req, EXTSOURCE);
       extSourceType = getStringAttribute(req, EXTSOURCETYPE);
       extSourceLoaString = getStringAttribute(req, EXTSOURCELOA);
       extLogin = getExtLogin(req, extSourceName, remoteUser);
-    }
-
-    // X509 cert was used
-    // Cert must be last since Apache asks for certificate everytime and fills cert properties even when Kerberos is in place.
-    else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
+    } else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
+      // X509 cert was used
+      // Cert must be last since Apache asks for certificate everytime and fills cert properties even when Kerberos is
+      // in place.
       String certDN = getStringAttribute(req, SSL_CLIENT_SUBJECT_DN);
-      String caDN = getStringAttribute(req, SSL_CLIENT_ISSUER_DN);
       String wholeCert = getStringAttribute(req, SSL_CLIENT_CERT);
+      String caDN = getStringAttribute(req, SSL_CLIENT_ISSUER_DN);
       extSourceName = caDN;
       extSourceType = ExtSourcesManager.EXTSOURCE_X509;
       extSourceLoaString = getStringAttribute(req, EXTSOURCELOA);
@@ -325,10 +321,10 @@ public class Api extends HttpServlet {
       //FIXME: duplicit
       additionalInformations.put("userCertificates",
           AttributesManagerBlImpl.escapeMapAttributeValue(certDN) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
-              AttributesManagerBlImpl.escapeMapAttributeValue(wholeCert));
+          AttributesManagerBlImpl.escapeMapAttributeValue(wholeCert));
       additionalInformations.put("userCertDNs",
           AttributesManagerBlImpl.escapeMapAttributeValue(certDN) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
-              AttributesManagerBlImpl.escapeMapAttributeValue(caDN));
+          AttributesManagerBlImpl.escapeMapAttributeValue(caDN));
       additionalInformations.put(SSL_CLIENT_SUBJECT_DN, certDN);
 
       // Store X509
@@ -367,7 +363,7 @@ public class Api extends HttpServlet {
             }
           }
         } catch (CertificateParsingException e) {
-          log.error("Error during parsing certificate {}", Arrays.asList(certs));
+          LOG.error("Error during parsing certificate {}", Arrays.asList(certs));
         }
 
         additionalInformations.put("mail", emails);
@@ -383,12 +379,13 @@ public class Api extends HttpServlet {
         if (ExtSourcesManager.EXTSOURCE_IDP.equals(extSourceType)) {
           attrValue = new String(attrValue.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
         }
-        log.debug("storing {}={} to additionalInformations", attr.getFriendlyName(), attrValue);
+        LOG.debug("storing {}={} to additionalInformations", attr.getFriendlyName(), attrValue);
         additionalInformations.put(attr.getFriendlyName(), attrValue);
       }
     }
 
-    // If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
+    // If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the
+    // request
     // fixme: won't work with MFA-requiring operations, MFA properties are stored in additionalInformations!
     if (des != null && extLogin != null) {
       List<String> powerUsers = config.getRpcPowerusers();
@@ -417,29 +414,37 @@ public class Api extends HttpServlet {
     if (isEmpty(extLogin) || isEmpty(extSourceName)) {
       throw new UserNotExistsException("extLogin or extSourceName is empty");
     }
-    log.trace(
-        "creating PerunPrincipal(actor={},extSourceName={},extSourceType={},extSourceLoa={},additionalInformations={},referer={})",
-        extLogin, extSourceName, extSourceType, extSourceLoa, additionalInformations, referer);
+
+    LOG.trace("creating PerunPrincipal(actor={},extSourceName={},extSourceType={},extSourceLoa={}," +
+              "additionalInformations={},referer={})", extLogin, extSourceName, extSourceType, extSourceLoa,
+        additionalInformations, referer);
     return new PerunPrincipal(extLogin, extSourceName, extSourceType, extSourceLoa, additionalInformations, referer);
   }
 
-  @Override
-  public void init() {
-    // we do not init anything
-  }
+  /**
+   * Check Origin header, if it's between allowed domains for CORS
+   *
+   * @param req  HttpServletRequest to check
+   * @param resp HttpServletResponse to modify
+   */
+  private boolean checkOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
+    String origin = req.getHeader("Origin");
+    LOG.trace("Incoming Origin header: {}", origin);
 
-  private PerunClient setupPerunClient(HttpServletRequest req) {
-
-    if (isNotEmpty(getStringAttribute(req, OIDC_CLAIM_SUB))) {
-      String clientId = getStringAttribute(req, OIDC_CLAIM_CLIENT_ID);
-      List<String> scopes = Arrays.asList(getStringAttribute(req, OIDC_CLAIM_SCOPE).split(" "));
-      log.debug("detected OIDC/OAuth2 client {} with scopes {} for sub {}", clientId, scopes,
-          getStringAttribute(req, OIDC_CLAIM_SUB));
-      return new PerunClient(clientId, scopes);
+    if (origin != null) {
+      List<String> allowedDomains = BeansUtils.getCoreConfig().getAllowedCorsDomains();
+      if (allowedDomains.contains(origin)) {
+        LOG.trace("Adding header Access-Control-Allow-Origin to response: {}", origin);
+        resp.setHeader("Access-Control-Allow-Origin", origin);
+        resp.setHeader("Vary", "Origin");
+        return true;
+      }
+    } else {
+      // no origin, don't modify header
+      // origin = "*";
     }
 
-    // If no OIDC header is present means it is not OAuth2 scenario => return trustful internal client.
-    return new PerunClient();
+    return false;
   }
 
   @Override
@@ -453,7 +458,7 @@ public class Api extends HttpServlet {
       try {
         perunPrincipal = setupPerunPrincipal(req, null);
         wrt.write("OK! Version: " + getPerunRpcVersion() + ", User: " + perunPrincipal.getActor() + ", extSource: " +
-            perunPrincipal.getExtSourceName());
+                  perunPrincipal.getExtSourceName());
       } catch (InternalErrorException | UserNotExistsException | ExpiredTokenException e) {
         wrt.write("ERROR! Exception " + e.getMessage());
       }
@@ -466,35 +471,9 @@ public class Api extends HttpServlet {
     }
   }
 
-  private synchronized String getPerunRpcVersion() {
-    if (version == null) {
-      try {
-        Properties p = new Properties();
-        p.load(getServletContext().getResourceAsStream(PERUN_RPC_POM_FILE));
-        version = p.getProperty("version");
-      } catch (IOException e) {
-        log.error("cannot read file " + PERUN_RPC_POM_FILE, e);
-        version = "UNKNOWN";
-      }
-    }
-    return version;
-  }
-
-  @Override
-  protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    checkOriginHeader(req, resp);
-    serve(req, resp, false, true);
-  }
-
-  @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    checkOriginHeader(req, resp);
-    serve(req, resp, false, false);
-  }
-
   /**
-   * OPTIONS method is called by CORS pre-flight requests made by JavaScript clients running in browsers.
-   * The response must set CORS headers that allow the next request.
+   * OPTIONS method is called by CORS pre-flight requests made by JavaScript clients running in browsers. The response
+   * must set CORS headers that allow the next request.
    *
    * @param req  HTTP request
    * @param resp HTTP response
@@ -509,30 +488,84 @@ public class Api extends HttpServlet {
     resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
   }
 
-  /**
-   * Check Origin header, if it's between allowed domains for CORS
-   *
-   * @param req  HttpServletRequest to check
-   * @param resp HttpServletResponse to modify
-   */
-  private boolean checkOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
-    String origin = req.getHeader("Origin");
-    log.trace("Incoming Origin header: {}", origin);
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    checkOriginHeader(req, resp);
+    serve(req, resp, false, false);
+  }
 
-    if (origin != null) {
-      List<String> allowedDomains = BeansUtils.getCoreConfig().getAllowedCorsDomains();
-      if (allowedDomains.contains(origin)) {
-        log.trace("Adding header Access-Control-Allow-Origin to response: {}", origin);
-        resp.setHeader("Access-Control-Allow-Origin", origin);
-        resp.setHeader("Vary", "Origin");
-        return true;
+  @Override
+  protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    checkOriginHeader(req, resp);
+    serve(req, resp, false, true);
+  }
+
+  private synchronized String getPerunRpcVersion() {
+    if (version == null) {
+      try {
+        Properties p = new Properties();
+        p.load(getServletContext().getResourceAsStream(PERUN_RPC_POM_FILE));
+        version = p.getProperty("version");
+      } catch (IOException e) {
+        LOG.error("cannot read file " + PERUN_RPC_POM_FILE, e);
+        version = "UNKNOWN";
       }
-    } else {
-      // no origin, don't modify header
-      // origin = "*";
+    }
+    return version;
+  }
+
+  @Override
+  public void init() {
+    // we do not init anything
+  }
+
+  private Deserializer selectDeserializer(String format, HttpServletRequest req) throws IOException {
+    switch (Formats.match(format)) {
+      case json:
+      case jsonp:
+      case jsonsimple:
+      case jsonlite:
+        return new JsonDeserializer(req);
+      case urlinjsonout:
+        return new UrlDeserializer(req);
+      default:
+        throw new RpcException(RpcException.Type.UNKNOWN_DESERIALIZER_FORMAT, format);
+    }
+  }
+
+  private Serializer selectSerializer(String format, String manager, String method, OutputStream out,
+                                      HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    Serializer serializer;
+
+    switch (Formats.match(format)) {
+      case json:
+        serializer = new JsonSerializer(out);
+        break;
+      case jsonp:
+        serializer = new JsonSerializerJsonP(out, req, resp);
+        break;
+      case urlinjsonout:
+        serializer = new JsonSerializer(out);
+        break;
+      case jsonsimple:
+        serializer = new JsonSerializerJsonSimple(out);
+        break;
+      case jsonlite:
+        serializer = new JsonSerializerJsonLite(out);
+        break;
+      default:
+        throw new RpcException(RpcException.Type.UNKNOWN_SERIALIZER_FORMAT, format);
     }
 
-    return false;
+    // handle special cases of returning file attachments to certain methods
+
+    if ("usersManager".equals(manager)) {
+      if ("changePasswordRandom".equals(method)) {
+        serializer = new PdfSerializer(out);
+      }
+    }
+
+    return serializer;
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -556,16 +589,16 @@ public class Api extends HttpServlet {
       req.getSession().setAttribute(PERUNREQUESTS, new ConcurrentSkipListMap<String, PerunRequest>());
     }
 
-    // store pending requests locally, because accessing it from session object after response is written would cause IllegalStateException
-    @SuppressWarnings("unchecked")
-    ConcurrentSkipListMap<String, PerunRequest> pendingRequests =
+    // store pending requests locally, because accessing it from session object after response is written would cause
+    // IllegalStateException
+    @SuppressWarnings("unchecked") ConcurrentSkipListMap<String, PerunRequest> pendingRequests =
         ((ConcurrentSkipListMap<String, PerunRequest>) req.getSession().getAttribute(PERUNREQUESTS));
 
     // Check if it is request for list of pending operations.
     if (req.getPathInfo().equals("/jsonp/" + PERUNREQUESTSURL)) {
       // name used to identify pending request
       String callbackId = req.getParameter("callbackId");
-      JsonSerializerJSONP serializer = new JsonSerializerJSONP(out, req, resp);
+      JsonSerializerJsonP serializer = new JsonSerializerJsonP(out, req, resp);
       resp.setContentType(serializer.getContentType());
       try {
         // Create a copy of the PERUNREQUESTS and then pass it to the serializer
@@ -639,7 +672,8 @@ public class Api extends HttpServlet {
         caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
         req.getSession(true).setAttribute(APICALLER, caller);
       } else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), getActor(req, des)) &&
-          !caller.getSession().getPerunPrincipal().getExtSourceName().equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
+                 !caller.getSession().getPerunPrincipal().getExtSourceName()
+                     .equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
         // prevent cookie stealing (if remote user changed, rebuild session)
         caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
         req.getSession(true).setAttribute(APICALLER, caller);
@@ -657,7 +691,6 @@ public class Api extends HttpServlet {
           // deletes the cookies
           Cookie[] cookies = req.getCookies();
           if (cookies != null) {
-            final String SHIBBOLETH_COOKIE_FORMAT = "^_shib.+$";
 
             for (Cookie c : cookies) {
               // if shibboleth cookie
@@ -726,6 +759,7 @@ public class Api extends HttpServlet {
           perunStatus.add("AuditerConsumer: '" + consumerName + "' with last processed id='" + lastProcessedId + "'");
         }
         perunStatus.add("LastMessageId: " + caller.call("auditMessagesManager", "getLastMessageId", des));
+
         perunStatus.add("Timestamp: " + timestamp);
         ser.write(perunStatus);
 
@@ -759,8 +793,8 @@ public class Api extends HttpServlet {
       // Store identification of the request only if supported by app (it passed unique callbackName)
       if (callbackName != null) {
 
-        perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName,
-            manager, method, des.readAll());
+        perunRequest =
+            new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName, manager, method, des.readAll());
 
         // Add perunRequest into the queue of the requests for POST only
         if (!isGet && !isPut) {
@@ -775,7 +809,7 @@ public class Api extends HttpServlet {
           //user has not consented to scope perun_api for the client on the OAuth Authorization Server
           throw new PrivilegeException(
               "Scope " + PerunClient.PERUN_API_SCOPE + " is missing, either the client app " + perunClient.getId() +
-                  " has not asked for it, or the user has not granted it.");
+              " has not asked for it, or the user has not granted it.");
         }
       }
 
@@ -811,31 +845,31 @@ public class Api extends HttpServlet {
       if (!isJsonp) {
         resp.setStatus(HttpStatus.SC_UNAUTHORIZED);
       }
-      log.warn("MFA authentication exception {}: {}.", mfae.getErrorId(), mfae);
+      LOG.warn("MFA authentication exception {}: {}.", mfae.getErrorId(), mfae);
       ser.writePerunException(mfae);
     } catch (MfaPrivilegeException mfape) {
       if (!isJsonp) {
         resp.setStatus(HttpStatus.SC_UNAUTHORIZED);
       }
-      log.warn("MFA privilege exception {}: {}.", mfape.getErrorId(), mfape);
+      LOG.warn("MFA privilege exception {}: {}.", mfape.getErrorId(), mfape);
       ser.writePerunRuntimeException(mfape);
     } catch (PerunException pex) {
       // If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
       if (!isJsonp) {
         resp.setStatus(400);
       }
-      log.warn("Perun exception {}: {}.", pex.getErrorId(), pex);
+      LOG.warn("Perun exception {}: {}.", pex.getErrorId(), pex);
       ser.writePerunException(pex);
     } catch (PerunRuntimeException prex) {
       // If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
       if (!isJsonp) {
         resp.setStatus(400);
       }
-      log.warn("PerunRuntime exception {}: {}.", prex.getErrorId(), prex);
+      LOG.warn("PerunRuntime exception {}: {}.", prex.getErrorId(), prex);
       ser.writePerunRuntimeException(prex);
     } catch (IOException ioex) { //IOException gets logged and is rethrown
       //noinspection ThrowableNotThrown
-      log.warn("IO exception {}: {}.", Long.toHexString(System.currentTimeMillis()), ioex);
+      LOG.warn("IO exception {}: {}.", Long.toHexString(System.currentTimeMillis()), ioex);
       new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ioex);
       throw ioex;
     } catch (Exception ex) {
@@ -843,7 +877,7 @@ public class Api extends HttpServlet {
       if (!isJsonp) {
         resp.setStatus(500);
       }
-      log.warn("Perun exception {}: {}.", Long.toHexString(System.currentTimeMillis()), ex);
+      LOG.warn("Perun exception {}: {}.", Long.toHexString(System.currentTimeMillis()), ex);
       ser.writePerunRuntimeException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
     } finally {
       if (!isGet && !isPut && perunRequest != null) {
@@ -863,7 +897,7 @@ public class Api extends HttpServlet {
           if (value.getEndTime() < 0) {
             continue;
           }
-          if (System.currentTimeMillis() - value.getEndTime() > timeToLiveWhenDone) {
+          if (System.currentTimeMillis() - value.getEndTime() > TIME_TO_LIVE_WHEN_DONE) {
             iterator.remove();
           }
         }
@@ -876,64 +910,29 @@ public class Api extends HttpServlet {
     out.close();
 
     if (Objects.equals(manager, "authzResolver") && Objects.equals(method, "keepAlive")) {
-      log.trace("Method {}.{} called by {} from {}, duration {} ms.", manager, method,
+      LOG.trace("Method {}.{} called by {} from {}, duration {} ms.", manager, method,
           caller.getSession().getPerunPrincipal().getActor(),
           caller.getSession().getPerunPrincipal().getExtSourceName(), (System.currentTimeMillis() - timeStart));
     } else {
-      log.debug("Method {}.{} called by {} from {}, duration {} ms.", manager, method,
+      LOG.debug("Method {}.{} called by {} from {}, duration {} ms.", manager, method,
           caller.getSession().getPerunPrincipal().getActor(),
           caller.getSession().getPerunPrincipal().getExtSourceName(), (System.currentTimeMillis() - timeStart));
     }
 
   }
 
-  private Serializer selectSerializer(String format, String manager, String method, OutputStream out,
-                                      HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    Serializer serializer;
+  private PerunClient setupPerunClient(HttpServletRequest req) {
 
-    switch (Formats.match(format)) {
-      case json:
-        serializer = new JsonSerializer(out);
-        break;
-      case jsonp:
-        serializer = new JsonSerializerJSONP(out, req, resp);
-        break;
-      case urlinjsonout:
-        serializer = new JsonSerializer(out);
-        break;
-      case jsonsimple:
-        serializer = new JsonSerializerJSONSIMPLE(out);
-        break;
-      case jsonlite:
-        serializer = new JsonSerializerJSONLITE(out);
-        break;
-      default:
-        throw new RpcException(RpcException.Type.UNKNOWN_SERIALIZER_FORMAT, format);
+    if (isNotEmpty(getStringAttribute(req, OIDC_CLAIM_SUB))) {
+      String clientId = getStringAttribute(req, OIDC_CLAIM_CLIENT_ID);
+      List<String> scopes = Arrays.asList(getStringAttribute(req, OIDC_CLAIM_SCOPE).split(" "));
+      LOG.debug("detected OIDC/OAuth2 client {} with scopes {} for sub {}", clientId, scopes,
+          getStringAttribute(req, OIDC_CLAIM_SUB));
+      return new PerunClient(clientId, scopes);
     }
 
-    // handle special cases of returning file attachments to certain methods
-
-    if ("usersManager".equals(manager)) {
-      if ("changePasswordRandom".equals(method)) {
-        serializer = new PdfSerializer(out);
-      }
-    }
-
-    return serializer;
-  }
-
-  private Deserializer selectDeserializer(String format, HttpServletRequest req) throws IOException {
-    switch (Formats.match(format)) {
-      case json:
-      case jsonp:
-      case jsonsimple:
-      case jsonlite:
-        return new JsonDeserializer(req);
-      case urlinjsonout:
-        return new UrlDeserializer(req);
-      default:
-        throw new RpcException(RpcException.Type.UNKNOWN_DESERIALIZER_FORMAT, format);
-    }
+    // If no OIDC header is present means it is not OAuth2 scenario => return trustful internal client.
+    return new PerunClient();
   }
 
   /**
@@ -941,12 +940,7 @@ public class Api extends HttpServlet {
    */
   public enum Formats {
 
-    NOMATCH,
-    urlinjsonout,
-    json,
-    jsonp,
-    jsonsimple,
-    jsonlite;
+    NOMATCH, urlinjsonout, json, jsonp, jsonsimple, jsonlite;
 
     /**
      * Matches a string with the enum's values.

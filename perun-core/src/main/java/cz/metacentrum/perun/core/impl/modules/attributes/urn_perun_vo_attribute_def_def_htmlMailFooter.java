@@ -27,9 +27,7 @@ public class urn_perun_vo_attribute_def_def_htmlMailFooter extends VoAttributesM
       return;
     }
 
-    HTMLParser parser = new HTMLParser()
-        .sanitizeHTML(input)
-        .checkEscapedHTML();
+    HTMLParser parser = new HTMLParser().sanitizeHTML(input).checkEscapedHTML();
     if (!parser.isInputValid()) {
       throw new InvalidHtmlInputException(
           "HTML content contains unsafe HTML tags or styles. Remove them and try again.", parser.getEscaped());
@@ -43,7 +41,8 @@ public class urn_perun_vo_attribute_def_def_htmlMailFooter extends VoAttributesM
     attrDef.setFriendlyName("htmlMailFooter");
     attrDef.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
     attrDef.setDescription(
-        "HTML email footer used in HTML mail notifications by tag {htmlMailFooter}. To edit text without loss of formatting, please use notification's GUI!!");
+        "HTML email footer used in HTML mail notifications by tag {htmlMailFooter}. To edit text without loss of " +
+        "formatting, please use notification's GUI!!");
     attrDef.setType(String.class.getName());
     return attrDef;
   }

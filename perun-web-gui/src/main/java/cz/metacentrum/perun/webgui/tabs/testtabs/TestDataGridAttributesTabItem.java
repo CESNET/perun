@@ -50,7 +50,7 @@ import java.util.Map;
 public class TestDataGridAttributesTabItem implements TabItem, TabItemWithUrl {
 
 
-  public final static String URL = "datagrid2";
+  public static final String URL = "datagrid2";
   /**
    * Perun web session
    */

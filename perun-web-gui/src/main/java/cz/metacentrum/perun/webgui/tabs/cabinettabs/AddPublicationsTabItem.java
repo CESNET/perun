@@ -80,7 +80,7 @@ import java.util.Map;
  */
 public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemWithHelp {
 
-  public final static String URL = "add";
+  public static final String URL = "add";
   // TAB NEEDED
   private PerunWebSession session = PerunWebSession.getInstance();
   private User user;

@@ -1,8 +1,7 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when trying to remove service from service package
- * but the service has already been removed
+ * This exception is thrown when trying to remove service from service package but the service has already been removed
  *
  * @author Michal Stava
  */

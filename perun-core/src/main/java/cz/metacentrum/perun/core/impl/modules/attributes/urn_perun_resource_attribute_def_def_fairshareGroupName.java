@@ -7,14 +7,12 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +31,36 @@ public class urn_perun_resource_attribute_def_def_fairshareGroupName extends Res
   private static final Pattern pattern = Pattern.compile("^[a-zA-Z]{1,12}$");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+    //Null is ok, it means this resource is not fairshare group
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    String groupName = attribute.valueAsString();
+
+    //On facility must be fairshare group name unique (between all resources of this facility)
+    Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
+    List<Resource> facilityResources =
+        perunSession.getPerunBl().getFacilitiesManagerBl().getAssignedResources(perunSession, facility);
+    facilityResources.remove(resource);
+    for (Resource res : facilityResources) {
+      try {
+        Attribute resFairshareName =
+            perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, res, attribute.getName());
+
+        if (resFairshareName.getValue() != null && groupName.equals(resFairshareName.valueAsString())) {
+          throw new WrongReferenceAttributeValueException(attribute, resFairshareName, resource, null, res, null,
+              "This name is already taken (not unique). Choose another one.");
+        }
+      } catch (AttributeNotExistsException ex) {
+        throw new ConsistencyErrorException(ex);
+      }
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
       throws WrongAttributeValueException {
     //Null is ok, it means this resource is not fairshare group
@@ -45,36 +73,6 @@ public class urn_perun_resource_attribute_def_def_fairshareGroupName extends Res
     if (!matcher.matches()) {
       throw new WrongAttributeValueException(attribute, resource,
           "Wrong format of group fairshare name. Max length is 12, only letters are allowed.");
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-    //Null is ok, it means this resource is not fairshare group
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    String gName = attribute.valueAsString();
-
-    //On facility must be fairshare group name unique (between all resources of this facility)
-    Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
-    List<Resource> facilityResources =
-        perunSession.getPerunBl().getFacilitiesManagerBl().getAssignedResources(perunSession, facility);
-    facilityResources.remove(resource);
-    for (Resource res : facilityResources) {
-      try {
-        Attribute resFairshareName =
-            perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, res, attribute.getName());
-
-        if (resFairshareName.getValue() != null && gName.equals(resFairshareName.valueAsString())) {
-          throw new WrongReferenceAttributeValueException(attribute, resFairshareName, resource, null, res, null,
-              "This name is already taken (not unique). Choose another one.");
-        }
-      } catch (AttributeNotExistsException ex) {
-        throw new ConsistencyErrorException(ex);
-      }
     }
   }
 

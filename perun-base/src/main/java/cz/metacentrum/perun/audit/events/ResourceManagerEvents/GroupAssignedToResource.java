@@ -20,13 +20,13 @@ public class GroupAssignedToResource extends AuditEvent {
     this.message = formatMessage("%s assigned to %s", group, resource);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   public Resource getResource() {

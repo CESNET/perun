@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class ServiceDetailTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "detail";
+  public static final String URL = "detail";
   /**
    * Perun web session
    */

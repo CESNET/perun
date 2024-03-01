@@ -21,26 +21,9 @@ public class urn_perun_group_attribute_def_virt_adGroupName extends GroupVirtual
   private static final String SOURCE_ATTR_NAME = AttributesManager.NS_GROUP_ATTR_DEF + ":adGroupName";
   private static final String DELIMITER = "-";
 
-  @Override
-  public Attribute getAttributeValue(PerunSessionImpl sess, Group group, AttributeDefinition attributeDefinition) {
-    Attribute attribute = new Attribute(attributeDefinition);
-
-    try {
-      List<String> adGroupNames = fetchAdGroupNamesFromGroupAndItsParentGroups(sess, group);
-      if (adGroupNames.contains(null)) {
-        attribute.setValue(null);
-      } else {
-        attribute.setValue(String.join(DELIMITER, adGroupNames));
-      }
-    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-      attribute.setValue(null);
-    }
-    return attribute;
-  }
-
   /**
-   * Recursively fetch adGroupName value from group and its parent groups
-   * Result names are sorted from root group name to the leaf group name.
+   * Recursively fetch adGroupName value from group and its parent groups Result names are sorted from root group name
+   * to the leaf group name.
    *
    * @param sess  Perun Session
    * @param group for which we will be fetching values
@@ -77,5 +60,22 @@ public class urn_perun_group_attribute_def_virt_adGroupName extends GroupVirtual
     attr.setType(String.class.getName());
     attr.setDescription("AD group name, which is composed from all def AD group names of this group and its parents.");
     return attr;
+  }
+
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, Group group, AttributeDefinition attributeDefinition) {
+    Attribute attribute = new Attribute(attributeDefinition);
+
+    try {
+      List<String> adGroupNames = fetchAdGroupNamesFromGroupAndItsParentGroups(sess, group);
+      if (adGroupNames.contains(null)) {
+        attribute.setValue(null);
+      } else {
+        attribute.setValue(String.join(DELIMITER, adGroupNames));
+      }
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+      attribute.setValue(null);
+    }
+    return attribute;
   }
 }

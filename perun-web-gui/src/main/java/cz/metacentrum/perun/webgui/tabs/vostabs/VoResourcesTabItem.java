@@ -46,7 +46,7 @@ import java.util.Map;
  */
 public class VoResourcesTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "resources";
+  public static final String URL = "resources";
   /**
    * Perun web session
    */

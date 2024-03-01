@@ -1,23 +1,30 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
+import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENDING;
+
 import cz.metacentrum.perun.engine.exceptions.TaskExecutionException;
 import cz.metacentrum.perun.engine.scheduling.BlockingCompletionService;
 import cz.metacentrum.perun.engine.scheduling.EngineWorker;
 import cz.metacentrum.perun.engine.scheduling.SendWorker;
 import cz.metacentrum.perun.taskslib.model.SendTask;
+import java.util.Date;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.concurrent.*;
-
-import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENDING;
-
 /**
- * Implementation of BlockingCompletionService<SendTask> for sending Tasks in Engine.
- * (SendTask is inner representation of <Task,Destination>)
- * It provides blocking methods and size limit to javas CompletionService, which itself run SendWorkers.
- * Tasks are managed by separate threads SendPlanner and SendCollector.
+ * Implementation of BlockingCompletionService<SendTask> for sending Tasks in Engine. (SendTask is inner representation
+ * of <Task,Destination>) It provides blocking methods and size limit to javas CompletionService, which itself run
+ * SendWorkers. Tasks are managed by separate threads SendPlanner and SendCollector.
  *
  * @author David Šarman
  * @author Pavel Zlámal <zlamal@cesnet.cz>
@@ -29,13 +36,13 @@ import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENDIN
  */
 public class BlockingSendExecutorCompletionService implements BlockingCompletionService<SendTask> {
 
-  private final static Logger log = LoggerFactory.getLogger(BlockingSendExecutorCompletionService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BlockingSendExecutorCompletionService.class);
   private CompletionService<SendTask> completionService;
   private ConcurrentMap<Future<SendTask>, SendTask> executingSendTasks = new ConcurrentHashMap<>();
   /**
-   * Provide blocking-waiting behavior to SEND Tasks, which are not started, until semaphore is acquired.
-   * When job is cancelled or done, semaphore is released. Semaphore shares limit for concurrently running
-   * SEND Tasks with javas ExecutorCompletionService.
+   * Provide blocking-waiting behavior to SEND Tasks, which are not started, until semaphore is acquired. When job is
+   * cancelled or done, semaphore is released. Semaphore shares limit for concurrently running SEND Tasks with javas
+   * ExecutorCompletionService.
    */
   private Semaphore semaphore;
 
@@ -91,7 +98,7 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 
         // Unexpected exception during processing, pass stored SendTask if possible
         if (sendTask == null) {
-          log.error("We couldn't get SendTask for failed Future<SendTask>: {}", e);
+          LOG.error("We couldn't get SendTask for failed Future<SendTask>: {}", e);
           throw new RuntimeException("We couldn't get SendTask for failed Future<Task>", e);
         }
 
@@ -105,7 +112,7 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
       SendTask removedSendTask = executingSendTasks.get(taskFuture);
       removeTaskFuture(taskFuture);
       if (removedSendTask == null) {
-        log.error("Somebody manually removed Future<SendTask> from executingSendTasks or SendTask was null: {}", ex);
+        LOG.error("Somebody manually removed Future<SendTask> from executingSendTasks or SendTask was null: {}", ex);
         throw ex; // we can't do anything about it
       }
 

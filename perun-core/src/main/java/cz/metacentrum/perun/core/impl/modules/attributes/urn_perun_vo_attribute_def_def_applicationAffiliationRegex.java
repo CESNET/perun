@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -21,6 +20,16 @@ import java.util.regex.PatternSyntaxException;
  */
 public class urn_perun_vo_attribute_def_def_applicationAffiliationRegex extends VoAttributesModuleAbstract
     implements VoAttributesModuleImplApi {
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    // null attribute
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute,
+          "Affiliation regular expression attribute cannot be null.");
+    }
+  }
+
   @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute)
       throws WrongAttributeValueException {
@@ -34,16 +43,6 @@ public class urn_perun_vo_attribute_def_def_applicationAffiliationRegex extends 
         throw new WrongAttributeValueException(attribute,
             "Regexp: \"" + regex + "\" syntax is not in the correct form");
       }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    // null attribute
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute,
-          "Affiliation regular expression attribute cannot be null.");
     }
   }
 

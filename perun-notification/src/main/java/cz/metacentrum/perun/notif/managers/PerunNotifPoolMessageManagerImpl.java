@@ -31,10 +31,10 @@ import org.springframework.stereotype.Service;
 @Service("perunNotifPoolMessageManager")
 public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageManager {
 
-  public static final Logger logger = LoggerFactory.getLogger(PerunNotifPoolMessageManager.class);
+  public static final Logger LOGGER = LoggerFactory.getLogger(PerunNotifPoolMessageManager.class);
   public static final String METHOD_CLASSNAME = "METHOD";
   public static final String DEFAULT_LOCALE = "en";
-  private static final Map<String, ParsedMethod> parsedMethodCache = new ConcurrentHashMap<String, ParsedMethod>();
+  private static final Map<String, ParsedMethod> PARSED_METHOD_CACHE = new ConcurrentHashMap<String, ParsedMethod>();
   @Autowired
   private PerunNotifPoolMessageDao perunNotifPoolMessageDao;
   @Autowired
@@ -53,15 +53,15 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 
     try {
       String preparedMethodName = prepareMethodName(methodName);
-      logger.debug("Using reflection to get values for method: " + preparedMethodName);
+      LOGGER.debug("Using reflection to get values for method: " + preparedMethodName);
       Method method = resolvedClass.getMethod(preparedMethodName);
       return method.invoke(matchingObject);
     } catch (NoSuchMethodException ex) {
-      logger.error("Method for class: " + resolvedClass.toString() + " cannot be resolved: " + methodName);
+      LOGGER.error("Method for class: " + resolvedClass.toString() + " cannot be resolved: " + methodName);
     } catch (InvocationTargetException ex) {
-      logger.error("Error during invocation of method: " + methodName, ex);
+      LOGGER.error("Error during invocation of method: " + methodName, ex);
     } catch (IllegalAccessException ex) {
-      logger.error("Illegal access using method: " + methodName + " on class: " + resolvedClass.toString(), ex);
+      LOGGER.error("Illegal access using method: " + methodName + " on class: " + resolvedClass.toString(), ex);
     }
 
     return null;
@@ -77,27 +77,10 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
     return methodName;
   }
 
-  @SuppressWarnings("unused")
-  @PostConstruct
-  private void init() throws Exception {
-    if (!perun.isPerunReadOnly()) {
-      perunNotifPoolMessageDao.setAllCreatedToNow();
-    }
-    session = NotifUtils.getPerunSession(perun);
-  }
-
-  public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages) {
-
-    for (PerunNotifPoolMessage message : poolMessages) {
-      perunNotifPoolMessageDao.savePerunNotifPoolMessage(message);
-    }
-  }
-
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public List<PerunNotifPoolMessage> createPerunNotifPoolMessagesForTemplates(
-      Map<Integer, List<PerunNotifTemplate>> templatesWithRegexIds,
-      PerunNotifAuditMessage perunAuditMessage) {
+      Map<Integer, List<PerunNotifTemplate>> templatesWithRegexIds, PerunNotifAuditMessage perunAuditMessage) {
 
     List<PerunNotifPoolMessage> result = new ArrayList<PerunNotifPoolMessage>();
     // We parse recieved message from auditer to get all objects
@@ -124,15 +107,15 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
             if (className != null && !className.equals(METHOD_CLASSNAME)) {
               // Listing through all classNames
               try {
-                logger.debug("Resolving class with name: " + className);
+                LOGGER.debug("Resolving class with name: " + className);
                 Class resolvedClass = Class.forName(className);
                 Object matchingObject = null;
                 for (Object myObject : retrievedObjects) {
                   if (resolvedClass.isAssignableFrom(myObject.getClass())) {
                     matchingObject = myObject;
-                    logger.debug(
+                    LOGGER.debug(
                         "Parsed object: " + matchingObject.toString() + " from message recognized for class: " +
-                            className);
+                        className);
                   }
                 }
                 if (matchingObject != null) {
@@ -143,10 +126,10 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
                         matchingObject);
                   }
                 } else {
-                  logger.error("No object recognized in objects from message for class: " + className);
+                  LOGGER.error("No object recognized in objects from message for class: " + className);
                 }
               } catch (ClassNotFoundException ex) {
-                logger.error("Class from template cannot be resolved: " + className, ex);
+                LOGGER.error("Class from template cannot be resolved: " + className, ex);
               }
             }
           }
@@ -171,133 +154,10 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
           }
         }
       } else {
-        logger.info("No template for regex id: " + regexId + " found.");
+        LOGGER.info("No template for regex id: " + regexId + " found.");
       }
     }
     return result;
-  }
-
-  private void retrieveProperties(List<String> methods, String className, Map<String, String> resultProperties,
-                                  Map<String, String> retrievedProperties, Object matchingObject) {
-
-    for (String methodName : methods) {
-      if (retrievedProperties.containsKey(className + "." + methodName)) {
-        resultProperties.put(className + "." + methodName, retrievedProperties.get(className + "." + methodName));
-        logger.debug("Method resolved from already retrievedProperties: " + className + "." + methodName);
-      } else {
-
-        Object methodResult = invokeMethodOnClassAndObject(methodName, matchingObject);
-        if (methodResult != null) {
-          resultProperties.put(className + "." + methodName, methodResult.toString());
-          retrievedProperties.put(className + "." + methodName, methodResult.toString());
-        }
-      }
-    }
-  }
-
-  private String retrieveMethodProperty(Map<String, String> retrievedProperties, String methodName,
-                                        Map<String, Object> usableObjects) {
-
-    if (retrievedProperties.containsKey(methodName)) {
-      // Manager call retrieved from already retrieved
-      // properties
-      return retrievedProperties.get(methodName);
-    } else {
-      ParsedMethod parsedMethod = parsedMethodCache.get(methodName);
-      if (parsedMethod == null) {
-        parsedMethod = parseMethod(methodName, 0);
-        if (parsedMethod != null) {
-          parsedMethodCache.put(methodName, parsedMethod);
-        }
-      }
-      Object value = processManagerCall(null, parsedMethod, retrievedProperties, usableObjects);
-      if (value != null) {
-        retrievedProperties.put(methodName, value.toString());
-        return value.toString();
-      }
-
-      return null;
-    }
-  }
-
-  private Map<String, Object> parseRetrievedObjects(List<PerunBean> retrievedObjects) {
-
-    Map<String, Object> result = new HashMap<String, Object>();
-    for (Object object : retrievedObjects) {
-      result.put(parseClassName(object.getClass().toString()), object);
-    }
-
-    return result;
-  }
-
-  private String parseClassName(String className) {
-
-    String result = className.replace("class", "");
-    result = result.trim();
-
-    return result;
-  }
-
-  @SuppressWarnings({"rawtypes"})
-  private Object processManagerCall(Object target, ParsedMethod parsedMethod, Map<String, String> retrievedProperties,
-                                    Map<String, Object> usableObjects) {
-
-    try {
-      switch (parsedMethod.getMethodType()) {
-        case METHOD:
-          Class partypes[] = new Class[parsedMethod.getParams().size()];
-          Object argList[] = new Object[parsedMethod.getParams().size()];
-          for (int i = 0; i < parsedMethod.getParams().size(); i++) {
-            ParsedMethod param = parsedMethod.getParams().get(i);
-            if (param != null) {
-              // Parameters of methods are always in retrieved props.
-              // Calling managers cannot be intersected
-              Object paramResult = null;
-
-              paramResult = processManagerCall(null, param, retrievedProperties, usableObjects);
-              if (paramResult != null) {
-                partypes[i] = paramResult.getClass();
-                argList[i] = paramResult;
-              }
-            }
-          }
-
-          if (target == null) {
-            target = perun;
-          }
-          Class targetClass = target.getClass();
-          Method method = findMethod(targetClass, parsedMethod.getMethodName(), partypes);
-          Object resultObject = method.invoke(target, argList);
-
-          if (parsedMethod.getNextMethod() == null) {
-            if (resultObject != null) {
-              return resultObject;
-            } else {
-              logger.error("Result of " + parsedMethod.getMethodName() + " is null.");
-              return null;
-            }
-          } else {
-            return processManagerCall(resultObject, parsedMethod.getNextMethod(), retrievedProperties, usableObjects);
-          }
-        case CLASS:
-
-          Object result = retrievedProperties.get(parsedMethod.getMethodName());
-          if (result == null) {
-            result = usableObjects.get(parsedMethod.getMethodName());
-          }
-
-          return result;
-        case STRING_PARAM:
-          return parsedMethod.getMethodName();
-        case INTEGER_PARAM:
-          Integer number = Integer.valueOf(parsedMethod.getMethodName());
-          return number;
-      }
-    } catch (Exception ex) {
-      logger.error("Error during processing manager call exception: " + ex.getCause(), ex);
-    }
-
-    return null;
   }
 
   @SuppressWarnings("rawtypes")
@@ -321,6 +181,27 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
     }
 
     return null;
+  }
+
+  public PerunBl getPerun() {
+    return perun;
+  }
+
+  @SuppressWarnings("unused")
+  @PostConstruct
+  private void init() throws Exception {
+    if (!perun.isPerunReadOnly()) {
+      perunNotifPoolMessageDao.setAllCreatedToNow();
+    }
+    session = NotifUtils.getPerunSession(perun);
+  }
+
+  private String parseClassName(String className) {
+
+    String result = className.replace("class", "");
+    result = result.trim();
+
+    return result;
   }
 
   private ParsedMethod parseMethod(String className, Integer startPosition) {
@@ -364,7 +245,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
       } else if (character == ',') {
         if (result.getMethodType() == null ||
             !(result.getMethodType().equals(ParsedMethod.MethodType.METHOD) && result.getParams() != null &&
-                result.getParams().size() > 0)) {
+              result.getParams().size() > 0)) {
           result.setMethodType(ParsedMethod.MethodType.STRING_PARAM);
           result.setMethodName(methodName);
         }
@@ -410,6 +291,80 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
     return result;
   }
 
+  private Map<String, Object> parseRetrievedObjects(List<PerunBean> retrievedObjects) {
+
+    Map<String, Object> result = new HashMap<String, Object>();
+    for (Object object : retrievedObjects) {
+      result.put(parseClassName(object.getClass().toString()), object);
+    }
+
+    return result;
+  }
+
+  @SuppressWarnings({"rawtypes"})
+  private Object processManagerCall(Object target, ParsedMethod parsedMethod, Map<String, String> retrievedProperties,
+                                    Map<String, Object> usableObjects) {
+
+    try {
+      switch (parsedMethod.getMethodType()) {
+        case METHOD:
+          Class[] partypes = new Class[parsedMethod.getParams().size()];
+          Object[] argList = new Object[parsedMethod.getParams().size()];
+          for (int i = 0; i < parsedMethod.getParams().size(); i++) {
+            ParsedMethod param = parsedMethod.getParams().get(i);
+            if (param != null) {
+              // Parameters of methods are always in retrieved props.
+              // Calling managers cannot be intersected
+              Object paramResult = null;
+
+              paramResult = processManagerCall(null, param, retrievedProperties, usableObjects);
+              if (paramResult != null) {
+                partypes[i] = paramResult.getClass();
+                argList[i] = paramResult;
+              }
+            }
+          }
+
+          if (target == null) {
+            target = perun;
+          }
+          Class targetClass = target.getClass();
+          Method method = findMethod(targetClass, parsedMethod.getMethodName(), partypes);
+          Object resultObject = method.invoke(target, argList);
+
+          if (parsedMethod.getNextMethod() == null) {
+            if (resultObject != null) {
+              return resultObject;
+            } else {
+              LOGGER.error("Result of " + parsedMethod.getMethodName() + " is null.");
+              return null;
+            }
+          } else {
+            return processManagerCall(resultObject, parsedMethod.getNextMethod(), retrievedProperties, usableObjects);
+          }
+        case CLASS:
+
+          Object result = retrievedProperties.get(parsedMethod.getMethodName());
+          if (result == null) {
+            result = usableObjects.get(parsedMethod.getMethodName());
+          }
+
+          return result;
+        case STRING_PARAM:
+          return parsedMethod.getMethodName();
+        case INTEGER_PARAM:
+          Integer number = Integer.valueOf(parsedMethod.getMethodName());
+          return number;
+        default:
+          return null;
+      }
+    } catch (Exception ex) {
+      LOGGER.error("Error during processing manager call exception: " + ex.getCause(), ex);
+    }
+
+    return null;
+  }
+
   @Override
   public void processPerunNotifPoolMessagesFromDb() {
 
@@ -423,13 +378,59 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
     }
 
     if (!proccessedIds.isEmpty()) {
-      logger.info("Starting to remove procesed ids.");
+      LOGGER.info("Starting to remove procesed ids.");
       perunNotifPoolMessageDao.removeAllPoolMessages(proccessedIds);
     }
   }
 
-  public PerunBl getPerun() {
-    return perun;
+  private String retrieveMethodProperty(Map<String, String> retrievedProperties, String methodName,
+                                        Map<String, Object> usableObjects) {
+
+    if (retrievedProperties.containsKey(methodName)) {
+      // Manager call retrieved from already retrieved
+      // properties
+      return retrievedProperties.get(methodName);
+    } else {
+      ParsedMethod parsedMethod = PARSED_METHOD_CACHE.get(methodName);
+      if (parsedMethod == null) {
+        parsedMethod = parseMethod(methodName, 0);
+        if (parsedMethod != null) {
+          PARSED_METHOD_CACHE.put(methodName, parsedMethod);
+        }
+      }
+      Object value = processManagerCall(null, parsedMethod, retrievedProperties, usableObjects);
+      if (value != null) {
+        retrievedProperties.put(methodName, value.toString());
+        return value.toString();
+      }
+
+      return null;
+    }
+  }
+
+  private void retrieveProperties(List<String> methods, String className, Map<String, String> resultProperties,
+                                  Map<String, String> retrievedProperties, Object matchingObject) {
+
+    for (String methodName : methods) {
+      if (retrievedProperties.containsKey(className + "." + methodName)) {
+        resultProperties.put(className + "." + methodName, retrievedProperties.get(className + "." + methodName));
+        LOGGER.debug("Method resolved from already retrievedProperties: " + className + "." + methodName);
+      } else {
+
+        Object methodResult = invokeMethodOnClassAndObject(methodName, matchingObject);
+        if (methodResult != null) {
+          resultProperties.put(className + "." + methodName, methodResult.toString());
+          retrievedProperties.put(className + "." + methodName, methodResult.toString());
+        }
+      }
+    }
+  }
+
+  public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages) {
+
+    for (PerunNotifPoolMessage message : poolMessages) {
+      perunNotifPoolMessageDao.savePerunNotifPoolMessage(message);
+    }
   }
 
   public void setPerun(PerunBl perun) {

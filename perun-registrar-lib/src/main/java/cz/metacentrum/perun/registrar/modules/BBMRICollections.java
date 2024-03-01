@@ -35,11 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Registration module for BBMRI Collections
- * Module:
- * 1. reads input with collection IDs and checks, whether groups representing collections exist
- * - group representing collection has attribute CollectionID assigned and value represents the ID
- * 2. adds users to the appropriate groups
+ * Registration module for BBMRI Collections Module: 1. reads input with collection IDs and checks, whether groups
+ * representing collections exist - group representing collection has attribute CollectionID assigned and value
+ * represents the ID 2. adds users to the appropriate groups
  *
  * @author Jiri Mauritz <jirmaurtiz@gmail.com> (original)
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz> (modifications)
@@ -47,15 +45,15 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public class BBMRICollections extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BBMRICollections.class);
 
   private static final String COLLECTION_IDS_FIELD = "collectionIds";
   private static final String DIRECTORY_GROUP_FIELD = "directory";
   private static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
 
   /**
-   * Find groups representing collections by input. Groups are looked for in subgroups
-   * of group the module is assigned to. Add user as a member to the groups.
+   * Find groups representing collections by input. Groups are looked for in subgroups of group the module is assigned
+   * to. Add user as a member to the groups.
    *
    * @param session who approves the application
    * @param app     application
@@ -91,7 +89,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
     for (String collectionID : collectionIDsInApplication) {
       Group collection = collectionIDsToGroupsMap.get(collectionID);
       if (collection == null) {
-        log.debug("There are no groups for collectionID: {}", collectionID);
+        LOG.debug("There are no groups for collectionID: {}", collectionID);
       } else {
         try {
           perun.getGroupsManager().addMember(session, collection, member);
@@ -110,8 +108,8 @@ public class BBMRICollections extends DefaultRegistrarModule {
   }
 
   /**
-   * Checks whether all collection IDs found in user input really exists in Perun.
-   * If not, CantBeApproved exception is thrown.
+   * Checks whether all collection IDs found in user input really exists in Perun. If not, CantBeApproved exception is
+   * thrown.
    *
    * @param session who approves the application
    * @param app     unchanged application
@@ -141,31 +139,14 @@ public class BBMRICollections extends DefaultRegistrarModule {
     // difference must be empty
     if (!collectionIDsInApplication.isEmpty()) {
       throw new CantBeApprovedException("Collections " + collectionIDsInApplication + " do not exist." +
-          "If you approve the application, these collections will be skipped.", "", "", "", true, app.getId());
+                                        "If you approve the application, these collections will be skipped.", "", "",
+          "", true, app.getId());
     }
   }
 
-  /**
-   * Gets name of target group, where subgroups representing collections are placed.
-   *
-   * @return collection IDs set
-   */
-  private String getDirectoryGroupNameFromApplication(PerunSession session, Application app)
-      throws RegistrarException, PrivilegeException {
-    String directoryGroupName = null;
-    List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
-    for (ApplicationFormItemData field : formData) {
-      if (DIRECTORY_GROUP_FIELD.equals(field.getShortname())) {
-        directoryGroupName = field.getValue();
-        break;
-      }
-    }
-
-    if (directoryGroupName == null) {
-      throw new InternalErrorException("There is no field with target group name on the registration form.");
-    }
-
-    return directoryGroupName;
+  private Set<String> getCollectionIDs(PerunSession session, PerunBl perun, Group collectionsGroup)
+      throws WrongAttributeAssignmentException, AttributeNotExistsException {
+    return getCollectionIDsToGroupsMap(session, perun, collectionsGroup).keySet();
   }
 
   /**
@@ -202,25 +183,23 @@ public class BBMRICollections extends DefaultRegistrarModule {
    *
    * @return Map of collection IDs to group.
    */
-  private Map<String, Group> getCollectionIDsToGroupsMap(PerunSession session,
-                                                         PerunBl perun,
-                                                         Group directoryGroup)
+  private Map<String, Group> getCollectionIDsToGroupsMap(PerunSession session, PerunBl perun, Group directoryGroup)
       throws WrongAttributeAssignmentException, AttributeNotExistsException {
     Map<String, Group> collectionIDsToGroupMap = new HashMap<>();
 
     List<Group> collectionGroups = perun.getGroupsManagerBl().getSubGroups(session, directoryGroup);
     if (collectionGroups == null || collectionGroups.isEmpty()) {
-      log.debug("No collection groups found, returning empty map.");
+      LOG.debug("No collection groups found, returning empty map.");
       return collectionIDsToGroupMap;
     }
 
     for (Group collectionGroup : collectionGroups) {
-      Attribute collectionIDAttr = perun.getAttributesManagerBl()
-          .getAttribute(session, collectionGroup, COLLECTION_ID_ATTR_NAME);
+      Attribute collectionIDAttr =
+          perun.getAttributesManagerBl().getAttribute(session, collectionGroup, COLLECTION_ID_ATTR_NAME);
 
       if (collectionIDAttr == null || Strings.isNullOrEmpty(collectionIDAttr.valueAsString())) {
-        log.warn("Found collection group ({}) without value in attr {}: ({})",
-            collectionGroup, COLLECTION_ID_ATTR_NAME, collectionIDAttr);
+        LOG.warn("Found collection group ({}) without value in attr {}: ({})", collectionGroup, COLLECTION_ID_ATTR_NAME,
+            collectionIDAttr);
       } else {
         collectionIDsToGroupMap.put(collectionIDAttr.valueAsString(), collectionGroup);
       }
@@ -229,9 +208,27 @@ public class BBMRICollections extends DefaultRegistrarModule {
     return collectionIDsToGroupMap;
   }
 
-  private Set<String> getCollectionIDs(PerunSession session, PerunBl perun, Group collectionsGroup)
-      throws WrongAttributeAssignmentException, AttributeNotExistsException {
-    return getCollectionIDsToGroupsMap(session, perun, collectionsGroup).keySet();
+  /**
+   * Gets name of target group, where subgroups representing collections are placed.
+   *
+   * @return collection IDs set
+   */
+  private String getDirectoryGroupNameFromApplication(PerunSession session, Application app)
+      throws RegistrarException, PrivilegeException {
+    String directoryGroupName = null;
+    List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
+    for (ApplicationFormItemData field : formData) {
+      if (DIRECTORY_GROUP_FIELD.equals(field.getShortname())) {
+        directoryGroupName = field.getValue();
+        break;
+      }
+    }
+
+    if (directoryGroupName == null) {
+      throw new InternalErrorException("There is no field with target group name on the registration form.");
+    }
+
+    return directoryGroupName;
   }
 
 }

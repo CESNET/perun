@@ -27,28 +27,27 @@ public class AssignedResource {
     this.autoAssignSubgroups = autoAssignSubgroups;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AssignedResource that = (AssignedResource) o;
+    return Objects.equals(getEnrichedResource(), that.getEnrichedResource()) && getStatus() == that.getStatus() &&
+           Objects.equals(getSourceGroupId(), that.getSourceGroupId()) &&
+           Objects.equals(getFacility(), that.getFacility()) &&
+           Objects.equals(isAutoAssignSubgroups(), that.isAutoAssignSubgroups());
+  }
+
   public EnrichedResource getEnrichedResource() {
     return enrichedResource;
   }
 
   public void setEnrichedResource(EnrichedResource enrichedResource) {
     this.enrichedResource = enrichedResource;
-  }
-
-  public GroupResourceStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(GroupResourceStatus status) {
-    this.status = status;
-  }
-
-  public Integer getSourceGroupId() {
-    return sourceGroupId;
-  }
-
-  public void setSourceGroupId(Integer sourceGroupId) {
-    this.sourceGroupId = sourceGroupId;
   }
 
   public Facility getFacility() {
@@ -59,6 +58,14 @@ public class AssignedResource {
     this.facility = facility;
   }
 
+  public String getFailureCause() {
+    return this.failureCause;
+  }
+
+  public void setFailureCause(String failureCause) {
+    this.failureCause = failureCause;
+  }
+
   public List<ResourceTag> getResourceTags() {
     return resourceTags;
   }
@@ -67,12 +74,25 @@ public class AssignedResource {
     this.resourceTags = resourceTags;
   }
 
-  public String getFailureCause() {
-    return this.failureCause;
+  public Integer getSourceGroupId() {
+    return sourceGroupId;
   }
 
-  public void setFailureCause(String failureCause) {
-    this.failureCause = failureCause;
+  public void setSourceGroupId(Integer sourceGroupId) {
+    this.sourceGroupId = sourceGroupId;
+  }
+
+  public GroupResourceStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(GroupResourceStatus status) {
+    this.status = status;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getEnrichedResource(), getStatus(), getSourceGroupId(), getFacility(), isAutoAssignSubgroups());
   }
 
   public boolean isAutoAssignSubgroups() {
@@ -84,35 +104,9 @@ public class AssignedResource {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    AssignedResource that = (AssignedResource) o;
-    return Objects.equals(getEnrichedResource(), that.getEnrichedResource()) && getStatus() == that.getStatus()
-        && Objects.equals(getSourceGroupId(), that.getSourceGroupId()) &&
-        Objects.equals(getFacility(), that.getFacility())
-        && Objects.equals(isAutoAssignSubgroups(), that.isAutoAssignSubgroups());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(getEnrichedResource(), getStatus(), getSourceGroupId(), getFacility(), isAutoAssignSubgroups());
-  }
-
-  @Override
   public String toString() {
-    return "AssignedResource{" +
-        "enrichedResource=" + enrichedResource +
-        ", status=" + status +
-        ", sourceGroupId=" + sourceGroupId +
-        ", failureCause=" + failureCause +
-        ", facility=" + facility +
-        ", resourceTags=" + resourceTags +
-        ", autoAssignSubgroups=" + autoAssignSubgroups +
-        '}';
+    return "AssignedResource{" + "enrichedResource=" + enrichedResource + ", status=" + status + ", sourceGroupId=" +
+           sourceGroupId + ", failureCause=" + failureCause + ", facility=" + facility + ", resourceTags=" +
+           resourceTags + ", autoAssignSubgroups=" + autoAssignSubgroups + '}';
   }
 }

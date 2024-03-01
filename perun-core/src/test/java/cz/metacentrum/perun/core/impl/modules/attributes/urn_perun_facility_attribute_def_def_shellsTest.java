@@ -1,18 +1,16 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Lukas Pravda  <luky.pravda@gmail.com>
@@ -32,9 +30,16 @@ public class urn_perun_facility_attribute_def_def_shellsTest {
     attribute = new Attribute();
   }
 
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
+    System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
+
+    classInstance.checkAttributeSemantics(session, new Facility(), attribute);
+  }
+
   /**
-   * Test of checkAttributeSemantics method, of class urn_perun_facility_attribute_def_def_shells.
-   * with all properly set
+   * Test of checkAttributeSemantics method, of class urn_perun_facility_attribute_def_def_shells. with all properly
+   * set
    */
   @Test
   public void testCheckAttributeSyntax() throws Exception {
@@ -47,12 +52,5 @@ public class urn_perun_facility_attribute_def_def_shellsTest {
 
     classInstance.checkAttributeSemantics(session, new Facility(), attribute);
 
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
-    System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
-
-    classInstance.checkAttributeSemantics(session, new Facility(), attribute);
   }
 }

@@ -50,7 +50,7 @@ import java.util.Map;
  */
 public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "propags";
+  public static final String URL = "propags";
   /**
    * Perun web session
    */

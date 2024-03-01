@@ -18,13 +18,13 @@ public class AllAttributesRemovedForUserExtSource extends AuditEvent implements 
     this.message = formatMessage("All attributes removed for %s.", userExtSource);
   }
 
-  public UserExtSource getUserExtSource() {
-    return userExtSource;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public UserExtSource getUserExtSource() {
+    return userExtSource;
   }
 
   @Override

@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "add-auth-to-pbl";
+  public static final String URL = "add-auth-to-pbl";
   /**
    * Perun web session
    */

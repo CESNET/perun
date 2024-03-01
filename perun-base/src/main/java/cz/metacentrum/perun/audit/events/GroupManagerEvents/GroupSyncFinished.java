@@ -24,13 +24,13 @@ public class GroupSyncFinished extends AuditEvent implements EngineIgnoreEvent {
     this.message = formatMessage("Group synchronization for %s has been finished in %s nano seconds.", group, duration);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   @Override

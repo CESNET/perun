@@ -12,8 +12,8 @@ public interface ISServiceCaller {
   String IS_OK_STATUS = "OK";
 
   /**
-   * Sends a request to the IS with the given body. The received response is returned,
-   * with the status code and an error (if some has occurred).
+   * Sends a request to the IS with the given body. The received response is returned, with the status code and an error
+   * (if some has occurred).
    *
    * @param requestBody body of the http request, that will be send (xml format)
    * @param requestId   id of the request

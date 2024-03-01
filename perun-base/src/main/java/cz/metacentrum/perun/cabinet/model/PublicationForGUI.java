@@ -15,20 +15,18 @@ public class PublicationForGUI extends Publication {
   private String categoryName;
   private List<ThanksForGUI> thanks = new ArrayList<>();
 
-  public PublicationForGUI(List<Author> authors, double rank, int id,
-                           int externalId, int publicationSystemId, String title,
-                           int year, String main, String isbn, int categoryId,
-                           String createdBy, Date createdDate, String doi, boolean locked) {
-    super(authors, rank, id, externalId, publicationSystemId, title, year, main,
-        isbn, categoryId, createdBy, createdDate, doi, locked);
+  public PublicationForGUI(List<Author> authors, double rank, int id, int externalId, int publicationSystemId,
+                           String title, int year, String main, String isbn, int categoryId, String createdBy,
+                           Date createdDate, String doi, boolean locked) {
+    super(authors, rank, id, externalId, publicationSystemId, title, year, main, isbn, categoryId, createdBy,
+        createdDate, doi, locked);
   }
 
-  public PublicationForGUI(List<Author> authors, double rank, int id,
-                           int externalId, int publicationSystemId, String title,
-                           int year, String main, String isbn, int categoryId,
-                           String createdBy, Date createdDate, String doi, boolean locked, int createdByUid) {
-    super(authors, rank, id, externalId, publicationSystemId, title, year, main,
-        isbn, categoryId, createdBy, createdDate, doi, locked);
+  public PublicationForGUI(List<Author> authors, double rank, int id, int externalId, int publicationSystemId,
+                           String title, int year, String main, String isbn, int categoryId, String createdBy,
+                           Date createdDate, String doi, boolean locked, int createdByUid) {
+    super(authors, rank, id, externalId, publicationSystemId, title, year, main, isbn, categoryId, createdBy,
+        createdDate, doi, locked);
     setCreatedByUid(createdByUid);
   }
 
@@ -38,12 +36,12 @@ public class PublicationForGUI extends Publication {
         pub.getCreatedDate(), pub.getDoi(), pub.getLocked(), pub.getCreatedByUid());
   }
 
-  public List<ThanksForGUI> getThanks() {
-    return thanks;
+  public String getCategoryName() {
+    return categoryName;
   }
 
-  public void setThanks(List<ThanksForGUI> thanks) {
-    this.thanks = thanks;
+  public void setCategoryName(String categoryName) {
+    this.categoryName = categoryName;
   }
 
   public String getPubSystemName() {
@@ -54,12 +52,12 @@ public class PublicationForGUI extends Publication {
     this.pubSystemName = pubSystemName;
   }
 
-  public String getCategoryName() {
-    return categoryName;
+  public List<ThanksForGUI> getThanks() {
+    return thanks;
   }
 
-  public void setCategoryName(String categoryName) {
-    this.categoryName = categoryName;
+  public void setThanks(List<ThanksForGUI> thanks) {
+    this.thanks = thanks;
   }
 
   @Override

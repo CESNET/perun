@@ -14,26 +14,39 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Group structure synchronization
  * <p>
- * true if structure synchronization is enabled
- * false if not
- * empty if there is no setting
+ * true if structure synchronization is enabled false if not empty if there is no setting
  *
  * @author Erik Horváth <horvatherik3@gmail.com>
  */
 public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnabled
     extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
-  private static final Logger log =
+  private static final Logger LOG =
       LoggerFactory.getLogger(urn_perun_group_attribute_def_def_groupStructureSynchronizationEnabled.class);
+
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) {
+    if (attribute.getValue() == null) {
+      try {
+        AttributesManagerBl attributesManager = session.getPerunBl().getAttributesManagerBl();
+        AttributeDefinition removeAttrDef = attributesManager.getAttributeDefinition(session,
+            new urn_perun_group_attribute_def_def_flatGroupStructureEnabled().getAttributeDefinition().getName());
+        attributesManager.removeAttributeWithoutCheck(session, group, removeAttrDef);
+      } catch (WrongAttributeAssignmentException ex) {
+        throw new InternalErrorException(ex);
+      } catch (AttributeNotExistsException ex) {
+        LOG.debug("Attribute for flat group structure synchronization does not exist", ex);
+      }
+    }
+  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute)
@@ -58,7 +71,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
         if (perunSession.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(perunSession, subgroup)) {
           throw new WrongReferenceAttributeValueException(attribute,
               "Structure synchronization cannot be enabled for group with subgroup in auto registration: " +
-                  subgroup.toString());
+              subgroup.toString());
         }
       }
 
@@ -96,32 +109,6 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(GroupsManager.GROUPSQUERY_ATTRNAME);
-    dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-    dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-    dependencies.add(GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
-    return dependencies;
-  }
-
-  @Override
-  public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) {
-    if (attribute.getValue() == null) {
-      try {
-        AttributesManagerBl attributesManager = session.getPerunBl().getAttributesManagerBl();
-        AttributeDefinition removeAttrDef = attributesManager.getAttributeDefinition(session,
-            new urn_perun_group_attribute_def_def_flatGroupStructureEnabled().getAttributeDefinition().getName());
-        attributesManager.removeAttributeWithoutCheck(session, group, removeAttrDef);
-      } catch (WrongAttributeAssignmentException ex) {
-        throw new InternalErrorException(ex);
-      } catch (AttributeNotExistsException ex) {
-        log.debug("Attribute for flat group structure synchronization does not exist", ex);
-      }
-    }
-  }
-
-  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
@@ -130,5 +117,15 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
     attr.setType(Boolean.class.getName());
     attr.setDescription("Enables group structure synchronization from external source.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(GroupsManager.GROUPSQUERY_ATTRNAME);
+    dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+    dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    dependencies.add(GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
+    return dependencies;
   }
 }

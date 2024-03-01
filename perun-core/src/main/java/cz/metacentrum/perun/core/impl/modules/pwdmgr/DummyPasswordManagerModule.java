@@ -26,9 +26,58 @@ import org.slf4j.LoggerFactory;
  */
 public class DummyPasswordManagerModule implements PasswordManagerModule {
 
-  private final static Logger log = LoggerFactory.getLogger(DummyPasswordManagerModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DummyPasswordManagerModule.class);
 
   private static final Random RANDOM = new Random();
+
+  @Override
+  public void changePassword(PerunSession sess, String userLogin, String newPassword) {
+    LOG.debug("changePassword(userLogin={})", userLogin);
+  }
+
+  @Override
+  public void checkLoginFormat(PerunSession sess, String login) {
+    LOG.debug("checkLoginFormat(userLogin={})", login);
+  }
+
+  @Override
+  public void checkPassword(PerunSession sess, String userLogin, String password) {
+    LOG.debug("checkPassword(userLogin={})", userLogin);
+  }
+
+  @Override
+  public void checkPasswordStrength(PerunSession sess, String login, String password) {
+    LOG.debug("checkPasswordStrength(userLogin={})", login);
+  }
+
+  @Override
+  public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) {
+    LOG.debug("createAlternativePassword(user={},passwordId={})", user, passwordId);
+  }
+
+  @Override
+  public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
+    LOG.debug("deleteAlternativePassword(user={},passwordId={})", user, passwordId);
+  }
+
+  @Override
+  public void deletePassword(PerunSession sess, String userLogin) {
+    LOG.debug("deletePassword(userLogin={})", userLogin);
+  }
+
+  @Override
+  public Map<String, String> generateAccount(PerunSession sess, Map<String, String> parameters) {
+    LOG.debug("generateAccount(parameters={})", parameters);
+    Map<String, String> result = new HashMap<>();
+    result.put(LOGIN_PREFIX + "dummy", Integer.toString(9000000 + RANDOM.nextInt(1000000)));
+    return result;
+  }
+
+  @Override
+  public String generateRandomPassword(PerunSession sess, String login) {
+    LOG.debug("generateRandomPassword(userLogin={})", login);
+    return "randomPassword" + RANDOM.nextInt(10);
+  }
 
   @Override
   public String handleSponsorship(PerunSession sess, SponsoredUserData userData) throws PasswordStrengthException {
@@ -44,43 +93,25 @@ public class DummyPasswordManagerModule implements PasswordManagerModule {
   }
 
   @Override
-  public Map<String, String> generateAccount(PerunSession sess, Map<String, String> parameters) {
-    log.debug("generateAccount(parameters={})", parameters);
-    Map<String, String> result = new HashMap<>();
-    result.put(LOGIN_PREFIX + "dummy", Integer.toString(9000000 + RANDOM.nextInt(1000000)));
-    return result;
-  }
-
-  @Override
   public void reservePassword(PerunSession sess, String userLogin, String password) {
-    log.debug("reservePassword(userLogin={})", userLogin);
+    LOG.debug("reservePassword(userLogin={})", userLogin);
   }
 
   @Override
   public void reserveRandomPassword(PerunSession sess, String userLogin) {
-    log.debug("reserveRandomPassword(userLogin={})", userLogin);
-  }
-
-  @Override
-  public void checkPassword(PerunSession sess, String userLogin, String password) {
-    log.debug("checkPassword(userLogin={})", userLogin);
-  }
-
-  @Override
-  public void changePassword(PerunSession sess, String userLogin, String newPassword) {
-    log.debug("changePassword(userLogin={})", userLogin);
+    LOG.debug("reserveRandomPassword(userLogin={})", userLogin);
   }
 
   @Override
   public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
-    log.debug("validatePassword(userLogin={})", userLogin);
+    LOG.debug("validatePassword(userLogin={})", userLogin);
 
     if (user == null) {
       user = ((PerunBl) sess.getPerun()).getModulesUtilsBl().getUserByLoginInNamespace(sess, userLogin, "dummy");
     }
 
     if (user == null) {
-      log.warn("No user was found by login '{}' in {} namespace.", userLogin, "dummy");
+      LOG.warn("No user was found by login '{}' in {} namespace.", userLogin, "dummy");
     } else {
       // set extSources and extSource related attributes
       ExtSource extSource;
@@ -91,7 +122,7 @@ public class DummyPasswordManagerModule implements PasswordManagerModule {
         try {
           extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().createExtSource(sess, extSource, null);
         } catch (ExtSourceExistsException e1) {
-          log.warn("impossible or race condition", e1);
+          LOG.warn("impossible or race condition", e1);
         }
       }
       UserExtSource ues = new UserExtSource(extSource, userLogin + "@dummy");
@@ -102,37 +133,6 @@ public class DummyPasswordManagerModule implements PasswordManagerModule {
         //this is OK
       }
     }
-  }
-
-  @Override
-  public void deletePassword(PerunSession sess, String userLogin) {
-    log.debug("deletePassword(userLogin={})", userLogin);
-  }
-
-  @Override
-  public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) {
-    log.debug("createAlternativePassword(user={},passwordId={})", user, passwordId);
-  }
-
-  @Override
-  public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
-    log.debug("deleteAlternativePassword(user={},passwordId={})", user, passwordId);
-  }
-
-  @Override
-  public void checkLoginFormat(PerunSession sess, String login) {
-    log.debug("checkLoginFormat(userLogin={})", login);
-  }
-
-  @Override
-  public void checkPasswordStrength(PerunSession sess, String login, String password) {
-    log.debug("checkPasswordStrength(userLogin={})", login);
-  }
-
-  @Override
-  public String generateRandomPassword(PerunSession sess, String login) {
-    log.debug("generateRandomPassword(userLogin={})", login);
-    return "randomPassword" + RANDOM.nextInt(10);
   }
 
 }

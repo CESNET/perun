@@ -9,21 +9,20 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunVO;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.naming.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.naming.Name;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 @Component
 public class VOSynchronizer extends AbstractSynchronizer {
 
-  private final static Logger log = LoggerFactory.getLogger(VOSynchronizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(VOSynchronizer.class);
 
   @Autowired
   protected PerunVO perunVO;
@@ -32,7 +31,7 @@ public class VOSynchronizer extends AbstractSynchronizer {
     PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
     boolean shouldWriteExceptionLog = true;
     try {
-      log.debug("Getting list of VOs");
+      LOG.debug("Getting list of VOs");
       // List<Vo> vos = Rpc.VosManager.getVos(ldapcManager.getRpcCaller());
       List<Vo> vos = perun.getVosManagerBl().getVos(ldapcManager.getPerunSession());
       Set<Name> presentVos = new HashSet<Name>(vos.size());
@@ -42,29 +41,30 @@ public class VOSynchronizer extends AbstractSynchronizer {
         // params.put("vo", new Integer(vo.getId()));
 
         presentVos.add(perunVO.getEntryDN(String.valueOf(vo.getId())));
-        log.debug("Synchronizing VO entry {}", vo);
+        LOG.debug("Synchronizing VO entry {}", vo);
 
-        log.debug("Getting list of attributes for vo {}", vo.getId());
+        LOG.debug("Getting list of attributes for vo {}", vo.getId());
         List<Attribute> attrs = new ArrayList<Attribute>();
         List<String> attrNames = fillPerunAttributeNames(perunVO.getPerunAttributeNames());
         try {
           attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), vo, attrNames));
         } catch (PerunRuntimeException e) {
-          log.warn("Couldn't get attributes {} for vo {}: {}", attrNames, vo.getId(), e.getMessage());
+          LOG.warn("Couldn't get attributes {} for vo {}: {}", attrNames, vo.getId(), e.getMessage());
           shouldWriteExceptionLog = false;
           throw new InternalErrorException(e);
         }
-        log.debug("Got attributes {}", attrNames.toString());
+        LOG.debug("Got attributes {}", attrNames.toString());
 
         try {
 
-          log.debug("Getting list of VO {} members", vo.getId());
-          // List<Member> members = ldapcManager.getRpcCaller().call("membersManager", "getMembers", params).readList(Member.class);
+          LOG.debug("Getting list of VO {} members", vo.getId());
+          // List<Member> members = ldapcManager.getRpcCaller().call("membersManager", "getMembers", params).readList
+          // (Member.class);
           List<Member> members = perun.getMembersManager().getMembers(ldapcManager.getPerunSession(), vo, Status.VALID);
-          log.debug("Synchronizing {} members of VO {}", members.size(), vo.getId());
+          LOG.debug("Synchronizing {} members of VO {}", members.size(), vo.getId());
           perunVO.synchronizeVo(vo, attrs, members);
         } catch (PerunException e) {
-          log.error("Error synchronizing VO " + vo.getId(), e);
+          LOG.error("Error synchronizing VO " + vo.getId(), e);
           shouldWriteExceptionLog = false;
           throw new InternalErrorException(e);
         }
@@ -72,16 +72,16 @@ public class VOSynchronizer extends AbstractSynchronizer {
 
       // search VO entries in LDAP and remove the ones not present in Perun
       try {
-        removeOldEntries(perunVO, presentVos, log);
+        removeOldEntries(perunVO, presentVos, LOG);
       } catch (InternalErrorException e) {
-        log.error("Error removing old VO entries", e);
+        LOG.error("Error removing old VO entries", e);
         shouldWriteExceptionLog = false;
         throw new InternalErrorException(e);
       }
 
     } catch (InternalErrorException e) {
       if (shouldWriteExceptionLog) {
-        log.error("Error getting list of VOs", e);
+        LOG.error("Error getting list of VOs", e);
       }
       throw new InternalErrorException(e);
     }

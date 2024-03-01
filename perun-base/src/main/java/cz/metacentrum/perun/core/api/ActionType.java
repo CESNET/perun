@@ -3,11 +3,7 @@ package cz.metacentrum.perun.core.api;
 @Deprecated
 public enum ActionType {
 
-  WRITE("write"),
-  WRITE_VO("write_vo"),
-  WRITE_PUBLIC("write_public"),
-  READ("read"),
-  READ_VO("read_vo"),
+  WRITE("write"), WRITE_VO("write_vo"), WRITE_PUBLIC("write_public"), READ("read"), READ_VO("read_vo"),
   READ_PUBLIC("read_public");
 
   private final String actionType;

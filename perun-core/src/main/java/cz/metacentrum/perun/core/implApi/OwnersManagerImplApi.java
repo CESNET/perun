@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
-
 import java.util.List;
 
 /**
@@ -14,16 +13,6 @@ import java.util.List;
  * @author Slavek Licehammer
  */
 public interface OwnersManagerImplApi {
-
-  /**
-   * Check if owner exists in underlaying data source.
-   *
-   * @param perunSession
-   * @param owner
-   * @return true if owner exists in underlaying data source, false othewise
-   * @throws InternalErrorException
-   */
-  boolean ownerExists(PerunSession perunSession, Owner owner);
 
   /**
    * Check if owner exists in underlaying data source.
@@ -84,5 +73,15 @@ public interface OwnersManagerImplApi {
    * @throws InternalErrorException
    */
   List<Owner> getOwners(PerunSession perunSession);
+
+  /**
+   * Check if owner exists in underlaying data source.
+   *
+   * @param perunSession
+   * @param owner
+   * @return true if owner exists in underlaying data source, false othewise
+   * @throws InternalErrorException
+   */
+  boolean ownerExists(PerunSession perunSession, Owner owner);
 
 }

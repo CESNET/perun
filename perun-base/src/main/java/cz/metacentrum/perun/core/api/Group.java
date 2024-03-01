@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -8,7 +9,7 @@ import java.util.UUID;
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 
-public class Group extends Auditable implements Comparable<PerunBean>, HasUUID {
+public class Group extends Auditable implements Comparable<PerunBean>, HasUuid {
   private int voId;
   private Integer parentGroupId;
   private String name;
@@ -89,63 +90,6 @@ public class Group extends Auditable implements Comparable<PerunBean>, HasUUID {
   }
 
   @Override
-  public UUID getUuid() {
-    return uuid;
-  }
-
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
-  public String getName() {
-    return this.name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-
-  }
-
-  public Integer getParentGroupId() {
-    return parentGroupId;
-  }
-
-  public void setParentGroupId(Integer parentGroupId) {
-    this.parentGroupId = parentGroupId;
-  }
-
-  public String getDescription() {
-    return this.description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public int getVoId() {
-    return voId;
-  }
-
-  public void setVoId(int voId) {
-    this.voId = voId;
-  }
-
-  public String getShortName() {
-    if (name == null) {
-      return null;
-    }
-    return name.substring(name.lastIndexOf(':') + 1);
-  }
-
-  public void setShortName(String shortName) {
-    if (name == null) {
-      name = shortName;
-    } else {
-      this.name = name.substring(0, name.lastIndexOf(':') + 1) + shortName;
-    }
-  }
-
-  @Override
   public int compareTo(PerunBean perunBean) {
     if (perunBean == null) {
       throw new NullPointerException("PerunBean to compare with is null.");
@@ -168,20 +112,97 @@ public class Group extends Auditable implements Comparable<PerunBean>, HasUUID {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final Group other = (Group) obj;
+    if (this.getId() != other.getId()) {
+      return false;
+    }
+    if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+      return false;
+    }
+    return true;
+  }
+
+  public String getDescription() {
+    return this.description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+
+  }
+
+  public Integer getParentGroupId() {
+    return parentGroupId;
+  }
+
+  public void setParentGroupId(Integer parentGroupId) {
+    this.parentGroupId = parentGroupId;
+  }
+
+  public String getShortName() {
+    if (name == null) {
+      return null;
+    }
+    return name.substring(name.lastIndexOf(':') + 1);
+  }
+
+  public void setShortName(String shortName) {
+    if (name == null) {
+      name = shortName;
+    } else {
+      this.name = name.substring(0, name.lastIndexOf(':') + 1) + shortName;
+    }
+  }
+
+  @Override
+  public UUID getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(UUID uuid) {
+    this.uuid = uuid;
+  }
+
+  public int getVoId() {
+    return voId;
+  }
+
+  public void setVoId(int voId) {
+    this.voId = voId;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getName());
+  }
+
+  @Override
   public String serializeToString() {
     StringBuilder str = new StringBuilder();
 
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", uuid=<").append(getUuid()).append(">").append(
-            ", parentGroupId=<").append(getParentGroupId() == null ? "\\0" : getParentGroupId()).append(">").append(
-            ", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
-            ", shortName=<").append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">")
-        .append(
-            ", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription()))
-        .append(">").append(
-            ", voId=<").append(getVoId()).append(">").append(
-            ']').toString();
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", uuid=<").append(getUuid()).append(">").append(", parentGroupId=<")
+        .append(getParentGroupId() == null ? "\\0" : getParentGroupId()).append(">").append(", name=<")
+        .append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(", shortName=<")
+        .append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">")
+        .append(", description=<")
+        .append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">")
+        .append(", voId=<").append(getVoId()).append(">").append(']').toString();
   }
 
   @Override
@@ -205,23 +226,5 @@ public class Group extends Auditable implements Comparable<PerunBean>, HasUUID {
     ret.append(voId);
     ret.append("']");
     return ret.toString();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final Group other = (Group) obj;
-    if (this.getId() != other.getId()) {
-      return false;
-    }
-    if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
-      return false;
-    }
-    return true;
   }
 }

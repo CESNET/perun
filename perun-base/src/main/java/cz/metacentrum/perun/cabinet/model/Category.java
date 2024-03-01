@@ -4,8 +4,8 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import java.util.Objects;
 
 /**
- * This class represents a category (of publication). I.e. patent, article in journal etc.
- * Each category is supposed to have some rank, which expresses the importance of given category.
+ * This class represents a category (of publication). I.e. patent, article in journal etc. Each category is supposed to
+ * have some rank, which expresses the importance of given category.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -22,6 +22,21 @@ public class Category extends PerunBean {
     super(id);
     this.name = name;
     this.rank = rank;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Category)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    Category category = (Category) o;
+    return Objects.equals(name, category.name) && Objects.equals(rank, category.rank);
   }
 
   /**
@@ -63,22 +78,6 @@ public class Category extends PerunBean {
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), name, rank);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Category)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    Category category = (Category) o;
-    return Objects.equals(name, category.name) &&
-        Objects.equals(rank, category.rank);
   }
 
   @Override

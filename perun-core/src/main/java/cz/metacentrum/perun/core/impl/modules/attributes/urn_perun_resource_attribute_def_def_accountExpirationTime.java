@@ -13,12 +13,10 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -30,11 +28,6 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
     implements ResourceAttributesModuleImplApi {
 
   private static final String A_F_accountExpirationTime = AttributesManager.NS_FACILITY_ATTR + ":accountExpirationTime";
-
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) {
-    return new Attribute(attribute);
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
@@ -68,8 +61,8 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
   }
 
   @Override
-  public List<String> getDependencies() {
-    return Collections.singletonList(A_F_accountExpirationTime);
+  public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) {
+    return new Attribute(attribute);
   }
 
   @Override
@@ -81,5 +74,10 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
     attr.setType(Integer.class.getName());
     attr.setDescription("Unix account expiration time.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    return Collections.singletonList(A_F_accountExpirationTime);
   }
 }

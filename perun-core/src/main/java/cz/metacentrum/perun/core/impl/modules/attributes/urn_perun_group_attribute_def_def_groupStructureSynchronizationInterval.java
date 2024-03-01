@@ -7,13 +7,11 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,19 +32,12 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationInte
       if (foundAttribute.getValue() != null) {
         throw new WrongReferenceAttributeValueException(attribute, foundAttribute, group, null, group, null,
             "Attribute " + attribute.getName() + " cannot be set because attribute " +
-                GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME + " is already set.");
+            GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME + " is already set.");
       }
     } catch (AttributeNotExistsException exc) {
       throw new ConsistencyErrorException(
           "Attribute " + GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME + " is supposed to exist", exc);
     }
-  }
-
-  @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME);
-    return dependencies;
   }
 
   @Override
@@ -58,5 +49,12 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationInte
     attr.setType(String.class.getName());
     attr.setDescription("Time between two successful group structure synchronizations.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME);
+    return dependencies;
   }
 }

@@ -13,7 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -28,53 +27,6 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 
   private static final String A_F_homeMountPoints = AttributesManager.NS_FACILITY_ATTR_DEF + ":homeMountPoints";
   private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
-
-  /**
-   * Fill with attribute from underlying facility
-   *
-   * @param perunSession
-   * @param resource
-   * @param attribute
-   * @return
-   * @throws InternalErrorException
-   * @throws WrongAttributeAssignmentException
-   */
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute)
-      throws WrongAttributeAssignmentException {
-    Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
-
-    Attribute facilityAttr;
-    try {
-      facilityAttr =
-          perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_homeMountPoints);
-    } catch (AttributeNotExistsException ex) {
-      throw new InternalErrorException(
-          "Attribute which is essentials for fill the value of checked attribute doesn't exists.", ex);
-    }
-    Attribute toReturn = new Attribute(attribute);
-    toReturn.setValue(facilityAttr.getValue());
-    return toReturn;
-  }
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    //null value is ok here
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    List<String> homeMountPoints = attribute.valueAsList();
-    if (!homeMountPoints.isEmpty()) {
-      for (String st : homeMountPoints) {
-        Matcher match = pattern.matcher(st);
-        if (!match.matches()) {
-          throw new WrongAttributeValueException(attribute, "Bad homeMountPoints attribute format " + st);
-        }
-      }
-    }
-  }
 
   /**
    * Allows only homeMountPoints which are contained in underlying facility
@@ -114,10 +66,50 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependecies = new ArrayList<>();
-    dependecies.add(A_F_homeMountPoints);
-    return dependecies;
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    //null value is ok here
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    List<String> homeMountPoints = attribute.valueAsList();
+    if (!homeMountPoints.isEmpty()) {
+      for (String st : homeMountPoints) {
+        Matcher match = pattern.matcher(st);
+        if (!match.matches()) {
+          throw new WrongAttributeValueException(attribute, "Bad homeMountPoints attribute format " + st);
+        }
+      }
+    }
+  }
+
+  /**
+   * Fill with attribute from underlying facility
+   *
+   * @param perunSession
+   * @param resource
+   * @param attribute
+   * @return
+   * @throws InternalErrorException
+   * @throws WrongAttributeAssignmentException
+   */
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException {
+    Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
+
+    Attribute facilityAttr;
+    try {
+      facilityAttr =
+          perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_homeMountPoints);
+    } catch (AttributeNotExistsException ex) {
+      throw new InternalErrorException(
+          "Attribute which is essentials for fill the value of checked attribute doesn't exists.", ex);
+    }
+    Attribute toReturn = new Attribute(attribute);
+    toReturn.setValue(facilityAttr.getValue());
+    return toReturn;
   }
 
   @Override
@@ -129,5 +121,12 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
     attr.setType(ArrayList.class.getName());
     attr.setDescription("All available home mount points.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    dependecies.add(A_F_homeMountPoints);
+    return dependecies;
   }
 }

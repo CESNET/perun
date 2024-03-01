@@ -2,12 +2,8 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.impl.Compatibility;
-import cz.metacentrum.perun.core.impl.Utils;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-
 import java.util.List;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 
 /**
  * Database manager can work with database version and upgraded state of perun DB.
@@ -15,6 +11,36 @@ import java.util.List;
  * @author Michal Stava email:&lt;stavamichal@gmail.com&gt;
  */
 public interface DatabaseManagerImplApi {
+  /**
+   * Create new property in configurations. Initial value will be "N/A".
+   *
+   * @param property name of property to be created
+   */
+  void createProperty(String property);
+
+  /**
+   * Parses all new database versions from DB changelog file and creates from them list of DBVersion objects. The list
+   * contains all versions from currentDBVersion (without currentDBVersion itself) to now (the version at the top of the
+   * changelog file)
+   *
+   * @param currentDBVersion current DB version
+   * @param fileName         DB changelog file name, file should be in resources
+   * @return list of DBVersion objects ordered by version descending
+   * @throws InternalErrorException if 1.there is error reading file, 2.currentDBVersion was not found 3.db version does
+   *                                not match pattern 4.db versions are not ordered as they should be
+   */
+  List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName);
+
+  /**
+   * Returns current code version from dbVersions list (ex. 3.0.1) or currentDBVersion if list is empty (because in that
+   * case currentDBVersion = current code version)
+   *
+   * @param dbVersions       list of DBVersion objects
+   * @param currentDBVersion current DB version
+   * @return current code version
+   */
+  String getCodeDatabaseVersion(List<DBVersion> dbVersions, String currentDBVersion);
+
   /**
    * Return current database version in string (ex. 3.0.1)
    *
@@ -40,48 +66,19 @@ public interface DatabaseManagerImplApi {
   String getDatabaseInformation();
 
   /**
-   * Returns current code version from dbVersions list (ex. 3.0.1) or currentDBVersion if list is empty (because in that case currentDBVersion = current code version)
+   * Return JDBC template for performing custom simple SQLs where jdbc is not normally available
    *
-   * @param dbVersions       list of DBVersion objects
-   * @param currentDBVersion current DB version
-   * @return current code version
+   * @return Peruns JDBC template
    */
-  String getCodeDatabaseVersion(List<DBVersion> dbVersions, String currentDBVersion);
+  JdbcPerunTemplate getJdbcPerunTemplate();
 
   /**
-   * Method updates database to the current code version. It takes list of dbVersions and executes all the commands from them.
-   * Commands from the oldest (lowest) version are executed first.
-   *
-   * @param dbVersions list of dbVersion objects ordered by version descending, should not be empty
-   * @throws InternalErrorException if any of the commands fails to execute
-   */
-  void updateDatabaseVersion(List<DBVersion> dbVersions);
-
-  /**
-   * Parses all new database versions from DB changelog file and creates from them list of DBVersion objects.
-   * The list contains all versions from currentDBVersion (without currentDBVersion itself) to now (the version at the top of the changelog file)
-   *
-   * @param currentDBVersion current DB version
-   * @param fileName         DB changelog file name, file should be in resources
-   * @return list of DBVersion objects ordered by version descending
-   * @throws InternalErrorException if 1.there is error reading file, 2.currentDBVersion was not found 3.db version does not match pattern 4.db versions are not ordered as they should be
-   */
-  List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName);
-
-  /**
-   * Get time in ns "nanoseconds" of calling 1 simple update query to DB.
-   * This query will update property for this purpose in configurations table.
+   * Get time in ns "nanoseconds" of calling 1 simple update query to DB. This query will update property for this
+   * purpose in configurations table.
    *
    * @return time of processing query in nanoseconds
    */
   long getTimeOfQueryPerformance();
-
-  /**
-   * Create new property in configurations. Initial value will be "N/A".
-   *
-   * @param property name of property to be created
-   */
-  void createProperty(String property);
 
   /**
    * Return true if property already exists, false if not.
@@ -92,10 +89,12 @@ public interface DatabaseManagerImplApi {
   boolean propertyExists(String property);
 
   /**
-   * Return JDBC template for performing custom simple SQLs where jdbc is not normally available
+   * Method updates database to the current code version. It takes list of dbVersions and executes all the commands from
+   * them. Commands from the oldest (lowest) version are executed first.
    *
-   * @return Peruns JDBC template
+   * @param dbVersions list of dbVersion objects ordered by version descending, should not be empty
+   * @throws InternalErrorException if any of the commands fails to execute
    */
-  JdbcPerunTemplate getJdbcPerunTemplate();
+  void updateDatabaseVersion(List<DBVersion> dbVersions);
 
 }

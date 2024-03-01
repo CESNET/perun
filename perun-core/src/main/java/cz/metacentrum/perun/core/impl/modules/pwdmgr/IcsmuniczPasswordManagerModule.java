@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IcsmuniczPasswordManagerModule extends GenericPasswordManagerModule {
 
-  private final static Logger log = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
 
   protected final int passwordMinLength = 10;
 
@@ -40,11 +40,11 @@ public class IcsmuniczPasswordManagerModule extends GenericPasswordManagerModule
 
     // check our length constraint first, since its more strict
     if (password.length() < passwordMinLength) {
-      log.warn("Password for {}:{} is too short. At least {} characters are required.", actualLoginNamespace, login,
+      LOG.warn("Password for {}:{} is too short. At least {} characters are required.", actualLoginNamespace, login,
           passwordMinLength);
       throw new PasswordStrengthException(
           "Password for " + actualLoginNamespace + ":" + login + " is too short. At least " + passwordMinLength +
-              " characters are required.");
+          " characters are required.");
     }
 
     // check rest of generic stuff
@@ -60,7 +60,7 @@ public class IcsmuniczPasswordManagerModule extends GenericPasswordManagerModule
     }
 
     if (user == null) {
-      log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+      LOG.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
     } else {
       // set extSources and extSource related attributes
       try {

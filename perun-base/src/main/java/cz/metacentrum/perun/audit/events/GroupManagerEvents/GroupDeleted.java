@@ -17,13 +17,13 @@ public class GroupDeleted extends AuditEvent {
     this.message = formatMessage("%s deleted.", group);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   @Override

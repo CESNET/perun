@@ -10,16 +10,14 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-
 import java.util.Collection;
 import java.util.List;
 
 public interface EventDispatcher extends Runnable {
 
-  public void registerProcessor(EventProcessor processor, DispatchEventCondition condition);
-
   public void dispatchEvent(String msg, MessageBeans beans);
+
+  public void registerProcessor(EventProcessor processor, DispatchEventCondition condition);
 
   public void setLastProcessedIdNumber(int lastProcessedId);
 
@@ -34,51 +32,51 @@ public interface EventDispatcher extends Runnable {
     public static final int RESOURCE_F = 1 << 7;
     public static final int FACILITY_F = 1 << 8;
 
-    public int getPresentBeansMask();
-
-    public Collection<Integer> getPresentBeansFlags();
-
-    public int getBeansCount();
-
     public void addBean(PerunBean p);
-
-    public Group getGroup();
-
-    public Group getParentGroup();
-
-    public Member getMember();
-
-    public Vo getVo();
-
-    public User getUser();
-
-    public User getSpecificUser();
 
     public Attribute getAttribute();
 
     public AttributeDefinition getAttributeDef();
 
-    public UserExtSource getUserExtSource();
+    public int getBeansCount();
+
+    public Facility getFacility();
+
+    public Group getGroup();
+
+    public Member getMember();
+
+    public Group getParentGroup();
+
+    public Collection<Integer> getPresentBeansFlags();
+
+    public int getPresentBeansMask();
 
     public Resource getResource();
 
-    public Facility getFacility();
+    public User getSpecificUser();
+
+    public User getUser();
+
+    public UserExtSource getUserExtSource();
+
+    public Vo getVo();
   }
 
   public interface DispatchEventCondition {
 
-    public void setBeansConditionByMask(int presentBeansMask);
+    public String getHandlerMethodName();
 
-    public void setBeansConditionByClasses(Class... beanClasses);
-
-    public void setBeansConditionByNames(String... names);
+    public boolean isApplicable(MessageBeans beans, String msg);
 
     public void setBeansCondition(List<String> names);
 
-    public String getHandlerMethodName();
+    public void setBeansConditionByClasses(Class... beanClasses);
+
+    public void setBeansConditionByMask(int presentBeansMask);
+
+    public void setBeansConditionByNames(String... names);
 
     public void setHandlerMethodName(String name);
-
-    public boolean isApplicable(MessageBeans beans, String msg);
   }
 }

@@ -23,21 +23,21 @@ public class MembershipExpirationInDays extends AuditEvent implements EngineIgno
     this.message = formatMessage("%s will expire in %d days in %s.", member, daysToExpiration, vo);
   }
 
-  public Member getMember() {
-    return member;
-  }
-
   public int getDaysToExpiration() {
     return daysToExpiration;
   }
 
-  public Vo getVo() {
-    return vo;
+  public Member getMember() {
+    return member;
   }
 
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Vo getVo() {
+    return vo;
   }
 
   @Override

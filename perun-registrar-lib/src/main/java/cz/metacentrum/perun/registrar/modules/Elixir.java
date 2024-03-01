@@ -24,47 +24,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 /**
- * Registration module used in "Elixir" VO on Elixir Perun instance.
- * It is used to pre-generate available user login on application form for new users.
+ * Registration module used in "Elixir" VO on Elixir Perun instance. It is used to pre-generate available user login on
+ * application form for new users.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz/>
  */
 public class Elixir extends DefaultRegistrarModule {
 
-  final static Logger log = LoggerFactory.getLogger(Elixir.class);
+  static final Logger LOG = LoggerFactory.getLogger(Elixir.class);
 
   private static String URN_USER_DISPLAY_NAME = AttributesManager.NS_USER_ATTR_CORE + ":" + "displayName";
   private static String URN_USER_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":" + "preferredMail";
 
-  @Override
-  public void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
-                                       List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException {
-
-    // generate login only on initial application
-    if (!Application.AppType.INITIAL.equals(appType)) {
-      return;
-    }
+  /**
+   * Retrieves specific attribute value from form items (first occurrence)
+   *
+   * @param formItems                 form items to search in
+   * @param perunDestinationAttribute destination attribute
+   * @return value of first found form item mapped to perunDestinationAttribute
+   */
+  private String fetchFormValue(List<ApplicationFormItemWithPrefilledValue> formItems,
+                                String perunDestinationAttribute) {
 
     for (ApplicationFormItemWithPrefilledValue item : formItems) {
-      if (Objects.equals(ApplicationFormItem.Type.USERNAME, item.getFormItem().getType())) {
-
-        // skip if user already has login pre-filled from perun or federation
-        if (!StringUtils.isEmpty(item.getPrefilledValue())) {
-          continue;
-        }
-
-        // do not generate login if destination attribute is not set (won't be stored)
-        if (StringUtils.isEmpty(item.getFormItem().getPerunDestinationAttribute())) {
-          continue;
-        }
-
-        // set new generated value
-        item.setPrefilledValue(generateLogin(session, item, formItems));
-        // mark value as generated so the GUI allows editing and on submit server process new login
-        item.setGenerated(true);
-
+      if (perunDestinationAttribute.equals(item.getFormItem().getPerunDestinationAttribute())) {
+        return item.getPrefilledValue();
       }
     }
+    return null;
 
   }
 
@@ -86,7 +73,7 @@ public class Elixir extends DefaultRegistrarModule {
       user = Utils.parseUserFromCommonName(displayName, false);
     } catch (Exception ex) {
 
-      log.warn("We couldn't parse commonName/displayName into User object");
+      LOG.warn("We couldn't parse commonName/displayName into User object");
 
       String mail = fetchFormValue(formItems, URN_USER_PREFERRED_MAIL);
       if (mail != null) {
@@ -152,39 +139,52 @@ public class Elixir extends DefaultRegistrarModule {
           iterator++;
         } catch (AttributeNotExistsException ex) {
           // we couldn't pre-fill login, its mapped to non-existing attribute
-          log.warn("We couldn't generate new login, since its mapped to non-exisitng attribute {}., {}",
+          LOG.warn("We couldn't generate new login, since its mapped to non-exisitng attribute {}., {}",
               loginItem.getFormItem().getPerunDestinationAttribute(), ex);
           return null;
         } catch (WrongAttributeAssignmentException | InternalErrorException e) {
-          log.warn("We couldn't generate new login, because of exception.", e);
+          LOG.warn("We couldn't generate new login, because of exception.", e);
           return null;
         }
       }
 
     } else {
-      log.error("We couldn't create arbitrary User object with name from form items in order to generate login.");
+      LOG.error("We couldn't create arbitrary User object with name from form items in order to generate login.");
     }
 
     return null;
 
   }
 
-  /**
-   * Retrieves specific attribute value from form items (first occurrence)
-   *
-   * @param formItems                 form items to search in
-   * @param perunDestinationAttribute destination attribute
-   * @return value of first found form item mapped to perunDestinationAttribute
-   */
-  private String fetchFormValue(List<ApplicationFormItemWithPrefilledValue> formItems,
-                                String perunDestinationAttribute) {
+  @Override
+  public void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
+                                       List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException {
+
+    // generate login only on initial application
+    if (!Application.AppType.INITIAL.equals(appType)) {
+      return;
+    }
 
     for (ApplicationFormItemWithPrefilledValue item : formItems) {
-      if (perunDestinationAttribute.equals(item.getFormItem().getPerunDestinationAttribute())) {
-        return item.getPrefilledValue();
+      if (Objects.equals(ApplicationFormItem.Type.USERNAME, item.getFormItem().getType())) {
+
+        // skip if user already has login pre-filled from perun or federation
+        if (!StringUtils.isEmpty(item.getPrefilledValue())) {
+          continue;
+        }
+
+        // do not generate login if destination attribute is not set (won't be stored)
+        if (StringUtils.isEmpty(item.getFormItem().getPerunDestinationAttribute())) {
+          continue;
+        }
+
+        // set new generated value
+        item.setPrefilledValue(generateLogin(session, item, formItems));
+        // mark value as generated so the GUI allows editing and on submit server process new login
+        item.setGenerated(true);
+
       }
     }
-    return null;
 
   }
 

@@ -1,24 +1,24 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForUser;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForUserExtSource;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
-import cz.metacentrum.perun.audit.events.AuditEvent;
-import cz.metacentrum.perun.core.api.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.CoreConfig;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.impl.Utils;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Test module for urn:perun:user:attribute-def:virt:forwardedVoPersonExternalAffiliation
@@ -45,6 +45,27 @@ public class urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliat
     }
   }
 
+  @Test
+  public void getAttributeValueOnlyFromUserExtSources() throws Exception {
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        Arrays.asList(ues1, ues2));
+
+    String attributeName = classInstance.getSourceAttributeName();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(uesAtt1);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(uesAtt2);
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.getValue() instanceof List);
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
+
+    @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
+    Collections.sort(actual);
+    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
+    Collections.sort(expected);
+    assertEquals("collected values are incorrect", expected, actual);
+  }
+
   @Before
   public void setVariables() {
     classInstance = new urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliation();
@@ -62,32 +83,5 @@ public class urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliat
     uesAtt2 = new Attribute();
     uesAtt1.setValue(VALUE1);
     uesAtt2.setValue(VALUE2 + ";" + VALUE3);
-  }
-
-  @Test
-  public void getAttributeValueOnlyFromUserExtSources() throws Exception {
-    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-        Arrays.asList(ues1, ues2)
-    );
-
-    String attributeName = classInstance.getSourceAttributeName();
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
-        uesAtt1
-    );
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, attributeName)).thenReturn(
-        uesAtt2
-    );
-
-    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-    assertTrue(receivedAttr.getValue() instanceof List);
-    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
-        receivedAttr.getFriendlyName());
-
-    @SuppressWarnings("unchecked")
-    List<String> actual = (List<String>) receivedAttr.getValue();
-    Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
-    Collections.sort(expected);
-    assertEquals("collected values are incorrect", expected, actual);
   }
 }

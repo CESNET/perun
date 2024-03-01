@@ -45,16 +45,21 @@ public class IntegrationManagerApiTest {
   private User user;
   private Member member;
 
-  @Before
-  public void setUp() throws Exception {
-    final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-        ExtSourcesManager.EXTSOURCE_INTERNAL);
-    sess = perun.getPerunSession(pp, new PerunClient());
+  private AttributeDefinition createMemberGroupAttr(String friendlyName) throws Exception {
+    var attrDef = new AttributeDefinition();
+    attrDef.setFriendlyName(friendlyName);
+    attrDef.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+    attrDef.setType(String.class.getName());
+    return perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+  }
 
-    vo = perun.getVosManagerBl().createVo(sess, new Vo(0, "test-vo", "test-vo"));
-    group = perun.getGroupsManagerBl().createGroup(sess, vo, new Group("test-group", "test-group"));
-    user = perun.getUsersManagerBl().createUser(sess, new User(0, "John", "Doe", "", "", ""));
-    member = perun.getMembersManagerBl().createMember(sess, vo, user);
+  private GroupMemberRelation directRelation(int groupId, int memberId, int userId, String groupName) {
+    return directRelation(groupId, memberId, userId, groupName, MemberGroupStatus.VALID);
+  }
+
+  private GroupMemberRelation directRelation(int groupId, int memberId, int userId, String groupName,
+                                             MemberGroupStatus status) {
+    return new GroupMemberRelation(groupId, memberId, userId, groupId, groupName, 0, status, MembershipType.DIRECT);
   }
 
   @Test
@@ -65,8 +70,7 @@ public class IntegrationManagerApiTest {
 
     var expectedRelation = directRelation(group.getId(), member.getId(), user.getId(), group.getShortName());
 
-    assertThat(groupMemberData.relations())
-        .contains(expectedRelation);
+    assertThat(groupMemberData.relations()).contains(expectedRelation);
   }
 
   @Test
@@ -79,25 +83,7 @@ public class IntegrationManagerApiTest {
     var expectedRelation =
         directRelation(group.getId(), member.getId(), user.getId(), group.getShortName(), MemberGroupStatus.EXPIRED);
 
-    assertThat(groupMemberData.relations())
-        .contains(expectedRelation);
-  }
-
-  @Test
-  public void getGroupMembersRelations_returnsMultipleRelations() throws Exception {
-    var subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroup", "ss"));
-    perun.getGroupsManagerBl().addMember(sess, group, member);
-    perun.getGroupsManagerBl().addMember(sess, subgroup, member);
-
-    var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
-
-    var directRelation = directRelation(group.getId(), member.getId(), user.getId(), group.getShortName());
-    var indirectRelation =
-        inDirectRelation(group.getId(), subgroup.getId(), member.getId(), user.getId(), group.getShortName());
-
-    assertThat(groupMemberData.relations())
-        .contains(directRelation)
-        .contains(indirectRelation);
+    assertThat(groupMemberData.relations()).contains(expectedRelation);
   }
 
   @Test
@@ -110,8 +96,7 @@ public class IntegrationManagerApiTest {
     var expectedRelation =
         inDirectRelation(group.getId(), subgroup.getId(), member.getId(), user.getId(), group.getShortName());
 
-    assertThat(groupMemberData.relations())
-        .contains(expectedRelation);
+    assertThat(groupMemberData.relations()).contains(expectedRelation);
   }
 
   @Test
@@ -126,20 +111,23 @@ public class IntegrationManagerApiTest {
     var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
 
     var returnedAttributes = groupMemberData.groupMemberAttributes();
-    assertThat(returnedAttributes.get(group.getId()))
-        .isNotNull();
-    assertThat(returnedAttributes.get(group.getId()).get(member.getId()))
-        .isNotNull()
-        .contains(attr);
+    assertThat(returnedAttributes.get(group.getId())).isNotNull();
+    assertThat(returnedAttributes.get(group.getId()).get(member.getId())).isNotNull().contains(attr);
   }
 
-  private GroupMemberRelation directRelation(int groupId, int memberId, int userId, String groupName) {
-    return directRelation(groupId, memberId, userId, groupName, MemberGroupStatus.VALID);
-  }
+  @Test
+  public void getGroupMembersRelations_returnsMultipleRelations() throws Exception {
+    var subgroup = perun.getGroupsManagerBl().createGroup(sess, group, new Group("subgroup", "ss"));
+    perun.getGroupsManagerBl().addMember(sess, group, member);
+    perun.getGroupsManagerBl().addMember(sess, subgroup, member);
 
-  private GroupMemberRelation directRelation(int groupId, int memberId, int userId, String groupName,
-                                             MemberGroupStatus status) {
-    return new GroupMemberRelation(groupId, memberId, userId, groupId, groupName, 0, status, MembershipType.DIRECT);
+    var groupMemberData = integrationManagerApiImpl.getGroupMemberData(sess);
+
+    var directRelation = directRelation(group.getId(), member.getId(), user.getId(), group.getShortName());
+    var indirectRelation =
+        inDirectRelation(group.getId(), subgroup.getId(), member.getId(), user.getId(), group.getShortName());
+
+    assertThat(groupMemberData.relations()).contains(directRelation).contains(indirectRelation);
   }
 
   private GroupMemberRelation inDirectRelation(int groupId, int sourceGroupId, int memberId, int userId,
@@ -153,11 +141,15 @@ public class IntegrationManagerApiTest {
         MembershipType.INDIRECT);
   }
 
-  private AttributeDefinition createMemberGroupAttr(String friendlyName) throws Exception {
-    var attrDef = new AttributeDefinition();
-    attrDef.setFriendlyName(friendlyName);
-    attrDef.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
-    attrDef.setType(String.class.getName());
-    return perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+  @Before
+  public void setUp() throws Exception {
+    final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL);
+    sess = perun.getPerunSession(pp, new PerunClient());
+
+    vo = perun.getVosManagerBl().createVo(sess, new Vo(0, "test-vo", "test-vo"));
+    group = perun.getGroupsManagerBl().createGroup(sess, vo, new Group("test-group", "test-group"));
+    user = perun.getUsersManagerBl().createUser(sess, new User(0, "John", "Doe", "", "", ""));
+    member = perun.getMembersManagerBl().createMember(sess, vo, user);
   }
 }

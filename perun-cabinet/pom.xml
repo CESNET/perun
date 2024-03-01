@@ -1,87 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>perun</artifactId>
-		<groupId>cz.metacentrum</groupId>
-		<version>0.0.0-development</version>
-	</parent>
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>0.0.0-development</version>
+    </parent>
 
-	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-cabinet</artifactId>
-	<packaging>jar</packaging>
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-cabinet</artifactId>
+    <packaging>jar</packaging>
 
-	<name>perun-cabinet</name>
-	<description>Cabinet is a project which aims on retrieving publications from remote sources and allow to report them by perun's users.</description>
+    <name>perun-cabinet</name>
+    <description>Cabinet is a project which aims on retrieving publications from remote sources and allow to report them
+        by perun's users.
+    </description>
 
-	<!-- Properties - version -->
-	<properties>
-	</properties>
+    <!-- Properties - version -->
+    <properties>
+    </properties>
 
-	<build>
+    <build>
 
-		<plugins>
+        <plugins>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<includes>
-						<include>**/*IntegrationTest.*</include>
-						<include>**/*UnitTest.*</include>
-					</includes>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*IntegrationTest.*</include>
+                        <include>**/*UnitTest.*</include>
+                    </includes>
+                </configuration>
+            </plugin>
 
-		</plugins>
+        </plugins>
 
-		<resources>
-			<resource>
-				<!-- exclude DB config files from final jar -->
-				<directory>src/main/resources/</directory>
-				<filtering>true</filtering>
-				<excludes>
-					<exclude>**/*.sql</exclude>
-				</excludes>
-			</resource>
-		</resources>
+        <resources>
+            <resource>
+                <!-- exclude DB config files from final jar -->
+                <directory>src/main/resources/</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.sql</exclude>
+                </excludes>
+            </resource>
+        </resources>
 
-	</build>
+    </build>
 
 
-	<dependencies>
+    <dependencies>
 
-		<!-- PERUN -->
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <!-- PERUN -->
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<!-- TESTS -->
+        <!-- TESTS -->
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<!-- imports logback-test.xml for test from perun-base -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
+        <!-- imports logback-test.xml for test from perun-base -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>perun-base</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 </project>

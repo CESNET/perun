@@ -6,7 +6,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
 
 /**
- * Entityless attribute for mapping values of DNS address to specific state (or empty string). The DNS domain is in key, state is in String value.
+ * Entityless attribute for mapping values of DNS address to specific state (or empty string). The DNS domain is in key,
+ * state is in String value.
  * <p>
  * Examples:
  * <BR>.cz = “Czech Republic”

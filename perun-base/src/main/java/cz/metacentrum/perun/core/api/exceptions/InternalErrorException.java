@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InternalErrorException extends PerunRuntimeException {
   static final long serialVersionUID = 0;
-  private final static Logger log = LoggerFactory.getLogger(InternalErrorException.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InternalErrorException.class);
 
   /**
    * Simple constructor with a message
@@ -22,7 +22,7 @@ public class InternalErrorException extends PerunRuntimeException {
   public InternalErrorException(String message) {
     super(message);
 
-    log.error("Internal Error Exception:", this);
+    LOG.error("Internal Error Exception:", this);
   }
 
   /**
@@ -34,7 +34,7 @@ public class InternalErrorException extends PerunRuntimeException {
   public InternalErrorException(String message, Throwable cause) {
     super(message, cause);
 
-    log.error("Internal Error Exception:", this);
+    LOG.error("Internal Error Exception:", this);
   }
 
   /**
@@ -45,6 +45,6 @@ public class InternalErrorException extends PerunRuntimeException {
   public InternalErrorException(Throwable cause) {
     super(cause);
 
-    log.error("Internal Error Exception:", this);
+    LOG.error("Internal Error Exception:", this);
   }
 }

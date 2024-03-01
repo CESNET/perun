@@ -3,8 +3,8 @@ package cz.metacentrum.perun.core.api;
 import java.util.Objects;
 
 /**
- * Represents a policy of an attribute.
- * It specifies the role, that users need to have, and the object, upon which the role is set.
+ * Represents a policy of an attribute. It specifies the role, that users need to have, and the object, upon which the
+ * role is set.
  *
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
@@ -24,20 +24,25 @@ public class AttributePolicy {
     this.policyCollectionId = policyCollectionId;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AttributePolicy that = (AttributePolicy) o;
+    return getId() == that.getId() && getPolicyCollectionId() == that.getPolicyCollectionId() &&
+           Objects.equals(getRole(), that.getRole()) && getObject() == that.getObject();
+  }
+
   public int getId() {
     return id;
   }
 
   public void setId(int id) {
     this.id = id;
-  }
-
-  public String getRole() {
-    return role;
-  }
-
-  public void setRole(String role) {
-    this.role = role;
   }
 
   public RoleObject getObject() {
@@ -56,17 +61,12 @@ public class AttributePolicy {
     this.policyCollectionId = policyCollectionId;
   }
 
-  @Override
-  public boolean equals(Object o) {
-	  if (this == o) {
-		  return true;
-	  }
-	  if (o == null || getClass() != o.getClass()) {
-		  return false;
-	  }
-    AttributePolicy that = (AttributePolicy) o;
-    return getId() == that.getId() && getPolicyCollectionId() == that.getPolicyCollectionId()
-        && Objects.equals(getRole(), that.getRole()) && getObject() == that.getObject();
+  public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    this.role = role;
   }
 
   @Override
@@ -76,11 +76,7 @@ public class AttributePolicy {
 
   @Override
   public String toString() {
-    return "AttributePolicy{" +
-        "id=" + id +
-        ", role='" + role + '\'' +
-        ", object=" + object +
-        ", policyCollectionId=" + policyCollectionId +
-        '}';
+    return "AttributePolicy{" + "id=" + id + ", role='" + role + '\'' + ", object=" + object + ", policyCollectionId=" +
+           policyCollectionId + '}';
   }
 }

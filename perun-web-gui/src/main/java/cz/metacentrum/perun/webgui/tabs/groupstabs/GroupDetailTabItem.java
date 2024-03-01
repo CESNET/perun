@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class GroupDetailTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "detail";
+  public static final String URL = "detail";
   // sub panels
   TabPanelForTabItems tabPanel;
   /**

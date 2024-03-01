@@ -35,23 +35,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Registration module for BBMRI Collections, Networks, canSERV services, etc.
- * Module:
- * 1. reads input with IDs of the resources and checks, whether groups representing resources exist
- * - uses the content of attribute RESOURCE_ID_ATTR_NAME as the name of the attribute containing IDs of the
- * resources on groups
- * - parses the root group, under which the groups representing specified resources are located
- * - if RESOURCE_ORIGIN_ENABLED_ATTR_NAME is set to true, the root group will be parsed from input from the form
- * (where input is select named "resourceOrigin")
- * - else if RESOURCES_ROOT_GROUP_ATTR_NAME is set, the root group will be parsed from the value of this attribute
- * - else the root group will be considered the target group of the application
- * 2. adds users to the appropriate groups
+ * Registration module for BBMRI Collections, Networks, canSERV services, etc. Module: 1. reads input with IDs of the
+ * resources and checks, whether groups representing resources exist - uses the content of attribute
+ * RESOURCE_ID_ATTR_NAME as the name of the attribute containing IDs of the resources on groups - parses the root group,
+ * under which the groups representing specified resources are located - if RESOURCE_ORIGIN_ENABLED_ATTR_NAME is set to
+ * true, the root group will be parsed from input from the form (where input is select named "resourceOrigin") - else if
+ * RESOURCES_ROOT_GROUP_ATTR_NAME is set, the root group will be parsed from the value of this attribute - else the root
+ * group will be considered the target group of the application 2. adds users to the appropriate groups
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
 public class BBMRIResources extends DefaultRegistrarModule {
 
-  private static final Logger log = LoggerFactory.getLogger(BBMRIResources.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BBMRIResources.class);
 
   // field names
   private static final String RESOURCE_IDS = "resourceIds";
@@ -64,8 +60,8 @@ public class BBMRIResources extends DefaultRegistrarModule {
   private static final String RESOURCES_ROOT_GROUP_ATTR_NAME = "urn:perun:group:attribute-def:def:resourcesRootGroup";
 
   /**
-   * Finds groups representing resources by provided input, adds user into these groups and removes from the
-   * group where this application form is used.
+   * Finds groups representing resources by provided input, adds user into these groups and removes from the group where
+   * this application form is used.
    *
    * @param session who approves the application
    * @param app     application
@@ -73,14 +69,13 @@ public class BBMRIResources extends DefaultRegistrarModule {
    */
   @Override
   public Application approveApplication(PerunSession session, Application app)
-      throws VoNotExistsException, UserNotExistsException, PrivilegeException,
-      MemberNotExistsException, RegistrarException, GroupNotExistsException,
-      AttributeNotExistsException, WrongAttributeAssignmentException, ExternallyManagedException,
-      WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
+      throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException,
+      RegistrarException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException,
+      ExternallyManagedException, WrongAttributeValueException, WrongReferenceAttributeValueException,
+      NotGroupMemberException {
     if (app.getGroup() == null) {
-      throw new RegistrarException(
-          "Invalid usage of registrar module - module '" + this.getClass().getName() +
-              "' should be used on group level only");
+      throw new RegistrarException("Invalid usage of registrar module - module '" + this.getClass().getName() +
+                                   "' should be used on group level only");
     }
 
     // get perun and beans from session
@@ -91,7 +86,7 @@ public class BBMRIResources extends DefaultRegistrarModule {
     try {
       member = perun.getMembersManagerBl().getMemberByUser(session, vo, user);
     } catch (MemberNotExistsException ex) {
-      log.error("User {} is not member in the VO {}", user, vo);
+      LOG.error("User {} is not member in the VO {}", user, vo);
       throw new RegistrarException("Cannot approve application - user is not member of the VO");
     }
 
@@ -104,7 +99,7 @@ public class BBMRIResources extends DefaultRegistrarModule {
     for (String resourceId : resourceIDsInApplication) {
       Group resource = resourceIDToGroupMapsInSystem.getOrDefault(resourceId, null);
       if (resource == null) {
-        log.debug("There is no group for resource with ID: '{}'", resourceId);
+        LOG.debug("There is no group for resource with ID: '{}'", resourceId);
       } else {
         try {
           perun.getGroupsManagerBl().addMember(session, resource, member);
@@ -123,8 +118,8 @@ public class BBMRIResources extends DefaultRegistrarModule {
   }
 
   /**
-   * Checks whether all resource IDs found in user input really exists in Perun.
-   * If not, CantBeApproved exception is thrown.
+   * Checks whether all resource IDs found in user input really exists in Perun. If not, CantBeApproved exception is
+   * thrown.
    *
    * @param session who approves the application
    * @param app     unchanged application
@@ -145,7 +140,8 @@ public class BBMRIResources extends DefaultRegistrarModule {
     // difference must be empty
     if (!resourceIDsInApplication.isEmpty()) {
       throw new CantBeApprovedException("Resources " + resourceIDsInApplication + " do not exist." +
-          "If you approve the application, these resources will be skipped.", "", "", "", true, app.getId());
+                                        "If you approve the application, these resources will be skipped.", "", "", "",
+          true, app.getId());
     }
   }
 
@@ -155,8 +151,7 @@ public class BBMRIResources extends DefaultRegistrarModule {
    * @return Map of String to Group, where key is the ID of the resource and Group is the representation
    */
   private Map<String, Group> getPerunResourceIdToGroupMap(PerunSession session, Application app, PerunBl perun)
-      throws PrivilegeException, RegistrarException, WrongAttributeAssignmentException,
-      AttributeNotExistsException {
+      throws PrivilegeException, RegistrarException, WrongAttributeAssignmentException, AttributeNotExistsException {
     // get root group for resources hierarchy
     Group resourceOriginGroup = getResourceOriginGroup(session, app, perun);
     // get name of the attribute (stored in RESOURCE_ID_ATTR_NAME attribute) containing ID of the resource
@@ -164,81 +159,6 @@ public class BBMRIResources extends DefaultRegistrarModule {
 
     // get map of ResourceID -> group (representing resource)
     return getResourceIDsToGroupsMap(session, perun, resourceOriginGroup, resourceIdAttributeName);
-  }
-
-  /**
-   * Gets name of the attribute containing Resource IDs. This attribute should be used at the groups
-   * identifying resources.
-   *
-   * @return name of the attribute where ID of the resource is stored, null if value is not set
-   */
-  private String getResourceIdAttributeName(PerunSession session, Application app, PerunBl perun)
-      throws WrongAttributeAssignmentException, AttributeNotExistsException {
-    return perun.getAttributesManagerBl()
-        .getAttribute(session, app.getGroup(), RESOURCE_ID_ATTR_NAME)
-        .valueAsString();
-  }
-
-  /**
-   * Gets root group, under which subgroups representing resources are placed.
-   *
-   * @return resource IDs set
-   */
-  private Group getResourceOriginGroup(PerunSession session, Application app, PerunBl perun)
-      throws PrivilegeException, RegistrarException {
-    try {
-      Boolean resourceOriginEnabled = perun.getAttributesManagerBl()
-          .getAttribute(session, app.getGroup(), RESOURCE_ORIGIN_ENABLED_ATTR_NAME)
-          .valueAsBoolean();
-      if (resourceOriginEnabled != null && resourceOriginEnabled) {
-        try {
-          String resourceOriginGroupName = getResourceOriginGroupNameFromApplication(session, app);
-          return perun.getGroupsManagerBl().getGroupByName(session, app.getVo(), resourceOriginGroupName);
-        } catch (GroupNotExistsException e) {
-          throw new InternalErrorException("Target group does not exist");
-        }
-      }
-    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
-      //OK, we consider it as disabled, try manually configured resource root group
-    }
-
-    try {
-      try {
-        String resourceOriginGroupName = perun.getAttributesManagerBl()
-            .getAttribute(session, app.getGroup(), RESOURCES_ROOT_GROUP_ATTR_NAME)
-            .valueAsString();
-        return perun.getGroupsManagerBl().getGroupByName(session, app.getVo(), resourceOriginGroupName);
-      } catch (GroupNotExistsException e) {
-        throw new InternalErrorException("Target group does not exist");
-      }
-    } catch (AttributeNotExistsException | WrongAttributeAssignmentException exc) {
-      // OK, root will be the app group
-    }
-
-    return app.getGroup();
-  }
-
-  /**
-   * Gets name of target group, where subgroups representing resources are placed.
-   *
-   * @return resource IDs set
-   */
-  private String getResourceOriginGroupNameFromApplication(PerunSession session, Application app)
-      throws RegistrarException, PrivilegeException {
-    String resourceOriginGroupName = null;
-    List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
-    for (ApplicationFormItemData field : formData) {
-      if (RESOURCE_ORIGIN.equals(field.getShortname())) {
-        resourceOriginGroupName = field.getValue();
-        break;
-      }
-    }
-
-    if (resourceOriginGroupName == null) {
-      throw new InternalErrorException("There is no field with target group name on the registration form.");
-    }
-
-    return resourceOriginGroupName;
   }
 
   /**
@@ -275,32 +195,103 @@ public class BBMRIResources extends DefaultRegistrarModule {
    *
    * @return Map of resource IDs to group.
    */
-  private Map<String, Group> getResourceIDsToGroupsMap(PerunSession session,
-                                                       PerunBl perun,
-                                                       Group resourceOriginGroup,
+  private Map<String, Group> getResourceIDsToGroupsMap(PerunSession session, PerunBl perun, Group resourceOriginGroup,
                                                        String resourceIdContainingAttribute)
       throws WrongAttributeAssignmentException, AttributeNotExistsException {
     Map<String, Group> resourceIDsToGroupMap = new HashMap<>();
 
     List<Group> resourceGroups = perun.getGroupsManagerBl().getAllSubGroups(session, resourceOriginGroup);
     if (resourceGroups == null || resourceGroups.isEmpty()) {
-      log.debug("No resource groups found, returning empty map.");
+      LOG.debug("No resource groups found, returning empty map.");
       return resourceIDsToGroupMap;
     }
 
     for (Group resourceGroup : resourceGroups) {
-      Attribute resourceIDAttr = perun.getAttributesManagerBl()
-          .getAttribute(session, resourceGroup, resourceIdContainingAttribute);
+      Attribute resourceIDAttr =
+          perun.getAttributesManagerBl().getAttribute(session, resourceGroup, resourceIdContainingAttribute);
 
       if (resourceIDAttr == null || Strings.isNullOrEmpty(resourceIDAttr.valueAsString())) {
-        log.warn("Found resource group ({}) without value in attr {}: ({})",
-            resourceGroup, resourceIdContainingAttribute, resourceIDAttr);
+        LOG.warn("Found resource group ({}) without value in attr {}: ({})", resourceGroup,
+            resourceIdContainingAttribute, resourceIDAttr);
       } else {
         resourceIDsToGroupMap.put(resourceIDAttr.valueAsString(), resourceGroup);
       }
     }
 
     return resourceIDsToGroupMap;
+  }
+
+  /**
+   * Gets name of the attribute containing Resource IDs. This attribute should be used at the groups identifying
+   * resources.
+   *
+   * @return name of the attribute where ID of the resource is stored, null if value is not set
+   */
+  private String getResourceIdAttributeName(PerunSession session, Application app, PerunBl perun)
+      throws WrongAttributeAssignmentException, AttributeNotExistsException {
+    return perun.getAttributesManagerBl().getAttribute(session, app.getGroup(), RESOURCE_ID_ATTR_NAME).valueAsString();
+  }
+
+  /**
+   * Gets root group, under which subgroups representing resources are placed.
+   *
+   * @return resource IDs set
+   */
+  private Group getResourceOriginGroup(PerunSession session, Application app, PerunBl perun)
+      throws PrivilegeException, RegistrarException {
+    try {
+      Boolean resourceOriginEnabled =
+          perun.getAttributesManagerBl().getAttribute(session, app.getGroup(), RESOURCE_ORIGIN_ENABLED_ATTR_NAME)
+              .valueAsBoolean();
+      if (resourceOriginEnabled != null && resourceOriginEnabled) {
+        try {
+          String resourceOriginGroupName = getResourceOriginGroupNameFromApplication(session, app);
+          return perun.getGroupsManagerBl().getGroupByName(session, app.getVo(), resourceOriginGroupName);
+        } catch (GroupNotExistsException e) {
+          throw new InternalErrorException("Target group does not exist");
+        }
+      }
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+      //OK, we consider it as disabled, try manually configured resource root group
+    }
+
+    try {
+      try {
+        String resourceOriginGroupName =
+            perun.getAttributesManagerBl().getAttribute(session, app.getGroup(), RESOURCES_ROOT_GROUP_ATTR_NAME)
+                .valueAsString();
+        return perun.getGroupsManagerBl().getGroupByName(session, app.getVo(), resourceOriginGroupName);
+      } catch (GroupNotExistsException e) {
+        throw new InternalErrorException("Target group does not exist");
+      }
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException exc) {
+      // OK, root will be the app group
+    }
+
+    return app.getGroup();
+  }
+
+  /**
+   * Gets name of target group, where subgroups representing resources are placed.
+   *
+   * @return resource IDs set
+   */
+  private String getResourceOriginGroupNameFromApplication(PerunSession session, Application app)
+      throws RegistrarException, PrivilegeException {
+    String resourceOriginGroupName = null;
+    List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
+    for (ApplicationFormItemData field : formData) {
+      if (RESOURCE_ORIGIN.equals(field.getShortname())) {
+        resourceOriginGroupName = field.getValue();
+        break;
+      }
+    }
+
+    if (resourceOriginGroupName == null) {
+      throw new InternalErrorException("There is no field with target group name on the registration form.");
+    }
+
+    return resourceOriginGroupName;
   }
 
 }

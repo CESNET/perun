@@ -22,20 +22,10 @@ public interface GroupVirtualAttributesModuleImplApi
    * @param group        group which is needed for computing the value
    * @param attribute    attribute to operate on
    * @return
-   * @throws InternalErrorException if an exception is raised in particular
-   *                                implementation, the exception is wrapped in InternalErrorException
+   * @throws InternalErrorException if an exception is raised in particular implementation, the exception is wrapped in
+   *                                InternalErrorException
    */
   Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute);
-
-  /**
-   * Method sets attributes' values which are dependent on this virtual attribute.
-   *
-   * @param perunSession
-   * @param group        group which is needed for computing the value
-   * @param attribute    attribute to operate on
-   * @return true if attribute was really changed
-   */
-  boolean setAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute);
 
   /**
    * Currently do nothing.
@@ -46,4 +36,14 @@ public interface GroupVirtualAttributesModuleImplApi
    * @return
    */
   void removeAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute);
+
+  /**
+   * Method sets attributes' values which are dependent on this virtual attribute.
+   *
+   * @param perunSession
+   * @param group        group which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return true if attribute was really changed
+   */
+  boolean setAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute);
 }

@@ -29,11 +29,44 @@ import org.springframework.util.Assert;
  */
 public class EventProcessorTest extends AbstractDispatcherTest {
 
-  private final static Logger log = LoggerFactory.getLogger(EventProcessorTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EventProcessorTest.class);
   @Autowired
   PerunBl perun;
   @Autowired
   private EventProcessor eventProcessor;
+
+  @Test
+  public void eventProcessorTest() {
+    System.out.println("EventProcessor.eventProcessorTest()");
+
+    EngineMessageProducer engineMessageProducer = new EngineMessageProducerMock("testQueue");
+    eventProcessor.getEngineMessageProducerFactory().setProducer(engineMessageProducer);
+
+
+    Event event = new Event();
+    event.setTimeStamp(System.currentTimeMillis());
+    event.setHeader("portishead");
+    event.setData(new DirectMemberAddedToGroup(member1, group1));
+
+    LinkedBlockingQueue<Event> mockQueue = new LinkedBlockingQueue<>();
+    mockQueue.add(event);
+
+    eventProcessor.setEventQueue(mockQueue);
+    SchedulingPoolMock pool = new SchedulingPoolMock(2);
+    eventProcessor.setSchedulingPool(pool);
+    // runs inside this thread, should end when message is delivered
+    // this necessitates the use of test timeout
+    eventProcessor.run();
+    List<Task> addedTasks = pool.getTasks();
+    List<Facility> facilities = new LinkedList<>();
+
+    for (Task task : addedTasks) {
+      Assert.isTrue(service1.equals(task.getService()) || service2.equals(task.getService()),
+          "task service is different");
+      Assert.isTrue(facility1.equals(task.getFacility()), "task Facility is different");
+      Assert.isTrue(task.getStatus().equals(TaskStatus.WAITING), "task status is not waiting");
+    }
+  }
 
   @Before
   public void setupTests() throws Exception {
@@ -58,40 +91,6 @@ public class EventProcessorTest extends AbstractDispatcherTest {
     perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1, false, false, false);
 
   }
-
-  @Test
-  public void eventProcessorTest() {
-    System.out.println("EventProcessor.eventProcessorTest()");
-
-    EngineMessageProducer engineMessageProducer = new EngineMessageProducerMock("testQueue");
-    eventProcessor.getEngineMessageProducerFactory().setProducer(engineMessageProducer);
-
-    LinkedBlockingQueue<Event> mockQueue = new LinkedBlockingQueue<>();
-
-    Event event = new Event();
-    event.setTimeStamp(System.currentTimeMillis());
-    event.setHeader("portishead");
-    event.setData(new DirectMemberAddedToGroup(member1, group1));
-
-    mockQueue.add(event);
-
-    eventProcessor.setEventQueue(mockQueue);
-    SchedulingPoolMock pool = new SchedulingPoolMock(2);
-    eventProcessor.setSchedulingPool(pool);
-    // runs inside this thread, should end when message is delivered
-    // this necessitates the use of test timeout
-    eventProcessor.run();
-    List<Task> addedTasks = pool.getTasks();
-    List<Facility> facilities = new LinkedList<>();
-
-    for (Task task : addedTasks) {
-      Assert.isTrue(service1.equals(task.getService()) || service2.equals(task.getService()),
-          "task service is different");
-      Assert.isTrue(facility1.equals(task.getFacility()), "task Facility is different");
-      Assert.isTrue(task.getStatus().equals(TaskStatus.WAITING), "task status is not waiting");
-    }
-  }
-
 
   private class EngineMessageProducerMock extends EngineMessageProducer {
 
@@ -122,16 +121,16 @@ public class EventProcessorTest extends AbstractDispatcherTest {
     }
 
     @Override
-    public void scheduleTask(Task task, int delayCount) {
-    }
-
-    @Override
     public Task getTask(Facility facility, Service service) {
       return null;
     }
 
     public List<Task> getTasks() {
       return tasks;
+    }
+
+    @Override
+    public void scheduleTask(Task task, int delayCount) {
     }
   }
 }

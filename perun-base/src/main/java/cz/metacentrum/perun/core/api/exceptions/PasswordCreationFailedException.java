@@ -1,7 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when the password could not be changed because the login is unavailable or other various problems occurred
+ * This exception is thrown when the password could not be changed because the login is unavailable or other various
+ * problems occurred
  *
  * @author Michal Prochazka
  */

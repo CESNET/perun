@@ -27,20 +27,20 @@ public class IdentityIsSameException extends PerunException {
     return login;
   }
 
-  public void setLogin(String login) {
-    this.login = login;
-  }
-
   public String getSource() {
     return source;
   }
 
-  public void setSource(String source) {
-    this.source = source;
-  }
-
   public String getSourceType() {
     return sourceType;
+  }
+
+  public void setLogin(String login) {
+    this.login = login;
+  }
+
+  public void setSource(String source) {
+    this.source = source;
   }
 
   public void setSourceType(String sourceType) {

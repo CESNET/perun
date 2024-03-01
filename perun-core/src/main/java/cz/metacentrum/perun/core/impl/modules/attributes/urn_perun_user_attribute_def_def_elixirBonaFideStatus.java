@@ -5,28 +5,24 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+import java.util.ArrayList;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 /**
- * IMPORTANT: will be removed in next release!!!
- * This module determines if user is a researcher. If so,
- * it provides URL: 'http://www.ga4gh.org/beacon/bonafide/ver1.0'.
+ * IMPORTANT: will be removed in next release!!! This module determines if user is a researcher. If so, it provides URL:
+ * 'http://www.ga4gh.org/beacon/bonafide/ver1.0'.
  * <p>
- * The decision depends on attributes 'elixirBonaFideStatusREMS', 'voPersonExternalAffiliation'
- * and 'user:def:publications'.
- * If 'elixirBonaFideStatusREMS' is not empty, user is a researcher.
- * If 'voPersonExternalAffiliation' contains affiliation that starts with 'faculty@', user is a researcher.
- * If 'user:def:publications' contains key 'ELIXIR' and associated value is > 0, user is a researcher
- * Otherwise, null value is set.
+ * The decision depends on attributes 'elixirBonaFideStatusREMS', 'voPersonExternalAffiliation' and
+ * 'user:def:publications'. If 'elixirBonaFideStatusREMS' is not empty, user is a researcher. If
+ * 'voPersonExternalAffiliation' contains affiliation that starts with 'faculty@', user is a researcher. If
+ * 'user:def:publications' contains key 'ELIXIR' and associated value is > 0, user is a researcher Otherwise, null value
+ * is set.
  *
  * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
@@ -35,7 +31,7 @@ import java.util.Map;
 public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserAttributesModuleAbstract
     implements UserAttributesModuleImplApi {
 
-  private final static Logger log =
+  private static final Logger LOG =
       LoggerFactory.getLogger(urn_perun_user_attribute_def_def_elixirBonaFideStatus.class);
 
   private static final String FRIENDLY_NAME = "elixirBonaFideStatus";
@@ -68,7 +64,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserA
         return attribute;
       }
     } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-      log.error("Cannot read {} from user {}", USER_BONA_FIDE_STATUS_REMS_ATTR_NAME, user, e);
+      LOG.error("Cannot read {} from user {}", USER_BONA_FIDE_STATUS_REMS_ATTR_NAME, user, e);
     }
 
     //try to get value from 'voPersonExternalAffiliation': if has faculty@..., we have bona_fide
@@ -85,7 +81,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserA
         }
       }
     } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-      log.error("Cannot read {} from user {}", USER_AFFILIATIONS_ATTR_NAME, user, e);
+      LOG.error("Cannot read {} from user {}", USER_AFFILIATIONS_ATTR_NAME, user, e);
     }
 
     //try to get value from publications: if has thanks to ELIXIR, we have bona_fide
@@ -103,12 +99,12 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserA
               return attribute;
             }
           } catch (NumberFormatException ex) {
-            log.error("Attribute " + A_U_D_userPublications + " has wrong value for key " + ELIXIR_KEY, ex);
+            LOG.error("Attribute " + A_U_D_userPublications + " has wrong value for key " + ELIXIR_KEY, ex);
           }
         }
       }
     } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-      log.error("Cannot read {} from user {}", USER_PUBLICATIONS_ATTR_NAME, user, e);
+      LOG.error("Cannot read {} from user {}", USER_PUBLICATIONS_ATTR_NAME, user, e);
     }
 
     return attribute;
@@ -122,7 +118,8 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserA
     attr.setDisplayName("Bona fide researcher status");
     attr.setType(String.class.getName());
     attr.setDescription(
-        "Flag if user is qualified researcher. URI ‘http://www.ga4gh.org/beacon/bonafide/ver1.0’ value is provided if person is bona fide researcher. Empty value otherwise.");
+        "Flag if user is qualified researcher. URI ‘http://www.ga4gh.org/beacon/bonafide/ver1.0’ value is provided if" +
+        " person is bona fide researcher. Empty value otherwise.");
     return attr;
   }
 }

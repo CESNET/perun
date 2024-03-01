@@ -15,22 +15,20 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
- * This component is periodically called to search for and fix
- * inconsistencies in automatic group-resource assignments.
+ * This component is periodically called to search for and fix inconsistencies in automatic group-resource assignments.
  *
  * @author Johana Supikova <xsupikov@fi.muni.cz>
  */
 public class ResourceAssignmentChecker {
 
-  private final static Logger log = LoggerFactory.getLogger(ResourceAssignmentChecker.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ResourceAssignmentChecker.class);
 
   private final PerunSession sess;
   private PerunBl perunBl;
@@ -40,31 +38,50 @@ public class ResourceAssignmentChecker {
     String synchronizerPrincipal = "perunResourceAssignmentChecker";
     this.sess = perunBl.getPerunSession(
         new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-            ExtSourcesManager.EXTSOURCE_INTERNAL),
-        new PerunClient());
-  }
-
-  public PerunBl getPerunBl() {
-    return perunBl;
-  }
-
-  public void setPerunBl(PerunBl perunBl) {
-    this.perunBl = perunBl;
+            ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
   }
 
   /**
-   * Waits for 10 minutes after Perun startup and then every hour checks,
-   * if all group-resource assignments are consistent, e.g. all subgroups are automatically
-   * assigned and no automatic subgroups assignments are kept after removing source group.
+   * Filter subgroups of source group (with autoassign) which are not assigned and assign them. Runs in transaction.
+   *
+   * @param resource
+   * @param automaticallyAssignedSubgroups
+   * @param sourceGroup
+   */
+  public void assignSubgroupsToResource(Resource resource, List<AssignedGroup> automaticallyAssignedSubgroups,
+                                        AssignedGroup sourceGroup) {
+    List<Group> sourceGroupSubgroups =
+        perunBl.getGroupsManagerBl().getAllSubGroups(sess, sourceGroup.getEnrichedGroup().getGroup());
+    sourceGroupSubgroups = sourceGroupSubgroups.stream().filter(
+        sourceSubgroup -> automaticallyAssignedSubgroups.stream().noneMatch(assignedSubgroup ->
+            assignedSubgroup.getSourceGroupId() == sourceGroup.getEnrichedGroup().getGroup().getId() &&
+            assignedSubgroup.getEnrichedGroup().getGroup().equals(sourceSubgroup))).collect(Collectors.toList());
+
+    for (Group subgroup : sourceGroupSubgroups) {
+      try {
+        perunBl.getResourcesManagerBl()
+            .assignAutomaticGroupToResource(sess, sourceGroup.getEnrichedGroup().getGroup(), subgroup, resource);
+      } catch (GroupResourceMismatchException e) {
+        LOG.error("Cannot activate group (id = " + subgroup.getId() + ") assignment on resource " + resource, e);
+      } catch (GroupAlreadyAssignedException | WrongReferenceAttributeValueException | WrongAttributeValueException e) {
+        // silently skip
+      }
+    }
+  }
+
+  /**
+   * Waits for 10 minutes after Perun startup and then every hour checks, if all group-resource assignments are
+   * consistent, e.g. all subgroups are automatically assigned and no automatic subgroups assignments are kept after
+   * removing source group.
    */
   @Scheduled(initialDelay = 10 * 60 * 1000, fixedDelay = 60 * 60 * 1000)
   public void fixInconsistentGroupResourceAssignments() {
     if (perunBl.isPerunReadOnly()) {
-      log.warn("This instance is just read only so skip periodic check of automatic group-resource assignments.");
+      LOG.warn("This instance is just read only so skip periodic check of automatic group-resource assignments.");
       return;
     }
 
-    log.debug("ResourceAssignmentChecker starting fixing inconsistencies in automatic group-resource assignments.");
+    LOG.debug("ResourceAssignmentChecker starting fixing inconsistencies in automatic group-resource assignments.");
 
     List<Resource> resources = perunBl.getResourcesManagerBl().getResources(sess);
 
@@ -72,13 +89,12 @@ public class ResourceAssignmentChecker {
       List<AssignedGroup> assignedGroups =
           perunBl.getResourcesManagerBl().getGroupAssignments(sess, resource, List.of());
 
-      List<AssignedGroup> automaticallyAssignedSubgroups = assignedGroups.stream()
-          .filter(group -> group.getSourceGroupId() != null)
-          .collect(Collectors.toList());
+      List<AssignedGroup> automaticallyAssignedSubgroups =
+          assignedGroups.stream().filter(group -> group.getSourceGroupId() != null).collect(Collectors.toList());
 
-      List<AssignedGroup> sourceGroups = assignedGroups.stream()
-          .filter(a -> a.isAutoAssignSubgroups() && a.getSourceGroupId() == null)
-          .collect(Collectors.toList());
+      List<AssignedGroup> sourceGroups =
+          assignedGroups.stream().filter(a -> a.isAutoAssignSubgroups() && a.getSourceGroupId() == null)
+              .collect(Collectors.toList());
 
       for (AssignedGroup assignedSubgroup : automaticallyAssignedSubgroups) {
         perunBl.getResourceAssignmentChecker().removeSubgroupFromResource(resource, sourceGroups, assignedSubgroup);
@@ -92,40 +108,12 @@ public class ResourceAssignmentChecker {
 
   }
 
-  /**
-   * Filter subgroups of source group (with autoassign) which are not assigned and assign them.
-   * Runs in transaction.
-   *
-   * @param resource
-   * @param automaticallyAssignedSubgroups
-   * @param sourceGroup
-   */
-  public void assignSubgroupsToResource(Resource resource, List<AssignedGroup> automaticallyAssignedSubgroups,
-                                        AssignedGroup sourceGroup) {
-    List<Group> sourceGroupSubgroups =
-        perunBl.getGroupsManagerBl().getAllSubGroups(sess, sourceGroup.getEnrichedGroup().getGroup());
-    sourceGroupSubgroups = sourceGroupSubgroups.stream()
-        .filter(sourceSubgroup -> automaticallyAssignedSubgroups.stream()
-            .noneMatch(assignedSubgroup ->
-                assignedSubgroup.getSourceGroupId() == sourceGroup.getEnrichedGroup().getGroup().getId()
-                    && assignedSubgroup.getEnrichedGroup().getGroup().equals(sourceSubgroup)))
-        .collect(Collectors.toList());
-
-    for (Group subgroup : sourceGroupSubgroups) {
-      try {
-        perunBl.getResourcesManagerBl()
-            .assignAutomaticGroupToResource(sess, sourceGroup.getEnrichedGroup().getGroup(), subgroup, resource);
-      } catch (GroupResourceMismatchException e) {
-        log.error("Cannot activate group (id = " + subgroup.getId() + ") assignment on resource " + resource, e);
-      } catch (GroupAlreadyAssignedException | WrongReferenceAttributeValueException | WrongAttributeValueException e) {
-        // silently skip
-      }
-    }
+  public PerunBl getPerunBl() {
+    return perunBl;
   }
 
   /**
-   * Remove assigned subgroup which source group is not assigned as source group.
-   * Runs in transaction.
+   * Remove assigned subgroup which source group is not assigned as source group. Runs in transaction.
    *
    * @param resource
    * @param sourceGroups
@@ -137,8 +125,7 @@ public class ResourceAssignmentChecker {
 
     try {
       Group srcGroup = perunBl.getGroupsManagerBl().getGroupById(sess, assignedSubgroup.getSourceGroupId());
-      sourceIsAssigned = sourceGroups.stream()
-          .anyMatch(s -> s.getEnrichedGroup().getGroup().equals(srcGroup));
+      sourceIsAssigned = sourceGroups.stream().anyMatch(s -> s.getEnrichedGroup().getGroup().equals(srcGroup));
     } catch (GroupNotExistsException e) {
       sourceIsAssigned = false;
     }
@@ -152,6 +139,10 @@ public class ResourceAssignmentChecker {
         // skip silently, already removed
       }
     }
+  }
+
+  public void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
   }
 
 }

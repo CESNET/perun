@@ -1,5 +1,11 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static cz.metacentrum.perun.core.impl.Utils.EMAIL_PATTERN;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupExchangeMailAliasesUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupExchangeMailUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailUrn;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -13,84 +19,32 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import static cz.metacentrum.perun.core.impl.Utils.emailPattern;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupExchangeMailAliasesUrn;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupExchangeMailUrn;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsUrn;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailUrn;
-
 /**
  * Attribute module for storing preferred mail of a user at VŠUP.
  * <p>
- * It is by default filled from u:d:vsupExchangeMail or u:d:vsupMail (changing domain in value to @umprum.cz),
- * but it can be set manually to any value (even outside of @vsup.cz and @umprum.cz domains) or can be empty.
+ * It is by default filled from u:d:vsupExchangeMail or u:d:vsupMail (changing domain in value to @umprum.cz), but it
+ * can be set manually to any value (even outside of @vsup.cz and @umprum.cz domains) or can be empty.
  * <p>
  * If it is empty, value might be set by setting source attributes u:d:vsupMail or u:d:vsupExchangeMail.
  * <p>
- * On value change, map of usedMails in entityless attributes is checked and updated.
- * Also, value is copied to u:d:preferredMail so admin can see preferred mail in old GUI.
+ * On value change, map of usedMails in entityless attributes is checked and updated. Also, value is copied to
+ * u:d:preferredMail so admin can see preferred mail in old GUI.
  * <p>
- * Since filled value by this module might be NULL at the time of processing, we must allow NULL value in checkAttributeSemantics(),
- * because when all mail attributes are required and set at once, we can't ensure correct processing order of related attributes
- * and it might perform check on old value, because of setRequiredAttributes() implementation uses in memory value instead of refreshing from DB.
+ * Since filled value by this module might be NULL at the time of processing, we must allow NULL value in
+ * checkAttributeSemantics(), because when all mail attributes are required and set at once, we can't ensure correct
+ * processing order of related attributes and it might perform check on old value, because of setRequiredAttributes()
+ * implementation uses in memory value instead of refreshing from DB.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttributesModuleAbstract
     implements UserAttributesModuleImplApi {
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongAttributeValueException {
-
-    // we must allow null, since when setting required attributes all at once, value might not be filled yet
-    // if vsupMail or vsupExchangeMail is empty, but it's checked by method impl.
-
-    if (attribute.getValue() == null) {
-      return; // throw new WrongAttributeValueException(attribute, user, "Preferred mail can't be null.");
-    }
-
-    // standard email pattern !!
-    Matcher emailMatcher = emailPattern.matcher((String) attribute.getValue());
-    if (!emailMatcher.find()) {
-      throw new WrongAttributeValueException(attribute, user, "School Preferred Mail is not in a correct form.");
-    }
-
-    // We check uniqueness on all related attributes change, so we don't need to do it here.
-
-  }
-
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute)
-      throws WrongAttributeAssignmentException {
-
-    // Fill attribute preferably from u:d:vsupExchangeMail or u:d:vsupMail as backup
-    Attribute resultAttribute = new Attribute(attribute);
-    try {
-      Attribute vsupExchangeMail =
-          session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailUrn);
-      if (vsupExchangeMail.getValue() != null) {
-        resultAttribute.setValue(vsupExchangeMail.getValue());
-      } else {
-        Attribute vsupMail = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
-        if (vsupMail.getValue() != null) {
-          // We modify base mail domain, as we want to preferably use "@umprum.cz"
-          resultAttribute.setValue(vsupMail.valueAsString().replace("@vsup.cz", "@umprum.cz"));
-        }
-      }
-
-    } catch (AttributeNotExistsException e) {
-      throw new ConsistencyErrorException("Related VŠUP mail attributes not exists.", e);
-    }
-    return resultAttribute;
-  }
 
   @Override
   public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute)
@@ -128,7 +82,8 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 
     if (attribute.getValue() == null && reservedMailsAttribute.getValue() == null) {
       throw new ConsistencyErrorException(
-          "User attribute 'urn:perun:user:attribute-def:def:usedMails' is empty, but we are removing 'vsupPreferredMail' value, so there should have been entry in usedMails attribute.");
+          "User attribute 'urn:perun:user:attribute-def:def:usedMails' is empty, but we are removing " +
+          "'vsupPreferredMail' value, so there should have been entry in usedMails attribute.");
     }
 
     // get value from reserved mails attribute
@@ -196,6 +151,52 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
   }
 
   @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+
+    // we must allow null, since when setting required attributes all at once, value might not be filled yet
+    // if vsupMail or vsupExchangeMail is empty, but it's checked by method impl.
+
+    if (attribute.getValue() == null) {
+      return; // throw new WrongAttributeValueException(attribute, user, "Preferred mail can't be null.");
+    }
+
+    // standard email pattern !!
+    Matcher emailMatcher = EMAIL_PATTERN.matcher((String) attribute.getValue());
+    if (!emailMatcher.find()) {
+      throw new WrongAttributeValueException(attribute, user, "School Preferred Mail is not in a correct form.");
+    }
+
+    // We check uniqueness on all related attributes change, so we don't need to do it here.
+
+  }
+
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException {
+
+    // Fill attribute preferably from u:d:vsupExchangeMail or u:d:vsupMail as backup
+    Attribute resultAttribute = new Attribute(attribute);
+    try {
+      Attribute vsupExchangeMail =
+          session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailUrn);
+      if (vsupExchangeMail.getValue() != null) {
+        resultAttribute.setValue(vsupExchangeMail.getValue());
+      } else {
+        Attribute vsupMail = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
+        if (vsupMail.getValue() != null) {
+          // We modify base mail domain, as we want to preferably use "@umprum.cz"
+          resultAttribute.setValue(vsupMail.valueAsString().replace("@vsup.cz", "@umprum.cz"));
+        }
+      }
+
+    } catch (AttributeNotExistsException e) {
+      throw new ConsistencyErrorException("Related VŠUP mail attributes not exists.", e);
+    }
+    return resultAttribute;
+  }
+
+  @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
@@ -203,7 +204,8 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
     attr.setDisplayName("School preferred mail");
     attr.setType(String.class.getName());
     attr.setDescription(
-        "Preferred mail used for VŠUP internal services. Pre-filled from vsupMailAlias or vsupMail, but can be custom value.");
+        "Preferred mail used for VŠUP internal services. Pre-filled from vsupMailAlias or vsupMail, but can be custom" +
+        " value.");
     return attr;
   }
 

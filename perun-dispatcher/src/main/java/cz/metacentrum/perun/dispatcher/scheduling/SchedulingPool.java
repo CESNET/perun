@@ -37,41 +37,9 @@ public interface SchedulingPool extends TaskStore {
   int addToPool(Task task) throws TaskStoreException;
 
   /**
-   * Adds supplied Task into DelayQueue and reset its source updated flag to false if Task is eligible for running.
-   * <p>
-   * Forced Tasks will have delay set to 0, other will use system property: "dispatcher.task.delay.time"
-   * Also forced Tasks will have delayCount set to 0.
-   * <p>
-   * Always retrieve Service/Facility from DB to cross-check actual data.
-   * Check if Service/Facility exists and has connection and is not blocked.
-   * <p>
-   * If check fails, Task is not scheduled.
-   * If passes, status is changed to WAITING and timestamps are re-set.
-   * If Task was already in WAITING, timestamps are kept (so we could tell, when it was scheduled first time).
-   *
-   * @param task       Task to schedule propagation for
-   * @param delayCount How long to wait before sending to engine
-   */
-  void scheduleTask(Task task, int delayCount);
-
-  /**
-   * Loads Tasks persisted in the database into internal scheduling pool maps.
-   * Immediately restart propagation of previously processing Tasks.
-   * Error and Done Tasks might be reschedule later by PropagationMaintainer.
-   */
-  void reloadTasks();
-
-  /**
    * Clear all in-memory state of Tasks. Called during reloading of Tasks from DB.
    */
   void clear();
-
-  /**
-   * Return string representation of pool content like "TaskStatus = tasks count" for each TaskStatus.
-   *
-   * @return String representation of pool content
-   */
-  String getReport();
 
   /**
    * Switch all processing Tasks to ERROR if engine was restarted.
@@ -79,13 +47,11 @@ public interface SchedulingPool extends TaskStore {
   void closeTasksForEngine();
 
   /**
-   * Store change in Task status sent from Engine.
+   * Return string representation of pool content like "TaskStatus = tasks count" for each TaskStatus.
    *
-   * @param taskId ID of Task to update
-   * @param status TaskStatus to set
-   * @param date   Timestamp of change (string)
+   * @return String representation of pool content
    */
-  void onTaskStatusChange(int taskId, String status, String date);
+  String getReport();
 
   /**
    * Store TaskResult sent from Engine.
@@ -100,5 +66,37 @@ public interface SchedulingPool extends TaskStore {
    * @param taskResult TaskResult object
    */
   void onTaskDestinationComplete(TaskResult taskResult);
+
+  /**
+   * Store change in Task status sent from Engine.
+   *
+   * @param taskId ID of Task to update
+   * @param status TaskStatus to set
+   * @param date   Timestamp of change (string)
+   */
+  void onTaskStatusChange(int taskId, String status, String date);
+
+  /**
+   * Loads Tasks persisted in the database into internal scheduling pool maps. Immediately restart propagation of
+   * previously processing Tasks. Error and Done Tasks might be reschedule later by PropagationMaintainer.
+   */
+  void reloadTasks();
+
+  /**
+   * Adds supplied Task into DelayQueue and reset its source updated flag to false if Task is eligible for running.
+   * <p>
+   * Forced Tasks will have delay set to 0, other will use system property: "dispatcher.task.delay.time" Also forced
+   * Tasks will have delayCount set to 0.
+   * <p>
+   * Always retrieve Service/Facility from DB to cross-check actual data. Check if Service/Facility exists and has
+   * connection and is not blocked.
+   * <p>
+   * If check fails, Task is not scheduled. If passes, status is changed to WAITING and timestamps are re-set. If Task
+   * was already in WAITING, timestamps are kept (so we could tell, when it was scheduled first time).
+   *
+   * @param task       Task to schedule propagation for
+   * @param delayCount How long to wait before sending to engine
+   */
+  void scheduleTask(Task task, int delayCount);
 
 }

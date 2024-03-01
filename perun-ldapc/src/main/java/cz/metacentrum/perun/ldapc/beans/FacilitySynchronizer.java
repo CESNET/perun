@@ -6,22 +6,21 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunFacility;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.naming.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.naming.Name;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 
 @Component
 public class FacilitySynchronizer extends AbstractSynchronizer {
 
-  private final static Logger log = LoggerFactory.getLogger(FacilitySynchronizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FacilitySynchronizer.class);
 
   @Autowired
   protected PerunFacility perunFacility;
@@ -32,7 +31,7 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
     boolean shouldWriteExceptionLog = true;
 
     try {
-      log.debug("Getting list of facilities");
+      LOG.debug("Getting list of facilities");
 
       List<Facility> facilities = perun.getFacilitiesManagerBl().getFacilities(ldapcManager.getPerunSession());
 
@@ -41,9 +40,9 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
         presentFacilities.add(perunFacility.getEntryDN(String.valueOf(facility.getId())));
 
         try {
-          log.debug("Synchronizing facility {}", facility);
+          LOG.debug("Synchronizing facility {}", facility);
 
-          log.debug("Getting list of attributes for facility {}", facility.getId());
+          LOG.debug("Getting list of attributes for facility {}", facility.getId());
           List<Attribute> attrs = new ArrayList<Attribute>();
           List<String> attrNames = fillPerunAttributeNames(perunFacility.getPerunAttributeNames());
           try {
@@ -51,17 +50,17 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
             attrs.addAll(
                 perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), facility, attrNames));
           } catch (PerunRuntimeException e) {
-            log.warn("No attributes {} found for facility {}: {}", attrNames, facility.getId(), e.getMessage());
+            LOG.warn("No attributes {} found for facility {}: {}", attrNames, facility.getId(), e.getMessage());
             shouldWriteExceptionLog = false;
             throw new InternalErrorException(e);
           }
-          log.debug("Got attributes {}", attrs.toString());
+          LOG.debug("Got attributes {}", attrs.toString());
 
           perunFacility.synchronizeFacility(facility, attrs);
 
         } catch (PerunRuntimeException e) {
           if (shouldWriteExceptionLog) {
-            log.error("Error synchronizing facility", e);
+            LOG.error("Error synchronizing facility", e);
           }
           shouldWriteExceptionLog = false;
           throw new InternalErrorException(e);
@@ -69,15 +68,15 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
       }
 
       try {
-        removeOldEntries(perunFacility, presentFacilities, log);
+        removeOldEntries(perunFacility, presentFacilities, LOG);
       } catch (InternalErrorException e) {
-        log.error("Error removing old facility entries", e);
+        LOG.error("Error removing old facility entries", e);
         shouldWriteExceptionLog = false;
         throw new InternalErrorException(e);
       }
     } catch (PerunRuntimeException e) {
       if (shouldWriteExceptionLog) {
-        log.error("Error reading list of facilities", e);
+        LOG.error("Error reading list of facilities", e);
       }
       throw new InternalErrorException(e);
     }

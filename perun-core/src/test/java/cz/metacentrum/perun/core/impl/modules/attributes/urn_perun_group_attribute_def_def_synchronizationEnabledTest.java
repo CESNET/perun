@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -9,16 +12,9 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.LinkedHashMap;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_group_attribute_def_def_synchronizationEnabledTest {
 
@@ -56,14 +52,6 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabledTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testMissingReqAttribute() throws Exception {
-    System.out.println("testMissingReqAttribute()");
-    attributeToCheck.setValue("true");
-
-    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
   public void testConflictingAttributeSet() throws Exception {
     System.out.println("testConflictingAttributeSet()");
 
@@ -77,16 +65,6 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabledTest {
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testGroupInAutoRegister() throws Exception {
-    System.out.println("testMissingGroupInAutoRegister()");
-    attributeToCheck.setValue("true");
-
-    when(sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)).thenReturn(true);
-
-    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
-  }
-
   @Test
   public void testCorrectSemantics() throws Exception {
     System.out.println("testCorrectSemantics()");
@@ -94,14 +72,6 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabledTest {
     reqAttribute.setValue("value");
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongSyntax() throws Exception {
-    System.out.println("testWrongSyntax()");
-    attributeToCheck.setValue("value");
-
-    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
   }
 
   @Test
@@ -112,6 +82,32 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabledTest {
     classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
 
     attributeToCheck.setValue("false");
+    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testGroupInAutoRegister() throws Exception {
+    System.out.println("testMissingGroupInAutoRegister()");
+    attributeToCheck.setValue("true");
+
+    when(sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)).thenReturn(true);
+
+    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testMissingReqAttribute() throws Exception {
+    System.out.println("testMissingReqAttribute()");
+    attributeToCheck.setValue("true");
+
+    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongSyntax() throws Exception {
+    System.out.println("testWrongSyntax()");
+    attributeToCheck.setValue("value");
+
     classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
   }
 

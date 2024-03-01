@@ -2,16 +2,15 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This is a specific version of SQL extSource extension for SQL Complex.
- * There is a new parameter which prepare complex sql query to be used by filling two parameters instead of whole
- * sql query (to prevent duplicity of the same sql query for every affected group
+ * This is a specific version of SQL extSource extension for SQL Complex. There is a new parameter which prepare complex
+ * sql query to be used by filling two parameters instead of whole sql query (to prevent duplicity of the same sql query
+ * for every affected group
  */
 public class ExtSourceINET extends ExtSourceSqlComplex {
 

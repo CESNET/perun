@@ -53,7 +53,7 @@ import java.util.Map;
  */
 public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "settings";
+  public static final String URL = "settings";
   final VerticalPanel vp = new VerticalPanel();
   ScrollPanel sp = new ScrollPanel();
   ScrollPanel sp2 = new ScrollPanel();

@@ -25,12 +25,12 @@ public class SponsorshipRemoved extends AuditEvent {
     return message;
   }
 
-  public Member getSponsoredMember() {
-    return sponsoredMember;
-  }
-
   public User getSponsor() {
     return sponsor;
+  }
+
+  public Member getSponsoredMember() {
+    return sponsoredMember;
   }
 
   @Override

@@ -18,14 +18,6 @@ public class HashedGenData {
     this.hierarchy.put(facilityId, hierarchy);
   }
 
-  public Map<String, Map<String, Object>> getAttributes() {
-    return attributes;
-  }
-
-  public Map<Integer, GenDataNode> getHierarchy() {
-    return hierarchy;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -35,8 +27,15 @@ public class HashedGenData {
       return false;
     }
     HashedGenData that = (HashedGenData) o;
-    return Objects.equals(getAttributes(), that.getAttributes()) &&
-        Objects.equals(getHierarchy(), that.getHierarchy());
+    return Objects.equals(getAttributes(), that.getAttributes()) && Objects.equals(getHierarchy(), that.getHierarchy());
+  }
+
+  public Map<String, Map<String, Object>> getAttributes() {
+    return attributes;
+  }
+
+  public Map<Integer, GenDataNode> getHierarchy() {
+    return hierarchy;
   }
 
   @Override
@@ -46,9 +45,6 @@ public class HashedGenData {
 
   @Override
   public String toString() {
-    return "HashedGenData[" +
-        "attributes=" + attributes +
-        ", hierarchy=" + hierarchy +
-        ']';
+    return "HashedGenData[" + "attributes=" + attributes + ", hierarchy=" + hierarchy + ']';
   }
 }

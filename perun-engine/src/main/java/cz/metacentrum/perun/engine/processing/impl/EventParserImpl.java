@@ -5,37 +5,36 @@ import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.engine.exceptions.InvalidEventMessageException;
 import cz.metacentrum.perun.engine.processing.EventParser;
 import cz.metacentrum.perun.taskslib.model.Task;
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 @org.springframework.stereotype.Service(value = "eventParser")
 public class EventParserImpl implements EventParser {
-  private static final Logger log = LoggerFactory
-      .getLogger(EventParserImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EventParserImpl.class);
 
   @Autowired
   private Properties propertiesBean;
+
+  public Properties getPropertiesBean() {
+    return propertiesBean;
+  }
 
   @Override
   public Task parseEvent(String event) throws InvalidEventMessageException {
 
 
-    log.info("Going to process event: {}", event);
+    LOG.info("Going to process event: {}", event);
 
     /*
      * Expected string format:
@@ -51,7 +50,7 @@ public class EventParserImpl implements EventParser {
     boolean matchFound = matcher.find();
 
     if (matchFound) {
-      log.debug("Message format matched ok...");
+      LOG.debug("Message format matched ok...");
       // Data should provide information regarding the target Service (Processing rule).
       String eventTaskId = matcher.group(1);
       String eventIsForced = matcher.group(2);
@@ -79,7 +78,8 @@ public class EventParserImpl implements EventParser {
         throw new InvalidEventMessageException("Wrong destination list: parse exception");
       }
 
-      log.debug("Event data to be parsed: task id {}, forced {}, facility {}, service {}, destination list {}",
+
+      LOG.debug("Event data to be parsed: task id {}, forced {}, facility {}, service {}, destination list {}",
           eventTaskId, eventIsForced, eventFacility, eventService, eventDestinationList);
 
       // Prepare variables
@@ -92,9 +92,7 @@ public class EventParserImpl implements EventParser {
       try {
         facility = (Facility) listOfBeans.get(0);
       } catch (Exception e) {
-        throw new InvalidEventMessageException(
-            "Could not resolve facility from event ["
-                + eventFacility + "]", e);
+        throw new InvalidEventMessageException("Could not resolve facility from event [" + eventFacility + "]", e);
       }
 
       // resolve exec service and deserialize event data
@@ -107,14 +105,13 @@ public class EventParserImpl implements EventParser {
 
       // resolve list of destinations
       listOfBeans = AuditParser.parseLog(eventDestinationList);
-      log.debug("Found list of destination beans: {}", listOfBeans);
+      LOG.debug("Found list of destination beans: {}", listOfBeans);
       try {
         for (PerunBean bean : listOfBeans) {
           destinationList.add((Destination) bean);
         }
       } catch (Exception e) {
-        throw new InvalidEventMessageException(
-            "Could not resolve list of destinations from event.", e);
+        throw new InvalidEventMessageException("Could not resolve list of destinations from event.", e);
       }
 
       Task task = new Task();
@@ -129,13 +126,8 @@ public class EventParserImpl implements EventParser {
       return task;
 
     } else {
-      throw new InvalidEventMessageException(
-          "Invalid message format: Message[" + event + "]");
+      throw new InvalidEventMessageException("Invalid message format: Message[" + event + "]");
     }
-  }
-
-  public Properties getPropertiesBean() {
-    return propertiesBean;
   }
 
   public void setPropertiesBean(Properties propertiesBean) {

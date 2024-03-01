@@ -63,15 +63,14 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.ResourceAssignmentChecker;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.ResourceAssignmentActivatorApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanInitializationException;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 
 /**
  * Implementation of Perun.
@@ -80,11 +79,11 @@ import java.util.Arrays;
  */
 public class PerunBlImpl implements PerunBl {
 
-  final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
-  private final static Set<String> dontLookupUsersForLogins = BeansUtils.getCoreConfig().getDontLookupUsers();
-  private final static Set<String> extSourcesWithMultipleIdentifiers =
+  static final Logger LOG = LoggerFactory.getLogger(PerunBlImpl.class);
+  private static final Set<String> DONT_LOOKUP_USERS_FOR_LOGINS = BeansUtils.getCoreConfig().getDontLookupUsers();
+  private static final Set<String> EXT_SOURCES_WITH_MULTIPLE_IDENTIFIERS =
       BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
-  private final static boolean lookupUserByIdentifiersAndExtSourceLogin =
+  private static final boolean LOOKUP_USER_BY_IDENTIFIERS_AND_EXT_SOURCE_LOGIN =
       BeansUtils.getCoreConfig().getLookupUserByIdentifiersAndExtSourceLogin();
   private CoreConfig coreConfig;
   private VosManager vosManager = null;
@@ -137,12 +136,151 @@ public class PerunBlImpl implements PerunBl {
     this.auditer = auditer;
   }
 
+  private void checkExternalProgramDependencies() {
+    List<String> programNames = coreConfig.getExternalProgramsDependencies();
+    for (String programName : programNames) {
+      int exitCode;
+      try {
+        Process process = new ProcessBuilder("which", programName).start();
+        exitCode = process.waitFor();
+      } catch (Exception e) {
+        exitCode = 1;
+      }
+      if (exitCode != 0) {
+        LOG.error("Required external program {} was not found. Abandoning perun initialization.", programName);
+        throw new BeanInitializationException("Required external program " + programName + " was not found.");
+      }
+    }
+  }
+
+  /**
+   * Called when Perun is shutting down to clean up opened resources.
+   */
+  public void destroy() {
+    LOG.debug("destroying");
+    this.extSourcesManagerBl.destroy();
+  }
+
+  @Override
+  public AttributesManager getAttributesManager() {
+    return attributesManager;
+  }
+
+  @Override
+  public AttributesManagerBl getAttributesManagerBl() {
+    return attributesManagerBl;
+  }
+
+  public AttributesManagerImplApi getAttributesManagerImpl() {
+    return attributesManagerImpl;
+  }
+
+  @Override
+  public AuditMessagesManager getAuditMessagesManager() {
+    return auditMessagesManager;
+  }
+
+  @Override
+  public AuditMessagesManagerBl getAuditMessagesManagerBl() {
+    return auditMessagesManagerBl;
+  }
+
+  @Override
+  public Auditer getAuditer() {
+    return this.auditer;
+  }
+
+  @Override
+  public ConfigManager getConfigManager() {
+    return configManager;
+  }
+
+  @Override
+  public ConfigManagerBl getConfigManagerBl() {
+    return configManagerBl;
+  }
+
+  @Override
+  public ConsentsManager getConsentsManager() {
+    return consentsManager;
+  }
+
+  @Override
+  public ConsentsManagerBl getConsentsManagerBl() {
+    return consentsManagerBl;
+  }
+
+  @Override
+  public DatabaseManager getDatabaseManager() {
+    return databaseManager;
+  }
+
+  @Override
+  public DatabaseManagerBl getDatabaseManagerBl() {
+    return databaseManagerBl;
+  }
+
+  @Override
+  public ExtSourcesManager getExtSourcesManager() {
+    return extSourcesManager;
+  }
+
+  @Override
+  public ExtSourcesManagerBl getExtSourcesManagerBl() {
+    return extSourcesManagerBl;
+  }
+
+  @Override
+  public FacilitiesManager getFacilitiesManager() {
+    return facilitiesManager;
+  }
+
+  @Override
+  public FacilitiesManagerBl getFacilitiesManagerBl() {
+    return facilitiesManagerBl;
+  }
+
+  @Override
+  public GroupsManager getGroupsManager() {
+    return groupsManager;
+  }
+
+  @Override
+  public GroupsManagerBl getGroupsManagerBl() {
+    return groupsManagerBl;
+  }
+
+  @Override
+  public MembersManager getMembersManager() {
+    return membersManager;
+  }
+
+  @Override
+  public MembersManagerBl getMembersManagerBl() {
+    return membersManagerBl;
+  }
+
+  @Override
+  public ModulesUtilsBl getModulesUtilsBl() {
+    return modulesUtilsBl;
+  }
+
+  @Override
+  public OwnersManager getOwnersManager() {
+    return ownersManager;
+  }
+
+  @Override
+  public OwnersManagerBl getOwnersManagerBl() {
+    return ownersManagerBl;
+  }
+
   @Override
   public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) {
     PerunSessionImpl perunSession = new PerunSessionImpl(this, principal, client);
-    log.debug("creating PerunSession for user {}", principal.getActor());
+    LOG.debug("creating PerunSession for user {}", principal.getActor());
     if (principal.getUser() == null && usersManagerBl != null &&
-        !dontLookupUsersForLogins.contains(principal.getActor())) {
+        !DONT_LOOKUP_USERS_FOR_LOGINS.contains(principal.getActor())) {
       // Get the user if we are completely initialized
       try {
         PerunSession internalSession = getPerunSession();
@@ -155,12 +293,12 @@ public class PerunBlImpl implements PerunBl {
           String shibIdentityProvider =
               principal.getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
           boolean findByExtSourceNameAndLogin = true;
-          if (shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
+          if (shibIdentityProvider != null && EXT_SOURCES_WITH_MULTIPLE_IDENTIFIERS.contains(shibIdentityProvider)) {
             try {
               findByExtSourceNameAndLogin = false;
               ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
             } catch (UserExtSourceNotExistsException ex) {
-              findByExtSourceNameAndLogin = lookupUserByIdentifiersAndExtSourceLogin;
+              findByExtSourceNameAndLogin = LOOKUP_USER_BY_IDENTIFIERS_AND_EXT_SOURCE_LOGIN;
             }
           }
           if (findByExtSourceNameAndLogin) {
@@ -190,9 +328,275 @@ public class PerunBlImpl implements PerunBl {
   }
 
   /**
-   * Store values from map "additionalAttributes" as UserExtSource attributes to specified UES.
-   * Used internally when session is initialized and when user is self-created through registration.
-   * Only specific map keys are stored, based on Perun config for UES type.
+   * This method is used only internally.
+   */
+  private PerunSession getPerunSession() {
+    PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL);
+    PerunClient client = new PerunClient();
+    return new PerunSessionImpl(this, principal, client);
+  }
+
+  @Override
+  public RTMessagesManager getRTMessagesManager() {
+    return rtMessagesManager;
+  }
+
+  @Override
+  public RTMessagesManagerBl getRTMessagesManagerBl() {
+    return rtMessagesManagerBl;
+  }
+
+  @Override
+  public ResourceAssignmentActivatorApi getResourceAssignmentActivator() {
+    return this.resourceAssignmentActivator;
+  }
+
+  @Override
+  public ResourceAssignmentChecker getResourceAssignmentChecker() {
+    return resourceAssignmentChecker;
+  }
+
+  @Override
+  public ResourcesManager getResourcesManager() {
+    return resourcesManager;
+  }
+
+  @Override
+  public ResourcesManagerBl getResourcesManagerBl() {
+    return resourcesManagerBl;
+  }
+
+  @Override
+  public Searcher getSearcher() {
+    return searcher;
+  }
+
+  @Override
+  public SearcherBl getSearcherBl() {
+    return searcherBl;
+  }
+
+  @Override
+  public SecurityTeamsManager getSecurityTeamsManager() {
+    return securityTeamsManager;
+  }
+
+  @Override
+  public SecurityTeamsManagerBl getSecurityTeamsManagerBl() {
+    return securityTeamsManagerBl;
+  }
+
+  @Override
+  public ServicesManager getServicesManager() {
+    return servicesManager;
+  }
+
+  @Override
+  public ServicesManagerBl getServicesManagerBl() {
+    return servicesManagerBl;
+  }
+
+  @Override
+  public TasksManager getTasksManager() {
+    return tasksManager;
+  }
+
+  @Override
+  public TasksManagerBl getTasksManagerBl() {
+    return tasksManagerBl;
+  }
+
+  @Override
+  public UsersManager getUsersManager() {
+    return usersManager;
+  }
+
+  @Override
+  public UsersManagerBl getUsersManagerBl() {
+    return usersManagerBl;
+  }
+
+  @Override
+  public VosManager getVosManager() {
+    return vosManager;
+  }
+
+  @Override
+  public VosManagerBl getVosManagerBl() {
+    return vosManagerBl;
+  }
+
+  /**
+   * Call managers' initialization methods
+   */
+  public void initialize() {
+    checkExternalProgramDependencies();
+    this.extSourcesManagerBl.initialize(this.getPerunSession());
+    this.auditer.initialize();
+  }
+
+  @Override
+  public boolean isPerunReadOnly() {
+    return BeansUtils.isPerunReadOnly();
+  }
+
+  public void setAttributesManager(AttributesManager attributesManager) {
+    this.attributesManager = attributesManager;
+  }
+
+  public void setAttributesManagerBl(AttributesManagerBl attributesManagerBl) {
+    this.attributesManagerBl = attributesManagerBl;
+  }
+
+  public void setAttributesManagerImpl(AttributesManagerImplApi attributesManagerImpl) {
+    this.attributesManagerImpl = attributesManagerImpl;
+  }
+
+  public void setAuditMessagesManager(AuditMessagesManager auditMessagesManager) {
+    this.auditMessagesManager = auditMessagesManager;
+  }
+
+  public void setAuditMessagesManagerBl(AuditMessagesManagerBl auditMessagesManagerBl) {
+    this.auditMessagesManagerBl = auditMessagesManagerBl;
+  }
+
+  public void setAuditer(Auditer auditer) {
+    this.auditer = auditer;
+  }
+
+  public void setConfigManager(ConfigManager configManager) {
+    this.configManager = configManager;
+  }
+
+  public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
+    this.configManagerBl = configManagerBl;
+  }
+
+  public void setConsentsManager(ConsentsManager consentsManager) {
+    this.consentsManager = consentsManager;
+  }
+
+  public void setConsentsManagerBl(ConsentsManagerBl consentsManagerBl) {
+    this.consentsManagerBl = consentsManagerBl;
+  }
+
+  public void setCoreConfig(CoreConfig coreConfig) {
+    this.coreConfig = coreConfig;
+  }
+
+  public void setDatabaseManager(DatabaseManager databaseManager) {
+    this.databaseManager = databaseManager;
+  }
+
+  public void setDatabaseManagerBl(DatabaseManagerBl databaseManagerBl) {
+    this.databaseManagerBl = databaseManagerBl;
+  }
+
+  public void setExtSourcesManager(ExtSourcesManager extSourcesManager) {
+    this.extSourcesManager = extSourcesManager;
+  }
+
+  public void setExtSourcesManagerBl(ExtSourcesManagerBl extSourcesManagerBl) {
+    this.extSourcesManagerBl = extSourcesManagerBl;
+  }
+
+  public void setFacilitiesManager(FacilitiesManager facilitiesManager) {
+    this.facilitiesManager = facilitiesManager;
+  }
+
+  public void setFacilitiesManagerBl(FacilitiesManagerBl facilitiesManagerBl) {
+    this.facilitiesManagerBl = facilitiesManagerBl;
+  }
+
+  public void setGroupsManager(GroupsManager groupsManager) {
+    this.groupsManager = groupsManager;
+  }
+
+  public void setGroupsManagerBl(GroupsManagerBl groupsManagerBl) {
+    this.groupsManagerBl = groupsManagerBl;
+  }
+
+  public void setMembersManager(MembersManager membersManager) {
+    this.membersManager = membersManager;
+  }
+
+  public void setMembersManagerBl(MembersManagerBl membersManagerBl) {
+    this.membersManagerBl = membersManagerBl;
+  }
+
+  public void setModulesUtilsBl(ModulesUtilsBl modulesUtilsBl) {
+    this.modulesUtilsBl = modulesUtilsBl;
+  }
+
+  public void setOwnersManager(OwnersManager ownersManager) {
+    this.ownersManager = ownersManager;
+  }
+
+  public void setOwnersManagerBl(OwnersManagerBl ownersManagerBl) {
+    this.ownersManagerBl = ownersManagerBl;
+  }
+
+  public void setRTMessagesManager(RTMessagesManager rtMessagesManager) {
+    this.rtMessagesManager = rtMessagesManager;
+  }
+
+  public void setRTMessagesManagerBl(RTMessagesManagerBl rtMessagesManagerBl) {
+    this.rtMessagesManagerBl = rtMessagesManagerBl;
+  }
+
+  public void setResourceAssignmentActivator(ResourceAssignmentActivatorApi resourceAssignmentActivator) {
+    this.resourceAssignmentActivator = resourceAssignmentActivator;
+  }
+
+  public void setResourceAssignmentChecker(ResourceAssignmentChecker resourceAssignmentChecker) {
+    this.resourceAssignmentChecker = resourceAssignmentChecker;
+  }
+
+  public void setResourcesManager(ResourcesManager resourcesManager) {
+    this.resourcesManager = resourcesManager;
+  }
+
+  public void setResourcesManagerBl(ResourcesManagerBl resourcesManagerBl) {
+    this.resourcesManagerBl = resourcesManagerBl;
+  }
+
+  public void setSearcher(Searcher searcher) {
+    this.searcher = searcher;
+  }
+
+  public void setSearcherBl(SearcherBl searcherBl) {
+    this.searcherBl = searcherBl;
+  }
+
+  public void setSecurityTeamsManager(SecurityTeamsManager securityTeamsManager) {
+    this.securityTeamsManager = securityTeamsManager;
+  }
+
+  public void setSecurityTeamsManagerBl(SecurityTeamsManagerBl securityTeamsManagerBl) {
+    this.securityTeamsManagerBl = securityTeamsManagerBl;
+  }
+
+  public void setServicesManager(ServicesManager servicesManager) {
+    this.servicesManager = servicesManager;
+  }
+
+  public void setServicesManagerBl(ServicesManagerBl servicesManagerBl) {
+    this.servicesManagerBl = servicesManagerBl;
+  }
+
+  public void setTasksManager(TasksManager tasksManager) {
+    this.tasksManager = tasksManager;
+  }
+
+  public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
+    this.tasksManagerBl = tasksManagerBl;
+  }
+
+  /**
+   * Store values from map "additionalAttributes" as UserExtSource attributes to specified UES. Used internally when
+   * session is initialized and when user is self-created through registration. Only specific map keys are stored, based
+   * on Perun config for UES type.
    *
    * @param session              PerunSession for authorization
    * @param ues                  UserExtSource to store attributes for
@@ -237,233 +641,28 @@ public class PerunBlImpl implements PerunBl {
             attributeWithValue.setValue(attrValue);
           }
 
-          log.debug("storing attribute {}='{}' for user {}", attributeWithValue.getFriendlyName(), attrValue,
+          LOG.debug("storing attribute {}='{}' for user {}", attributeWithValue.getFriendlyName(), attrValue,
               ues.getLogin());
           attributesManagerBl.setAttributeInNestedTransaction(session, ues, attributeWithValue);
         } catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException |
                  WrongReferenceAttributeValueException e) {
-          log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
+          LOG.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
         }
       }
     }
 
   }
 
-  /**
-   * This method is used only internally.
-   */
-  private PerunSession getPerunSession() {
-    PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-        ExtSourcesManager.EXTSOURCE_INTERNAL);
-    PerunClient client = new PerunClient();
-    return new PerunSessionImpl(this, principal, client);
-  }
-
-  public void setCoreConfig(CoreConfig coreConfig) {
-    this.coreConfig = coreConfig;
-  }
-
-  @Override
-  public GroupsManager getGroupsManager() {
-    return groupsManager;
-  }
-
-  public void setGroupsManager(GroupsManager groupsManager) {
-    this.groupsManager = groupsManager;
-  }
-
-  @Override
-  public FacilitiesManager getFacilitiesManager() {
-    return facilitiesManager;
-  }
-
-  public void setFacilitiesManager(FacilitiesManager facilitiesManager) {
-    this.facilitiesManager = facilitiesManager;
-  }
-
-  @Override
-  public DatabaseManager getDatabaseManager() {
-    return databaseManager;
-  }
-
-  public void setDatabaseManager(DatabaseManager databaseManager) {
-    this.databaseManager = databaseManager;
-  }
-
-  @Override
-  public UsersManager getUsersManager() {
-    return usersManager;
-  }
-
   public void setUsersManager(UsersManager usersManager) {
     this.usersManager = usersManager;
   }
 
-  @Override
-  public MembersManager getMembersManager() {
-    return membersManager;
-  }
-
-  public void setMembersManager(MembersManager membersManager) {
-    this.membersManager = membersManager;
-  }
-
-  @Override
-  public VosManager getVosManager() {
-    return vosManager;
+  public void setUsersManagerBl(UsersManagerBl usersManagerBl) {
+    this.usersManagerBl = usersManagerBl;
   }
 
   public void setVosManager(VosManager vosManager) {
     this.vosManager = vosManager;
-  }
-
-  @Override
-  public ResourcesManager getResourcesManager() {
-    return resourcesManager;
-  }
-
-  public void setResourcesManager(ResourcesManager resourcesManager) {
-    this.resourcesManager = resourcesManager;
-  }
-
-  @Override
-  public RTMessagesManager getRTMessagesManager() {
-    return rtMessagesManager;
-  }
-
-  public void setRTMessagesManager(RTMessagesManager rtMessagesManager) {
-    this.rtMessagesManager = rtMessagesManager;
-  }
-
-  @Override
-  public SecurityTeamsManager getSecurityTeamsManager() {
-    return securityTeamsManager;
-  }
-
-  public void setSecurityTeamsManager(SecurityTeamsManager securityTeamsManager) {
-    this.securityTeamsManager = securityTeamsManager;
-  }
-
-  @Override
-  public ExtSourcesManager getExtSourcesManager() {
-    return extSourcesManager;
-  }
-
-  public void setExtSourcesManager(ExtSourcesManager extSourcesManager) {
-    this.extSourcesManager = extSourcesManager;
-  }
-
-  @Override
-  public AttributesManager getAttributesManager() {
-    return attributesManager;
-  }
-
-  public void setAttributesManager(AttributesManager attributesManager) {
-    this.attributesManager = attributesManager;
-  }
-
-  @Override
-  public ServicesManager getServicesManager() {
-    return servicesManager;
-  }
-
-  public void setServicesManager(ServicesManager servicesManager) {
-    this.servicesManager = servicesManager;
-  }
-
-  @Override
-  public OwnersManager getOwnersManager() {
-    return ownersManager;
-  }
-
-  public void setOwnersManager(OwnersManager ownersManager) {
-    this.ownersManager = ownersManager;
-  }
-
-  @Override
-  public Searcher getSearcher() {
-    return searcher;
-  }
-
-  public void setSearcher(Searcher searcher) {
-    this.searcher = searcher;
-  }
-
-  @Override
-  public TasksManager getTasksManager() {
-    return tasksManager;
-  }
-
-  public void setTasksManager(TasksManager tasksManager) {
-    this.tasksManager = tasksManager;
-  }
-
-  @Override
-  public ConsentsManager getConsentsManager() {
-    return consentsManager;
-  }
-
-  public void setConsentsManager(ConsentsManager consentsManager) {
-    this.consentsManager = consentsManager;
-  }
-
-  @Override
-  public ModulesUtilsBl getModulesUtilsBl() {
-    return modulesUtilsBl;
-  }
-
-  public void setModulesUtilsBl(ModulesUtilsBl modulesUtilsBl) {
-    this.modulesUtilsBl = modulesUtilsBl;
-  }
-
-  @Override
-  public RTMessagesManagerBl getRTMessagesManagerBl() {
-    return rtMessagesManagerBl;
-  }
-
-  public void setRTMessagesManagerBl(RTMessagesManagerBl rtMessagesManagerBl) {
-    this.rtMessagesManagerBl = rtMessagesManagerBl;
-  }
-
-  @Override
-  public AuditMessagesManager getAuditMessagesManager() {
-    return auditMessagesManager;
-  }
-
-  public void setAuditMessagesManager(AuditMessagesManager auditMessagesManager) {
-    this.auditMessagesManager = auditMessagesManager;
-  }
-
-  @Override
-  public TasksManagerBl getTasksManagerBl() {
-    return tasksManagerBl;
-  }
-
-  public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
-    this.tasksManagerBl = tasksManagerBl;
-  }
-
-  @Override
-  public ConfigManager getConfigManager() {
-    return configManager;
-  }
-
-  public void setConfigManager(ConfigManager configManager) {
-    this.configManager = configManager;
-  }
-
-  @Override
-  public ConfigManagerBl getConfigManagerBl() {
-    return configManagerBl;
-  }
-
-  public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
-    this.configManagerBl = configManagerBl;
-  }
-
-  @Override
-  public VosManagerBl getVosManagerBl() {
-    return vosManagerBl;
   }
 
   public void setVosManagerBl(VosManagerBl vosManagerBl) {
@@ -471,224 +670,14 @@ public class PerunBlImpl implements PerunBl {
   }
 
   @Override
-  public UsersManagerBl getUsersManagerBl() {
-    return usersManagerBl;
-  }
-
-  public void setUsersManagerBl(UsersManagerBl usersManagerBl) {
-    this.usersManagerBl = usersManagerBl;
-  }
-
-  @Override
-  public AuditMessagesManagerBl getAuditMessagesManagerBl() {
-    return auditMessagesManagerBl;
-  }
-
-  public void setAuditMessagesManagerBl(AuditMessagesManagerBl auditMessagesManagerBl) {
-    this.auditMessagesManagerBl = auditMessagesManagerBl;
-  }
-
-  @Override
-  public MembersManagerBl getMembersManagerBl() {
-    return membersManagerBl;
-  }
-
-  public void setMembersManagerBl(MembersManagerBl membersManagerBl) {
-    this.membersManagerBl = membersManagerBl;
-  }
-
-  @Override
-  public GroupsManagerBl getGroupsManagerBl() {
-    return groupsManagerBl;
-  }
-
-  public void setGroupsManagerBl(GroupsManagerBl groupsManagerBl) {
-    this.groupsManagerBl = groupsManagerBl;
-  }
-
-  @Override
-  public FacilitiesManagerBl getFacilitiesManagerBl() {
-    return facilitiesManagerBl;
-  }
-
-  public void setFacilitiesManagerBl(FacilitiesManagerBl facilitiesManagerBl) {
-    this.facilitiesManagerBl = facilitiesManagerBl;
-  }
-
-  @Override
-  public DatabaseManagerBl getDatabaseManagerBl() {
-    return databaseManagerBl;
-  }
-
-  public void setDatabaseManagerBl(DatabaseManagerBl databaseManagerBl) {
-    this.databaseManagerBl = databaseManagerBl;
-  }
-
-  @Override
-  public ResourcesManagerBl getResourcesManagerBl() {
-    return resourcesManagerBl;
-  }
-
-  public void setResourcesManagerBl(ResourcesManagerBl resourcesManagerBl) {
-    this.resourcesManagerBl = resourcesManagerBl;
-  }
-
-  @Override
-  public ExtSourcesManagerBl getExtSourcesManagerBl() {
-    return extSourcesManagerBl;
-  }
-
-  public void setExtSourcesManagerBl(ExtSourcesManagerBl extSourcesManagerBl) {
-    this.extSourcesManagerBl = extSourcesManagerBl;
-  }
-
-  @Override
-  public AttributesManagerBl getAttributesManagerBl() {
-    return attributesManagerBl;
-  }
-
-  public void setAttributesManagerBl(AttributesManagerBl attributesManagerBl) {
-    this.attributesManagerBl = attributesManagerBl;
-  }
-
-  @Override
-  public ServicesManagerBl getServicesManagerBl() {
-    return servicesManagerBl;
-  }
-
-  public void setServicesManagerBl(ServicesManagerBl servicesManagerBl) {
-    this.servicesManagerBl = servicesManagerBl;
-  }
-
-  @Override
-  public OwnersManagerBl getOwnersManagerBl() {
-    return ownersManagerBl;
-  }
-
-  public void setOwnersManagerBl(OwnersManagerBl ownersManagerBl) {
-    this.ownersManagerBl = ownersManagerBl;
-  }
-
-  @Override
-  public SecurityTeamsManagerBl getSecurityTeamsManagerBl() {
-    return securityTeamsManagerBl;
-  }
-
-  public void setSecurityTeamsManagerBl(SecurityTeamsManagerBl securityTeamsManagerBl) {
-    this.securityTeamsManagerBl = securityTeamsManagerBl;
-  }
-
-  @Override
-  public Auditer getAuditer() {
-    return this.auditer;
-  }
-
-  public void setAuditer(Auditer auditer) {
-    this.auditer = auditer;
-  }
-
-  @Override
-  public SearcherBl getSearcherBl() {
-    return searcherBl;
-  }
-
-  public void setSearcherBl(SearcherBl searcherBl) {
-    this.searcherBl = searcherBl;
-  }
-
-  @Override
-  public ConsentsManagerBl getConsentsManagerBl() {
-    return consentsManagerBl;
-  }
-
-  public void setConsentsManagerBl(ConsentsManagerBl consentsManagerBl) {
-    this.consentsManagerBl = consentsManagerBl;
-  }
-
-  public AttributesManagerImplApi getAttributesManagerImpl() {
-    return attributesManagerImpl;
-  }
-
-  public void setAttributesManagerImpl(AttributesManagerImplApi attributesManagerImpl) {
-    this.attributesManagerImpl = attributesManagerImpl;
-  }
-
-  @Override
-  public ResourceAssignmentChecker getResourceAssignmentChecker() {
-    return resourceAssignmentChecker;
-  }
-
-  public void setResourceAssignmentChecker(ResourceAssignmentChecker resourceAssignmentChecker) {
-    this.resourceAssignmentChecker = resourceAssignmentChecker;
-  }
-
-  @Override
-  public ResourceAssignmentActivatorApi getResourceAssignmentActivator() {
-    return this.resourceAssignmentActivator;
-  }
-
-  public void setResourceAssignmentActivator(ResourceAssignmentActivatorApi resourceAssignmentActivator) {
-    this.resourceAssignmentActivator = resourceAssignmentActivator;
-  }
-
-  @Override
-  public boolean isPerunReadOnly() {
-    return BeansUtils.isPerunReadOnly();
-  }
-
-  /**
-   * Call managers' initialization methods
-   */
-  public void initialize() {
-    checkExternalProgramDependencies();
-    this.extSourcesManagerBl.initialize(this.getPerunSession());
-    this.auditer.initialize();
-  }
-
-  private void checkExternalProgramDependencies() {
-    List<String> programNames = coreConfig.getExternalProgramsDependencies();
-    for (String programName : programNames) {
-      int exitCode;
-      try {
-        Process process = new ProcessBuilder("which", programName).start();
-        exitCode = process.waitFor();
-      } catch (Exception e) {
-        exitCode = 1;
-      }
-      if (exitCode != 0) {
-        log.error("Required external program {} was not found. Abandoning perun initialization.", programName);
-        throw new BeanInitializationException("Required external program " + programName +
-            " was not found.");
-      }
-    }
-  }
-
-  /**
-   * Called when Perun is shutting down to clean up opened resources.
-   */
-  public void destroy() {
-    log.debug("destroying");
-    this.extSourcesManagerBl.destroy();
-  }
-
-  @Override
   public String toString() {
-    return getClass().getSimpleName() + ":[" +
-        "vosManager='" + vosManager + "', " +
-        "usersManager='" + usersManager + "', " +
-        "membersManager='" + membersManager + "', " +
-        "groupsManager='" + groupsManager + "', " +
-        "facilitiesManager='" + facilitiesManager + "', " +
-        "configManager='" + configManager + "', " +
-        "consentsManager='" + consentsManager + "', " +
-        "databaseManager='" + databaseManager + "', " +
-        "auditMessagesManager=" + auditMessagesManager + ", " +
-        "resourcesManager='" + resourcesManager + "', " +
-        "extSourcesManager='" + extSourcesManager + "', " +
-        "attributesManager='" + attributesManager + "', " +
-        "rtMessagesManager='" + rtMessagesManager + "', " +
-        "securityTeamsManager='" + securityTeamsManager + "', " +
-        "searcher='" + searcher + "', " +
-        "servicesManager='" + servicesManager + "']";
+    return getClass().getSimpleName() + ":[" + "vosManager='" + vosManager + "', " + "usersManager='" + usersManager +
+           "', " + "membersManager='" + membersManager + "', " + "groupsManager='" + groupsManager + "', " +
+           "facilitiesManager='" + facilitiesManager + "', " + "configManager='" + configManager + "', " +
+           "consentsManager='" + consentsManager + "', " + "databaseManager='" + databaseManager + "', " +
+           "auditMessagesManager=" + auditMessagesManager + ", " + "resourcesManager='" + resourcesManager + "', " +
+           "extSourcesManager='" + extSourcesManager + "', " + "attributesManager='" + attributesManager + "', " +
+           "rtMessagesManager='" + rtMessagesManager + "', " + "securityTeamsManager='" + securityTeamsManager + "', " +
+           "searcher='" + searcher + "', " + "servicesManager='" + servicesManager + "']";
   }
 }

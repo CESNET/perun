@@ -1,5 +1,14 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanRemovedForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanSetForFacility;
@@ -18,20 +27,10 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Michal Stava &lt;stavamichal@gmail.com&gt;
@@ -57,25 +56,6 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
   public urn_perun_member_resource_attribute_def_virt_isBannedTest() {
   }
 
-  @Before
-  public void setUp() {
-    classInstance = new urn_perun_member_resource_attribute_def_virt_isBanned();
-    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-    facility = new Facility(1, "testFacility");
-    resource = new Resource(1, "testResource", "des\nc", 1, 1);
-    vo = new Vo(1, "testVo", "desc");
-    user = new User(1, "name", "surname", "middlename", "title", "title");
-    member = new Member(1, 1, 1, Status.VALID);
-    isBanned = new Attribute(classInstance.getAttributeDefinition());
-    event1 = new BanSetForResource(new BanOnResource(), member.getId(), resource.getId());
-    event2 = new BanUpdatedForResource(new BanOnResource(), member.getId(), resource.getId());
-    event3 = new BanRemovedForResource(new BanOnResource(), member.getId(), resource.getId());
-    event4 = new BanSetForFacility(new BanOnFacility(), user.getId(), facility.getId());
-    event5 = new BanUpdatedForFacility(new BanOnFacility(), user.getId(), facility.getId());
-    event6 = new BanRemovedForFacility(new BanOnFacility(), user.getId(), facility.getId());
-    wrongEvent = new SecurityTeamAssignedToFacility();
-  }
-
   @Test
   public void resolveVirtualAttributeValueChangeTest() throws Exception {
     System.out.println(
@@ -96,15 +76,15 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
     assertEquals(resolvedEvents.size(), 1);
     assertEquals(resolvedEvents.get(0).getMessage(),
         isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " +
-            member.serializeToString() + ".");
+        member.serializeToString() + ".");
     resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event2);
     assertEquals(resolvedEvents.get(0).getMessage(),
         isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " +
-            member.serializeToString() + ".");
+        member.serializeToString() + ".");
     resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event3);
     assertEquals(resolvedEvents.get(0).getMessage(),
         isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " +
-            member.serializeToString() + ".");
+        member.serializeToString() + ".");
 
     //for message 4, 5 and 6
     when(session.getPerunBl().getUsersManagerBl().getUserById(any(PerunSessionImpl.class), anyInt())).thenReturn(user);
@@ -119,21 +99,21 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
     resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event4);
     assertEquals(resolvedEvents.get(0).getMessage(),
         isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " +
-            member.serializeToString() + ".");
+        member.serializeToString() + ".");
     resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event5);
     assertEquals(resolvedEvents.get(0).getMessage(),
         isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " +
-            member.serializeToString() + ".");
+        member.serializeToString() + ".");
     resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event6);
     assertEquals(resolvedEvents.get(0).getMessage(),
         isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " +
-            member.serializeToString() + ".");
+        member.serializeToString() + ".");
   }
 
   @Test
   public void resolveVirtualAttributeValueChangeTestWithWrongMatch() throws Exception {
-    System.out.println(
-        "urn_perun_user_facility_attribute_def_virt_defaultUnixGID.resolveVirtualAttributeValueChangeTestWithWrongMatch()");
+    System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID" +
+                       ".resolveVirtualAttributeValueChangeTestWithWrongMatch()");
 
     List<AuditEvent> resolvedEvents;
 
@@ -148,5 +128,24 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
         isBanned);
     resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, wrongEvent);
     assertTrue(resolvedEvents.isEmpty());
+  }
+
+  @Before
+  public void setUp() {
+    classInstance = new urn_perun_member_resource_attribute_def_virt_isBanned();
+    session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+    facility = new Facility(1, "testFacility");
+    resource = new Resource(1, "testResource", "des\nc", 1, 1);
+    vo = new Vo(1, "testVo", "desc");
+    user = new User(1, "name", "surname", "middlename", "title", "title");
+    member = new Member(1, 1, 1, Status.VALID);
+    isBanned = new Attribute(classInstance.getAttributeDefinition());
+    event1 = new BanSetForResource(new BanOnResource(), member.getId(), resource.getId());
+    event2 = new BanUpdatedForResource(new BanOnResource(), member.getId(), resource.getId());
+    event3 = new BanRemovedForResource(new BanOnResource(), member.getId(), resource.getId());
+    event4 = new BanSetForFacility(new BanOnFacility(), user.getId(), facility.getId());
+    event5 = new BanUpdatedForFacility(new BanOnFacility(), user.getId(), facility.getId());
+    event6 = new BanRemovedForFacility(new BanOnFacility(), user.getId(), facility.getId());
+    wrongEvent = new SecurityTeamAssignedToFacility();
   }
 }

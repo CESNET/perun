@@ -1,24 +1,21 @@
 package cz.metacentrum.perun.cabinet.bl.impl;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
+import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
+import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.cabinet.dao.CategoryManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
-import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
-import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.core.api.PerunSession;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -29,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class CategoryManagerBlImpl implements CategoryManagerBl {
 
-  private static Logger log = LoggerFactory.getLogger(CategoryManagerBlImpl.class);
+  private static Logger LOG = LoggerFactory.getLogger(CategoryManagerBlImpl.class);
   private CategoryManagerDao categoryManagerDao;
   private PublicationManagerBl publicationManagerBl;
   private CabinetManagerBl cabinetManagerBl;
@@ -37,26 +34,50 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 
   // setters ----------------------
 
-  public CategoryManagerDao getCategoryManagerDao() {
-    return categoryManagerDao;
+  @Override
+  public Category createCategory(PerunSession sess, Category category) throws CabinetException {
+    Category newCategory = getCategoryManagerDao().createCategory(sess, category);
+    LOG.debug("{} created.", newCategory);
+    return newCategory;
   }
 
-  @Autowired
-  public void setCategoryManagerDao(CategoryManagerDao categoryManagerDao) {
-    this.categoryManagerDao = categoryManagerDao;
+  @Override
+  public void deleteCategory(PerunSession sess, Category category) throws CabinetException {
+    getCategoryManagerDao().deleteCategory(sess, category);
+    LOG.debug("{} deleted.", category);
+  }
+
+  public AuthorshipManagerBl getAuthorshipManagerBl() {
+    return authorshipManagerBl;
+  }
+
+  public CabinetManagerBl getCabinetManagerBl() {
+    return cabinetManagerBl;
+  }
+
+  @Override
+  public List<Category> getCategories() {
+    return getCategoryManagerDao().getCategories();
+  }
+
+  @Override
+  public Category getCategoryById(int id) throws CabinetException {
+    return getCategoryManagerDao().getCategoryById(id);
+  }
+
+  public CategoryManagerDao getCategoryManagerDao() {
+    return categoryManagerDao;
   }
 
   public PublicationManagerBl getPublicationManagerBl() {
     return publicationManagerBl;
   }
 
-  @Autowired
-  public void setPublicationManagerBl(PublicationManagerBl publicationManagerBl) {
-    this.publicationManagerBl = publicationManagerBl;
-  }
+  // methods ----------------------
 
-  public CabinetManagerBl getCabinetManagerBl() {
-    return cabinetManagerBl;
+  @Autowired
+  public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
+    this.authorshipManagerBl = authorshipManagerBl;
   }
 
   @Autowired
@@ -64,22 +85,14 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
     this.cabinetManagerBl = cabinetManagerBl;
   }
 
-  public AuthorshipManagerBl getAuthorshipManagerBl() {
-    return authorshipManagerBl;
+  @Autowired
+  public void setCategoryManagerDao(CategoryManagerDao categoryManagerDao) {
+    this.categoryManagerDao = categoryManagerDao;
   }
 
   @Autowired
-  public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
-    this.authorshipManagerBl = authorshipManagerBl;
-  }
-
-  // methods ----------------------
-
-  @Override
-  public Category createCategory(PerunSession sess, Category category) throws CabinetException {
-    Category newCategory = getCategoryManagerDao().createCategory(sess, category);
-    log.debug("{} created.", newCategory);
-    return newCategory;
+  public void setPublicationManagerBl(PublicationManagerBl publicationManagerBl) {
+    this.publicationManagerBl = publicationManagerBl;
   }
 
   @Override
@@ -105,25 +118,9 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
               getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
         }
       }
-      log.debug("Category: [{}] updated to Category: [{}]", cat, category);
+      LOG.debug("Category: [{}] updated to Category: [{}]", cat, category);
     }
     return result;
-  }
-
-  @Override
-  public void deleteCategory(PerunSession sess, Category category) throws CabinetException {
-    getCategoryManagerDao().deleteCategory(sess, category);
-    log.debug("{} deleted.", category);
-  }
-
-  @Override
-  public List<Category> getCategories() {
-    return getCategoryManagerDao().getCategories();
-  }
-
-  @Override
-  public Category getCategoryById(int id) throws CabinetException {
-    return getCategoryManagerDao().getCategoryById(id);
   }
 
 }

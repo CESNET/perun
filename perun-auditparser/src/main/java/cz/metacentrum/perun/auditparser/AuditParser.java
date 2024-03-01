@@ -52,9 +52,13 @@ import org.slf4j.LoggerFactory;
  * @author NorexanWORK
  */
 public class AuditParser {
-  static final Pattern perunBeanStartPattern = Pattern.compile("\\w+:\\[");
-  static final Pattern pointyAndSquareBracket = Pattern.compile(".\\[|.\\]|[^\\\\](\\\\\\\\)*(<|>)");
-  private final static Logger loger = LoggerFactory.getLogger(AuditParser.class);
+  static final Pattern PERUN_BEAN_START_PATTERN = Pattern.compile("\\w+:\\[");
+  static final Pattern POINTY_AND_SQUARE_BRACKET = Pattern.compile(".\\[|.\\]|[^\\\\](\\\\\\\\)*(<|>)");
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuditParser.class);
+
+  private AuditParser() {
+
+  }
 
   public static List<PerunBean> parseLog(String log) {
     List<PerunBean> listPerunBeans = new ArrayList<PerunBean>();
@@ -64,7 +68,7 @@ public class AuditParser {
     try {
       listOfTextBeans = beansToMap(log);
     } catch (RuntimeException ex) {
-      loger.error("Message " + log + " was not correctly parsed to Map<NameOfBean,BodyOfBean>", ex);
+      LOGGER.error("Message " + log + " was not correctly parsed to Map<NameOfBean,BodyOfBean>", ex);
     }
     //For every bean try to find it and create object from text
     for (Pair<String, Map<String, String>> p : listOfTextBeans) {
@@ -129,7 +133,7 @@ public class AuditParser {
         } else if (p.getLeft().equals("Consent")) {
           perunBean = createConsent(p.getRight());
         } else {
-          loger.debug(
+          LOGGER.debug(
               "Object of this type can't be parsed cause there is no such object in parser's branches. ObjectName:" +
                   p.getLeft());
         }
@@ -137,7 +141,7 @@ public class AuditParser {
           listPerunBeans.add(perunBean);
         }
       } catch (RuntimeException e) {
-        loger.error(
+        LOGGER.error(
             "Object name " + p.getLeft() + " with attributes " + p.getRight() + " was not parsed due to fail {} ", e);
       }
     }
@@ -185,16 +189,16 @@ public class AuditParser {
       if (s.charAt(0) == '\\' && s.charAt(1) == '0') {
         map = null;
       } else {
-				/*
-				//Find name of Bean form beanString
-				String nameOfBean = null;
-				Matcher beanNameMatcher = beanName.matcher(s);
-				beanNameMatcher.find();
-				nameOfBean = s.substring(beanNameMatcher.start(), beanNameMatcher.end()-1);
-				*/
+        /*//Find name of Bean form beanString
+        String nameOfBean = null;
+        Matcher beanNameMatcher = beanName.matcher(s);
+        beanNameMatcher.find();
+        nameOfBean = s.substring(beanNameMatcher.start(), beanNameMatcher.end() - 1);*/
+
 
         //From the rest get pair attribute of object / value of attribute and put it to the MAP
-        //Helping variables to find start of attribute name, end of attribute name and the same for attribute value its always quaternion
+        //Helping variables to find start of attribute name, end of attribute name and the same for attribute value
+        // its always quaternion
         int startName = -1;
         int endName = -1;
         int startValue = -1;
@@ -207,8 +211,8 @@ public class AuditParser {
           //found first Letter when no start still exist and searching for name and save it
           if (Character.isLetter(s.charAt(i)) && startName == -1 && isName) {
             startName = i;
-          } //found for last Letter symbol in beans attribute name
-          else if (Character.isLetter(s.charAt(i)) && endName == -1 && isName) {
+          } else if (Character.isLetter(s.charAt(i)) && endName == -1 && isName) {
+            //found for last Letter symbol in beans attribute name
             //If there is still some symbol after this one and if it is not Letter, i save my end name position
             if (i + 1 != s.length()) {
               if (!Character.isLetter(s.charAt(i + 1))) {
@@ -217,8 +221,8 @@ public class AuditParser {
                 isName = false;
               }
             }
-          } //If i found name already, trying to find nonescaped < and count it
-          else if (s.charAt(i) == '<' && !isName) {
+          } else if (s.charAt(i) == '<' && !isName) {
+            //If i found name already, trying to find nonescaped < and count it
             //if its first, its my start of value position and i save it
             if (pointyBrackets == 0) {
               if (!BeansUtils.isEscaped(s, i - 1)) {
@@ -229,8 +233,8 @@ public class AuditParser {
             if (!BeansUtils.isEscaped(s, i - 1)) {
               pointyBrackets++;
             }
-          } //If i found name already, there are some open angle breackets and is nonescaped so count this one off
-          else if (pointyBrackets != 0 && s.charAt(i) == '>' && !isName) {
+          } else if (pointyBrackets != 0 && s.charAt(i) == '>' && !isName) {
+            //If i found name already, there are some open angle breackets and is nonescaped so count this one off
             //if this bracket is nonescaped so count it off
             if (!BeansUtils.isEscaped(s, i - 1)) {
               pointyBrackets--;
@@ -243,7 +247,8 @@ public class AuditParser {
               }
             }
           }
-          //If i have already all quaternion of position i will put this attribute to the map and set helping variables to start
+          //If i have already all quaternion of position i will put this attribute to the map and
+          // set helping variables to start
           if (startName != -1 && endName != -1 && startValue != -1 && endValue != -1) {
             map.put(s.substring(startName, endName + 1), s.substring(startValue + 1, endValue));
             startName = -1;
@@ -279,10 +284,10 @@ public class AuditParser {
     int pointyBrackets = 0;
     boolean enableCountSquareBrackets = true;
 
-    log = CutStartOfLog(log);
+    log = cutStartOfLog(log);
     while (log != null) {
       //TODO this regular expresion expect, that never get char <,>,[,] or \ like first char in string log!!!
-      Matcher pointyAndSquareBracketMatcher = pointyAndSquareBracket.matcher(log);
+      Matcher pointyAndSquareBracketMatcher = POINTY_AND_SQUARE_BRACKET.matcher(log);
       int endOfObject = 0;
       int start = 0;
       while (pointyAndSquareBracketMatcher.find(start)) {
@@ -295,9 +300,11 @@ public class AuditParser {
           if (pointyBrackets == 0) {
             enableCountSquareBrackets = true;
           }
-        } else if (enableCountSquareBrackets && log.charAt(pointyAndSquareBracketMatcher.end() - 1) == '[') {
+        } else if (enableCountSquareBrackets &&
+                   log.charAt(pointyAndSquareBracketMatcher.end() - 1) == '[') {
           squareBrackets++;
-        } else if (enableCountSquareBrackets && log.charAt(pointyAndSquareBracketMatcher.end() - 1) == ']') {
+        } else if (enableCountSquareBrackets &&
+                   log.charAt(pointyAndSquareBracketMatcher.end() - 1) == ']') {
           squareBrackets--;
           if (squareBrackets == 0) {
             //This is end position of searching object
@@ -313,7 +320,7 @@ public class AuditParser {
       } else {
         return results;
       }
-      log = CutStartOfLog(log);
+      log = cutStartOfLog(log);
     }
     return results;
   }
@@ -329,12 +336,12 @@ public class AuditParser {
    * @param log log message
    * @return Message cutted to Start of first real bean in log
    */
-  private static String CutStartOfLog(String log) {
+  private static String cutStartOfLog(String log) {
 
     if (log == null) {
       return null;
     }
-    Matcher perunBeanStartMatcher = perunBeanStartPattern.matcher(log);
+    Matcher perunBeanStartMatcher = PERUN_BEAN_START_PATTERN.matcher(log);
     if (perunBeanStartMatcher.find()) {
       log = log.substring(perunBeanStartMatcher.start());
     } else {
@@ -864,6 +871,7 @@ public class AuditParser {
         memberAttributes.add(attribute);
       }
     }
+
     RichMember richMember = new RichMember(user, member, userExtSources, userAttributes, memberAttributes);
     return richMember;
   }

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.Lists;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.User;
@@ -7,9 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_user_attribute_def_def_o365UserEmailAddresses_muTest {
 
@@ -30,6 +30,13 @@ public class urn_perun_user_attribute_def_def_o365UserEmailAddresses_muTest {
   }
 
   @Test(expected = WrongAttributeValueException.class)
+  public void testCheckDuplicates() throws Exception {
+    System.out.println("testCheckDuplicates()");
+    attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", "my@example.com"));
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
   public void testCheckEmailSyntax() throws Exception {
     System.out.println("testCheckEmailSyntax()");
     attributeToCheck.setValue(Lists.newArrayList("my@example.com", "a/-+"));
@@ -40,13 +47,6 @@ public class urn_perun_user_attribute_def_def_o365UserEmailAddresses_muTest {
   public void testCheckUcoEmailSyntax() throws Exception {
     System.out.println("testCheckUcoEmailSyntax()");
     attributeToCheck.setValue(Lists.newArrayList("my@example.com", "451570@muni.cz"));
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void testCheckDuplicates() throws Exception {
-    System.out.println("testCheckDuplicates()");
-    attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", "my@example.com"));
     classInstance.checkAttributeSyntax(session, user, attributeToCheck);
   }
 

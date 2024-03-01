@@ -23,21 +23,21 @@ public class RoleSetForGroup extends AuditEvent implements EngineIgnoreEvent {
     this.message = formatMessage("Role %s was set for %s on %s.", role.toUpperCase(), group, object);
   }
 
-  public PerunBean getObject() {
-    return object;
-  }
-
   public Group getGroup() {
     return group;
-  }
-
-  public String getRole() {
-    return role;
   }
 
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public PerunBean getObject() {
+    return object;
+  }
+
+  public String getRole() {
+    return role;
   }
 
   @Override

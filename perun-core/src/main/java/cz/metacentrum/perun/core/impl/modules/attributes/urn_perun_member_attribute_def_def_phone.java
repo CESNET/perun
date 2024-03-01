@@ -29,31 +29,6 @@ public class urn_perun_member_attribute_def_def_phone extends MemberAttributesMo
   //Example of correct number "+420123456789"
   private static final Pattern pattern = Pattern.compile("^[+][0-9]{4,16}$");
 
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    // wrong type of the attribute
-    if (!(attribute.getValue() instanceof String)) {
-      throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
-    }
-
-    Matcher matcher = pattern.matcher(attribute.valueAsString());
-    if (!matcher.matches()) {
-      throw new WrongAttributeValueException(attribute, "Phone is not in correct format!");
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "User attribute phone cannot be null.");
-    }
-  }
-
   @Override
   public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute)
       throws WrongReferenceAttributeValueException {
@@ -75,6 +50,31 @@ public class urn_perun_member_attribute_def_def_phone extends MemberAttributesMo
         throw new WrongReferenceAttributeValueException(attribute, userPhone,
             "Mismatch in checking of member phone and user phone (different checking rules)", ex);
       }
+    }
+  }
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "User attribute phone cannot be null.");
+    }
+  }
+
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    // wrong type of the attribute
+    if (!(attribute.getValue() instanceof String)) {
+      throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
+    }
+
+    Matcher matcher = pattern.matcher(attribute.valueAsString());
+    if (!matcher.matches()) {
+      throw new WrongAttributeValueException(attribute, "Phone is not in correct format!");
     }
   }
 

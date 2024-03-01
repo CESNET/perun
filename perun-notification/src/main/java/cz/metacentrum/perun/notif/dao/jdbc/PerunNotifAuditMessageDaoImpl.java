@@ -17,33 +17,33 @@ import org.springframework.stereotype.Repository;
 @Repository("perunNotifAuditMessageDao")
 public class PerunNotifAuditMessageDaoImpl extends JdbcDaoSupport implements PerunNotifAuditMessageDao {
 
-  private static final Logger logger = LoggerFactory.getLogger(PerunNotifAuditMessageDao.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PerunNotifAuditMessageDao.class);
+
+  public List<PerunNotifAuditMessage> getAll() {
+
+    LOGGER.debug("Listing all perunNotifAuditMessages.");
+    List<PerunNotifAuditMessage> result =
+        this.getJdbcTemplate().query("SELECT * FROM pn_audit_message", PerunNotifAuditMessage.PERUN_NOTIF_MESSAGE);
+    LOGGER.trace("Result of list of PerunNotifAuditMessage: {}", result);
+    return result;
+  }
+
+  public void remove(long id) {
+
+    LOGGER.debug("Removing perunNotifAuditMessage with id = {}", id);
+    this.getJdbcTemplate().update("delete from pn_audit_message where id=?", id);
+    LOGGER.trace("PerunNotifAuditMessage with id: {} removed.", id);
+  }
 
   public PerunNotifAuditMessage save(String message) {
 
-    logger.debug("Saving perunNotifAuditMessage to db: message = {}", message);
+    LOGGER.debug("Saving perunNotifAuditMessage to db: message = {}", message);
 
     int newPerunNotifAuditMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_audit_message_id_seq");
     this.getJdbcTemplate()
         .update("INSERT INTO pn_audit_message(id, message) values (?,?)", newPerunNotifAuditMessageId, message);
 
-    logger.trace("PerunNotifAuditMessage saved to db: id = {} message = {}", newPerunNotifAuditMessageId, message);
+    LOGGER.trace("PerunNotifAuditMessage saved to db: id = {} message = {}", newPerunNotifAuditMessageId, message);
     return new PerunNotifAuditMessage(newPerunNotifAuditMessageId, message);
-  }
-
-  public void remove(long id) {
-
-    logger.debug("Removing perunNotifAuditMessage with id = {}", id);
-    this.getJdbcTemplate().update("delete from pn_audit_message where id=?", id);
-    logger.trace("PerunNotifAuditMessage with id: {} removed.", id);
-  }
-
-  public List<PerunNotifAuditMessage> getAll() {
-
-    logger.debug("Listing all perunNotifAuditMessages.");
-    List<PerunNotifAuditMessage> result =
-        this.getJdbcTemplate().query("SELECT * FROM pn_audit_message", PerunNotifAuditMessage.PERUN_NOTIF_MESSAGE);
-    logger.trace("Result of list of PerunNotifAuditMessage: {}", result);
-    return result;
   }
 }

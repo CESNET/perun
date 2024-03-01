@@ -120,31 +120,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
       if (parms.contains("userId")) {
         if (parms.contains("groupId")) {
-          ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
-              ac.getVoById(parms.readInt("voId")),
-              ac.getGroupById(parms.readInt("groupId")),
-              ac.getUserById(parms.readInt("userId")));
+          ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(), ac.getVoById(parms.readInt("voId")),
+              ac.getGroupById(parms.readInt("groupId")), ac.getUserById(parms.readInt("userId")));
         } else {
-          ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
-              ac.getVoById(parms.readInt("voId")),
-              null,
-              ac.getUserById(parms.readInt("userId")));
+          ac.getRegistrarManager().getMailManager()
+              .sendInvitation(ac.getSession(), ac.getVoById(parms.readInt("voId")), null,
+                  ac.getUserById(parms.readInt("userId")));
         }
       } else {
         if (parms.contains("groupId")) {
-          ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
-              ac.getVoById(parms.readInt("voId")),
-              ac.getGroupById(parms.readInt("groupId")),
-              (parms.contains("name")) ? parms.readString("name") : null,
-              parms.readString("email"),
-              parms.readString("language"));
+          ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(), ac.getVoById(parms.readInt("voId")),
+              ac.getGroupById(parms.readInt("groupId")), (parms.contains("name")) ? parms.readString("name") : null,
+              parms.readString("email"), parms.readString("language"));
         } else {
-          ac.getRegistrarManager().getMailManager().sendInvitation(ac.getSession(),
-              ac.getVoById(parms.readInt("voId")),
-              null,
-              (parms.contains("name")) ? parms.readString("name") : null,
-              parms.readString("email"),
-              parms.readString("language"));
+          ac.getRegistrarManager().getMailManager()
+              .sendInvitation(ac.getSession(), ac.getVoById(parms.readInt("voId")), null,
+                  (parms.contains("name")) ? parms.readString("name") : null, parms.readString("email"),
+                  parms.readString("language"));
         }
       }
 
@@ -172,22 +164,22 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   buildInviteURL {
     @Override
     public String call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getRegistrarManager().getMailManager().buildInviteURL(
-          ac.getVoById(parms.readInt("voId")),
-          (parms.contains("groupId")) ? ac.getGroupById(parms.readInt("groupId")) : null
-      );
+      return ac.getRegistrarManager().getMailManager().buildInviteURL(ac.getVoById(parms.readInt("voId")),
+          (parms.contains("groupId")) ? ac.getGroupById(parms.readInt("groupId")) : null);
     }
   },
 
   /*#
-   * Invite member candidates. If candidate contains richUser, then his preferred mail is retrieved and used, otherwise email must be passed in candidate's attributes.
+   * Invite member candidates. If candidate contains richUser, then his preferred mail is retrieved and used,
+   * otherwise email must be passed in candidate's attributes.
    *
    * @param vo Vo <code>id</code>
    * @param lang language
    * @param candidates List<MemberCandidate> list of member candidates
    */
   /*#
-   * Invite member candidates to group. If candidate contains richUser, then his preferred mail is retrieved and used, otherwise email must be passed in candidate's attributes.
+   * Invite member candidates to group. If candidate contains richUser, then his preferred mail is retrieved and
+   * used, otherwise email must be passed in candidate's attributes.
    *
    * @param vo Vo <code>id</code>
    * @param lang language
@@ -197,13 +189,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   inviteMemberCandidates {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getRegistrarManager().inviteMemberCandidates(
-          ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null,
-          parms.readString("lang"),
-          parms.readList("candidates", MemberCandidate.class)
-      );
+      ac.getRegistrarManager().inviteMemberCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+          parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null, parms.readString("lang"),
+          parms.readList("candidates", MemberCandidate.class));
       return null;
     }
   },
@@ -219,16 +207,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   invitationFormExists {
     @Override
     public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getRegistrarManager().getMailManager().invitationFormExists(
-          ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null
-      );
+      return ac.getRegistrarManager().getMailManager()
+          .invitationFormExists(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null);
     }
   },
 
   /*#
-   * Checks if invitation via notification is enabled (invitation notification exists, application form exists and application form can be submitted)
+   * Checks if invitation via notification is enabled (invitation notification exists, application form exists and
+   * application form can be submitted)
    *
    * @param vo Vo <code>id</code>
    * @param group Group <code>id</code>
@@ -238,11 +225,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   isInvitationEnabled {
     @Override
     public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getRegistrarManager().getMailManager().isInvitationEnabled(
-          ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null
-      );
+      return ac.getRegistrarManager().getMailManager()
+          .isInvitationEnabled(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null);
     }
   },
 
@@ -257,11 +242,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   isLinkInvitationEnabled {
     @Override
     public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getRegistrarManager().getMailManager().isLinkInvitationEnabled(
-          ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null
-      );
+      return ac.getRegistrarManager().getMailManager()
+          .isLinkInvitationEnabled(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.contains("group") ? ac.getGroupById(parms.readInt("group")) : null);
     }
   },
 
@@ -278,7 +261,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * @exampleParam invitationData ["mail@mail.cz", "mail2@mail.cz;user2"]
    * @param voId int <code>id</code> of VO to send invitation into
    * @param groupId int <code>id</code> of Group to send invitation into
-   * @param language String Language used in notification (if not specified, VO settings is used, if not set, "en" is used).
+   * @param language String Language used in notification (if not specified, VO settings is used, if not set, "en" is
+   *  used).
    * @return Map of {firstValue (should be email) : result}. Result can be 'OK' or 'ERROR: <error message>'
    * @throws GroupNotExistsException
    * @throws PrivilegeException
@@ -290,11 +274,11 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getRegistrarManager().getMailManager().sendInvitationsFromCsv(ac.getSession(),
-          ac.getVoById(parms.readInt("voId")),
-          parms.contains("groupId") ? ac.getGroupById(parms.readInt("groupId")) : null,
-          parms.readList("invitationData", String.class),
-          parms.contains("language") ? parms.readString("language") : null);
+      return ac.getRegistrarManager().getMailManager()
+          .sendInvitationsFromCsv(ac.getSession(), ac.getVoById(parms.readInt("voId")),
+              parms.contains("groupId") ? ac.getGroupById(parms.readInt("groupId")) : null,
+              parms.readList("invitationData", String.class),
+              parms.contains("language") ? parms.readString("language") : null);
     }
   },
 
@@ -321,17 +305,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
       if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
 
-        ac.getRegistrarManager().getMailManager().sendMessage(ac.getSession(),
-            ac.getApplicationById(parms.readInt("appId")),
-            ApplicationMail.MailType.valueOf(parms.readString("mailType")),
-            parms.readString("reason"));
+        ac.getRegistrarManager().getMailManager()
+            .sendMessage(ac.getSession(), ac.getApplicationById(parms.readInt("appId")),
+                ApplicationMail.MailType.valueOf(parms.readString("mailType")), parms.readString("reason"));
 
       } else {
 
-        ac.getRegistrarManager().getMailManager().sendMessage(ac.getSession(),
-            ac.getApplicationById(parms.readInt("appId")),
-            ApplicationMail.MailType.valueOf(parms.readString("mailType")),
-            null);
+        ac.getRegistrarManager().getMailManager()
+            .sendMessage(ac.getSession(), ac.getApplicationById(parms.readInt("appId")),
+                ApplicationMail.MailType.valueOf(parms.readString("mailType")), null);
 
       }
 
@@ -359,14 +341,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       }
       if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
 
-        ac.getRegistrarManager().getMailManager().sendMessages(ac.getSession(), applications,
-            ApplicationMail.MailType.valueOf(parms.readString("mailType")),
-            parms.readString("reason"));
+        ac.getRegistrarManager().getMailManager()
+            .sendMessages(ac.getSession(), applications, ApplicationMail.MailType.valueOf(parms.readString("mailType")),
+                parms.readString("reason"));
 
       } else {
 
-        ac.getRegistrarManager().getMailManager().sendMessages(ac.getSession(), applications,
-            ApplicationMail.MailType.valueOf(parms.readString("mailType")), null);
+        ac.getRegistrarManager().getMailManager()
+            .sendMessages(ac.getSession(), applications, ApplicationMail.MailType.valueOf(parms.readString("mailType")),
+                null);
 
       }
       return null;
@@ -437,7 +420,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
   /*#
    * Gets an application form for a given VO.
-   * There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
+   * There is exactly one form for membership per VO, one form is used for both initial registration and annual
+   * account expansion,
    * just the form items are marked whether the should be present in one, the other, or both types of application.
    *
    * @param vo int VO <code>id</code>
@@ -445,7 +429,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    */
   /*#
    * Gets an application form for a given Group.
-   * There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
+   * There is exactly one form for membership per Group, one form is used for both initial registration and annual
+   * account expansion,
    * just the form items are marked whether the should be present in one, the other, or both types of application.
    *
    * @param group int Group <code>id</code>
@@ -497,12 +482,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
       if (parms.contains("vo")) {
         if (parms.contains("type")) {
-          return ac.getRegistrarManager().getFormItems(ac.getSession(),
-              ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
-              AppType.valueOf(parms.readString("type")));
+          return ac.getRegistrarManager()
+              .getFormItems(ac.getSession(), ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
+                  AppType.valueOf(parms.readString("type")));
         } else {
-          return ac.getRegistrarManager().getFormItems(ac.getSession(),
-              ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))));
+          return ac.getRegistrarManager()
+              .getFormItems(ac.getSession(), ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))));
         }
       } else if (parms.contains("group")) {
 
@@ -541,9 +526,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("vo")) {
-        return ac.getRegistrarManager().updateFormItems(ac.getSession(),
-            ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
-            parms.readList("items", ApplicationFormItem.class));
+        return ac.getRegistrarManager()
+            .updateFormItems(ac.getSession(), ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
+                parms.readList("items", ApplicationFormItem.class));
       } else if (parms.contains("group")) {
         return ac.getRegistrarManager().updateFormItems(ac.getSession(),
             ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))),
@@ -641,15 +626,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     public List<ApplicationFormItemWithPrefilledValue> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
       if (parms.contains("vo")) {
-        return ac.getRegistrarManager().getFormItemsWithPrefilledValues(
-            ac.getSession(),
-            Application.AppType.valueOf(parms.readString("type")),
-            ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))));
+        return ac.getRegistrarManager()
+            .getFormItemsWithPrefilledValues(ac.getSession(), Application.AppType.valueOf(parms.readString("type")),
+                ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))));
       } else if (parms.contains("group")) {
-        return ac.getRegistrarManager().getFormItemsWithPrefilledValues(
-            ac.getSession(),
-            Application.AppType.valueOf(parms.readString("type")),
-            ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))));
+        return ac.getRegistrarManager()
+            .getFormItemsWithPrefilledValues(ac.getSession(), Application.AppType.valueOf(parms.readString("type")),
+                ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
       }
@@ -661,7 +644,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * Get page of applications from the given vo, with the given attributes.
    * Query parameter specifies offset, page size, sorting order, sorting column, statuses of the applications,
    * whether to include group applications if searching only in VO and string to search
-   * applications by (by default it searches in group names/descriptions, group and application ids, group uuids,  logins of submitters and
+   * applications by (by default it searches in group names/descriptions, group and application ids, group uuids,
+   * logins of submitters and
    * application_data values), dateFrom and dateTo are optional and specify dates when the applications were submitted,
    * the last 2 parameters are optional and serve to search group/member specific applications.
    *
@@ -676,13 +660,11 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   getApplicationsPage {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getRegistrarManager().getApplicationsPage(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
+      return ac.getRegistrarManager().getApplicationsPage(ac.getSession(), ac.getVoById(parms.readInt("vo")),
           parms.read("query", ApplicationsPageQuery.class));
     }
 
-  },
-  /*#
+  }, /*#
    * Gets all applications for a given VO.
    *
    * @param vo int VO <code>id</code>
@@ -708,21 +690,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     @Override
     public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("dateFrom") || parms.contains("dateTo")) {
-        return ac.getRegistrarManager().getApplicationsForVo(
-            ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.contains("state") ? parms.readList("state", String.class) : null,
-            parms.readLocalDate("dateFrom"),
-            parms.readLocalDate("dateTo"),
-            true
-        );
+        return ac.getRegistrarManager().getApplicationsForVo(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.contains("state") ? parms.readList("state", String.class) : null, parms.readLocalDate("dateFrom"),
+            parms.readLocalDate("dateTo"), true);
       } else {
-        return ac.getRegistrarManager().getApplicationsForVo(
-            ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.contains("state") ? parms.readList("state", String.class) : null,
-            true
-        );
+        return ac.getRegistrarManager().getApplicationsForVo(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.contains("state") ? parms.readList("state", String.class) : null, true);
       }
 
     }
@@ -755,19 +728,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     @Override
     public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("dateFrom") || parms.contains("dateTo")) {
-        return ac.getRegistrarManager().getApplicationsForGroup(
-            ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            parms.contains("state") ? parms.readList("state", String.class) : null,
-            parms.readLocalDate("dateFrom"),
-            parms.readLocalDate("dateTo")
-        );
+        return ac.getRegistrarManager()
+            .getApplicationsForGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                parms.contains("state") ? parms.readList("state", String.class) : null, parms.readLocalDate("dateFrom"),
+                parms.readLocalDate("dateTo"));
       } else {
-        return ac.getRegistrarManager().getApplicationsForGroup(
-            ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            parms.contains("state") ? parms.readList("state", String.class) : null
-        );
+        return ac.getRegistrarManager()
+            .getApplicationsForGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                parms.contains("state") ? parms.readList("state", String.class) : null);
       }
 
     }
@@ -1142,9 +1110,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("vo")) {
-        return ac.getRegistrarManager().addFormItem(ac.getSession(),
-            ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
-            parms.read("item", ApplicationFormItem.class));
+        return ac.getRegistrarManager()
+            .addFormItem(ac.getSession(), ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
+                parms.read("item", ApplicationFormItem.class));
       } else if (parms.contains("group")) {
         return ac.getRegistrarManager().addFormItem(ac.getSession(),
             ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))),
@@ -1181,13 +1149,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("vo")) {
-        ac.getRegistrarManager().deleteFormItem(ac.getSession(),
-            ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
-            parms.readInt("ordnum"));
+        ac.getRegistrarManager()
+            .deleteFormItem(ac.getSession(), ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
+                parms.readInt("ordnum"));
       } else if (parms.contains("group")) {
         ac.getRegistrarManager().deleteFormItem(ac.getSession(),
-            ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))),
-            parms.readInt("ordnum"));
+            ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))), parms.readInt("ordnum"));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
       }
@@ -1235,14 +1202,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
         if (parms.contains("toVo")) {
 
-          ac.getRegistrarManager().copyFormFromVoToVo(ac.getSession(),
-              ac.getVoById(parms.readInt("fromVo")),
+          ac.getRegistrarManager().copyFormFromVoToVo(ac.getSession(), ac.getVoById(parms.readInt("fromVo")),
               ac.getVoById(parms.readInt("toVo")));
 
         } else if (parms.contains("toGroup")) {
 
-          ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(),
-              ac.getVoById(parms.readInt("fromVo")),
+          ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(), ac.getVoById(parms.readInt("fromVo")),
               ac.getGroupById(parms.readInt("toGroup")), false);
 
         }
@@ -1251,14 +1216,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
         if (parms.contains("toGroup")) {
 
-          ac.getRegistrarManager().copyFormFromGroupToGroup(ac.getSession(),
-              ac.getGroupById(parms.readInt("fromGroup")),
-              ac.getGroupById(parms.readInt("toGroup")));
+          ac.getRegistrarManager()
+              .copyFormFromGroupToGroup(ac.getSession(), ac.getGroupById(parms.readInt("fromGroup")),
+                  ac.getGroupById(parms.readInt("toGroup")));
 
         } else if (parms.contains("toVo")) {
 
-          ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(),
-              ac.getVoById(parms.readInt("toVo")),
+          ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(), ac.getVoById(parms.readInt("toVo")),
               ac.getGroupById(parms.readInt("fromGroup")), true);
 
         }
@@ -1308,15 +1272,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
         if (parms.contains("toVo")) {
 
-          ac.getRegistrarManager().getMailManager().copyMailsFromVoToVo(ac.getSession(),
-              ac.getVoById(parms.readInt("fromVo")),
-              ac.getVoById(parms.readInt("toVo")));
+          ac.getRegistrarManager().getMailManager()
+              .copyMailsFromVoToVo(ac.getSession(), ac.getVoById(parms.readInt("fromVo")),
+                  ac.getVoById(parms.readInt("toVo")));
 
         } else if (parms.contains("toGroup")) {
 
-          ac.getRegistrarManager().getMailManager().copyMailsFromVoToGroup(ac.getSession(),
-              ac.getVoById(parms.readInt("fromVo")),
-              ac.getGroupById(parms.readInt("toGroup")), false);
+          ac.getRegistrarManager().getMailManager()
+              .copyMailsFromVoToGroup(ac.getSession(), ac.getVoById(parms.readInt("fromVo")),
+                  ac.getGroupById(parms.readInt("toGroup")), false);
 
         }
 
@@ -1324,15 +1288,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
         if (parms.contains("toGroup")) {
 
-          ac.getRegistrarManager().getMailManager().copyMailsFromGroupToGroup(ac.getSession(),
-              ac.getGroupById(parms.readInt("fromGroup")),
-              ac.getGroupById(parms.readInt("toGroup")));
+          ac.getRegistrarManager().getMailManager()
+              .copyMailsFromGroupToGroup(ac.getSession(), ac.getGroupById(parms.readInt("fromGroup")),
+                  ac.getGroupById(parms.readInt("toGroup")));
 
         } else if (parms.contains("toVo")) {
 
-          ac.getRegistrarManager().getMailManager().copyMailsFromVoToGroup(ac.getSession(),
-              ac.getVoById(parms.readInt("toVo")),
-              ac.getGroupById(parms.readInt("fromGroup")), true);
+          ac.getRegistrarManager().getMailManager()
+              .copyMailsFromVoToGroup(ac.getSession(), ac.getVoById(parms.readInt("toVo")),
+                  ac.getGroupById(parms.readInt("fromGroup")), true);
 
         }
 
@@ -1394,13 +1358,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("vo")) {
-        return ac.getRegistrarManager().getMailManager().addMail(ac.getSession(),
-            ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
-            parms.read("mail", ApplicationMail.class));
+        return ac.getRegistrarManager().getMailManager()
+            .addMail(ac.getSession(), ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
+                parms.read("mail", ApplicationMail.class));
       } else if (parms.contains("group")) {
-        return ac.getRegistrarManager().getMailManager().addMail(ac.getSession(),
-            ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))),
-            parms.read("mail", ApplicationMail.class));
+        return ac.getRegistrarManager().getMailManager()
+            .addMail(ac.getSession(), ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))),
+                parms.read("mail", ApplicationMail.class));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
       }
@@ -1429,13 +1393,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("vo")) {
-        ac.getRegistrarManager().getMailManager().deleteMailById(ac.getSession(),
-            ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
-            parms.readInt("id"));
+        ac.getRegistrarManager().getMailManager()
+            .deleteMailById(ac.getSession(), ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))),
+                parms.readInt("id"));
       } else if (parms.contains("group")) {
         ac.getRegistrarManager().getMailManager().deleteMailById(ac.getSession(),
-            ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))),
-            parms.readInt("id"));
+            ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))), parms.readInt("id"));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
       }
@@ -1491,9 +1454,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getRegistrarManager().getMailManager().setSendingEnabled(ac.getSession(),
-          parms.readList("mails", ApplicationMail.class),
-          parms.readBoolean("enabled"));
+      ac.getRegistrarManager().getMailManager()
+          .setSendingEnabled(ac.getSession(), parms.readList("mails", ApplicationMail.class),
+              parms.readBoolean("enabled"));
 
       return null;
     }
@@ -1501,10 +1464,10 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   },
 
   /*#
-   *	Verify Captcha answer.
+   *  Verify Captcha answer.
    *
-   *	@param response String User response
-   *	@return boolean True if it is valid, False if failed
+   *  @param response String User response
+   *  @return boolean True if it is valid, False if failed
    */
   verifyCaptcha {
     @Override
@@ -1575,13 +1538,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
         return ac.getRegistrarManager().getConsolidatorManager()
             .checkForSimilarUsers(ac.getSession(), parms.readInt("appId"));
       } else if (parms.contains("voId")) {
-        return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession(),
-            ac.getVoById(parms.readInt("voId")),
-            (parms.readInt("groupId") != 0) ? ac.getGroupById(parms.readInt("groupId")) : null,
-            AppType.valueOf(parms.readString("type")));
+        return ac.getRegistrarManager().getConsolidatorManager()
+            .checkForSimilarUsers(ac.getSession(), ac.getVoById(parms.readInt("voId")),
+                (parms.readInt("groupId") != 0) ? ac.getGroupById(parms.readInt("groupId")) : null,
+                AppType.valueOf(parms.readString("type")));
       } else if (parms.contains("formItems")) {
-        return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession(),
-            parms.readList("formItems", ApplicationFormItemData.class));
+        return ac.getRegistrarManager().getConsolidatorManager()
+            .checkForSimilarUsers(ac.getSession(), parms.readList("formItems", ApplicationFormItemData.class));
       } else {
         return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession());
       }
@@ -1624,8 +1587,10 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * @param accessToken access token
    * @throw IdentityUnknownException When neither current or previous identity is associated with a user in Perun.
    * @throw IdentityIsSameException User used same identity (authz) to get token and to request joining.
-   * @throw IdentitiesAlreadyJoinedException Both identities used in a process belong to the same user in Perun (already joined).
-   * @throw IdentityAlreadyInUseException Both identities used in a process are associated with different users. In order to join two user accounts contact support.
+   * @throw IdentitiesAlreadyJoinedException Both identities used in a process belong to the same user in Perun
+   * (already joined).
+   * @throw IdentityAlreadyInUseException Both identities used in a process are associated with different users. In
+   * order to join two user accounts contact support.
    * @throw InvalidTokenException when some of the access token is expired
    */
   consolidate {
@@ -1644,8 +1609,10 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * @return List<UserExtSource> List of user identities know to Perun after joining.
    * @throw IdentityUnknownException When neither current or previous identity is associated with a user in Perun.
    * @throw IdentityIsSameException User used same identity (authz) to get token and to request joining.
-   * @throw IdentitiesAlreadyJoinedException Both identities used in a process belong to the same user in Perun (already joined).
-   * @throw IdentityAlreadyInUseException Both identities used in a process are associated with different users. In order to join two user accounts contact support.
+   * @throw IdentitiesAlreadyJoinedException Both identities used in a process belong to the same user in Perun
+   * (already joined).
+   * @throw IdentityAlreadyInUseException Both identities used in a process are associated with different users. In
+   * order to join two user accounts contact support.
    */
   consolidateIdentityUsingToken {
     @Override
@@ -1681,7 +1648,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
   /*#
    * Update data of application form items, which were originally submitted by the user.
-   * Only user who submitted the application can use this. Only applications in NEW or VERIFIED state can have form items updated.
+   * Only user who submitted the application can use this. Only applications in NEW or VERIFIED state can have form
+   * items updated.
    * Form items of types: USERNAME, PASSWORD, HEADING, HTML_COMMENT,
    * SUBMIT_BUTTON and AUTO_SUBMIT_BUTTON are not updatable by this method.
    *
@@ -1700,8 +1668,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       return null;
     }
 
-  },
-  /*#
+  }, /*#
    * Returns all groups which can be registered into during vo registration.
    *
    * @throw VoNotExistsException When the vo doesn't exist
@@ -1734,9 +1701,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       PerunSession sess = ac.getSession();
       if (parms.contains("vo")) {
         Vo vo = ac.getVoById(parms.readInt("vo"));
-        ApplicationFormItem formItem = parms.contains("formItem") ?
-            ac.getRegistrarManager().getFormItemById(sess, parms.readInt("formItem")) :
-            null;
+        ApplicationFormItem formItem =
+            parms.contains("formItem") ? ac.getRegistrarManager().getFormItemById(sess, parms.readInt("formItem")) :
+                null;
         if (formItem != null) {
           return ac.getRegistrarManager().getGroupsForAutoRegistration(sess, vo, formItem);
         } else {
@@ -1788,7 +1755,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * options for a particular form item.
    *
    * @throw GroupNotExistsException When the group doesn't exist
-   * @throw GroupIsNotASubgroup When the specified groups contain an item which is not a subgroup of the registration group
+   * @throw GroupIsNotASubgroup When the specified groups contain an item which is not a subgroup of the registration
+   *  group
    *
    * @param ids List<Integer> list of groups IDs
    * @param registrationGroup id of the group to which these groups are associated for the embedded registration
@@ -1849,7 +1817,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    *
    * @throw GroupNotExistsException When the group doesn't exist
    * @throw GroupNotAllowedToAutoRegistrationException When given group cannot be added to auto registration
-   * @throw GroupIsNotASubgroup When the specified groups contain an item which is not a subgroup of the registration group
+   * @throw GroupIsNotASubgroup When the specified groups contain an item which is not a subgroup of the registration
+   *  group
    *
    * @param ids List<Integer> list of groups IDs
    * @param registrationGroup id of the group to which these groups will be associated for the embedded registration

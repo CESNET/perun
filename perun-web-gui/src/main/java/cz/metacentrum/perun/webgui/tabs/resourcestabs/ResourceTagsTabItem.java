@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class ResourceTagsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "manage-tags";
+  public static final String URL = "manage-tags";
   /**
    * Perun web session
    */

@@ -5,14 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum OwnerType {
-  technical(0),
-  administrative(1);
+  technical(0), administrative(1);
 
-  private static final Map<Integer, OwnerType> lookup = new HashMap<Integer, OwnerType>();
+  private static final Map<Integer, OwnerType> LOOKUP = new HashMap<Integer, OwnerType>();
 
   static {
     for (OwnerType o : EnumSet.allOf(OwnerType.class)) {
-      lookup.put(o.getCode(), o);
+      LOOKUP.put(o.getCode(), o);
     }
   }
 
@@ -23,7 +22,7 @@ public enum OwnerType {
   }
 
   public static OwnerType getOwnerType(int code) {
-    return lookup.get(code);
+    return LOOKUP.get(code);
   }
 
   public int getCode() {

@@ -1,12 +1,25 @@
 package cz.metacentrum.perun.engine;
 
-import cz.metacentrum.perun.core.api.*;
+import static org.mockito.Mockito.mock;
+
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.TasksManagerImplApi;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.taskslib.model.SendTask;
 import cz.metacentrum.perun.taskslib.model.Task;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +27,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-import static org.mockito.Mockito.mock;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Rollback
@@ -59,14 +64,17 @@ public abstract class AbstractEngineTest {
   TasksManagerImplApi tasksManagerImpl;
   PerunSession sess;
 
+  public void mockSetUp() throws Exception {
+    schedulingPoolMock = mock(SchedulingPool.class);
+    jmsQueueManagerMock = mock(JMSQueueManager.class);
+  }
+
   @Before
   public void setup() throws Exception {
 
     // create session
-    sess = perun.getPerunSession(
-        new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-            ExtSourcesManager.EXTSOURCE_INTERNAL),
-        new PerunClient());
+    sess = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 
     // create expected core objects
 
@@ -85,21 +93,15 @@ public abstract class AbstractEngineTest {
     srv2.setScript("/bin/false"); // this command always return false
     service2 = perun.getServicesManagerBl().createService(sess, srv2);
 
-    destination1 = perun.getServicesManagerBl().addDestination(
-        sess, service, facility, new Destination(0, "par.dest1", "host", "PARALLEL"));
-    destination2 = perun.getServicesManagerBl().addDestination(
-        sess, service, facility, new Destination(0, "par.dest2", "host", "PARALLEL"));
-    destination3 = perun.getServicesManagerBl().addDestination(
-        sess, service, facility, new Destination(0, "one.dest1", "host", "ONE"));
-    destination4 = perun.getServicesManagerBl().addDestination(
-        sess, service, facility, new Destination(0, "one.dest2", "host", "ONE"));
-
-    List<Destination> destinations = new ArrayList<Destination>() {{
-      add(destination1);
-      add(destination2);
-      add(destination3);
-      add(destination4);
-    }};
+    destination1 = perun.getServicesManagerBl()
+        .addDestination(sess, service, facility, new Destination(0, "par.dest1", "host", "PARALLEL"));
+    destination2 = perun.getServicesManagerBl()
+        .addDestination(sess, service, facility, new Destination(0, "par.dest2", "host", "PARALLEL"));
+    destination3 = perun.getServicesManagerBl()
+        .addDestination(sess, service, facility, new Destination(0, "one.dest1", "host", "ONE"));
+    destination4 = perun.getServicesManagerBl()
+        .addDestination(sess, service, facility, new Destination(0, "one.dest2", "host", "ONE"));
+    List<Destination> destinations = new ArrayList<>(List.of(destination1, destination2, destination3, destination4));
 
     // create Tasks in shared perun-core DB (as if action was initiated by dispatcher).
 
@@ -143,10 +145,5 @@ public abstract class AbstractEngineTest {
     sendTaskFalse.setStartTime(new Date(System.currentTimeMillis()));
     sendTaskFalse.setStatus(SendTask.SendTaskStatus.SENDING);
     sendTaskFalse.setReturnCode(1);
-  }
-
-  public void mockSetUp() throws Exception {
-    schedulingPoolMock = mock(SchedulingPool.class);
-    jmsQueueManagerMock = mock(JMSQueueManager.class);
   }
 }

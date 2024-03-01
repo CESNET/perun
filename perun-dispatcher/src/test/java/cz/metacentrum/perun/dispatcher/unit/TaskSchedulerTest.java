@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Ignore("All those tests must be reworked to use Mocks!")
 public class TaskSchedulerTest extends AbstractDispatcherTest {
 
-  private final static Logger log = LoggerFactory.getLogger(TaskSchedulerTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TaskSchedulerTest.class);
   @Autowired
   SchedulingPool schedulingPool;
   @Resource(name = "dispatcherPropertiesBean")
@@ -66,55 +66,17 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
     simpleSpy.setSchedulingPool(schedulingPool);
     Long timeLimit = 100L;
     Task[] tasks = simpleSetup(timeLimit, schedulingPool);
-    Task testTask1 = tasks[0], testTask2 = tasks[1];
+    Task testTask1 = tasks[0];
     schedulingPool.scheduleTask(testTask1, 4);
     schedulingPool.scheduleTask(testTask1, 4);
     Thread.sleep(timeLimit / 100);
     schedulingPool.scheduleTask(testTask1, 4);
     Thread.sleep((timeLimit / 100) * 8);
+    Task testTask2 = tasks[1];
     schedulingPool.scheduleTask(testTask2, 4);
 
     simpleFutureTask.run();
     assertFalse(simpleSpy.testFailed);
-    try {
-      // FIXME - make every second test not to fail on interrupted exception
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void sourceUpdatedRunTest() {
-    simpleSpy.setTask(simpleFutureTask);
-    simpleSpy.setSchedulingPool(schedulingPool);
-    Long timeLimit = 100L;
-    Task[] tasks = simpleSetup(timeLimit, schedulingPool);
-    Task testTask1 = tasks[0], testTask2 = tasks[1];
-    testTask2.setSourceUpdated(true);
-    schedulingPool.scheduleTask(testTask2, 4);
-    schedulingPool.scheduleTask(testTask1, 4);
-    simpleFutureTask.run();
-    assertFalse(simpleSpy.testFailed);
-    try {
-      // FIXME - make every second test not to fail on interrupted exception
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void sourceUpdatedRecurrenceRunTest() {
-    recurrenceSpy.setTask(recurrenceFutureTask);
-    recurrenceSpy.setSchedulingPool(schedulingPool);
-    Long timeLimit = 100L;
-    Task[] tasks = simpleSetup(timeLimit, schedulingPool);
-    Task testTask1 = tasks[0];
-    schedulingPool.scheduleTask(testTask1, 2);
-
-    recurrenceFutureTask.run();
-    assertFalse(recurrenceSpy.testFailed);
     try {
       // FIXME - make every second test not to fail on interrupted exception
       Thread.sleep(1000);
@@ -145,6 +107,46 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
     return new Task[] {testTask1, testTask2};
   }
 
+  @Test
+  public void sourceUpdatedRecurrenceRunTest() {
+    recurrenceSpy.setTask(recurrenceFutureTask);
+    recurrenceSpy.setSchedulingPool(schedulingPool);
+    Long timeLimit = 100L;
+    Task[] tasks = simpleSetup(timeLimit, schedulingPool);
+    Task testTask1 = tasks[0];
+    schedulingPool.scheduleTask(testTask1, 2);
+
+    recurrenceFutureTask.run();
+    assertFalse(recurrenceSpy.testFailed);
+    try {
+      // FIXME - make every second test not to fail on interrupted exception
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void sourceUpdatedRunTest() {
+    simpleSpy.setTask(simpleFutureTask);
+    simpleSpy.setSchedulingPool(schedulingPool);
+    Long timeLimit = 100L;
+    Task[] tasks = simpleSetup(timeLimit, schedulingPool);
+    Task testTask1 = tasks[0];
+    Task testTask2 = tasks[1];
+    testTask2.setSourceUpdated(true);
+    schedulingPool.scheduleTask(testTask2, 4);
+    schedulingPool.scheduleTask(testTask1, 4);
+    simpleFutureTask.run();
+    assertFalse(simpleSpy.testFailed);
+    try {
+      // FIXME - make every second test not to fail on interrupted exception
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
   private abstract class AbstractTaskSchedulerSpy extends TaskScheduler {
     @Override
     protected void initPerunSession() {
@@ -161,10 +163,6 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
       this.scheduleLimit = scheduleLimit;
     }
 
-    public void setTask(FutureTask<SimpleTaskSchedulerSpy> task) {
-      this.task = task;
-    }
-
     @Override
     protected TaskScheduled sendToEngine(Task task) {
       if (task.isSourceUpdated() && !task.isPropagationForced()) {
@@ -179,6 +177,10 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
         stop();
       }
       return TaskScheduled.SUCCESS;
+    }
+
+    public void setTask(FutureTask<SimpleTaskSchedulerSpy> task) {
+      this.task = task;
     }
   }
 

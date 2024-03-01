@@ -1,5 +1,10 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -8,16 +13,10 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractPerunIntegrationTest {
 
@@ -60,37 +59,12 @@ public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractP
     when(sess.getPerunBl().getGroupsManagerBl().getParentGroup(sess, group)).thenReturn(parentGroup);
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongSyntax() throws Exception {
-    System.out.println("testWrongSyntax()");
-    attributeToCheck.setValue("bad@value");
-
-    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongSyntaxWithSpaceAtStart() throws Exception {
-    System.out.println("testWrongSyntaxWithSpaceAtStart()");
-    attributeToCheck.setValue(" badValue");
-
-    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void testWrongSyntaxWithSpaceAtEnd() throws Exception {
-    System.out.println("testWrongSyntaxWithSpaceAtEnd()");
-    attributeToCheck.setValue("badValue ");
-
-    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
-  }
-
   @Test
   public void testCorrectSyntax() {
     System.out.println("testCorrectSyntax()");
     attributeToCheck.setValue("correctValue");
 
-    assertThatNoException().isThrownBy(
-        () -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+    assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
   }
 
   @Test
@@ -98,17 +72,7 @@ public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractP
     System.out.println("testCorrectSyntaxWithDash()");
     attributeToCheck.setValue("-correct-Value-with-Dash-");
 
-    assertThatNoException().isThrownBy(
-        () -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
-  }
-
-  @Test
-  public void testCorrectSyntaxWithUnderscore() {
-    System.out.println("testCorrectSyntaxWithUnderscore()");
-    attributeToCheck.setValue("_correct_Value_with_Dash_");
-
-    assertThatNoException().isThrownBy(
-        () -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+    assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
   }
 
   @Test
@@ -116,8 +80,25 @@ public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractP
     System.out.println("testCorrectSyntaxWithSpace()");
     attributeToCheck.setValue("correct Value with Dash");
 
-    assertThatNoException().isThrownBy(
-        () -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+    assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+  }
+
+  @Test
+  public void testCorrectSyntaxWithUnderscore() {
+    System.out.println("testCorrectSyntaxWithUnderscore()");
+    attributeToCheck.setValue("_correct_Value_with_Dash_");
+
+    assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSyntax(sess, group, attributeToCheck));
+  }
+
+  @Test
+  public void testSemanticsCorrect() throws Exception {
+    System.out.println("testSemanticsCorrect()");
+    attributeToCheck.setValue("name");
+    requiredAttribute.setValue("tree");
+    requiredAttribute2.setValue("name2");
+
+    assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSemantics(sess, group, attributeToCheck));
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
@@ -137,18 +118,30 @@ public class urn_perun_group_attribute_def_def_adGroupNameTest extends AbstractP
     requiredAttribute.setValue("");
     requiredAttribute2.setValue("name");
 
-    assertThatNoException().isThrownBy(
-        () -> classInstance.checkAttributeSemantics(sess, group, attributeToCheck));
+    assertThatNoException().isThrownBy(() -> classInstance.checkAttributeSemantics(sess, group, attributeToCheck));
   }
 
-  @Test
-  public void testSemanticsCorrect() throws Exception {
-    System.out.println("testSemanticsCorrect()");
-    attributeToCheck.setValue("name");
-    requiredAttribute.setValue("tree");
-    requiredAttribute2.setValue("name2");
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongSyntax() throws Exception {
+    System.out.println("testWrongSyntax()");
+    attributeToCheck.setValue("bad@value");
 
-    assertThatNoException().isThrownBy(
-        () -> classInstance.checkAttributeSemantics(sess, group, attributeToCheck));
+    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongSyntaxWithSpaceAtEnd() throws Exception {
+    System.out.println("testWrongSyntaxWithSpaceAtEnd()");
+    attributeToCheck.setValue("badValue ");
+
+    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testWrongSyntaxWithSpaceAtStart() throws Exception {
+    System.out.println("testWrongSyntaxWithSpaceAtStart()");
+    attributeToCheck.setValue(" badValue");
+
+    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
   }
 }

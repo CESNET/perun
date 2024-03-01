@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -16,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleImplApi;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -32,16 +30,6 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Memb
     implements MemberResourceAttributesModuleImplApi {
 
   public static final String A_R_maxUserFileQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":maxUserFileQuotas";
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, member, false);
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource,
@@ -62,7 +50,8 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Memb
       throw new ConsistencyErrorException("Quotas on " + resource + " for member " + member + " are in bad format.", e);
     }
 
-    //If there are no values after converting quota, we can skip testing against maxUserFileQuota attribute, because there is nothing to check
+    //If there are no values after converting quota, we can skip testing against maxUserFileQuota attribute, because
+    // there is nothing to check
     if (fileQuotasForMemberOnResource == null || fileQuotasForMemberOnResource.isEmpty()) {
       return;
     }
@@ -84,8 +73,8 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Memb
     } catch (WrongAttributeValueException ex) {
       throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, resource, member, resource,
           null,
-          "Can't set fileQuotas for member on resource, because maxUserQuota is not in correct format. Please fix it first!",
-          ex);
+          "Can't set fileQuotas for member on resource, because maxUserQuota is not in correct format. Please fix it " +
+          "first!", ex);
     }
 
     try {
@@ -93,16 +82,18 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Memb
           .checkIfQuotasIsInLimit(fileQuotasForMemberOnResource, maxUserFileQuotasForResource);
     } catch (QuotaNotInAllowedLimitException ex) {
       throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, member, resource, resource,
-          null,
-          "FileQuotas for member on resource is not in limit of maxUserQuota!", ex);
+          null, "FileQuotas for member on resource is not in limit of maxUserQuota!", ex);
     }
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_R_maxUserFileQuotas);
-    return dependencies;
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, member, false);
   }
 
   @Override
@@ -115,5 +106,12 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Memb
     attr.setDescription(
         "Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota'. Example: '1000:2000'.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_R_maxUserFileQuotas);
+    return dependencies;
   }
 }

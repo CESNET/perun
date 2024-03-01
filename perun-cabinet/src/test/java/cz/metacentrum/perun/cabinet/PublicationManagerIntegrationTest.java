@@ -1,46 +1,22 @@
 package cz.metacentrum.perun.cabinet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.model.Publication;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
-
-import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 
 public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
   // ------------- TESTS --------------------------------------------
-
-  @Test
-  public void createPublicationTest() throws Exception {
-    System.out.println("PublicationManagerIntegrationTest.createPublicationTest");
-
-    Publication p = new Publication();
-    p.setCategoryId(publicationOne.getCategoryId());
-    p.setCreatedBy(sess.getPerunPrincipal().getActor()); // Pepa id 10, userId 1
-    p.setCreatedDate(new Date());
-    p.setExternalId(999);
-    p.setIsbn("isbn 123-4556-899");
-    p.setMain("KERBEROS main zaznam.");
-    p.setPublicationSystemId(publicationOne.getPublicationSystemId()); //MU
-    p.setTitle("Kerberos");
-    p.setYear(2010);
-    p.setRank(0.0);
-    p.setLocked(false);
-    p.setDoi("DOI");
-    p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
-
-    p = getCabinetManager().createPublication(sess, p);
-    assertTrue("Returned ID shouldn't be < 0.", p.getId() > 0);
-
-  }
 
   @Test
   public void createInternalPublicationTest() throws Exception {
@@ -80,19 +56,26 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
   }
 
   @Test
-  public void getPublicationByIdOrExtIdTest() throws Exception {
-    System.out.println("PublicationManagerIntegrationTest.getPublicationByIdOrExtIdTest");
+  public void createPublicationTest() throws Exception {
+    System.out.println("PublicationManagerIntegrationTest.createPublicationTest");
 
-    // search base on publicationOne ID
-    Publication retrievedPub = getCabinetManager().getPublicationById(publicationOne.getId());
-    assertTrue("Returned publications can't be null or empty.", (retrievedPub != null));
-    assertTrue("Returned publication should be same as publicationOne.", Objects.equals(publicationOne, retrievedPub));
+    Publication p = new Publication();
+    p.setCategoryId(publicationOne.getCategoryId());
+    p.setCreatedBy(sess.getPerunPrincipal().getActor()); // Pepa id 10, userId 1
+    p.setCreatedDate(new Date());
+    p.setExternalId(999);
+    p.setIsbn("isbn 123-4556-899");
+    p.setMain("KERBEROS main zaznam.");
+    p.setPublicationSystemId(publicationOne.getPublicationSystemId()); //MU
+    p.setTitle("Kerberos");
+    p.setYear(2010);
+    p.setRank(0.0);
+    p.setLocked(false);
+    p.setDoi("DOI");
+    p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
-    // search base on publicationOne EXT_ID, PUB_SYS_ID
-    retrievedPub = getCabinetManager().getPublicationByExternalId(publicationOne.getExternalId(),
-        publicationOne.getPublicationSystemId());
-    assertTrue("Returned publications can't be null or empty.", (retrievedPub != null));
-    assertTrue("Returned publication should be same as publicationOne.", Objects.equals(publicationOne, retrievedPub));
+    p = getCabinetManager().createPublication(sess, p);
+    assertTrue("Returned ID shouldn't be < 0.", p.getId() > 0);
 
   }
 
@@ -131,43 +114,19 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
   }
 
   @Test
-  public void updatePublicationTest() throws Exception {
-    System.out.println("PublicationManagerIntegrationTest.updatePublicationTest");
+  public void getPublicationByIdOrExtIdTest() throws Exception {
+    System.out.println("PublicationManagerIntegrationTest.getPublicationByIdOrExtIdTest");
 
-    publicationOne.setMain("NEW MAIN");
-    getCabinetManager().updatePublication(sess, publicationOne);
+    // search base on publicationOne ID
+    Publication retrievedPub = getCabinetManager().getPublicationById(publicationOne.getId());
+    assertTrue("Returned publications can't be null or empty.", (retrievedPub != null));
+    assertTrue("Returned publication should be same as publicationOne.", Objects.equals(publicationOne, retrievedPub));
 
-    Publication pub = getCabinetManager().getPublicationById(publicationOne.getId());
-    assertEquals("Returned publication should be updated.", pub, publicationOne);
-    assertEquals("Returned publication should be updated.", pub.getMain(), publicationOne.getMain());
-
-  }
-
-  @Test
-  public void updatePublicationWhenNotExistsTest() throws Exception {
-    System.out.println("PublicationManagerIntegrationTest.updatePublicationWhenNotExistsTest");
-
-    Publication pub = new Publication();
-    try {
-      getCabinetManager().updatePublication(sess, pub);
-    } catch (CabinetException ex) {
-      if (!ex.getType().equals(ErrorCodes.PUBLICATION_NOT_EXISTS)) {
-        fail("Different exception code, was: " + ex.getType() + ", but expected: PUBLICATION_NOT_EXISTS.");
-        // fail if different error
-      }
-    }
-
-  }
-
-  @Test(expected = CabinetException.class)
-  public void updatePublicationWhenCantUpdateTest() throws Exception {
-    System.out.println("PublicationManagerIntegrationTest.updatePublicationWhenWhenCantUpdateTest");
-
-    // make pub2 same as pub 1
-    publicationTwo.setPublicationSystemId(publicationOne.getPublicationSystemId());
-    publicationTwo.setExternalId(publicationOne.getExternalId());
-
-    getCabinetManager().updatePublication(sess, publicationTwo);
+    // search base on publicationOne EXT_ID, PUB_SYS_ID
+    retrievedPub = getCabinetManager().getPublicationByExternalId(publicationOne.getExternalId(),
+        publicationOne.getPublicationSystemId());
+    assertTrue("Returned publications can't be null or empty.", (retrievedPub != null));
+    assertTrue("Returned publication should be same as publicationOne.", Objects.equals(publicationOne, retrievedPub));
 
   }
 
@@ -223,6 +182,47 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
     assertTrue("Isbn shouldn't be longer than 32.", p.getIsbn().length() <= 32);
     assertTrue("Title shouldn't be longer than 1024.", p.getTitle().length() <= 1024);
     assertTrue("Main shouldn't be longer than 4000.", p.getMain().length() <= 4000);
+
+  }
+
+  @Test
+  public void updatePublicationTest() throws Exception {
+    System.out.println("PublicationManagerIntegrationTest.updatePublicationTest");
+
+    publicationOne.setMain("NEW MAIN");
+    getCabinetManager().updatePublication(sess, publicationOne);
+
+    Publication pub = getCabinetManager().getPublicationById(publicationOne.getId());
+    assertEquals("Returned publication should be updated.", pub, publicationOne);
+    assertEquals("Returned publication should be updated.", pub.getMain(), publicationOne.getMain());
+
+  }
+
+  @Test(expected = CabinetException.class)
+  public void updatePublicationWhenCantUpdateTest() throws Exception {
+    System.out.println("PublicationManagerIntegrationTest.updatePublicationWhenWhenCantUpdateTest");
+
+    // make pub2 same as pub 1
+    publicationTwo.setPublicationSystemId(publicationOne.getPublicationSystemId());
+    publicationTwo.setExternalId(publicationOne.getExternalId());
+
+    getCabinetManager().updatePublication(sess, publicationTwo);
+
+  }
+
+  @Test
+  public void updatePublicationWhenNotExistsTest() throws Exception {
+    System.out.println("PublicationManagerIntegrationTest.updatePublicationWhenNotExistsTest");
+
+    Publication pub = new Publication();
+    try {
+      getCabinetManager().updatePublication(sess, pub);
+    } catch (CabinetException ex) {
+      if (!ex.getType().equals(ErrorCodes.PUBLICATION_NOT_EXISTS)) {
+        fail("Different exception code, was: " + ex.getType() + ", but expected: PUBLICATION_NOT_EXISTS.");
+        // fail if different error
+      }
+    }
 
   }
 

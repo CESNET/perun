@@ -26,28 +26,23 @@ public class RichResource extends Resource {
    */
   public RichResource(Resource resource) {
     super(resource.getId(), resource.getName(), resource.getDescription(), resource.getFacilityId(), resource.getVoId(),
-        resource.getCreatedAt(),
-        resource.getCreatedBy(), resource.getModifiedAt(), resource.getModifiedBy(), resource.getCreatedByUid(),
-        resource.getModifiedByUid());
+        resource.getCreatedAt(), resource.getCreatedBy(), resource.getModifiedAt(), resource.getModifiedBy(),
+        resource.getCreatedByUid(), resource.getModifiedByUid());
     this.setUuid(resource.getUuid());
   }
 
   /**
-   * Returns VO associated with this resource
+   * Add ResourceTag to Resource (used to fill in from SQL)
    *
-   * @return VO associated with resource
+   * @param tag ResourceTag to add
    */
-  public Vo getVo() {
-    return this.vo;
-  }
-
-  /**
-   * Sets VO associated with this resource
-   *
-   * @param vo VO associated with resource
-   */
-  public void setVo(Vo vo) {
-    this.vo = vo;
+  public void addResourceTag(ResourceTag tag) {
+    if (resourceTags == null) {
+      this.resourceTags = new ArrayList<ResourceTag>();
+    }
+    if (tag != null && !resourceTags.contains(tag)) {
+      this.resourceTags.add(tag);
+    }
   }
 
   /**
@@ -87,17 +82,21 @@ public class RichResource extends Resource {
   }
 
   /**
-   * Add ResourceTag to Resource (used to fill in from SQL)
+   * Returns VO associated with this resource
    *
-   * @param tag ResourceTag to add
+   * @return VO associated with resource
    */
-  public void addResourceTag(ResourceTag tag) {
-    if (resourceTags == null) {
-      this.resourceTags = new ArrayList<ResourceTag>();
-    }
-    if (tag != null && !resourceTags.contains(tag)) {
-      this.resourceTags.add(tag);
-    }
+  public Vo getVo() {
+    return this.vo;
+  }
+
+  /**
+   * Sets VO associated with this resource
+   *
+   * @param vo VO associated with resource
+   */
+  public void setVo(Vo vo) {
+    this.vo = vo;
   }
 
   @Override
@@ -113,38 +112,26 @@ public class RichResource extends Resource {
       tags = list.toString();
     }
 
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", uuid=<").append(getUuid()).append(">").append(
-            ", voId=<").append(getVoId()).append(">").append(
-            ", facilityId=<").append(getFacilityId()).append(">").append(
-            ", name=<").append(super.getName() == null ? "\\0" : BeansUtils.createEscaping(super.getName())).append(">")
-        .append(
-            ", description=<")
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", uuid=<").append(getUuid()).append(">").append(", voId=<").append(getVoId()).append(">")
+        .append(", facilityId=<").append(getFacilityId()).append(">").append(", name=<")
+        .append(super.getName() == null ? "\\0" : BeansUtils.createEscaping(super.getName())).append(">")
+        .append(", description=<")
         .append(super.getDescription() == null ? "\\0" : BeansUtils.createEscaping(super.getDescription())).append(">")
-        .append(
-            ", facility=<").append(getFacility() == null ? "\\0" : getFacility().serializeToString()).append(">")
-        .append(
-            ", vo=<").append(getVo() == null ? "\\0" : getVo().serializeToString()).append(">").append(
-            ", resourceTags=<").append(tags).append(">").append(
-            ']').toString();
+        .append(", facility=<").append(getFacility() == null ? "\\0" : getFacility().serializeToString()).append(">")
+        .append(", vo=<").append(getVo() == null ? "\\0" : getVo().serializeToString()).append(">")
+        .append(", resourceTags=<").append(tags).append(">").append(']').toString();
   }
 
   @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
 
-    return str.append(getClass().getSimpleName()).append(":["
-    ).append("id='").append(getId()
-    ).append("', uuid='").append(getUuid()
-    ).append("', voId='").append(super.getVoId()
-    ).append("', facilityId='").append(super.getFacilityId()
-    ).append("', name='").append(super.getName()
-    ).append("', description='").append(super.getDescription()
-    ).append("', facility='").append(getFacility()
-    ).append("', vo='").append(getVo()
-    ).append("', resourceTags='").append(getResourceTags()
-    ).append("']").toString();
+    return str.append(getClass().getSimpleName()).append(":[").append("id='").append(getId()).append("', uuid='")
+        .append(getUuid()).append("', voId='").append(super.getVoId()).append("', facilityId='")
+        .append(super.getFacilityId()).append("', name='").append(super.getName()).append("', description='")
+        .append(super.getDescription()).append("', facility='").append(getFacility()).append("', vo='").append(getVo())
+        .append("', resourceTags='").append(getResourceTags()).append("']").toString();
   }
 
 }

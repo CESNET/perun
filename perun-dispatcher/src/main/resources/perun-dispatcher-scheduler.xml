@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task" xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-	<!-- needs perun-dispatcher.xml loaded before this file -->
+    <!-- needs perun-dispatcher.xml loaded before this file -->
 
-	<!-- When imported - actually start scheduler for specified jobs -->
+    <!-- When imported - actually start scheduler for specified jobs -->
 
-	<task:scheduler id="perunScheduler" pool-size="4" />
+    <task:scheduler id="perunScheduler" pool-size="4"/>
 
-	<task:scheduled-tasks scheduler="perunScheduler">
-		<!-- 30 seconds: 0/30 * * * * ? -->
-		<!--  3 minutes: 0 0/3 * * * ?  -->
-		<task:scheduled ref="dispatcherManager" method="cleanOldTaskResults" cron="${dispatcher.cron.cleantaskresults}" />
-	</task:scheduled-tasks>
+    <task:scheduled-tasks scheduler="perunScheduler">
+        <!-- 30 seconds: 0/30 * * * * ? -->
+        <!--  3 minutes: 0 0/3 * * * ?  -->
+        <task:scheduled ref="dispatcherManager" method="cleanOldTaskResults"
+                        cron="${dispatcher.cron.cleantaskresults}"/>
+    </task:scheduled-tasks>
 
 </beans>

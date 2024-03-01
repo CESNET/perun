@@ -2,12 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import com.google.api.client.util.Base64;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cz.metacentrum.perun.core.api.exceptions.SshKeyNotValidException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -27,6 +22,10 @@ import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.List;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validates SSH keys using predefined rules and the `ssh-keygen` tool as a final check
@@ -35,7 +34,7 @@ import java.util.List;
  */
 public class SSHValidator {
 
-  private static final Logger log = LoggerFactory.getLogger(SSHValidator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SSHValidator.class);
 
   private static final String SSH_RSA = "ssh-rsa";
   private static final String SSH_DSS = "ssh-dss";
@@ -54,49 +53,34 @@ public class SSHValidator {
   private static final String ECDSA_SHA2_NISTP521_CERT = "ecdsa-sha2-nistp521-cert-v01@openssh.com";
   private static final String SK_ECDSA_SHA2_NISTP256_CERT = "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com";
 
-  private static final List<String> ALLOWED_SSH_TYPES = List.of(
-      SSH_RSA,
-      SSH_DSS,
-      ECDSA_SHA2_NISTP256,
-      ECDSA_SHA2_NISTP384,
-      ECDSA_SHA2_NISTP521,
-      SSH_ED25519,
-      SSH_ED25519_CERT,
-      SK_SSH_ED25519,
-      SK_SSH_ED25519_CERT,
-      SK_ECDSA_SHA2_NISTP256,
-      SSH_RSA_CERT,
-      SSH_DSS_CERT,
-      ECDSA_SHA2_NISTP256_CERT,
-      ECDSA_SHA2_NISTP384_CERT,
-      ECDSA_SHA2_NISTP521_CERT,
-      SK_ECDSA_SHA2_NISTP256_CERT);
+  private static final List<String> ALLOWED_SSH_TYPES =
+      List.of(SSH_RSA, SSH_DSS, ECDSA_SHA2_NISTP256, ECDSA_SHA2_NISTP384, ECDSA_SHA2_NISTP521, SSH_ED25519,
+          SSH_ED25519_CERT, SK_SSH_ED25519, SK_SSH_ED25519_CERT, SK_ECDSA_SHA2_NISTP256, SSH_RSA_CERT, SSH_DSS_CERT,
+          ECDSA_SHA2_NISTP256_CERT, ECDSA_SHA2_NISTP384_CERT, ECDSA_SHA2_NISTP521_CERT, SK_ECDSA_SHA2_NISTP256_CERT);
 
   // for now without cert variant
-  private static final List<String> RSA_SSH_TYPES = List.of(
-      SSH_RSA);
+  private static final List<String> RSA_SSH_TYPES = List.of(SSH_RSA);
 
   // for now without cert variant
-  private static final List<String> ECDSA_SSH_TYPES = List.of(
-      ECDSA_SHA2_NISTP256,
-      ECDSA_SHA2_NISTP384,
-      ECDSA_SHA2_NISTP521,
-      SK_ECDSA_SHA2_NISTP256);
+  private static final List<String> ECDSA_SSH_TYPES =
+      List.of(ECDSA_SHA2_NISTP256, ECDSA_SHA2_NISTP384, ECDSA_SHA2_NISTP521, SK_ECDSA_SHA2_NISTP256);
 
   // for now without cert variant
-  private static final List<String> DSA_SSH_TYPES = List.of(
-      SSH_DSS);
+  private static final List<String> DSA_SSH_TYPES = List.of(SSH_DSS);
+
+  private SSHValidator() {
+  }
 
 
   /**
    * Checks whether is the SSH key in the correct format.
    *
    * @param sshKey SSH key to be checked
-   * @throws SSHKeyNotValidException that is thrown whenever SSH key is not in correct format
+   * @throws SshKeyNotValidException that is thrown whenever SSH key is not in correct format
    */
-  public static void validateSSH(String sshKey) throws SSHKeyNotValidException {
+  public static void validateSSH(String sshKey) throws SshKeyNotValidException {
     if (sshKey == null || sshKey.isEmpty()) {
-      throw new SSHKeyNotValidException("SSH key has to cannot be empty or null");
+      throw new SshKeyNotValidException("SSH key has to cannot be empty or null");
     }
     try {
       sshKey = removeSSHKeyCommandPrefix(sshKey);
@@ -105,26 +89,26 @@ public class SSHValidator {
 
       String[] sshKeyParts = sshKey.split(" ");
       if (sshKeyParts.length < 2) {
-        throw new SSHKeyNotValidException(
+        throw new SshKeyNotValidException(
             "SSH public key has to consists at least from the key type and the Base64 encoded public key.");
       }
 
       String sshKeyType = sshKeyParts[0];
       if (!ALLOWED_SSH_TYPES.contains(sshKeyType)) {
-        throw new SSHKeyNotValidException(
+        throw new SshKeyNotValidException(
             "The " + sshKeyType + " key type is not allowed. Allowed types are: " + ALLOWED_SSH_TYPES + ".");
       }
 
       try {
         sshBase64KeyBytes = Base64.decodeBase64(sshKeyParts[1]);
       } catch (Exception exception) {
-        throw new SSHKeyNotValidException("Provided Base64 encoded public key is not valid.");
+        throw new SshKeyNotValidException("Provided Base64 encoded public key is not valid.");
       }
 
       String sshBase64KeyType = decodeType(sshBase64KeyBytes, pos);
       if (!sshBase64KeyType.equals(sshKeyType)) {
-        throw new SSHKeyNotValidException("SSH types are not same. Type defined before the Base64 is: " + sshKeyType +
-            " and type inside the Base64 is: " + sshBase64KeyType + ".");
+        throw new SshKeyNotValidException("SSH types are not same. Type defined before the Base64 is: " + sshKeyType +
+                                          " and type inside the Base64 is: " + sshBase64KeyType + ".");
       }
 
       try {
@@ -136,10 +120,10 @@ public class SSHValidator {
           decodeEcdsa(sshBase64KeyBytes, pos);
         }
       } catch (Exception ex) {
-        throw new SSHKeyNotValidException("Provided Base64 encoded public key is not valid.");
+        throw new SshKeyNotValidException("Provided Base64 encoded public key is not valid.");
       }
     } catch (Exception e) {
-      throw new SSHKeyNotValidException("Invalid SSH key format:  " + e.getMessage());
+      throw new SshKeyNotValidException("Invalid SSH key format:  " + e.getMessage());
     }
     // check one more time with ssh-keygen for edge cases
     runSshKeygen(sshKey);
@@ -149,9 +133,9 @@ public class SSHValidator {
    * Validates ssh public key using the ssh-keygen tool
    *
    * @param sshKey ssh public key to verify
-   * @throws SSHKeyNotValidException when validation fails
+   * @throws SshKeyNotValidException when validation fails
    */
-  private static void runSshKeygen(String sshKey) throws SSHKeyNotValidException {
+  private static void runSshKeygen(String sshKey) throws SshKeyNotValidException {
     File tempSSH = null;
     try {
       tempSSH = File.createTempFile("perunSSHAttr", ".txt");
@@ -167,11 +151,11 @@ public class SSHValidator {
 
       int returnCode = process.waitFor();
       if (returnCode != 0) {
-        log.error("SSH validation error: " + error + " for key: " + sshKey + " with error code: " + returnCode);
+        LOG.error("SSH validation error: " + error + " for key: " + sshKey + " with error code: " + returnCode);
         if (returnCode == 255) {
-          throw new SSHKeyNotValidException("Provided SSH key is not valid");
+          throw new SshKeyNotValidException("Provided SSH key is not valid");
         }
-        throw new SSHKeyNotValidException("SSH validation failed with: " + error);
+        throw new SshKeyNotValidException("SSH validation failed with: " + error);
       }
     } catch (IOException | InterruptedException ex) {
       throw new InternalErrorException("File error while verifying ssh key");
@@ -181,7 +165,7 @@ public class SSHValidator {
           Files.deleteIfExists(tempSSH.toPath());
         }
       } catch (IOException ex) {
-        log.error("Failed to remove file: " + tempSSH.getAbsolutePath() + " after verifying ssh key");
+        LOG.error("Failed to remove file: " + tempSSH.getAbsolutePath() + " after verifying ssh key");
         throw new InternalErrorException("Couldn't delete files after verifying ssh key");
       }
     }
@@ -261,13 +245,13 @@ public class SSHValidator {
   }
 
   /**
-   * Provides means to get from a parsed Q value to the X and Y point values.
-   * that can be used to create and ECPoint compatible with ECPublicKeySpec.
+   * Provides means to get from a parsed Q value to the X and Y point values. that can be used to create and ECPoint
+   * compatible with ECPublicKeySpec.
    *
-   * @param q          According to RFC 5656:
-   *                   "Q is the public key encoded from an elliptic curve point into an octet string"
-   * @param identifier According to RFC 5656:
-   *                   "The string [identifier] is the identifier of the elliptic curve domain parameters."
+   * @param q          According to RFC 5656: "Q is the public key encoded from an elliptic curve point into an octet
+   *                   string"
+   * @param identifier According to RFC 5656: "The string [identifier] is the identifier of the elliptic curve domain
+   *                   parameters."
    * @return An ECPoint suitable for creating a JCE ECPublicKeySpec.
    */
   private static ECPoint getECPoint(BigInteger q, String identifier) {
@@ -282,8 +266,8 @@ public class SSHValidator {
   /**
    * Gets the curve parameters for the given key type identifier.
    *
-   * @param identifier According to RFC 5656:
-   *                   "The string [identifier] is the identifier of the elliptic curve domain parameters."
+   * @param identifier According to RFC 5656: "The string [identifier] is the identifier of the elliptic curve domain
+   *                   parameters."
    * @return An ECParameterSpec suitable for creating a JCE ECPublicKeySpec.
    */
   private static ECParameterSpec getECParameterSpec(String identifier) {
@@ -320,8 +304,8 @@ public class SSHValidator {
    * @return Integer part of SSH key
    */
   private static int decodeInt(byte[] bytes, int[] pos) {
-    return ((bytes[pos[0]++] & 0xFF) << 24) | ((bytes[pos[0]++] & 0xFF) << 16)
-        | ((bytes[pos[0]++] & 0xFF) << 8) | (bytes[pos[0]++] & 0xFF);
+    return ((bytes[pos[0]++] & 0xFF) << 24) | ((bytes[pos[0]++] & 0xFF) << 16) | ((bytes[pos[0]++] & 0xFF) << 8) |
+           (bytes[pos[0]++] & 0xFF);
   }
 
   /**

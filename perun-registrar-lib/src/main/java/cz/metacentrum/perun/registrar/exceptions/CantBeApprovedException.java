@@ -3,8 +3,8 @@ package cz.metacentrum.perun.registrar.exceptions;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 
 /**
- * Exception throw when application can't be approved by custom VO rules.
- * It's not meant as a "hard" error but only as a notice to GUI.
+ * Exception throw when application can't be approved by custom VO rules. It's not meant as a "hard" error but only as a
+ * notice to GUI.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -50,44 +50,44 @@ public class CantBeApprovedException extends PerunException {
     this.reason = reason;
   }
 
-  public String getReason() {
-    return reason;
-  }
-
-  public void setReason(String reason) {
-    this.reason = reason;
-  }
-
-  public String getCategory() {
-    return category;
-  }
-
-  public void setCategory(String category) {
-    this.category = category;
-  }
-
   public String getAffiliation() {
     return affiliation;
-  }
-
-  public void setAffiliation(String affiliation) {
-    this.affiliation = affiliation;
-  }
-
-  public boolean isSoft() {
-    return isSoft;
-  }
-
-  public void setSoft(boolean soft) {
-    isSoft = soft;
   }
 
   public int getApplicationId() {
     return applicationId;
   }
 
+  public String getCategory() {
+    return category;
+  }
+
+  public String getReason() {
+    return reason;
+  }
+
+  public boolean isSoft() {
+    return isSoft;
+  }
+
+  public void setAffiliation(String affiliation) {
+    this.affiliation = affiliation;
+  }
+
   public void setApplicationId(int applicationId) {
     this.applicationId = applicationId;
+  }
+
+  public void setCategory(String category) {
+    this.category = category;
+  }
+
+  public void setReason(String reason) {
+    this.reason = reason;
+  }
+
+  public void setSoft(boolean soft) {
+    isSoft = soft;
   }
 
 }

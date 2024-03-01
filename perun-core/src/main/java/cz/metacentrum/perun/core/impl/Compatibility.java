@@ -3,11 +3,12 @@ package cz.metacentrum.perun.core.impl;
 import java.sql.Timestamp;
 
 /**
- * This class provide support for compatibility issues.
- * For example for covering differences between oracle and postgres DB.
- * Currently supports only postgresql.
+ * This class provide support for compatibility issues. For example for covering differences between oracle and postgres
+ * DB. Currently supports only postgresql.
  */
 public class Compatibility {
+  private Compatibility() {
+  }
 
   static String getSequenceNextval(String sequenceName) {
     return "nextval('" + sequenceName + "')";

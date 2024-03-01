@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class SelfSponsoredUsersTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "sponsored-users";
+  public static final String URL = "sponsored-users";
   private PerunWebSession session = PerunWebSession.getInstance();
   private User user;
   private int userId;

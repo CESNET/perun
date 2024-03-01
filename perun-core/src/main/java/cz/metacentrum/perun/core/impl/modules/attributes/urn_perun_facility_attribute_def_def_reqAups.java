@@ -15,14 +15,15 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Checks if all required AUP for facility are correct (available as keys in urn_perun_entityless_attribute_def_def_orgAups)
+ * Checks if all required AUP for facility are correct (available as keys in
+ * urn_perun_entityless_attribute_def_def_orgAups)
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class urn_perun_facility_attribute_def_def_reqAups extends FacilityAttributesModuleAbstract
     implements FacilityAttributesModuleImplApi {
 
-  private final static String availableAups = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":orgAups";
+  private static final String availableAups = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":orgAups";
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
@@ -67,7 +68,8 @@ public class urn_perun_facility_attribute_def_def_reqAups extends FacilityAttrib
     attr.setDisplayName("Required AUP");
     attr.setType(ArrayList.class.getName());
     attr.setDescription(
-        "List of required AUP names. Users must agree with all recent AUPs before accessing the service represented by this facility.");
+        "List of required AUP names. Users must agree with all recent AUPs before accessing the service represented " +
+        "by this facility.");
     return attr;
   }
 

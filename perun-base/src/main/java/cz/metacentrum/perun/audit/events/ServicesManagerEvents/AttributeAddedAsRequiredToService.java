@@ -20,13 +20,13 @@ public class AttributeAddedAsRequiredToService extends AuditEvent {
     this.message = formatMessage("%s added to %s as required attribute.", attribute, service);
   }
 
+  public AttributeDefinition getAttribute() {
+    return attribute;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public AttributeDefinition getAttribute() {
-    return attribute;
   }
 
   public Service getService() {

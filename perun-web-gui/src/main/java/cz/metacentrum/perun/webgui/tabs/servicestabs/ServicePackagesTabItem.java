@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class ServicePackagesTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "pack";
+  public static final String URL = "pack";
   /**
    * Perun web session
    */

@@ -1,35 +1,14 @@
 package cz.metacentrum.perun.core.bl;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.sql.DataSource;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.ContextHierarchy;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.FacilityState.FacilityPropagationState;
@@ -51,11 +30,26 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.sql.DataSource;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextHierarchy({
-    @ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})
-})
+@ContextHierarchy({@ContextConfiguration(locations = {"classpath:perun-base.xml", "classpath:perun-core.xml"})})
 @Transactional(transactionManager = "springTransactionManager")
 public class TasksManagerBlImplTest {
 
@@ -82,10 +76,8 @@ public class TasksManagerBlImplTest {
 
   @Before
   public void setUp() throws Exception {
-    perunSession = perun.getPerunSession(
-        new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-            ExtSourcesManager.EXTSOURCE_INTERNAL),
-        new PerunClient());
+    perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 
     jdbcTemplate = new JdbcPerunTemplate(dataSource);
 
@@ -196,12 +188,7 @@ public class TasksManagerBlImplTest {
     result2.setService(testService1);
     result2.setTaskId(task1Id);
     result2.setStatus(TaskResultStatus.DONE);
-    result2.setTimestamp(Date.from(
-        LocalDate
-            .now()
-            .minusDays(7)
-            .atStartOfDay(ZoneId.systemDefault())
-            .toInstant()));
+    result2.setTimestamp(Date.from(LocalDate.now().minusDays(7).atStartOfDay(ZoneId.systemDefault()).toInstant()));
     result2Id = tasksManager.insertNewTaskResult(perunSession, result2);
     result2.setId(result2Id);
 
@@ -212,21 +199,13 @@ public class TasksManagerBlImplTest {
     result3.setService(testService1);
     result3.setTaskId(task1Id);
     result3.setStatus(TaskResultStatus.DONE);
-    result3.setTimestamp(Date.from(
-        LocalDate
-            .now()
-            .minusDays(7)
-            .atStartOfDay(ZoneId.systemDefault())
-            .toInstant()));
+    result3.setTimestamp(Date.from(LocalDate.now().minusDays(7).atStartOfDay(ZoneId.systemDefault()).toInstant()));
     result3Id = tasksManager.insertNewTaskResult(perunSession, result3);
     result3.setId(result3Id);
 
-    jdbcTemplate.query("select id from tasks_results where task_id = ?",
-        row -> {
-          System.out.println("ID: " + row.getInt("id"));
-        },
-        task2Id
-    );
+    jdbcTemplate.query("select id from tasks_results where task_id = ?", row -> {
+      System.out.println("ID: " + row.getInt("id"));
+    }, task2Id);
 
   }
 
@@ -263,8 +242,8 @@ public class TasksManagerBlImplTest {
   public void testDeleteTaskResultsById() {
     System.out.println("TasksManagerBlImplTest.testDeleteTaskResultsById");
     tasksManager.deleteTaskResultById(perunSession, result1Id);
-    assertThatExceptionOfType(EmptyResultDataAccessException.class)
-        .isThrownBy(() -> tasksManager.getTaskResultById(perunSession, result1Id));
+    assertThatExceptionOfType(EmptyResultDataAccessException.class).isThrownBy(
+        () -> tasksManager.getTaskResultById(perunSession, result1Id));
   }
 
   @Test
@@ -365,13 +344,26 @@ public class TasksManagerBlImplTest {
   @Test
   public void testGetTaskResultById() {
     System.out.println("TasksManagerBlImplTest.testGetTaskResultById");
-    assertTrue(result1.equals(tasksManager.getTaskResultById(perunSession, result1Id)));
+    assertEquals(result1, tasksManager.getTaskResultById(perunSession, result1Id));
   }
 
   @Test
   public void testGetTaskResults() {
     System.out.println("TasksManagerBlImplTest.testGetTaskResults");
     assertEquals(3, tasksManager.getTaskResults(perunSession).size());
+  }
+
+  @Test
+  public void testGetTaskResultsByDestinations() {
+    System.out.println("TasksManagerBlImplTest.testGetTaskResultsByDestinations");
+    assertEquals(2,
+        tasksManager.getTaskResultsByDestinations(perunSession, List.of("test.destination." + testDestinationId1))
+            .size());
+    assertEquals(1,
+        tasksManager.getTaskResultsByDestinations(perunSession, List.of("test.destination." + testDestinationId2))
+            .size());
+    assertEquals(3, tasksManager.getTaskResultsByDestinations(perunSession,
+        List.of("test.destination." + testDestinationId1, "test.destination." + testDestinationId2)).size());
   }
 
   @Test
@@ -394,22 +386,9 @@ public class TasksManagerBlImplTest {
   }
 
   @Test
-  public void testGetTaskResultsByDestinations() {
-    System.out.println("TasksManagerBlImplTest.testGetTaskResultsByDestinations");
-    assertEquals(2,
-        tasksManager.getTaskResultsByDestinations(perunSession, List.of("test.destination." + testDestinationId1))
-            .size());
-    assertEquals(1,
-        tasksManager.getTaskResultsByDestinations(perunSession, List.of("test.destination." + testDestinationId2))
-            .size());
-    assertEquals(3, tasksManager.getTaskResultsByDestinations(perunSession,
-        List.of("test.destination." + testDestinationId1, "test.destination." + testDestinationId2)).size());
-  }
-
-  @Test
   public void testInsertNewTaskResult() {
     System.out.println("TasksManagerBlImplTest.testInsertNewTaskResults");
-    assertTrue(result1.equals(tasksManager.getTaskResultById(perunSession, result1Id)));
+    assertEquals(result1, tasksManager.getTaskResultById(perunSession, result1Id));
   }
 
   @Test
@@ -484,14 +463,6 @@ public class TasksManagerBlImplTest {
   }
 
   @Test
-  public void testRemoveTask_fails() {
-    System.out.println("TasksManagerBlImplTest.testRemoveTask_fails");
-    assertThatExceptionOfType(DataIntegrityViolationException.class)
-        .isThrownBy(() -> tasksManager.removeTask(perunSession, task1Id));
-    // the transaction above fails, so add no db operations here, as they would fail too
-  }
-
-  @Test
   public void testRemoveTask_ServiceFacility() {
     System.out.println("TasksManagerBlImplTest.testRemoveTask_ServiceFacility");
     assertThatNoException().isThrownBy(() -> tasksManager.removeTask(perunSession, testService1, facility2));
@@ -502,8 +473,16 @@ public class TasksManagerBlImplTest {
   @Test
   public void testRemoveTask_ServiceFacility_fails() {
     System.out.println("TasksManagerBlImplTest.testRemoveTask_ServiceFacility");
-    assertThatExceptionOfType(DataIntegrityViolationException.class)
-        .isThrownBy(() -> tasksManager.removeTask(perunSession, testService1, facility1));
+    assertThatExceptionOfType(DataIntegrityViolationException.class).isThrownBy(
+        () -> tasksManager.removeTask(perunSession, testService1, facility1));
+    // the transaction above fails, so add no db operations here, as they would fail too
+  }
+
+  @Test
+  public void testRemoveTask_fails() {
+    System.out.println("TasksManagerBlImplTest.testRemoveTask_fails");
+    assertThatExceptionOfType(DataIntegrityViolationException.class).isThrownBy(
+        () -> tasksManager.removeTask(perunSession, task1Id));
     // the transaction above fails, so add no db operations here, as they would fail too
   }
 

@@ -1,5 +1,11 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
@@ -8,19 +14,12 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPrioritiesTest {
@@ -39,17 +38,6 @@ public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPrioritiesT
   }
 
   // SYNTAX CHECKS
-
-  @Test
-  public void testAttributeSyntaxValidMap() throws Exception {
-    System.out.println("testAttributeSyntaxValidMap()");
-
-    LinkedHashMap<String, String> map = new LinkedHashMap<>();
-    map.put("1", "A1");
-    map.put("2", "A2");
-    attributeToCheck.setValue(map);
-    classInstance.checkAttributeSyntax(session, facility, attributeToCheck);
-  }
 
   @Test(expected = WrongAttributeValueException.class)
   public void testAttributeSyntaxNullKey() throws Exception {
@@ -80,6 +68,17 @@ public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPrioritiesT
     classInstance.checkAttributeSyntax(session, facility, attributeToCheck);
   }
 
+  @Test
+  public void testAttributeSyntaxValidMap() throws Exception {
+    System.out.println("testAttributeSyntaxValidMap()");
+
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
+    map.put("1", "A1");
+    map.put("2", "A2");
+    attributeToCheck.setValue(map);
+    classInstance.checkAttributeSyntax(session, facility, attributeToCheck);
+  }
+
   // SEMANTICS CHECKS
 
   @Test
@@ -107,6 +106,20 @@ public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPrioritiesT
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }
 
+  @Test(expected = InternalErrorException.class)
+  public void testCheckAttributeSemanticsExceptionInFetchingResources() throws Exception {
+    System.out.println("testCheckAttributeSemanticsExceptionInFetchingResources()");
+
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
+    map.put("1", "A1");
+    attributeToCheck.setValue(map);
+
+    // Throw an exception when fetching resources
+    when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(), any())).thenThrow(
+        new InternalErrorException(""));
+
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void testCheckAttributeSemanticsLicenseMismatchSingleLicense() throws Exception {
@@ -122,6 +135,32 @@ public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPrioritiesT
 
     Attribute resLicense = new Attribute();
     resLicense.setValue("A2");
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(resources.get(0)), any())).thenReturn(
+        resLicense);
+
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
+
+  @Test
+  public void testCheckAttributeSemanticsNoLicensesNoResources() throws Exception {
+    System.out.println("testCheckAttributeSemanticsNoLicensesNoResources()");
+
+    attributeToCheck.setValue(null);
+    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsNoLicensesResourcesExist() throws Exception {
+    System.out.println("testCheckAttributeSemanticsNoLicensesResourcesExist()");
+
+    attributeToCheck.setValue(null);
+
+    // Mock a resource, its license does not matter
+    List<Resource> resources = Collections.singletonList(mock(Resource.class));
+    when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(), any())).thenReturn(resources);
+
+    Attribute resLicense = new Attribute();
+    resLicense.setValue("A1");
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(resources.get(0)), any())).thenReturn(
         resLicense);
 
@@ -162,47 +201,6 @@ public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPrioritiesT
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }
 
-  @Test
-  public void testCheckAttributeSemanticsNoLicensesNoResources() throws Exception {
-    System.out.println("testCheckAttributeSemanticsNoLicensesNoResources()");
-
-    attributeToCheck.setValue(null);
-    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsNoLicensesResourcesExist() throws Exception {
-    System.out.println("testCheckAttributeSemanticsNoLicensesResourcesExist()");
-
-    attributeToCheck.setValue(null);
-
-    // Mock a resource, its license does not matter
-    List<Resource> resources = Collections.singletonList(mock(Resource.class));
-    when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(), any())).thenReturn(resources);
-
-    Attribute resLicense = new Attribute();
-    resLicense.setValue("A1");
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(resources.get(0)), any())).thenReturn(
-        resLicense);
-
-    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-  }
-
-  @Test(expected = InternalErrorException.class)
-  public void testCheckAttributeSemanticsExceptionInFetchingResources() throws Exception {
-    System.out.println("testCheckAttributeSemanticsExceptionInFetchingResources()");
-
-    LinkedHashMap<String, String> map = new LinkedHashMap<>();
-    map.put("1", "A1");
-    attributeToCheck.setValue(map);
-
-    // Throw an exception when fetching resources
-    when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(), any()))
-        .thenThrow(new InternalErrorException(""));
-
-    classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
-  }
-
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void testExceptionInFetchingLicenseForResource() throws Exception {
     System.out.println("testExceptionInFetchingLicenseForResource()");
@@ -217,8 +215,8 @@ public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPrioritiesT
     when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(), any())).thenReturn(resources);
 
     // Throw an exception when fetching a license for the resource
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(resource), any()))
-        .thenThrow(new AttributeNotExistsException(""));
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(), eq(resource), any())).thenThrow(
+        new AttributeNotExistsException(""));
 
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }

@@ -21,6 +21,18 @@ public class EnrichedHost {
     this.hostAttributes = hostAttributes;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnrichedHost that = (EnrichedHost) o;
+    return Objects.equals(host, that.getHost());
+  }
+
   public Host getHost() {
     return host;
   }
@@ -38,27 +50,15 @@ public class EnrichedHost {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(host);
+  }
+
+  @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
 
     return str.append("EnrichedHost:[host='").append(host.toString()).append("', hostAttributes='")
         .append(hostAttributes).append("']").toString();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    EnrichedHost that = (EnrichedHost) o;
-    return Objects.equals(host, that.getHost());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(host);
   }
 }

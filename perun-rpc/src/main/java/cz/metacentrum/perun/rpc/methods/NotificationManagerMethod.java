@@ -72,7 +72,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
         return ac.getNotificationManager()
             .createPerunNotifReceiver(ac.getSession(), parms.read("receiver", PerunNotifReceiver.class));
       } else if (parms.contains("target") && parms.contains("type") && parms.contains("templateId") &&
-          parms.contains("locale")) {
+                 parms.contains("locale")) {
         PerunNotifReceiver receiver = new PerunNotifReceiver();
         receiver.setLocale(parms.read("locale", String.class));
         receiver.setTarget(parms.read("target", String.class));
@@ -458,16 +458,17 @@ public enum NotificationManagerMethod implements ManagerMethod {
 
   //Special test method
   //TODO: Is needed to have this method there?
-        /*testPerunNotifMessageText {
+  /*testPerunNotifMessageText {
 
-		@Override
-		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (parms.contains("template") && parms.contains("regexIdsPerunBeans")) {
-				return ac.getNotificationManager().testPerunNotifMessageText(parms.readString("template"), parms.readMap???);
-			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "template");
-			}
-		}
+        @Override
+        public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+            if (parms.contains("template") && parms.contains("regexIdsPerunBeans")) {
+                return ac.getNotificationManager().testPerunNotifMessageText(parms.readString("template"), parms
+                .readMap???);
+            } else {
+                throw new RpcException(RpcException.Type.MISSING_VALUE, "template");
+            }
+        }
 
-	};*/
+    };*/
 }

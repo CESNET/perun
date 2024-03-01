@@ -1,13 +1,13 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_vo_attribute_def_def_aupTest {
 
@@ -22,14 +22,6 @@ public class urn_perun_vo_attribute_def_def_aupTest {
     session = mock(PerunSessionImpl.class);
     attributeToCheck = new Attribute();
     vo = new Vo();
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void testCheckValueWithMissingVersion() throws Exception {
-    System.out.println("testCheckValueWithMissingVersion()");
-    attributeToCheck.setValue("[{date: date, link: link, text: text}]");
-
-    classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
   }
 
   @Test(expected = WrongAttributeValueException.class)
@@ -52,6 +44,14 @@ public class urn_perun_vo_attribute_def_def_aupTest {
   public void testCheckValueWithMissingText() throws Exception {
     System.out.println("testCheckValueWithMissingText()");
     attributeToCheck.setValue("[{version: version, date: date, link: link}]");
+
+    classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckValueWithMissingVersion() throws Exception {
+    System.out.println("testCheckValueWithMissingVersion()");
+    attributeToCheck.setValue("[{date: date, link: link, text: text}]");
 
     classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
   }

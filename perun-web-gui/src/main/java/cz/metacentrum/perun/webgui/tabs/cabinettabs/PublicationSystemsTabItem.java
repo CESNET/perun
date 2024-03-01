@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "systems";
+  public static final String URL = "systems";
   /**
    * Perun web session
    */

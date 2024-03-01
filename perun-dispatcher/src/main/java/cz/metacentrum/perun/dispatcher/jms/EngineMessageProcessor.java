@@ -27,12 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 
 /**
- * Main class ensuring processing of JMS communication between Dispatcher and Engines.
- * It start/stop processing of messages, create queues and load processing rules for Engines.
- * Also provide method for message parsing.
+ * Main class ensuring processing of JMS communication between Dispatcher and Engines. It start/stop processing of
+ * messages, create queues and load processing rules for Engines. Also provide method for message parsing.
  * <p>
- * Queues to Engines are represented by EngineMessageProducer objects. Queue is used by TaskScheduler.
- * Queue from Engine is represented by EngineMessageConsumer. Received messages result in calls to SchedulingPool.
+ * Queues to Engines are represented by EngineMessageProducer objects. Queue is used by TaskScheduler. Queue from Engine
+ * is represented by EngineMessageConsumer. Received messages result in calls to SchedulingPool.
  *
  * @author Michal Karm Babacek
  * @author Michal Voců
@@ -46,7 +45,7 @@ import org.springframework.core.task.TaskExecutor;
 @org.springframework.stereotype.Service(value = "engineMessageProcessor")
 public class EngineMessageProcessor {
 
-  private final static Logger log = LoggerFactory.getLogger(EngineMessageProcessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EngineMessageProcessor.class);
 
   private Properties dispatcherProperties;
   private PerunHornetQServer perunHornetQServer;
@@ -66,167 +65,44 @@ public class EngineMessageProcessor {
 
   // ----- setters -------------------------------------
 
+  /**
+   * Create JMS queue for Engine.
+   */
+  private void createDispatcherQueueForClient() {
+
+    String queueName = "queue";
+
+    try {
+      perunHornetQServer.getJMSServerManager().createQueue(false, queueName, null, false);
+    } catch (Exception e) {
+      LOG.error("Can't create JMS {}: {}", queueName, e);
+    }
+
+    engineMessageProducerFactory.createProducer(queueName, session, outputMessages);
+  }
 
   public Properties getDispatcherProperties() {
     return dispatcherProperties;
-  }
-
-  @Resource(name = "dispatcherPropertiesBean")
-  public void setDispatcherProperties(Properties dispatcherProperties) {
-    this.dispatcherProperties = dispatcherProperties;
-  }
-
-  public PerunHornetQServer getPerunHornetQServer() {
-    return perunHornetQServer;
-  }
-
-  @Autowired
-  public void setPerunHornetQServer(PerunHornetQServer perunHornetQServer) {
-    this.perunHornetQServer = perunHornetQServer;
-  }
-
-  public TaskExecutor getTaskExecutor() {
-    return taskExecutor;
-  }
-
-  @Autowired
-  public void setTaskExecutor(TaskExecutor taskExecutor) {
-    this.taskExecutor = taskExecutor;
   }
 
   public EngineMessageConsumer getEngineMessageConsumer() {
     return engineMessageConsumer;
   }
 
-  @Autowired
-  public void setEngineMessageConsumer(EngineMessageConsumer engineMessageConsumer) {
-    this.engineMessageConsumer = engineMessageConsumer;
+  public EngineMessageProducerFactory getEngineMessageProducerFactory() {
+    return engineMessageProducerFactory;
+  }
+
+  public PerunHornetQServer getPerunHornetQServer() {
+    return perunHornetQServer;
   }
 
   public SchedulingPool getSchedulingPool() {
     return schedulingPool;
   }
 
-  @Autowired
-  public void setSchedulingPool(SchedulingPool schedulingPool) {
-    this.schedulingPool = schedulingPool;
-  }
-
-  public EngineMessageProducerFactory getEngineMessageProducerFactory() {
-    return engineMessageProducerFactory;
-  }
-
-  @Autowired
-  public void setEngineMessageProducer(EngineMessageProducerFactory engineMessageProducerFactory) {
-    this.engineMessageProducerFactory = engineMessageProducerFactory;
-  }
-
-
-  // ----- methods -------------------------------------
-
-
-  /**
-   * Setup JMS queues between dispatcher and engines and start processing available messages.
-   * HornetQ server must be running already.
-   *
-   * @see cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer
-   */
-  public void startProcessingSystemMessages() {
-
-    if (outputMessages == null) {
-      outputMessages = new LinkedBlockingDeque<TextMessage>();
-    }
-
-    connection = null;
-    try {
-      if (restartHornetQServer) {
-        engineMessageProducerFactory.removeProducer();
-        perunHornetQServer.stopServer();
-        perunHornetQServer.startServer();
-      }
-
-      // Step 2. Instantiate the TransportConfiguration object which
-      // contains the knowledge of what transport to use,
-      // The server port etc.
-      if (log.isDebugEnabled()) {
-        log.debug("Creating transport configuration...");
-        log.debug("Gonna connect to the host["
-            + dispatcherProperties.getProperty("dispatcher.ip.address")
-            + "] on port["
-            + dispatcherProperties.getProperty("dispatcher.port")
-            + "]...");
-      }
-      Map<String, Object> connectionParams = new HashMap<String, Object>();
-      try {
-        connectionParams.put(TransportConstants.PORT_PROP_NAME,
-            Integer.parseInt(dispatcherProperties.getProperty("dispatcher.port")));
-      } catch (NumberFormatException e) {
-        log.error("Could not parse value of dispatcher.port property. Trying without...");
-      }
-      connectionParams.put(TransportConstants.HOST_PROP_NAME,
-          dispatcherProperties.getProperty("dispatcher.ip.address"));
-
-      TransportConfiguration transportConfiguration =
-          new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams);
-
-      // Step 3 Directly instantiate the JMS ConnectionFactory object
-      // using that TransportConfiguration
-      log.debug("Creating connection factory...");
-      cf = (ConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-          transportConfiguration);
-      ((HornetQConnectionFactory) cf).setUseGlobalPools(false);
-
-      // Step 4.Create a JMS Connection
-      log.debug("Creating connection...");
-      connection = cf.createConnection();
-
-      // Step 5. Create a JMS Session
-      log.debug("Creating session...");
-      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-      // Step 10. Start the Connection
-      log.debug("Starting connection...");
-      connection.start();
-      if (processingMessages) {
-        // make sure processing is stopped before new start when called as "restart"
-        engineMessageConsumer.stop();
-      }
-      engineMessageConsumer.setUp("systemQueue", session);
-      log.debug("Receiving messages started...");
-      taskExecutor.execute(engineMessageConsumer);
-      log.debug("JMS Initialization done.");
-      processingMessages = true;
-
-    } catch (JMSException e) {
-      // If unable to connect to the server...
-      log.error("Connection failed. \nThis is weird...are you sure that the Perun-Dispatcher is running on host ["
-          + dispatcherProperties.getProperty("dispatcher.ip.address")
-          + "] on port [" + dispatcherProperties.getProperty("dispatcher.port")
-          + "] ? \nSee: perun-dispatcher.properties. We gonna wait 5 sec and try again...", e);
-      restartHornetQServer = true;
-      throw new RuntimeException(e);
-    } catch (Exception e) {
-      log.error("Can't start processing of JMS: {}", e);
-    }
-  }
-
-  /**
-   * Stop processing of JMS messages between dispatcher and engines and close the connection.
-   */
-  public void stopProcessingSystemMessages() {
-    if (processingMessages && engineMessageConsumer != null) {
-      engineMessageConsumer.stop();
-      engineMessageProducerFactory.removeProducer();
-      try {
-        connection.stop();
-        session.close();
-        connection.close();
-        ((HornetQConnectionFactory) cf).close();
-        log.debug("JMS processing stopped.");
-      } catch (JMSException e) {
-        log.error("Error closing JMS client connection: ", e.toString());
-      }
-    }
+  public TaskExecutor getTaskExecutor() {
+    return taskExecutor;
   }
 
   /**
@@ -248,26 +124,18 @@ public class EngineMessageProcessor {
   }
 
   /**
-   * Process content of JMS message received from Engine. This is called by SystemQueueReceiver
-   * for each message.
+   * Process content of JMS message received from Engine. This is called by SystemQueueReceiver for each message.
    * <p>
    * Expected message format is:
    * <p>
-   * Register engine message
-   * register
+   * Register engine message register
    * <p>
-   * Good bye engine message
-   * goodbye
+   * Good bye engine message goodbye
    * <p>
-   * Task status change message
-   * task:y:status:timestamp
-   * y is an Integer that represents task ID
-   * status is string representation of task status
-   * timestamp is a string representation of timestamp (long)
+   * Task status change message task:y:status:timestamp y is an Integer that represents task ID status is string
+   * representation of task status timestamp is a string representation of timestamp (long)
    * <p>
-   * Task result message
-   * taskresult:object
-   * object is serialized TaskResult object sent from Engine
+   * Task result message taskresult:object object is serialized TaskResult object sent from Engine
    *
    * @param message Message to be parsed a processed
    * @throws PerunHornetQServerException When HornetQ server is not running
@@ -278,7 +146,7 @@ public class EngineMessageProcessor {
 
     if (perunHornetQServer.isServerRunning() && perunHornetQServer.getJMSServerManager() != null) {
 
-      log.debug("Processing JMS message: " + message);
+      LOG.debug("Processing JMS message: " + message);
 
       if (null == message || message.isEmpty()) {
         throw new MessageFormatException("Engine sent empty message");
@@ -317,9 +185,7 @@ public class EngineMessageProcessor {
         }
 
         try {
-          schedulingPool.onTaskStatusChange(
-              Integer.parseInt(clientMessageSplitter[1]),
-              clientMessageSplitter[2],
+          schedulingPool.onTaskStatusChange(Integer.parseInt(clientMessageSplitter[1]), clientMessageSplitter[2],
               clientMessageSplitter[3]);
         } catch (NumberFormatException e) {
           throw new MessageFormatException("Engine sent a malformed message, could not parse client ID", e);
@@ -342,20 +208,139 @@ public class EngineMessageProcessor {
     }
   }
 
+  @Resource(name = "dispatcherPropertiesBean")
+  public void setDispatcherProperties(Properties dispatcherProperties) {
+    this.dispatcherProperties = dispatcherProperties;
+  }
+
+  @Autowired
+  public void setEngineMessageConsumer(EngineMessageConsumer engineMessageConsumer) {
+    this.engineMessageConsumer = engineMessageConsumer;
+  }
+
+
+  // ----- methods -------------------------------------
+
+  @Autowired
+  public void setEngineMessageProducer(EngineMessageProducerFactory engineMessageProducerFactory) {
+    this.engineMessageProducerFactory = engineMessageProducerFactory;
+  }
+
+  @Autowired
+  public void setPerunHornetQServer(PerunHornetQServer perunHornetQServer) {
+    this.perunHornetQServer = perunHornetQServer;
+  }
+
+  @Autowired
+  public void setSchedulingPool(SchedulingPool schedulingPool) {
+    this.schedulingPool = schedulingPool;
+  }
+
+  @Autowired
+  public void setTaskExecutor(TaskExecutor taskExecutor) {
+    this.taskExecutor = taskExecutor;
+  }
+
   /**
-   * Create JMS queue for Engine.
+   * Setup JMS queues between dispatcher and engines and start processing available messages. HornetQ server must be
+   * running already.
+   *
+   * @see cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer
    */
-  private void createDispatcherQueueForClient() {
+  public void startProcessingSystemMessages() {
 
-    String queueName = "queue";
-
-    try {
-      perunHornetQServer.getJMSServerManager().createQueue(false, queueName, null, false);
-    } catch (Exception e) {
-      log.error("Can't create JMS {}: {}", queueName, e);
+    if (outputMessages == null) {
+      outputMessages = new LinkedBlockingDeque<TextMessage>();
     }
 
-    engineMessageProducerFactory.createProducer(queueName, session, outputMessages);
+    connection = null;
+    try {
+      if (restartHornetQServer) {
+        engineMessageProducerFactory.removeProducer();
+        perunHornetQServer.stopServer();
+        perunHornetQServer.startServer();
+      }
+
+      // Step 2. Instantiate the TransportConfiguration object which
+      // contains the knowledge of what transport to use,
+      // The server port etc.
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Creating transport configuration...");
+        LOG.debug(
+            "Gonna connect to the host[" + dispatcherProperties.getProperty("dispatcher.ip.address") + "] on port[" +
+            dispatcherProperties.getProperty("dispatcher.port") + "]...");
+      }
+      Map<String, Object> connectionParams = new HashMap<String, Object>();
+      try {
+        connectionParams.put(TransportConstants.PORT_PROP_NAME,
+            Integer.parseInt(dispatcherProperties.getProperty("dispatcher.port")));
+      } catch (NumberFormatException e) {
+        LOG.error("Could not parse value of dispatcher.port property. Trying without...");
+      }
+      connectionParams.put(TransportConstants.HOST_PROP_NAME,
+          dispatcherProperties.getProperty("dispatcher.ip.address"));
+
+      TransportConfiguration transportConfiguration =
+          new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams);
+
+      // Step 3 Directly instantiate the JMS ConnectionFactory object
+      // using that TransportConfiguration
+      LOG.debug("Creating connection factory...");
+      cf = (ConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+          transportConfiguration);
+      ((HornetQConnectionFactory) cf).setUseGlobalPools(false);
+
+      // Step 4.Create a JMS Connection
+      LOG.debug("Creating connection...");
+      connection = cf.createConnection();
+
+      // Step 5. Create a JMS Session
+      LOG.debug("Creating session...");
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      // Step 10. Start the Connection
+      LOG.debug("Starting connection...");
+      connection.start();
+      if (processingMessages) {
+        // make sure processing is stopped before new start when called as "restart"
+        engineMessageConsumer.stop();
+      }
+      engineMessageConsumer.setUp("systemQueue", session);
+      LOG.debug("Receiving messages started...");
+      taskExecutor.execute(engineMessageConsumer);
+      LOG.debug("JMS Initialization done.");
+      processingMessages = true;
+
+    } catch (JMSException e) {
+      // If unable to connect to the server...
+      LOG.error("Connection failed. \nThis is weird...are you sure that the Perun-Dispatcher is running on host [" +
+                dispatcherProperties.getProperty("dispatcher.ip.address") + "] on port [" +
+                dispatcherProperties.getProperty("dispatcher.port") +
+                "] ? \nSee: perun-dispatcher.properties. We gonna wait 5 sec and try again...", e);
+      restartHornetQServer = true;
+      throw new RuntimeException(e);
+    } catch (Exception e) {
+      LOG.error("Can't start processing of JMS: {}", e);
+    }
+  }
+
+  /**
+   * Stop processing of JMS messages between dispatcher and engines and close the connection.
+   */
+  public void stopProcessingSystemMessages() {
+    if (processingMessages && engineMessageConsumer != null) {
+      engineMessageConsumer.stop();
+      engineMessageProducerFactory.removeProducer();
+      try {
+        connection.stop();
+        session.close();
+        connection.close();
+        ((HornetQConnectionFactory) cf).close();
+        LOG.debug("JMS processing stopped.");
+      } catch (JMSException e) {
+        LOG.error("Error closing JMS client connection: ", e.toString());
+      }
+    }
   }
 
 }

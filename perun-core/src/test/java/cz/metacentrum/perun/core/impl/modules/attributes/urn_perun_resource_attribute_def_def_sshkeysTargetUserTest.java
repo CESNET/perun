@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -7,9 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_resource_attribute_def_def_sshkeysTargetUserTest {
 
@@ -22,6 +22,30 @@ public class urn_perun_resource_attribute_def_def_sshkeysTargetUserTest {
     classInstance = new urn_perun_resource_attribute_def_def_sshkeysTargetUser();
     resource = new Resource();
     session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+  }
+
+  @Test
+  public void testCheckAttributeSemantics() throws Exception {
+    System.out.println("testCheckAttributeSemantics()");
+
+    Attribute attributeToCheck = new Attribute();
+
+    attributeToCheck.setValue("Jan_Nepomucky");
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+
+    attributeToCheck.setValue(".John_Dale.");
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+
+    attributeToCheck.setValue("_Adele-Frank");
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithNullValue()");
+    Attribute attributeToCheck = new Attribute();
+
+    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
   }
 
   @Test
@@ -38,6 +62,16 @@ public class urn_perun_resource_attribute_def_def_sshkeysTargetUserTest {
 
     attributeToCheck.setValue("_Adele-Frank");
     classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithWrongValueDiacritic() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValueDiacritic()");
+
+    Attribute attributeToCheck = new Attribute();
+
+    attributeToCheck.setValue("Jan_Veselý");
+    classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
   }
 
   @Test(expected = WrongAttributeValueException.class)
@@ -58,39 +92,5 @@ public class urn_perun_resource_attribute_def_def_sshkeysTargetUserTest {
 
     attributeToCheck.setValue("Elena Fuente");
     classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
-  }
-
-  @Test(expected = WrongAttributeValueException.class)
-  public void testCheckAttributeSyntaxWithWrongValueDiacritic() throws Exception {
-    System.out.println("testCheckAttributeSyntaxWithWrongValueDiacritic()");
-
-    Attribute attributeToCheck = new Attribute();
-
-    attributeToCheck.setValue("Jan_Veselý");
-    classInstance.checkAttributeSyntax(session, resource, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsWithNullValue() throws Exception {
-    System.out.println("testCheckAttributeSemanticsWithNullValue()");
-    Attribute attributeToCheck = new Attribute();
-
-    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
-  }
-
-  @Test
-  public void testCheckAttributeSemantics() throws Exception {
-    System.out.println("testCheckAttributeSemantics()");
-
-    Attribute attributeToCheck = new Attribute();
-
-    attributeToCheck.setValue("Jan_Nepomucky");
-    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
-
-    attributeToCheck.setValue(".John_Dale.");
-    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
-
-    attributeToCheck.setValue("_Adele-Frank");
-    classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
   }
 }

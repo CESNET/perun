@@ -51,7 +51,7 @@ import java.util.Map;
  */
 public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "authz";
+  public static final String URL = "authz";
   PerunWebSession session = PerunWebSession.getInstance();
   private SimplePanel contentWidget = new SimplePanel();
   private Label titleWidget = new Label("Loading user");

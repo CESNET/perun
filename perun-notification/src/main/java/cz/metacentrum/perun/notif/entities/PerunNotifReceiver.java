@@ -41,8 +41,7 @@ public class PerunNotifReceiver {
    */
   private PerunNotifTypeOfReceiver typeOfReceiver;
   /**
-   * Defines target of receiver, usually contains function to get email or
-   * jabber number...
+   * Defines target of receiver, usually contains function to get email or jabber number...
    * <p>
    * Column target
    */
@@ -59,58 +58,6 @@ public class PerunNotifReceiver {
    * Column locale
    */
   private String locale;
-
-  public PerunNotifTypeOfReceiver getTypeOfReceiver() {
-    return typeOfReceiver;
-  }
-
-  public void setTypeOfReceiver(PerunNotifTypeOfReceiver typeOfReceiver) {
-    this.typeOfReceiver = typeOfReceiver;
-  }
-
-  public String getTarget() {
-    return target;
-  }
-
-  public void setTarget(String target) {
-    this.target = target;
-  }
-
-  public Integer getTemplateId() {
-    return templateId;
-  }
-
-  public void setTemplateId(Integer templateId) {
-    this.templateId = templateId;
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getLocale() {
-    return locale;
-  }
-
-  public void setLocale(String locale) {
-    this.locale = locale;
-  }
-
-  public void update(PerunNotifReceiver newReceiver) {
-    this.setTarget(newReceiver.getTarget());
-    this.setTypeOfReceiver(newReceiver.getTypeOfReceiver());
-    this.setLocale(newReceiver.getLocale());
-  }
-
-  @Override
-  public String toString() {
-    return "id: " + getId() + " target: " + getTarget() + " type_of_receiver: " + getTypeOfReceiver() +
-        " template id: " + getTemplateId() + " locale: " + getLocale();
-  }
 
   @Override
   public boolean equals(Object o) {
@@ -130,6 +77,26 @@ public class PerunNotifReceiver {
     return true;
   }
 
+  public Integer getId() {
+    return id;
+  }
+
+  public String getLocale() {
+    return locale;
+  }
+
+  public String getTarget() {
+    return target;
+  }
+
+  public Integer getTemplateId() {
+    return templateId;
+  }
+
+  public PerunNotifTypeOfReceiver getTypeOfReceiver() {
+    return typeOfReceiver;
+  }
+
   @Override
   public int hashCode() {
     int result = id != null ? id.hashCode() : 0;
@@ -138,5 +105,37 @@ public class PerunNotifReceiver {
     result = 31 * result + (templateId != null ? templateId.hashCode() : 0);
     result = 31 * result + (locale != null ? locale.hashCode() : 0);
     return result;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setLocale(String locale) {
+    this.locale = locale;
+  }
+
+  public void setTarget(String target) {
+    this.target = target;
+  }
+
+  public void setTemplateId(Integer templateId) {
+    this.templateId = templateId;
+  }
+
+  public void setTypeOfReceiver(PerunNotifTypeOfReceiver typeOfReceiver) {
+    this.typeOfReceiver = typeOfReceiver;
+  }
+
+  @Override
+  public String toString() {
+    return "id: " + getId() + " target: " + getTarget() + " type_of_receiver: " + getTypeOfReceiver() +
+           " template id: " + getTemplateId() + " locale: " + getLocale();
+  }
+
+  public void update(PerunNotifReceiver newReceiver) {
+    this.setTarget(newReceiver.getTarget());
+    this.setTypeOfReceiver(newReceiver.getTypeOfReceiver());
+    this.setLocale(newReceiver.getLocale());
   }
 }

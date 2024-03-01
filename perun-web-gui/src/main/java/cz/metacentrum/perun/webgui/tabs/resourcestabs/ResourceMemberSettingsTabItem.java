@@ -57,7 +57,7 @@ import java.util.Map;
  */
 public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "memsettings";
+  public static final String URL = "memsettings";
   /**
    * Perun web session
    */

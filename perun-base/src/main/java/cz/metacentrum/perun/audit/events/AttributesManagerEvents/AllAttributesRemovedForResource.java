@@ -18,13 +18,13 @@ public class AllAttributesRemovedForResource extends AuditEvent implements Engin
     this.message = formatMessage("All attributes removed for %s.", resource);
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   @Override

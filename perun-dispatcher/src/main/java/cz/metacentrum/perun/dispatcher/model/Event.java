@@ -18,6 +18,18 @@ public class Event {
   private AuditEvent data;
   private long timeStamp;
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Event)) {
+      return false;
+    }
+    Event event = (Event) o;
+    return timeStamp == event.timeStamp && Objects.equals(header, event.header) && Objects.equals(data, event.data);
+  }
+
   /**
    * Get event data
    *
@@ -25,33 +37,6 @@ public class Event {
    */
   public AuditEvent getData() {
     return data;
-  }
-
-  /**
-   * Set event data
-   *
-   * @param data event data
-   */
-  public void setData(AuditEvent data) {
-    this.data = data;
-  }
-
-  /**
-   * Get event timestamp
-   *
-   * @return timestamp
-   */
-  public long getTimeStamp() {
-    return timeStamp;
-  }
-
-  /**
-   * Set event timestamp
-   *
-   * @param timeStamp timestamp
-   */
-  public void setTimeStamp(long timeStamp) {
-    this.timeStamp = timeStamp;
   }
 
   /**
@@ -64,6 +49,29 @@ public class Event {
   }
 
   /**
+   * Get event timestamp
+   *
+   * @return timestamp
+   */
+  public long getTimeStamp() {
+    return timeStamp;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(header, data, timeStamp);
+  }
+
+  /**
+   * Set event data
+   *
+   * @param data event data
+   */
+  public void setData(AuditEvent data) {
+    this.data = data;
+  }
+
+  /**
    * Set event header
    *
    * @param header header
@@ -72,30 +80,20 @@ public class Event {
     this.header = header;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Event)) {
-      return false;
-    }
-    Event event = (Event) o;
-    return timeStamp == event.timeStamp &&
-        Objects.equals(header, event.header) &&
-        Objects.equals(data, event.data);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(header, data, timeStamp);
+  /**
+   * Set event timestamp
+   *
+   * @param timeStamp timestamp
+   */
+  public void setTimeStamp(long timeStamp) {
+    this.timeStamp = timeStamp;
   }
 
   @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
-    str.append("[").append(new Date(timeStamp).toString())
-        .append("][").append(header).append("][").append(data).append("]");
+    str.append("[").append(new Date(timeStamp).toString()).append("][").append(header).append("][").append(data)
+        .append("]");
     return str.toString();
   }
 

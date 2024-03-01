@@ -1,5 +1,12 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -8,13 +15,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Testing class for login-namespace elixir-persistent attribute
@@ -35,7 +35,8 @@ public class urn_perun_user_attribute_def_virt_login_namespace_elixir_persistent
     user.setId(123456);
   }
 
-  // FIXME - disabled since it fails test on real DB - when perun.instanceId is set in real config file, it differs from in-memory version
+  // FIXME - disabled since it fails test on real DB - when perun.instanceId is set in real config file, it differs
+  //  from in-memory version
 
   @Test
   @Ignore

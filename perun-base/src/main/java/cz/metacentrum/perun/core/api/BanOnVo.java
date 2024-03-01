@@ -18,9 +18,12 @@ public class BanOnVo extends Ban {
     this.voId = voId;
   }
 
-  @Override
-  public String getType() {
-    return this.getClass().getSimpleName();
+  public int getMemberId() {
+    return memberId;
+  }
+
+  public void setMemberId(int memberId) {
+    this.memberId = memberId;
   }
 
   @Override
@@ -33,12 +36,9 @@ public class BanOnVo extends Ban {
     return voId;
   }
 
-  public int getMemberId() {
-    return memberId;
-  }
-
-  public void setMemberId(int memberId) {
-    this.memberId = memberId;
+  @Override
+  public String getType() {
+    return this.getClass().getSimpleName();
   }
 
   public int getVoId() {
@@ -58,10 +58,8 @@ public class BanOnVo extends Ban {
       validityInMiliseconds = getValidityTo().getTime();
     }
 
-    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()
-    ).append("', memberId='").append(memberId
-    ).append("', voId='").append(voId
-    ).append("', validityTo='").append(validityInMiliseconds
-    ).append("', description='").append(getDescription()).append("']").toString();
+    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', memberId='")
+        .append(memberId).append("', voId='").append(voId).append("', validityTo='").append(validityInMiliseconds)
+        .append("', description='").append(getDescription()).append("']").toString();
   }
 }

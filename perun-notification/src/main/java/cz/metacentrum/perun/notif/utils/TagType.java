@@ -4,13 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA. User: tomastunkl Date: 29.09.12 Time: 23:48 To
- * change this template use File | Settings | File Templates.
+ * Created with IntelliJ IDEA. User: tomastunkl Date: 29.09.12 Time: 23:48 To change this template use File | Settings |
+ * File Templates.
  */
 public enum TagType {
 
-  FOR("for"),
-  IF("if");
+  FOR("for"), IF("if");
 
   private String value;
 

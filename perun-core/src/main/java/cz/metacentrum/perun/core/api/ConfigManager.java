@@ -12,14 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 public interface ConfigManager {
 
   /**
-   * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
-   *
-   * @param sess user's session in Perun
-   * @throws PrivilegeException wrong privilege to call this method
-   */
-  void reloadAppsConfig(PerunSession sess) throws PrivilegeException;
-
-  /**
    * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
    *
    * @param sess       session
@@ -30,4 +22,12 @@ public interface ConfigManager {
    */
   OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl)
       throws OidcConfigNotExistsException, OidcConfigFileNotExistsException;
+
+  /**
+   * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
+   *
+   * @param sess user's session in Perun
+   * @throws PrivilegeException wrong privilege to call this method
+   */
+  void reloadAppsConfig(PerunSession sess) throws PrivilegeException;
 }

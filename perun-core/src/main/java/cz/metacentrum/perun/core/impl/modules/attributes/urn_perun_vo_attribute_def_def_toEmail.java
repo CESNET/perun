@@ -19,6 +19,15 @@ public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAb
     implements VoAttributesModuleImplApi {
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    // null attribute
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Vo toEmail list cannot be null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, Vo vo, Attribute attribute)
       throws WrongAttributeValueException {
     // null attribute is ok for syntax check
@@ -33,15 +42,6 @@ public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAb
         throw new WrongAttributeValueException(attribute,
             "Vo : " + vo.getName() + " has toEmail " + email + " which is not valid.");
       }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    // null attribute
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "Vo toEmail list cannot be null.");
     }
   }
 

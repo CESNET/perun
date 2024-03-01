@@ -33,63 +33,9 @@ public class CandidateSync extends User {
     setAttributes(candidate.getAttributes());
     setRichUserExtSource(new RichUserExtSource(candidate.getUserExtSource(), new ArrayList<>()));
     if (candidate.getAdditionalUserExtSources() != null) {
-      setAdditionalRichUserExtSources(candidate.getAdditionalUserExtSources().stream().map(extSource ->
-          new RichUserExtSource(extSource, new ArrayList<>())).collect(Collectors.toList()));
+      setAdditionalRichUserExtSources(candidate.getAdditionalUserExtSources().stream()
+          .map(extSource -> new RichUserExtSource(extSource, new ArrayList<>())).collect(Collectors.toList()));
     }
-  }
-
-  public RichUserExtSource getRichUserExtSource() {
-    return richUserExtSource;
-  }
-
-  public void setRichUserExtSource(RichUserExtSource richUserExtSource) {
-    this.richUserExtSource = richUserExtSource;
-  }
-
-  public Map<String, String> getAttributes() {
-    return attributes;
-  }
-
-  public void setAttributes(Map<String, String> attributes) {
-    this.attributes = attributes;
-  }
-
-  public List<RichUserExtSource> getAdditionalRichUserExtSources() {
-    return additionalRichUserExtSources;
-  }
-
-  public void setAdditionalRichUserExtSources(List<RichUserExtSource> additionalRichUserExtSources) {
-    this.additionalRichUserExtSources = additionalRichUserExtSources;
-  }
-
-  public String getExpectedSyncGroupStatus() {
-    return expectedSyncGroupStatus;
-  }
-
-  public void setExpectedSyncGroupStatus(String expectedSyncGroupStatus) {
-    this.expectedSyncGroupStatus = expectedSyncGroupStatus;
-  }
-
-  public List<RichUserExtSource> getUserExtSources() {
-    List<RichUserExtSource> userExtSources = new ArrayList<>();
-    if (this.richUserExtSource != null) {
-      userExtSources.add(this.richUserExtSource);
-    }
-    if (this.additionalRichUserExtSources != null) {
-      userExtSources.addAll(this.additionalRichUserExtSources);
-    }
-    return Collections.unmodifiableList(userExtSources);
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result
-        + ((attributes == null) ? 0 : attributes.hashCode());
-    result = prime * result
-        + ((getUserExtSources() == null) ? 0 : getUserExtSources().hashCode());
-    return result;
   }
 
   @Override
@@ -116,5 +62,57 @@ public class CandidateSync extends User {
     } else {
       return getUserExtSources().equals(other.getUserExtSources());
     }
+  }
+
+  public List<RichUserExtSource> getAdditionalRichUserExtSources() {
+    return additionalRichUserExtSources;
+  }
+
+  public void setAdditionalRichUserExtSources(List<RichUserExtSource> additionalRichUserExtSources) {
+    this.additionalRichUserExtSources = additionalRichUserExtSources;
+  }
+
+  public Map<String, String> getAttributes() {
+    return attributes;
+  }
+
+  public void setAttributes(Map<String, String> attributes) {
+    this.attributes = attributes;
+  }
+
+  public String getExpectedSyncGroupStatus() {
+    return expectedSyncGroupStatus;
+  }
+
+  public void setExpectedSyncGroupStatus(String expectedSyncGroupStatus) {
+    this.expectedSyncGroupStatus = expectedSyncGroupStatus;
+  }
+
+  public RichUserExtSource getRichUserExtSource() {
+    return richUserExtSource;
+  }
+
+  public void setRichUserExtSource(RichUserExtSource richUserExtSource) {
+    this.richUserExtSource = richUserExtSource;
+  }
+
+  public List<RichUserExtSource> getUserExtSources() {
+    List<RichUserExtSource> userExtSources = new ArrayList<>();
+    if (this.richUserExtSource != null) {
+      userExtSources.add(this.richUserExtSource);
+    }
+    if (this.additionalRichUserExtSources != null) {
+      userExtSources.addAll(this.additionalRichUserExtSources);
+    }
+    return Collections.unmodifiableList(userExtSources);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
+    result = prime * result + ((getUserExtSources() == null) ? 0 : getUserExtSources().hashCode());
+    return result;
   }
 }

@@ -20,13 +20,13 @@ public class GroupCreatedInVo extends AuditEvent {
     this.message = formatMessage("%s created in %s.", group, vo);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   public Vo getVo() {

@@ -7,6 +7,18 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 public interface LdapcManager {
 
+  public Perun getPerunBl();
+
+  public PerunPrincipal getPerunPrincipal();
+
+  public PerunSession getPerunSession();
+
+  public void setLastProcessedId(int lastProcessedId);
+
+  public void setPerunBl(Perun perunBl);
+
+  public void setPerunPrincipal(PerunPrincipal perunPrincipal);
+
   /**
    * Start processing incommming events from Perun Auditer.
    */
@@ -30,17 +42,5 @@ public interface LdapcManager {
    * @throws InternalErrorException When implementation fails
    */
   void synchronizeReplica();
-
-  public Perun getPerunBl();
-
-  public void setPerunBl(Perun perunBl);
-
-  public PerunSession getPerunSession();
-
-  public PerunPrincipal getPerunPrincipal();
-
-  public void setPerunPrincipal(PerunPrincipal perunPrincipal);
-
-  public void setLastProcessedId(int lastProcessedId);
 
 }

@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when it is not possible to perform an action on
- * a group-resource assignment because of its status.
+ * This exception is thrown when it is not possible to perform an action on a group-resource assignment because of its
+ * status.
  *
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */

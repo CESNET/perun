@@ -12,15 +12,14 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.bl.OwnersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 
 public class OwnersManagerBlImpl implements OwnersManagerBl {
 
-  final static Logger log = LoggerFactory.getLogger(OwnersManagerBlImpl.class);
+  static final Logger LOG = LoggerFactory.getLogger(OwnersManagerBlImpl.class);
 
   private final OwnersManagerImplApi ownersManagerImpl;
   private PerunBl perunBl;
@@ -33,14 +32,14 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
   }
 
   @Override
-  public Owner createOwner(PerunSession sess, Owner owner) {
-    getPerunBl().getAuditer().log(sess, new OwnerCreated(owner));
-    return getOwnersManagerImpl().createOwner(sess, owner);
+  public void checkOwnerExists(PerunSession sess, Owner owner) throws OwnerNotExistsException {
+    getOwnersManagerImpl().checkOwnerExists(sess, owner);
   }
 
   @Override
-  public void deleteOwner(PerunSession sess, Owner owner) throws RelationExistsException, OwnerAlreadyRemovedException {
-    this.deleteOwner(sess, owner, false);
+  public Owner createOwner(PerunSession sess, Owner owner) {
+    getPerunBl().getAuditer().log(sess, new OwnerCreated(owner));
+    return getOwnersManagerImpl().createOwner(sess, owner);
   }
 
   @Override
@@ -68,6 +67,11 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
   }
 
   @Override
+  public void deleteOwner(PerunSession sess, Owner owner) throws RelationExistsException, OwnerAlreadyRemovedException {
+    this.deleteOwner(sess, owner, false);
+  }
+
+  @Override
   public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException {
     return getOwnersManagerImpl().getOwnerById(sess, id);
   }
@@ -81,12 +85,6 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
   public List<Owner> getOwners(PerunSession sess) {
     return getOwnersManagerImpl().getOwners(sess);
   }
-
-  @Override
-  public void checkOwnerExists(PerunSession sess, Owner owner) throws OwnerNotExistsException {
-    getOwnersManagerImpl().checkOwnerExists(sess, owner);
-  }
-
 
   /**
    * Gets the owners manager

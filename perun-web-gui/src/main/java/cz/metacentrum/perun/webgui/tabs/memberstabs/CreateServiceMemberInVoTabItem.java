@@ -66,7 +66,7 @@ import java.util.Map;
  */
 public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "add-service-member";
+  public static final String URL = "add-service-member";
   /**
    * vo id
    */

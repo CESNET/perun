@@ -1,10 +1,9 @@
 package cz.metacentrum.perun.cabinet.bl;
 
-import java.util.List;
-
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.util.List;
 
 /**
  * Interface for handling publication's categories
@@ -25,21 +24,7 @@ public interface CategoryManagerBl {
   Category createCategory(PerunSession sess, Category category) throws CabinetException;
 
   /**
-   * Updates publications category in Perun. Category to update
-   * is found by ID. When category rank is changed, priorityCoefficient
-   * for all authors of books from this category, is recalculated.
-   *
-   * @param sess     PerunSession
-   * @param category Category to update to
-   * @return Updated category
-   * @throws CabinetException       When Category doesn't exists
-   * @throws InternalErrorException When implementation fails
-   */
-  Category updateCategory(PerunSession sess, Category category) throws CabinetException;
-
-  /**
-   * Delete category by its ID. If category contains any publications,
-   * it can't be deleted.
+   * Delete category by its ID. If category contains any publications, it can't be deleted.
    *
    * @param sess     PerunSession
    * @param category Category to be deleted
@@ -65,5 +50,17 @@ public interface CategoryManagerBl {
    * @throws InternalErrorException When implementation fails
    */
   Category getCategoryById(int id) throws CabinetException;
+
+  /**
+   * Updates publications category in Perun. Category to update is found by ID. When category rank is changed,
+   * priorityCoefficient for all authors of books from this category, is recalculated.
+   *
+   * @param sess     PerunSession
+   * @param category Category to update to
+   * @return Updated category
+   * @throws CabinetException       When Category doesn't exists
+   * @throws InternalErrorException When implementation fails
+   */
+  Category updateCategory(PerunSession sess, Category category) throws CabinetException;
 
 }

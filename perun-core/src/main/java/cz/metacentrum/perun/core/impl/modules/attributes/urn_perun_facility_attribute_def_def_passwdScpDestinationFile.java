@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,9 +23,17 @@ public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile exten
 
   private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
 
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute,
+          "Attribute was not filled, therefore there is nothing to be checked.");
+    }
+  }
+
   /**
-   * Method for checking path of the file.
-   * Try to check if the path is equal to pattern ^(/[-_a-zA-Z0-9]+)+$
+   * Method for checking path of the file. Try to check if the path is equal to pattern ^(/[-_a-zA-Z0-9]+)+$
    */
   @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
@@ -42,18 +49,8 @@ public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile exten
     }
   }
 
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute,
-          "Attribute was not filled, therefore there is nothing to be checked.");
-    }
-  }
-
   /**
-   * Method for filling path of the file.
-   * Return attribute with value equal null.
+   * Method for filling path of the file. Return attribute with value equal null.
    */
   @Override
   public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) {

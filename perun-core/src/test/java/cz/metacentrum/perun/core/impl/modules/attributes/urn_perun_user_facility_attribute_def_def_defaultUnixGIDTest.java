@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -13,15 +17,10 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_facility_attribute_def_def_defaultUnixGIDTest {
   private urn_perun_user_facility_attribute_def_def_defaultUnixGID classInstance;
@@ -84,6 +83,26 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGIDTest {
         new ArrayList<>());
   }
 
+  @Test
+  public void testSemanticsCorrect() throws Exception {
+    System.out.println("testSemanticsCorrect()");
+    Resource resource = new Resource();
+    List<Resource> list = new ArrayList<>();
+    list.add(resource);
+    when(sess.getPerunBl().getResourcesManagerBl()
+        .getResourcesByAttribute(any(PerunSessionImpl.class), any(Attribute.class))).thenReturn(list);
+    when(sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user)).thenReturn(list);
+
+    classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testSemanticsWithNoGroupsForGivenGID() throws Exception {
+    System.out.println("testSemanticsWithNoGroupsForGivenGID()");
+
+    classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
+  }
+
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void testSemanticsWithNullValueOfNamespaceAttribute() throws Exception {
     System.out.println("testSemanticsWithNullValueOfNamespaceAttribute()");
@@ -96,26 +115,6 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGIDTest {
   public void testSemanticsWithNullValueOfUnixGroupNameNamespace() throws Exception {
     System.out.println("testSemanticsWithNullValueOfUnixGroupNameNamespace()");
     unixGroupNamespace.setValue(null);
-
-    classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testSemanticsWithNoGroupsForGivenGID() throws Exception {
-    System.out.println("testSemanticsWithNoGroupsForGivenGID()");
-
-    classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
-  }
-
-  @Test
-  public void testSemanticsCorrect() throws Exception {
-    System.out.println("testSemanticsCorrect()");
-    Resource resource = new Resource();
-    List<Resource> list = new ArrayList<>();
-    list.add(resource);
-    when(sess.getPerunBl().getResourcesManagerBl()
-        .getResourcesByAttribute(any(PerunSessionImpl.class), any(Attribute.class))).thenReturn(list);
-    when(sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user)).thenReturn(list);
 
     classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
   }

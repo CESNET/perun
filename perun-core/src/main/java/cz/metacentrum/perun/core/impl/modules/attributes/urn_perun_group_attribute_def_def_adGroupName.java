@@ -26,20 +26,6 @@ public class urn_perun_group_attribute_def_def_adGroupName extends GroupAttribut
   private static final String A_G_D_AD_GROUP_NAME = AttributesManager.NS_GROUP_ATTR_DEF + ":adGroupName";
 
   @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
-      throws WrongAttributeValueException {
-    //Attribute can be null
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    if (!pattern.matcher(attribute.valueAsString()).matches()) {
-      throw new WrongAttributeValueException(attribute,
-          "Invalid attribute adGroupName value. It should contain only letters, digits, underscores, dashes or spaces.");
-    }
-  }
-
-  @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
       throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     //Attribute can be null
@@ -66,6 +52,32 @@ public class urn_perun_group_attribute_def_def_adGroupName extends GroupAttribut
         //We can skip this case
       }
     }
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Attribute can be null
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    if (!pattern.matcher(attribute.valueAsString()).matches()) {
+      throw new WrongAttributeValueException(attribute,
+          "Invalid attribute adGroupName value. It should contain only letters, digits, underscores, dashes or spaces" +
+          ".");
+    }
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    attr.setFriendlyName("adGroupName");
+    attr.setDisplayName("AD Group Name");
+    attr.setType(String.class.getName());
+    attr.setDescription("AD group name which is used to compose full name of the group in AD.");
+    return attr;
   }
 
   /**
@@ -101,16 +113,5 @@ public class urn_perun_group_attribute_def_def_adGroupName extends GroupAttribut
     }
 
     return true;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    attr.setFriendlyName("adGroupName");
-    attr.setDisplayName("AD Group Name");
-    attr.setType(String.class.getName());
-    attr.setDescription("AD group name which is used to compose full name of the group in AD.");
-    return attr;
   }
 }

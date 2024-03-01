@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SitolaPasswordManagerModule extends GenericPasswordManagerModule {
 
-  private final static Logger log = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
 
   public SitolaPasswordManagerModule() {
     // set proper namespace
@@ -40,7 +40,7 @@ public class SitolaPasswordManagerModule extends GenericPasswordManagerModule {
     }
 
     if (user == null) {
-      log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+      LOG.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
     } else {
       // set extSources and extSource related attributes
       try {

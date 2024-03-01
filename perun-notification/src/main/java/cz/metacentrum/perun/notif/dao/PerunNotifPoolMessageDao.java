@@ -14,28 +14,12 @@ import java.util.Set;
 public interface PerunNotifPoolMessageDao {
 
   /**
-   * Saves perunNotifPoolMessage to db, keyAttributes of poolMessage are
-   * serialized to string and values are URLEncoded
-   *
-   * @param poolMessage
-   */
-  public void savePerunNotifPoolMessage(
-      PerunNotifPoolMessage poolMessage);
-
-  /**
-   * Gets all perunNotifPoolMessages from db Integer is templateId,
-   * perunNotifPoolMessageProcessDto holds messages with same templateId
-   * and keyAttributes
+   * Gets all perunNotifPoolMessages from db Integer is templateId, perunNotifPoolMessageProcessDto holds messages with
+   * same templateId and keyAttributes
    *
    * @return templateId = list<PoolMessage>
    */
   public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing();
-
-  /**
-   * Sets all created to now for all pool messages. Is used after start of
-   * application
-   */
-  public void setAllCreatedToNow();
 
   /**
    * Removes all pool messages from db containing given ids.
@@ -43,4 +27,16 @@ public interface PerunNotifPoolMessageDao {
    * @param proccessedIds
    */
   public void removeAllPoolMessages(Set<Integer> proccessedIds);
+
+  /**
+   * Saves perunNotifPoolMessage to db, keyAttributes of poolMessage are serialized to string and values are URLEncoded
+   *
+   * @param poolMessage
+   */
+  public void savePerunNotifPoolMessage(PerunNotifPoolMessage poolMessage);
+
+  /**
+   * Sets all created to now for all pool messages. Is used after start of application
+   */
+  public void setAllCreatedToNow();
 }

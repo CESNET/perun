@@ -13,18 +13,17 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Compute value of all groups assigned to the Resource and return list of their names.
- * Name of group in the list is like '[VO_SHORT_NAME]:[PARENT_GROUP_NAME]:[GROUP_NAME]'
+ * Compute value of all groups assigned to the Resource and return list of their names. Name of group in the list is
+ * like '[VO_SHORT_NAME]:[PARENT_GROUP_NAME]:[GROUP_NAME]'
  * <p>
  * If there is attribute 'resource:def:isAssignedWithSubgroups' set to true on the Resource, it will add all subgroups
  * of assigned groups too.
@@ -35,50 +34,9 @@ import java.util.Set;
 public class urn_perun_resource_attribute_def_virt_assignedGroups extends ResourceVirtualAttributesModuleAbstract
     implements ResourceVirtualAttributesModuleImplApi {
 
-  private final static Logger log = LoggerFactory.getLogger(urn_perun_resource_attribute_def_virt_assignedGroups.class);
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_resource_attribute_def_virt_assignedGroups.class);
   private static final String A_R_isAssignedWithSubgroups =
       AttributesManager.NS_RESOURCE_ATTR_DEF + ":isAssignedWithSubgroups";
-
-  @Override
-  public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource,
-                                     AttributeDefinition attributeDefinition) {
-    Attribute attribute = new Attribute(attributeDefinition);
-    Set<String> allUniqueGroupNames = new HashSet<>();
-
-    Vo vo = sess.getPerunBl().getResourcesManagerBl().getVo(sess, resource);
-    List<Group> assignedGroups = sess.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-
-    boolean isAssignedWithSubgroups;
-    try {
-      Attribute isAssignedWithSubgroupsAttribute =
-          sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_isAssignedWithSubgroups);
-      if (isAssignedWithSubgroupsAttribute.getValue() == null) {
-        isAssignedWithSubgroups = false;
-      } else {
-        isAssignedWithSubgroups = isAssignedWithSubgroupsAttribute.valueAsBoolean();
-      }
-    } catch (AttributeNotExistsException ex) {
-      log.debug("There is missing definition of attribute {}", A_R_isAssignedWithSubgroups);
-      isAssignedWithSubgroups = false;
-    } catch (WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
-    }
-
-    for (Group assignedGroup : assignedGroups) {
-      allUniqueGroupNames.add(computeGroupName(vo, assignedGroup));
-      if (isAssignedWithSubgroups) {
-        for (Group subgroup : sess.getPerunBl().getGroupsManagerBl().getAllSubGroups(sess, assignedGroup)) {
-          allUniqueGroupNames.add(computeGroupName(vo, subgroup));
-        }
-      }
-    }
-
-    List<String> allGroupNames = new ArrayList<>(allUniqueGroupNames);
-    Collections.sort(allGroupNames);
-    attribute.setValue(allGroupNames);
-
-    return attribute;
-  }
 
   /**
    * Return group name like '[VO_SHORT_NAME]:[GROUP_NAME]'
@@ -99,7 +57,49 @@ public class urn_perun_resource_attribute_def_virt_assignedGroups extends Resour
     attr.setDisplayName("List of all assigned groups");
     attr.setType(ArrayList.class.getName());
     attr.setDescription(
-        "Compute list of all names of assigned groups (optionally also with all their subgroups - if true is set in 'def:resource:isAssignedWithSubgroups' attribute).");
+        "Compute list of all names of assigned groups (optionally also with all their subgroups - if true is set in " +
+        "'def:resource:isAssignedWithSubgroups' attribute).");
     return attr;
+  }
+
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource,
+                                     AttributeDefinition attributeDefinition) {
+    Attribute attribute = new Attribute(attributeDefinition);
+    Set<String> allUniqueGroupNames = new HashSet<>();
+
+    Vo vo = sess.getPerunBl().getResourcesManagerBl().getVo(sess, resource);
+    List<Group> assignedGroups = sess.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+
+    boolean isAssignedWithSubgroups;
+    try {
+      Attribute isAssignedWithSubgroupsAttribute =
+          sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_isAssignedWithSubgroups);
+      if (isAssignedWithSubgroupsAttribute.getValue() == null) {
+        isAssignedWithSubgroups = false;
+      } else {
+        isAssignedWithSubgroups = isAssignedWithSubgroupsAttribute.valueAsBoolean();
+      }
+    } catch (AttributeNotExistsException ex) {
+      LOG.debug("There is missing definition of attribute {}", A_R_isAssignedWithSubgroups);
+      isAssignedWithSubgroups = false;
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+
+    for (Group assignedGroup : assignedGroups) {
+      allUniqueGroupNames.add(computeGroupName(vo, assignedGroup));
+      if (isAssignedWithSubgroups) {
+        for (Group subgroup : sess.getPerunBl().getGroupsManagerBl().getAllSubGroups(sess, assignedGroup)) {
+          allUniqueGroupNames.add(computeGroupName(vo, subgroup));
+        }
+      }
+    }
+
+    List<String> allGroupNames = new ArrayList<>(allUniqueGroupNames);
+    Collections.sort(allGroupNames);
+    attribute.setValue(allGroupNames);
+
+    return attribute;
   }
 }

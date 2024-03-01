@@ -13,9 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Thread used to actually read JMS messages from Engine.
- * Received messages are then parsed by SystemQueueProcessor.
- * If parsing fails, it tries to restart whole JMS processing.
+ * Thread used to actually read JMS messages from Engine. Received messages are then parsed by SystemQueueProcessor. If
+ * parsing fails, it tries to restart whole JMS processing.
  *
  * @author Michal Karm Babacek
  * @author Michal Voců
@@ -26,9 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @org.springframework.stereotype.Service(value = "engineMessageConsumer")
 public class EngineMessageConsumer extends AbstractRunner {
 
-  private final static Logger log = LoggerFactory.getLogger(EngineMessageConsumer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EngineMessageConsumer.class);
 
-  private final static int timeout = 5000; // ms
+  private static final int TIMEOUT = 5000; // ms
 
   private EngineMessageProcessor engineMessageProcessor;
   private MessageConsumer messageConsumer = null;
@@ -48,32 +47,8 @@ public class EngineMessageConsumer extends AbstractRunner {
     return engineMessageProcessor;
   }
 
-  @Autowired
-  public void setEngineMessageProcessor(EngineMessageProcessor engineMessageProcessor) {
-    this.engineMessageProcessor = engineMessageProcessor;
-  }
-
   public EngineMessageProducerFactory getProducerFactory() {
     return producerFactory;
-  }
-
-  public void setProducerFactory(EngineMessageProducerFactory producerFactory) {
-    this.producerFactory = producerFactory;
-  }
-
-
-  // ----- methods -------------------------------------
-
-
-  /**
-   * Set QueueName and HornetQ session in order to create correct message consumer.
-   *
-   * @param queueName Name of the JMS queue
-   * @param session   HornetQ session
-   */
-  public void setUp(String queueName, Session session) {
-    this.queueName = queueName;
-    this.session = session;
   }
 
   /**
@@ -84,21 +59,21 @@ public class EngineMessageConsumer extends AbstractRunner {
   @Override
   public void run() {
 
-    log.debug("SystemQueueReceiver has started...");
+    LOG.debug("SystemQueueReceiver has started...");
     try {
 
       // Step 1. Directly instantiate the JMS Queue object.
-      log.debug("Creating queue...");
+      LOG.debug("Creating queue...");
       Queue queue = HornetQJMSClient.createQueue(queueName);
 
       // Step 9. Create a JMS Message Consumer
-      log.debug("Creating consumer...");
+      LOG.debug("Creating consumer...");
       messageConsumer = session.createConsumer(queue);
 
     } catch (JMSException e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
     } catch (Exception e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
     }
 
     while (!shouldStop()) {
@@ -112,48 +87,71 @@ public class EngineMessageConsumer extends AbstractRunner {
           producer.deliverOutputMessages();
         }
 
-        log.trace("Gonna call messageConsumer.receive(timeout)...");
-        messageReceived = (TextMessage) messageConsumer.receive(timeout);
+        LOG.trace("Gonna call messageConsumer.receive(timeout)...");
+        messageReceived = (TextMessage) messageConsumer.receive(TIMEOUT);
         if (messageReceived != null) {
-          if (log.isTraceEnabled()) {
-            log.trace("System message received [" + messageReceived.getText() + "]");
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("System message received [" + messageReceived.getText() + "]");
           }
           try {
             engineMessageProcessor.processEngineMessage(messageReceived.getText());
           } catch (MessageFormatException ex) {
             // engine sent wrongly formatted messages
             // shouldn't kill whole messaging process
-            log.error(ex.toString(), ex);
+            LOG.error(ex.toString(), ex);
           }
           messageReceived.acknowledge();
         } else {
-          if (log.isTraceEnabled()) {
-            log.trace("No message available...");
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("No message available...");
           }
         }
       } catch (JMSException e) {
         // try to restart JMS messaging
-        log.error(e.toString(), e);
+        LOG.error(e.toString(), e);
         // NOTE: this will call stop() on us
         engineMessageProcessor.stopProcessingSystemMessages();
         engineMessageProcessor.startProcessingSystemMessages();
         try {
           Thread.sleep(10000);
         } catch (InterruptedException ex) {
-          log.error(ex.toString(), ex);
+          LOG.error(ex.toString(), ex);
           stop();
         }
       } catch (Exception e) {
-        log.error(e.toString(), e);
+        LOG.error(e.toString(), e);
         stop();
       }
     }
     try {
       messageConsumer.close();
     } catch (JMSException e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
     }
     messageConsumer = null;
+  }
+
+  @Autowired
+  public void setEngineMessageProcessor(EngineMessageProcessor engineMessageProcessor) {
+    this.engineMessageProcessor = engineMessageProcessor;
+  }
+
+
+  // ----- methods -------------------------------------
+
+  public void setProducerFactory(EngineMessageProducerFactory producerFactory) {
+    this.producerFactory = producerFactory;
+  }
+
+  /**
+   * Set QueueName and HornetQ session in order to create correct message consumer.
+   *
+   * @param queueName Name of the JMS queue
+   * @param session   HornetQ session
+   */
+  public void setUp(String queueName, Session session) {
+    this.queueName = queueName;
+    this.session = session;
   }
 
 }

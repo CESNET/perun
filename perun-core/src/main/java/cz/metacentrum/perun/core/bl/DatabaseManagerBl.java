@@ -21,8 +21,8 @@ public interface DatabaseManagerBl {
   String NAME_OF_ORACLE_ARRAY_METHOD = "createOracleArray";
 
   /**
-   * Take list of perunBeans and generate an array of ids in sql database from it.
-   * Implementation can be different for every type of supported DB
+   * Take list of perunBeans and generate an array of ids in sql database from it. Implementation can be different for
+   * every type of supported DB
    *
    * @param perunBeans        list of PerunBeans to get Ids from
    * @param preparedStatement database prepared statement to get working connection
@@ -37,8 +37,8 @@ public interface DatabaseManagerBl {
   }
 
   /**
-   * Take list of integers and generate an array of integers in sql database from it.
-   * Implementation can be different for every type of supported DB
+   * Take list of integers and generate an array of integers in sql database from it. Implementation can be different
+   * for every type of supported DB
    *
    * @param integers          list of integers
    * @param preparedStatement database prepared statement to get working connection
@@ -54,8 +54,8 @@ public interface DatabaseManagerBl {
   }
 
   /**
-   * Take list of String and generate an array in sql database from it.
-   * Implementation can be different for every type of supported DB
+   * Take list of String and generate an array in sql database from it. Implementation can be different for every type
+   * of supported DB
    *
    * @param strings           list of Strings to get an sql array from
    * @param preparedStatement database prepared statement to get working connection
@@ -69,6 +69,26 @@ public interface DatabaseManagerBl {
     Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
     return connection.createArrayOf(JDBCType.VARCHAR.name(), arrayOfStrings);
   }
+
+  /**
+   * Create new property in configurations. Initial value will be "N/A".
+   *
+   * @param property name of property to be created
+   */
+  void createProperty(String property);
+
+  /**
+   * Parses all new database versions from DB changelog file and creates from them list of DBVersion objects. The list
+   * contains all versions from currentDBVersion (without currentDBVersion itself) to now (the version at the top of the
+   * changelog file)
+   *
+   * @param currentDBVersion current DB version
+   * @param fileName         DB changelog file name, file should be in resources
+   * @return list of DBVersion objects ordered by version descending
+   * @throws InternalErrorException if 1.there is an error reading file, 2.currentDBVersion was not found 3.DBVersion
+   *                                does not match pattern 4.DB versions are not ordered as they should be
+   */
+  List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName);
 
   /**
    * Return current database version in string (ex. 3.0.1)
@@ -95,39 +115,19 @@ public interface DatabaseManagerBl {
   String getDatabaseInformation();
 
   /**
-   * Method updates database to the current code version. It takes list of dbVersions and executes all the commands from them.
-   * Commands from the oldest (lowest) version are executed first.
+   * Return JDBC template for performing custom simple SQLs where jdbc is not normally available
    *
-   * @param dbVersions list of dbVersion objects ordered by version descending, should not be empty
-   * @throws InternalErrorException if any of the commands fails to execute
+   * @return Peruns JDBC template
    */
-  void updateDatabaseVersion(List<DBVersion> dbVersions);
+  JdbcPerunTemplate getJdbcPerunTemplate();
 
   /**
-   * Parses all new database versions from DB changelog file and creates from them list of DBVersion objects.
-   * The list contains all versions from currentDBVersion (without currentDBVersion itself) to now (the version at the top of the changelog file)
-   *
-   * @param currentDBVersion current DB version
-   * @param fileName         DB changelog file name, file should be in resources
-   * @return list of DBVersion objects ordered by version descending
-   * @throws InternalErrorException if 1.there is an error reading file, 2.currentDBVersion was not found 3.DBVersion does not match pattern 4.DB versions are not ordered as they should be
-   */
-  List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName);
-
-  /**
-   * Get time in ns "nanoseconds" of calling 1 simple update query to DB.
-   * This query will update property for this purpose in configurations table.
+   * Get time in ns "nanoseconds" of calling 1 simple update query to DB. This query will update property for this
+   * purpose in configurations table.
    *
    * @return time of processing query in nanoseconds
    */
   long getTimeOfQueryPerformance();
-
-  /**
-   * Create new property in configurations. Initial value will be "N/A".
-   *
-   * @param property name of property to be created
-   */
-  void createProperty(String property);
 
   /**
    * Return true if property already exists, false if not.
@@ -138,10 +138,12 @@ public interface DatabaseManagerBl {
   boolean propertyExists(String property);
 
   /**
-   * Return JDBC template for performing custom simple SQLs where jdbc is not normally available
+   * Method updates database to the current code version. It takes list of dbVersions and executes all the commands from
+   * them. Commands from the oldest (lowest) version are executed first.
    *
-   * @return Peruns JDBC template
+   * @param dbVersions list of dbVersion objects ordered by version descending, should not be empty
+   * @throws InternalErrorException if any of the commands fails to execute
    */
-  JdbcPerunTemplate getJdbcPerunTemplate();
+  void updateDatabaseVersion(List<DBVersion> dbVersions);
 
 }

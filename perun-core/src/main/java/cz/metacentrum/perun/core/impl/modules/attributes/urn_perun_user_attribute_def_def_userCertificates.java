@@ -8,14 +8,13 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
@@ -51,8 +50,8 @@ public class urn_perun_user_attribute_def_def_userCertificates extends UserAttri
       }
     } catch (CertificateException e) {
       throw new WrongAttributeValueException(attribute, user,
-          "Wrong format, certificate must be in PEM format prepended by -----BEGIN CERTIFICATE----- and appended by -----END CERTIFICATE-----.",
-          e);
+          "Wrong format, certificate must be in PEM format prepended by -----BEGIN CERTIFICATE----- and appended by " +
+          "-----END CERTIFICATE-----.", e);
     }
 
   }

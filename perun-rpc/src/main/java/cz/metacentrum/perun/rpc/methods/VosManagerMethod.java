@@ -36,9 +36,9 @@ public enum VosManagerMethod implements ManagerMethod {
     public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getVosManager().getVos(ac.getSession());
     }
-  },
-  /*#
-   * Return list of EnrichedVO object of VOs caller has relation with (is manager of VO, is manager of group in VO etc.).
+  }, /*#
+   * Return list of EnrichedVO object of VOs caller has relation with (is manager of VO, is manager of group in VO
+   etc.).
    * @return List<EnrichedVo> Found VOs
    */
   getEnrichedVos {
@@ -108,7 +108,8 @@ public enum VosManagerMethod implements ManagerMethod {
    * Creates new VO. Caller is automatically set as VO manager.
    *
    * @param name String name - length can be no more than 128 characters
-   * @param shortName String shortName - can contain only a-z, A-Z, 0-9, '.', '-', '_' and cannot be longer than 32 characters.
+   * @param shortName String shortName - can contain only a-z, A-Z, 0-9, '.', '-', '_' and cannot be longer than 32
+   * characters.
    * @throw VoExistsException When VO you try to create already exists.
    * @return Vo Created VO with correct <code>id</code> set
    * @exampleParam shortName "test_vo"
@@ -158,8 +159,7 @@ public enum VosManagerMethod implements ManagerMethod {
    */
   getVoByShortName {
     @Override
-    public Vo call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Vo call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getVosManager().getVoByShortName(ac.getSession(), parms.readString("shortName"));
     }
   },
@@ -173,8 +173,7 @@ public enum VosManagerMethod implements ManagerMethod {
    */
   getVoById {
     @Override
-    public Vo call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Vo call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getVosManager().getVoById(ac.getSession(), parms.readInt("id"));
     }
   },
@@ -218,7 +217,8 @@ public enum VosManagerMethod implements ManagerMethod {
    */
   /*#
    * Find candidates for VO with specified maximum number of results. Candidates can be used to create new members.
-   * Candidates are searched in VOs external sources (if available). Candidates, which are already members of VO are never
+   * Candidates are searched in VOs external sources (if available). Candidates, which are already members of VO are
+   * never
    * returned even if they match searchString.
    *
    * @param vo int VO <code>id</code>
@@ -241,18 +241,15 @@ public enum VosManagerMethod implements ManagerMethod {
     @Override
     public List<Candidate> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("maxNumOfResults")) {
-        return ac.getVosManager().findCandidates(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readString("searchString"),
-            parms.readInt("maxNumOfResults"));
+        return ac.getVosManager()
+            .findCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("searchString"),
+                parms.readInt("maxNumOfResults"));
       } else if (parms.contains("group")) {
-        return ac.getVosManager().findCandidates(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            parms.readString("searchString"));
+        return ac.getVosManager()
+            .findCandidates(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));
       } else {
-        return ac.getVosManager().findCandidates(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readString("searchString"));
+        return ac.getVosManager()
+            .findCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("searchString"));
       }
     }
   },
@@ -285,15 +282,11 @@ public enum VosManagerMethod implements ManagerMethod {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("vo")) {
-        return ac.getVosManager().getCompleteCandidates(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readList("attrNames", String.class),
-            parms.readString("searchString"));
+        return ac.getVosManager().getCompleteCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.readList("attrNames", String.class), parms.readString("searchString"));
       } else {
-        return ac.getVosManager().getCompleteCandidates(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            parms.readList("attrNames", String.class),
-            parms.readString("searchString"));
+        return ac.getVosManager().getCompleteCandidates(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+            parms.readList("attrNames", String.class), parms.readString("searchString"));
       }
     }
   },
@@ -350,16 +343,13 @@ public enum VosManagerMethod implements ManagerMethod {
    */
   addAdmin {
     @Override
-    public Void call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
       if (parms.contains("user")) {
-        ac.getVosManager().addAdmin(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            ac.getUserById(parms.readInt("user")));
+        ac.getVosManager()
+            .addAdmin(ac.getSession(), ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
       } else {
-        ac.getVosManager().addAdmin(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getVosManager().addAdmin(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             ac.getGroupById(parms.readInt("authorizedGroup")));
       }
       return null;
@@ -386,8 +376,7 @@ public enum VosManagerMethod implements ManagerMethod {
    */
   addSponsorRole {
     @Override
-    public Void call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
       Vo vo = ac.getVoById(parms.readInt("vo"));
       if (parms.contains("user")) {
@@ -421,16 +410,13 @@ public enum VosManagerMethod implements ManagerMethod {
    */
   removeAdmin {
     @Override
-    public Void call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
       if (parms.contains("user")) {
-        ac.getVosManager().removeAdmin(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            ac.getUserById(parms.readInt("user")));
+        ac.getVosManager()
+            .removeAdmin(ac.getSession(), ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
       } else {
-        ac.getVosManager().removeAdmin(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getVosManager().removeAdmin(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             ac.getGroupById(parms.readInt("authorizedGroup")));
       }
       return null;
@@ -458,16 +444,13 @@ public enum VosManagerMethod implements ManagerMethod {
    */
   removeSponsorRole {
     @Override
-    public Void call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
       if (parms.contains("user")) {
-        ac.getVosManager().removeSponsorRole(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getVosManager().removeSponsorRole(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             ac.getUserById(parms.readInt("user")));
       } else {
-        ac.getVosManager().removeSponsorRole(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getVosManager().removeSponsorRole(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             ac.getGroupById(parms.readInt("authorizedGroup")));
       }
       return null;
@@ -512,8 +495,7 @@ public enum VosManagerMethod implements ManagerMethod {
           }
 
           //Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
-          if (!roleName.equals(Role.TOPGROUPCREATOR) &&
-              !roleName.equals(Role.VOADMIN) &&
+          if (!roleName.equals(Role.TOPGROUPCREATOR) && !roleName.equals(Role.VOADMIN) &&
               !roleName.equals(Role.VOOBSERVER)) {
             throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.",
                 roleName);
@@ -556,7 +538,8 @@ public enum VosManagerMethod implements ManagerMethod {
    * @param vo int VO <code>id</code>
    * @param role String Role name
    *
-   * @return List<Group> List of groups, who are administrators of the VO with supported role. Returns empty list if there is no VO group admin.
+   * @return List<Group> List of groups, who are administrators of the VO with supported role. Returns empty list if
+   * there is no VO group admin.
    */
   /*#
    * Returns group administrators of a VO.
@@ -582,10 +565,8 @@ public enum VosManagerMethod implements ManagerMethod {
           }
 
           //Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
-          if (!roleName.equals(Role.TOPGROUPCREATOR) &&
-              !roleName.equals(Role.VOADMIN) &&
-              !roleName.equals(Role.SPONSOR) &&
-              !roleName.equals(Role.VOOBSERVER)) {
+          if (!roleName.equals(Role.TOPGROUPCREATOR) && !roleName.equals(Role.VOADMIN) &&
+              !roleName.equals(Role.SPONSOR) && !roleName.equals(Role.VOOBSERVER)) {
             throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver, Sponsor and TopGroupCreator.",
                 roleName);
           }
@@ -607,13 +588,16 @@ public enum VosManagerMethod implements ManagerMethod {
    * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN, SPONSOR
    *
    * If "onlyDirectAdmins" is == true, return only direct admins of the vo for supported role with specific attributes.
-   * If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+   * If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects
+   * richUser. Ignoring list of specific attributes.
    *
    * @param vo int VO Id
    * @param role String role name
    * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
-   * @param allUserAttributes boolean if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
-   * @param onlyDirectAdmins boolean if == true, get only direct vo administrators (if false, get both direct and indirect)
+   * @param allUserAttributes boolean if == true, get all possible user attributes and ignore list of
+   * specificAttributes (if false, get only specific attributes)
+   * @param onlyDirectAdmins boolean if == true, get only direct vo administrators (if false, get both direct and
+   * indirect)
    *
    * @return List<RichUser> list of RichUser administrators for the vo and supported role with attributes
    */
@@ -641,34 +625,24 @@ public enum VosManagerMethod implements ManagerMethod {
           }
 
           //Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
-          if (!roleName.equals(Role.TOPGROUPCREATOR) &&
-              !roleName.equals(Role.VOADMIN) &&
-              !roleName.equals(Role.SPONSOR) &&
-              !roleName.equals(Role.VOOBSERVER)) {
+          if (!roleName.equals(Role.TOPGROUPCREATOR) && !roleName.equals(Role.VOADMIN) &&
+              !roleName.equals(Role.SPONSOR) && !roleName.equals(Role.VOOBSERVER)) {
             throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver, Sponsor and TopGroupCreator.",
                 roleName);
           }
 
-          return AuthzResolver.getRichAdmins(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              parms.readList("specificAttributes", String.class),
-              roleName,
-              parms.readBoolean("onlyDirectAdmins"),
+          return AuthzResolver.getRichAdmins(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.readList("specificAttributes", String.class), roleName, parms.readBoolean("onlyDirectAdmins"),
               parms.readBoolean("allUserAttributes"));
         } else {
-          return AuthzResolver.getRichAdmins(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              new ArrayList<>(),
-              Role.VOADMIN,
-              false,
-              false);
+          return AuthzResolver.getRichAdmins(ac.getSession(), ac.getVoById(parms.readInt("vo")), new ArrayList<>(),
+              Role.VOADMIN, false, false);
         }
       } catch (RoleCannotBeManagedException ex) {
         throw new InternalErrorException(ex);
       }
     }
-  },
-  /*#
+  }, /*#
    * Returns administrators of a VO with additional information.
    *
    * @deprecated
@@ -679,12 +653,8 @@ public enum VosManagerMethod implements ManagerMethod {
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
       try {
-        return AuthzResolver.getRichAdmins(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            new ArrayList<>(),
-            Role.VOADMIN,
-            false,
-            true);
+        return AuthzResolver.getRichAdmins(ac.getSession(), ac.getVoById(parms.readInt("vo")), new ArrayList<>(),
+            Role.VOADMIN, false, true);
       } catch (RoleCannotBeManagedException ex) {
         throw new InternalErrorException(ex);
       }
@@ -703,12 +673,8 @@ public enum VosManagerMethod implements ManagerMethod {
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
       try {
-        return AuthzResolver.getRichAdmins(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readList("specificAttributes", String.class),
-            Role.VOADMIN,
-            false,
-            false);
+        return AuthzResolver.getRichAdmins(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.readList("specificAttributes", String.class), Role.VOADMIN, false, false);
       } catch (RoleCannotBeManagedException ex) {
         throw new InternalErrorException(ex);
       }
@@ -728,12 +694,8 @@ public enum VosManagerMethod implements ManagerMethod {
     @Override
     public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
       try {
-        return AuthzResolver.getRichAdmins(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readList("specificAttributes", String.class),
-            Role.VOADMIN,
-            true,
-            false);
+        return AuthzResolver.getRichAdmins(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.readList("specificAttributes", String.class), Role.VOADMIN, true, false);
       } catch (RoleCannotBeManagedException ex) {
         throw new InternalErrorException(ex);
       }
@@ -752,8 +714,7 @@ public enum VosManagerMethod implements ManagerMethod {
     public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getVosManager().setBan(ac.getSession(),
-          parms.read("banOnVo", BanOnVo.class));
+      return ac.getVosManager().setBan(ac.getSession(), parms.read("banOnVo", BanOnVo.class));
     }
   },
 
@@ -769,8 +730,7 @@ public enum VosManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getVosManager().removeBan(ac.getSession(),
-          parms.readInt("banId"));
+      ac.getVosManager().removeBan(ac.getSession(), parms.readInt("banId"));
 
       return null;
     }
@@ -788,8 +748,7 @@ public enum VosManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      ac.getVosManager().removeBanForMember(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      ac.getVosManager().removeBanForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
 
       return null;
     }
@@ -806,8 +765,7 @@ public enum VosManagerMethod implements ManagerMethod {
   getBanById {
     @Override
     public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getVosManager().getBanById(ac.getSession(),
-          parms.readInt("banId"));
+      return ac.getVosManager().getBanById(ac.getSession(), parms.readInt("banId"));
     }
   },
 
@@ -822,8 +780,7 @@ public enum VosManagerMethod implements ManagerMethod {
   getBanForMember {
     @Override
     public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getVosManager().getBanForMember(ac.getSession(),
-          ac.getMemberById(parms.readInt("member")));
+      return ac.getVosManager().getBanForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   },
 
@@ -838,8 +795,7 @@ public enum VosManagerMethod implements ManagerMethod {
   getBansForVo {
     @Override
     public List<BanOnVo> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getVosManager().getBansForVo(ac.getSession(),
-          parms.readInt("vo"));
+      return ac.getVosManager().getBansForVo(ac.getSession(), parms.readInt("vo"));
     }
   },
 
@@ -893,8 +849,7 @@ public enum VosManagerMethod implements ManagerMethod {
     public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getVosManager().updateBan(ac.getSession(),
-          parms.read("banOnVo", BanOnVo.class));
+      return ac.getVosManager().updateBan(ac.getSession(), parms.read("banOnVo", BanOnVo.class));
 
     }
   },
@@ -925,8 +880,8 @@ public enum VosManagerMethod implements ManagerMethod {
   convertSponsoredUsersWithNewSponsor {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getVosManager().convertSponsoredUsersWithNewSponsor(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
+      ac.getVosManager().convertSponsoredUsersWithNewSponsor(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+          ac.getUserById(parms.readInt("user")));
       return null;
     }
   },
@@ -940,9 +895,8 @@ public enum VosManagerMethod implements ManagerMethod {
   addMemberVo {
     @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getVosManager().addMemberVo(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          ac.getVoById(parms.readInt("memberVo")));
+      ac.getVosManager()
+          .addMemberVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), ac.getVoById(parms.readInt("memberVo")));
       return null;
     }
   },
@@ -956,9 +910,8 @@ public enum VosManagerMethod implements ManagerMethod {
   removeMemberVo {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getVosManager().removeMemberVo(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          ac.getVoById(parms.readInt("memberVo")));
+      ac.getVosManager()
+          .removeMemberVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), ac.getVoById(parms.readInt("memberVo")));
       return null;
     }
   },
@@ -971,8 +924,7 @@ public enum VosManagerMethod implements ManagerMethod {
   getMemberVos {
     @Override
     public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getVosManager().getMemberVos(ac.getSession(),
-          parms.readInt("vo"));
+      return ac.getVosManager().getMemberVos(ac.getSession(), parms.readInt("vo"));
     }
   },
 
@@ -984,8 +936,7 @@ public enum VosManagerMethod implements ManagerMethod {
   getParentVos {
     @Override
     public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getVosManager().getParentVos(ac.getSession(),
-          parms.readInt("vo"));
+      return ac.getVosManager().getParentVos(ac.getSession(), parms.readInt("vo"));
     }
   }
 }

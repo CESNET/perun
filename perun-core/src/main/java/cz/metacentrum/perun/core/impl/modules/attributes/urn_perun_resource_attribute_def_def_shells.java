@@ -28,43 +28,6 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
   private static final String A_F_shells = AttributesManager.NS_FACILITY_ATTR_DEF + ":shells";
 
   /**
-   * Fills the list of shells at the specified resource from facility
-   */
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute)
-      throws WrongAttributeAssignmentException {
-    Attribute atr = new Attribute(attribute);
-    Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
-
-    Attribute allShellsPerFacility;
-    try {
-      allShellsPerFacility =
-          perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_shells);
-    } catch (AttributeNotExistsException ex) {
-      throw new InternalErrorException(
-          "Attribute with list of shells from facility " + facility.getId() + " could not obtained.", ex);
-    }
-
-    atr.setValue(allShellsPerFacility.getValue());
-
-    return atr;
-  }
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    List<String> shells = attribute.valueAsList();
-
-    if (shells == null) {
-      return;
-    }
-
-    for (String st : shells) {
-      perunSession.getPerunBl().getModulesUtilsBl().checkFormatOfShell(st, attribute);
-    }
-  }
-
-  /**
    * Checks the attribute with all available shells from resource's facility
    */
   @Override
@@ -98,10 +61,40 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependecies = new ArrayList<>();
-    dependecies.add(A_F_shells);
-    return dependecies;
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    List<String> shells = attribute.valueAsList();
+
+    if (shells == null) {
+      return;
+    }
+
+    for (String st : shells) {
+      perunSession.getPerunBl().getModulesUtilsBl().checkFormatOfShell(st, attribute);
+    }
+  }
+
+  /**
+   * Fills the list of shells at the specified resource from facility
+   */
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException {
+    Attribute atr = new Attribute(attribute);
+    Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
+
+    Attribute allShellsPerFacility;
+    try {
+      allShellsPerFacility =
+          perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_shells);
+    } catch (AttributeNotExistsException ex) {
+      throw new InternalErrorException(
+          "Attribute with list of shells from facility " + facility.getId() + " could not obtained.", ex);
+    }
+
+    atr.setValue(allShellsPerFacility.getValue());
+
+    return atr;
   }
 
   @Override
@@ -113,5 +106,12 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
     attr.setType(ArrayList.class.getName());
     attr.setDescription("All available shells");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependecies = new ArrayList<>();
+    dependecies.add(A_F_shells);
+    return dependecies;
   }
 }

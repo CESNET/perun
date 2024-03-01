@@ -17,22 +17,6 @@ public class FacilityWithAttributes {
     this.attributes = attributes;
   }
 
-  public Facility getFacility() {
-    return facility;
-  }
-
-  public void setFacility(Facility facility) {
-    this.facility = facility;
-  }
-
-  public List<Attribute> getAttributes() {
-    return attributes;
-  }
-
-  public void setAttributes(List<Attribute> attributes) {
-    this.attributes = attributes;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -45,6 +29,22 @@ public class FacilityWithAttributes {
     return getFacility().equals(that.getFacility());
   }
 
+  public List<Attribute> getAttributes() {
+    return attributes;
+  }
+
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
+
+  public Facility getFacility() {
+    return facility;
+  }
+
+  public void setFacility(Facility facility) {
+    this.facility = facility;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(getFacility());
@@ -52,9 +52,6 @@ public class FacilityWithAttributes {
 
   @Override
   public String toString() {
-    return "FacilityWithAttributes{" +
-        "facility=" + facility +
-        ", attributes=" + attributes +
-        '}';
+    return "FacilityWithAttributes{" + "facility=" + facility + ", attributes=" + attributes + '}';
   }
 }

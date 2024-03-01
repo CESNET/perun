@@ -32,10 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract module for VO lifescience_hostel used in the LifeScience (LS AAI) Perun instance.
- * Creates UES with LS Hostel identity and adds user to the lifescience VO directly when the application is approved.
- * The concrete implementation has to specify some properties, as this module can be re-used by various instances
- * (e.g. production and acceptance instances)
+ * Abstract module for VO lifescience_hostel used in the LifeScience (LS AAI) Perun instance. Creates UES with LS Hostel
+ * identity and adds user to the lifescience VO directly when the application is approved. The concrete implementation
+ * has to specify some properties, as this module can be re-used by various instances (e.g. production and acceptance
+ * instances)
  *
  * @author Pavel Vyskocil <Pavel.Vyskocil@cesnet.cz>
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
@@ -44,13 +44,13 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractLifeScienceHostelRI extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LifescienceHostel.class);
 
-  private final static String VO_SHORTNAME = "lifescience";
+  private static final String VO_SHORTNAME = "lifescience";
 
-  private final static String LOGIN_NAMESPACE = "login-namespace:lifescienceid-username";
+  private static final String LOGIN_NAMESPACE = "login-namespace:lifescienceid-username";
 
-  private final static String AUIDS_ATTRIBUTE = "urn:perun:ues:attribute-def:def:additionalIdentifiers";
+  private static final String AUIDS_ATTRIBUTE = "urn:perun:ues:attribute-def:def:additionalIdentifiers";
 
 
   /**
@@ -60,15 +60,15 @@ public abstract class AbstractLifeScienceHostelRI extends DefaultRegistrarModule
   public Application approveApplication(PerunSession session, Application app)
       throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, ExternallyManagedException,
       WrongReferenceAttributeValueException, WrongAttributeValueException, RegistrarException,
-      ExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException,
-      VoNotExistsException, ExtendMembershipException, AlreadyMemberException {
+      ExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, VoNotExistsException,
+      ExtendMembershipException, AlreadyMemberException {
     PerunBl perun = (PerunBl) session.getPerun();
 
     User user = app.getUser();
     if (user != null) {
       // Create UES for user
-      Attribute userLogin = perun.getAttributesManagerBl().getAttribute(
-          session, user, AttributesManager.NS_USER_ATTR_DEF + ":" + LOGIN_NAMESPACE);
+      Attribute userLogin = perun.getAttributesManagerBl()
+          .getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":" + LOGIN_NAMESPACE);
       if (userLogin != null && userLogin.getValue() != null) {
         UserExtSource ues = storeAndGetUserExtSource(session, user, userLogin, perun);
         setAuidIntoUesAttributes(session, ues, perun);
@@ -79,14 +79,14 @@ public abstract class AbstractLifeScienceHostelRI extends DefaultRegistrarModule
           Vo vo = perun.getVosManagerBl().getVoByShortName(session, VO_SHORTNAME);
           Member member = perun.getMembersManagerBl().createMember(session, vo, user);
           perun.getMembersManagerBl().validateMemberAsync(session, member);
-          log.debug("LS Hostel member added to the main VO Lifescience {}", member);
+          LOG.debug("LS Hostel member added to the main VO Lifescience {}", member);
         } catch (VoNotExistsException e) {
-          log.warn("VO: " + VO_SHORTNAME + " not exists, can't add member into it.");
+          LOG.warn("VO: " + VO_SHORTNAME + " not exists, can't add member into it.");
         } catch (AlreadyMemberException ignore) {
           // user is already in lifescience
         } catch (ExtendMembershipException e) {
           // can't be member of lifescience, shouldn't happen
-          log.error("LS Hostel member can't be added to VO: " + VO_SHORTNAME, e);
+          LOG.error("LS Hostel member can't be added to VO: " + VO_SHORTNAME, e);
         }
       }
       // User doesn't have login - don't set UES
@@ -96,13 +96,6 @@ public abstract class AbstractLifeScienceHostelRI extends DefaultRegistrarModule
   }
 
   /**
-   * Get scope part of the user login (including @ character)
-   *
-   * @return scope
-   */
-  protected abstract String getScope();
-
-  /**
    * Get name of the ExtSource for which the login is generated
    *
    * @return ExtSource name
@@ -110,8 +103,37 @@ public abstract class AbstractLifeScienceHostelRI extends DefaultRegistrarModule
   protected abstract String getExtSourceName();
 
   /**
-   * Creates the UserExtSource object with user login and returns it.
-   * If the UES already exists, method just returns it.
+   * Get scope part of the user login (including @ character)
+   *
+   * @return scope
+   */
+  protected abstract String getScope();
+
+  /**
+   * Stores the user login from passed UserExtSource into the AUIDS attribute (constant AUIDS_ATTRIBUTE).
+   */
+  private void setAuidIntoUesAttributes(PerunSession session, UserExtSource ues, PerunBl perun)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException, PrivilegeException,
+      WrongAttributeValueException {
+    try {
+      Attribute auidsAttr = perun.getAttributesManager().getAttribute(session, ues, AUIDS_ATTRIBUTE);
+      Set<String> attrValue = new HashSet<>();
+      if (auidsAttr.getValue() != null && auidsAttr.valueAsList() != null && !auidsAttr.valueAsList().isEmpty()) {
+        attrValue.addAll(auidsAttr.valueAsList());
+      }
+      attrValue.add(ues.getLogin());
+      auidsAttr.setValue(new ArrayList<>(attrValue));
+      perun.getAttributesManager().setAttribute(session, ues, auidsAttr);
+    } catch (UserExtSourceNotExistsException e) {
+      // should not happen
+    } catch (AttributeNotExistsException e) {
+      // ok, attribute is probably not used
+    }
+  }
+
+  /**
+   * Creates the UserExtSource object with user login and returns it. If the UES already exists, method just returns
+   * it.
    */
   private UserExtSource storeAndGetUserExtSource(PerunSession session, User user, Attribute userLogin, PerunBl perun)
       throws ExtSourceNotExistsException {
@@ -130,31 +152,6 @@ public abstract class AbstractLifeScienceHostelRI extends DefaultRegistrarModule
       }
     }
     return ues;
-  }
-
-  /**
-   * Stores the user login from passed UserExtSource into the AUIDS attribute (constant AUIDS_ATTRIBUTE).
-   */
-  private void setAuidIntoUesAttributes(PerunSession session, UserExtSource ues, PerunBl perun)
-      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException, PrivilegeException,
-      WrongAttributeValueException {
-    try {
-      Attribute auidsAttr = perun.getAttributesManager().getAttribute(session, ues, AUIDS_ATTRIBUTE);
-      Set<String> attrValue = new HashSet<>();
-      if (auidsAttr.getValue() != null
-          && auidsAttr.valueAsList() != null
-          && !auidsAttr.valueAsList().isEmpty()
-      ) {
-        attrValue.addAll(auidsAttr.valueAsList());
-      }
-      attrValue.add(ues.getLogin());
-      auidsAttr.setValue(new ArrayList<>(attrValue));
-      perun.getAttributesManager().setAttribute(session, ues, auidsAttr);
-    } catch (UserExtSourceNotExistsException e) {
-      // should not happen
-    } catch (AttributeNotExistsException e) {
-      // ok, attribute is probably not used
-    }
   }
 
 }

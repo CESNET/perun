@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class AddGroupExtSourceTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "add-ext-src";
+  public static final String URL = "add-ext-src";
   /**
    * Perun web session
    */

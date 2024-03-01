@@ -19,40 +19,6 @@ public class RichAttribute<P, S> {
     this.attribute = attribute;
   }
 
-
-  public P getPrimaryHolder() {
-    return this.primaryHolder;
-  }
-
-  public void setPrimaryHolder(P primaryHolder) {
-    this.primaryHolder = primaryHolder;
-  }
-
-  public S getSecondaryHolder() {
-    return this.secondaryHolder;
-  }
-
-  public void setSecondaryHolder(S secondaryHolder) {
-    this.secondaryHolder = secondaryHolder;
-  }
-
-  public Attribute getAttribute() {
-    return this.attribute;
-  }
-
-  public void setAttribute(Attribute attribute) {
-    this.attribute = attribute;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = 53 * hash + (primaryHolder == null ? 0 : primaryHolder.hashCode());
-    hash = 53 * hash + (secondaryHolder == null ? 0 : secondaryHolder.hashCode());
-    hash = 53 * hash + (attribute == null ? 0 : attribute.hashCode());
-    return hash;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -79,14 +45,46 @@ public class RichAttribute<P, S> {
     return true;
   }
 
+  public Attribute getAttribute() {
+    return this.attribute;
+  }
+
+  public void setAttribute(Attribute attribute) {
+    this.attribute = attribute;
+  }
+
+  public P getPrimaryHolder() {
+    return this.primaryHolder;
+  }
+
+  public void setPrimaryHolder(P primaryHolder) {
+    this.primaryHolder = primaryHolder;
+  }
+
+  public S getSecondaryHolder() {
+    return this.secondaryHolder;
+  }
+
+  public void setSecondaryHolder(S secondaryHolder) {
+    this.secondaryHolder = secondaryHolder;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 53 * hash + (primaryHolder == null ? 0 : primaryHolder.hashCode());
+    hash = 53 * hash + (secondaryHolder == null ? 0 : secondaryHolder.hashCode());
+    hash = 53 * hash + (attribute == null ? 0 : attribute.hashCode());
+    return hash;
+  }
+
   @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
 
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-        (attribute == null ? "Attribute: NULL." : attribute.toString())).append(
-        " Primary holder: ").append(primaryHolder == null ? "NULL. " : primaryHolder.toString()).append(
-        " Secondary holder: ").append(secondaryHolder == null ? "NULL. " : secondaryHolder.toString()).append(
-        ']').toString();
+    return str.append(this.getClass().getSimpleName()).append(":[")
+        .append((attribute == null ? "Attribute: NULL." : attribute.toString())).append(" Primary holder: ")
+        .append(primaryHolder == null ? "NULL. " : primaryHolder.toString()).append(" Secondary holder: ")
+        .append(secondaryHolder == null ? "NULL. " : secondaryHolder.toString()).append(']').toString();
   }
 }

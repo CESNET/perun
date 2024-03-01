@@ -9,14 +9,12 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,21 +31,6 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 
   private static final String A_UF_V_login = AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login";
   private static final Pattern pattern = Pattern.compile("^[a-zA-Z0-9][-A-z0-9_.@/]*$");
-
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    String ownerLogin = attribute.valueAsString();
-    if (ownerLogin == null) {
-      return;
-    }
-
-    Matcher match = pattern.matcher(ownerLogin);
-
-    if (!match.matches()) {
-      throw new WrongAttributeValueException(attribute, group, resource,
-          "Bad format of attribute projectOwnerLogin (expected something like 'alois25').");
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
@@ -85,7 +68,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
         if (usersWithlogin.isEmpty()) {
           throw new WrongReferenceAttributeValueException(attribute, null, group, resource,
               "There is no user with login '" + ownerLogin + "' in namespace '" +
-                  loginNamespaceAttribute.valueAsString() + "'.");
+              loginNamespaceAttribute.valueAsString() + "'.");
         }
 
       } catch (AttributeNotExistsException e) {
@@ -100,9 +83,19 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 
   }
 
-  @Override
-  public List<String> getDependencies() {
-    return Collections.singletonList(A_UF_V_login);
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    String ownerLogin = attribute.valueAsString();
+    if (ownerLogin == null) {
+      return;
+    }
+
+    Matcher match = pattern.matcher(ownerLogin);
+
+    if (!match.matches()) {
+      throw new WrongAttributeValueException(attribute, group, resource,
+          "Bad format of attribute projectOwnerLogin (expected something like 'alois25').");
+    }
   }
 
   @Override
@@ -114,5 +107,10 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
     attr.setType(String.class.getName());
     attr.setDescription("Login of user, who is owner of project directory.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    return Collections.singletonList(A_UF_V_login);
   }
 }

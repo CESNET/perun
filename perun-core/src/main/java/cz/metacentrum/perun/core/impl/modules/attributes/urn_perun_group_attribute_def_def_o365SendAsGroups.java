@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.ArrayList;
 
 /**
@@ -17,6 +16,12 @@ import java.util.ArrayList;
  */
 public class urn_perun_group_attribute_def_def_o365SendAsGroups extends GroupAttributesModuleAbstract
     implements GroupAttributesModuleImplApi {
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    sess.getPerunBl().getModulesUtilsBl().checkAttributeValueIsIncludedOrSubgroupId(sess, group, attribute);
+  }
 
   @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
@@ -32,12 +37,6 @@ public class urn_perun_group_attribute_def_def_o365SendAsGroups extends GroupAtt
         throw new WrongAttributeValueException(groupId + " is not a correct subgroup id.");
       }
     }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    sess.getPerunBl().getModulesUtilsBl().checkAttributeValueIsIncludedOrSubgroupId(sess, group, attribute);
   }
 
   @Override

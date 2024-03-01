@@ -55,7 +55,7 @@ import java.util.Map;
  */
 public class ResourceGroupSettingsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "grpsettings";
+  public static final String URL = "grpsettings";
   /**
    * Perun web session
    */

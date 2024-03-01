@@ -50,19 +50,9 @@ public class NotGroupMemberException extends PerunException {
    * @param member member who is not in the group
    */
   public NotGroupMemberException(Group group, Member member) {
-    super((group == null ? "null" : group) +
-        ", " + (member == null ? "null" : member));
+    super((group == null ? "null" : group) + ", " + (member == null ? "null" : member));
     this.member = member;
     this.group = group;
-  }
-
-  /**
-   * Getter for the member
-   *
-   * @return the member that isn't in the group
-   */
-  public Member getMember() {
-    return member;
   }
 
   /**
@@ -72,5 +62,14 @@ public class NotGroupMemberException extends PerunException {
    */
   public Group getGroup() {
     return group;
+  }
+
+  /**
+   * Getter for the member
+   *
+   * @return the member that isn't in the group
+   */
+  public Member getMember() {
+    return member;
   }
 }

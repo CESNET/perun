@@ -47,7 +47,7 @@ import java.util.Map;
 
 public class GroupsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "list";
+  public static final String URL = "list";
   /**
    * Perun web session
    */

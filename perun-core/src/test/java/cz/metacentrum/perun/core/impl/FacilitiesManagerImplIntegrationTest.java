@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
@@ -21,20 +23,17 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
+import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.HashMap;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author David Flor <493294@mail.muni.cz>
  */
 public class FacilitiesManagerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
-  private final static String CLASS_NAME = "FacilitiesManagerImpl.";
+  private static final String CLASS_NAME = "FacilitiesManagerImpl.";
 
   final ExtSource extSource = new ExtSource(0, "FacilitiesManagerExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
   private int userLoginSequence = 0;
@@ -44,22 +43,12 @@ public class FacilitiesManagerImplIntegrationTest extends AbstractPerunIntegrati
   private PerunSession sess;
   private Vo vo;
 
-  @Before
-  public void setUp() throws Exception {
-    facilitiesManagerImpl = (FacilitiesManagerImplApi) ReflectionTestUtils.getField(perun.getFacilitiesManagerBl(),
-        "facilitiesManagerImpl");
-    if (facilitiesManagerImpl == null) {
-      throw new RuntimeException("Failed to get facilitiesManagerImpl");
-    }
-
-    sess = perun.getPerunSession(
-        new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-            ExtSourcesManager.EXTSOURCE_INTERNAL),
-        new PerunClient());
-
-    vo = new Vo(0, "FacilitiesImplTestVo", "FcltImplTestVo");
-    vo = perun.getVosManagerBl().createVo(sess, vo);
-
+  private Member createSomeMember(final Vo createdVo)
+      throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
+      WrongReferenceAttributeValueException {
+    final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
+    final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
+    return createdMember;
   }
 
   @Test
@@ -128,40 +117,20 @@ public class FacilitiesManagerImplIntegrationTest extends AbstractPerunIntegrati
 
   // private methods ==============================================================
 
-  private Facility setUpFacility(String name) throws Exception {
+  @Before
+  public void setUp() throws Exception {
+    facilitiesManagerImpl = (FacilitiesManagerImplApi) ReflectionTestUtils.getField(perun.getFacilitiesManagerBl(),
+        "facilitiesManagerImpl");
+    if (facilitiesManagerImpl == null) {
+      throw new RuntimeException("Failed to get facilitiesManagerImpl");
+    }
 
-    Facility facility = new Facility();
-    facility.setName(name);
-    facility = perun.getFacilitiesManager().createFacility(sess, facility);
-		/*
-			 Owner owner = new Owner();
-			 owner.setName("ResourcesManagerTestOwner");
-			 owner.setContact("testingOwner");
-			 perun.getOwnersManager().createOwner(sess, owner);
-			 perun.getFacilitiesManager().addOwner(sess, facility, owner);
-			 */
-    return facility;
+    sess = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 
-  }
+    vo = new Vo(0, "FacilitiesImplTestVo", "FcltImplTestVo");
+    vo = perun.getVosManagerBl().createVo(sess, vo);
 
-  private Resource setUpResource(Vo vo, Facility facility, String name) throws Exception {
-
-    Resource resource = new Resource();
-    resource.setName(name);
-    resource.setDescription("Testovaci");
-    resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
-    return resource;
-
-  }
-
-  private Group setUpGroup(Vo vo, Member member, String name) throws Exception {
-
-    Group group = new Group(name, "test group");
-    group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
-
-    perun.getGroupsManagerBl().addMember(sess, group, member);
-
-    return group;
   }
 
   private Candidate setUpCandidate(String login) {
@@ -183,11 +152,39 @@ public class FacilitiesManagerImplIntegrationTest extends AbstractPerunIntegrati
 
   }
 
-  private Member createSomeMember(final Vo createdVo)
-      throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException {
-    final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
-    final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
-    return createdMember;
+  private Facility setUpFacility(String name) throws Exception {
+
+    Facility facility = new Facility();
+    facility.setName(name);
+    facility = perun.getFacilitiesManager().createFacility(sess, facility);
+        /*
+             Owner owner = new Owner();
+             owner.setName("ResourcesManagerTestOwner");
+             owner.setContact("testingOwner");
+             perun.getOwnersManager().createOwner(sess, owner);
+             perun.getFacilitiesManager().addOwner(sess, facility, owner);
+             */
+    return facility;
+
+  }
+
+  private Group setUpGroup(Vo vo, Member member, String name) throws Exception {
+
+    Group group = new Group(name, "test group");
+    group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+
+    perun.getGroupsManagerBl().addMember(sess, group, member);
+
+    return group;
+  }
+
+  private Resource setUpResource(Vo vo, Facility facility, String name) throws Exception {
+
+    Resource resource = new Resource();
+    resource.setName(name);
+    resource.setDescription("Testovaci");
+    resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
+    return resource;
+
   }
 }

@@ -35,28 +35,28 @@ public class CantBeSubmittedException extends PerunException {
     this.reason = reason;
   }
 
-  public String getReason() {
-    return reason;
-  }
-
-  public void setReason(String reason) {
-    this.reason = reason;
+  public String getAffiliation() {
+    return affiliation;
   }
 
   public String getCategory() {
     return category;
   }
 
-  public void setCategory(String category) {
-    this.category = category;
-  }
-
-  public String getAffiliation() {
-    return affiliation;
+  public String getReason() {
+    return reason;
   }
 
   public void setAffiliation(String affiliation) {
     this.affiliation = affiliation;
+  }
+
+  public void setCategory(String category) {
+    this.category = category;
+  }
+
+  public void setReason(String reason) {
+    this.reason = reason;
   }
 
 }

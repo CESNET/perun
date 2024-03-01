@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WrongRangeOfCountException extends IllegalArgumentException {
   static final long serialVersionUID = 0;
-  private final static Logger log = LoggerFactory.getLogger(IllegalArgumentException.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IllegalArgumentException.class);
 
   /**
    * Simple constructor with a message
@@ -21,7 +21,7 @@ public class WrongRangeOfCountException extends IllegalArgumentException {
   public WrongRangeOfCountException(String message) {
     super(message);
 
-    log.error("Illegal Argument Exception:", this);
+    LOG.error("Illegal Argument Exception:", this);
   }
 
   /**
@@ -33,7 +33,7 @@ public class WrongRangeOfCountException extends IllegalArgumentException {
   public WrongRangeOfCountException(String message, Throwable cause) {
     super(message, cause);
 
-    log.error("Illegal Argument Exception:", this);
+    LOG.error("Illegal Argument Exception:", this);
   }
 
   /**
@@ -44,6 +44,6 @@ public class WrongRangeOfCountException extends IllegalArgumentException {
   public WrongRangeOfCountException(Throwable cause) {
     super(cause);
 
-    log.error("Illegal Argument Exception:", this);
+    LOG.error("Illegal Argument Exception:", this);
   }
 }

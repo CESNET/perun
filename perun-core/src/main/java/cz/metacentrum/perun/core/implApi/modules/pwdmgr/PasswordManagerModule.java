@@ -6,12 +6,10 @@ import cz.metacentrum.perun.core.api.SponsoredUserData;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
-
 import java.util.Map;
 
 /**
- * Interface defining function of password manager module.
- * Each login-namespace in Perun can define own Module.
+ * Interface defining function of password manager module. Each login-namespace in Perun can define own Module.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -30,12 +28,30 @@ public interface PasswordManagerModule {
   String LOGIN_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":";
   String ALT_PASSWORD_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";
 
+  void changePassword(PerunSession sess, String userLogin, String newPassword)
+      throws InvalidLoginException, PasswordStrengthException;
+
+  void checkLoginFormat(PerunSession sess, String login) throws InvalidLoginException;
+
+  void checkPassword(PerunSession sess, String userLogin, String password);
+
+  void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException;
+
+  void createAlternativePassword(PerunSession sess, User user, String passwordId, String password)
+      throws PasswordStrengthException;
+
+  void deleteAlternativePassword(PerunSession sess, User user, String passwordId);
+
+  void deletePassword(PerunSession sess, String userLogin) throws InvalidLoginException;
+
   Map<String, String> generateAccount(PerunSession sess, Map<String, String> parameters)
       throws PasswordStrengthException;
 
+  String generateRandomPassword(PerunSession sess, String login);
+
   /**
-   * Handles member's sponsorship in given namespace. Returns login, which should be used in the given namespace.
-   * This method is usually used to create an account in external systems.
+   * Handles member's sponsorship in given namespace. Returns login, which should be used in the given namespace. This
+   * method is usually used to create an account in external systems.
    *
    * @param sess     session
    * @param userData information, about the user for which the sponsorship should be handled
@@ -49,33 +65,15 @@ public interface PasswordManagerModule {
     return userData.getLogin();
   }
 
+  default boolean loginExist(PerunSession sess, String login) {
+    throw new UnsupportedOperationException("LoginExist operation is not supported for given namespace.");
+  }
+
   void reservePassword(PerunSession sess, String userLogin, String password)
       throws InvalidLoginException, PasswordStrengthException;
 
   void reserveRandomPassword(PerunSession sess, String userLogin) throws InvalidLoginException;
 
-  void checkPassword(PerunSession sess, String userLogin, String password);
-
-  void changePassword(PerunSession sess, String userLogin, String newPassword)
-      throws InvalidLoginException, PasswordStrengthException;
-
   void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException;
-
-  void deletePassword(PerunSession sess, String userLogin) throws InvalidLoginException;
-
-  void createAlternativePassword(PerunSession sess, User user, String passwordId, String password)
-      throws PasswordStrengthException;
-
-  void deleteAlternativePassword(PerunSession sess, User user, String passwordId);
-
-  void checkLoginFormat(PerunSession sess, String login) throws InvalidLoginException;
-
-  void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException;
-
-  String generateRandomPassword(PerunSession sess, String login);
-
-  default boolean loginExist(PerunSession sess, String login) {
-    throw new UnsupportedOperationException("LoginExist operation is not supported for given namespace.");
-  }
 
 }

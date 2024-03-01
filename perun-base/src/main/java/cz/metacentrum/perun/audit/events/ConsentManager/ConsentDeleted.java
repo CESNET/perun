@@ -18,13 +18,13 @@ public class ConsentDeleted extends AuditEvent {
     this.message = formatMessage("Deleted consent: %s", consent);
   }
 
+  public Consent getConsent() {
+    return consent;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Consent getConsent() {
-    return consent;
   }
 
   @Override

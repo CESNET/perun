@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule {
 
-  private final static Logger log = LoggerFactory.getLogger(AdminmetaPasswordManagerModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AdminmetaPasswordManagerModule.class);
 
   protected final Pattern adminMetaLoginPattern = Pattern.compile("^[a-z][a-z0-9_-]{1,14}$");
 
@@ -45,64 +45,9 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
   }
 
   @Override
-  public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) {
-    throw new InternalErrorException("Generating account in login namespace 'admin-meta' meta not supported.");
-  }
-
-  @Override
-  public void reserveRandomPassword(PerunSession session, String userLogin) {
-    throw new InternalErrorException("Reserving random password in login namespace 'admin-meta' is not supported.");
-  }
-
-  @Override
   public void changePassword(PerunSession sess, String userLogin, String newPassword)
       throws InvalidLoginException, PasswordStrengthException {
     throw new InternalErrorException("Changing password in login namespace 'admin-meta' is not supported.");
-  }
-
-  @Override
-  public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
-    if (user == null) {
-      user = ((PerunBl) sess.getPerun()).getModulesUtilsBl()
-          .getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
-    }
-
-    if (user == null) {
-      log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
-    } else {
-
-      PerunBl perunBl = ((PerunBl) sess.getPerun());
-
-      try {
-        Attribute kerberosAdminAttr = perunBl.getAttributesManagerBl().getAttribute(sess, user,
-            AttributesManager.NS_USER_ATTR_DEF + ":kerberosAdminPrincipal");
-        if (kerberosAdminAttr.getValue() != null) {
-          log.error("User {} has attribute kerberosAdminPrincipal already filled while validating " +
-              "login '{}' in {} namespace", user, userLogin, actualLoginNamespace);
-          throw new InternalErrorException("Attribute kerberosAdminPrincipal is already filled.");
-        }
-
-        kerberosAdminAttr.setValue(userLogin + "@ADMIN.META");
-        perunBl.getAttributesManagerBl().setAttribute(sess, user, kerberosAdminAttr);
-      } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException
-               | WrongReferenceAttributeValueException ex) {
-        throw new InternalErrorException(ex);
-      }
-    }
-
-    // validate password
-    super.validatePassword(sess, userLogin, user);
-  }
-
-  @Override
-  public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password)
-      throws PasswordStrengthException {
-    throw new InternalErrorException("Creating alternative password in login namespace 'admin-meta' is not supported.");
-  }
-
-  @Override
-  public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
-    throw new InternalErrorException("Deleting alternative password in login namespace 'admin-meta' is not supported.");
   }
 
   @Override
@@ -113,7 +58,7 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
 
     // check if login is permitted
     if (!((PerunBl) sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted(actualLoginNamespace, login)) {
-      log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
+      LOG.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
       throw new InvalidLoginException(
           "Login '" + login + "' is not allowed in '" + actualLoginNamespace + "' namespace by configuration.");
     }
@@ -123,16 +68,16 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
   public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
 
     if (StringUtils.isBlank(password)) {
-      log.warn("Password for {}:{} cannot be empty.", actualLoginNamespace, login);
+      LOG.warn("Password for {}:{} cannot be empty.", actualLoginNamespace, login);
       throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " cannot be empty.");
     }
 
     if (password.length() < adminMetaPasswordMinLength) {
-      log.warn("Password for {}:{} is too short. At least {} characters are required.", actualLoginNamespace, login,
+      LOG.warn("Password for {}:{} is too short. At least {} characters are required.", actualLoginNamespace, login,
           adminMetaPasswordMinLength);
       throw new PasswordStrengthException(
           "Password for " + actualLoginNamespace + ":" + login + " is too short. At least " +
-              adminMetaPasswordMinLength + " characters are required.");
+          adminMetaPasswordMinLength + " characters are required.");
     }
 
     // if login is at least 3 chars, test if its not contained in password
@@ -140,7 +85,7 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
       String backwardsLogin = StringUtils.reverse(login);
       if (password.toLowerCase().contains(login.toLowerCase()) ||
           password.toLowerCase().contains(backwardsLogin.toLowerCase())) {
-        log.warn("Password for {}:{} must not match/contain login or backwards login.", actualLoginNamespace, login);
+        LOG.warn("Password for {}:{} must not match/contain login or backwards login.", actualLoginNamespace, login);
         throw new PasswordStrengthException(
             "Password for " + actualLoginNamespace + ":" + login + " must not match/contain login or backwards login.");
       }
@@ -149,7 +94,7 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
     // TODO - fetch user and get names to make sure they are not part of password
 
     if (!StringUtils.isAsciiPrintable(password)) {
-      log.warn("Password for {}:{} must contain only printable characters.", actualLoginNamespace, login);
+      LOG.warn("Password for {}:{} must contain only printable characters.", actualLoginNamespace, login);
       throw new PasswordStrengthException(
           "Password for " + actualLoginNamespace + ":" + login + " must contain only printable characters.");
     }
@@ -170,15 +115,72 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
     }
 
     if (groupsCounter < 3) {
-      log.warn(
-          "Password for {}:{} is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.",
-          actualLoginNamespace, login);
+      LOG.warn(
+          "Password for {}:{} is too weak. It has to contain at least 3 kinds of characters from: lower-case letter," +
+          " upper-case letter, digit, spec. character.", actualLoginNamespace, login);
       throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login +
-          " is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
+                                          " is too weak. It has to contain at least 3 kinds of characters from: " +
+                                          "lower-case letter, upper-case letter," +
+                                          " digit, spec. character.");
     }
 
     super.checkPasswordStrength(sess, login, password);
 
+  }
+
+  @Override
+  public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password)
+      throws PasswordStrengthException {
+    throw new InternalErrorException("Creating alternative password in login namespace 'admin-meta' is not supported.");
+  }
+
+  @Override
+  public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
+    throw new InternalErrorException("Deleting alternative password in login namespace 'admin-meta' is not supported.");
+  }
+
+  @Override
+  public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) {
+    throw new InternalErrorException("Generating account in login namespace 'admin-meta' meta not supported.");
+  }
+
+  @Override
+  public void reserveRandomPassword(PerunSession session, String userLogin) {
+    throw new InternalErrorException("Reserving random password in login namespace 'admin-meta' is not supported.");
+  }
+
+  @Override
+  public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
+    if (user == null) {
+      user = ((PerunBl) sess.getPerun()).getModulesUtilsBl()
+          .getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
+    }
+
+    if (user == null) {
+      LOG.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+    } else {
+
+      PerunBl perunBl = ((PerunBl) sess.getPerun());
+
+      try {
+        Attribute kerberosAdminAttr = perunBl.getAttributesManagerBl()
+            .getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":kerberosAdminPrincipal");
+        if (kerberosAdminAttr.getValue() != null) {
+          LOG.error("User {} has attribute kerberosAdminPrincipal already filled while validating " +
+                    "login '{}' in {} namespace", user, userLogin, actualLoginNamespace);
+          throw new InternalErrorException("Attribute kerberosAdminPrincipal is already filled.");
+        }
+
+        kerberosAdminAttr.setValue(userLogin + "@ADMIN.META");
+        perunBl.getAttributesManagerBl().setAttribute(sess, user, kerberosAdminAttr);
+      } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+               WrongReferenceAttributeValueException ex) {
+        throw new InternalErrorException(ex);
+      }
+    }
+
+    // validate password
+    super.validatePassword(sess, userLogin, user);
   }
 
 }

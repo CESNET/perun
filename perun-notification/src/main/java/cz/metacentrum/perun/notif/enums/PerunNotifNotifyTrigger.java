@@ -11,8 +11,7 @@ import java.util.List;
 public enum PerunNotifNotifyTrigger {
 
   // All type of objects must be received
-  ALL_REGEX_IDS("all_regex_ids"),
-  // Many object of same type, executed by time
+  ALL_REGEX_IDS("all_regex_ids"), // Many object of same type, executed by time
   STREAM("stream");
 
   private String key;

@@ -25,22 +25,6 @@ public class AuthenticationSchemes {
   public AuthenticationSchemes() {
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -59,6 +43,14 @@ public class AuthenticationSchemes {
 
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public String getName() {
+    return name;
+  }
+
   @Override
   public int hashCode() {
     int result = getName() != null ? getName().hashCode() : 0;
@@ -66,11 +58,16 @@ public class AuthenticationSchemes {
     return result;
   }
 
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
   @Override
   public String toString() {
-    return "AuthenticationSchemes{" +
-        "name='" + name + '\'' +
-        ", description='" + description + '\'' +
-        '}';
+    return "AuthenticationSchemes{" + "name='" + name + '\'' + ", description='" + description + '\'' + '}';
   }
 }

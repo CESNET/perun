@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class VosTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "vos";
+  public static final String URL = "vos";
   /**
    * Perun web session
    */

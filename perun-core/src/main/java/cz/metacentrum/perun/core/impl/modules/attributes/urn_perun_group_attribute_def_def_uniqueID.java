@@ -16,8 +16,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Class for checking and filling unique IDs for groups in the Perun.
- * This unique ID is unpredictable and is usable for identifying of groups in other systems.
+ * Class for checking and filling unique IDs for groups in the Perun. This unique ID is unpredictable and is usable for
+ * identifying of groups in other systems.
  *
  * @author Michal Stava stavamichal@gmail.com
  */
@@ -32,40 +32,6 @@ public class urn_perun_group_attribute_def_def_uniqueID extends GroupAttributesM
     return filledAttribute;
   }
 
-  /**
-   * Generate unique ID as hexadecimal string representation of SHA1 digest from group ID.
-   * Input is salted per Perun instance. Effective resulting string consist of [0-9a-f] characters.
-   * <p>
-   * It is used to generate unique IDs for Perun groups.
-   *
-   * @param group Group to generate ID for
-   * @return Builder to get string ID
-   * @throws InternalErrorException When generation fails
-   */
-  protected StringBuilder sha1HashCount(Group group) {
-    try {
-      String salt = BeansUtils.getCoreConfig().getInstanceId();
-      MessageDigest mDigest = MessageDigest.getInstance("SHA1");
-      // counts sha1hash and converts output to hex
-      int length = 4 + salt.getBytes(StandardCharsets.UTF_8).length;
-      byte[] result = mDigest.digest(ByteBuffer
-          .allocate(length)
-          .putInt(group.getId())
-          .put(salt.getBytes(StandardCharsets.UTF_8))
-          .array());
-      StringBuilder sb = new StringBuilder();
-      for (byte b : result) {
-        sb.append(Integer
-            .toString((b & 0xff) + 0x100, 16)
-            .substring(1));
-      }
-
-      return sb;
-    } catch (NoSuchAlgorithmException ex) {
-      throw new InternalErrorException("Algorithm for sha1hash was not found.", ex);
-    }
-  }
-
   @Override
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
@@ -76,5 +42,34 @@ public class urn_perun_group_attribute_def_def_uniqueID extends GroupAttributesM
     attr.setDescription("Generated, unpredictable and unique ID of Group in Perun.");
     attr.setUnique(true);
     return attr;
+  }
+
+  /**
+   * Generate unique ID as hexadecimal string representation of SHA1 digest from group ID. Input is salted per Perun
+   * instance. Effective resulting string consist of [0-9a-f] characters.
+   * <p>
+   * It is used to generate unique IDs for Perun groups.
+   *
+   * @param group Group to generate ID for
+   * @return Builder to get string ID
+   * @throws InternalErrorException When generation fails
+   */
+  protected StringBuilder sha1HashCount(Group group) {
+    try {
+      String salt = BeansUtils.getCoreConfig().getInstanceId();
+      MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+      // counts sha1hash and converts output to hex
+      int length = 4 + salt.getBytes(StandardCharsets.UTF_8).length;
+      byte[] result = messageDigest.digest(
+          ByteBuffer.allocate(length).putInt(group.getId()).put(salt.getBytes(StandardCharsets.UTF_8)).array());
+      StringBuilder sb = new StringBuilder();
+      for (byte b : result) {
+        sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+      }
+
+      return sb;
+    } catch (NoSuchAlgorithmException ex) {
+      throw new InternalErrorException("Algorithm for sha1hash was not found.", ex);
+    }
   }
 }

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Class represents rights of an attribute. The rights relates to an Attribute and
- * a role. Object ActionType represents one right (READ or WRITE).
+ * Class represents rights of an attribute. The rights relates to an Attribute and a role. Object ActionType represents
+ * one right (READ or WRITE).
  *
  * @author Jiří Mauritz
  */
@@ -41,38 +41,6 @@ public class AttributeRights {
     }
   }
 
-  public int getAttributeId() {
-    return attributeId;
-  }
-
-  public void setAttributeId(int attributeId) {
-    this.attributeId = attributeId;
-  }
-
-  public String getRole() {
-    return role;
-  }
-
-  public void setRole(String role) {
-    this.role = role != null ? role.toUpperCase() : null;
-  }
-
-  public List<ActionType> getRights() {
-    return rights;
-  }
-
-  public void setRights(List<ActionType> rights) {
-    this.rights = rights;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = 61 * hash + this.attributeId;
-    hash = 61 * hash + (this.role != null ? this.role.hashCode() : 0);
-    return hash;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -89,6 +57,38 @@ public class AttributeRights {
       return false;
     }
     return true;
+  }
+
+  public int getAttributeId() {
+    return attributeId;
+  }
+
+  public void setAttributeId(int attributeId) {
+    this.attributeId = attributeId;
+  }
+
+  public List<ActionType> getRights() {
+    return rights;
+  }
+
+  public void setRights(List<ActionType> rights) {
+    this.rights = rights;
+  }
+
+  public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    this.role = role != null ? role.toUpperCase() : null;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 61 * hash + this.attributeId;
+    hash = 61 * hash + (this.role != null ? this.role.hashCode() : 0);
+    return hash;
   }
 
   @Override

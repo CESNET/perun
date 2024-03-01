@@ -40,8 +40,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
         throw new RpcException(RpcException.Type.WRONG_PARAMETER);
       }
     }
-  },
-  /*#
+  }, /*#
    * Delete an external source.
    * @param id int ExtSource <code>id</code>
    */
@@ -52,8 +51,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
       ac.getExtSourcesManager().deleteExtSource(ac.getSession(), ac.getExtSourceById(parms.readInt("id")));
       return null;
     }
-  },
-  /*#
+  }, /*#
    * Returns an external source by its <code>id</code>.
    *
    * @param id int ExtSource <code>id</code>
@@ -75,11 +73,9 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
   getExtSourceByName {
     @Override
     public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getExtSourcesManager().getExtSourceByName(ac.getSession(),
-          parms.readString("name"));
+      return ac.getExtSourcesManager().getExtSourceByName(ac.getSession(), parms.readString("name"));
     }
-  },
-  /*#
+  }, /*#
    * Returns the list of external sources associated with a VO.
    *
    * @param vo int VO <code>id</code>
@@ -88,8 +84,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
   getVoExtSources {
     @Override
     public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getExtSourcesManager().getVoExtSources(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")));
+      return ac.getExtSourcesManager().getVoExtSources(ac.getSession(), ac.getVoById(parms.readInt("vo")));
     }
   },
 
@@ -102,8 +97,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
   getGroupExtSources {
     @Override
     public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getExtSourcesManager().getGroupExtSources(ac.getSession(),
-          ac.getGroupById(parms.readInt("group")));
+      return ac.getExtSourcesManager().getGroupExtSources(ac.getSession(), ac.getGroupById(parms.readInt("group")));
     }
   },
 
@@ -133,17 +127,14 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
    */
   addExtSource {
     @Override
-    public Void call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
       if (parms.contains("vo")) {
-        ac.getExtSourcesManager().addExtSource(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getExtSourcesManager().addExtSource(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             ac.getExtSourceById(parms.readInt("source")));
       } else if (parms.contains("group")) {
-        ac.getExtSourcesManager().addExtSource(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getExtSourcesManager().addExtSource(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             ac.getExtSourceById(parms.readInt("source")));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
@@ -167,8 +158,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
    */
   addExtSources {
     @Override
-    public Void call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
       List<ExtSource> sources = new ArrayList<>();
@@ -177,13 +167,9 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
       }
 
       if (parms.contains("vo")) {
-        ac.getExtSourcesManager().addExtSources(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            sources);
+        ac.getExtSourcesManager().addExtSources(ac.getSession(), ac.getVoById(parms.readInt("vo")), sources);
       } else if (parms.contains("group")) {
-        ac.getExtSourcesManager().addExtSources(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            sources);
+        ac.getExtSourcesManager().addExtSources(ac.getSession(), ac.getGroupById(parms.readInt("group")), sources);
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
       }
@@ -206,17 +192,14 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
    */
   removeExtSource {
     @Override
-    public Void call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
       if (parms.contains("vo")) {
-        ac.getExtSourcesManager().removeExtSource(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        ac.getExtSourcesManager().removeExtSource(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             ac.getExtSourceById(parms.readInt("source")));
       } else if (parms.contains("group")) {
-        ac.getExtSourcesManager().removeExtSource(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
+        ac.getExtSourcesManager().removeExtSource(ac.getSession(), ac.getGroupById(parms.readInt("group")),
             ac.getExtSourceById(parms.readInt("source")));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
@@ -241,8 +224,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
    */
   removeExtSources {
     @Override
-    public Void call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
       List<ExtSource> sources = new ArrayList<>();
@@ -251,13 +233,9 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
       }
 
       if (parms.contains("vo")) {
-        ac.getExtSourcesManager().removeExtSources(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            sources);
+        ac.getExtSourcesManager().removeExtSources(ac.getSession(), ac.getVoById(parms.readInt("vo")), sources);
       } else if (parms.contains("group")) {
-        ac.getExtSourcesManager().removeExtSources(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            sources);
+        ac.getExtSourcesManager().removeExtSources(ac.getSession(), ac.getGroupById(parms.readInt("group")), sources);
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
       }

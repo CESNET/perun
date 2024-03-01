@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * Thrown when the given login is not blocked for the given namespace
- * Thrown also if the given namespace is null and the given login is not blocked globally
+ * Thrown when the given login is not blocked for the given namespace Thrown also if the given namespace is null and the
+ * given login is not blocked globally
  *
  * @author Jakub Hejda <Jakub.Hejda@cesnet.cz>
  */

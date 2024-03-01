@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Represents specific ban of user on facility.
@@ -24,65 +25,28 @@ public class BanOnFacility extends Ban implements Comparable<PerunBean> {
     this.facilityId = facilityId;
   }
 
-  public int getUserId() {
-    return userId;
-  }
-
-  public void setUserId(int userId) {
-    this.userId = userId;
-  }
-
-  public int getFacilityId() {
-    return facilityId;
-  }
-
-  public void setFacilityId(int facilityId) {
-    this.facilityId = facilityId;
-  }
-
   @Override
-  public String getType() {
-    return this.getClass().getSimpleName();
-  }
-
-  @Override
-  public int getSubjectId() {
-    return this.getUserId();
-  }
-
-  @Override
-  public int getTargetId() {
-    return this.getFacilityId();
-  }
-
-  @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", userId=<").append(getUserId()).append(">").append(
-            ", facilityId=<").append(getFacilityId()).append(">").append(
-            ", validityTo=<").append(getValidityTo() == null ? "\\0" : getValidityTo().getTime()).append(">").append(
-            ", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription()))
-        .append(">").append(
-            ']').toString();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    Long validityInMiliseconds = null;
-    if (getValidityTo() != null) {
-      validityInMiliseconds = getValidityTo().getTime();
+  public int compareTo(PerunBean perunBean) {
+    if (perunBean == null) {
+      throw new NullPointerException("PerunBean to compare with is null.");
     }
-
-    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()
-    ).append("', userId='").append(getUserId()
-    ).append("', facilityId='").append(getFacilityId()
-    ).append("', validityTo='").append(validityInMiliseconds
-    ).append("', description='").append(this.getDescription()).append("']").toString();
+    if (perunBean instanceof Ban) {
+      Ban ban = (Ban) perunBean;
+      if (this.getValidityTo() == null && ban.getValidityTo() != null) {
+        return -1;
+      }
+      if (ban.getValidityTo() == null && this.getValidityTo() != null) {
+        return 1;
+      }
+      if (ban.getValidityTo() == null && this.getValidityTo() == null) {
+        return 0;
+      }
+      Long thisValidity = this.getValidityTo().getTime();
+      Long otherValidity = ban.getValidityTo().getTime();
+      return thisValidity.compareTo(otherValidity);
+    } else {
+      return (this.getId() - perunBean.getId());
+    }
   }
 
   @Override
@@ -114,27 +78,65 @@ public class BanOnFacility extends Ban implements Comparable<PerunBean> {
     return true;
   }
 
+  public int getFacilityId() {
+    return facilityId;
+  }
+
+  public void setFacilityId(int facilityId) {
+    this.facilityId = facilityId;
+  }
+
   @Override
-  public int compareTo(PerunBean perunBean) {
-    if (perunBean == null) {
-      throw new NullPointerException("PerunBean to compare with is null.");
+  public int getSubjectId() {
+    return this.getUserId();
+  }
+
+  @Override
+  public int getTargetId() {
+    return this.getFacilityId();
+  }
+
+  @Override
+  public String getType() {
+    return this.getClass().getSimpleName();
+  }
+
+  public int getUserId() {
+    return userId;
+  }
+
+  public void setUserId(int userId) {
+    this.userId = userId;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getUserId(), getFacilityId());
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", userId=<").append(getUserId()).append(">").append(", facilityId=<").append(getFacilityId())
+        .append(">").append(", validityTo=<").append(getValidityTo() == null ? "\\0" : getValidityTo().getTime())
+        .append(">").append(", description=<")
+        .append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">").append(']')
+        .toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    Long validityInMiliseconds = null;
+    if (getValidityTo() != null) {
+      validityInMiliseconds = getValidityTo().getTime();
     }
-    if (perunBean instanceof Ban) {
-      Ban ban = (Ban) perunBean;
-      if (this.getValidityTo() == null && ban.getValidityTo() != null) {
-        return -1;
-      }
-      if (ban.getValidityTo() == null && this.getValidityTo() != null) {
-        return 1;
-      }
-      if (ban.getValidityTo() == null && this.getValidityTo() == null) {
-        return 0;
-      }
-      Long thisValidity = this.getValidityTo().getTime();
-      Long otherValidity = ban.getValidityTo().getTime();
-      return thisValidity.compareTo(otherValidity);
-    } else {
-      return (this.getId() - perunBean.getId());
-    }
+
+    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', userId='")
+        .append(getUserId()).append("', facilityId='").append(getFacilityId()).append("', validityTo='")
+        .append(validityInMiliseconds).append("', description='").append(this.getDescription()).append("']").toString();
   }
 }

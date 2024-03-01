@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
@@ -10,13 +13,9 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_group_attribute_def_def_groupExtSourceTest {
 
@@ -48,18 +47,18 @@ public class urn_perun_group_attribute_def_def_groupExtSourceTest {
         Collections.singletonList(extSource));
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testWrongSemantics() throws Exception {
-    System.out.println("testWrongSemantics()");
-    attributeToCheck.setValue("my_bad_example");
-
-    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
-  }
-
   @Test
   public void testCorrectSemantics() throws Exception {
     System.out.println("testCorrectSemantics()");
     attributeToCheck.setValue("my_example");
+
+    classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testWrongSemantics() throws Exception {
+    System.out.println("testWrongSemantics()");
+    attributeToCheck.setValue("my_bad_example");
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
   }

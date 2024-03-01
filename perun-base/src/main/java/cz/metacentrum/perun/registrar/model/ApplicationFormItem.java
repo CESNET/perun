@@ -34,11 +34,9 @@ public class ApplicationFormItem {
   private Disabled disabled = Disabled.NEVER;
   private Hidden hidden = Hidden.NEVER;
   /**
-   * Field for GUI purpose - tells updateFromItems()
-   * to delete this item instead of update
+   * Field for GUI purpose - tells updateFromItems() to delete this item instead of update
    * <p>
-   * default is FALSE = keep/update item
-   * TRUE = delete item
+   * default is FALSE = keep/update item TRUE = delete item
    */
   private boolean forDelete = false;
   private Map<Locale, ItemTexts> i18n = new HashMap<Locale, ItemTexts>();
@@ -64,8 +62,7 @@ public class ApplicationFormItem {
     this.regex = regex;
   }
 
-  public ApplicationFormItem(int id, String shortname, boolean required,
-                             Type type, String federationAttribute,
+  public ApplicationFormItem(int id, String shortname, boolean required, Type type, String federationAttribute,
                              String perunSourceAttribute, String perunDestinationAttribute, String regex,
                              List<AppType> applicationTypes, Integer ordnum, boolean forDelete,
                              Map<Locale, ItemTexts> i18n) {
@@ -80,8 +77,7 @@ public class ApplicationFormItem {
   }
 
   /**
-   * Return code of native language defined in config file.
-   * Return NULL if no native language set.
+   * Return code of native language defined in config file. Return NULL if no native language set.
    *
    * @return String representation of native language
    */
@@ -95,191 +91,6 @@ public class ApplicationFormItem {
     } catch (Exception ex) {
       return null;
     }
-  }
-
-  public String getPerunSourceAttribute() {
-    return perunSourceAttribute;
-  }
-
-  public void setPerunSourceAttribute(String perunSourceAttribute) {
-    this.perunSourceAttribute = perunSourceAttribute;
-  }
-
-  public String getPerunDestinationAttribute() {
-    return perunDestinationAttribute;
-  }
-
-  public void setPerunDestinationAttribute(String perunDestinationAttribute) {
-    this.perunDestinationAttribute = perunDestinationAttribute;
-  }
-
-  public List<AppType> getApplicationTypes() {
-    return applicationTypes;
-  }
-
-  public void setApplicationTypes(List<AppType> applicationTypes) {
-    this.applicationTypes = applicationTypes;
-  }
-
-  public Integer getOrdnum() {
-    return ordnum;
-  }
-
-  public void setOrdnum(Integer ordnum) {
-    this.ordnum = ordnum;
-  }
-
-  public boolean isForDelete() {
-    return forDelete;
-  }
-
-  public void setForDelete(boolean forDelete) {
-    this.forDelete = forDelete;
-  }
-
-  public Integer getHiddenDependencyItemId() {
-    return hiddenDependencyItemId;
-  }
-
-  public void setHiddenDependencyItemId(Integer hiddenDependencyItemId) {
-    this.hiddenDependencyItemId = hiddenDependencyItemId;
-  }
-
-  public Integer getDisabledDependencyItemId() {
-    return disabledDependencyItemId;
-  }
-
-  public void setDisabledDependencyItemId(Integer disabledDependencyItemId) {
-    this.disabledDependencyItemId = disabledDependencyItemId;
-  }
-
-  public Disabled getDisabled() {
-    return disabled;
-  }
-
-  public void setDisabled(Disabled disabled) {
-    this.disabled = disabled;
-  }
-
-  public Hidden getHidden() {
-    return hidden;
-  }
-
-  public void setHidden(Hidden hidden) {
-    this.hidden = hidden;
-  }
-
-  public boolean isUpdatable() {
-    return updatable;
-  }
-
-  public void setUpdatable(boolean updatable) {
-    this.updatable = updatable;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public Type getType() {
-    return type;
-  }
-
-  public void setType(Type type) {
-    this.type = type;
-  }
-
-  public boolean isRequired() {
-    return required;
-  }
-
-  public void setRequired(boolean required) {
-    this.required = required;
-  }
-
-  public String getShortname() {
-    return shortname;
-  }
-
-  public void setShortname(String shortname) {
-    this.shortname = shortname;
-  }
-
-  public String getFederationAttribute() {
-    return federationAttribute;
-  }
-
-  public void setFederationAttribute(String federationAttribute) {
-    this.federationAttribute = federationAttribute;
-  }
-
-  public String getRegex() {
-    return regex;
-  }
-
-  public void setRegex(String regex) {
-    this.regex = regex;
-  }
-
-  public Map<Locale, ItemTexts> getI18n() {
-    return i18n;
-  }
-
-  public void setI18n(Map<Locale, ItemTexts> i18n) {
-    this.i18n = i18n;
-  }
-
-  public ItemTexts getTexts(Locale locale) {
-    ItemTexts texts = i18n.get(locale);
-    if (texts == null) {
-      texts = new ItemTexts();
-      i18n.put(locale, texts);
-    }
-    return texts;
-  }
-
-  /**
-   * Return bean name as PerunBean does.
-   *
-   * @return Class simple name (beanName)
-   */
-  public String getBeanName() {
-    return this.getClass().getSimpleName();
-  }
-
-  @Override
-  public String toString() {
-    return "ApplicationFormItem[" +
-        "id=" + id +
-        ", shortname='" + shortname + '\'' +
-        ", required=" + required +
-        ", updatable=" + updatable +
-        ", type=" + type +
-        ", federationAttribute='" + federationAttribute + '\'' +
-        ", perunSourceAttribute='" + perunSourceAttribute + '\'' +
-        ", perunDestinationAttribute='" + perunDestinationAttribute + '\'' +
-        ", regex='" + regex + '\'' +
-        ", applicationTypes=" + applicationTypes +
-        ", ordnum=" + ordnum +
-        ", hiddenDependencyItemId=" + hiddenDependencyItemId +
-        ", disabledDependencyItemId=" + disabledDependencyItemId +
-        ", disabled=" + disabled +
-        ", hidden=" + hidden +
-        ", forDelete=" + forDelete +
-        ", i18n=" + i18n +
-        ']';
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + id;
-    return result;
   }
 
   @Override
@@ -300,18 +111,185 @@ public class ApplicationFormItem {
     return true;
   }
 
+  public List<AppType> getApplicationTypes() {
+    return applicationTypes;
+  }
+
+  public void setApplicationTypes(List<AppType> applicationTypes) {
+    this.applicationTypes = applicationTypes;
+  }
+
+  /**
+   * Return bean name as PerunBean does.
+   *
+   * @return Class simple name (beanName)
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
+
+  public Disabled getDisabled() {
+    return disabled;
+  }
+
+  public void setDisabled(Disabled disabled) {
+    this.disabled = disabled;
+  }
+
+  public Integer getDisabledDependencyItemId() {
+    return disabledDependencyItemId;
+  }
+
+  public void setDisabledDependencyItemId(Integer disabledDependencyItemId) {
+    this.disabledDependencyItemId = disabledDependencyItemId;
+  }
+
+  public String getFederationAttribute() {
+    return federationAttribute;
+  }
+
+  public void setFederationAttribute(String federationAttribute) {
+    this.federationAttribute = federationAttribute;
+  }
+
+  public Hidden getHidden() {
+    return hidden;
+  }
+
+  public void setHidden(Hidden hidden) {
+    this.hidden = hidden;
+  }
+
+  public Integer getHiddenDependencyItemId() {
+    return hiddenDependencyItemId;
+  }
+
+  public void setHiddenDependencyItemId(Integer hiddenDependencyItemId) {
+    this.hiddenDependencyItemId = hiddenDependencyItemId;
+  }
+
+  public Map<Locale, ItemTexts> getI18n() {
+    return i18n;
+  }
+
+  public void setI18n(Map<Locale, ItemTexts> i18n) {
+    this.i18n = i18n;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public Integer getOrdnum() {
+    return ordnum;
+  }
+
+  public void setOrdnum(Integer ordnum) {
+    this.ordnum = ordnum;
+  }
+
+  public String getPerunDestinationAttribute() {
+    return perunDestinationAttribute;
+  }
+
+  public void setPerunDestinationAttribute(String perunDestinationAttribute) {
+    this.perunDestinationAttribute = perunDestinationAttribute;
+  }
+
+  public String getPerunSourceAttribute() {
+    return perunSourceAttribute;
+  }
+
+  public void setPerunSourceAttribute(String perunSourceAttribute) {
+    this.perunSourceAttribute = perunSourceAttribute;
+  }
+
+  public String getRegex() {
+    return regex;
+  }
+
+  public void setRegex(String regex) {
+    this.regex = regex;
+  }
+
+  public String getShortname() {
+    return shortname;
+  }
+
+  public void setShortname(String shortname) {
+    this.shortname = shortname;
+  }
+
+  public ItemTexts getTexts(Locale locale) {
+    ItemTexts texts = i18n.get(locale);
+    if (texts == null) {
+      texts = new ItemTexts();
+      i18n.put(locale, texts);
+    }
+    return texts;
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  public void setType(Type type) {
+    this.type = type;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + id;
+    return result;
+  }
+
+  public boolean isForDelete() {
+    return forDelete;
+  }
+
+  public void setForDelete(boolean forDelete) {
+    this.forDelete = forDelete;
+  }
+
+  public boolean isRequired() {
+    return required;
+  }
+
+  public void setRequired(boolean required) {
+    this.required = required;
+  }
+
+  public boolean isUpdatable() {
+    return updatable;
+  }
+
+  public void setUpdatable(boolean updatable) {
+    this.updatable = updatable;
+  }
+
+  @Override
+  public String toString() {
+    return "ApplicationFormItem[" + "id=" + id + ", shortname='" + shortname + '\'' + ", required=" + required +
+           ", updatable=" + updatable + ", type=" + type + ", federationAttribute='" + federationAttribute + '\'' +
+           ", perunSourceAttribute='" + perunSourceAttribute + '\'' + ", perunDestinationAttribute='" +
+           perunDestinationAttribute + '\'' + ", regex='" + regex + '\'' + ", applicationTypes=" + applicationTypes +
+           ", ordnum=" + ordnum + ", hiddenDependencyItemId=" + hiddenDependencyItemId + ", disabledDependencyItemId=" +
+           disabledDependencyItemId + ", disabled=" + disabled + ", hidden=" + hidden + ", forDelete=" + forDelete +
+           ", i18n=" + i18n + ']';
+  }
+
   public enum Hidden {
-    NEVER,
-    ALWAYS,
-    IF_PREFILLED,
-    IF_EMPTY
+    NEVER, ALWAYS, IF_PREFILLED, IF_EMPTY
   }
 
   public enum Disabled {
-    NEVER,
-    ALWAYS,
-    IF_PREFILLED,
-    IF_EMPTY
+    NEVER, ALWAYS, IF_PREFILLED, IF_EMPTY
   }
 
   /**
@@ -327,8 +305,8 @@ public class ApplicationFormItem {
      */
     SUBMIT_BUTTON,
     /**
-     * For specifying a label for the submit button. When validation of form is OK, then it's
-     * automatically submitted. When validation fails, user have to fix it and submit form manually.
+     * For specifying a label for the submit button. When validation of form is OK, then it's automatically submitted.
+     * When validation fails, user have to fix it and submit form manually.
      */
     AUTO_SUBMIT_BUTTON,
     /**
@@ -356,20 +334,21 @@ public class ApplicationFormItem {
      */
     RADIO,
     /**
-     * Standard HTML selection box, options are in for each locale in ItemTexts.label separated by | with values separated by #.
-     * Thus a language selection box would have for English locale the label <code>cs#Czech|en#English</code>.
+     * Standard HTML selection box, options are in for each locale in ItemTexts.label separated by | with values
+     * separated by #. Thus, a language selection box would have for English locale the label
+     * <code>cs#Czech|en#English</code>.
      */
     SELECTIONBOX,
     /**
-     * A widget that is a combination of a drop-down list and a single-line editable textbox,
-     * allowing the user to either type a value directly into the control or choose from a list of existing options.
-     * See <a href="http://en.wikipedia.org/wiki/Combobox">Combobox</a> for description.<p>
-     * The options are defined in the same way as for SELECTIONBOX.
+     * A widget that is a combination of a drop-down list and a single-line editable textbox, allowing the user to
+     * either type a value directly into the control or choose from a list of existing options. See <a
+     * href="http://en.wikipedia.org/wiki/Combobox">Combobox</a> for description.<p> The options are defined in the same
+     * way as for SELECTIONBOX.
      */
     COMBOBOX,
     /**
-     * Special type for specifying username. It needs to be treated separately from ordinary TEXTFIELD,
-     * because initial applications by users who are already members of a VO need to display read-only.
+     * Special type for specifying username. It needs to be treated separately from ordinary TEXTFIELD, because initial
+     * applications by users who are already members of a VO need to display read-only.
      */
     USERNAME,
     /**
@@ -381,25 +360,20 @@ public class ApplicationFormItem {
      */
     TIMEZONE,
     /**
-     * Special type for specifying if it will be allowed to register to group(s) through single application form.
-     * This type is represented by standard HTML checkbox.
+     * Special type for specifying if it will be allowed to register to group(s) through single application form. This
+     * type is represented by standard HTML checkbox.
      */
     EMBEDDED_GROUP_APPLICATION,
     /**
-     * Widgets for list like input.
-     * Represented by string of comma (',') separated values.
-     * Should also have a comma after last value.
-     * Special characters as part of value should be escaped.
-     * Example list: item,item\,withComma,lastItem,
+     * Widgets for list like input. Represented by string of comma (',') separated values. Should also have a comma
+     * after last value. Special characters as part of value should be escaped. Example list:
+     * item,item\,withComma,lastItem,
      */
     LIST_INPUT_BOX,
     /**
-     * Widgets for map like input (key - value pairs).
-     * Represented by string of comma (',') separated values.
-     * Should also have a comma after last value.
-     * Keys and values are separated by a colon (':').
-     * Special characters as part of key or value should be escaped.
-     * Example map: key:value,key\,withComma:value\:withColon,last:item,
+     * Widgets for map like input (key - value pairs). Represented by string of comma (',') separated values. Should
+     * also have a comma after last value. Keys and values are separated by a colon (':'). Special characters as part of
+     * key or value should be escaped. Example map: key:value,key\,withComma:value\:withColon,last:item,
      */
     MAP_INPUT_BOX
   }
@@ -426,34 +400,6 @@ public class ApplicationFormItem {
       this.errorMessage = errorMessage;
     }
 
-    public Locale getLocale() {
-      return locale;
-    }
-
-    public void setLocale(Locale locale) {
-      this.locale = locale;
-    }
-
-    /**
-     * @return label(s) for the given locale. For multiple option in radiobutton or selectionbox, values are separated by | and prefixed with values sepearted by #,
-     * i.e. <code>cs#Czech|en#English</code>
-     */
-    public String getLabel() {
-      return label;
-    }
-
-    public void setLabel(String label) {
-      this.label = label;
-    }
-
-    public String getOptions() {
-      return options;
-    }
-
-    public void setOptions(String options) {
-      this.options = options;
-    }
-
     public String getErrorMessage() {
       return errorMessage;
     }
@@ -470,15 +416,38 @@ public class ApplicationFormItem {
       this.help = help;
     }
 
+    /**
+     * @return label(s) for the given locale. For multiple option in radiobutton or selectionbox, values are separated
+     * by | and prefixed with values sepearted by #, i.e. <code>cs#Czech|en#English</code>
+     */
+    public String getLabel() {
+      return label;
+    }
+
+    public void setLabel(String label) {
+      this.label = label;
+    }
+
+    public Locale getLocale() {
+      return locale;
+    }
+
+    public void setLocale(Locale locale) {
+      this.locale = locale;
+    }
+
+    public String getOptions() {
+      return options;
+    }
+
+    public void setOptions(String options) {
+      this.options = options;
+    }
+
     @Override
     public String toString() {
-      return getClass().getSimpleName() + ":[" +
-          "locale=" + locale +
-          ", label='" + label + '\'' +
-          ", options='" + options + '\'' +
-          ", help='" + help + '\'' +
-          ", errorMessage='" + errorMessage + '\'' +
-          ']';
+      return getClass().getSimpleName() + ":[" + "locale=" + locale + ", label='" + label + '\'' + ", options='" +
+             options + '\'' + ", help='" + help + '\'' + ", errorMessage='" + errorMessage + '\'' + ']';
     }
   }
 

@@ -43,7 +43,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * Deletes only member data appropriated by member id.
    *
    * @param member int Member <code>id</code>
-   * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
+   * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be
+   * altered in parent vo
    */
   deleteMember {
     @Override
@@ -59,7 +60,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * Delete members with given ids. It is possible to delete members from multiple vos.
    *
    * @param member int Member <code>id</code>
-   * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
+   * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be
+   * altered in parent vo
    */
   deleteMembers {
     @Override
@@ -109,17 +111,12 @@ public enum MembersManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("groups")) {
-        return ac.getMembersManager().createSpecificMember(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.read("candidate", Candidate.class),
-            parms.readList("specificUserOwners", User.class),
-            SpecificUserType.valueOf(parms.readString("specificUserType")),
-            parms.readList("groups", Group.class));
+        return ac.getMembersManager().createSpecificMember(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.read("candidate", Candidate.class), parms.readList("specificUserOwners", User.class),
+            SpecificUserType.valueOf(parms.readString("specificUserType")), parms.readList("groups", Group.class));
       } else {
-        return ac.getMembersManager().createSpecificMember(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.read("candidate", Candidate.class),
-            parms.readList("specificUserOwners", User.class),
+        return ac.getMembersManager().createSpecificMember(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.read("candidate", Candidate.class), parms.readList("specificUserOwners", User.class),
             SpecificUserType.valueOf(parms.readString("specificUserType")));
       }
     }
@@ -140,7 +137,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param sponsor int sponsor's ID
    * @param email (optional) preferred email that will be set to the created user. If no email
    *              is provided, "no-reply@muni.cz" is used.
-   * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
+   * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the
+   * email
    *                            default is false, can't be used with empty email parameter
    * @return RichMember newly created sponsored member
    */
@@ -156,7 +154,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param lastName last name - mandatory
    * @param titleBefore titles before the name - optionally
    * @param titleAfter titles after the name - optionally
-   * @param password String password, if the password is empty, and the `sendActivationLink` is set to true, this method will
+   * @param password String password, if the password is empty, and the `sendActivationLink` is set to true, this
+   * method will
    *                 generate a random password for the created user
    * @param vo int VO ID
    * @param namespace String namespace selecting remote system for storing the password
@@ -164,7 +163,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param email (optional) preferred email that will be set to the created user. If no email
    *              is provided, "no-reply@muni.cz" is used.
    * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
-   * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
+   * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the
+   * email
    *                            default is false, can't be used with empty email parameter
    * @return RichMember newly created sponsored member
    */
@@ -181,7 +181,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param namespace String namespace selecting remote system for storing the password
    * @param sponsor int sponsor's ID
    * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
-   * @param sendActivationLink boolean (optional) If true link for manual activation of account will be sent to the email
+   * @param sendActivationLink boolean (optional) If true link for manual activation of account will be sent to the
+   * email
    *                            default is false, can't be used with empty email parameter
    *                            If set to true, a non-empty namespace has to be provided.
    * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
@@ -210,7 +211,7 @@ public enum MembersManagerMethod implements ManagerMethod {
         if (params.contains("email")) {
           userData.setEmail(params.readString("email"));
         }
-        if (userData.getEmail() != null && !Utils.emailPattern.matcher(userData.getEmail()).matches()) {
+        if (userData.getEmail() != null && !Utils.EMAIL_PATTERN.matcher(userData.getEmail()).matches()) {
           throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Email has an invalid format.");
         }
         if (userData.getEmail() == null && sendActivationLink) {
@@ -271,7 +272,7 @@ public enum MembersManagerMethod implements ManagerMethod {
           throw new RpcException(RpcException.Type.WRONG_PARAMETER,
               "If the sendActivationLink is set to true, a namespace has to be provided.");
         }
-        if (userData.getEmail() != null && !Utils.emailPattern.matcher(userData.getEmail()).matches()) {
+        if (userData.getEmail() != null && !Utils.EMAIL_PATTERN.matcher(userData.getEmail()).matches()) {
           throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Email has an invalid format.");
         }
         if (userData.getEmail() == null && sendActivationLink) {
@@ -279,13 +280,13 @@ public enum MembersManagerMethod implements ManagerMethod {
               "Can't send link for activation when email is missing!");
         }
 
-        if (userData.getGuestName() == null &&
-            (userData.getFirstName() == null || userData.getLastName() == null)) {
+        if (userData.getGuestName() == null && (userData.getFirstName() == null || userData.getLastName() == null)) {
           throw new RpcException(RpcException.Type.MISSING_VALUE,
               "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
         }
-        return ac.getMembersManager().createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo,
-            sendActivationLink, language, params.getServletRequest().getRequestURL().toString());
+        return ac.getMembersManager()
+            .createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo, sendActivationLink, language,
+                params.getServletRequest().getRequestURL().toString());
       }
     }
   },
@@ -381,7 +382,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param sponsor int sponsor's ID
    * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
    * @param sendActivationLinks boolean (optional) If true link for manual activation of every created sponsored member
-   *                           account will be sent to the email (can't be used with empty email parameter), default is false
+   *                           account will be sent to the email (can't be used with empty email parameter), default
+   * is false
    *                           If set to true, a non-empty namespace has to be provided.
    * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
    * @param groups int[] group ids, to which will be the created users assigned (has to be from the given vo)
@@ -445,7 +447,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
    * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
    *
-   * Since there may be error while creating some members, and we cannot simply roll back the transaction and start over,
+   * Since there may be error while creating some members, and we cannot simply roll back the transaction and start
+   * over,
    * exceptions during member creation are not thrown and the returned list has this structure:
    *
    * [{"name" -> name, "status" -> "OK" or "Error...", "login" -> login, "password" -> password}]
@@ -462,7 +465,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param sponsor int sponsor's ID
    * @param email String (optional) preferred email that will be set to the created user. If no email
    *              is provided, default from the instance config is used (usually some kind of "no-reply" address).
-   * @param sendActivationLink boolean (optional) If true link for manual activation of every created sponsored member account will be sent
+   * @param sendActivationLink boolean (optional) If true link for manual activation of every created sponsored
+   * member account will be sent
    *                           to the email, be careful when using with empty (no-reply) email, default is false
    * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
    * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
@@ -504,6 +508,7 @@ public enum MembersManagerMethod implements ManagerMethod {
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value: 'guestNames' must be sent.");
       }
+
       return ac.getMembersManager()
           .createSponsoredMembers(ac.getSession(), vo, namespace, names, email, sponsor, validityTo, sendActivationLink,
               language, params.getServletRequest().getRequestURL().toString());
@@ -982,54 +987,40 @@ public enum MembersManagerMethod implements ManagerMethod {
 
       if (parms.contains("extSourceName") && parms.contains("extSourceType") && parms.contains("login")) {
         if (parms.contains("groups")) {
-          return ac.getMembersManager().createMember(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              parms.readString("extSourceName"),
-              parms.readString("extSourceType"),
-              parms.readString("login"),
-              parms.read("candidate", Candidate.class),
-              parms.readList("groups", Group.class));
+          return ac.getMembersManager()
+              .createMember(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("extSourceName"),
+                  parms.readString("extSourceType"), parms.readString("login"),
+                  parms.read("candidate", Candidate.class), parms.readList("groups", Group.class));
         } else {
-          return ac.getMembersManager().createMember(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              parms.readString("extSourceName"),
-              parms.readString("extSourceType"),
-              parms.readString("login"),
-              parms.read("candidate", Candidate.class));
+          return ac.getMembersManager()
+              .createMember(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("extSourceName"),
+                  parms.readString("extSourceType"), parms.readString("login"),
+                  parms.read("candidate", Candidate.class));
         }
       } else if (parms.contains("user") && parms.contains("vo")) {
         if (parms.contains("groups")) {
-          return ac.getMembersManager().createMember(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              ac.getUserById(parms.readInt("user")),
-              parms.readList("groups", Group.class));
+          return ac.getMembersManager()
+              .createMember(ac.getSession(), ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")),
+                  parms.readList("groups", Group.class));
         } else {
-          return ac.getMembersManager().createMember(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              ac.getUserById(parms.readInt("user")));
+          return ac.getMembersManager()
+              .createMember(ac.getSession(), ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
         }
       } else if (parms.contains("extSource") && parms.contains("vo") && parms.contains("login")) {
         if (parms.contains("groups")) {
-          return ac.getMembersManager().createMember(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              ac.getExtSourceById(parms.readInt("extSource")),
-              parms.readString("login"),
+          return ac.getMembersManager().createMember(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              ac.getExtSourceById(parms.readInt("extSource")), parms.readString("login"),
               parms.readList("groups", Group.class));
         } else {
-          return ac.getMembersManager().createMember(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              ac.getExtSourceById(parms.readInt("extSource")),
-              parms.readString("login"));
+          return ac.getMembersManager().createMember(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              ac.getExtSourceById(parms.readInt("extSource")), parms.readString("login"));
         }
       } else {
         if (parms.contains("groups")) {
-          return ac.getMembersManager().createMember(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              parms.read("candidate", Candidate.class),
-              parms.readList("groups", Group.class));
+          return ac.getMembersManager().createMember(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.read("candidate", Candidate.class), parms.readList("groups", Group.class));
         } else {
-          return ac.getMembersManager().createMember(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
+          return ac.getMembersManager().createMember(ac.getSession(), ac.getVoById(parms.readInt("vo")),
               parms.read("candidate", Candidate.class));
         }
       }
@@ -1046,8 +1037,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   getMemberByUserExtSource {
     @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().getMemberByUserExtSource(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
+      return ac.getMembersManager().getMemberByUserExtSource(ac.getSession(), ac.getVoById(parms.readInt("vo")),
           parms.read("userExtSource", UserExtSource.class));
     }
   },
@@ -1095,15 +1085,11 @@ public enum MembersManagerMethod implements ManagerMethod {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("attrNames")) {
-        return ac.getMembersManager().getRichMembersByIds(
-            ac.getSession(),
-            parms.readList("ids", Integer.class),
+        return ac.getMembersManager().getRichMembersByIds(ac.getSession(), parms.readList("ids", Integer.class),
             parms.readList("attrNames", String.class));
       } else {
-        return ac.getMembersManager().getRichMembersByIds(
-            ac.getSession(),
-            parms.readList("ids", Integer.class),
-            new ArrayList<>());
+        return ac.getMembersManager()
+            .getRichMembersByIds(ac.getSession(), parms.readList("ids", Integer.class), new ArrayList<>());
       }
     }
   },
@@ -1118,9 +1104,8 @@ public enum MembersManagerMethod implements ManagerMethod {
   getMemberByUser {
     @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().getMemberByUser(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getMembersManager()
+          .getMemberByUser(ac.getSession(), ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -1133,8 +1118,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   getMembersByUser {
     @Override
     public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().getMembersByUser(ac.getSession(),
-          ac.getUserById(parms.readInt("user")));
+      return ac.getMembersManager().getMembersByUser(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   },
 
@@ -1192,12 +1176,10 @@ public enum MembersManagerMethod implements ManagerMethod {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("status")) {
-        return ac.getMembersManager().getRichMembers(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        return ac.getMembersManager().getRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             Status.valueOf(parms.readString("status")));
       } else {
-        return ac.getMembersManager().getRichMembers(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")));
+        return ac.getMembersManager().getRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")));
       }
     }
   },
@@ -1270,26 +1252,23 @@ public enum MembersManagerMethod implements ManagerMethod {
         if (parms.contains("allowedStatuses")) {
           if (parms.contains("attrsNames")) {
             // with selected attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                ac.getVoById(parms.readInt("vo")),
-                parms.readList("attrsNames", String.class),
-                parms.readList("allowedStatuses", String.class));
+            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+                parms.readList("attrsNames", String.class), parms.readList("allowedStatuses", String.class));
           } else {
             // with all attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                ac.getVoById(parms.readInt("vo")), null,
-                parms.readList("allowedStatuses", String.class));
+            return ac.getMembersManager()
+                .getCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")), null,
+                    parms.readList("allowedStatuses", String.class));
           }
         } else {
           if (parms.contains("attrsNames")) {
             // with selected attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                ac.getVoById(parms.readInt("vo")),
+            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")),
                 parms.readList("attrsNames", String.class));
           } else {
             // with all attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                ac.getVoById(parms.readInt("vo")), null);
+            return ac.getMembersManager()
+                .getCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")), null);
           }
         }
       } else {
@@ -1303,42 +1282,35 @@ public enum MembersManagerMethod implements ManagerMethod {
           if (parms.contains("attrsNames")) {
             if (parms.contains("resource")) {
               // with selected attributes
-              return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                  ac.getGroupById(parms.readInt("group")),
-                  ac.getResourceById(parms.readInt("resource")),
-                  parms.readList("attrsNames", String.class),
-                  parms.readList("allowedStatuses", String.class));
+              return ac.getMembersManager()
+                  .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                      ac.getResourceById(parms.readInt("resource")), parms.readList("attrsNames", String.class),
+                      parms.readList("allowedStatuses", String.class));
             } else {
               // with selected attributes
-              return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                  ac.getGroupById(parms.readInt("group")),
-                  parms.readList("attrsNames", String.class),
-                  parms.readList("allowedStatuses", String.class),
-                  allowedGroupStatuses,
-                  parms.readBoolean("lookingInParentGroup"));
+              return ac.getMembersManager()
+                  .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                      parms.readList("attrsNames", String.class), parms.readList("allowedStatuses", String.class),
+                      allowedGroupStatuses, parms.readBoolean("lookingInParentGroup"));
             }
           } else {
             // with all attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                ac.getGroupById(parms.readInt("group")),
-                null,
-                parms.readList("allowedStatuses", String.class),
-                allowedGroupStatuses,
-                parms.readBoolean("lookingInParentGroup"));
+            return ac.getMembersManager()
+                .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")), null,
+                    parms.readList("allowedStatuses", String.class), allowedGroupStatuses,
+                    parms.readBoolean("lookingInParentGroup"));
           }
         } else {
           if (parms.contains("attrsNames")) {
             // with selected attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attrsNames", String.class),
-                parms.readBoolean("lookingInParentGroup"));
+            return ac.getMembersManager()
+                .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                    parms.readList("attrsNames", String.class), parms.readBoolean("lookingInParentGroup"));
           } else {
             // with all attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-                ac.getGroupById(parms.readInt("group")),
-                null,
-                parms.readBoolean("lookingInParentGroup"));
+            return ac.getMembersManager()
+                .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")), null,
+                    parms.readBoolean("lookingInParentGroup"));
           }
         }
       }
@@ -1355,8 +1327,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   getServiceUserRichMembers {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().getServiceUserRichMembers(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")));
+      return ac.getMembersManager().getServiceUserRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")));
     }
   },
 
@@ -1370,7 +1341,8 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
    *
-   * @exampleParam attrsNames [ "urn:perun:user:attribute-def:def:preferredMail" , "urn:perun:member:attribute-def:def:mail" ]
+   * @exampleParam attrsNames [ "urn:perun:user:attribute-def:def:preferredMail" ,
+   * "urn:perun:member:attribute-def:def:mail" ]
    * @param group int Group <code>id</code>
    * @param attrsNames List<String> List of attrsNames for selected attributes
    * @return List<RichMember> List of RichMembers in Group
@@ -1379,23 +1351,25 @@ public enum MembersManagerMethod implements ManagerMethod {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("vo")) {
-        return ac.getMembersManager().getRichMembersWithAttributesByNames(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readList("attrsNames", String.class));
+        return ac.getMembersManager()
+            .getRichMembersWithAttributesByNames(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+                parms.readList("attrsNames", String.class));
       } else {
-        return ac.getMembersManager().getRichMembersWithAttributesByNames(ac.getSession(),
-            ac.getGroupById(parms.readInt("group")),
-            parms.readList("attrsNames", String.class));
+        return ac.getMembersManager()
+            .getRichMembersWithAttributesByNames(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                parms.readList("attrsNames", String.class));
       }
     }
   },
 
   /*#
-   * Get all RichMembers of VO with specified status. RichMember object contains user, member, userExtSources and member/user attributes.
+   * Get all RichMembers of VO with specified status. RichMember object contains user, member, userExtSources and
+   * member/user attributes.
    *
    * @param vo int Vo <code>id</code>
    * @param status String Status (VALID | INVALID | EXPIRED | DISABLED)
-   * @return List<RichMember> List of RichMembers with all member/user attributes, empty list if there are no members in VO with specified status
+   * @return List<RichMember> List of RichMembers with all member/user attributes, empty list if there are no members
+   *  in VO with specified status
    */
   /*#
    * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
@@ -1415,32 +1389,30 @@ public enum MembersManagerMethod implements ManagerMethod {
    * Get all RichMembers of VO. RichMember object contains user, member, userExtSources and member/user attributes.
    *
    * @param vo int Vo <code>id</code>
-   * @return List<RichMember> List of rich members with all member/user attributes, empty list if there are no members in VO
+   * @return List<RichMember> List of rich members with all member/user attributes, empty list if there are no
+   * members in VO
    */
   getRichMembersWithAttributes {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("status")) {
-        return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
+        return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             Status.valueOf(parms.readString("status")));
       } else if (parms.contains("attrsDef")) {
         if (parms.contains("vo")) {
-          return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
+          return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")),
               parms.readList("attrsDef", AttributeDefinition.class));
         } else {
-          return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
-              ac.getGroupById(parms.readInt("group")),
-              parms.readList("attrsDef", AttributeDefinition.class));
+          return ac.getMembersManager()
+              .getRichMembersWithAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                  parms.readList("attrsDef", AttributeDefinition.class));
         }
       } else if (parms.contains("group")) {
-        return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
-            parms.readList("allowedStatuses", String.class),
-            ac.getGroupById(parms.readInt("group")));
+        return ac.getMembersManager()
+            .getRichMembersWithAttributes(ac.getSession(), parms.readList("allowedStatuses", String.class),
+                ac.getGroupById(parms.readInt("group")));
       } else {
-        return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")));
+        return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")));
       }
     }
   },
@@ -1459,9 +1431,9 @@ public enum MembersManagerMethod implements ManagerMethod {
       Member mem = ac.getMemberById(parms.readInt("id"));
       return ac.getMembersManager().getRichMemberWithAttributes(ac.getSession(), mem);
     }
-  },
-  /*#
-   * Get all RichMembers of VO. RichMember object contains user, member, userExtSources and member attributes. User attributes aren't included
+  }, /*#
+   * Get all RichMembers of VO. RichMember object contains user, member, userExtSources and member attributes. User
+   attributes aren't included
    *
    * @param vo int Vo <code>id</code>
    * @return List<RichMember> List of rich members with all member attributes, empty list if there are no members in VO
@@ -1469,8 +1441,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   getRichMembersNoUserAttributes {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().getRichMembersNoUserAttributes(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")));
+      return ac.getMembersManager().getRichMembersNoUserAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")));
     }
   },
 
@@ -1504,8 +1475,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    */
   getMembersCount {
     @Override
-    public Integer call(ApiCaller ac, Deserializer parms)
-        throws PerunException {
+    public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("status")) {
         return ac.getMembersManager().getMembersCount(ac.getSession(), ac.getVoById(parms.readInt("vo")),
             Status.valueOf(parms.readString("status")));
@@ -1519,7 +1489,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * Deletes all VO members.
    *
    * @param vo int VO <code>id</code>
-   * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
+   * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be
+   * altered in parent vo
    */
   deleteAllMembers {
     @Override
@@ -1677,7 +1648,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param attrsNames List<String> Attribute names
    * @param allowedStatuses List<String> Allowed statuses
    * @param searchString String String to search by
-   * @return List<RichMember> List of founded richMembers with specific attributes from Vo for searchString with allowed statuses
+   * @return List<RichMember> List of founded richMembers with specific attributes from Vo for searchString with
+   * allowed statuses
    */
   /*#
    * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames.
@@ -1746,21 +1718,16 @@ public enum MembersManagerMethod implements ManagerMethod {
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("vo")) {
         if (parms.contains("allowedStatuses")) {
-          return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              parms.readList("attrsNames", String.class),
-              parms.readList("allowedStatuses", String.class),
+          return ac.getMembersManager().findCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.readList("attrsNames", String.class), parms.readList("allowedStatuses", String.class),
               parms.readString("searchString"));
         } else {
           boolean onlySponsored = false;
           if (parms.contains("onlySponsored")) {
             onlySponsored = parms.readBoolean("onlySponsored");
           }
-          return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
-              ac.getVoById(parms.readInt("vo")),
-              parms.readList("attrsNames", String.class),
-              parms.readString("searchString"),
-              onlySponsored);
+          return ac.getMembersManager().findCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.readList("attrsNames", String.class), parms.readString("searchString"), onlySponsored);
         }
       } else {
         if (parms.contains("allowedStatuses")) {
@@ -1771,25 +1738,20 @@ public enum MembersManagerMethod implements ManagerMethod {
               allowedGroupStatuses = parms.readList("allowedGroupStatuses", String.class);
             }
 
-            return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
-                ac.getGroupById(parms.readInt("group")),
-                parms.readList("attrsNames", String.class),
-                parms.readList("allowedStatuses", String.class),
-                allowedGroupStatuses,
-                parms.readString("searchString"),
-                parms.readBoolean("lookingInParentGroup"));
+            return ac.getMembersManager()
+                .findCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                    parms.readList("attrsNames", String.class), parms.readList("allowedStatuses", String.class),
+                    allowedGroupStatuses, parms.readString("searchString"), parms.readBoolean("lookingInParentGroup"));
           } else {
-            return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
-                parms.readList("attrsNames", String.class),
-                parms.readList("allowedStatuses", String.class),
-                parms.readString("searchString"));
+            return ac.getMembersManager()
+                .findCompleteRichMembers(ac.getSession(), parms.readList("attrsNames", String.class),
+                    parms.readList("allowedStatuses", String.class), parms.readString("searchString"));
           }
         } else {
-          return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
-              ac.getGroupById(parms.readInt("group")),
-              parms.readList("attrsNames", String.class),
-              parms.readString("searchString"),
-              parms.readBoolean("lookingInParentGroup"));
+          return ac.getMembersManager()
+              .findCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+                  parms.readList("attrsNames", String.class), parms.readString("searchString"),
+                  parms.readBoolean("lookingInParentGroup"));
         }
       }
     }
@@ -1802,7 +1764,8 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param status String VALID | INVALID | EXPIRED | DISABLED
    * @exampleParam status "VALID"
    * @return Member Member with status after change
-   * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be altered in parent vo
+   * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be
+   * altered in parent vo
    */
   setStatus {
     @Override
@@ -1874,10 +1837,9 @@ public enum MembersManagerMethod implements ManagerMethod {
   getMemberByExtSourceNameAndExtLogin {
     @Override
     public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().getMemberByExtSourceNameAndExtLogin(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          parms.readString("extSourceName"),
-          parms.readString("extLogin"));
+      return ac.getMembersManager()
+          .getMemberByExtSourceNameAndExtLogin(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+              parms.readString("extSourceName"), parms.readString("extLogin"));
     }
   },
 
@@ -2014,17 +1976,16 @@ public enum MembersManagerMethod implements ManagerMethod {
         }
         return null;
       } else if (parms.contains("user") && parms.contains("vo")) {
-        Member m = ac.getMembersManager().getMemberByUser(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
+        Member m = ac.getMembersManager()
+            .getMemberByUser(ac.getSession(), ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
         Date d = ac.getMembersManager().getNewExtendMembership(ac.getSession(), m);
         if (d != null) {
           return BeansUtils.getDateFormatterWithoutTime().format(d);
         }
         return null;
       } else if (parms.contains("vo") && parms.contains("loa")) {
-        Date d = ac.getMembersManager().getNewExtendMembership(ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readString("loa"));
+        Date d = ac.getMembersManager()
+            .getNewExtendMembership(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("loa"));
         if (d != null) {
           return BeansUtils.getDateFormatterWithoutTime().format(d);
         }
@@ -2046,13 +2007,8 @@ public enum MembersManagerMethod implements ManagerMethod {
   sendUsernameReminderEmail {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getMembersManager().sendUsernameReminderEmail(
-          ac.getSession(),
-          ac.getMemberById(parms.readInt("member")),
-          parms.readString("namespace"),
-          parms.readString("emailAttributeURN"),
-          parms.readString("language")
-      );
+      ac.getMembersManager().sendUsernameReminderEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+          parms.readString("namespace"), parms.readString("emailAttributeURN"), parms.readString("language"));
       return null;
     }
   },
@@ -2085,8 +2041,7 @@ public enum MembersManagerMethod implements ManagerMethod {
       }
 
       ac.getMembersManager().sendPasswordResetLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
-          parms.readString("namespace"), url,
-          parms.readString("emailAttributeURN"), parms.readString("language"));
+          parms.readString("namespace"), url, parms.readString("emailAttributeURN"), parms.readString("language"));
 
       return null;
 
@@ -2160,7 +2115,8 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Get page of members from the given vo, with the given attributes.
    * Query parameter specifies offset, page size, sorting order, sorting column, statuses in vo and string to search
-   * members by (by default it searches in names, user and member ids, user uuids, emails, logins of member or other attributes based on perun
+   * members by (by default it searches in names, user and member ids, user uuids, emails, logins of member or other
+   * attributes based on perun
    * configuration), last two parameters are optional and by default it finds all members.
    *
    * @param vo int Vo <code>id</code>
@@ -2174,10 +2130,8 @@ public enum MembersManagerMethod implements ManagerMethod {
   getMembersPage {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getMembersManager().getMembersPage(ac.getSession(),
-          ac.getVoById(parms.readInt("vo")),
-          parms.read("query", MembersPageQuery.class),
-          parms.readList("attrNames", String.class));
+      return ac.getMembersManager().getMembersPage(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+          parms.read("query", MembersPageQuery.class), parms.readList("attrNames", String.class));
     }
   },
 
@@ -2198,18 +2152,11 @@ public enum MembersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("group")) {
-        ac.getMembersManager().addMemberCandidates(
-            ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readList("candidates", MemberCandidate.class),
-            ac.getGroupById(parms.readInt("group"))
-        );
+        ac.getMembersManager().addMemberCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.readList("candidates", MemberCandidate.class), ac.getGroupById(parms.readInt("group")));
       } else {
-        ac.getMembersManager().addMemberCandidates(
-            ac.getSession(),
-            ac.getVoById(parms.readInt("vo")),
-            parms.readList("candidates", MemberCandidate.class)
-        );
+        ac.getMembersManager().addMemberCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            parms.readList("candidates", MemberCandidate.class));
       }
       return null;
     }

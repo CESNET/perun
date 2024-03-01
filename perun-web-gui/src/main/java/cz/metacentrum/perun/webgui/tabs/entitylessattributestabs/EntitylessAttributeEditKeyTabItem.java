@@ -50,7 +50,7 @@ import java.util.Objects;
  */
 public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "edit_keys";
+  public static final String URL = "edit_keys";
   /**
    * Perun web session
    */

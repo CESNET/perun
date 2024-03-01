@@ -37,34 +37,34 @@ import java.util.Map;
 public final class JsonSerializer implements Serializer {
 
   public static final String CONTENT_TYPE = "application/json; charset=utf-8";
-  private static final ObjectMapper mapper = new ObjectMapper();
-  private static final Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
-  private static final JsonFactory jsonFactory = new JsonFactory();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
+  private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
   static {
 
     JavaTimeModule module = new JavaTimeModule();
-    mapper.registerModule(module);
+    MAPPER.registerModule(module);
     // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
-    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    mixinMap.put(Attribute.class, AttributeMixIn.class);
-    mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-    mixinMap.put(User.class, UserMixIn.class);
-    mixinMap.put(Candidate.class, CandidateMixIn.class);
-    mixinMap.put(PerunException.class, PerunExceptionMixIn.class);
-    mixinMap.put(PerunRuntimeException.class, PerunExceptionMixIn.class);
-    mixinMap.put(Task.class, TaskMixIn.class);
-    mixinMap.put(TaskResult.class, TaskResultMixIn.class);
-    mixinMap.put(Ban.class, BanMixIn.class);
+    MIXIN_MAP.put(Attribute.class, AttributeMixIn.class);
+    MIXIN_MAP.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+    MIXIN_MAP.put(User.class, UserMixIn.class);
+    MIXIN_MAP.put(Candidate.class, CandidateMixIn.class);
+    MIXIN_MAP.put(PerunException.class, PerunExceptionMixIn.class);
+    MIXIN_MAP.put(PerunRuntimeException.class, PerunExceptionMixIn.class);
+    MIXIN_MAP.put(Task.class, TaskMixIn.class);
+    MIXIN_MAP.put(TaskResult.class, TaskResultMixIn.class);
+    MIXIN_MAP.put(Ban.class, BanMixIn.class);
 
-    mapper.setMixIns(mixinMap);
+    MAPPER.setMixIns(MIXIN_MAP);
   }
 
   static {
     //FIXME removed disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
-    jsonFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)
-        .setCodec(mapper);
+    JSON_FACTORY.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)
+        .setCodec(MAPPER);
   }
 
   private OutputStream out;
@@ -84,7 +84,7 @@ public final class JsonSerializer implements Serializer {
 
   @Override
   public void write(Object object) throws IOException {
-    JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    JsonGenerator gen = JSON_FACTORY.createGenerator(out, JsonEncoding.UTF8);
 
     try {
       gen.writeObject(object);
@@ -98,7 +98,7 @@ public final class JsonSerializer implements Serializer {
   @Override
   public void writePerunException(PerunException pex) throws IOException {
 
-    JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    JsonGenerator gen = JSON_FACTORY.createGenerator(out, JsonEncoding.UTF8);
     if (pex == null) {
       throw new IllegalArgumentException("pex is null");
     } else {
@@ -112,7 +112,7 @@ public final class JsonSerializer implements Serializer {
   @Override
   public void writePerunRuntimeException(PerunRuntimeException prex) throws IOException {
 
-    JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    JsonGenerator gen = JSON_FACTORY.createGenerator(out, JsonEncoding.UTF8);
     if (prex == null) {
       throw new IllegalArgumentException("prex is null");
     } else {
@@ -145,84 +145,84 @@ public final class JsonSerializer implements Serializer {
 
   @SuppressWarnings("unused")
   private interface TaskMixIn {
-    @JsonSerialize
-    @JsonProperty(value = "startTime")
-    Long getStartTimeAsLong();
-
     @JsonIgnore
-    LocalDateTime getStartTime();
-
-    @JsonSerialize
-    @JsonProperty(value = "schedule")
-    Long getScheduleAsLong();
-
-    @JsonIgnore
-    LocalDateTime getSchedule();
-
-    @JsonSerialize
-    @JsonProperty(value = "genEndTime")
-    Long getGenEndTimeAsLong();
-
-    @JsonIgnore
-    LocalDateTime getGenEndTime();
-
-    @JsonSerialize
-    @JsonProperty(value = "sendEndTime")
-    Long getSendEndTimeAsLong();
-
-    @JsonIgnore
-    LocalDateTime getSendEndTime();
-
-    @JsonSerialize
-    @JsonProperty(value = "sendStartTime")
-    Long getSendStartTimeAsLong();
-
-    @JsonIgnore
-    LocalDateTime getSendStartTime();
-
-    @JsonSerialize
-    @JsonProperty(value = "genStartTime")
-    Long getGenStartTimeAsLong();
-
-    @JsonIgnore
-    LocalDateTime getGenStartTime();
-
-    @JsonSerialize
-    @JsonProperty(value = "sentToEngine")
-    Long getSentToEngineAsLong();
-
-    @JsonIgnore
-    LocalDateTime getSentToEngine();
+    LocalDateTime getEndTime();
 
     @JsonSerialize
     @JsonProperty(value = "endTime")
     Long getEndTimeAsLong();
 
     @JsonIgnore
-    LocalDateTime getEndTime();
+    LocalDateTime getGenEndTime();
+
+    @JsonSerialize
+    @JsonProperty(value = "genEndTime")
+    Long getGenEndTimeAsLong();
+
+    @JsonIgnore
+    LocalDateTime getGenStartTime();
+
+    @JsonSerialize
+    @JsonProperty(value = "genStartTime")
+    Long getGenStartTimeAsLong();
+
+    @JsonIgnore
+    LocalDateTime getSchedule();
+
+    @JsonSerialize
+    @JsonProperty(value = "schedule")
+    Long getScheduleAsLong();
+
+    @JsonIgnore
+    LocalDateTime getSendEndTime();
+
+    @JsonSerialize
+    @JsonProperty(value = "sendEndTime")
+    Long getSendEndTimeAsLong();
+
+    @JsonIgnore
+    LocalDateTime getSendStartTime();
+
+    @JsonSerialize
+    @JsonProperty(value = "sendStartTime")
+    Long getSendStartTimeAsLong();
+
+    @JsonIgnore
+    LocalDateTime getSentToEngine();
+
+    @JsonSerialize
+    @JsonProperty(value = "sentToEngine")
+    Long getSentToEngineAsLong();
+
+    @JsonIgnore
+    LocalDateTime getStartTime();
+
+    @JsonSerialize
+    @JsonProperty(value = "startTime")
+    Long getStartTimeAsLong();
   }
 
   @SuppressWarnings("unused")
   private interface TaskResultMixIn {
 
+    @JsonIgnore
+    Date getTimestamp();
+
     @JsonSerialize
     @JsonProperty(value = "timestamp")
     Long getTimestampAsLong();
-
-    @JsonIgnore
-    Date getTimestamp();
 
   }
 
   @SuppressWarnings("unused")
   private interface BanMixIn {
 
+    @JsonIgnore
+    Date getValidityTo();
+
     @JsonSerialize
     @JsonProperty(value = "validityTo")
     Long getValidityToAsLong();
-
-    @JsonIgnore
-    Date getValidityTo();
 
   }
 }

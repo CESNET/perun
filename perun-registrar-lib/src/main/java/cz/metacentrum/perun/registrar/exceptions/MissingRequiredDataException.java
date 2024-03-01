@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Exception thrown when any required application form item
- * is missing it's pre-filled value from federation, during
+ * Exception thrown when any required application form item is missing it's pre-filled value from federation, during
  * application form retrieval for user.
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -36,10 +35,6 @@ public class MissingRequiredDataException extends PerunException {
     this.formItems = items;
   }
 
-  public List<ApplicationFormItemWithPrefilledValue> getFormItems() {
-    return formItems;
-  }
-
   public void addFormItem(ApplicationFormItemWithPrefilledValue item) {
     if (formItems == null) {
       formItems = new ArrayList<>();
@@ -47,6 +42,10 @@ public class MissingRequiredDataException extends PerunException {
     if (item != null) {
       formItems.add(item);
     }
+  }
+
+  public List<ApplicationFormItemWithPrefilledValue> getFormItems() {
+    return formItems;
   }
 
 }

@@ -28,44 +28,6 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
   private static final Pattern certPattern = Pattern.compile("^/");
 
   @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongAttributeValueException {
-    if (attribute.getValue() == null) {
-      return;
-    }
-    Map<String, String> value = attribute.valueAsMap();
-
-    Set<String> valueKeys = value.keySet();
-    for (String k : valueKeys) {
-      Matcher certKeyMatcher = certPattern.matcher(k);
-      if (!certKeyMatcher.find()) {
-        throw new WrongAttributeValueException(attribute,
-            "There is wrong value for key " + k + " in hashMap of userCertDNs.");
-      }
-      String valueOfKey = value.get(k);
-      Matcher certValueOfKeyMatcher = certPattern.matcher(valueOfKey);
-      if (!certValueOfKeyMatcher.find()) {
-        throw new WrongAttributeValueException(attribute,
-            "There is wrong value for key's value " + valueOfKey + " in hashMap of UserCertDns for key " + k);
-      }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, user, null,
-          "This attribute value can't be null");
-    }
-  }
-
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
-    return new Attribute(attribute);
-  }
-
-  @Override
   public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute)
       throws WrongReferenceAttributeValueException {
     Attribute userPreferredCertDN;
@@ -119,6 +81,44 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
         }
       }
     }
+  }
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, null,
+          "This attribute value can't be null");
+    }
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+    Map<String, String> value = attribute.valueAsMap();
+
+    Set<String> valueKeys = value.keySet();
+    for (String k : valueKeys) {
+      Matcher certKeyMatcher = certPattern.matcher(k);
+      if (!certKeyMatcher.find()) {
+        throw new WrongAttributeValueException(attribute,
+            "There is wrong value for key " + k + " in hashMap of userCertDNs.");
+      }
+      String valueOfKey = value.get(k);
+      Matcher certValueOfKeyMatcher = certPattern.matcher(valueOfKey);
+      if (!certValueOfKeyMatcher.find()) {
+        throw new WrongAttributeValueException(attribute,
+            "There is wrong value for key's value " + valueOfKey + " in hashMap of UserCertDns for key " + k);
+      }
+    }
+  }
+
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
+    return new Attribute(attribute);
   }
 
   @Override

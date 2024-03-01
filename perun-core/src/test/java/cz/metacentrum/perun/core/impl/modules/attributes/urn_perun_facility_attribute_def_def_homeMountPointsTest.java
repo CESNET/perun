@@ -5,18 +5,17 @@
 
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Milan Halenar <255818@mail.muni.cz>
@@ -34,21 +33,22 @@ public class urn_perun_facility_attribute_def_def_homeMountPointsTest {
     attribute = new Attribute();
   }
 
-  /**
-   * Test of checkAttributeSemantics method, of class urn_perun_facility_attribute_def_def_homeMountPoints.
-   * with all properly set
-   */
   @Test
-  public void testCheckAttributeSyntaxCorrect() throws Exception {
-    System.out.println("testCheckAttributeSyntaxCorrect()");
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrect()");
 
     ArrayList<String> homeMountPts = new ArrayList<>();
     homeMountPts.add("/mnt/mymountpoint1");
-    homeMountPts.add("/mnt/mymountpoint2");
     attribute.setValue(homeMountPts);
 
-    classInstance.checkAttributeSyntax(session, new Facility(), attribute);
+    classInstance.checkAttributeSemantics(session, new Facility(), attribute);
+  }
 
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
+    System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
+
+    classInstance.checkAttributeSemantics(session, new Facility(), attribute);
   }
 
   @Test(expected = WrongAttributeValueException.class)
@@ -62,21 +62,20 @@ public class urn_perun_facility_attribute_def_def_homeMountPointsTest {
     classInstance.checkAttributeSyntax(session, new Facility(), attribute);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
-    System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
-
-    classInstance.checkAttributeSemantics(session, new Facility(), attribute);
-  }
-
+  /**
+   * Test of checkAttributeSemantics method, of class urn_perun_facility_attribute_def_def_homeMountPoints. with all
+   * properly set
+   */
   @Test
-  public void testCheckAttributeSemanticsCorrect() throws Exception {
-    System.out.println("testCheckAttributeSemanticsCorrect()");
+  public void testCheckAttributeSyntaxCorrect() throws Exception {
+    System.out.println("testCheckAttributeSyntaxCorrect()");
 
     ArrayList<String> homeMountPts = new ArrayList<>();
     homeMountPts.add("/mnt/mymountpoint1");
+    homeMountPts.add("/mnt/mymountpoint2");
     attribute.setValue(homeMountPts);
 
-    classInstance.checkAttributeSemantics(session, new Facility(), attribute);
+    classInstance.checkAttributeSyntax(session, new Facility(), attribute);
+
   }
 }

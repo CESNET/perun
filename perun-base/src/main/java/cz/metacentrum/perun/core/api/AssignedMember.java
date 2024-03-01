@@ -16,6 +16,17 @@ public class AssignedMember {
     this.status = status;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AssignedMember that = (AssignedMember) o;
+    return Objects.equals(getRichMember(), that.getRichMember()) && getStatus() == that.getStatus();
+  }
 
   public RichMember getRichMember() {
     return richMember;
@@ -34,27 +45,12 @@ public class AssignedMember {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    AssignedMember that = (AssignedMember) o;
-    return Objects.equals(getRichMember(), that.getRichMember()) && getStatus() == that.getStatus();
-  }
-
-  @Override
   public int hashCode() {
     return Objects.hash(getRichMember(), getStatus());
   }
 
   @Override
   public String toString() {
-    return "AssignedMember{" +
-        "richMember= " + richMember +
-        ", status=" + status +
-        '}';
+    return "AssignedMember{" + "richMember= " + richMember + ", status=" + status + '}';
   }
 }

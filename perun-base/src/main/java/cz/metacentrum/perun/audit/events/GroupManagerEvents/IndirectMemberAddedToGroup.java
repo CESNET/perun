@@ -20,17 +20,17 @@ public class IndirectMemberAddedToGroup extends AuditEvent {
     this.message = formatMessage("%s added to %s.", member, group);
   }
 
-  @Override
-  public String getMessage() {
-    return message;
-  }
-
   public Group getGroup() {
     return group;
   }
 
   public Member getMember() {
     return member;
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
   }
 
   @Override

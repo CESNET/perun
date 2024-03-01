@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -12,16 +16,11 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_attribute_def_virt_earliestActiveLastAccessTest {
 
@@ -59,8 +58,8 @@ public class urn_perun_user_attribute_def_virt_earliestActiveLastAccessTest {
     // try variable length of seconds fractions in last access timestamp
     ues1.setLastAccess(
         LocalDateTime.now().minusMonths(validity + 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS")));
-    ues2.setLastAccess(LocalDateTime.now().minusMonths(validity - 1).format(Utils.lastAccessFormatter));
-    ues3.setLastAccess(LocalDateTime.now().minusMonths(validity - 2).format(Utils.lastAccessFormatter));
+    ues2.setLastAccess(LocalDateTime.now().minusMonths(validity - 1).format(Utils.LAST_ACCESS_FORMATTER));
+    ues3.setLastAccess(LocalDateTime.now().minusMonths(validity - 2).format(Utils.LAST_ACCESS_FORMATTER));
     ues4.setLastAccess(
         LocalDateTime.now().minusMonths(validity - 3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
 

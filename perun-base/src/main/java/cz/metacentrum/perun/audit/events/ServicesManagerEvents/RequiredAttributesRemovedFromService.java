@@ -21,6 +21,10 @@ public class RequiredAttributesRemovedFromService extends AuditEvent {
     this.message = formatMessage("%s removed from %s as required attributes.", attributes, service);
   }
 
+  public List<? extends AttributeDefinition> getAttributes() {
+    return attributes;
+  }
+
   @Override
   public String getMessage() {
     return message;
@@ -28,10 +32,6 @@ public class RequiredAttributesRemovedFromService extends AuditEvent {
 
   public Service getService() {
     return service;
-  }
-
-  public List<? extends AttributeDefinition> getAttributes() {
-    return attributes;
   }
 
   @Override

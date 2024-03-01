@@ -20,30 +20,6 @@ public class EnrichedBanOnFacility {
     this.ban = ban;
   }
 
-  public RichUser getUser() {
-    return user;
-  }
-
-  public void setUser(RichUser user) {
-    this.user = user;
-  }
-
-  public Facility getFacility() {
-    return facility;
-  }
-
-  public void setFacility(Facility facility) {
-    this.facility = facility;
-  }
-
-  public BanOnFacility getBan() {
-    return ban;
-  }
-
-  public void setBan(BanOnFacility ban) {
-    this.ban = ban;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -56,6 +32,30 @@ public class EnrichedBanOnFacility {
     return Objects.equals(getBan(), that.getBan());
   }
 
+  public BanOnFacility getBan() {
+    return ban;
+  }
+
+  public void setBan(BanOnFacility ban) {
+    this.ban = ban;
+  }
+
+  public Facility getFacility() {
+    return facility;
+  }
+
+  public void setFacility(Facility facility) {
+    this.facility = facility;
+  }
+
+  public RichUser getUser() {
+    return user;
+  }
+
+  public void setUser(RichUser user) {
+    this.user = user;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(getBan());
@@ -63,10 +63,6 @@ public class EnrichedBanOnFacility {
 
   @Override
   public String toString() {
-    return "EnrichedBanOnFacility{" +
-        "user=" + user +
-        ", facility=" + facility +
-        ", ban=" + ban +
-        '}';
+    return "EnrichedBanOnFacility{" + "user=" + user + ", facility=" + facility + ", ban=" + ban + '}';
   }
 }

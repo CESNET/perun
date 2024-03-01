@@ -56,21 +56,21 @@ public class ServiceAttributesCannotExtend extends PerunException {
   }
 
   /**
-   * Getter for the service
-   *
-   * @return service which cannot be extended by new attribute
-   */
-  public Service getService() {
-    return service;
-  }
-
-  /**
    * Getter for the facilityId
    *
    * @return facility on which the service would cause invalidation of consents
    */
   public int getFacilityId() {
     return facilityId;
+  }
+
+  /**
+   * Getter for the service
+   *
+   * @return service which cannot be extended by new attribute
+   */
+  public Service getService() {
+    return service;
   }
 
 }

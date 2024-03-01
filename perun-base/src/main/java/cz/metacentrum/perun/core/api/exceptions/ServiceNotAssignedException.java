@@ -3,7 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Service;
 
 /**
- * This exception is thrown when trying to remove service from resource but the service hasn't been assigned to the resource.
+ * This exception is thrown when trying to remove service from resource but the service hasn't been assigned to the
+ * resource.
  *
  * @author Slavek Licehammer
  */

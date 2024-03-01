@@ -1,9 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_VIRT;
+
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForFacility;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForFacility;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForFacility;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceCreated;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceDeleted;
@@ -14,19 +13,15 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_VIRT;
 
 /**
  * List of VO short names, which have resources on this facility.
@@ -36,6 +31,17 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_V
 @SkipValueCheckDuringDependencyCheck
 public class urn_perun_facility_attribute_def_virt_voShortNames extends FacilityVirtualAttributesModuleAbstract
     implements FacilityVirtualAttributesModuleImplApi {
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(NS_FACILITY_ATTR_VIRT);
+    attr.setFriendlyName("voShortNames");
+    attr.setDisplayName("VO shortNames");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("List of VOs short names, which have resources on this facility.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility,
@@ -58,15 +64,15 @@ public class urn_perun_facility_attribute_def_virt_voShortNames extends Facility
 
   }
 
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(NS_FACILITY_ATTR_VIRT);
-    attr.setFriendlyName("voShortNames");
-    attr.setDisplayName("VO shortNames");
-    attr.setType(ArrayList.class.getName());
-    attr.setDescription("List of VOs short names, which have resources on this facility.");
-    return attr;
+  private List<AuditEvent> resolveEvent(PerunSessionImpl sess, Facility facility)
+      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+    List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+    AttributeDefinition attributeDefinition = sess.getPerunBl().getAttributesManagerBl()
+        .getAttributeDefinition(sess, NS_FACILITY_ATTR_VIRT + ":voShortNames");
+    resolvingMessages.add(new AttributeChangedForFacility(new Attribute(attributeDefinition), facility));
+
+    return resolvingMessages;
   }
 
   @Override
@@ -88,17 +94,6 @@ public class urn_perun_facility_attribute_def_virt_voShortNames extends Facility
     } else if (message instanceof ResourceDeleted) {
       resolvingMessages.addAll(resolveEvent(sess, ((ResourceDeleted) message).getFacility()));
     }
-    return resolvingMessages;
-  }
-
-  private List<AuditEvent> resolveEvent(PerunSessionImpl sess, Facility facility)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
-    List<AuditEvent> resolvingMessages = new ArrayList<>();
-
-    AttributeDefinition attributeDefinition = sess.getPerunBl().getAttributesManagerBl()
-        .getAttributeDefinition(sess, NS_FACILITY_ATTR_VIRT + ":voShortNames");
-    resolvingMessages.add(new AttributeChangedForFacility(new Attribute(attributeDefinition), facility));
-
     return resolvingMessages;
   }
 

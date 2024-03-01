@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class AllCategoriesTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "categories";
+  public static final String URL = "categories";
   /**
    * Perun web session
    */

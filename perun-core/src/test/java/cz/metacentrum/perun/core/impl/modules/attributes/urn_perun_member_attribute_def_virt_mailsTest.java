@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -8,13 +11,9 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class urn_perun_member_attribute_def_virt_mailsTest extends AbstractPerunIntegrationTest {
 
@@ -59,9 +58,8 @@ public class urn_perun_member_attribute_def_virt_mailsTest extends AbstractPerun
     assertTrue("Attribute should contain member mail value.", value.contains(memberMailTestValue));
   }
 
-  private Vo setUpVo() throws Exception {
-    Vo newVo = new Vo(0, "TestVo", "TestVo");
-    return perun.getVosManagerBl().createVo(sess, newVo);
+  private Member setUpMember(Vo vo) throws Exception {
+    return perun.getMembersManagerBl().createMember(sess, vo, user);
   }
 
   private User setUpUser() {
@@ -69,7 +67,8 @@ public class urn_perun_member_attribute_def_virt_mailsTest extends AbstractPerun
     return perun.getUsersManagerBl().createUser(sess, newUser);
   }
 
-  private Member setUpMember(Vo vo) throws Exception {
-    return perun.getMembersManagerBl().createMember(sess, vo, user);
+  private Vo setUpVo() throws Exception {
+    Vo newVo = new Vo(0, "TestVo", "TestVo");
+    return perun.getVosManagerBl().createVo(sess, newVo);
   }
 }

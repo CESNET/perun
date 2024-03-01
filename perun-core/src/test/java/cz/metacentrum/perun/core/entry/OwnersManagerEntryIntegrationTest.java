@@ -1,18 +1,17 @@
 package cz.metacentrum.perun.core.entry;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.OwnersManager;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests of OwnersManager.
@@ -35,7 +34,9 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
   }
 
   /**
-   * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#createOwner(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Owner)}.
+   * Test method for
+   * {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#createOwner(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.api.Owner)}.
    */
   @Test
   public void testCreateOwner() throws Exception {
@@ -55,7 +56,9 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
   }
 
   /**
-   * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#deleteOwner(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Owner)}.
+   * Test method for
+   * {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#deleteOwner(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.api.Owner)}.
    */
   @Test(expected = OwnerNotExistsException.class)
   public void testDeleteOwner() throws Exception {
@@ -78,7 +81,9 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
   }
 
   /**
-   * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwnerById(cz.metacentrum.perun.core.api.PerunSession, int)}.
+   * Test method for
+   * {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwnerById(cz.metacentrum.perun.core.api.PerunSession,
+   * int)}.
    */
   @Test
   public void testGetOwnerById() throws Exception {
@@ -90,7 +95,10 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
   }
 
   /**
-   * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwnerByName(cz.metacentrum.perun.core.api.PerunSession, String)}.
+   * Test method for
+   * {@link
+   * cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwnerByName(cz.metacentrum.perun.core.api.PerunSession,
+   * String)}.
    */
   @Test
   public void testGetOwnerByName() throws Exception {
@@ -102,7 +110,8 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
   }
 
   /**
-   * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwners(cz.metacentrum.perun.core.api.PerunSession)}.
+   * Test method for
+   * {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwners(cz.metacentrum.perun.core.api.PerunSession)}.
    */
   @Test
   public void testGetOwners() throws Exception {

@@ -15,10 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidCertificateException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.util.io.pem.PemObject;
-import java.util.Base64;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +25,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,24 +33,94 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.util.io.pem.PemObject;
 
 /**
- * Class ExtSource for TCS
- * Synchronize certificates from defined address to Perun for existing users (skip not existing users)
+ * Class ExtSource for TCS Synchronize certificates from defined address to Perun for existing users (skip not existing
+ * users)
  *
  * @author Michal Stava stavamichal@gmail.com
  */
 public class ExtSourceTCS extends ExtSourceImpl implements ExtSourceApi {
 
-  private static final String attrLoginMUName = "urn:perun:user:attribute-def:def:login-namespace:mu";
-  private static final String attrUserCertificates = "urn:perun:user:attribute-def:def:userCertificates";
-  private final static Pattern loginPattern = Pattern.compile("^.*\\s([0-9]+)$");
-  private final static Pattern wrongLoginPattern = Pattern.compile("^.*\\s[0-9]+\\s[0-9]+$");
+  private static final String ATTR_LOGIN_MU_NAME = "urn:perun:user:attribute-def:def:login-namespace:mu";
+  private static final String ATTR_USER_CERTIFICATES = "urn:perun:user:attribute-def:def:userCertificates";
+  private static final Pattern LOGIN_PATTERN = Pattern.compile("^.*\\s([0-9]+)$");
+  private static final Pattern WRONG_LOGIN_PATTERN = Pattern.compile("^.*\\s[0-9]+\\s[0-9]+$");
+
+  /**
+   * Check if x509Certificate is valid and return login parsed from subject of such valid certificate. Throw an
+   * exception if certificate is not valid or check can't be done correctly.
+   * <p>
+   * Valid certificate means: - it is not expired - login of the owner can be parsed from certificate subject - every
+   * valid owner already exists in perun as User
+   *
+   * @param x509CertificateHolder certificate in x509Holder object
+   * @return if certificate is valid, return login of owner from it's subject
+   * @throws InternalErrorException      if there is any problem with getting all logins from Perun (to check existence
+   *                                     of owner in Perun)
+   * @throws InvalidCertificateException if certificate is not valid, throw an exception
+   */
+  private String checkCertAndGetLogin(X509CertificateHolder x509CertificateHolder, List<String> allLoginsFromPerun)
+      throws InvalidCertificateException {
+    Date now = new Date();
+    //skip expired certificates
+    Date dayOfCertificateExpiration = x509CertificateHolder.getNotAfter();
+    if (dayOfCertificateExpiration.before(now)) {
+      throw new InvalidCertificateException("Certificate is already expired.");
+    }
+
+    //skip wrong certificates and parse UCO from the subject
+    String subject = x509CertificateHolder.getSubject().toString();
+    Matcher loginMatcher = LOGIN_PATTERN.matcher(subject);
+    Matcher wrongLoginMatcher = WRONG_LOGIN_PATTERN.matcher(subject);
+    if (wrongLoginMatcher.matches()) {
+      throw new InvalidCertificateException("There is more than one login in certificate's subject.");
+    }
+    if (!loginMatcher.matches()) {
+      throw new InvalidCertificateException("There is missing login in certificate's subject.");
+    }
+
+    String login = loginMatcher.group(1);
+
+    //throw an exception for user, who is not in Perun (defined by login)
+    if (!allLoginsFromPerun.contains(login)) {
+      throw new InvalidCertificateException("Not found User in Perun for this login get from the certificate.");
+    }
+
+    return login;
+  }
 
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString)
-      throws ExtSourceUnsupportedOperationException {
-    return findSubjectsLogins(searchString, 0);
+  public void close() throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
+
+  /**
+   * Export certificate in Base64 from byte array. Such extracted certificate can be saved much easier.
+   * <p>
+   * Example: -----BEGIN CERTIFICATE----- MIICYzCCAcygAwIBAgIBADANBgkqhkiG9... -----END CERTIFICATE-----
+   *
+   * @param pemObject original parsed certificate from pem file
+   * @return certificate encoded in base64
+   * @throws InternalErrorException if there is any problem with certificate or exporting
+   */
+  private String exportBase64Certificate(PemObject pemObject) {
+    String exportedCert;
+    try (ByteArrayInputStream bis = new ByteArrayInputStream(pemObject.getContent())) {
+      CertificateFactory certFact = CertificateFactory.getInstance("X.509");
+      Certificate certificate = certFact.generateCertificate(bis);
+
+      //Add begin and end of the certificate in base64
+      exportedCert = "-----BEGIN CERTIFICATE-----" + "\n";
+      exportedCert += Base64.getMimeEncoder().encodeToString(certificate.getEncoded());
+      exportedCert += "\n" + "-----END CERTIFICATE-----";
+    } catch (CertificateException | IOException ex) {
+      throw new InternalErrorException(ex);
+    }
+    return exportedCert;
   }
 
   @Override
@@ -74,26 +141,13 @@ public class ExtSourceTCS extends ExtSourceImpl implements ExtSourceApi {
   }
 
   @Override
-  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
+  public List<Map<String, String>> findSubjectsLogins(String searchString)
       throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
+    return findSubjectsLogins(searchString, 0);
   }
 
-  @Override
-  public List<Map<String, String>> getUsersSubjects() {
-    String url = getAttributes().get(UsersManager.USERS_QUERY);
-
-    return getUsersOrGroupSubjects(url);
-  }
-
-  @Override
-  public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
-  }
-
-  @Override
-  public void close() throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
+  protected Map<String, String> getAttributes() {
+    return perunBl.getExtSourcesManagerBl().getAttributes(this);
   }
 
   @Override
@@ -105,6 +159,55 @@ public class ExtSourceTCS extends ExtSourceImpl implements ExtSourceApi {
   }
 
   //Private methods
+
+  /**
+   * Read all logins for specific attr name - for example "urn:perun:user:attribute-def:def:login-namespace:mu" for MU
+   * namespace
+   *
+   * @param loginAttrName name of attribute from which logins should be get
+   * @return list of logins from specific attribute
+   * @throws InternalErrorException if attribute of specific login not exists or assignemnt of such attribute is wrong
+   */
+  private List<String> getLoginsFromPerun(String loginAttrName) {
+    PerunSession sess = this.getSession();
+    List<String> allLogins = new ArrayList<>();
+    try {
+      AttributeDefinition attrDefLoginInMu =
+          perunBl.getAttributesManagerBl().getAttributeDefinition(sess, loginAttrName);
+      perunBl.getAttributesManagerBl().getAllValues(sess, attrDefLoginInMu)
+          .forEach(value -> allLogins.add((String) value));
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+    return allLogins;
+  }
+
+  /**
+   * Create perunSession for ExtSourceTCS
+   *
+   * @return perun session for extSource TCS
+   * @throws InternalErrorException if there is any problem to create perun session
+   */
+  private PerunSession getSession() {
+    final PerunPrincipal pp = new PerunPrincipal("ExtSourceTCS", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL);
+    try {
+      return perunBl.getPerunSession(pp, new PerunClient());
+    } catch (InternalErrorException e) {
+      throw new InternalErrorException("Failed to get session for ExtSourceTCS.", e);
+    }
+  }
+
+  @Override
+  public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
+
+  @Override
+  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
 
   /**
    * Get the list of the subjects by query (either members of group or users).
@@ -127,72 +230,41 @@ public class ExtSourceTCS extends ExtSourceImpl implements ExtSourceApi {
       Map<String, String> certificate = new LinkedHashMap<>();
       certificate.put(validCertificatesForLogin.get(login).getLeft().getSubject().toString(),
           validCertificatesForLogin.get(login).getRight());
-      subject.put(attrUserCertificates, BeansUtils.attributeValueToString(certificate, LinkedHashMap.class.getName()));
+      subject.put(ATTR_USER_CERTIFICATES, BeansUtils.attributeValueToString(certificate,
+          LinkedHashMap.class.getName()));
 
       //map on existing extSource with MU login
       subject.put("additionalues_1",
           "https://idp2.ics.muni.cz/idp/shibboleth|cz.metacentrum.perun.core.impl.ExtSourceIdp|" + login +
-              "@muni.cz|2");
+          "@muni.cz|2");
       subjects.add(subject);
     }
 
     return subjects;
   }
 
-  /**
-   * Create perunSession for ExtSourceTCS
-   *
-   * @return perun session for extSource TCS
-   * @throws InternalErrorException if there is any problem to create perun session
-   */
-  private PerunSession getSession() {
-    final PerunPrincipal pp = new PerunPrincipal("ExtSourceTCS", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-        ExtSourcesManager.EXTSOURCE_INTERNAL);
-    try {
-      return perunBl.getPerunSession(pp, new PerunClient());
-    } catch (InternalErrorException e) {
-      throw new InternalErrorException("Failed to get session for ExtSourceTCS.", e);
-    }
+  @Override
+  public List<Map<String, String>> getUsersSubjects() {
+    String url = getAttributes().get(UsersManager.USERS_QUERY);
+
+    return getUsersOrGroupSubjects(url);
   }
 
   /**
-   * Read all logins for specific attr name - for example "urn:perun:user:attribute-def:def:login-namespace:mu" for MU namespace
-   *
-   * @param loginAttrName name of attribute from which logins should be get
-   * @return list of logins from specific attribute
-   * @throws InternalErrorException if attribute of specific login not exists or assignemnt of such attribute is wrong
-   */
-  private List<String> getLoginsFromPerun(String loginAttrName) {
-    PerunSession sess = this.getSession();
-    List<String> allLogins = new ArrayList<>();
-    try {
-      AttributeDefinition attrDefLoginInMu =
-          perunBl.getAttributesManagerBl().getAttributeDefinition(sess, loginAttrName);
-      perunBl.getAttributesManagerBl().getAllValues(sess, attrDefLoginInMu)
-          .forEach(value -> allLogins.add((String) value));
-    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
-    }
-    return allLogins;
-  }
-
-  /**
-   * For every certificate from pem file (get from url address) parse only valid certificates.
-   * Valid certificate means:
-   * - it is not expired
-   * - login of the owner can be parsed from certificate subject
-   * - every valid owner already exists in perun as User
-   * - if more than 1 certificate exists for same owner, choose the one with later expiration
+   * For every certificate from pem file (get from url address) parse only valid certificates. Valid certificate means:
+   * - it is not expired - login of the owner can be parsed from certificate subject - every valid owner already exists
+   * in perun as User - if more than 1 certificate exists for same owner, choose the one with later expiration
    *
    * @param url address of url to parse pem file from
-   * @return map of logins (in key) to pair of parsed certificate in the left part and certificate in base64 in the right part
+   * @return map of logins (in key) to pair of parsed certificate in the left part and certificate in base64 in the
+   * right part
    * @throws InternalErrorException If there is any IO problem with parsing and processing the certificate
    */
   protected Map<String, Pair<X509CertificateHolder, String>> prepareStructureOfValidCertificates(String url) {
     Map<String, Pair<X509CertificateHolder, String>> validCertificatesForLogin = new HashMap<>();
 
     //prepare all already known logins from Perun
-    List<String> allLogins = getLoginsFromPerun(attrLoginMUName);
+    List<String> allLogins = getLoginsFromPerun(ATTR_LOGIN_MU_NAME);
 
     HttpURLConnection con = null;
     try {
@@ -250,82 +322,5 @@ public class ExtSourceTCS extends ExtSourceImpl implements ExtSourceApi {
     }
 
     return validCertificatesForLogin;
-  }
-
-  /**
-   * Check if x509Certificate is valid and return login parsed from subject of such valid certificate.
-   * Throw an exception if certificate is not valid or check can't be done correctly.
-   * <p>
-   * Valid certificate means:
-   * - it is not expired
-   * - login of the owner can be parsed from certificate subject
-   * - every valid owner already exists in perun as User
-   *
-   * @param x509CertificateHolder certificate in x509Holder object
-   * @return if certificate is valid, return login of owner from it's subject
-   * @throws InternalErrorException      if there is any problem with getting all logins from Perun (to check existence of owner in Perun)
-   * @throws InvalidCertificateException if certificate is not valid, throw an exception
-   */
-  private String checkCertAndGetLogin(X509CertificateHolder x509CertificateHolder, List<String> allLoginsFromPerun)
-      throws InvalidCertificateException {
-    Date now = new Date();
-    //skip expired certificates
-    Date dayOfCertificateExpiration = x509CertificateHolder.getNotAfter();
-    if (dayOfCertificateExpiration.before(now)) {
-      throw new InvalidCertificateException("Certificate is already expired.");
-    }
-
-    //skip wrong certificates and parse UCO from the subject
-    String subject = x509CertificateHolder.getSubject().toString();
-    Matcher loginMatcher = loginPattern.matcher(subject);
-    Matcher wrongLoginMatcher = wrongLoginPattern.matcher(subject);
-    if (wrongLoginMatcher.matches()) {
-      throw new InvalidCertificateException("There is more than one login in certificate's subject.");
-    }
-    if (!loginMatcher.matches()) {
-      throw new InvalidCertificateException("There is missing login in certificate's subject.");
-    }
-
-    String login = loginMatcher.group(1);
-
-    //throw an exception for user, who is not in Perun (defined by login)
-    if (!allLoginsFromPerun.contains(login)) {
-      throw new InvalidCertificateException("Not found User in Perun for this login get from the certificate.");
-    }
-
-    return login;
-  }
-
-  /**
-   * Export certificate in Base64 from byte array.
-   * Such extracted certificate can be saved much easier.
-   * <p>
-   * Example:
-   * -----BEGIN CERTIFICATE-----
-   * MIICYzCCAcygAwIBAgIBADANBgkqhkiG9...
-   * -----END CERTIFICATE-----
-   *
-   * @param pemObject original parsed certificate from pem file
-   * @return certificate encoded in base64
-   * @throws InternalErrorException if there is any problem with certificate or exporting
-   */
-  private String exportBase64Certificate(PemObject pemObject) {
-    String exportedCert;
-    try (ByteArrayInputStream bis = new ByteArrayInputStream(pemObject.getContent())) {
-      CertificateFactory certFact = CertificateFactory.getInstance("X.509");
-      Certificate certificate = certFact.generateCertificate(bis);
-
-      //Add begin and end of the certificate in base64
-      exportedCert = "-----BEGIN CERTIFICATE-----" + "\n";
-      exportedCert += Base64.getMimeEncoder().encodeToString(certificate.getEncoded());
-      exportedCert += "\n" + "-----END CERTIFICATE-----";
-    } catch (CertificateException | IOException ex) {
-      throw new InternalErrorException(ex);
-    }
-    return exportedCert;
-  }
-
-  protected Map<String, String> getAttributes() {
-    return perunBl.getExtSourcesManagerBl().getAttributes(this);
   }
 }

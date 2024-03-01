@@ -46,7 +46,7 @@ public class BanAlreadyExistsException extends EntityExistsException {
    */
   public BanAlreadyExistsException(Ban ban) {
     super("Ban of type: " + ban.getType() + " already exists for subjectID: " + ban.getSubjectId() + " and targetID: " +
-        ban.getTargetId());
+          ban.getTargetId());
     this.ban = ban;
   }
 

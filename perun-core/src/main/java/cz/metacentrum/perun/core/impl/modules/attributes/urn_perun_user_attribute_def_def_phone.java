@@ -24,6 +24,15 @@ public class urn_perun_user_attribute_def_def_phone extends UserAttributesModule
   private static final Pattern pattern = Pattern.compile("^[+][0-9]{4,16}$");
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    // null attribute
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "User attribute phone cannot be null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute)
       throws WrongAttributeValueException {
     // null attribute
@@ -36,15 +45,6 @@ public class urn_perun_user_attribute_def_def_phone extends UserAttributesModule
     Matcher matcher = pattern.matcher(phone);
     if (!matcher.matches()) {
       throw new WrongAttributeValueException(attribute, "Phone is not in correct format!");
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    // null attribute
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "User attribute phone cannot be null.");
     }
   }
 

@@ -59,7 +59,7 @@ import java.util.Map;
  */
 public class GroupResourceRequiredAttributesTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "res-req-attrs";
+  public static final String URL = "res-req-attrs";
   /**
    * Perun web session
    */

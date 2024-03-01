@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName
     try {
       groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group,
           AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" +
-              unixGroupNameNamespaceAttribute.getValue());
+          unixGroupNameNamespaceAttribute.getValue());
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException(ex);
     }
@@ -64,7 +63,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName
     try {
       groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group,
           AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" +
-              unixGroupNameNamespaceAttribute.getValue());
+          unixGroupNameNamespaceAttribute.getValue());
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException(ex);
     }
@@ -87,6 +86,17 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName
   }
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
+    attr.setFriendlyName("unixGroupName");
+    attr.setDisplayName("Unix group name");
+    attr.setType(String.class.getName());
+    attr.setDescription("Unix group name. It is applied only if isUnixGroup is set.");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Group group, Resource resource,
                                      AttributeDefinition attributeDefinition) {
     Attribute attribute = new Attribute(attributeDefinition);
@@ -102,49 +112,13 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName
     try {
       Attribute groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group,
           AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" +
-              unixGroupNameNamespaceAttribute.getValue());
+          unixGroupNameNamespaceAttribute.getValue());
       return Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
     } catch (WrongAttributeAssignmentException ex) {
       throw new InternalErrorException(ex);
     } catch (AttributeNotExistsException ex) {
       throw new ConsistencyErrorException(ex);
     }
-  }
-
-  @Override
-  public boolean setAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    Attribute unixGroupNameNamespaceAttribute =
-        sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
-
-    try {
-      Attribute groupNameAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl()
-          .getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" +
-              unixGroupNameNamespaceAttribute.getValue()));
-      groupNameAttribute.setValue(attribute.getValue());
-      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, group, groupNameAttribute);
-    } catch (AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
-    } catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
-  public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource,
-                                      AttributeDefinition attribute) {
-    return false;
-		/* This method remove attribute for Group not only GroupResource (we dont want it)
-			 Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
-
-			 try {
-			 AttributeDefinition groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceAttribute.getValue());
-			 sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, group, groupNameAttribute);
-			 } catch (AttributeNotExistsException ex) {
-			 throw new InternalErrorException(ex);
-			 } catch (WrongAttributeAssignmentException ex) {
-			 throw new InternalErrorException(ex);
-			 }*/
   }
 
   @Override
@@ -164,14 +138,42 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName
   }
 
   @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
-    attr.setFriendlyName("unixGroupName");
-    attr.setDisplayName("Unix group name");
-    attr.setType(String.class.getName());
-    attr.setDescription("Unix group name. It is applied only if isUnixGroup is set.");
-    return attr;
+  public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource,
+                                      AttributeDefinition attribute) {
+    return false;
+    /* This method remove attribute for Group not only GroupResource (we dont want it)
+         Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl()
+         .getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
+
+         try {
+         AttributeDefinition groupNameAttribute = sess.getPerunBl().getAttributesManagerBl()
+         .getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" +
+         unixGroupNameNamespaceAttribute.getValue());
+         sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, group, groupNameAttribute);
+         } catch (AttributeNotExistsException ex) {
+         throw new InternalErrorException(ex);
+         } catch (WrongAttributeAssignmentException ex) {
+         throw new InternalErrorException(ex);
+         }*/
+  }
+
+  @Override
+  public boolean setAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    Attribute unixGroupNameNamespaceAttribute =
+        sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
+
+    try {
+      Attribute groupNameAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" +
+                                        unixGroupNameNamespaceAttribute.getValue()));
+      groupNameAttribute.setValue(attribute.getValue());
+      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, group, groupNameAttribute);
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    } catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
   }
 
 }

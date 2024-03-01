@@ -3,7 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 /**
- * Attribute which is reference for used attribute has illegal value. Because of it, we can't determinate if used attribute have correct value.
+ * Attribute which is reference for used attribute has illegal value. Because of it, we can't determinate if used
+ * attribute have correct value.
  *
  * @author Slavek Licehammer
  * @author Michal Prochazka
@@ -71,7 +72,7 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
    */
   public WrongReferenceAttributeValueException(AttributeDefinition attribute, AttributeDefinition referenceAttribute) {
     super((attribute == null ? "Attribute: null" : attribute) + " reference attribute " +
-        (referenceAttribute == null ? "null" : referenceAttribute));
+          (referenceAttribute == null ? "null" : referenceAttribute));
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }
@@ -86,7 +87,7 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
   public WrongReferenceAttributeValueException(AttributeDefinition attribute, AttributeDefinition referenceAttribute,
                                                Throwable cause) {
     super((attribute == null ? "Attribute: null" : attribute) + " reference attribute " +
-        (referenceAttribute == null ? "null" : referenceAttribute) + " cause: " + cause.getMessage(), cause);
+          (referenceAttribute == null ? "null" : referenceAttribute) + " cause: " + cause.getMessage(), cause);
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }
@@ -124,7 +125,8 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
   }
 
   /**
-   * Constructor with the attribute, the reference attribute, primary attributHolder, secondary attributeHolder and a message
+   * Constructor with the attribute, the reference attribute, primary attributHolder, secondary attributeHolder and a
+   * message
    *
    * @param attribute                attribute whose referenceAttribute has illegal value
    * @param referenceAttribute       the attribute whose value is illegal
@@ -136,16 +138,17 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
                                                Object attributeHolderPrimary, Object attributeHolderSecondary,
                                                String message) {
     super((attribute == null ? "Attribute: null" : attribute) + " reference attribute: " +
-        (referenceAttribute == null ? "null" : referenceAttribute) + " " +
-        (attributeHolderPrimary == null ? "AttributeHolderPrimary: null" : attributeHolderPrimary) + " " +
-        (attributeHolderSecondary == null ? "" : attributeHolderSecondary) + " " + message);
+          (referenceAttribute == null ? "null" : referenceAttribute) + " " +
+          (attributeHolderPrimary == null ? "AttributeHolderPrimary: null" : attributeHolderPrimary) + " " +
+          (attributeHolderSecondary == null ? "" : attributeHolderSecondary) + " " + message);
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }
 
   /**
    * Constructor with the attribute, the reference attribute, primary attributeHolder, secondary attributeHolder,
-   * primary attributeHolder of the referenceAttribute, secondary attributeHolder of the referenceAttribute and a message
+   * primary attributeHolder of the referenceAttribute, secondary attributeHolder of the referenceAttribute and a
+   * message
    *
    * @param attribute                   attribute whose referenceAttribute has illegal value
    * @param referenceAttribute          the attribute whose value is illegal
@@ -159,22 +162,22 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
                                                Object attributeHolderPrimary, Object attributeHolderSecondary,
                                                Object refAttributeHolderPrimary, Object refAttributeHolderSecondary,
                                                String message) {
-    super("Attribute: " + (attribute == null ? "null" : attribute) +
-        ", reference attribute: " + (referenceAttribute == null ? "null" : referenceAttribute) +
-        ", attributePrimary holder: " + (attributeHolderPrimary == null ? "null" : attributeHolderPrimary) +
-        ", attributeSecondary holder: " + (attributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
-        ", referenceAttributePrimary holder: " +
-        (refAttributeHolderPrimary == null ? "null" : attributeHolderSecondary) +
-        ", referenceAttributeSecondary holder: " +
-        (refAttributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
-        ", " + message);
+    super("Attribute: " + (attribute == null ? "null" : attribute) + ", reference attribute: " +
+          (referenceAttribute == null ? "null" : referenceAttribute) + ", attributePrimary holder: " +
+          (attributeHolderPrimary == null ? "null" : attributeHolderPrimary) + ", attributeSecondary holder: " +
+          (attributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
+          ", referenceAttributePrimary holder: " +
+          (refAttributeHolderPrimary == null ? "null" : attributeHolderSecondary) +
+          ", referenceAttributeSecondary holder: " +
+          (refAttributeHolderSecondary == null ? "null" : attributeHolderSecondary) + ", " + message);
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }
 
   /**
    * Constructor with the attribute, the reference attribute, primary attributeHolder, secondary attributeHolder,
-   * primary attributeHolder of the referenceAttribute, secondary attributeHolder of the referenceAttribute, a message and the Throwable object
+   * primary attributeHolder of the referenceAttribute, secondary attributeHolder of the referenceAttribute, a message
+   * and the Throwable object
    *
    * @param attribute                   attribute whose referenceAttribute has illegal value
    * @param referenceAttribute          the attribute whose value is illegal
@@ -189,15 +192,14 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
                                                Object attributeHolderPrimary, Object attributeHolderSecondary,
                                                Object refAttributeHolderPrimary, Object refAttributeHolderSecondary,
                                                String message, Throwable cause) {
-    super("Attribute: " + (attribute == null ? "null" : attribute) +
-        ", reference attribute: " + (referenceAttribute == null ? "null" : referenceAttribute) +
-        ", attributePrimary holder: " + (attributeHolderPrimary == null ? "null" : attributeHolderPrimary) +
-        ", attributeSecondary holder: " + (attributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
-        ", referenceAttributePrimary holder: " +
-        (refAttributeHolderPrimary == null ? "null" : attributeHolderSecondary) +
-        ", referenceAttributeSecondary holder: " +
-        (refAttributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
-        ", " + message, cause);
+    super("Attribute: " + (attribute == null ? "null" : attribute) + ", reference attribute: " +
+          (referenceAttribute == null ? "null" : referenceAttribute) + ", attributePrimary holder: " +
+          (attributeHolderPrimary == null ? "null" : attributeHolderPrimary) + ", attributeSecondary holder: " +
+          (attributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
+          ", referenceAttributePrimary holder: " +
+          (refAttributeHolderPrimary == null ? "null" : attributeHolderSecondary) +
+          ", referenceAttributeSecondary holder: " +
+          (refAttributeHolderSecondary == null ? "null" : attributeHolderSecondary) + ", " + message, cause);
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }

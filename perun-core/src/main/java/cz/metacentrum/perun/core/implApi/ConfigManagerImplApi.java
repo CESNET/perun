@@ -15,6 +15,21 @@ import cz.metacentrum.perun.core.impl.PerunOidcConfigLoader;
 public interface ConfigManagerImplApi {
 
   /**
+   * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
+   *
+   * @param name name of desired configuration
+   * @return oidcConfig
+   * @throws OidcConfigNotExistsException     when configuration under such name doesn't exist
+   * @throws OidcConfigFileNotExistsException when configuration file for oidc configs doesn't exist.
+   */
+  OidcConfig getPerunOidcConfig(String name) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException;
+
+  /**
+   * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
+   */
+  void reloadAppsConfig();
+
+  /**
    * Sets the PerunAppsConfigLoader
    *
    * @param perunAppsConfigLoader loader to set
@@ -27,19 +42,4 @@ public interface ConfigManagerImplApi {
    * @param perunOidcConfigLoader loader to set
    */
   void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader);
-
-  /**
-   * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
-   */
-  void reloadAppsConfig();
-
-  /**
-   * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
-   *
-   * @param name name of desired configuration
-   * @return oidcConfig
-   * @throws OidcConfigNotExistsException     when configuration under such name doesn't exist
-   * @throws OidcConfigFileNotExistsException when configuration file for oidc configs doesn't exist.
-   */
-  OidcConfig getPerunOidcConfig(String name) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException;
 }

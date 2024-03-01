@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "manage-groups";
+  public static final String URL = "manage-groups";
   /**
    * Perun web session
    */

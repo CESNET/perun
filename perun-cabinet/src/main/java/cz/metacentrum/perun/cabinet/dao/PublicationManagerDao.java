@@ -1,12 +1,11 @@
 package cz.metacentrum.perun.cabinet.dao;
 
-import java.util.List;
-
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.util.List;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,18 +29,6 @@ public interface PublicationManagerDao {
   Publication createPublication(PerunSession sess, Publication publication);
 
   /**
-   * Update existing publication by its ID.
-   *
-   * @param sess        Session with authorization
-   * @param publication Publication to update
-   * @return Updated publication by its ID
-   * @throws CabinetException       When publication already exists
-   * @throws InternalErrorException When implementation fails
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-  public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException;
-
-  /**
    * Delete publication by its ID.
    *
    * @param publication Publication to delete
@@ -50,16 +37,6 @@ public interface PublicationManagerDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
   public void deletePublication(Publication publication) throws CabinetException;
-
-  /**
-   * Return Publication by its ID.
-   *
-   * @param id ID of Publication
-   * @return Publication by its ID
-   * @throws CabinetException       When such Publication doesn't exists
-   * @throws InternalErrorException When implementation fails
-   */
-  public Publication getPublicationById(int id) throws CabinetException;
 
   /**
    * Return Publication by its External ID and PublicationSystem ID.
@@ -73,6 +50,16 @@ public interface PublicationManagerDao {
   public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException;
 
   /**
+   * Return Publication by its ID.
+   *
+   * @param id ID of Publication
+   * @return Publication by its ID
+   * @throws CabinetException       When such Publication doesn't exists
+   * @throws InternalErrorException When implementation fails
+   */
+  public Publication getPublicationById(int id) throws CabinetException;
+
+  /**
    * Return Publications by their Category ID or empty list.
    *
    * @param categoryId ID of Publications category
@@ -82,14 +69,14 @@ public interface PublicationManagerDao {
   public List<Publication> getPublicationsByCategoryId(int categoryId);
 
   /**
-   * Return PublicationForGUI by its ID.
+   * Return Publications for specified author and optionally years range.
    *
-   * @param id ID of PublicationForGUI
-   * @return PublicationForGUI by its ID
-   * @throws CabinetException       When such Publication doesn't exists
-   * @throws InternalErrorException When implementation fails
+   * @param userId    ID of Author/User to search publications for
+   * @param yearSince year range
+   * @param yearTill  year range
+   * @return publications
    */
-  public PublicationForGUI getRichPublicationById(int id) throws CabinetException;
+  List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill);
 
   /**
    * Return Publication by its External ID and PublicationSystem ID.
@@ -104,16 +91,20 @@ public interface PublicationManagerDao {
       throws CabinetException;
 
   /**
-   * Return PublicationForGUI with every property set directly from DB.
-   * Apply GUI filter when searching.
+   * Return PublicationForGUI by its ID.
+   *
+   * @param id ID of PublicationForGUI
+   * @return PublicationForGUI by its ID
+   * @throws CabinetException       When such Publication doesn't exists
+   * @throws InternalErrorException When implementation fails
+   */
+  public PublicationForGUI getRichPublicationById(int id) throws CabinetException;
+
+  /**
+   * Return PublicationForGUI with every property set directly from DB. Apply GUI filter when searching.
    * <p>
-   * id = exact match (used when search for publication of authors)
-   * title = if "like" this substring
-   * year = exact match
-   * isbn = if "like" this substring
-   * category = exact match
-   * userId = exact match if not 0
-   * yearTill = if year <= yearTill
+   * id = exact match (used when search for publication of authors) title = if "like" this substring year = exact match
+   * isbn = if "like" this substring category = exact match userId = exact match if not 0 yearTill = if year <= yearTill
    * yearSince = if year >= yearSince
    *
    * @param p         Publication to search for by properties (null if not used)
@@ -125,16 +116,6 @@ public interface PublicationManagerDao {
   List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill);
 
   /**
-   * Return Publications for specified author and optionally years range.
-   *
-   * @param userId    ID of Author/User to search publications for
-   * @param yearSince year range
-   * @param yearTill  year range
-   * @return publications
-   */
-  List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill);
-
-  /**
    * (Un)Lock passed Publications for changes.
    *
    * @param lockState    TRUE (lock) / FALSE (unlock)
@@ -142,5 +123,17 @@ public interface PublicationManagerDao {
    * @throws InternalErrorException When implementation fails
    */
   void lockPublications(boolean lockState, List<Publication> publications);
+
+  /**
+   * Update existing publication by its ID.
+   *
+   * @param sess        Session with authorization
+   * @param publication Publication to update
+   * @return Updated publication by its ID
+   * @throws CabinetException       When publication already exists
+   * @throws InternalErrorException When implementation fails
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
+  public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException;
 
 }

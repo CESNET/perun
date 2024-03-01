@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This module ensures, that all new VO members which goes through registrations
- * are also added to common VO "e-INFRA CZ".
+ * This module ensures, that all new VO members which goes through registrations are also added to common VO "e-INFRA
+ * CZ".
  * <p>
  * Users marked with colliding accounts are prohibited from the registration!
  *
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IT4Innovations extends DefaultRegistrarModule {
 
-  private final static Logger log = LoggerFactory.getLogger(IT4Innovations.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IT4Innovations.class);
 
   /**
    * Add approved VO members into e-INFRA CZ VO.
@@ -50,15 +50,15 @@ public class IT4Innovations extends DefaultRegistrarModule {
       try {
         Vo einfraVo = perun.getVosManagerBl().getVoByShortName(session, "e-infra.cz");
         Member einfraMember = perun.getMembersManagerBl().createMember(session, einfraVo, user);
-        log.debug("{} member added to \"e-INFRA CZ\": {}", vo.getName(), einfraMember);
+        LOG.debug("{} member added to \"e-INFRA CZ\": {}", vo.getName(), einfraMember);
         perun.getMembersManagerBl().validateMemberAsync(session, einfraMember);
       } catch (VoNotExistsException e) {
-        log.warn("e-INFRA CZ VO doesn't exists, {} member can't be added into it.", vo.getName());
+        LOG.warn("e-INFRA CZ VO doesn't exists, {} member can't be added into it.", vo.getName());
       } catch (AlreadyMemberException ignore) {
         // user is already in e-INFRA CZ
       } catch (ExtendMembershipException e) {
         // can't be member of e-INFRA CZ, shouldn't happen
-        log.error("{} member can't be added to \"e-INFRA CZ\": {}", vo.getName(), e);
+        LOG.error("{} member can't be added to \"e-INFRA CZ\": {}", vo.getName(), e);
       }
     }
 
@@ -70,7 +70,8 @@ public class IT4Innovations extends DefaultRegistrarModule {
   public void canBeApproved(PerunSession session, Application app) throws PerunException {
     if (isBlockedUser(session)) {
       throw new CantBeApprovedException(
-          "Users account from application is in collision with existing account in IT4Innovations. It must be resolved manually.");
+          "Users account from application is in collision with existing account in IT4Innovations. It must be " +
+          "resolved manually.");
     }
   }
 
@@ -79,7 +80,8 @@ public class IT4Innovations extends DefaultRegistrarModule {
       throws PerunException {
     if (isBlockedUser(session)) {
       throw new CantBeSubmittedException(
-          "Your existing user account is in collision with existing account in IT4Innovations. In order to register please contact support at support@it4i.cz");
+          "Your existing user account is in collision with existing account in IT4Innovations. In order to register " +
+          "please contact support at support@it4i.cz");
     }
   }
 

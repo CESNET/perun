@@ -36,9 +36,6 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -47,12 +44,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * All affiliations collected from:
- * - UserExtSources attributes
- * - urn:perun:user:attribute-def:def:eduPersonScopedAffiliationsManuallyAssigned
- * - urn:perun:group:attribute-def:def:groupAffiliations
+ * All affiliations collected from: - UserExtSources attributes -
+ * urn:perun:user:attribute-def:def:eduPersonScopedAffiliationsManuallyAssigned -
+ * urn:perun:group:attribute-def:def:groupAffiliations
  *
  * @author Martin Kuba makub@ics.muni.cz
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
@@ -71,117 +69,10 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
       Pattern.DOTALL);
   private final Pattern userEPSAMARemovePattern = Pattern.compile(
       "AttributeDefinition:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() +
-          ">(.*)] removed for User:\\[(.*)]", Pattern.DOTALL);
+      ">(.*)] removed for User:\\[(.*)]", Pattern.DOTALL);
 
   // format has to match the format in Perun-wui setAffiliation miniapp (method createAssignedAffiliationsAttribute)
-  private final String VALIDITY_DATE_FORMAT = "yyyy-MM-dd";
-
-  @Override
-  public String getSourceAttributeFriendlyName() {
-    return "affiliation";
-  }
-
-  /**
-   * Get friendly name of secondary source attribute
-   *
-   * @return friendly name of secondary source attribute
-   */
-  public String getSecondarySourceAttributeFriendlyName() {
-    return "eduPersonScopedAffiliationsManuallyAssigned";
-  }
-
-  /**
-   * Get name of secondary source attribute
-   *
-   * @return name of secondary source attribute
-   */
-  public String getSecondarySourceAttributeName() {
-    return AttributesManager.NS_USER_ATTR_DEF + ":" + getSecondarySourceAttributeFriendlyName();
-  }
-
-  /**
-   * Get friendly name of tertiary source attribute
-   *
-   * @return friendly name of tertiary source attribute
-   */
-  public String getTertiarySourceAttributeFriendlyName() {
-    return "groupAffiliations";
-  }
-
-  /**
-   * Get name of tertiary source attribute
-   *
-   * @return name of secondary source attribute
-   */
-  public String getTertiarySourceAttributeName() {
-    return AttributesManager.NS_GROUP_ATTR_DEF + ":" + getTertiarySourceAttributeFriendlyName();
-  }
-
-  @Override
-  public String getDestinationAttributeFriendlyName() {
-    return "eduPersonScopedAffiliations";
-  }
-
-  @Override
-  public Attribute getAttributeValue(PerunSessionImpl sess, User user,
-                                     AttributeDefinition destinationAttributeDefinition) {
-    //get already filled value obtained from UserExtSources
-    Attribute attribute = super.getAttributeValue(sess, user, destinationAttributeDefinition);
-
-    Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
-    //get values previously obtained and add them to Set representing final value
-    //for values use set because of avoiding duplicities
-    Set<String> valuesWithoutDuplicities = new HashSet<>(attribute.valueAsList());
-
-    valuesWithoutDuplicities.addAll(getAffiliationsManuallyAssigned(sess, user));
-    valuesWithoutDuplicities.addAll(getAffiliationsFromGroups(sess, user));
-
-    //convert set to list (values in list will be without duplicities)
-    destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicities));
-    return destinationAttribute;
-  }
-
-  /**
-   * Collect manually assigned affiliations
-   *
-   * @param sess Perun session
-   * @param user User for whom the values should be collected
-   * @return Set of collected affiliations
-   * @throws InternalErrorException When some error occurs, see exception cause for details.
-   */
-  private Set<String> getAffiliationsManuallyAssigned(PerunSessionImpl sess, User user) {
-    Set<String> result = new HashSet<>();
-
-    Attribute manualEPSAAttr = null;
-    try {
-      manualEPSAAttr = sess.getPerunBl().getAttributesManagerBl()
-          .getAttribute(sess, user, getSecondarySourceAttributeName());
-    } catch (WrongAttributeAssignmentException e) {
-      throw new InternalErrorException(
-          "Wrong assignment of " + getSecondarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
-    } catch (AttributeNotExistsException e) {
-      log.debug("Attribute " + getSecondarySourceAttributeFriendlyName() + " of user " + user.getId() +
-          " does not exist, values will be skipped", e);
-    }
-
-    if (manualEPSAAttr != null) {
-      Map<String, String> value = manualEPSAAttr.valueAsMap();
-      if (value != null) {
-
-        LocalDate now = LocalDate.now();
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(VALIDITY_DATE_FORMAT);
-        for (Map.Entry<String, String> entry : value.entrySet()) {
-          LocalDate expiration = LocalDate.parse(entry.getValue(), dateFormat);
-
-          if (!now.isAfter(expiration)) {
-            result.add(entry.getKey());
-          }
-        }
-      }
-    }
-
-    return result;
-  }
+  private static final String VALIDITY_DATE_FORMAT = "yyyy-MM-dd";
 
   /**
    * Collect affiliations from perun Groups
@@ -216,8 +107,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
 
     for (Group group : groupsForAttrCheck) {
       try {
-        Attribute groupAffiliations = sess.getPerunBl().getAttributesManagerBl()
-            .getAttribute(sess, group, getTertiarySourceAttributeName());
+        Attribute groupAffiliations =
+            sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, getTertiarySourceAttributeName());
         if (groupAffiliations != null && groupAffiliations.valueAsList() != null) {
           result.addAll(groupAffiliations.valueAsList());
         }
@@ -226,11 +117,77 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
             "Wrong assignment of " + getTertiarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
       } catch (AttributeNotExistsException e) {
         log.debug("Attribute " + getTertiarySourceAttributeFriendlyName() + " of group " + group.getId() +
-            " does not exist, values will be skipped", e);
+                  " does not exist, values will be skipped", e);
       }
     }
 
     return result;
+  }
+
+  /**
+   * Collect manually assigned affiliations
+   *
+   * @param sess Perun session
+   * @param user User for whom the values should be collected
+   * @return Set of collected affiliations
+   * @throws InternalErrorException When some error occurs, see exception cause for details.
+   */
+  private Set<String> getAffiliationsManuallyAssigned(PerunSessionImpl sess, User user) {
+    Set<String> result = new HashSet<>();
+
+    Attribute manualEPSAAttr = null;
+    try {
+      manualEPSAAttr =
+          sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, getSecondarySourceAttributeName());
+    } catch (WrongAttributeAssignmentException e) {
+      throw new InternalErrorException(
+          "Wrong assignment of " + getSecondarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
+    } catch (AttributeNotExistsException e) {
+      log.debug("Attribute " + getSecondarySourceAttributeFriendlyName() + " of user " + user.getId() +
+                " does not exist, values will be skipped", e);
+    }
+
+    if (manualEPSAAttr != null) {
+      Map<String, String> value = manualEPSAAttr.valueAsMap();
+      if (value != null) {
+
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(VALIDITY_DATE_FORMAT);
+        for (Map.Entry<String, String> entry : value.entrySet()) {
+          LocalDate expiration = LocalDate.parse(entry.getValue(), dateFormat);
+
+          if (!now.isAfter(expiration)) {
+            result.add(entry.getKey());
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user,
+                                     AttributeDefinition destinationAttributeDefinition) {
+    //get already filled value obtained from UserExtSources
+    Attribute attribute = super.getAttributeValue(sess, user, destinationAttributeDefinition);
+
+    Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
+    //get values previously obtained and add them to Set representing final value
+    //for values use set because of avoiding duplicities
+    Set<String> valuesWithoutDuplicities = new HashSet<>(attribute.valueAsList());
+
+    valuesWithoutDuplicities.addAll(getAffiliationsManuallyAssigned(sess, user));
+    valuesWithoutDuplicities.addAll(getAffiliationsFromGroups(sess, user));
+
+    //convert set to list (values in list will be without duplicities)
+    destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicities));
+    return destinationAttribute;
+  }
+
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "eduPersonScopedAffiliations";
   }
 
   @Override
@@ -271,6 +228,47 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
     return handleIdentifiers;
   }
 
+  /**
+   * Get friendly name of secondary source attribute
+   *
+   * @return friendly name of secondary source attribute
+   */
+  public String getSecondarySourceAttributeFriendlyName() {
+    return "eduPersonScopedAffiliationsManuallyAssigned";
+  }
+
+  /**
+   * Get name of secondary source attribute
+   *
+   * @return name of secondary source attribute
+   */
+  public String getSecondarySourceAttributeName() {
+    return AttributesManager.NS_USER_ATTR_DEF + ":" + getSecondarySourceAttributeFriendlyName();
+  }
+
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "affiliation";
+  }
+
+  /**
+   * Get friendly name of tertiary source attribute
+   *
+   * @return friendly name of tertiary source attribute
+   */
+  public String getTertiarySourceAttributeFriendlyName() {
+    return "groupAffiliations";
+  }
+
+  /**
+   * Get name of tertiary source attribute
+   *
+   * @return name of secondary source attribute
+   */
+  public String getTertiarySourceAttributeName() {
+    return AttributesManager.NS_GROUP_ATTR_DEF + ":" + getTertiarySourceAttributeFriendlyName();
+  }
+
   @Override
   public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message)
       throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
@@ -280,9 +278,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
 
     // handle source user attribute changes
 
-    if (message instanceof AttributeSetForUser &&
-        ((AttributeSetForUser) message).getAttribute().getFriendlyName()
-            .equals(getSecondarySourceAttributeFriendlyName())) {
+    if (message instanceof AttributeSetForUser && ((AttributeSetForUser) message).getAttribute().getFriendlyName()
+        .equals(getSecondarySourceAttributeFriendlyName())) {
 
       AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
           .getAttributeDefinition(perunSession, getDestinationAttributeName());
@@ -290,8 +287,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
           new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeSetForUser) message).getUser()));
 
     } else if (message instanceof AttributeRemovedForUser &&
-        ((AttributeRemovedForUser) message).getAttribute().getFriendlyName()
-            .equals(getSecondarySourceAttributeFriendlyName())) {
+               ((AttributeRemovedForUser) message).getAttribute().getFriendlyName()
+                   .equals(getSecondarySourceAttributeFriendlyName())) {
 
       AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
           .getAttributeDefinition(perunSession, getDestinationAttributeName());
@@ -337,8 +334,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
       }
 
     } else if (message instanceof AttributeRemovedForGroup &&
-        !VosManager.MEMBERS_GROUP.equals(((AttributeRemovedForGroup) message).getGroup().getName()) &&
-        ((AttributeRemovedForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
+               !VosManager.MEMBERS_GROUP.equals(((AttributeRemovedForGroup) message).getGroup().getName()) &&
+               ((AttributeRemovedForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
 
       AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
           .getAttributeDefinition(perunSession, getDestinationAttributeName());
@@ -350,7 +347,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
       }
 
     } else if (message instanceof AllAttributesRemovedForGroup &&
-        !VosManager.MEMBERS_GROUP.equals(((AllAttributesRemovedForGroup) message).getGroup().getName())) {
+               !VosManager.MEMBERS_GROUP.equals(((AllAttributesRemovedForGroup) message).getGroup().getName())) {
 
       boolean skip = false;
       try {
@@ -377,7 +374,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
 
     }
 
-    // case AllAttributesRemovedForGroup doesn't matter, everything was processed by removing members before group deletion
+    // case AllAttributesRemovedForGroup doesn't matter, everything was processed by removing members before group
+    // deletion
 
     return resolvingMessages;
 

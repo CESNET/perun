@@ -3,8 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Member;
 
 /**
- * This exception is thrown when the member doesn't exist or isn't a member of the specific VO
- * or wasn't found using userExtSource
+ * This exception is thrown when the member doesn't exist or isn't a member of the specific VO or wasn't found using
+ * userExtSource
  *
  * @author Martin Kuba
  */

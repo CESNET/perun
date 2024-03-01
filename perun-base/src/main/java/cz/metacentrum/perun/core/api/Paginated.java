@@ -21,6 +21,29 @@ public class Paginated<T> {
     this.totalCount = totalCount;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Paginated)) {
+      return false;
+    }
+
+    Paginated<?> paginated = (Paginated<?>) o;
+
+    if (getOffset() != paginated.getOffset()) {
+      return false;
+    }
+    if (getPageSize() != paginated.getPageSize()) {
+      return false;
+    }
+    if (getTotalCount() != paginated.getTotalCount()) {
+      return false;
+    }
+    return getData() != null ? getData().equals(paginated.getData()) : paginated.getData() == null;
+  }
+
   public List<T> getData() {
     return data;
   }
@@ -51,29 +74,6 @@ public class Paginated<T> {
 
   public void setTotalCount(int totalCount) {
     this.totalCount = totalCount;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Paginated)) {
-      return false;
-    }
-
-    Paginated<?> paginated = (Paginated<?>) o;
-
-    if (getOffset() != paginated.getOffset()) {
-      return false;
-    }
-    if (getPageSize() != paginated.getPageSize()) {
-      return false;
-    }
-    if (getTotalCount() != paginated.getTotalCount()) {
-      return false;
-    }
-    return getData() != null ? getData().equals(paginated.getData()) : paginated.getData() == null;
   }
 
   @Override

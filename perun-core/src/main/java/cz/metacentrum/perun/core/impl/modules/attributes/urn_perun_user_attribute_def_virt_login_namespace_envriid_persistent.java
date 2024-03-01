@@ -12,18 +12,29 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Class for access def:login-namespace:envriid-persistent-shadow attribute. It generates value if you call it for the first time.
+ * Class for access def:login-namespace:envriid-persistent-shadow attribute. It generates value if you call it for the
+ * first time.
  */
 @SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_login_namespace_envriid_persistent
     extends UserVirtualAttributesModuleAbstract {
 
   public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:envriid-persistent-shadow";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:envriid-persistent");
+    attr.setDisplayName("ENVRI ID login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login to ENVRI ID. It is set automatically with first call.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
@@ -55,16 +66,5 @@ public class urn_perun_user_attribute_def_virt_login_namespace_envriid_persisten
   @Override
   public List<String> getStrongDependencies() {
     return Collections.singletonList(SHADOW);
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("login-namespace:envriid-persistent");
-    attr.setDisplayName("ENVRI ID login");
-    attr.setType(String.class.getName());
-    attr.setDescription("Login to ENVRI ID. It is set automatically with first call.");
-    return attr;
   }
 }

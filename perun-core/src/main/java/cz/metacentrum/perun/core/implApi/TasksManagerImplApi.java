@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
-
 import java.util.List;
 
 /**
@@ -100,6 +99,15 @@ public interface TasksManagerImplApi {
   List<TaskResult> getTaskResults();
 
   /**
+   * Returns list of tasks results for defined destinations (string representation).
+   *
+   * @param destinationsNames
+   * @return list of tasks results
+   * @throws InternalErrorException
+   */
+  List<TaskResult> getTaskResultsByDestinations(List<String> destinationsNames);
+
+  /**
    * List TaskResults tied to a certain task
    *
    * @param taskId
@@ -122,15 +130,6 @@ public interface TasksManagerImplApi {
    * @return
    */
   List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId);
-
-  /**
-   * Returns list of tasks results for defined destinations (string representation).
-   *
-   * @param destinationsNames
-   * @return list of tasks results
-   * @throws InternalErrorException
-   */
-  List<TaskResult> getTaskResultsByDestinations(List<String> destinationsNames);
 
   /**
    * Store task result into DB.

@@ -59,11 +59,11 @@ public class GroupGroupMismatchException extends PerunException {
     this.destinationGroup = destinationGroup;
   }
 
-  public Group getSourceGroup() {
-    return sourceGroup;
-  }
-
   public Group getDestinationGroup() {
     return destinationGroup;
+  }
+
+  public Group getSourceGroup() {
+    return sourceGroup;
   }
 }

@@ -9,16 +9,14 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.text.ParseException;
 import java.util.Date;
 
 /**
  * Last synchronization timestamp
  * <p>
- * If group is synchronized, there will be the last timestamp of group synchronization.
- * Timestamp will be saved even if synchronization failed.
- * Timestamp will be empty only if group has never been synchronized.
+ * If group is synchronized, there will be the last timestamp of group synchronization. Timestamp will be saved even if
+ * synchronization failed. Timestamp will be empty only if group has never been synchronized.
  *
  * @author Michal Stava  stavamichal@gmail.com
  */

@@ -50,8 +50,8 @@ public enum DatabaseManagerMethod implements ManagerMethod {
   },
 
   /**
-   * Get time in ns "nanoseconds" of calling 1 simple update query to DB.
-   * This query will update property for this purpose in configurations table.
+   * Get time in ns "nanoseconds" of calling 1 simple update query to DB. This query will update property for this
+   * purpose in configurations table.
    *
    * @exampleResponse "196920"
    * @return time of processing query in nanoseconds

@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +17,7 @@ import java.util.List;
 public class urn_perun_user_attribute_def_def_cscaleUserCategory extends UserAttributesModuleAbstract
     implements UserAttributesModuleImplApi {
 
-  private final static List<String> allowedValues =
+  private static final List<String> allowedValues =
       Arrays.asList("commercial", "education", "government", "research", "other");
 
   /**

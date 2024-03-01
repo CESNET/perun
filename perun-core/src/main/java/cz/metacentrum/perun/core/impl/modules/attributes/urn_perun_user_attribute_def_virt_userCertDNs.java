@@ -32,7 +32,18 @@ import java.util.Map;
 public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAttributesModuleAbstract
     implements UserVirtualAttributesModuleImplApi {
 
-  private final static String A_U_V_USER_CERT_DNS = AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs";
+  private static final String A_U_V_USER_CERT_DNS = AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("userCertDNs");
+    attr.setDisplayName("DN of certificates");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription("Hash map for all users certificates DN included userExtsources type of X509.");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
@@ -45,11 +56,11 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 
     //Prepare also prefix number
     int i = 1;
-    for (UserExtSource uES : userExtSources) {
-      if (uES.getExtSource() != null) {
-        String login = uES.getLogin();
-        String type = uES.getExtSource().getType();
-        String name = uES.getExtSource().getName();
+    for (UserExtSource ues : userExtSources) {
+      if (ues.getExtSource() != null) {
+        String login = ues.getLogin();
+        String type = ues.getExtSource().getType();
+        String name = ues.getExtSource().getName();
 
         if (type != null && login != null && name != null && type.equals(ExtSourcesManager.EXTSOURCE_X509)) {
           userCertDNs.put(i + ":" + login, name);
@@ -60,6 +71,12 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 
     attribute.setValue(userCertDNs);
     return attribute;
+  }
+
+  private AuditEvent resolveEvent(PerunSessionImpl perunSession, User user) throws AttributeNotExistsException {
+    AttributeDefinition attrVirtUserCertDNsDefinition =
+        perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, A_U_V_USER_CERT_DNS);
+    return new AttributeChangedForUser(new Attribute(attrVirtUserCertDNsDefinition), user);
   }
 
   @Override
@@ -79,22 +96,5 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
     }
 
     return resolvingMessages;
-  }
-
-  private AuditEvent resolveEvent(PerunSessionImpl perunSession, User user) throws AttributeNotExistsException {
-    AttributeDefinition attrVirtUserCertDNsDefinition =
-        perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, A_U_V_USER_CERT_DNS);
-    return new AttributeChangedForUser(new Attribute(attrVirtUserCertDNsDefinition), user);
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-    attr.setFriendlyName("userCertDNs");
-    attr.setDisplayName("DN of certificates");
-    attr.setType(LinkedHashMap.class.getName());
-    attr.setDescription("Hash map for all users certificates DN included userExtsources type of X509.");
-    return attr;
   }
 }

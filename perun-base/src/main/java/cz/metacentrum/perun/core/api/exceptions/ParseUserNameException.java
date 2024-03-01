@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when there is missing important part after parsing user name.
- * Mandatory parts of user name in perun is "first name" and "last name".
+ * This exception is thrown when there is missing important part after parsing user name. Mandatory parts of user name
+ * in perun is "first name" and "last name".
  *
  * @author Michal Stava stavamichal@gmail.com
  */

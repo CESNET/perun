@@ -43,37 +43,34 @@ import org.slf4j.LoggerFactory;
 /**
  * Module for VO Metacentrum
  * <p>
- * Set different membership expiration to users, which are not eligible for CESNET services.
- * Prevent them from extending the membership. Warn VO manager about it before application approval.
+ * Set different membership expiration to users, which are not eligible for CESNET services. Prevent them from extending
+ * the membership. Warn VO manager about it before application approval.
  * <p>
- * On approval of initial application add all members to "storage" group.
- * On approval of any application sort them in statistic groups.
- * On approval of initial application add all new members into einfra VO.
- * On approval of any application add all members into e-infra.cz VO.
+ * On approval of initial application add all members to "storage" group. On approval of any application sort them in
+ * statistic groups. On approval of initial application add all new members into einfra VO. On approval of any
+ * application add all members into e-infra.cz VO.
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
 public class Metacentrum extends DefaultRegistrarModule {
 
-  protected final static String A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN =
+  protected static final String A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN =
       AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen";
-  protected final static String METACENTRUM_IDP = "https://login.ics.muni.cz/idp/shibboleth";
-  protected final static String EINFRA_IDP = "https://idp.e-infra.cz/idp/";
-  private final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
-  private final static String A_USER_RESEARCH_GROUP_STATISTICS =
+  protected static final String METACENTRUM_IDP = "https://login.ics.muni.cz/idp/shibboleth";
+  protected static final String EINFRA_IDP = "https://idp.e-infra.cz/idp/";
+  private static final Logger LOG = LoggerFactory.getLogger(Metacentrum.class);
+  private static final String A_USER_RESEARCH_GROUP_STATISTICS =
       AttributesManager.NS_USER_ATTR_DEF + ":researchGroupStatistic";
-  private final static String A_GROUP_STATISTIC_GROUP = AttributesManager.NS_GROUP_ATTR_DEF + ":statisticGroup";
-  private final static String A_GROUP_STATISTIC_GROUP_AUTOFILL =
+  private static final String A_GROUP_STATISTIC_GROUP = AttributesManager.NS_GROUP_ATTR_DEF + ":statisticGroup";
+  private static final String A_GROUP_STATISTIC_GROUP_AUTOFILL =
       AttributesManager.NS_GROUP_ATTR_DEF + ":statisticGroupAutoFill";
-  private final static String A_MEMBER_MEMBERSHIP_EXPIRATION =
+  private static final String A_MEMBER_MEMBERSHIP_EXPIRATION =
       AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
 
   /**
-   * Add all new Metacentrum members to "storage" group.
-   * Sort them in the statistics groups.
-   * Set shorter expiration to users, which are not eligible for CESNET services.
-   * On approval of initial application add all new members into einfra VO.
-   * On approval of any application add all members into e-infra.cz VO.
+   * Add all new Metacentrum members to "storage" group. Sort them in the statistics groups. Set shorter expiration to
+   * users, which are not eligible for CESNET services. On approval of initial application add all new members into
+   * einfra VO. On approval of any application add all members into e-infra.cz VO.
    */
   @Override
   public Application approveApplication(PerunSession session, Application app)
@@ -129,14 +126,14 @@ public class Metacentrum extends DefaultRegistrarModule {
       try {
         Vo einfraVo = perun.getVosManagerBl().getVoByShortName(session, "einfra");
         Member einfraMember = perun.getMembersManagerBl().createMember(session, einfraVo, user);
-        log.debug("Metacentrum member added to einfra {}", einfraMember);
+        LOG.debug("Metacentrum member added to einfra {}", einfraMember);
       } catch (VoNotExistsException e) {
-        log.warn("Einfra VO not exists, can't add Metacentrum member into it.");
+        LOG.warn("Einfra VO not exists, can't add Metacentrum member into it.");
       } catch (AlreadyMemberException ignore) {
         // user is already in einfra
       } catch (ExtendMembershipException e) {
         // can't be member of einfra, shouldn't happen
-        log.error("Metacentrum member can't be added to EINFRA VO.", e);
+        LOG.error("Metacentrum member can't be added to EINFRA VO.", e);
       }
 
     }
@@ -145,15 +142,15 @@ public class Metacentrum extends DefaultRegistrarModule {
     try {
       Vo einfraVo = perun.getVosManagerBl().getVoByShortName(session, "e-infra.cz");
       Member einfraMember = perun.getMembersManagerBl().createMember(session, einfraVo, user);
-      log.debug("{} member added to \"e-INFRA CZ\": {}", vo.getName(), einfraMember);
+      LOG.debug("{} member added to \"e-INFRA CZ\": {}", vo.getName(), einfraMember);
       perun.getMembersManagerBl().validateMemberAsync(session, einfraMember);
     } catch (VoNotExistsException e) {
-      log.warn("e-INFRA CZ VO doesn't exists, {} member can't be added into it.", vo.getName());
+      LOG.warn("e-INFRA CZ VO doesn't exists, {} member can't be added into it.", vo.getName());
     } catch (AlreadyMemberException ignore) {
       // user is already in e-INFRA CZ
     } catch (ExtendMembershipException e) {
       // can't be member of e-INFRA CZ, shouldn't happen
-      log.error("{} member can't be added to \"e-INFRA CZ\"", vo.getName(), e);
+      LOG.error("{} member can't be added to \"e-INFRA CZ\"", vo.getName(), e);
     }
 
     // Support statistic groups
@@ -189,7 +186,7 @@ public class Metacentrum extends DefaultRegistrarModule {
         try {
           perun.getGroupsManager().addMember(session, group, mem);
         } catch (AlreadyMemberException ignored) {
-
+          // ignore
         }
       }
     }
@@ -217,13 +214,15 @@ public class Metacentrum extends DefaultRegistrarModule {
 
     if (METACENTRUM_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
       throw new CantBeSubmittedException("You are currently logged-in using Metacentrum IdP." +
-          "It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
+                                         "It can't be used to register or extend membership in Metacentrum. Please " +
+                                         "close browser and log-in using different identity provider.",
           "NOT_ELIGIBLE_METAIDP", null, null);
     }
 
     if (EINFRA_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
       throw new CantBeSubmittedException("You are currently logged-in using e-INFRA CZ IdP." +
-          "It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
+                                         "It can't be used to register or extend membership in Metacentrum. Please " +
+                                         "close browser and log-in using different identity provider.",
           "NOT_ELIGIBLE_EINFRAIDP", null, null);
     }
 
@@ -243,7 +242,68 @@ public class Metacentrum extends DefaultRegistrarModule {
   }
 
   /**
-   * Check whether passed eligible timestamp is valid and not older than 1 year. If so, user is eligible for CESNET services.
+   * Get value of "isCesnetEligibleLastSeen" form item (first item with this source federation attribute). Return empty
+   * string if not found or it somehow fails.
+   *
+   * @param session PerunSession
+   * @param app     Application to get form items from
+   * @return Timestamp (yyyy-MM-dd HH:mm:ss) value or empty string.
+   */
+  private String getIsCesnetEligibleLastSeenFromApplication(PerunSession session, Application app) {
+
+    String eligibleString = "";
+
+    try {
+      List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
+
+      for (ApplicationFormItemData item : data) {
+        if (item.getFormItem() != null &&
+            Objects.equals("isCesnetEligibleLastSeen", item.getFormItem().getFederationAttribute())) {
+          if (item.getValue() != null && !item.getValue().trim().isEmpty()) {
+            eligibleString = item.getValue();
+            break;
+          }
+        }
+      }
+    } catch (PrivilegeException | RegistrarException e) {
+      LOG.error("Unable to get 'isCesnetEligibleLastSeen' from application.", e);
+    }
+
+    return eligibleString;
+
+  }
+
+  /**
+   * Get value of "user:def:isCesnetEligibleLastSeen" attribute. If application has no associated user or we anyhow fail
+   * to get the value, empty string is returned.
+   *
+   * @param session PerunSession
+   * @param user    User to check it for
+   * @return Timestamp (yyyy-MM-dd HH:mm:ss) value or empty string.
+   */
+  private String getIsCesnetEligibleLastSeenFromUser(PerunSession session, User user) {
+
+    String eligibleString = "";
+    if (user != null) {
+      try {
+        PerunBl perun = (PerunBl) session.getPerun();
+        Attribute attribute =
+            perun.getAttributesManagerBl().getAttribute(session, user, A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN);
+        if (attribute.getValue() != null) {
+          eligibleString = attribute.valueAsString();
+        }
+      } catch (Exception ex) {
+        LOG.error("Unable to get 'isCesnetEligibleLastSeen' from user.", ex);
+      }
+    }
+
+    return eligibleString;
+
+  }
+
+  /**
+   * Check whether passed eligible timestamp is valid and not older than 1 year. If so, user is eligible for CESNET
+   * services.
    *
    * @param eligibleString Timestamp to check
    * @return TRUE if eligible, FALSE if not
@@ -267,71 +327,11 @@ public class Metacentrum extends DefaultRegistrarModule {
         }
 
       } catch (ParseException e) {
-        log.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
+        LOG.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
       }
     }
 
     return false;
-
-  }
-
-  /**
-   * Get value of "isCesnetEligibleLastSeen" form item (first item with this source federation attribute).
-   * Return empty string if not found or it somehow fails.
-   *
-   * @param session PerunSession
-   * @param app     Application to get form items from
-   * @return Timestamp (yyyy-MM-dd HH:mm:ss) value or empty string.
-   */
-  private String getIsCesnetEligibleLastSeenFromApplication(PerunSession session, Application app) {
-
-    String eligibleString = "";
-
-    try {
-      List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
-
-      for (ApplicationFormItemData item : data) {
-        if (item.getFormItem() != null &&
-            Objects.equals("isCesnetEligibleLastSeen", item.getFormItem().getFederationAttribute())) {
-          if (item.getValue() != null && !item.getValue().trim().isEmpty()) {
-            eligibleString = item.getValue();
-            break;
-          }
-        }
-      }
-    } catch (PrivilegeException | RegistrarException e) {
-      log.error("Unable to get 'isCesnetEligibleLastSeen' from application.", e);
-    }
-
-    return eligibleString;
-
-  }
-
-  /**
-   * Get value of "user:def:isCesnetEligibleLastSeen" attribute.
-   * If application has no associated user or we anyhow fail to get the value, empty string is returned.
-   *
-   * @param session PerunSession
-   * @param user    User to check it for
-   * @return Timestamp (yyyy-MM-dd HH:mm:ss) value or empty string.
-   */
-  private String getIsCesnetEligibleLastSeenFromUser(PerunSession session, User user) {
-
-    String eligibleString = "";
-    if (user != null) {
-      try {
-        PerunBl perun = (PerunBl) session.getPerun();
-        Attribute attribute =
-            perun.getAttributesManagerBl().getAttribute(session, user, A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN);
-        if (attribute.getValue() != null) {
-          eligibleString = attribute.valueAsString();
-        }
-      } catch (Exception ex) {
-        log.error("Unable to get 'isCesnetEligibleLastSeen' from user.", ex);
-      }
-    }
-
-    return eligibleString;
 
   }
 

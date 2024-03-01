@@ -49,7 +49,8 @@ public class urn_perun_user_attribute_def_def_expirationManual extends UserAttri
     attr.setDisplayName("Expirace (ruční)");
     attr.setType(String.class.getName());
     attr.setDescription(
-        "Ruční nastavení expirace vztahu k VŠUP (platnost účtu v AD). Hodnota musí být ve tvaru: \"%Y-%m-%d\", tedy např.: \"2017-06-27\".");
+        "Ruční nastavení expirace vztahu k VŠUP (platnost účtu v AD). Hodnota musí být ve tvaru: \"%Y-%m-%d\", tedy " +
+        "např.: \"2017-06-27\".");
     return attr;
   }
 

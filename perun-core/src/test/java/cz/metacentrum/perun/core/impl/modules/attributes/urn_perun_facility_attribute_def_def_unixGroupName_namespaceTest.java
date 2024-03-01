@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -10,9 +13,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_facility_attribute_def_def_unixGroupName_namespaceTest {
 
@@ -38,13 +38,16 @@ public class urn_perun_facility_attribute_def_def_unixGroupName_namespaceTest {
     when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckAttributeSemanticsWithoutReqAttribute() throws Exception {
-    System.out.println("testCheckAttributeSemanticsWithoutReqAttribute()");
+  @Test
+  public void testCheckAttributeSemanticsCorrect() throws Exception {
+    System.out.println("testCheckAttributeSemanticsCorrect()");
     attributeToCheck.setValue("example");
     when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
-        AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + attributeToCheck.getValue())).thenThrow(
-        new AttributeNotExistsException(""));
+        AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + attributeToCheck.getValue())).thenReturn(
+        reqAttribute);
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
+        AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + attributeToCheck.getValue())).thenReturn(
+        reqAttribute);
 
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }
@@ -56,16 +59,13 @@ public class urn_perun_facility_attribute_def_def_unixGroupName_namespaceTest {
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }
 
-  @Test
-  public void testCheckAttributeSemanticsCorrect() throws Exception {
-    System.out.println("testCheckAttributeSemanticsCorrect()");
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithoutReqAttribute() throws Exception {
+    System.out.println("testCheckAttributeSemanticsWithoutReqAttribute()");
     attributeToCheck.setValue("example");
     when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
-        AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + attributeToCheck.getValue())).thenReturn(
-        reqAttribute);
-    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
-        AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + attributeToCheck.getValue())).thenReturn(
-        reqAttribute);
+        AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + attributeToCheck.getValue())).thenThrow(
+        new AttributeNotExistsException(""));
 
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }

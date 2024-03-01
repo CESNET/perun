@@ -21,13 +21,13 @@ public class ForcePropagationOnService extends AuditEvent implements EngineForce
     this.message = formatMessage("force propagation: On %s.", service);
   }
 
-  public Service getService() {
-    return service;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Service getService() {
+    return service;
   }
 
   @Override

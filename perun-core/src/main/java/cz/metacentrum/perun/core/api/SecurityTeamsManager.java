@@ -22,136 +22,6 @@ import java.util.List;
 public interface SecurityTeamsManager {
 
   /**
-   * Get list of SecurityTeams by access rights
-   * - PERUNADMIN : all teams
-   * - SECURITYADMIN : teams where user is admin
-   *
-   * @param perunSession
-   * @return List of SecurityTeams or empty ArrayList<SecurityTeam>
-   * @throws InternalErrorException
-   * @throws PrivilegeException
-   */
-  List<SecurityTeam> getSecurityTeams(PerunSession perunSession) throws PrivilegeException;
-
-  /**
-   * get all security teams in perun system
-   *
-   * @param perunSession
-   * @return List of SecurityTeams or empty List<SecurityTeam>
-   * @throws InternalErrorException
-   * @throws PrivilegeException
-   */
-  List<SecurityTeam> getAllSecurityTeams(PerunSession perunSession) throws PrivilegeException;
-
-  /**
-   * Create new SecurityTeam.
-   *
-   * @param perunSession
-   * @param securityTeam SecurityTeam object with prefilled name
-   * @return Newly created Security team with new id
-   * @throws InternalErrorException
-   * @throws PrivilegeException          Can do only PerunAdmin.
-   * @throws SecurityTeamExistsException
-   */
-  SecurityTeam createSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam)
-      throws PrivilegeException, SecurityTeamExistsException;
-
-  /**
-   * Updates SecurityTeam.
-   *
-   * @param perunSession
-   * @param securityTeam
-   * @return returns updated SecurityTeam
-   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-   * @throws InternalErrorException
-   * @throws SecurityTeamNotExistsException
-   */
-  SecurityTeam updateSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam)
-      throws PrivilegeException, SecurityTeamNotExistsException, SecurityTeamExistsException;
-
-  /**
-   * Delete SecurityTeam.
-   *
-   * @param perunSession
-   * @param securityTeam
-   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-   * @throws InternalErrorException
-   * @throws SecurityTeamNotExistsException
-   * @throws RelationExistsException        if team is assigned to any facility or has blacklisted users.
-   */
-  void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam)
-      throws PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
-
-  /**
-   * Delete SecurityTeam.
-   *
-   * @param perunSession
-   * @param securityTeam
-   * @param forceDelete  TRUE if Team should be forcefully deleted.
-   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-   * @throws InternalErrorException
-   * @throws SecurityTeamNotExistsException
-   * @throws RelationExistsException        if forceDelete == FALSE and team is assigned to any facility or has blacklisted users.
-   */
-  void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam, boolean forceDelete)
-      throws PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
-
-
-  /**
-   * Find existing SecurityTeam by ID.
-   *
-   * @param perunSession
-   * @param id
-   * @return security team with given id
-   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-   * @throws InternalErrorException
-   * @throws SecurityTeamNotExistsException
-   */
-  SecurityTeam getSecurityTeamById(PerunSession perunSession, int id)
-      throws PrivilegeException, SecurityTeamNotExistsException;
-
-  /**
-   * Find existing SecurityTeam by name.
-   *
-   * @param perunSession
-   * @param name
-   * @return security team with given name
-   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-   * @throws InternalErrorException
-   * @throws SecurityTeamNotExistsException
-   */
-  SecurityTeam getSecurityTeamByName(PerunSession perunSession, String name)
-      throws PrivilegeException, SecurityTeamNotExistsException;
-
-  /**
-   * get all security admins of given security team
-   *
-   * @param perunSession
-   * @param securityTeam
-   * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
-   * @return list of users which are admis of given security team
-   * @throws InternalErrorException
-   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-   * @throws SecurityTeamNotExistsException
-   */
-  @Deprecated
-  List<User> getAdmins(PerunSession perunSession, SecurityTeam securityTeam, boolean onlyDirectAdmins)
-      throws PrivilegeException, SecurityTeamNotExistsException;
-
-  /**
-   * Gets list of all group administrators of the SecurityTeam.
-   *
-   * @param sess
-   * @param securityTeam
-   * @return list of Group that are admins in the SecurityTeam.
-   * @throws InternalErrorException
-   * @throws PrivilegeException
-   */
-  @Deprecated
-  List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam)
-      throws PrivilegeException, SecurityTeamNotExistsException;
-
-  /**
    * create security admin from given user and add him as security admin of given security team
    *
    * @param perunSession
@@ -184,38 +54,6 @@ public interface SecurityTeamsManager {
       RoleCannotBeManagedException;
 
   /**
-   * Remove security admin role for given security team from user
-   *
-   * @param perunSession
-   * @param securityTeam
-   * @param user
-   * @throws InternalErrorException
-   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-   * @throws SecurityTeamNotExistsException
-   * @throws UserNotExistsException
-   * @throws UserNotAdminException
-   */
-  void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user)
-      throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserNotAdminException,
-      RoleCannotBeManagedException;
-
-  /**
-   * Remove security admin role for given security team from group
-   *
-   * @param perunSession
-   * @param securityTeam
-   * @param group
-   * @throws InternalErrorException
-   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-   * @throws SecurityTeamNotExistsException
-   * @throws GroupNotExistsException
-   * @throws GroupNotAdminException
-   */
-  void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group)
-      throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, GroupNotAdminException,
-      RoleCannotBeManagedException;
-
-  /**
    * Add User to black list of security team to filter him out.
    * <p>
    * Description of adding can be null.
@@ -235,16 +73,83 @@ public interface SecurityTeamsManager {
       UserAlreadyBlacklistedException;
 
   /**
-   * remove user from blacklist of given security team
+   * Create new SecurityTeam.
+   *
+   * @param perunSession
+   * @param securityTeam SecurityTeam object with prefilled name
+   * @return Newly created Security team with new id
+   * @throws InternalErrorException
+   * @throws PrivilegeException          Can do only PerunAdmin.
+   * @throws SecurityTeamExistsException
+   */
+  SecurityTeam createSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam)
+      throws PrivilegeException, SecurityTeamExistsException;
+
+  /**
+   * Delete SecurityTeam.
    *
    * @param perunSession
    * @param securityTeam
-   * @param user         user who will became a security administrator
+   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
    * @throws InternalErrorException
-   * @throws PrivilegeException     Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   * @throws SecurityTeamNotExistsException
+   * @throws RelationExistsException        if team is assigned to any facility or has blacklisted users.
    */
-  void removeUserFromBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user)
-      throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyRemovedException;
+  void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam)
+      throws PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
+
+  /**
+   * Delete SecurityTeam.
+   *
+   * @param perunSession
+   * @param securityTeam
+   * @param forceDelete  TRUE if Team should be forcefully deleted.
+   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   * @throws InternalErrorException
+   * @throws SecurityTeamNotExistsException
+   * @throws RelationExistsException        if forceDelete == FALSE and team is assigned to any facility or has
+   *                                        blacklisted users.
+   */
+  void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam, boolean forceDelete)
+      throws PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
+
+  /**
+   * Gets list of all group administrators of the SecurityTeam.
+   *
+   * @param sess
+   * @param securityTeam
+   * @return list of Group that are admins in the SecurityTeam.
+   * @throws InternalErrorException
+   * @throws PrivilegeException
+   */
+  @Deprecated
+  List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam)
+      throws PrivilegeException, SecurityTeamNotExistsException;
+
+  /**
+   * get all security admins of given security team
+   *
+   * @param perunSession
+   * @param securityTeam
+   * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+   * @return list of users which are admis of given security team
+   * @throws InternalErrorException
+   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   * @throws SecurityTeamNotExistsException
+   */
+  @Deprecated
+  List<User> getAdmins(PerunSession perunSession, SecurityTeam securityTeam, boolean onlyDirectAdmins)
+      throws PrivilegeException, SecurityTeamNotExistsException;
+
+  /**
+   * get all security teams in perun system
+   *
+   * @param perunSession
+   * @return List of SecurityTeams or empty List<SecurityTeam>
+   * @throws InternalErrorException
+   * @throws PrivilegeException
+   */
+  List<SecurityTeam> getAllSecurityTeams(PerunSession perunSession) throws PrivilegeException;
 
   /**
    * get list of blacklisted users by security team
@@ -297,4 +202,97 @@ public interface SecurityTeamsManager {
    */
   List<Pair<User, String>> getBlacklistWithDescription(PerunSession perunSession, Facility facility)
       throws PrivilegeException, FacilityNotExistsException;
+
+  /**
+   * Find existing SecurityTeam by ID.
+   *
+   * @param perunSession
+   * @param id
+   * @return security team with given id
+   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   * @throws InternalErrorException
+   * @throws SecurityTeamNotExistsException
+   */
+  SecurityTeam getSecurityTeamById(PerunSession perunSession, int id)
+      throws PrivilegeException, SecurityTeamNotExistsException;
+
+  /**
+   * Find existing SecurityTeam by name.
+   *
+   * @param perunSession
+   * @param name
+   * @return security team with given name
+   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   * @throws InternalErrorException
+   * @throws SecurityTeamNotExistsException
+   */
+  SecurityTeam getSecurityTeamByName(PerunSession perunSession, String name)
+      throws PrivilegeException, SecurityTeamNotExistsException;
+
+  /**
+   * Get list of SecurityTeams by access rights - PERUNADMIN : all teams - SECURITYADMIN : teams where user is admin
+   *
+   * @param perunSession
+   * @return List of SecurityTeams or empty ArrayList<SecurityTeam>
+   * @throws InternalErrorException
+   * @throws PrivilegeException
+   */
+  List<SecurityTeam> getSecurityTeams(PerunSession perunSession) throws PrivilegeException;
+
+  /**
+   * Remove security admin role for given security team from user
+   *
+   * @param perunSession
+   * @param securityTeam
+   * @param user
+   * @throws InternalErrorException
+   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   * @throws SecurityTeamNotExistsException
+   * @throws UserNotExistsException
+   * @throws UserNotAdminException
+   */
+  void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user)
+      throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserNotAdminException,
+      RoleCannotBeManagedException;
+
+  /**
+   * Remove security admin role for given security team from group
+   *
+   * @param perunSession
+   * @param securityTeam
+   * @param group
+   * @throws InternalErrorException
+   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   * @throws SecurityTeamNotExistsException
+   * @throws GroupNotExistsException
+   * @throws GroupNotAdminException
+   */
+  void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group)
+      throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, GroupNotAdminException,
+      RoleCannotBeManagedException;
+
+  /**
+   * remove user from blacklist of given security team
+   *
+   * @param perunSession
+   * @param securityTeam
+   * @param user         user who will became a security administrator
+   * @throws InternalErrorException
+   * @throws PrivilegeException     Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   */
+  void removeUserFromBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user)
+      throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyRemovedException;
+
+  /**
+   * Updates SecurityTeam.
+   *
+   * @param perunSession
+   * @param securityTeam
+   * @return returns updated SecurityTeam
+   * @throws PrivilegeException             Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+   * @throws InternalErrorException
+   * @throws SecurityTeamNotExistsException
+   */
+  SecurityTeam updateSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam)
+      throws PrivilegeException, SecurityTeamNotExistsException, SecurityTeamExistsException;
 }

@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class PerunSession {
 
-  final static Logger log = LoggerFactory.getLogger(PerunSessionImpl.class);
+  static final Logger LOG = LoggerFactory.getLogger(PerunSessionImpl.class);
   private PerunPrincipal principal;
-  private PerunClient client;
+  private final PerunClient client;
   private Perun perun;
 
   /**
@@ -38,24 +38,25 @@ public abstract class PerunSession {
     this.client = client;
   }
 
-  public PerunPrincipal getPerunPrincipal() {
-    return principal;
+  public void destroy() {
+    perun = null;
+    principal = null;
   }
 
-  public PerunClient getPerunClient() {
-    return client;
+  public String getLogId() {
+    return principal.getActor();
   }
 
   public Perun getPerun() {
     return perun;
   }
 
-  public void destroy() {
-    perun = null;
-    principal = null;
+  public PerunClient getPerunClient() {
+    return client;
   }
 
-  public void validate() {
+  public PerunPrincipal getPerunPrincipal() {
+    return principal;
   }
 
   @Override
@@ -63,7 +64,6 @@ public abstract class PerunSession {
     return getClass().getSimpleName() + ":[" + "principal='" + principal + "', client='" + client + "']";
   }
 
-  public String getLogId() {
-    return principal.getActor();
+  public void validate() {
   }
 }

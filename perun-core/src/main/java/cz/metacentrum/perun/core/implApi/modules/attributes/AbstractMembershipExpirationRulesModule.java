@@ -1,14 +1,12 @@
 package cz.metacentrum.perun.core.implApi.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -24,21 +22,50 @@ import java.util.regex.Pattern;
 public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBean> extends AttributesModuleAbstract
     implements AttributesModuleImplApi {
 
-  public static final String membershipGracePeriodKeyName = "gracePeriod";
-  public static final String membershipPeriodKeyName = "period";
-  public static final String membershipDoNotExtendLoaKeyName = "doNotExtendLoa";
-  public static final String membershipPeriodLoaKeyName = "periodLoa";
-  public static final String membershipDoNotAllowLoaKeyName = "doNotAllowLoa";
-  public static final String autoExtensionLastLoginPeriod = "autoExtensionLastLoginPeriod";
-  public static final String autoExtensionExtSources = "autoExtensionExtSources";
-  public static final String expireSponsoredMembers = "expireSponsoredMembers";
-  private static final Pattern extensionDatePattern = Pattern.compile("^[+][0-9]+([dmy])$");
-  private static final Pattern datePattern = Pattern.compile("^[0-9]+([dmy])$");
-  private static final Pattern loaPattern = Pattern.compile("^(([0-9]+,)|([0-9]+,[ ]))*[0-9]+$");
-  private static final Pattern periodLoaPattern =
+  public static final String MEMBERSHIP_GRACE_PERIOD_KEY_NAME = "gracePeriod";
+  public static final String MEMBERSHIP_PERIOD_KEY_NAME = "period";
+  public static final String MEMBERSHIP_DO_NOT_EXTEND_LOA_KEY_NAME = "doNotExtendLoa";
+  public static final String MEMBERSHIP_PERIOD_LOA_KEY_NAME = "periodLoa";
+  public static final String MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME = "doNotAllowLoa";
+  public static final String AUTO_EXTENSION_LAST_LOGIN_PERIOD = "autoExtensionLastLoginPeriod";
+  public static final String AUTO_EXTENSION_EXT_SOURCES = "autoExtensionExtSources";
+  public static final String EXPIRE_SPONSORED_MEMBERS = "expireSponsoredMembers";
+  private static final Pattern EXTENSION_DATE_PATTERN = Pattern.compile("^[+][0-9]+([dmy])$");
+  private static final Pattern DATE_PATTERN = Pattern.compile("^[0-9]+([dmy])$");
+  private static final Pattern LOA_PATTERN = Pattern.compile("^(([0-9]+,)|([0-9]+,[ ]))*[0-9]+$");
+  private static final Pattern PERIOD_LOA_PATTERN =
       Pattern.compile("^[0-9]+[|](([0-9]+[.][0-9]+[.])|([+][0-9]+([dmy])))[.]?$");
-  private static final Pattern extSourcesPatter = Pattern.compile("^(\\d+)(,\\d+)*$");
-  private static final Pattern expireSponsoredMembersPattern = Pattern.compile("^(true)|(false)$");
+  private static final Pattern EXT_SOURCES_PATTER = Pattern.compile("^(\\d+)(,\\d+)*$");
+  private static final Pattern EXPIRE_SPONSORED_MEMBERS_PATTERN = Pattern.compile("^(true)|(false)$");
+
+  public void checkAttributeSemantics(PerunSessionImpl sess, T entity, Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+    Map<String, String> attrValue;
+
+    //For no value is correct (it means no rules)
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    //save value to map attrValue
+    attrValue = attribute.valueAsMap();
+
+    //Same for empty HashList
+    if (attrValue.isEmpty()) {
+      return;
+    }
+
+    if (attrValue.containsKey(AUTO_EXTENSION_EXT_SOURCES)) {
+      String[] extSourceIds = attrValue.get(AUTO_EXTENSION_EXT_SOURCES).split(",");
+      for (String extSourceId : extSourceIds) {
+        try {
+          sess.getPerunBl().getExtSourcesManagerBl().getExtSourceById(sess, Integer.parseInt(extSourceId));
+        } catch (ExtSourceNotExistsException e) {
+          throw new WrongReferenceAttributeValueException("There is no extSource with given id: " + extSourceId, e);
+        }
+      }
+    }
+  }
 
   public void checkAttributeSyntax(PerunSessionImpl sess, T entity, Attribute attribute)
       throws WrongAttributeValueException {
@@ -71,7 +98,7 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
     //If all possibilities are correct, so check their values
 
     //For period (only date like 1.1. or 29.4. without year) or (+xy where x is number and y is d/m/y - +35m or +80d)
-    String parameter = membershipPeriodKeyName;
+    String parameter = MEMBERSHIP_PERIOD_KEY_NAME;
     if (keys.contains(parameter)) {
       DateTimeFormatter dateTimeFormatter =
           DateTimeFormatter.ofPattern("d.M.uuuu").withResolverStyle(ResolverStyle.STRICT);
@@ -80,7 +107,7 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
         LocalDate.parse(attrValue.get(parameter) + "2000", dateTimeFormatter);
       } catch (DateTimeParseException ex) {
         //It's not date in format d.M. (or dd.MM.) so test for next option, for example: "+18m"
-        Matcher extensionDateMatcher = extensionDatePattern.matcher(attrValue.get(parameter));
+        Matcher extensionDateMatcher = EXTENSION_DATE_PATTERN.matcher(attrValue.get(parameter));
         if (!extensionDateMatcher.find()) {
           throw new WrongAttributeValueException(attribute,
               "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
@@ -89,9 +116,9 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
     }
 
     //For gracePeriod (xy where x is number and y is d/m/y - 35m or 80d)
-    parameter = membershipGracePeriodKeyName;
+    parameter = MEMBERSHIP_GRACE_PERIOD_KEY_NAME;
     if (keys.contains(parameter)) {
-      Matcher dateMatcher = datePattern.matcher(attrValue.get(parameter));
+      Matcher dateMatcher = DATE_PATTERN.matcher(attrValue.get(parameter));
       if (!dateMatcher.find()) {
         throw new WrongAttributeValueException(attribute,
             "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
@@ -99,9 +126,9 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
     }
 
     //For doNotExtendLoa (exmp: '3,4,5' or '3, 4 ,5' or '325, 324,336')
-    parameter = membershipDoNotExtendLoaKeyName;
+    parameter = MEMBERSHIP_DO_NOT_EXTEND_LOA_KEY_NAME;
     if (keys.contains(parameter)) {
-      Matcher loaMatcher = loaPattern.matcher(attrValue.get(parameter));
+      Matcher loaMatcher = LOA_PATTERN.matcher(attrValue.get(parameter));
       if (!loaMatcher.find()) {
         throw new WrongAttributeValueException(attribute,
             "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
@@ -109,9 +136,9 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
     }
 
     //For doNotAllowLoa (exmp: '3,4,5' or '3, 4 ,5' or '325, 324,336')
-    parameter = membershipDoNotAllowLoaKeyName;
+    parameter = MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME;
     if (keys.contains(parameter)) {
-      Matcher loaMatcher = loaPattern.matcher(attrValue.get(parameter));
+      Matcher loaMatcher = LOA_PATTERN.matcher(attrValue.get(parameter));
       if (!loaMatcher.find()) {
         throw new WrongAttributeValueException(attribute,
             "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
@@ -119,9 +146,9 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
     }
 
     //For periodLoa x|y. or x|y where x is loa format and y is period format and symbol '.' is not mandatory
-    parameter = membershipPeriodLoaKeyName;
+    parameter = MEMBERSHIP_PERIOD_LOA_KEY_NAME;
     if (keys.contains(parameter)) {
-      Matcher periodLoaMatcher = periodLoaPattern.matcher(attrValue.get(parameter));
+      Matcher periodLoaMatcher = PERIOD_LOA_PATTERN.matcher(attrValue.get(parameter));
       if (!periodLoaMatcher.find()) {
         throw new WrongAttributeValueException(attribute,
             "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
@@ -143,64 +170,35 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
         } catch (DateTimeParseException ex) {
           throw new WrongAttributeValueException(attribute,
               "There is not allowed value (bad date format) for parameter '" + parameter + "': " +
-                  attrValue.get(parameter));
+              attrValue.get(parameter));
         }
       }
     }
 
-    parameter = autoExtensionLastLoginPeriod;
+    parameter = AUTO_EXTENSION_LAST_LOGIN_PERIOD;
     if (keys.contains(parameter)) {
-      Matcher dateMatcher = datePattern.matcher(attrValue.get(autoExtensionLastLoginPeriod));
+      Matcher dateMatcher = DATE_PATTERN.matcher(attrValue.get(AUTO_EXTENSION_LAST_LOGIN_PERIOD));
       if (!dateMatcher.find()) {
-        throw new WrongAttributeValueException(attribute, "There is not allowed value for parameter '" +
-            parameter + "': " + attrValue.get(parameter));
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
       }
     }
 
-    parameter = autoExtensionExtSources;
+    parameter = AUTO_EXTENSION_EXT_SOURCES;
     if (keys.contains(parameter)) {
-      Matcher extSourcesMatcher = extSourcesPatter.matcher(attrValue.get(autoExtensionExtSources));
+      Matcher extSourcesMatcher = EXT_SOURCES_PATTER.matcher(attrValue.get(AUTO_EXTENSION_EXT_SOURCES));
       if (!extSourcesMatcher.find()) {
-        throw new WrongAttributeValueException(attribute, "There is not allowed value for parameter '" +
-            parameter + "': " + attrValue.get(parameter));
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
       }
     }
 
-    parameter = expireSponsoredMembers;
+    parameter = EXPIRE_SPONSORED_MEMBERS;
     if (keys.contains(parameter)) {
-      Matcher expireSponsoredMemberMatcher = expireSponsoredMembersPattern.matcher(attrValue.get(parameter));
+      Matcher expireSponsoredMemberMatcher = EXPIRE_SPONSORED_MEMBERS_PATTERN.matcher(attrValue.get(parameter));
       if (!expireSponsoredMemberMatcher.find()) {
-        throw new WrongAttributeValueException(attribute, "There is not allowed value for parameter '" +
-            parameter + "': " + attrValue.get(parameter));
-      }
-    }
-  }
-
-  public void checkAttributeSemantics(PerunSessionImpl sess, T entity, Attribute attribute)
-      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-    Map<String, String> attrValue;
-
-    //For no value is correct (it means no rules)
-    if (attribute.getValue() == null) {
-      return;
-    }
-
-    //save value to map attrValue
-    attrValue = attribute.valueAsMap();
-
-    //Same for empty HashList
-    if (attrValue.isEmpty()) {
-      return;
-    }
-
-    if (attrValue.containsKey(autoExtensionExtSources)) {
-      String[] extSourceIds = attrValue.get(autoExtensionExtSources).split(",");
-      for (String extSourceId : extSourceIds) {
-        try {
-          sess.getPerunBl().getExtSourcesManagerBl().getExtSourceById(sess, Integer.parseInt(extSourceId));
-        } catch (ExtSourceNotExistsException e) {
-          throw new WrongReferenceAttributeValueException("There is no extSource with given id: " + extSourceId, e);
-        }
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
       }
     }
   }

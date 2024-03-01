@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -9,9 +12,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_entityless_attribute_def_def_namespace_maxUIDTest {
 
@@ -38,12 +38,13 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxUIDTest {
         reqAttribute);
   }
 
-  @Test(expected = WrongAttributeValueException.class)
-  public void testValueLesserThan1() throws Exception {
-    System.out.println("testValueLesserThan1()");
-    attributeToCheck.setValue(0);
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue(2);
+    reqAttribute.setValue(1);
 
-    classInstance.checkAttributeSyntax(session, key, attributeToCheck);
+    classInstance.checkAttributeSemantics(session, key, attributeToCheck);
   }
 
   @Test
@@ -54,20 +55,19 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxUIDTest {
     classInstance.checkAttributeSyntax(session, key, attributeToCheck);
   }
 
+  @Test(expected = WrongAttributeValueException.class)
+  public void testValueLesserThan1() throws Exception {
+    System.out.println("testValueLesserThan1()");
+    attributeToCheck.setValue(0);
+
+    classInstance.checkAttributeSyntax(session, key, attributeToCheck);
+  }
+
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void testValueLesserThanMinUID() throws Exception {
     System.out.println("testValueLesserThanMinUID()");
     attributeToCheck.setValue(1);
     reqAttribute.setValue(2);
-
-    classInstance.checkAttributeSemantics(session, key, attributeToCheck);
-  }
-
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue(2);
-    reqAttribute.setValue(1);
 
     classInstance.checkAttributeSemantics(session, key, attributeToCheck);
   }

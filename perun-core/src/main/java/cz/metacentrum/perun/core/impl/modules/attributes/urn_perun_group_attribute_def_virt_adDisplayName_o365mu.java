@@ -12,15 +12,14 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
- * Module for ad DisplayName defines way how to count a final value for display name of group in o365mu from existing attributes.
- * It expects existence of some attributes and hierarchy of groups.
+ * Module for ad DisplayName defines way how to count a final value for display name of group in o365mu from existing
+ * attributes. It expects existence of some attributes and hierarchy of groups.
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
@@ -28,7 +27,7 @@ import java.util.regex.Pattern;
 public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends GroupVirtualAttributesModuleAbstract
     implements GroupVirtualAttributesModuleImplApi {
 
-  private final static Logger log =
+  private static final Logger LOG =
       LoggerFactory.getLogger(urn_perun_group_attribute_def_virt_adDisplayName_o365mu.class);
 
   private static final String A_G_D_AD_DISPLAY_NAME_O365MU =
@@ -45,6 +44,17 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends Gro
 
   private static final String TOP_LEVEL_GROUP_CISPR = "000000";
   private static final String TOP_LEVEL_PREFIX = "MUNI";
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
+    attr.setFriendlyName("adDisplayName:o365mu");
+    attr.setDisplayName("O365 virtual display name");
+    attr.setType(String.class.getName());
+    attr.setDescription("Counted display name of group in namespace o365mu");
+    return attr;
+  }
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Group group, AttributeDefinition attributeDefinition) {
@@ -74,7 +84,8 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends Gro
 
     //Now there is a hardcoded logic defined by the prefix of number in CISPR
     if (cispr.equals(TOP_LEVEL_GROUP_CISPR)) {
-      //if this is top level group, use predefined name + type of workplaces (defined by specific tree where group exists)
+      //if this is top level group, use predefined name + type of workplaces (defined by specific tree where group
+      // exists)
       finalName = TOP_LEVEL_PREFIX + ", " + typeOfWorkplaces;
     } else if (partOfUniversityMatcher.matches()) {
       //if this workplace is part of university with cispr [1-9][1-9]0000, use name of group + type of workplaces
@@ -86,7 +97,8 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends Gro
       finalName = groupNameCS + ", " + typeOfWorkplaces;
     } else if (otherWorkplacesMatcher.matches()) {
       //other parts of university with expression as [1-9][0-9]{5}
-      //for these groups we need to find parent group with part of university cispr and use also abbreviation for it in the final name
+      //for these groups we need to find parent group with part of university cispr and use also abbreviation for it
+      // in the final name
       String groupNameCS = getStringValueOfGroupAttribute(sess, group, A_G_D_INET_GROUP_NAME_CS);
       if (groupNameCS != null) {
         String abbreviation = getParentGroupAbbreviation(sess, group);
@@ -120,9 +132,10 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends Gro
       try {
         workingGroup = sess.getPerunBl().getGroupsManagerBl().getParentGroup(sess, workingGroup);
       } catch (ParentGroupNotExistsException ex) {
-        //We don't want this part of code to throw an exception even if it is weird behavior, return null instead, log it
+        //We don't want this part of code to throw an exception even if it is weird behavior, return null instead,
+        // log it
         //The only proper reason to get this exception is race-condition between this module and group structure changes
-        log.error("Unexpected behavior when reaching parent group of " + workingGroup, ex);
+        LOG.error("Unexpected behavior when reaching parent group of " + workingGroup, ex);
         return null;
       }
 
@@ -144,8 +157,8 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends Gro
   /**
    * Return String value of attribute for a group and a name of attribute.
    * <p>
-   * If assignment of attribute is not correct, throw InternalErrorException
-   * If attribute does not exist in the Perun, return null instead (same as if value is not set or empty)
+   * If assignment of attribute is not correct, throw InternalErrorException If attribute does not exist in the Perun,
+   * return null instead (same as if value is not set or empty)
    *
    * @param sess            perun session
    * @param group           the group to get attribute for
@@ -170,16 +183,5 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends Gro
     }
 
     return attribute.valueAsString();
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
-    attr.setFriendlyName("adDisplayName:o365mu");
-    attr.setDisplayName("O365 virtual display name");
-    attr.setType(String.class.getName());
-    attr.setDescription("Counted display name of group in namespace o365mu");
-    return attr;
   }
 }

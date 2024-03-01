@@ -228,8 +228,7 @@ public enum ConsentsManagerMethod implements ManagerMethod {
     public ConsentHub call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getConsentsManager().updateConsentHub(ac.getSession(),
-          parms.read("consentHub", ConsentHub.class));
+      return ac.getConsentsManager().updateConsentHub(ac.getSession(), parms.read("consentHub", ConsentHub.class));
     }
   },
 

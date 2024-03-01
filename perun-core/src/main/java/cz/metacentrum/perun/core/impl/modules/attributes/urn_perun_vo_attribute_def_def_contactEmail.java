@@ -19,6 +19,15 @@ public class urn_perun_vo_attribute_def_def_contactEmail extends VoAttributesMod
     implements VoAttributesModuleImplApi {
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    // null attribute
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Vo contact email list cannot be null.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, Vo vo, Attribute attribute)
       throws WrongAttributeValueException {
     // null value is ok for syntax check
@@ -33,15 +42,6 @@ public class urn_perun_vo_attribute_def_def_contactEmail extends VoAttributesMod
         throw new WrongAttributeValueException(attribute,
             "Vo : " + vo.getName() + " has contact email " + email + " which is not valid.");
       }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    // null attribute
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, "Vo contact email list cannot be null.");
     }
   }
 

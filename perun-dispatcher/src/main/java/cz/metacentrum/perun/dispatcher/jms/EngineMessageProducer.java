@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Instance of Engine message queue producer for sending messages to Engine.
- * For each Engine own producer (message queue) is created, and stored in EngineMessageProducerPool.
+ * Instance of Engine message queue producer for sending messages to Engine. For each Engine own producer (message
+ * queue) is created, and stored in EngineMessageProducerPool.
  *
  * @author Michal Karm Babacek
  * @author Michal Voců
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EngineMessageProducer {
 
-  private final static Logger log = LoggerFactory.getLogger(EngineMessageProducer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EngineMessageProducer.class);
 
   private Queue queue;
   private Session session;
@@ -42,20 +42,44 @@ public class EngineMessageProducer {
     try {
       // Step 1. Directly instantiate the JMS Queue object.
       this.queue = HornetQJMSClient.createQueue(this.queueName);
-      if (log.isDebugEnabled()) {
-        log.debug("Created queue named as: " + this.queueName);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Created queue named as: " + this.queueName);
       }
       // Step 6. Create a JMS Message Producer
       this.producer = session.createProducer(this.queue);
-      if (log.isDebugEnabled()) {
-        log.debug("Producer created: " + this.producer);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Producer created: " + this.producer);
       }
     } catch (JMSException e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
     } catch (Exception e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
       // TODO: Restart connection...?
     }
+  }
+
+  /**
+   * Try to deliver all pending messages.
+   *
+   * @throws JMSException
+   */
+  public void deliverOutputMessages() throws JMSException {
+    while (!outputMessages.isEmpty()) {
+      TextMessage message = outputMessages.poll();
+      producer.send(message);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Sent message (queue name:" + queueName + "): " + message.getText());
+      }
+    }
+  }
+
+  /**
+   * Get name of the queue for engine.
+   *
+   * @return Name of queue
+   */
+  public String getQueueName() {
+    return queueName;
   }
 
   /**
@@ -71,35 +95,11 @@ public class EngineMessageProducer {
       // Step 8. Send...
       outputMessages.put(message);
     } catch (JMSException e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
     } catch (Exception e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
       // TODO: Restart connection...?
     }
-  }
-
-  /**
-   * Try to deliver all pending messages.
-   *
-   * @throws JMSException
-   */
-  public void deliverOutputMessages() throws JMSException {
-    while (!outputMessages.isEmpty()) {
-      TextMessage message = outputMessages.poll();
-      producer.send(message);
-      if (log.isDebugEnabled()) {
-        log.debug("Sent message (queue name:" + queueName + "): " + message.getText());
-      }
-    }
-  }
-
-  /**
-   * Get name of the queue for engine.
-   *
-   * @return Name of queue
-   */
-  public String getQueueName() {
-    return queueName;
   }
 
   /**
@@ -111,7 +111,7 @@ public class EngineMessageProducer {
       // session is not ours to close
       // session.close();
     } catch (JMSException e) {
-      log.error(e.toString(), e);
+      LOG.error(e.toString(), e);
     }
   }
 }

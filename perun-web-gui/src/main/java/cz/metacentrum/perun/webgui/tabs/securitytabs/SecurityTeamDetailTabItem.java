@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class SecurityTeamDetailTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "detail";
+  public static final String URL = "detail";
   /**
    * SecTeam
    */

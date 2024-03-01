@@ -52,46 +52,6 @@ public class PerunNotifRegex {
    */
   private Set<PerunNotifObject> objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
 
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getRegex() {
-    return regex;
-  }
-
-  public void setRegex(String regex) {
-    this.regex = regex;
-  }
-
-  public String getNote() {
-    return note;
-  }
-
-  public void setNote(String note) {
-    this.note = note;
-  }
-
-  public Set<PerunNotifObject> getObjects() {
-    return objects;
-  }
-
-  public void setObjects(Set<PerunNotifObject> objects) {
-    this.objects = objects;
-  }
-
-  public void addObjects(List<PerunNotifObject> objects) {
-    if (objects == null) {
-      this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
-    }
-
-    this.objects.addAll(objects);
-  }
-
   public void addObject(PerunNotifObject object) {
     if (objects == null) {
       this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
@@ -100,15 +60,12 @@ public class PerunNotifRegex {
     this.objects.add(object);
   }
 
-  public void update(PerunNotifRegex updatedRegex) {
-    this.setNote(updatedRegex.getNote());
-    this.setRegex(updatedRegex.getRegex());
-    this.setObjects(updatedRegex.getObjects());
-  }
+  public void addObjects(List<PerunNotifObject> objects) {
+    if (objects == null) {
+      this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
+    }
 
-  @Override
-  public String toString() {
-    return "id: " + getId() + " regex: " + getRegex() + " note: " + getNote();
+    this.objects.addAll(objects);
   }
 
   @Override
@@ -129,6 +86,22 @@ public class PerunNotifRegex {
     return true;
   }
 
+  public Integer getId() {
+    return id;
+  }
+
+  public String getNote() {
+    return note;
+  }
+
+  public Set<PerunNotifObject> getObjects() {
+    return objects;
+  }
+
+  public String getRegex() {
+    return regex;
+  }
+
   @Override
   public int hashCode() {
     int result = id;
@@ -136,5 +109,32 @@ public class PerunNotifRegex {
     result = 31 * result + (note != null ? note.hashCode() : 0);
     result = 31 * result + (objects != null ? objects.hashCode() : 0);
     return result;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setNote(String note) {
+    this.note = note;
+  }
+
+  public void setObjects(Set<PerunNotifObject> objects) {
+    this.objects = objects;
+  }
+
+  public void setRegex(String regex) {
+    this.regex = regex;
+  }
+
+  @Override
+  public String toString() {
+    return "id: " + getId() + " regex: " + getRegex() + " note: " + getNote();
+  }
+
+  public void update(PerunNotifRegex updatedRegex) {
+    this.setNote(updatedRegex.getNote());
+    this.setRegex(updatedRegex.getRegex());
+    this.setObjects(updatedRegex.getObjects());
   }
 }

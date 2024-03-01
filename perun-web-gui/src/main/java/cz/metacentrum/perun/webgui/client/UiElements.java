@@ -113,10 +113,10 @@ public class UiElements {
 
     // Devel log
     this.log = new ScrollPanel();
-    log.getElement().setId("perun-log");
-    log.setStyleName("log", true);
-    log.setWidth("100%");
-    log.add(logInside);
+   log.getElement().setId("perun-log");
+   log.setStyleName("log", true);
+   log.setWidth("100%");
+   log.add(logInside);
     // toggle log button
     prepareToggleLogButton(SmallIcons.INSTANCE.bulletArrowUpIcon(), SmallIcons.INSTANCE.bulletArrowDownIcon());
 
@@ -1063,7 +1063,7 @@ public class UiElements {
     // removes error or success indicator 5sec after page is displayed,
     // but only if there was such indicator
     if (log.getStyleName().contains("log-success") ||
-        log.getStyleName().contains("log-error")) {
+       log.getStyleName().contains("log-error")) {
 
       Scheduler.get().scheduleDeferred(new Command() {
         public void execute() {
@@ -1073,8 +1073,8 @@ public class UiElements {
               // sets the normal log icon
               prepareToggleLogButton(SmallIcons.INSTANCE.bulletArrowUpIcon(),
                   SmallIcons.INSTANCE.bulletArrowDownIcon());
-              log.setStyleName("log-success", false);   // remove success indicator
-              log.setStyleName("log-error", false);   // remove error indicator
+             log.setStyleName("log-success", false);   // remove success indicator
+             log.setStyleName("log-error", false);   // remove error indicator
             }
           };
           time.schedule(5000);

@@ -48,15 +48,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Module for VO "vo.esc.pithia.eu"
  * <p>
- * This module is used by the group "organizationRequests" within the VO in order to create new groups
- * aka "organizations" in their logical context. It copies group configuration from the template group
+ * This module is used by the group "organizationRequests" within the VO in order to create new groups aka
+ * "organizations" in their logical context. It copies group configuration from the template group
  * "organizationTemplate" and appoints the user as a new group manager.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class EscPithiaOrganizations extends DefaultRegistrarModule {
 
-  final static Logger log = LoggerFactory.getLogger(EscPithiaOrganizations.class);
+  static final Logger LOG = LoggerFactory.getLogger(EscPithiaOrganizations.class);
 
   @Override
   public Application approveApplication(PerunSession session, Application app)
@@ -167,56 +167,6 @@ public class EscPithiaOrganizations extends DefaultRegistrarModule {
 
   }
 
-  private String getOrganizationName(PerunSession session, Application application)
-      throws PrivilegeException, RegistrarException {
-
-    List<ApplicationFormItemData> items = registrar.getApplicationDataById(session, application.getId());
-    for (ApplicationFormItemData item : items) {
-      if ("groupName".equals(item.getShortname())) {
-        return item.getValue();
-      }
-    }
-    return null;
-
-  }
-
-  private String getOrganizationDescription(PerunSession session, Application application)
-      throws PrivilegeException, RegistrarException {
-
-    List<ApplicationFormItemData> items = registrar.getApplicationDataById(session, application.getId());
-    for (ApplicationFormItemData item : items) {
-      if ("groupDescription".equals(item.getShortname())) {
-        return item.getValue();
-      }
-    }
-    return null;
-
-  }
-
-  private Group getTemplateGroup(PerunSession session, Vo vo)
-      throws PrivilegeException, RegistrarException, GroupNotExistsException {
-
-    PerunBl perun = (PerunBl) session.getPerun();
-    return perun.getGroupsManagerBl().getGroupByName(session, vo, "organizationTemplate");
-
-  }
-
-  private Group getAdminTemplateGroup(PerunSession session, Vo vo)
-      throws PrivilegeException, RegistrarException, GroupNotExistsException {
-
-    PerunBl perun = (PerunBl) session.getPerun();
-    return perun.getGroupsManagerBl().getGroupByName(session, vo, "organizationTemplateAdmins");
-
-  }
-
-  private void copySettings(PerunBl perun, PerunSession session, Group templateGroup, Group newOrganization,
-                            String attributeName)
-      throws WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException,
-      WrongAttributeValueException {
-    Attribute attribute = perun.getAttributesManagerBl().getAttribute(session, templateGroup, attributeName);
-    perun.getAttributesManagerBl().setAttribute(session, newOrganization, attribute);
-  }
-
   private void copyFormAndNotifications(PerunSession session, String organizationName, Group templateGroup,
                                         Group destinationGroup) {
 
@@ -254,6 +204,56 @@ public class EscPithiaOrganizations extends DefaultRegistrarModule {
     } catch (PerunException e) {
       throw new InternalErrorException("Unable to set registration form and notifications to group - organization!", e);
     }
+
+  }
+
+  private void copySettings(PerunBl perun, PerunSession session, Group templateGroup, Group newOrganization,
+                            String attributeName)
+      throws WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException,
+      WrongAttributeValueException {
+    Attribute attribute = perun.getAttributesManagerBl().getAttribute(session, templateGroup, attributeName);
+    perun.getAttributesManagerBl().setAttribute(session, newOrganization, attribute);
+  }
+
+  private Group getAdminTemplateGroup(PerunSession session, Vo vo)
+      throws PrivilegeException, RegistrarException, GroupNotExistsException {
+
+    PerunBl perun = (PerunBl) session.getPerun();
+    return perun.getGroupsManagerBl().getGroupByName(session, vo, "organizationTemplateAdmins");
+
+  }
+
+  private String getOrganizationDescription(PerunSession session, Application application)
+      throws PrivilegeException, RegistrarException {
+
+    List<ApplicationFormItemData> items = registrar.getApplicationDataById(session, application.getId());
+    for (ApplicationFormItemData item : items) {
+      if ("groupDescription".equals(item.getShortname())) {
+        return item.getValue();
+      }
+    }
+    return null;
+
+  }
+
+  private String getOrganizationName(PerunSession session, Application application)
+      throws PrivilegeException, RegistrarException {
+
+    List<ApplicationFormItemData> items = registrar.getApplicationDataById(session, application.getId());
+    for (ApplicationFormItemData item : items) {
+      if ("groupName".equals(item.getShortname())) {
+        return item.getValue();
+      }
+    }
+    return null;
+
+  }
+
+  private Group getTemplateGroup(PerunSession session, Vo vo)
+      throws PrivilegeException, RegistrarException, GroupNotExistsException {
+
+    PerunBl perun = (PerunBl) session.getPerun();
+    return perun.getGroupsManagerBl().getGroupByName(session, vo, "organizationTemplate");
 
   }
 

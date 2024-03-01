@@ -35,12 +35,12 @@ public abstract class EngineException extends Exception {
     logger.error("Error ID: " + errorId, this);
   }
 
+  public String getErrorId() {
+    return errorId;
+  }
+
   @Override
   public String getMessage() {
     return "Error " + errorId + ": " + super.getMessage();
-  }
-
-  public String getErrorId() {
-    return errorId;
   }
 }

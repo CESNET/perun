@@ -1,17 +1,16 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.Mockito.mock;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Metodej Klang <metodej.klang@gmail.com>

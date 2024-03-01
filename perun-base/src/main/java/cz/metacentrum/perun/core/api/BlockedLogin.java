@@ -17,6 +17,27 @@ public class BlockedLogin {
     this.namespace = namespace;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
+    final BlockedLogin that = (BlockedLogin) obj;
+    if (!this.login.equals(that.getLogin())) {
+      return false;
+    }
+
+    if ((this.namespace == null) ? (that.namespace != null) : !this.namespace.equals(that.namespace)) {
+      return false;
+    }
+
+    return true;
+  }
+
   public int getId() {
     return id;
   }
@@ -39,28 +60,6 @@ public class BlockedLogin {
 
   public void setNamespace(String namespace) {
     this.namespace = namespace;
-  }
-
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-
-    final BlockedLogin that = (BlockedLogin) obj;
-    if (!this.login.equals(that.getLogin())) {
-      return false;
-    }
-
-    if ((this.namespace == null) ? (that.namespace != null) : !this.namespace.equals(that.namespace)) {
-      return false;
-    }
-
-    return true;
   }
 
   @Override

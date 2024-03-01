@@ -57,8 +57,33 @@ public class AuthzRoles extends HashMap<String, Map<String, Set<Integer>>> {
     this.put(role, complementaryObjects);
   }
 
-  public void putAuthzRoles(String role, Map<String, Set<Integer>> perunBeans) {
-    this.putComplementaryObjects(role, perunBeans);
+  public List<String> getRolesNames() {
+    try {
+      return new ArrayList<>(this.keySet());
+    } catch (ConcurrentModificationException e) {
+      // concurrency problem try again
+      return new ArrayList<>(this.keySet());
+    }
+  }
+
+  public boolean hasRole(String role, PerunBean perunBean) {
+    //Use converted beanName instead of classic bean name, because for ex.: RichGroup is the same
+    // like Group for this purpose
+    String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(perunBean.getBeanName());
+    return this.containsKey(role) && this.get(role).containsKey(convertedBeanName) &&
+           this.get(role).get(convertedBeanName).contains(perunBean.getId());
+  }
+
+  public boolean hasRole(String role, String perunBeanName, int id) {
+    //Use converted beanName instead of classic bean name, because for ex.: RichGroup is the same
+    // like Group for this purpose
+    String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(perunBeanName);
+    return this.containsKey(role) && this.get(role).containsKey(convertedBeanName) &&
+           this.get(role).get(convertedBeanName).contains(id);
+  }
+
+  public boolean hasRole(String role) {
+    return this.containsKey(role);
   }
 
   public void putAuthzRole(String role) {
@@ -81,31 +106,8 @@ public class AuthzRoles extends HashMap<String, Map<String, Set<Integer>>> {
     this.putComplementaryObjects(role, complementaryObjects);
   }
 
-  public boolean hasRole(String role, PerunBean perunBean) {
-    //Use converted beanName instead of classic bean name, because for ex.: RichGroup is the same like Group for this purpose
-    String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(perunBean.getBeanName());
-    return this.containsKey(role) && this.get(role).containsKey(convertedBeanName)
-        && this.get(role).get(convertedBeanName).contains(perunBean.getId());
-  }
-
-  public boolean hasRole(String role, String perunBeanName, int id) {
-    //Use converted beanName instead of classic bean name, because for ex.: RichGroup is the same like Group for this purpose
-    String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(perunBeanName);
-    return this.containsKey(role) && this.get(role).containsKey(convertedBeanName)
-        && this.get(role).get(convertedBeanName).contains(id);
-  }
-
-  public boolean hasRole(String role) {
-    return this.containsKey(role);
-  }
-
-  public List<String> getRolesNames() {
-    try {
-      return new ArrayList<>(this.keySet());
-    } catch (ConcurrentModificationException e) {
-      // concurrency problem try again
-      return new ArrayList<>(this.keySet());
-    }
+  public void putAuthzRoles(String role, Map<String, Set<Integer>> perunBeans) {
+    this.putComplementaryObjects(role, perunBeans);
   }
 
   protected void putComplementaryObject(String role, PerunBean perunBean) {

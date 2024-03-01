@@ -11,18 +11,18 @@ import org.slf4j.LoggerFactory;
 
 public class MuadmPasswordManagerModule extends GenericPasswordManagerModule {
 
-  private final static Logger log = LoggerFactory.getLogger(MuadmPasswordManagerModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MuadmPasswordManagerModule.class);
 
-  private static final Pattern digitPattern = Pattern.compile(".*[0-9].*");
-  private static final Pattern lowerCasePattern = Pattern.compile(".*[a-z].*");
-  private static final Pattern upperCasePattern = Pattern.compile(".*[A-Z].*");
-  private static final Pattern specialCharPattern =
+  private static final Pattern DIGIT_PATTERN = Pattern.compile(".*[0-9].*");
+  private static final Pattern LOWER_CASE_PATTERN = Pattern.compile(".*[a-z].*");
+  private static final Pattern UPPER_CASE_PATTERN = Pattern.compile(".*[A-Z].*");
+  private static final Pattern SPECIAL_CHAR_PATTERN =
       Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
 
   public MuadmPasswordManagerModule() {
     this.actualLoginNamespace = "mu-adm";
 
-    if (!binTrue.equals(this.passwordManagerProgram)) {
+    if (!BIN_TRUE.equals(this.passwordManagerProgram)) {
       passwordManagerProgram += "." + actualLoginNamespace;
     }
   }
@@ -31,10 +31,10 @@ public class MuadmPasswordManagerModule extends GenericPasswordManagerModule {
   public void checkLoginFormat(PerunSession sess, String login) throws InvalidLoginException {
 
     ((PerunBl) sess.getPerun()).getModulesUtilsBl()
-        .checkLoginNamespaceRegex(actualLoginNamespace, login, GenericPasswordManagerModule.defaultLoginPattern);
+        .checkLoginNamespaceRegex(actualLoginNamespace, login, GenericPasswordManagerModule.DEFAULT_LOGIN_PATTERN);
 
     if (!((PerunBl) sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted(actualLoginNamespace, login)) {
-      log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
+      LOG.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
       throw new InvalidLoginException("Login '" + login + "' is not allowed in 'mu' namespace by configuration.");
     }
 
@@ -43,12 +43,12 @@ public class MuadmPasswordManagerModule extends GenericPasswordManagerModule {
   @Override
   public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
     if (StringUtils.isBlank(password)) {
-      log.warn("Password for {}:{} cannot be empty.", actualLoginNamespace, login);
+      LOG.warn("Password for {}:{} cannot be empty.", actualLoginNamespace, login);
       throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " cannot be empty.");
     }
 
     if (password.length() < 14) {
-      log.warn("Password for {}:{} is too short. At least 14 characters are required.", actualLoginNamespace, login);
+      LOG.warn("Password for {}:{} is too short. At least 14 characters are required.", actualLoginNamespace, login);
       throw new PasswordStrengthException(
           "Password for " + actualLoginNamespace + ":" + login + " is too short. At least 14 characters is required.");
     }
@@ -57,32 +57,33 @@ public class MuadmPasswordManagerModule extends GenericPasswordManagerModule {
       String backwardsLogin = StringUtils.reverse(login);
       if (password.toLowerCase().contains(login.toLowerCase()) ||
           password.toLowerCase().contains(backwardsLogin.toLowerCase())) {
-        log.warn("Password for {}:{} must not match/contain login or backwards login.", actualLoginNamespace, login);
+        LOG.warn("Password for {}:{} must not match/contain login or backwards login.", actualLoginNamespace, login);
         throw new PasswordStrengthException(
             "Password for " + actualLoginNamespace + ":" + login + " must not match/contain login or backwards login.");
       }
     }
 
     int groupsCounter = 0;
-    if (digitPattern.matcher(password).matches()) {
+    if (DIGIT_PATTERN.matcher(password).matches()) {
       groupsCounter++;
     }
-    if (upperCasePattern.matcher(password).matches()) {
+    if (UPPER_CASE_PATTERN.matcher(password).matches()) {
       groupsCounter++;
     }
-    if (lowerCasePattern.matcher(password).matches()) {
+    if (LOWER_CASE_PATTERN.matcher(password).matches()) {
       groupsCounter++;
     }
-    if (specialCharPattern.matcher(password).matches()) {
+    if (SPECIAL_CHAR_PATTERN.matcher(password).matches()) {
       groupsCounter++;
     }
 
     if (groupsCounter < 3) {
-      log.warn(
-          "Password for {}:{} is too weak. It has to contain character from at least 3 of these categories: lower-case letter, upper-case letter, digit, spec. character.",
-          actualLoginNamespace, login);
+      LOG.warn("Password for {}:{} is too weak. It has to contain character from at least 3 of these categories: " +
+               "lower-case letter, upper-case letter, digit, spec. character.", actualLoginNamespace, login);
       throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login +
-          " is too weak. It has to contain character from at least 3 of these categories: lower-case letter, upper-case letter, digit, spec. character.");
+                                          " is too weak. It has to contain character from at least 3 of these " +
+                                          "categories: lower-case letter, " +
+                                          "upper-case letter, digit, spec. character.");
     }
 
     super.checkPasswordStrength(sess, login, password);

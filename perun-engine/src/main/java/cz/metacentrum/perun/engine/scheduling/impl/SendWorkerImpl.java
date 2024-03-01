@@ -1,27 +1,25 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
+import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.ERROR;
+import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENT;
+import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.WARNING;
+
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.engine.exceptions.TaskExecutionException;
 import cz.metacentrum.perun.engine.scheduling.SendWorker;
 import cz.metacentrum.perun.taskslib.model.SendTask;
 import cz.metacentrum.perun.taskslib.model.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-
-import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.ERROR;
-import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENT;
-import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.WARNING;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * Implementation of SendWorker, which is used for starting SEND scripts.
- * On completion, SendTask endTime and status is set to either SEND or ERROR.
- * (beware, its SendTask.Status and not Task.Status).
+ * Implementation of SendWorker, which is used for starting SEND scripts. On completion, SendTask endTime and status is
+ * set to either SEND or ERROR. (beware, its SendTask.Status and not Task.Status).
  * <p>
  * Workers are created by SendPlanner, done/error workers are collected by SendCollector.
  *
@@ -32,7 +30,7 @@ import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.WARNIN
  */
 public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWorker {
 
-  private final static Logger log = LoggerFactory.getLogger(SendWorkerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SendWorkerImpl.class);
 
   private SendTask sendTask;
 
@@ -53,7 +51,7 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
     // we never actually run DUMMY destinations !!
     if (sendTask.getDestination().getPropagationType().equals(Destination.PROPAGATIONTYPE_DUMMY)) {
 
-      log.info("[{}] Executing SEND worker skipped for dummy Destination: {}. Marked as SENT.",
+      LOG.info("[{}] Executing SEND worker skipped for dummy Destination: {}. Marked as SENT.",
           sendTask.getTask().getId(), sendTask.getDestination().getDestination());
 
       // set results
@@ -67,26 +65,17 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
 
     }
 
-    log.info("[{}] Executing SEND worker for Task with Service ID: {} and Facility ID: {} and Destination: {}",
+    LOG.info("[{}] Executing SEND worker for Task with Service ID: {} and Facility ID: {} and Destination: {}",
         sendTask.getTask().getId(), sendTask.getTask().getServiceId(), sendTask.getTask().getFacilityId(),
         sendTask.getDestination().getDestination());
     ProcessBuilder pb;
     if (service.getScript().equals("./" + service.getName())) {
-      pb = new ProcessBuilder(
-          service.getScript(),
-          task.getFacility().getName(),
-          sendTask.getDestination().getDestination(),
-          sendTask.getDestination().getType()
-      );
+      pb = new ProcessBuilder(service.getScript(), task.getFacility().getName(),
+          sendTask.getDestination().getDestination(), sendTask.getDestination().getType());
     } else {
       // if calling some generic script, also pass name of the service to allow correct gen folder selection
-      pb = new ProcessBuilder(
-          service.getScript(),
-          task.getFacility().getName(),
-          sendTask.getDestination().getDestination(),
-          sendTask.getDestination().getType(),
-          service.getName()
-      );
+      pb = new ProcessBuilder(service.getScript(), task.getFacility().getName(),
+          sendTask.getDestination().getDestination(), sendTask.getDestination().getType(), service.getName());
     }
     try {
 
@@ -101,8 +90,8 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
 
       if (getReturnCode() != 0) {
 
-        log.error("[{}] SEND worker failed for Task. Ret code {}, STDOUT: {}, STDERR: {}",
-            task.getId(), getReturnCode(), getStdout(), getStderr());
+        LOG.error("[{}] SEND worker failed for Task. Ret code {}, STDOUT: {}, STDERR: {}", task.getId(),
+            getReturnCode(), getStdout(), getStderr());
 
         sendTask.setStatus(ERROR);
         // XXX: why exception? There is nothing exceptional about the situation.
@@ -116,7 +105,7 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
           sendTask.setStatus(WARNING);
         }
 
-        log.info("[{}] SEND worker finished for Task with status {}. Ret code {}, STDOUT: {}, STDERR: {}",
+        LOG.info("[{}] SEND worker finished for Task with status {}. Ret code {}, STDOUT: {}, STDERR: {}",
             sendTask.getTask().getId(), sendTask.getStatus(), getReturnCode(), getStdout(), getStderr());
 
         return sendTask;
@@ -124,12 +113,12 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
       }
 
     } catch (IOException e) {
-      log.error("[{}] SEND worker failed for Task. IOException: {}.", task.getId(), e);
+      LOG.error("[{}] SEND worker failed for Task. IOException: {}.", task.getId(), e);
       sendTask.setStatus(ERROR);
       sendTask.setEndTime(new Date(System.currentTimeMillis()));
       throw new TaskExecutionException(task, sendTask.getDestination(), 2, "", e.getMessage());
     } catch (InterruptedException e) {
-      log.warn("[{}] SEND worker failed for Task. Execution was interrupted {}.", task.getId(), e);
+      LOG.warn("[{}] SEND worker failed for Task. Execution was interrupted {}.", task.getId(), e);
       sendTask.setStatus(ERROR);
       sendTask.setEndTime(new Date(System.currentTimeMillis()));
       throw new TaskExecutionException(task, sendTask.getDestination(), 1, "", e.getMessage());

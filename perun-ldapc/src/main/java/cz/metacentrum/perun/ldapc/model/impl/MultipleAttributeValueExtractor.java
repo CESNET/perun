@@ -1,11 +1,8 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute.MultipleValuesExtractor;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -33,9 +30,8 @@ public class MultipleAttributeValueExtractor<T extends PerunBean> extends Attrib
               if (valueTransformer.isMassTransformationPreferred()) {
                 result = valueTransformer.getAllValues(values, attribute);
               } else {
-                result = values.stream()
-                    .map(value -> valueTransformer.getValue(value, attribute))
-                    .toArray(String[]::new);
+                result =
+                    values.stream().map(value -> valueTransformer.getValue(value, attribute)).toArray(String[]::new);
               }
             }
           }
@@ -58,10 +54,7 @@ public class MultipleAttributeValueExtractor<T extends PerunBean> extends Attrib
             return null;
           } else {
             result = new String[] {
-                (valueTransformer == null) ?
-                    value.toString()
-                    : valueTransformer.getValue((String) value, attribute)
-            };
+                (valueTransformer == null) ? value.toString() : valueTransformer.getValue((String) value, attribute)};
           }
         }
         // values must unique, otherwise ldap server rejects them

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
@@ -8,14 +11,10 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_attribute_def_def_uid_namespaceTest {
   private static urn_perun_user_attribute_def_def_uid_namespace classInstance;
@@ -52,19 +51,24 @@ public class urn_perun_user_attribute_def_def_uid_namespaceTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckWithNullValue() throws Exception {
-    System.out.println("testCheckWithNullValue()");
-    attributeToCheck.setValue(null);
+  public void testCheckWithDuplicate() throws Exception {
+    System.out.println("testCheckWithDuplicate()");
+    minUid.setValue(2);
+    maxUid.setValue(6);
+    attributeToCheck.setValue(5);
+
+    List<User> list = new ArrayList<>();
+    list.add(user);
+    list.add(new User());
+    when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck)).thenReturn(list);
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckWithNullWithNullMinUid() throws Exception {
-    System.out.println("testCheckWithNullWithNullMinUid()");
-    minUid.setValue(null);
-    maxUid.setValue(6);
-    attributeToCheck.setValue(5);
+  public void testCheckWithNullValue() throws Exception {
+    System.out.println("testCheckWithNullValue()");
+    attributeToCheck.setValue(null);
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
@@ -80,11 +84,11 @@ public class urn_perun_user_attribute_def_def_uid_namespaceTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckWithUidLesserThanMin() throws Exception {
-    System.out.println("testCheckWithUidLesserThanMin()");
-    minUid.setValue(2);
+  public void testCheckWithNullWithNullMinUid() throws Exception {
+    System.out.println("testCheckWithNullWithNullMinUid()");
+    minUid.setValue(null);
     maxUid.setValue(6);
-    attributeToCheck.setValue(1);
+    attributeToCheck.setValue(5);
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
@@ -100,16 +104,11 @@ public class urn_perun_user_attribute_def_def_uid_namespaceTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testCheckWithDuplicate() throws Exception {
-    System.out.println("testCheckWithDuplicate()");
+  public void testCheckWithUidLesserThanMin() throws Exception {
+    System.out.println("testCheckWithUidLesserThanMin()");
     minUid.setValue(2);
     maxUid.setValue(6);
-    attributeToCheck.setValue(5);
-
-    List<User> list = new ArrayList<>();
-    list.add(user);
-    list.add(new User());
-    when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck)).thenReturn(list);
+    attributeToCheck.setValue(1);
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }

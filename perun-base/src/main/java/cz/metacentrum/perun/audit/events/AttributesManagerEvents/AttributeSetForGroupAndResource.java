@@ -34,13 +34,13 @@ public class AttributeSetForGroupAndResource extends AuditEvent {
     return group;
   }
 
-  public Resource getResource() {
-    return resource;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   @Override

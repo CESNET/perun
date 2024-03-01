@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class AuditLogTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "alog";
+  public static final String URL = "alog";
   /**
    * Perun web session
    */

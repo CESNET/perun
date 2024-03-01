@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
@@ -34,12 +34,13 @@ public class ConfigManagerEntry implements ConfigManager {
     return this.perunBl;
   }
 
-  public void setPerunBl(PerunBlImpl perunBl) {
-    this.perunBl = perunBl;
-  }
+  @Override
+  public OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl)
+      throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
+    Utils.checkPerunSession(sess);
 
-  public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
-    this.configManagerBl = configManagerBl;
+
+    return configManagerBl.getPerunOidcConfig(requestUrl);
   }
 
   @Override
@@ -54,12 +55,11 @@ public class ConfigManagerEntry implements ConfigManager {
     configManagerBl.reloadAppsConfig();
   }
 
-  @Override
-  public OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl)
-      throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
-    Utils.checkPerunSession(sess);
+  public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
+    this.configManagerBl = configManagerBl;
+  }
 
-
-    return configManagerBl.getPerunOidcConfig(requestUrl);
+  public void setPerunBl(PerunBlImpl perunBl) {
+    this.perunBl = perunBl;
   }
 }

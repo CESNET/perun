@@ -5,6 +5,9 @@
 
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -16,9 +19,6 @@ import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,9 +26,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_group_attribute_def_def_unixGID_namespaceTest {
   private urn_perun_group_attribute_def_def_unixGID_namespace classInstance;
@@ -56,7 +55,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespaceTest {
     when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
     when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group,
         AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace" + ":" +
-            attributeToCheck.getNamespace())).thenReturn(reqAttribute);
+        attributeToCheck.getNamespace())).thenReturn(reqAttribute);
     when(sess.getPerunBl().getAttributesManagerBl()
         .getAttribute(sess, "", AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids")).thenReturn(reqAttribute);
     when(sess.getPerunBl().getAttributesManagerBl()
@@ -73,17 +72,20 @@ public class urn_perun_group_attribute_def_def_unixGID_namespaceTest {
     when(sess.getPerunBl().getResourcesManagerBl()).thenReturn(resourcesManagerBl);
   }
 
-  @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testUnixGroupNameSet() throws Exception {
-    System.out.println("testUnixGroupNameSet()");
-    Set<String> set = new HashSet<>();
-    set.add(attributeToCheck.getNamespace());
-    when(sess.getPerunBl().getModulesUtilsBl()
-        .getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(sess, new ArrayList<>(),
-            attributeToCheck)).thenReturn(set);
-    reqAttribute.setValue("value");
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCorrectSemantics()");
+    attributeToCheck.setValue(5);
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+  }
+
+  @Test
+  public void testCorrectSyntax() throws Exception {
+    System.out.println("testCorrectSyntax()");
+    attributeToCheck.setValue(5);
+
+    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
@@ -129,19 +131,16 @@ public class urn_perun_group_attribute_def_def_unixGID_namespaceTest {
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
   }
 
-  @Test
-  public void testCorrectSemantics() throws Exception {
-    System.out.println("testCorrectSemantics()");
-    attributeToCheck.setValue(5);
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testUnixGroupNameSet() throws Exception {
+    System.out.println("testUnixGroupNameSet()");
+    Set<String> set = new HashSet<>();
+    set.add(attributeToCheck.getNamespace());
+    when(sess.getPerunBl().getModulesUtilsBl()
+        .getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(sess, new ArrayList<>(),
+            attributeToCheck)).thenReturn(set);
+    reqAttribute.setValue("value");
 
     classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
-  }
-
-  @Test
-  public void testCorrectSyntax() throws Exception {
-    System.out.println("testCorrectSyntax()");
-    attributeToCheck.setValue(5);
-
-    classInstance.checkAttributeSyntax(sess, group, attributeToCheck);
   }
 }

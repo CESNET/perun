@@ -1,5 +1,10 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -12,9 +17,6 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,11 +24,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
 
 public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
@@ -40,35 +39,6 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
   private Group group;
   private Resource resource;
 
-  @Before
-  public void setUp() throws Exception {
-    perunBlImpl = ((PerunBlImpl) perun);
-    attributesManager = perunBlImpl.getAttributesManagerImpl();
-
-    initializeServiceRequiredAttributes();
-
-    attrMap.put(getArrayAttribute("a", "b"), "a,b,");
-    attrMap.put(getArrayAttribute("a,b", "c"), "a\\,b,c,");
-    attrMap.put(getArrayAttribute("a,,b", "c"), "a\\,\\,b,c,");
-    attrMap.put(getArrayAttribute("a\\b"), "a\\\\b,");
-
-    attrMap.put(getHashAttribute("a", "b", "c", "d"), "a:b,c:d,");
-    attrMap.put(getHashAttribute("a,x", "b,,", ",,c", ",,d,,"), "a\\,x:b\\,\\,,\\,\\,c:\\,\\,d\\,\\,,");
-    attrMap.put(getHashAttribute("a:x", "b"), "a\\:x:b,");
-    attrMap.put(getHashAttribute("a:x", "b", ":", "::"), "a\\:x:b,\\::\\:\\:,");
-  }
-
-
-  @Test
-  public void stringToAttributeValue() throws Exception {
-    System.out.println(CLASS_NAME + "stringToAttributeValue");
-    System.out.println("AttributesManagerImpl.stringToAttributeValue");
-    for (Map.Entry<Attribute, String> entry : attrMap.entrySet()) {
-      Object value = BeansUtils.stringToAttributeValue(entry.getValue(), entry.getKey().getType());
-      assertEquals("Input: " + entry.getValue(), entry.getKey().getValue(), value);
-    }
-  }
-
   @Test
   public void attributeValueToString() throws Exception {
     System.out.println(CLASS_NAME + "attributeValueToString");
@@ -76,6 +46,57 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
       String DBValue = BeansUtils.attributeValueToString(entry.getKey());
       assertEquals(entry.getValue(), DBValue);
     }
+  }
+
+  private Attribute getArrayAttribute(String... value) {
+    Attribute attribute = new Attribute();
+    attribute.setFriendlyName("test");
+    attribute.setNamespace("test");
+    attribute.setType(ArrayList.class.getName());
+    attribute.setValue(new ArrayList<>(Arrays.asList(value)));
+    return attribute;
+  }
+
+  private AttributeDefinition getAttributeDefinition(String name, String nameSpace) {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(nameSpace);
+    attr.setFriendlyName(name);
+    attr.setDisplayName(name);
+    attr.setType(String.class.getName());
+    attr.setDescription(name);
+    return attr;
+  }
+
+  private AttributeDefinition getGroupAttributeDefinition(String name) {
+    return getAttributeDefinition(name, AttributesManager.NS_GROUP_ATTR_DEF);
+  }
+
+  private AttributeDefinition getGroupResourceAttributeDefinition(String name) {
+    return getAttributeDefinition(name, AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+  }
+
+  private Attribute getHashAttribute(String... value) {
+    if (value.length % 2 == 1) {
+      throw new IllegalArgumentException("value");
+    }
+    Attribute attribute = new Attribute();
+    attribute.setFriendlyName("test");
+    attribute.setNamespace("test");
+    attribute.setType(LinkedHashMap.class.getName());
+
+    Map<String, String> attrValue = new LinkedHashMap<>();
+    for (int i = 0; i < value.length; i += 2) {
+      attrValue.put(value[i], value[i + 1]);
+    }
+    attribute.setValue(attrValue);
+    return attribute;
+  }
+
+  @Test
+  public void getRequiredAttributes_Service_Group() {
+    System.out.println(CLASS_NAME + "getRequiredAttributes_Service_Group");
+    List<Attribute> attributes = attributesManager.getRequiredAttributes(sess, service1, group);
+    assertThat(attributes).hasSize(1);
   }
 
   @Test
@@ -95,18 +116,9 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
   }
 
   @Test
-  public void getRequiredAttributes_Service_Group() {
-    System.out.println(CLASS_NAME + "getRequiredAttributes_Service_Group");
-    List<Attribute> attributes =
-        attributesManager.getRequiredAttributes(sess, service1, group);
-    assertThat(attributes).hasSize(1);
-  }
-
-  @Test
   public void getRequiredAttributes_service_resource_group() {
     System.out.println(CLASS_NAME + "getRequiredAttributes_service_resource_group");
-    List<Attribute> attributes =
-        attributesManager.getRequiredAttributes(sess, service1, resource, group);
+    List<Attribute> attributes = attributesManager.getRequiredAttributes(sess, service1, resource, group);
     assertThat(attributes).hasSize(1);
   }
 
@@ -125,6 +137,9 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
         attributesManager.getRequiredAttributes(sess, Collections.singletonList(service1), resource, group);
     assertThat(attributes).hasSize(1);
   }
+
+
+  /* ################## Private methods ################ */
 
   @Test
   public void getUninitializedAttributesModule() throws Exception {
@@ -170,10 +185,6 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
     assertNotNull(attributesManager.getUninitializedAttributesModule(sess, attr));
   }
 
-
-  /* ################## Private methods ################ */
-
-
   private void initializeServiceRequiredAttributes() throws Exception {
     Vo vo = new Vo(-1, "Test vo", "TestVo");
     vo = perunBlImpl.getVosManagerBl().createVo(sess, vo);
@@ -215,47 +226,31 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
     perunBlImpl.getResourcesManagerBl().assignService(sess, resource, service2);
   }
 
-  private Attribute getArrayAttribute(String... value) {
-    Attribute attribute = new Attribute();
-    attribute.setFriendlyName("test");
-    attribute.setNamespace("test");
-    attribute.setType(ArrayList.class.getName());
-    attribute.setValue(new ArrayList<>(Arrays.asList(value)));
-    return attribute;
+  @Before
+  public void setUp() throws Exception {
+    perunBlImpl = ((PerunBlImpl) perun);
+    attributesManager = perunBlImpl.getAttributesManagerImpl();
+
+    initializeServiceRequiredAttributes();
+
+    attrMap.put(getArrayAttribute("a", "b"), "a,b,");
+    attrMap.put(getArrayAttribute("a,b", "c"), "a\\,b,c,");
+    attrMap.put(getArrayAttribute("a,,b", "c"), "a\\,\\,b,c,");
+    attrMap.put(getArrayAttribute("a\\b"), "a\\\\b,");
+
+    attrMap.put(getHashAttribute("a", "b", "c", "d"), "a:b,c:d,");
+    attrMap.put(getHashAttribute("a,x", "b,,", ",,c", ",,d,,"), "a\\,x:b\\,\\,,\\,\\,c:\\,\\,d\\,\\,,");
+    attrMap.put(getHashAttribute("a:x", "b"), "a\\:x:b,");
+    attrMap.put(getHashAttribute("a:x", "b", ":", "::"), "a\\:x:b,\\::\\:\\:,");
   }
 
-  private AttributeDefinition getGroupAttributeDefinition(String name) {
-    return getAttributeDefinition(name, AttributesManager.NS_GROUP_ATTR_DEF);
-  }
-
-  private AttributeDefinition getGroupResourceAttributeDefinition(String name) {
-    return getAttributeDefinition(name, AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-  }
-
-  private AttributeDefinition getAttributeDefinition(String name, String nameSpace) {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(nameSpace);
-    attr.setFriendlyName(name);
-    attr.setDisplayName(name);
-    attr.setType(String.class.getName());
-    attr.setDescription(name);
-    return attr;
-  }
-
-  private Attribute getHashAttribute(String... value) {
-    if (value.length % 2 == 1) {
-      throw new IllegalArgumentException("value");
+  @Test
+  public void stringToAttributeValue() throws Exception {
+    System.out.println(CLASS_NAME + "stringToAttributeValue");
+    System.out.println("AttributesManagerImpl.stringToAttributeValue");
+    for (Map.Entry<Attribute, String> entry : attrMap.entrySet()) {
+      Object value = BeansUtils.stringToAttributeValue(entry.getValue(), entry.getKey().getType());
+      assertEquals("Input: " + entry.getValue(), entry.getKey().getValue(), value);
     }
-    Attribute attribute = new Attribute();
-    attribute.setFriendlyName("test");
-    attribute.setNamespace("test");
-    attribute.setType(LinkedHashMap.class.getName());
-
-    Map<String, String> attrValue = new LinkedHashMap<>();
-    for (int i = 0; i < value.length; i += 2) {
-      attrValue.put(value[i], value[i + 1]);
-    }
-    attribute.setValue(attrValue);
-    return attribute;
   }
 }

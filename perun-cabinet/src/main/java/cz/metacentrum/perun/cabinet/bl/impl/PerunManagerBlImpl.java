@@ -1,26 +1,10 @@
 package cz.metacentrum.perun.cabinet.bl.impl;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import cz.metacentrum.perun.cabinet.dao.ThanksManagerDao;
-import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 
 /**
  * Class which provides connection to the rest of Perun.

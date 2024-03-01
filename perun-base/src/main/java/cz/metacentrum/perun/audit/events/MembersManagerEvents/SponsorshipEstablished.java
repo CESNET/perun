@@ -20,8 +20,8 @@ public class SponsorshipEstablished extends AuditEvent {
     this.sponsoredMember = sponsoredMember;
     this.sponsor = sponsor;
     this.validity = validityTo;
-    this.message = formatMessage("Sponsorship of %s by %s established with validity to %s.",
-        sponsoredMember, sponsor, (validityTo == null) ? "FOREVER" : validityTo.toString());
+    this.message = formatMessage("Sponsorship of %s by %s established with validity to %s.", sponsoredMember, sponsor,
+        (validityTo == null) ? "FOREVER" : validityTo.toString());
   }
 
   @Override
@@ -29,12 +29,12 @@ public class SponsorshipEstablished extends AuditEvent {
     return message;
   }
 
-  public Member getSponsoredMember() {
-    return sponsoredMember;
-  }
-
   public User getSponsor() {
     return sponsor;
+  }
+
+  public Member getSponsoredMember() {
+    return sponsoredMember;
   }
 
   public LocalDate getValidity() {

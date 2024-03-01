@@ -45,7 +45,7 @@ import java.util.Map;
 
 public class UserExtSourceSettingsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "user-ext-src-settings";
+  public static final String URL = "user-ext-src-settings";
   /**
    * Perun web session
    */

@@ -3,7 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 /**
- * Thrown while assigning attribute to wrong entity. For example if you try to set value for the facility to attribute which is only for resources.
+ * Thrown while assigning attribute to wrong entity. For example if you try to set value for the facility to attribute
+ * which is only for resources.
  *
  * @author Slavek Licehammer
  */

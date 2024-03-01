@@ -18,13 +18,13 @@ public class GroupSyncFailed extends AuditEvent implements EngineIgnoreEvent {
     this.message = formatMessage("%s synchronization failed.", group);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   @Override

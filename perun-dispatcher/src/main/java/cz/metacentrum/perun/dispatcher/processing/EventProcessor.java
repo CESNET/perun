@@ -37,10 +37,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * This class ensure periodic blocking polling of EventQueue with Events parsed from audit messages by AuditerListener.
  * <p>
- * For each Event, Facility and set of affected Services is resolved. If can't be resolved or are empty, Event is discarded.
+ * For each Event, Facility and set of affected Services is resolved. If can't be resolved or are empty, Event is
+ * discarded.
  * <p>
- * Each Event is converted to Task if possible and added to pool (if new) or updated in pool (if exists).
- * New Tasks are also planned immediately.
+ * Each Event is converted to Task if possible and added to pool (if new) or updated in pool (if exists). New Tasks are
+ * also planned immediately.
  *
  * @author Michal Karm Babacek
  * @author Michal Vocu
@@ -53,7 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @org.springframework.stereotype.Service(value = "eventProcessor")
 public class EventProcessor extends AbstractRunner {
 
-  private final static Logger log = LoggerFactory.getLogger(EventProcessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EventProcessor.class);
 
   private BlockingQueue<Event> eventQueue;
   private EngineMessageProducerFactory engineMessageProducerFactory;
@@ -65,83 +66,9 @@ public class EventProcessor extends AbstractRunner {
 
   // ----- setters -------------------------------------
 
-  public BlockingQueue<Event> getEventQueue() {
-    return eventQueue;
-  }
-
-  @Resource(name = "eventQueue")
-  public void setEventQueue(BlockingQueue<Event> eventQueue) {
-    this.eventQueue = eventQueue;
-  }
-
-  public EngineMessageProducerFactory getEngineMessageProducerFactory() {
-    return engineMessageProducerFactory;
-  }
-
-  @Autowired
-  public void setEngineMessageProducerFactory(EngineMessageProducerFactory engineMessageProducerFactory) {
-    this.engineMessageProducerFactory = engineMessageProducerFactory;
-  }
-
-  public EventServiceResolver getEventServiceResolver() {
-    return eventServiceResolver;
-  }
-
-  @Autowired
-  public void setEventServiceResolver(EventServiceResolver eventServiceResolver) {
-    this.eventServiceResolver = eventServiceResolver;
-  }
-
-  public SchedulingPool getSchedulingPool() {
-    return schedulingPool;
-  }
-
-  @Autowired
-  public void setSchedulingPool(SchedulingPool schedulingPool) {
-    this.schedulingPool = schedulingPool;
-  }
-
-  public Perun getPerun() {
-    return perun;
-  }
-
-  @Autowired
-  public void setPerun(Perun perun) {
-    this.perun = perun;
-  }
-
-  public Properties getDispatcherProperties() {
-    return dispatcherProperties;
-  }
-
-  @Resource(name = "dispatcherPropertiesBean")
-  public void setDispatcherProperties(Properties dispatcherProperties) {
-    this.dispatcherProperties = dispatcherProperties;
-  }
-
-// ----- methods -------------------------------------
-
   /**
-   * EvProcessor thread, reads EventQueue and convert Events to Tasks,
-   * which are added to scheduling pool or updated if already in pool.
-   */
-  @Override
-  public void run() {
-    while (!shouldStop()) {
-      try {
-        Event event = eventQueue.take();
-        createTaskFromEvent(event);
-        log.trace("Remaining events in a Queue = {}", eventQueue.size());
-      } catch (Exception e) {
-        log.error(e.getMessage(), e);
-      }
-    }
-    log.warn("EventProcessor has stopped.");
-  }
-
-  /**
-   * Creates Task from Event data. Tries to resolve Service and Facility pairs from Event.
-   * Events for non-existing entities are discarded.
+   * Creates Task from Event data. Tries to resolve Service and Facility pairs from Event. Events for non-existing
+   * entities are discarded.
    *
    * @param event Event to parse
    * @throws ServiceNotExistsException    When Service from Event doesn't exists anymore
@@ -158,19 +85,19 @@ public class EventProcessor extends AbstractRunner {
       Facility facility = map.getKey();
       for (Service service : map.getValue()) {
         if (!service.isEnabled()) {
-          if (log.isDebugEnabled()) {
-            log.debug("Service disabled: {}.", service);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Service disabled: {}.", service);
           } else {
-            log.info("Service disabled: {}.", service.getId() + " / " + service.getName());
+            LOG.info("Service disabled: {}.", service.getId() + " / " + service.getName());
           }
           continue;
         }
 
         if (((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(service, facility)) {
-          if (log.isDebugEnabled()) {
-            log.debug("Service blocked on Facility: {} , {}.", service, facility);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Service blocked on Facility: {} , {}.", service, facility);
           } else {
-            log.info("Service blocked on Facility: {} , {}.", service.getId() + " / " + service.getName(),
+            LOG.info("Service blocked on Facility: {} , {}.", service.getId() + " / " + service.getName(),
                 facility.getId() + " / " + facility.getName());
           }
           continue;
@@ -182,14 +109,12 @@ public class EventProcessor extends AbstractRunner {
           // init session
           try {
             if (sess == null) {
-              sess = perun.getPerunSession(new PerunPrincipal(
-                      dispatcherProperties.getProperty("perun.principal.name"),
-                      dispatcherProperties.getProperty("perun.principal.extSourceName"),
-                      dispatcherProperties.getProperty("perun.principal.extSourceType")),
-                  new PerunClient());
+              sess = perun.getPerunSession(new PerunPrincipal(dispatcherProperties.getProperty("perun.principal.name"),
+                  dispatcherProperties.getProperty("perun.principal.extSourceName"),
+                  dispatcherProperties.getProperty("perun.principal.extSourceType")), new PerunClient());
             }
           } catch (InternalErrorException e1) {
-            log.error("Error establishing perun session to create Task from Event: ", e1);
+            LOG.error("Error establishing perun session to create Task from Event: ", e1);
             continue;
           }
 
@@ -206,10 +131,10 @@ public class EventProcessor extends AbstractRunner {
               // All service destinations were blocked -> Task is denied to be sent to engine just like
               // when service is blocked globally in Perun or on facility as a whole.
 
-              if (log.isDebugEnabled()) {
-                log.debug("{} blocked on all destinations on {}.", service, facility);
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("{} blocked on all destinations on {}.", service, facility);
               } else {
-                log.info("Service: {} blocked on all destinations on Facility: {}.",
+                LOG.info("Service: {} blocked on all destinations on Facility: {}.",
                     service.getId() + " / " + service.getName(), facility.getId() + " / " + facility.getName());
               }
               continue;
@@ -217,11 +142,11 @@ public class EventProcessor extends AbstractRunner {
           }
 
         } catch (ServiceNotExistsException e) {
-          log.error("Service not exist: {}.", service);
+          LOG.error("Service not exist: {}.", service);
         } catch (FacilityNotExistsException e) {
-          log.error("Facility not exist: {}.", facility);
+          LOG.error("Facility not exist: {}.", facility);
         } catch (InternalErrorException | PrivilegeException e) {
-          log.error("{}", e);
+          LOG.error("{}", e);
         }
 
         // check for presence of task for this <Service, Facility> pair
@@ -242,7 +167,7 @@ public class EventProcessor extends AbstractRunner {
             task.setPropagationForced(true);
           }
           task.setRecurrence(0);
-          log.info("[{}] Task is already in pool. Re-setting source updated and forced flags, {}.", task.getId(), task);
+          LOG.info("[{}] Task is already in pool. Re-setting source updated and forced flags, {}.", task.getId(), task);
         } else {
           // no such task yet, create one
           task = new Task();
@@ -256,9 +181,9 @@ public class EventProcessor extends AbstractRunner {
           task.setPropagationForced(isForced);
           try {
             schedulingPool.addToPool(task);
-            log.info("[{}] New Task added to pool. {}.", task.getId(), task);
+            LOG.info("[{}] New Task added to pool. {}.", task.getId(), task);
           } catch (TaskStoreException e) {
-            log.error("[{}] Could not add Task to pool. Task {} will be lost: {}", task.getId(), task, e);
+            LOG.error("[{}] Could not add Task to pool. Task {} will be lost: {}", task.getId(), task, e);
           }
           schedulingPool.scheduleTask(task, -1);
         }
@@ -276,6 +201,80 @@ public class EventProcessor extends AbstractRunner {
 
     return (event.getData() instanceof EngineForceEvent);
 
+  }
+
+  public Properties getDispatcherProperties() {
+    return dispatcherProperties;
+  }
+
+  public EngineMessageProducerFactory getEngineMessageProducerFactory() {
+    return engineMessageProducerFactory;
+  }
+
+  public BlockingQueue<Event> getEventQueue() {
+    return eventQueue;
+  }
+
+  public EventServiceResolver getEventServiceResolver() {
+    return eventServiceResolver;
+  }
+
+  public Perun getPerun() {
+    return perun;
+  }
+
+  public SchedulingPool getSchedulingPool() {
+    return schedulingPool;
+  }
+
+  /**
+   * EvProcessor thread, reads EventQueue and convert Events to Tasks, which are added to scheduling pool or updated if
+   * already in pool.
+   */
+  @Override
+  public void run() {
+    while (!shouldStop()) {
+      try {
+        Event event = eventQueue.take();
+        createTaskFromEvent(event);
+        LOG.trace("Remaining events in a Queue = {}", eventQueue.size());
+      } catch (Exception e) {
+        LOG.error(e.getMessage(), e);
+      }
+    }
+    LOG.warn("EventProcessor has stopped.");
+  }
+
+  @Resource(name = "dispatcherPropertiesBean")
+  public void setDispatcherProperties(Properties dispatcherProperties) {
+    this.dispatcherProperties = dispatcherProperties;
+  }
+
+  @Autowired
+  public void setEngineMessageProducerFactory(EngineMessageProducerFactory engineMessageProducerFactory) {
+    this.engineMessageProducerFactory = engineMessageProducerFactory;
+  }
+
+  @Resource(name = "eventQueue")
+  public void setEventQueue(BlockingQueue<Event> eventQueue) {
+    this.eventQueue = eventQueue;
+  }
+
+  // ----- methods -------------------------------------
+
+  @Autowired
+  public void setEventServiceResolver(EventServiceResolver eventServiceResolver) {
+    this.eventServiceResolver = eventServiceResolver;
+  }
+
+  @Autowired
+  public void setPerun(Perun perun) {
+    this.perun = perun;
+  }
+
+  @Autowired
+  public void setSchedulingPool(SchedulingPool schedulingPool) {
+    this.schedulingPool = schedulingPool;
   }
 
 }

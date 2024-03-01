@@ -25,13 +25,56 @@ public abstract class Deserializer {
   public abstract boolean contains(String name);
 
   /**
-   * Reads value with the specified name as {@code String}.
+   * Return HttpServletRequest related to concrete call this deserializer is used to process.
+   * <p>
+   * Note that this "request" is not necessarily used as source to read parameters by other methods of deserializer. It
+   * IS typically for GET requests, but NOT for POST with JSON/JSONP data format.
    *
-   * @param name name of the value to read
-   * @return the value as {@code String}
-   * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
+   * @return HttpServletRequest related to concrete call
+   * @throws UnsupportedOperationException if this deserializer does not implement this method
    */
-  public abstract String readString(String name);
+  public HttpServletRequest getServletRequest() {
+    throw new UnsupportedOperationException("getServletRequest()");
+  }
+
+  /**
+   * Reads value with the specified name as {@code valueType}.
+   *
+   * @param name      name of the value to read
+   * @param valueType type of the value to read
+   * @return the value as {@code valueType}
+   * @throws UnsupportedOperationException if this deserializer does not implement this method
+   * @throws RpcException                  if the specified value cannot be parsed as {@code valueType} or if it is not
+   *                                       supplied
+   */
+  public <T> T read(String name, Class<T> valueType) {
+    throw new UnsupportedOperationException("read(String name, Class<T> valueType)");
+  }
+
+  /**
+   * Reads value from root Json node.
+   *
+   * @param valueType type of the value to read
+   * @return the value as {@code valueType}
+   * @throws UnsupportedOperationException if this deserializer does not implement this method
+   * @throws RpcException                  if the specified value cannot be parsed as {@code valueType} or if it is not
+   *                                       supplied
+   */
+  public <T> T read(Class<T> valueType) {
+    throw new UnsupportedOperationException("read(Class<T> valueType)");
+  }
+
+  /**
+   * Returns string representation of the variables stored in the deserializer.
+   *
+   * @return string containing all variables
+   * @throws RpcException
+   */
+  public abstract String readAll();
+
+  public int[] readArrayOfInts(String name) {
+    throw new UnsupportedOperationException("readArrayOfInts(String name)");
+  }
 
   /**
    * Reads value with the specified name as {@code Boolean}.
@@ -52,53 +95,14 @@ public abstract class Deserializer {
   public abstract int readInt(String name);
 
   /**
-   * Reads LocalDate value with the specified name. Expected ISO-8601 format. (yyyy-MM-dd)
-   *
-   * @param name name of the localDate value
-   * @return parsed local date
-   */
-  public LocalDate readLocalDate(String name) {
-    String date = readString(name);
-    return date == null ? null : LocalDate.parse(date);
-  }
-
-  public int[] readArrayOfInts(String name) {
-    throw new UnsupportedOperationException("readArrayOfInts(String name)");
-  }
-
-  /**
-   * Reads value with the specified name as {@code valueType}.
-   *
-   * @param name      name of the value to read
-   * @param valueType type of the value to read
-   * @return the value as {@code valueType}
-   * @throws UnsupportedOperationException if this deserializer does not implement this method
-   * @throws RpcException                  if the specified value cannot be parsed as {@code valueType} or if it is not supplied
-   */
-  public <T> T read(String name, Class<T> valueType) {
-    throw new UnsupportedOperationException("read(String name, Class<T> valueType)");
-  }
-
-  /**
-   * Reads value from root Json node.
-   *
-   * @param valueType type of the value to read
-   * @return the value as {@code valueType}
-   * @throws UnsupportedOperationException if this deserializer does not implement this method
-   * @throws RpcException                  if the specified value cannot be parsed as {@code valueType} or if it is not supplied
-   */
-  public <T> T read(Class<T> valueType) {
-    throw new UnsupportedOperationException("read(Class<T> valueType)");
-  }
-
-  /**
    * Reads array with the specified name as {@code List<valueType>}.
    *
    * @param name      name of the array to read
    * @param valueType type of the value to read
    * @return the value as {@code List<valueType>}
    * @throws UnsupportedOperationException if this deserializer does not implement this method
-   * @throws RpcException                  if the specified value cannot be parsed as {@code valueType} or if it is not supplied
+   * @throws RpcException                  if the specified value cannot be parsed as {@code valueType} or if it is not
+   *                                       supplied
    */
   public <T> List<T> readList(String name, Class<T> valueType) {
     throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
@@ -110,22 +114,11 @@ public abstract class Deserializer {
    * @param valueType type of the value to read
    * @return the value as {@code List<valueType>}
    * @throws UnsupportedOperationException if this deserializer does not implement this method
-   * @throws RpcException                  if the specified value cannot be parsed as {@code valueType} or if it is not supplied
+   * @throws RpcException                  if the specified value cannot be parsed as {@code valueType} or if it is not
+   *                                       supplied
    */
   public <T> List<T> readList(Class<T> valueType) {
     throw new UnsupportedOperationException("readList(Class<T> valueType)");
-  }
-
-  /**
-   * Reads value with the specified name as {@code PerunBean}.
-   *
-   * @param name name of the value to read
-   * @return the value as {@code PerunBean}
-   * @throws UnsupportedOperationException if this deserializer does not implement this method
-   * @throws RpcException                  if the specified value cannot be parsed as {@code perunBean} or if it is not supplied
-   */
-  public PerunBean readPerunBean(String name) {
-    throw new UnsupportedOperationException("readListPerunBeans(String name)");
   }
 
   /**
@@ -134,33 +127,45 @@ public abstract class Deserializer {
    * @param name name of the array to read
    * @return the value as {@code List<PerunBean>}
    * @throws UnsupportedOperationException if this deserializer does not implement this method
-   * @throws RpcException                  if the specified value cannot be parsed as {@code perunBean} or if it is not supplied
+   * @throws RpcException                  if the specified value cannot be parsed as {@code perunBean} or if it is not
+   *                                       supplied
    */
   public List<PerunBean> readListPerunBeans(String name) {
     throw new UnsupportedOperationException("readListPerunBeans(String name)");
   }
 
   /**
-   * Returns string representation of the variables stored in the deserializer.
+   * Reads LocalDate value with the specified name. Expected ISO-8601 format. (yyyy-MM-dd)
    *
-   * @return string containing all variables
-   * @throws RpcException
+   * @param name name of the localDate value
+   * @return parsed local date
    */
-  public abstract String readAll();
+  public LocalDate readLocalDate(String name) {
+    String date = readString(name);
+    return date == null ? null : LocalDate.parse(date);
+  }
 
   /**
-   * Return HttpServletRequest related to concrete call this deserializer is used to process.
-   * <p>
-   * Note that this "request" is not necessarily used as source to read parameters by
-   * other methods of deserializer. It IS typically for GET requests, but NOT for POST with
-   * JSON/JSONP data format.
+   * Reads value with the specified name as {@code PerunBean}.
    *
-   * @return HttpServletRequest related to concrete call
+   * @param name name of the value to read
+   * @return the value as {@code PerunBean}
    * @throws UnsupportedOperationException if this deserializer does not implement this method
+   * @throws RpcException                  if the specified value cannot be parsed as {@code perunBean} or if it is not
+   *                                       supplied
    */
-  public HttpServletRequest getServletRequest() {
-    throw new UnsupportedOperationException("getServletRequest()");
+  public PerunBean readPerunBean(String name) {
+    throw new UnsupportedOperationException("readListPerunBeans(String name)");
   }
+
+  /**
+   * Reads value with the specified name as {@code String}.
+   *
+   * @param name name of the value to read
+   * @return the value as {@code String}
+   * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
+   */
+  public abstract String readString(String name);
 
   /**
    * Check whether method that changes state is not GET.

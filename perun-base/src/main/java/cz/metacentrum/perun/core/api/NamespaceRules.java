@@ -16,30 +16,6 @@ public class NamespaceRules {
   public NamespaceRules() {
   }
 
-  public String getNamespaceName() {
-    return namespaceName;
-  }
-
-  public void setNamespaceName(String namespaceName) {
-    this.namespaceName = namespaceName;
-  }
-
-  public Set<String> getRequiredAttributes() {
-    return requiredAttributes;
-  }
-
-  public void setRequiredAttributes(Set<String> requiredAttributes) {
-    this.requiredAttributes = requiredAttributes;
-  }
-
-  public Set<String> getOptionalAttributes() {
-    return optionalAttributes;
-  }
-
-  public void setOptionalAttributes(Set<String> optionalAttributes) {
-    this.optionalAttributes = optionalAttributes;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -50,30 +26,8 @@ public class NamespaceRules {
     }
     NamespaceRules that = (NamespaceRules) o;
     return Objects.equals(getNamespaceName(), that.getNamespaceName()) &&
-        Objects.equals(getRequiredAttributes(), that.getRequiredAttributes()) &&
-        Objects.equals(getOptionalAttributes(), that.getOptionalAttributes());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(getNamespaceName(), getRequiredAttributes(), getOptionalAttributes());
-  }
-
-  @Override
-  public String toString() {
-    return "NamespaceRules{" +
-        "namespaceName='" + namespaceName + '\'' +
-        ", requiredAttributes=" + requiredAttributes +
-        ", optionalAttributes=" + optionalAttributes +
-        '}';
-  }
-
-  public String getDefaultEmail() {
-    return defaultEmail;
-  }
-
-  public void setDefaultEmail(String defaultEmail) {
-    this.defaultEmail = defaultEmail;
+           Objects.equals(getRequiredAttributes(), that.getRequiredAttributes()) &&
+           Objects.equals(getOptionalAttributes(), that.getOptionalAttributes());
   }
 
   public String getCsvGenHeader() {
@@ -84,6 +38,14 @@ public class NamespaceRules {
     this.csvGenHeader = csvGenHeader;
   }
 
+  public String getCsvGenHeaderDescription() {
+    return csvGenHeaderDescription;
+  }
+
+  public void setCsvGenHeaderDescription(String csvGenHeaderDescription) {
+    this.csvGenHeaderDescription = csvGenHeaderDescription;
+  }
+
   public String getCsvGenPlaceholder() {
     return csvGenPlaceholder;
   }
@@ -92,11 +54,46 @@ public class NamespaceRules {
     this.csvGenPlaceholder = csvGenPlaceholder;
   }
 
-  public String getCsvGenHeaderDescription() {
-    return csvGenHeaderDescription;
+  public String getDefaultEmail() {
+    return defaultEmail;
   }
 
-  public void setCsvGenHeaderDescription(String csvGenHeaderDescription) {
-    this.csvGenHeaderDescription = csvGenHeaderDescription;
+  public void setDefaultEmail(String defaultEmail) {
+    this.defaultEmail = defaultEmail;
+  }
+
+  public String getNamespaceName() {
+    return namespaceName;
+  }
+
+  public void setNamespaceName(String namespaceName) {
+    this.namespaceName = namespaceName;
+  }
+
+  public Set<String> getOptionalAttributes() {
+    return optionalAttributes;
+  }
+
+  public void setOptionalAttributes(Set<String> optionalAttributes) {
+    this.optionalAttributes = optionalAttributes;
+  }
+
+  public Set<String> getRequiredAttributes() {
+    return requiredAttributes;
+  }
+
+  public void setRequiredAttributes(Set<String> requiredAttributes) {
+    this.requiredAttributes = requiredAttributes;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getNamespaceName(), getRequiredAttributes(), getOptionalAttributes());
+  }
+
+  @Override
+  public String toString() {
+    return "NamespaceRules{" + "namespaceName='" + namespaceName + '\'' + ", requiredAttributes=" + requiredAttributes +
+           ", optionalAttributes=" + optionalAttributes + '}';
   }
 }

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -10,9 +13,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_user_facility_attribute_def_virt_loginTest {
 
@@ -46,6 +46,14 @@ public class urn_perun_user_facility_attribute_def_virt_loginTest {
         userLoginNamespace);
   }
 
+  @Test
+  public void testSemanticsCorrect() throws Exception {
+    System.out.println("testSemanticsCorrect()");
+    attributeToCheck.setValue("login");
+
+    classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
+  }
+
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void testSemanticsWithoutFacilityLoginNamespaceAttribute() throws Exception {
     System.out.println("testSemanticsWithoutFacilityLoginNamespaceAttribute()");
@@ -59,14 +67,6 @@ public class urn_perun_user_facility_attribute_def_virt_loginTest {
   public void testSemanticsWithoutUserLoginNamespaceAttribute() throws Exception {
     System.out.println("testSemanticsWithoutUserLoginNamespaceAttribute()");
     attributeToCheck.setValue(null);
-
-    classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
-  }
-
-  @Test
-  public void testSemanticsCorrect() throws Exception {
-    System.out.println("testSemanticsCorrect()");
-    attributeToCheck.setValue("login");
 
     classInstance.checkAttributeSemantics(sess, user, facility, attributeToCheck);
   }

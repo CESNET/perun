@@ -85,6 +85,17 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
   }
 
   @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_VIRT);
+    attr.setFriendlyName("unixGID");
+    attr.setDisplayName("Unix GID");
+    attr.setType(Integer.class.getName());
+    attr.setDescription("Unix GID");
+    return attr;
+  }
+
+  @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource,
                                      AttributeDefinition attributeDefinition) {
     Attribute attribute = new Attribute(attributeDefinition);
@@ -109,21 +120,19 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
   }
 
   @Override
-  public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    Attribute unixGIDNamespaceAttribute =
-        sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_R_unixGID_namespace + "*");
+    dependencies.add(A_F_unixGID_namespace);
+    return dependencies;
+  }
 
-    try {
-      Attribute gidAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl()
-          .getAttributeDefinition(sess, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue()));
-      gidAttribute.setValue(attribute.getValue());
-      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, resource, gidAttribute);
-    } catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
-    } catch (AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
-    }
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(A_R_unixGID_namespace + "*");
+    strongDependencies.add(A_F_unixGID_namespace);
+    return strongDependencies;
   }
 
   @Override
@@ -142,29 +151,20 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_R_unixGID_namespace + "*");
-    dependencies.add(A_F_unixGID_namespace);
-    return dependencies;
-  }
+  public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    Attribute unixGIDNamespaceAttribute =
+        sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 
-  @Override
-  public List<String> getStrongDependencies() {
-    List<String> strongDependencies = new ArrayList<>();
-    strongDependencies.add(A_R_unixGID_namespace + "*");
-    strongDependencies.add(A_F_unixGID_namespace);
-    return strongDependencies;
-  }
-
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_VIRT);
-    attr.setFriendlyName("unixGID");
-    attr.setDisplayName("Unix GID");
-    attr.setType(Integer.class.getName());
-    attr.setDescription("Unix GID");
-    return attr;
+    try {
+      Attribute gidAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl()
+          .getAttributeDefinition(sess, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue()));
+      gidAttribute.setValue(attribute.getValue());
+      return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, resource, gidAttribute);
+    } catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    }
   }
 }

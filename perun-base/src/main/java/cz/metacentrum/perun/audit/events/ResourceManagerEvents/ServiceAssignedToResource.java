@@ -25,12 +25,12 @@ public class ServiceAssignedToResource extends AuditEvent {
     return message;
   }
 
-  public Service getService() {
-    return service;
-  }
-
   public Resource getResource() {
     return resource;
+  }
+
+  public Service getService() {
+    return service;
   }
 
   @Override

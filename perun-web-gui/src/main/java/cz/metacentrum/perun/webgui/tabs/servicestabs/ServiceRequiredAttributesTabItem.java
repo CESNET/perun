@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "req-attrs";
+  public static final String URL = "req-attrs";
   /**
    * Perun web session
    */

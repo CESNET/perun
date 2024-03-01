@@ -10,6 +10,12 @@ import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.beans.PerunAttributeConfigurer;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,16 +28,9 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.support.LdapNameBuilder;
 
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public abstract class AbstractPerunEntry<T extends PerunBean> implements InitializingBean, PerunEntry<T> {
 
-  private final static Logger log = LoggerFactory.getLogger(AbstractPerunEntry.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractPerunEntry.class);
   @Autowired
   protected LdapTemplate ldapTemplate;
   @Autowired
@@ -39,6 +38,32 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
   private List<PerunAttribute<T>> attributeDescriptions;
   private PerunAttributeConfigurer<T> attributeDescriptionsExt;
   private List<String> updatableAttributeNames;
+
+  protected abstract Name buildDN(T bean);
+
+  protected abstract List<PerunAttribute<T>> getDefaultAttributeDescriptions();
+
+  protected abstract List<String> getDefaultUpdatableAttributes();
+
+  public abstract Name getEntryDN(String... id);
+
+  protected Name addBaseDN(Name entryDN) {
+    try {
+      return LdapNameBuilder.newInstance(getBaseDN()).build().addAll(entryDN);
+    } catch (InvalidNameException e) {
+      return entryDN;
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#addEntry(cz.metacentrum.perun.core.api.PerunBean)
+   */
+  @Override
+  public void addEntry(T bean) {
+    DirContextOperations context = new DirContextAdapter(buildDN(bean));
+    mapToContext(bean, context);
+    ldapTemplate.bind(context);
+  }
 
   public void afterPropertiesSet() {
     if (attributeDescriptions == null) {
@@ -57,93 +82,6 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
     }
   }
 
-  abstract protected List<String> getDefaultUpdatableAttributes();
-
-  abstract protected List<PerunAttribute<T>> getDefaultAttributeDescriptions();
-
-  /* (non-Javadoc)
-   * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#addEntry(cz.metacentrum.perun.core.api.PerunBean)
-   */
-  @Override
-  public void addEntry(T bean) {
-    DirContextOperations context = new DirContextAdapter(buildDN(bean));
-    mapToContext(bean, context);
-    ldapTemplate.bind(context);
-  }
-
-  @Override
-  public void modifyEntry(T bean) {
-    modifyEntry(bean, attributeDescriptions, updatableAttributeNames);
-  }
-
-  @Override
-  public void modifyEntry(T bean, String... attrNames) {
-    modifyEntry(bean, attributeDescriptions, Arrays.asList(attrNames));
-  }
-
-  /* (non-Javadoc)
-   * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#modifyEntry(cz.metacentrum.perun.core.api.PerunBean)
-   */
-  @Override
-  public void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames) {
-    modifyEntry(bean, attrs, Arrays.asList(attrNames));
-  }
-
-  protected void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, List<String> attrNames) {
-    DirContextOperations entry = findByDN(buildDN(bean));
-    mapToContext(bean, entry, findAttributeDescriptionsByLdapName(attrs, attrNames));
-    ldapTemplate.modifyAttributes(entry);
-  }
-
-  @Override
-  public void modifyEntry(T bean, AttributeDefinition attr) {
-    DirContextOperations entry = findByDN(buildDN(bean));
-    List<PerunAttribute<T>> attrDefs = findAttributeDescriptionsByPerunAttr(getAttributeDescriptions(), attr);
-    if (attrDefs.isEmpty()) {
-      // this is not exceptional situation
-      // throw new InternalErrorException("Attribute description for attribute " + attr.getName() + " not found");
-      log.info("Attribute description for attribute {} not found, not modifying entry.", attr.getName());
-      return;
-    }
-    for (PerunAttribute<T> attrDef : attrDefs) {
-      mapToContext(bean, entry, attrDef, attr);
-    }
-    ldapTemplate.modifyAttributes(entry);
-  }
-
-  @Override
-  public void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr) {
-    DirContextOperations entry = findByDN(buildDN(bean));
-    mapToContext(bean, entry, attrDef, attr);
-    ldapTemplate.modifyAttributes(entry);
-  }
-
-  @Override
-  public void modifyEntry(T bean, Iterable<Pair<PerunAttribute<T>, AttributeDefinition>> attrs) {
-    DirContextOperations entry = findByDN(buildDN(bean));
-    for (Pair<PerunAttribute<T>, AttributeDefinition> pair : attrs) {
-      mapToContext(bean, entry, pair.getLeft(), pair.getRight());
-    }
-    ldapTemplate.modifyAttributes(entry);
-  }
-
-  /* (non-Javadoc)
-   * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#deleteEntry(cz.metacentrum.perun.core.api.PerunBean)
-   */
-  @Override
-  public void deleteEntry(T bean) {
-    deleteEntry(buildDN(bean));
-  }
-
-  @Override
-  public void deleteEntry(Name dn) {
-    try {
-      ldapTemplate.unbind(dn);
-    } catch (NameNotFoundException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
   @Override
   public SyncOperation beginSynchronizeEntry(T bean) {
     DirContextOperations entry;
@@ -155,12 +93,12 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
       entry = new DirContextAdapter(buildDN(bean));
     }
     if (newEntry) {
-      log.debug("Creating new entry {} ", entry.toString());
+      LOG.debug("Creating new entry {} ", entry.toString());
       // map with objectclasses
       mapToContext(bean, entry);
       // ldapTemplate.bind(entry);
     } else {
-      log.debug("Modifying entry {} ", entry.toString());
+      LOG.debug("Modifying entry {} ", entry.toString());
       // map without objectclasses (entry exists)
       mapToContext(bean, entry, getAttributeDescriptions());
       //ldapTemplate.modifyAttributes(entry);
@@ -184,13 +122,13 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
         mapToContext(bean, entry, attributeDesc, attribute);
       }
     }
-		/*
-		if(newEntry) {
-			ldapTemplate.bind(entry);
-		} else {
-			ldapTemplate.modifyAttributes(entry);
-		}
-		*/
+    /*
+    if(newEntry) {
+        ldapTemplate.bind(entry);
+    } else {
+        ldapTemplate.modifyAttributes(entry);
+    }
+    */
     return new SyncOperationImpl(entry, newEntry);
   }
 
@@ -203,14 +141,92 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
     }
   }
 
+  /* (non-Javadoc)
+   * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#deleteEntry(cz.metacentrum.perun.core.api.PerunBean)
+   */
   @Override
-  public void synchronizeEntry(T bean) {
-    commitSyncOperation(beginSynchronizeEntry(bean));
+  public void deleteEntry(T bean) {
+    deleteEntry(buildDN(bean));
   }
 
   @Override
-  public void synchronizeEntry(T bean, Iterable<Attribute> attrs) {
-    commitSyncOperation(beginSynchronizeEntry(bean, attrs));
+  public void deleteEntry(Name dn) {
+    try {
+      ldapTemplate.unbind(dn);
+    } catch (NameNotFoundException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public Boolean entryAttributeExists(T bean, String ldapAttributeName) {
+    DirContextOperations entry = findByDN(buildDN(bean));
+    String value = entry.getStringAttribute(ldapAttributeName);
+    return (value != null);
+  }
+
+  @Override
+  public Boolean entryExists(T bean) {
+    DirContextOperations entry;
+    try {
+      entry = findByDN(buildDN(bean));
+    } catch (NameNotFoundException e) {
+      return false;
+    }
+    return entry != null;
+  }
+
+  protected Iterable<PerunAttribute<T>> findAttributeDescriptionsByLdapName(Iterable<PerunAttribute<T>> attrs,
+                                                                            Iterable<String> attrNames) {
+    List<PerunAttribute<T>> result = new ArrayList<PerunAttribute<T>>();
+    for (PerunAttribute<T> attrDesc : attrs) {
+      String descName = attrDesc.getName();
+      for (String attrName : attrNames) {
+        if (descName.contains(";")) {
+          // tagged names are taken as prefixes
+          if (attrName.startsWith(descName)) {
+            result.add(attrDesc);
+          }
+        } else {
+          // names without options are compared as a whole
+          if (descName.equals(attrName)) {
+            result.add(attrDesc);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Find attribute description for given Perun AttributeDefinition, ie. find which attribute describes how to extract
+   * value from this AttributeDefinition.
+   *
+   * @param attrs
+   * @param attr
+   * @return
+   */
+  protected List<PerunAttribute<T>> findAttributeDescriptionsByPerunAttr(List<PerunAttribute<T>> attrs,
+                                                                         AttributeDefinition attr) {
+    List<PerunAttribute<T>> result = new ArrayList<PerunAttribute<T>>();
+    for (PerunAttribute<T> attrDef : attrs) {
+      AttributeValueExtractor extractor = null;
+      if (attrDef.isMultiValued()) {
+        PerunAttribute.MultipleValuesExtractor<T> ext = attrDef.getMultipleValuesExtractor();
+        if (ext instanceof AttributeValueExtractor) {
+          extractor = (AttributeValueExtractor) ext;
+        }
+      } else {
+        PerunAttribute.SingleValueExtractor<T> ext = attrDef.getSingleValueExtractor();
+        if (ext instanceof AttributeValueExtractor) {
+          extractor = (AttributeValueExtractor) ext;
+        }
+      }
+      if (extractor != null && extractor.appliesToAttribute(attr)) {
+        result.add(attrDef);
+      }
+    }
+    return result;
   }
 
   @Override
@@ -227,76 +243,27 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
     return ldapTemplate.lookupContext(getEntryDN(id));
   }
 
-  abstract public Name getEntryDN(String... id);
-
-  @Override
-  public Boolean entryAttributeExists(T bean, String ldapAttributeName) {
-    DirContextOperations entry = findByDN(buildDN(bean));
-    String value = entry.getStringAttribute(ldapAttributeName);
-    return (value != null);
-  }
-
-  @Override
-  public void removeAllAttributes(T bean) {
-    DirContextOperations entry = findByDN(buildDN(bean));
-    /* we have to find all existing entry attributes to resolve all the present options in names */
-    NamingEnumeration<String> attrNames = entry.getAttributes().getIDs();
-    while (attrNames.hasMoreElements()) {
-      String attrName = attrNames.nextElement();
-      Iterable<PerunAttribute<T>> attrDefs =
-          findAttributeDescriptionsByLdapName(getAttributeDescriptions(), Arrays.asList(attrName));
-      for (PerunAttribute<T> attrDef : attrDefs) {
-        if (attrDef.requiresAttributeBean() && !attrDef.isRequired()) {
-          entry.setAttributeValues(attrName, null);
-        }
-      }
-    }
-    if (entry.getModificationItems().length > 0) {
-      ldapTemplate.modifyAttributes(entry);
-    }
-  }
-
-  @Override
-  public Boolean entryExists(T bean) {
-    DirContextOperations entry;
-    try {
-      entry = findByDN(buildDN(bean));
-    } catch (NameNotFoundException e) {
-      return false;
-    }
-    if (entry == null) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
   @Override
   public List<PerunAttribute<T>> getAttributeDescriptions() {
     return attributeDescriptions;
-  }
-
-  @Override
-  public void setAttributeDescriptions(List<PerunAttribute<T>> attributeDescriptions) {
-    this.attributeDescriptions = attributeDescriptions;
   }
 
   public PerunAttributeConfigurer<T> getAttributeDescriptionsExt() {
     return attributeDescriptionsExt;
   }
 
-  public void setAttributeDescriptionsExt(PerunAttributeConfigurer<T> attributeDescriptionsExt) {
-    this.attributeDescriptionsExt = attributeDescriptionsExt;
+  protected String getBaseDN() {
+    return ldapProperties.getLdapBase();
   }
 
-  @Override
-  public List<String> getUpdatableAttributeNames() {
-    return updatableAttributeNames;
-  }
+  protected ContextMapper<Name> getNameMapper() {
+    return new AbstractContextMapper<Name>() {
 
-  @Override
-  public void setUpdatableAttributeNames(List<String> updatableAttributeNames) {
-    this.updatableAttributeNames = updatableAttributeNames;
+      @Override
+      protected Name doMapFromContext(DirContextOperations ctx) {
+        return ctx.getDn();
+      }
+    };
   }
 
   @Override
@@ -314,26 +281,17 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
     return attrNames;
   }
 
-  protected String getBaseDN() {
-    return ldapProperties.getLdapBase();
+  @Override
+  public List<String> getUpdatableAttributeNames() {
+    return updatableAttributeNames;
   }
 
-  protected Name addBaseDN(Name entryDN) {
-    try {
-      return LdapNameBuilder.newInstance(getBaseDN()).build().addAll(entryDN);
-    } catch (InvalidNameException e) {
-      return entryDN;
-    }
-  }
-
-  abstract protected Name buildDN(T bean);
-
-  abstract protected void mapToContext(T bean, DirContextOperations context);
+  protected abstract void mapToContext(T bean, DirContextOperations context);
 
   /**
-   * Takes data from Perun bean and stores them into LDAP entry (context) for creation or update.
-   * List of attributes to fill-in is given as parameter; if attribute has no value, it will be removed.
-   * Attribute definitions that require data from Attribute bean are ignored.
+   * Takes data from Perun bean and stores them into LDAP entry (context) for creation or update. List of attributes to
+   * fill-in is given as parameter; if attribute has no value, it will be removed. Attribute definitions that require
+   * data from Attribute bean are ignored.
    *
    * @param bean    - Perun bean containing the basic data
    * @param context - LDAP context (ie. entry) that should be filled
@@ -350,7 +308,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 
       // clear attributes marked for deletion
       if (attr.isDeleted()) {
-        log.debug("Clearing LDAP attribute marked for deletion: {}", attr.getName());
+        LOG.debug("Clearing LDAP attribute marked for deletion: {}", attr.getName());
         context.setAttributeValues(attr.getName(), null);
         continue;
       }
@@ -383,7 +341,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
     if (attrDef.isDeleted()) {
       // clear attributes marked for deletion
       entry.setAttributeValues(attrDef.getName(attr), null);
-      log.debug("Clearing LDAP attribute marked for deletion: {}", attrDef.getName(attr));
+      LOG.debug("Clearing LDAP attribute marked for deletion: {}", attrDef.getName(attr));
       return;
     }
 
@@ -407,67 +365,104 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
     entry.setAttributeValues(attrDef.getName(attr), values);
   }
 
-  protected Iterable<PerunAttribute<T>> findAttributeDescriptionsByLdapName(Iterable<PerunAttribute<T>> attrs,
-                                                                            Iterable<String> attrNames) {
-    List<PerunAttribute<T>> result = new ArrayList<PerunAttribute<T>>();
-    for (PerunAttribute<T> attrDesc : attrs) {
-      String descName = attrDesc.getName();
-      for (String attrName : attrNames) {
-        if (descName.contains(";")) {
-          // tagged names are taken as prefixes
-          if (attrName.startsWith(descName)) {
-            result.add(attrDesc);
-          }
-        } else {
-          // names without options are compared as a whole
-          if (descName.equals(attrName)) {
-            result.add(attrDesc);
-          }
-        }
-      }
-    }
-    return result;
+  @Override
+  public void modifyEntry(T bean) {
+    modifyEntry(bean, attributeDescriptions, updatableAttributeNames);
   }
 
-  /**
-   * Find attribute description for given Perun AttributeDefinition, ie. find which attribute describes
-   * how to extract value from this AttributeDefinition.
-   *
-   * @param attrs
-   * @param attr
-   * @return
+  protected void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, List<String> attrNames) {
+    DirContextOperations entry = findByDN(buildDN(bean));
+    mapToContext(bean, entry, findAttributeDescriptionsByLdapName(attrs, attrNames));
+    ldapTemplate.modifyAttributes(entry);
+  }
+
+  @Override
+  public void modifyEntry(T bean, String... attrNames) {
+    modifyEntry(bean, attributeDescriptions, Arrays.asList(attrNames));
+  }
+
+  /* (non-Javadoc)
+   * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#modifyEntry(cz.metacentrum.perun.core.api.PerunBean)
    */
-  protected List<PerunAttribute<T>> findAttributeDescriptionsByPerunAttr(List<PerunAttribute<T>> attrs,
-                                                                         AttributeDefinition attr) {
-    List<PerunAttribute<T>> result = new ArrayList<PerunAttribute<T>>();
-    for (PerunAttribute<T> attrDef : attrs) {
-      AttributeValueExtractor extractor = null;
-      if (attrDef.isMultiValued()) {
-        PerunAttribute.MultipleValuesExtractor<T> ext = attrDef.getMultipleValuesExtractor();
-        if (ext instanceof AttributeValueExtractor) {
-          extractor = (AttributeValueExtractor) ext;
-        }
-      } else {
-        PerunAttribute.SingleValueExtractor<T> ext = attrDef.getSingleValueExtractor();
-        if (ext instanceof AttributeValueExtractor) {
-          extractor = (AttributeValueExtractor) ext;
-        }
-      }
-      if (extractor != null && extractor.appliesToAttribute(attr)) {
-        result.add(attrDef);
-      }
-    }
-    return result;
+  @Override
+  public void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames) {
+    modifyEntry(bean, attrs, Arrays.asList(attrNames));
   }
 
-  protected ContextMapper<Name> getNameMapper() {
-    return new AbstractContextMapper<Name>() {
+  @Override
+  public void modifyEntry(T bean, AttributeDefinition attr) {
+    DirContextOperations entry = findByDN(buildDN(bean));
+    List<PerunAttribute<T>> attrDefs = findAttributeDescriptionsByPerunAttr(getAttributeDescriptions(), attr);
+    if (attrDefs.isEmpty()) {
+      // this is not exceptional situation
+      // throw new InternalErrorException("Attribute description for attribute " + attr.getName() + " not found");
+      LOG.info("Attribute description for attribute {} not found, not modifying entry.", attr.getName());
+      return;
+    }
+    for (PerunAttribute<T> attrDef : attrDefs) {
+      mapToContext(bean, entry, attrDef, attr);
+    }
+    ldapTemplate.modifyAttributes(entry);
+  }
 
-      @Override
-      protected Name doMapFromContext(DirContextOperations ctx) {
-        return ctx.getDn();
+  @Override
+  public void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr) {
+    DirContextOperations entry = findByDN(buildDN(bean));
+    mapToContext(bean, entry, attrDef, attr);
+    ldapTemplate.modifyAttributes(entry);
+  }
+
+  @Override
+  public void modifyEntry(T bean, Iterable<Pair<PerunAttribute<T>, AttributeDefinition>> attrs) {
+    DirContextOperations entry = findByDN(buildDN(bean));
+    for (Pair<PerunAttribute<T>, AttributeDefinition> pair : attrs) {
+      mapToContext(bean, entry, pair.getLeft(), pair.getRight());
+    }
+    ldapTemplate.modifyAttributes(entry);
+  }
+
+  @Override
+  public void removeAllAttributes(T bean) {
+    DirContextOperations entry = findByDN(buildDN(bean));
+    /* we have to find all existing entry attributes to resolve all the present options in names */
+    NamingEnumeration<String> attrNames = entry.getAttributes().getIDs();
+    while (attrNames.hasMoreElements()) {
+      String attrName = attrNames.nextElement();
+      Iterable<PerunAttribute<T>> attrDefs =
+          findAttributeDescriptionsByLdapName(getAttributeDescriptions(), Arrays.asList(attrName));
+      for (PerunAttribute<T> attrDef : attrDefs) {
+        if (attrDef.requiresAttributeBean() && !attrDef.isRequired()) {
+          entry.setAttributeValues(attrName, null);
+        }
       }
-    };
+    }
+    if (entry.getModificationItems().length > 0) {
+      ldapTemplate.modifyAttributes(entry);
+    }
+  }
+
+  @Override
+  public void setAttributeDescriptions(List<PerunAttribute<T>> attributeDescriptions) {
+    this.attributeDescriptions = attributeDescriptions;
+  }
+
+  public void setAttributeDescriptionsExt(PerunAttributeConfigurer<T> attributeDescriptionsExt) {
+    this.attributeDescriptionsExt = attributeDescriptionsExt;
+  }
+
+  @Override
+  public void setUpdatableAttributeNames(List<String> updatableAttributeNames) {
+    this.updatableAttributeNames = updatableAttributeNames;
+  }
+
+  @Override
+  public void synchronizeEntry(T bean) {
+    commitSyncOperation(beginSynchronizeEntry(bean));
+  }
+
+  @Override
+  public void synchronizeEntry(T bean, Iterable<Attribute> attrs) {
+    commitSyncOperation(beginSynchronizeEntry(bean, attrs));
   }
 
   protected class SyncOperationImpl implements SyncOperation {
@@ -480,13 +475,13 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
     }
 
     @Override
-    public boolean isNew() {
-      return isNew;
+    public DirContextOperations getEntry() {
+      return entry;
     }
 
     @Override
-    public DirContextOperations getEntry() {
-      return entry;
+    public boolean isNew() {
+      return isNew;
     }
   }
 

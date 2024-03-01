@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -11,11 +14,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class urn_perun_group_attribute_def_virt_adGroupNameTest {
 
@@ -47,24 +45,23 @@ public class urn_perun_group_attribute_def_virt_adGroupNameTest {
     AttributesManagerBl am = mock(AttributesManagerBl.class);
     GroupsManagerBl gm = mock(GroupsManagerBl.class);
 
-    when(sess.getPerunBl())
-        .thenReturn(perunBl);
-    when(perunBl.getAttributesManagerBl())
-        .thenReturn(am);
-    when(perunBl.getGroupsManagerBl())
-        .thenReturn(gm);
+    when(sess.getPerunBl()).thenReturn(perunBl);
+    when(perunBl.getAttributesManagerBl()).thenReturn(am);
+    when(perunBl.getGroupsManagerBl()).thenReturn(gm);
 
-    when(gm.getParentGroup(sess, groupB))
-        .thenReturn(groupA);
-    when(gm.getParentGroup(sess, groupC))
-        .thenReturn(groupB);
+    when(gm.getParentGroup(sess, groupB)).thenReturn(groupA);
+    when(gm.getParentGroup(sess, groupC)).thenReturn(groupB);
 
-    when(am.getAttribute(sess, groupA, defAdGroupNameAttributeName))
-        .thenReturn(attributeA);
-    when(am.getAttribute(sess, groupB, defAdGroupNameAttributeName))
-        .thenReturn(attributeB);
-    when(am.getAttribute(sess, groupC, defAdGroupNameAttributeName))
-        .thenReturn(attributeC);
+    when(am.getAttribute(sess, groupA, defAdGroupNameAttributeName)).thenReturn(attributeA);
+    when(am.getAttribute(sess, groupB, defAdGroupNameAttributeName)).thenReturn(attributeB);
+    when(am.getAttribute(sess, groupC, defAdGroupNameAttributeName)).thenReturn(attributeC);
+  }
+
+  private Group setUpGroup(int id, Integer parentGroupId, String name, String description) {
+    Group group = new Group(name, description);
+    group.setId(id);
+    group.setParentGroupId(parentGroupId);
+    return group;
   }
 
   @Test
@@ -82,12 +79,5 @@ public class urn_perun_group_attribute_def_virt_adGroupNameTest {
     attributeB.setValue(null);
     Attribute result = classInstance.getAttributeValue(sess, groupC, adDGroupNameDefinition);
     Assert.assertNull(result.getValue());
-  }
-
-  private Group setUpGroup(int id, Integer parentGroupId, String name, String description) {
-    Group group = new Group(name, description);
-    group.setId(id);
-    group.setParentGroupId(parentGroupId);
-    return group;
   }
 }

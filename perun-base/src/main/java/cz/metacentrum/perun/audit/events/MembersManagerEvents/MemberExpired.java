@@ -17,13 +17,13 @@ public class MemberExpired extends AuditEvent {
     this.message = formatMessage("%s expired.", member);
   }
 
+  public Member getMember() {
+    return member;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   @Override

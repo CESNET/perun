@@ -4,9 +4,8 @@ import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.taskslib.model.Task;
 
 /**
- * Exception thrown, when execution of GEN or SEND Task fails for any reason.
- * Contains all relevant data like Task itself, process return code, stdout/err.
- * For SEND Tasks relevant Destination is also present.
+ * Exception thrown, when execution of GEN or SEND Task fails for any reason. Contains all relevant data like Task
+ * itself, process return code, stdout/err. For SEND Tasks relevant Destination is also present.
  *
  * @author David Šarman
  * @author Pavel Zlámal <zlamal@cesnet.cz>
@@ -57,44 +56,13 @@ public class TaskExecutionException extends EngineException {
     this.destination = destination;
   }
 
-  public Task getTask() {
-    return task;
-  }
-
-  public void setTask(Task task) {
-    this.task = task;
-  }
-
   public Destination getDestination() {
     return destination;
   }
 
-  public void setDestination(Destination destination) {
-    this.destination = destination;
-  }
-
-  public int getReturnCode() {
-    return returnCode;
-  }
-
-  public void setReturnCode(int returnCode) {
-    this.returnCode = returnCode;
-  }
-
-  public String getStdout() {
-    return (this.stdout == null) ? "" : this.stdout;
-  }
-
-  public void setStdout(String stdout) {
-    this.stdout = stdout;
-  }
-
-  public String getStderr() {
-    return (this.stderr == null) ? "" : this.stderr;
-  }
-
-  public void setStderr(String stderr) {
-    this.stderr = stderr;
+  @Override
+  public String getErrorId() {
+    return super.getErrorId();
   }
 
   @Override
@@ -102,9 +70,40 @@ public class TaskExecutionException extends EngineException {
     return super.getMessage();
   }
 
-  @Override
-  public String getErrorId() {
-    return super.getErrorId();
+  public int getReturnCode() {
+    return returnCode;
+  }
+
+  public String getStderr() {
+    return (this.stderr == null) ? "" : this.stderr;
+  }
+
+  public String getStdout() {
+    return (this.stdout == null) ? "" : this.stdout;
+  }
+
+  public Task getTask() {
+    return task;
+  }
+
+  public void setDestination(Destination destination) {
+    this.destination = destination;
+  }
+
+  public void setReturnCode(int returnCode) {
+    this.returnCode = returnCode;
+  }
+
+  public void setStderr(String stderr) {
+    this.stderr = stderr;
+  }
+
+  public void setStdout(String stdout) {
+    this.stdout = stdout;
+  }
+
+  public void setTask(Task task) {
+    this.task = task;
   }
 
 }

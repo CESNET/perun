@@ -21,21 +21,6 @@ public class IntegrationManagerBlImpl implements IntegrationManagerBl {
   private IntegrationManagerDao integrationManagerDao;
   private PerunBl perun;
 
-  @Override
-  public GroupMemberData getGroupMemberData(PerunSession sess) {
-    var groupMembersRelations = integrationManagerDao.getGroupMemberRelations(sess);
-    var attributesByGroupIdMemberId = groupMembersRelations.stream()
-        .map(groupMemberRelation -> new GroupMember(groupMemberRelation.groupId(), groupMemberRelation.memberId()))
-        .distinct()
-        .flatMap(groupMember -> getAttributesForMemberGroup(sess, groupMember).stream())
-        .collect(
-            groupingBy(GroupMemberAttribute::groupId,
-                groupingBy(GroupMemberAttribute::memberId,
-                    mapping(GroupMemberAttribute::attribute, toList()))));
-
-    return new GroupMemberData(groupMembersRelations, attributesByGroupIdMemberId);
-  }
-
   /**
    * For the given groupMember data, load all member-group attributes.
    *
@@ -46,25 +31,35 @@ public class IntegrationManagerBlImpl implements IntegrationManagerBl {
   private List<GroupMemberAttribute> getAttributesForMemberGroup(PerunSession sess, GroupMember groupMember) {
     try {
       return perun.getAttributesManagerBl()
-          .getAttributes(sess, new Member(groupMember.memberId()), new Group(groupMember.groupId))
-          .stream()
-          .map(attr -> new GroupMemberAttribute(groupMember.groupId(), groupMember.memberId(), attr))
-          .collect(toList());
+          .getAttributes(sess, new Member(groupMember.memberId()), new Group(groupMember.groupId)).stream()
+          .map(attr -> new GroupMemberAttribute(groupMember.groupId(), groupMember.memberId(), attr)).collect(toList());
     } catch (MemberGroupMismatchException e) {
       throw new InternalErrorException("Failed to load member-group attributes.", e);
     }
+  }
+
+  @Override
+  public GroupMemberData getGroupMemberData(PerunSession sess) {
+    var groupMembersRelations = integrationManagerDao.getGroupMemberRelations(sess);
+    var attributesByGroupIdMemberId = groupMembersRelations.stream()
+        .map(groupMemberRelation -> new GroupMember(groupMemberRelation.groupId(), groupMemberRelation.memberId()))
+        .distinct().flatMap(groupMember -> getAttributesForMemberGroup(sess, groupMember).stream()).collect(
+            groupingBy(GroupMemberAttribute::groupId,
+                groupingBy(GroupMemberAttribute::memberId, mapping(GroupMemberAttribute::attribute, toList()))));
+
+    return new GroupMemberData(groupMembersRelations, attributesByGroupIdMemberId);
   }
 
   public IntegrationManagerDao getIntegrationManagerDao() {
     return integrationManagerDao;
   }
 
-  public void setIntegrationManagerDao(IntegrationManagerDao integrationManagerDao) {
-    this.integrationManagerDao = integrationManagerDao;
-  }
-
   public PerunBl getPerun() {
     return perun;
+  }
+
+  public void setIntegrationManagerDao(IntegrationManagerDao integrationManagerDao) {
+    this.integrationManagerDao = integrationManagerDao;
   }
 
   public void setPerun(PerunBl perun) {

@@ -18,13 +18,13 @@ public class AllUserFacilityAttributesRemovedForFacilitiesAndUser extends AuditE
     this.message = formatMessage("All non-virtual user-facility attributes removed for all facilities and %s", user);
   }
 
-  public User getUser() {
-    return user;
-  }
-
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public User getUser() {
+    return user;
   }
 
   @Override

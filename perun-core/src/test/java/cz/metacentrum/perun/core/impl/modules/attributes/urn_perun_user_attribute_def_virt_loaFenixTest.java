@@ -1,21 +1,22 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Test module for urn:perun:user:attribute-def:virt:loaFenix
@@ -36,6 +37,40 @@ public class urn_perun_user_attribute_def_virt_loaFenixTest {
   private Attribute uesAtt1;
   private Attribute uesAtt2;
   private Attribute uesAtt3;
+
+  @Test
+  public void getAttributeValueFromAllSources() throws Exception {
+    urn_perun_user_attribute_def_virt_loaFenix classInstance = new urn_perun_user_attribute_def_virt_loaFenix();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+    String primarySourceAttributeName = classInstance.getSourceAttributeName();
+
+    // USER_EXT_SOURCE
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
+        Arrays.asList(ues1, ues2, ues3));
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, ues1, primarySourceAttributeName)).thenReturn(uesAtt1);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, ues2, primarySourceAttributeName)).thenReturn(uesAtt2);
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(session, ues3, primarySourceAttributeName)).thenReturn(uesAtt3);
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.getValue() instanceof String);
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
+
+    @SuppressWarnings("unchecked") String actual = receivedAttr.valueAsString();
+    String expected = VALUE1;
+    assertEquals("collected values are incorrect", expected, actual);
+
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(Collections.emptyList());
+
+    Attribute receivedAttr2 = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertNull(receivedAttr2.getValue());
+    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
+        receivedAttr.getFriendlyName());
+  }
 
   @Before
   public void setVariables() {
@@ -58,50 +93,6 @@ public class urn_perun_user_attribute_def_virt_loaFenixTest {
     uesAtt1.setValue(VALUE1);
     uesAtt2.setValue(VALUE2);
     uesAtt3.setValue(VALUE3);
-  }
-
-  @Test
-  public void getAttributeValueFromAllSources() throws Exception {
-    urn_perun_user_attribute_def_virt_loaFenix classInstance = new urn_perun_user_attribute_def_virt_loaFenix();
-    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
-
-    String primarySourceAttributeName = classInstance.getSourceAttributeName();
-
-    // USER_EXT_SOURCE
-    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-        Arrays.asList(ues1, ues2, ues3)
-    );
-    when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, ues1, primarySourceAttributeName)).thenReturn(
-        uesAtt1
-    );
-    when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, ues2, primarySourceAttributeName)).thenReturn(
-        uesAtt2
-    );
-    when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, ues3, primarySourceAttributeName)).thenReturn(
-        uesAtt3
-    );
-
-    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-    assertTrue(receivedAttr.getValue() instanceof String);
-    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
-        receivedAttr.getFriendlyName());
-
-    @SuppressWarnings("unchecked")
-    String actual = receivedAttr.valueAsString();
-    String expected = VALUE1;
-    assertEquals("collected values are incorrect", expected, actual);
-
-    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
-        Collections.emptyList()
-    );
-
-    Attribute receivedAttr2 = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
-    assertNull(receivedAttr2.getValue());
-    assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
-        receivedAttr.getFriendlyName());
   }
 
 }

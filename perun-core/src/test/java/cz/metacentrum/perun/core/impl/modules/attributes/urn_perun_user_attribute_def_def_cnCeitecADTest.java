@@ -1,19 +1,18 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_attribute_def_def_cnCeitecADTest {
 
@@ -40,14 +39,6 @@ public class urn_perun_user_attribute_def_def_cnCeitecADTest {
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
-  public void testNullValue() throws Exception {
-    System.out.println("testNullValue()");
-    attributeToCheck.setValue(null);
-
-    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-  }
-
-  @Test(expected = WrongReferenceAttributeValueException.class)
   public void testCheckAlreadyOccupiedValue() throws Exception {
     System.out.println("testCheckAlreadyOccupiedValue()");
     when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck)).thenReturn(
@@ -61,6 +52,14 @@ public class urn_perun_user_attribute_def_def_cnCeitecADTest {
     System.out.println("testCorrectSemantics()");
     when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck)).thenReturn(
         Collections.singletonList(user));
+
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testNullValue() throws Exception {
+    System.out.println("testNullValue()");
+    attributeToCheck.setValue(null);
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }

@@ -31,13 +31,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Module for VO "vo.esc.pithia.eu" and admins subgroups of organizations
  * <p>
- * This module is used by the "admins" subgroups within the VO in order make its members also "the members" of organization.
+ * This module is used by the "admins" subgroups within the VO in order make its members also "the members" of
+ * organization.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class EscPithiaOrganizationAdmins extends DefaultRegistrarModule {
 
-  final static Logger log = LoggerFactory.getLogger(EscPithiaOrganizationAdmins.class);
+  static final Logger LOG = LoggerFactory.getLogger(EscPithiaOrganizationAdmins.class);
 
   @Override
   public Application approveApplication(PerunSession session, Application app)

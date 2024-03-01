@@ -1,22 +1,20 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.mockito.Mockito.mock;
 
 public class urn_perun_group_attribute_def_def_uniqueIDTest {
 

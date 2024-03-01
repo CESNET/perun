@@ -21,8 +21,7 @@ public class urn_perun_resource_attribute_def_def_k4GroupName extends ResourceAt
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
       throws WrongAttributeValueException {
 
-    if (attribute.getValue() != null &&
-        (attribute.valueAsString()).length() > 40) {
+    if (attribute.getValue() != null && (attribute.valueAsString()).length() > 40) {
       throw new WrongAttributeValueException("Name of Group in K4 mustn't exceed 40 characters.");
     }
 

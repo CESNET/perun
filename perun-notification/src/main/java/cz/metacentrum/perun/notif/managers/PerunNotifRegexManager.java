@@ -16,6 +16,30 @@ import java.util.Set;
  */
 public interface PerunNotifRegexManager {
 
+  /**
+   * Method adds object to cache
+   *
+   * @param object
+   */
+  public void addObjectToCache(PerunNotifObject object);
+
+  /**
+   * Save perunNotifRegex to db, saves only regex and relations to object, not objects if they dont exists
+   *
+   * @param regex
+   * @return perunNotifRegex with new id set
+   * @throws InternalErrorException
+   * @throws NotifRegexAlreadyExistsException
+   */
+  public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws NotifRegexAlreadyExistsException;
+
+  /**
+   * Returns all PerunNotifRegexes.
+   *
+   * @return list of all PerunNotifRegexes
+   */
+  public List<PerunNotifRegex> getAllPerunNotifRegexes();
+
   public Set<Integer> getIdsOfRegexesMatchingMessage(PerunNotifAuditMessage auditMessage);
 
   /**
@@ -27,32 +51,20 @@ public interface PerunNotifRegexManager {
   public PerunNotifRegex getPerunNotifRegexById(int id);
 
   /**
-   * Returns all PerunNotifRegexes.
+   * Returns all regexes related to given template.
    *
-   * @return list of all PerunNotifRegexes
-   */
-  public List<PerunNotifRegex> getAllPerunNotifRegexes();
-
-  /**
-   * Save perunNotifRegex to db, saves only regex and relations to object,
-   * not objects if they dont exists
-   *
-   * @param regex
-   * @return perunNotifRegex with new id set
-   * @throws InternalErrorException
-   * @throws NotifRegexAlreadyExistsException
-   */
-  public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws NotifRegexAlreadyExistsException;
-
-  /**
-   * Updates perunNotifRegex and relations between objects and regex, not
-   * objects themselves
-   *
-   * @param reqex
-   * @return
+   * @param templateId
+   * @return list of regexes
    * @throws InternalErrorException
    */
-  public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex reqex);
+  public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId);
+
+  /**
+   * Remove object from objects cache
+   *
+   * @param objectToRemove
+   */
+  public void removePerunNotifObjectFromCache(PerunNotifObject objectToRemove);
 
   /**
    * Remove regex based on id, removes also relation with object
@@ -61,23 +73,6 @@ public interface PerunNotifRegexManager {
    * @throws InternalErrorException
    */
   public void removePerunNotifRegexById(int id) throws PerunNotifRegexUsedException;
-
-  /**
-   * Save relation between template and regex if not exists yet.
-   *
-   * @param templateId
-   * @param regexId
-   */
-  public void saveTemplateRegexRelation(int templateId, Integer regexId);
-
-  /**
-   * Returns all regexes related to given template.
-   *
-   * @param templateId
-   * @return list of regexes
-   * @throws InternalErrorException
-   */
-  public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId);
 
   /**
    * Removes relation between regex and template
@@ -89,11 +84,12 @@ public interface PerunNotifRegexManager {
   public void removePerunNotifTemplateRegexRelation(int templateId, int regexId);
 
   /**
-   * Method adds object to cache
+   * Save relation between template and regex if not exists yet.
    *
-   * @param object
+   * @param templateId
+   * @param regexId
    */
-  public void addObjectToCache(PerunNotifObject object);
+  public void saveTemplateRegexRelation(int templateId, Integer regexId);
 
   /**
    * Method updates object in cache
@@ -103,9 +99,11 @@ public interface PerunNotifRegexManager {
   public void updateObjectInCache(PerunNotifObject object);
 
   /**
-   * Remove object from objects cache
+   * Updates perunNotifRegex and relations between objects and regex, not objects themselves
    *
-   * @param objectToRemove
+   * @param reqex
+   * @return
+   * @throws InternalErrorException
    */
-  public void removePerunNotifObjectFromCache(PerunNotifObject objectToRemove);
+  public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex reqex);
 }

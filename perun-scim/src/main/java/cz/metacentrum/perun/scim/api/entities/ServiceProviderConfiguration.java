@@ -1,9 +1,8 @@
 package cz.metacentrum.perun.scim.api.entities;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.List;
 
 /**
  * SCIM Service Provider Configuration
@@ -42,86 +41,6 @@ public class ServiceProviderConfiguration {
   }
 
   public ServiceProviderConfiguration() {
-  }
-
-  public List<String> getSchemas() {
-    return schemas;
-  }
-
-  public void setSchemas(List<String> schemas) {
-    this.schemas = schemas;
-  }
-
-  public String getDocumentationUrl() {
-    return documentationUrl;
-  }
-
-  public void setDocumentationUrl(String documentationUrl) {
-    this.documentationUrl = documentationUrl;
-  }
-
-  public Patch getPatch() {
-    return patch;
-  }
-
-  public void setPatch(Patch patch) {
-    this.patch = patch;
-  }
-
-  public Bulk getBulk() {
-    return bulk;
-  }
-
-  public void setBulk(Bulk bulk) {
-    this.bulk = bulk;
-  }
-
-  public Filter getFilter() {
-    return filter;
-  }
-
-  public void setFilter(Filter filter) {
-    this.filter = filter;
-  }
-
-  public ChangePassword getChangePassword() {
-    return changePassword;
-  }
-
-  public void setChangePassword(ChangePassword changePassword) {
-    this.changePassword = changePassword;
-  }
-
-  public Sort getSort() {
-    return sort;
-  }
-
-  public void setSort(Sort sort) {
-    this.sort = sort;
-  }
-
-  public Etag getEtag() {
-    return etag;
-  }
-
-  public void setEtag(Etag etag) {
-    this.etag = etag;
-  }
-
-  public XmlDataFormat getXmlDataFormat() {
-    return xmlDataFormat;
-  }
-
-  public void setXmlDataFormat(XmlDataFormat xmlDataFormat) {
-    this.xmlDataFormat = xmlDataFormat;
-  }
-
-  public List<AuthenticationSchemes> getAuthenticationSchemes() {
-    return authenticationSchemes;
-  }
-
-  public void setAuthenticationSchemes(List<AuthenticationSchemes> authenticationSchemes) {
-    this.authenticationSchemes = authenticationSchemes;
   }
 
   @Override
@@ -170,6 +89,46 @@ public class ServiceProviderConfiguration {
 
   }
 
+  public List<AuthenticationSchemes> getAuthenticationSchemes() {
+    return authenticationSchemes;
+  }
+
+  public Bulk getBulk() {
+    return bulk;
+  }
+
+  public ChangePassword getChangePassword() {
+    return changePassword;
+  }
+
+  public String getDocumentationUrl() {
+    return documentationUrl;
+  }
+
+  public Etag getEtag() {
+    return etag;
+  }
+
+  public Filter getFilter() {
+    return filter;
+  }
+
+  public Patch getPatch() {
+    return patch;
+  }
+
+  public List<String> getSchemas() {
+    return schemas;
+  }
+
+  public Sort getSort() {
+    return sort;
+  }
+
+  public XmlDataFormat getXmlDataFormat() {
+    return xmlDataFormat;
+  }
+
   @Override
   public int hashCode() {
     int result = getSchemas() != null ? getSchemas().hashCode() : 0;
@@ -185,20 +144,12 @@ public class ServiceProviderConfiguration {
     return result;
   }
 
-  @Override
-  public String toString() {
-    return "ServiceProviderConfiguration{" +
-        "schemas=" + schemas +
-        ", documentationUrl='" + documentationUrl + '\'' +
-        ", patch=" + patch +
-        ", bulk=" + bulk +
-        ", filter=" + filter +
-        ", changePassword=" + changePassword +
-        ", sort=" + sort +
-        ", etag=" + etag +
-        ", xmlDataFormat=" + xmlDataFormat +
-        ", authenticationSchemes=" + authenticationSchemes +
-        '}';
+  public void setAuthenticationSchemes(List<AuthenticationSchemes> authenticationSchemes) {
+    this.authenticationSchemes = authenticationSchemes;
+  }
+
+  public void setBulk(Bulk bulk) {
+    this.bulk = bulk;
   }
 
   public void setBulkSupport(Boolean value) {
@@ -207,16 +158,8 @@ public class ServiceProviderConfiguration {
     this.bulk = newBulk;
   }
 
-  public void setFilterSupport(Boolean value) {
-    Filter newFilter = new Filter();
-    newFilter.supported = value;
-    this.filter = newFilter;
-  }
-
-  public void setPatchSupport(Boolean value) {
-    Patch newPatch = new Patch();
-    newPatch.supported = value;
-    this.patch = newPatch;
+  public void setChangePassword(ChangePassword changePassword) {
+    this.changePassword = changePassword;
   }
 
   public void setChangePasswordSupport(Boolean value) {
@@ -225,10 +168,12 @@ public class ServiceProviderConfiguration {
     this.changePassword = newChangePassword;
   }
 
-  public void setSortSupport(Boolean value) {
-    Sort newSort = new Sort();
-    newSort.supported = value;
-    this.sort = newSort;
+  public void setDocumentationUrl(String documentationUrl) {
+    this.documentationUrl = documentationUrl;
+  }
+
+  public void setEtag(Etag etag) {
+    this.etag = etag;
   }
 
   public void setEtagSupport(Boolean value) {
@@ -237,10 +182,56 @@ public class ServiceProviderConfiguration {
     this.etag = newEtag;
   }
 
+  public void setFilter(Filter filter) {
+    this.filter = filter;
+  }
+
+  public void setFilterSupport(Boolean value) {
+    Filter newFilter = new Filter();
+    newFilter.supported = value;
+    this.filter = newFilter;
+  }
+
+  public void setPatch(Patch patch) {
+    this.patch = patch;
+  }
+
+  public void setPatchSupport(Boolean value) {
+    Patch newPatch = new Patch();
+    newPatch.supported = value;
+    this.patch = newPatch;
+  }
+
+  public void setSchemas(List<String> schemas) {
+    this.schemas = schemas;
+  }
+
+  public void setSort(Sort sort) {
+    this.sort = sort;
+  }
+
+  public void setSortSupport(Boolean value) {
+    Sort newSort = new Sort();
+    newSort.supported = value;
+    this.sort = newSort;
+  }
+
+  public void setXmlDataFormat(XmlDataFormat xmlDataFormat) {
+    this.xmlDataFormat = xmlDataFormat;
+  }
+
   public void setXmlDataFormatSupport(Boolean value) {
     XmlDataFormat newXmlDataFormat = new XmlDataFormat();
     newXmlDataFormat.supported = value;
     this.xmlDataFormat = newXmlDataFormat;
+  }
+
+  @Override
+  public String toString() {
+    return "ServiceProviderConfiguration{" + "schemas=" + schemas + ", documentationUrl='" + documentationUrl + '\'' +
+           ", patch=" + patch + ", bulk=" + bulk + ", filter=" + filter + ", changePassword=" + changePassword +
+           ", sort=" + sort + ", etag=" + etag + ", xmlDataFormat=" + xmlDataFormat + ", authenticationSchemes=" +
+           authenticationSchemes + '}';
   }
 
   private static class Bulk {

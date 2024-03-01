@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
-
 import java.util.LinkedHashMap;
 
 /**
@@ -21,34 +20,19 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules
   public static final String VO_EXPIRATION_RULES_ATTR = AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules";
 
   @Override
-  protected boolean isAllowedParameter(String parameter) {
-    if (parameter == null) {
-      return false;
-    }
-    return parameter.equals(membershipPeriodKeyName) ||
-        parameter.equals(membershipDoNotExtendLoaKeyName) ||
-        parameter.equals(membershipGracePeriodKeyName) ||
-        parameter.equals(membershipPeriodLoaKeyName) ||
-        parameter.equals(membershipDoNotAllowLoaKeyName) ||
-        parameter.equals(autoExtensionExtSources) ||
-        parameter.equals(autoExtensionLastLoginPeriod) ||
-        parameter.equals(expireSponsoredMembers);
-  }
-
-  @Override
   public void changedAttributeHook(PerunSessionImpl session, Vo vo, Attribute attribute) {
 
-  }
-
-  @Override
-  public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) {
-    return new Attribute(attribute);
   }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl perunSession, Vo entity, Attribute attribute)
       throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
     super.checkAttributeSemantics(perunSession, entity, attribute);
+  }
+
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) {
+    return new Attribute(attribute);
   }
 
   @Override
@@ -60,5 +44,16 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules
     attr.setType(LinkedHashMap.class.getName());
     attr.setDescription("Rules which define how the membership is extended.");
     return attr;
+  }
+
+  @Override
+  protected boolean isAllowedParameter(String parameter) {
+    if (parameter == null) {
+      return false;
+    }
+    return parameter.equals(MEMBERSHIP_PERIOD_KEY_NAME) || parameter.equals(MEMBERSHIP_DO_NOT_EXTEND_LOA_KEY_NAME) ||
+           parameter.equals(MEMBERSHIP_GRACE_PERIOD_KEY_NAME) || parameter.equals(MEMBERSHIP_PERIOD_LOA_KEY_NAME) ||
+           parameter.equals(MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME) || parameter.equals(AUTO_EXTENSION_EXT_SOURCES) ||
+           parameter.equals(AUTO_EXTENSION_LAST_LOGIN_PERIOD) || parameter.equals(EXPIRE_SPONSORED_MEMBERS);
   }
 }

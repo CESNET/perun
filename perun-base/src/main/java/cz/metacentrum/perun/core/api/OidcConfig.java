@@ -16,12 +16,46 @@ public class OidcConfig {
   public OidcConfig() {
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    OidcConfig that = (OidcConfig) o;
+    return Objects.equals(getClientId(), that.getClientId()) &&
+           Objects.equals(getOidcDeviceCodeUri(), that.getOidcDeviceCodeUri()) &&
+           Objects.equals(getOidcTokenEndpointUri(), that.getOidcTokenEndpointUri()) &&
+           Objects.equals(getOidcTokenRevokeEndpointUri(), that.getOidcTokenRevokeEndpointUri()) &&
+           Objects.equals(getPerunApiEndpoint(), that.getPerunApiEndpoint()) &&
+           Objects.equals(getAcrValues(), that.getAcrValues()) && Objects.equals(getScopes(), that.getScopes()) &&
+           Objects.equals(getEnforceMfa(), that.getEnforceMfa());
+  }
+
+  public String getAcrValues() {
+    return acrValues;
+  }
+
+  public void setAcrValues(String acrValues) {
+    this.acrValues = acrValues;
+  }
+
   public String getClientId() {
     return clientId;
   }
 
   public void setClientId(String clientId) {
     this.clientId = clientId;
+  }
+
+  public boolean getEnforceMfa() {
+    return enforceMfa;
+  }
+
+  public void setEnforceMfa(boolean enforceMfa) {
+    this.enforceMfa = enforceMfa;
   }
 
   public String getOidcDeviceCodeUri() {
@@ -48,12 +82,12 @@ public class OidcConfig {
     this.oidcTokenRevokeEndpointUri = oidcTokenRevokeEndpointUri;
   }
 
-  public String getAcrValues() {
-    return acrValues;
+  public String getPerunApiEndpoint() {
+    return perunApiEndpoint;
   }
 
-  public void setAcrValues(String acrValues) {
-    this.acrValues = acrValues;
+  public void setPerunApiEndpoint(String perunApiEndpoint) {
+    this.perunApiEndpoint = perunApiEndpoint;
   }
 
   public String getScopes() {
@@ -64,40 +98,6 @@ public class OidcConfig {
     this.scopes = scopes;
   }
 
-  public String getPerunApiEndpoint() {
-    return perunApiEndpoint;
-  }
-
-  public void setPerunApiEndpoint(String perunApiEndpoint) {
-    this.perunApiEndpoint = perunApiEndpoint;
-  }
-
-  public boolean getEnforceMfa() {
-    return enforceMfa;
-  }
-
-  public void setEnforceMfa(boolean enforceMfa) {
-    this.enforceMfa = enforceMfa;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    OidcConfig that = (OidcConfig) o;
-    return Objects.equals(getClientId(), that.getClientId()) &&
-        Objects.equals(getOidcDeviceCodeUri(), that.getOidcDeviceCodeUri()) &&
-        Objects.equals(getOidcTokenEndpointUri(), that.getOidcTokenEndpointUri()) &&
-        Objects.equals(getOidcTokenRevokeEndpointUri(), that.getOidcTokenRevokeEndpointUri())
-        && Objects.equals(getPerunApiEndpoint(), that.getPerunApiEndpoint()) &&
-        Objects.equals(getAcrValues(), that.getAcrValues()) && Objects.equals(getScopes(), that.getScopes()) &&
-        Objects.equals(getEnforceMfa(), that.getEnforceMfa());
-  }
-
   @Override
   public int hashCode() {
     return Objects.hash(getClientId(), getOidcDeviceCodeUri(), getOidcTokenEndpointUri(),
@@ -106,15 +106,9 @@ public class OidcConfig {
 
   @Override
   public String toString() {
-    return "OidcConfig{" +
-        "clientId='" + clientId + '\'' +
-        ", oidcDeviceCodeUri='" + oidcDeviceCodeUri + '\'' +
-        ", oidcTokenEndpointUri='" + oidcTokenEndpointUri + '\'' +
-        ", oidcTokenRevokeEndpointUri='" + oidcTokenRevokeEndpointUri + '\'' +
-        ", acrValues='" + acrValues + '\'' +
-        ", scopes='" + scopes + '\'' +
-        ", perunApiEndpoint='" + perunApiEndpoint + '\'' +
-        ", enforceMfa='" + enforceMfa + '\'' +
-        '}';
+    return "OidcConfig{" + "clientId='" + clientId + '\'' + ", oidcDeviceCodeUri='" + oidcDeviceCodeUri + '\'' +
+           ", oidcTokenEndpointUri='" + oidcTokenEndpointUri + '\'' + ", oidcTokenRevokeEndpointUri='" +
+           oidcTokenRevokeEndpointUri + '\'' + ", acrValues='" + acrValues + '\'' + ", scopes='" + scopes + '\'' +
+           ", perunApiEndpoint='" + perunApiEndpoint + '\'' + ", enforceMfa='" + enforceMfa + '\'' + '}';
   }
 }

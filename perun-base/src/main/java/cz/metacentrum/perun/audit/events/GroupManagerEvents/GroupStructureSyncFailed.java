@@ -17,13 +17,13 @@ public class GroupStructureSyncFailed extends AuditEvent {
     this.message = formatMessage("%s structure synchronization failed.", group);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   @Override

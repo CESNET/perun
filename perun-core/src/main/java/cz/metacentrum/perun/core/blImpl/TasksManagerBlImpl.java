@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.core.implApi.TasksManagerImplApi;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * TasksManagerBlImpl
@@ -49,24 +49,6 @@ public class TasksManagerBlImpl implements TasksManagerBl {
   }
 
   // -------------- getters and setters
-
-  public PerunBl getPerunBl() {
-    return perun;
-  }
-
-  public void setPerunBl(PerunBlImpl perunBl) {
-    this.perun = perunBl;
-  }
-
-  public ServicesManagerBl getServicesManagerBl() {
-    return servicesManagerBl;
-  }
-
-  public void setServicesManagerBl(ServicesManagerBl servicesManagerBl) {
-    this.servicesManagerBl = servicesManagerBl;
-  }
-
-  // -------------- methods
 
   @Override
   public int countTasks() {
@@ -96,6 +78,8 @@ public class TasksManagerBlImpl implements TasksManagerBl {
     getTasksManagerImpl().removeTask(service, facility);
 
   }
+
+  // -------------- methods
 
   @Override
   public void deleteTaskResultById(PerunSession sess, int taskResultId) {
@@ -222,10 +206,9 @@ public class TasksManagerBlImpl implements TasksManagerBl {
           Task.TaskStatus.SENDING).contains(task.getStatus()) &&
           (facState != FacilityState.FacilityPropagationState.ERROR)) {
         state.setState(FacilityState.FacilityPropagationState.PROCESSING);
-      }
-      // ERROR - set ERROR
-      else if (Arrays.asList(Task.TaskStatus.ERROR, Task.TaskStatus.GENERROR, Task.TaskStatus.SENDERROR)
+      } else if (Arrays.asList(Task.TaskStatus.ERROR, Task.TaskStatus.GENERROR, Task.TaskStatus.SENDERROR)
           .contains(task.getStatus())) {
+        // ERROR - set ERROR
         state.setState(FacilityState.FacilityPropagationState.ERROR);
       }
 
@@ -242,7 +225,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
             value.put(res.getDestination(), res);
             latestResults.put(res.getService(), value);
           } else if (latestResults.get(res.getService()) != null &&
-              latestResults.get(res.getService()).get(res.getDestination()) == null) {
+                     latestResults.get(res.getService()).get(res.getDestination()) == null) {
             // put in inner map, since destination for service not yet exists
             latestResults.get(res.getService()).put(res.getDestination(), res);
           } else {
@@ -280,6 +263,10 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 
   }
 
+  public PerunBl getPerunBl() {
+    return perun;
+  }
+
   @Override
   public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws VoNotExistsException {
     perun.getVosManagerBl().checkVoExists(session, vo);
@@ -300,6 +287,10 @@ public class TasksManagerBlImpl implements TasksManagerBl {
     }
 
     return resourceStateList;
+  }
+
+  public ServicesManagerBl getServicesManagerBl() {
+    return servicesManagerBl;
   }
 
   @Override
@@ -323,6 +314,11 @@ public class TasksManagerBlImpl implements TasksManagerBl {
   }
 
   @Override
+  public List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames) {
+    return getTasksManagerImpl().getTaskResultsByDestinations(destinationsNames);
+  }
+
+  @Override
   public List<TaskResult> getTaskResultsByTask(PerunSession sess, int taskId) {
     return getTasksManagerImpl().getTaskResultsByTask(taskId);
   }
@@ -337,11 +333,6 @@ public class TasksManagerBlImpl implements TasksManagerBl {
     return getTasksManagerImpl().getTaskResultsByTaskOnlyNewest(taskId);
   }
 
-  @Override
-  public List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames) {
-    return getTasksManagerImpl().getTaskResultsByDestinations(destinationsNames);
-  }
-
   public TasksManagerImplApi getTasksManagerImpl() {
     return tasksManagerImpl;
   }
@@ -354,6 +345,13 @@ public class TasksManagerBlImpl implements TasksManagerBl {
   @Override
   public int insertTask(PerunSession sess, Task task) {
     return getTasksManagerImpl().insertTask(task);
+  }
+
+  @Override
+  public boolean isSuspendedTasksPropagation() {
+    synchronized (TasksManagerBlImpl.class) {
+      return suspendedTasksPropagation;
+    }
   }
 
   @Override
@@ -399,15 +397,17 @@ public class TasksManagerBlImpl implements TasksManagerBl {
     getTasksManagerImpl().removeTask(id);
   }
 
-
   @Override
   public void removeTask(PerunSession sess, Service service, Facility facility) {
     getTasksManagerImpl().removeTask(service, facility);
   }
 
-  @Override
-  public void updateTask(PerunSession sess, Task task) {
-    getTasksManagerImpl().updateTask(task);
+  public void setPerunBl(PerunBlImpl perunBl) {
+    this.perun = perunBl;
+  }
+
+  public void setServicesManagerBl(ServicesManagerBl servicesManagerBl) {
+    this.servicesManagerBl = servicesManagerBl;
   }
 
   @Override
@@ -418,10 +418,8 @@ public class TasksManagerBlImpl implements TasksManagerBl {
   }
 
   @Override
-  public boolean isSuspendedTasksPropagation() {
-    synchronized (TasksManagerBlImpl.class) {
-      return suspendedTasksPropagation;
-    }
+  public void updateTask(PerunSession sess, Task task) {
+    getTasksManagerImpl().updateTask(task);
   }
 
 }

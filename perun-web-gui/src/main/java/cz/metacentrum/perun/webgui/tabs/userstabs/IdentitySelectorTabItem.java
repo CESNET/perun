@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "self-users";
+  public static final String URL = "self-users";
   private PerunWebSession session = PerunWebSession.getInstance();
   private SimplePanel contentWidget = new SimplePanel();
   private Label titleWidget = new Label("Select identity");

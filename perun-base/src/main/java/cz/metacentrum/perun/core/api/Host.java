@@ -3,8 +3,7 @@ package cz.metacentrum.perun.core.api;
 /**
  * Representation of the physical host.
  * <p>
- * Most attributes are named accordingly to the GLUE specification:
- * http://www.ogf.org/documents/GFD.147.pdf
+ * Most attributes are named accordingly to the GLUE specification: http://www.ogf.org/documents/GFD.147.pdf
  *
  * @author Michal Prochazka
  * @author Michal Karm Babacek
@@ -29,41 +28,26 @@ public class Host extends Auditable implements Comparable<PerunBean> {
     this.hostname = hostname;
   }
 
-  public String getHostname() {
-    return hostname;
-  }
-
-  public void setHostname(String hostname) {
-    this.hostname = hostname;
-  }
-
   @Override
-  public String serializeToString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(this.getClass().getSimpleName()).append(":[").append(
-            "id=<").append(getId()).append(">").append(
-            ", hostname=<").append(getHostname() == null ? "\\0" : BeansUtils.createEscaping(getHostname())).append(">")
-        .append(
-            ']').toString();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-
-    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', hostname='")
-        .append(hostname).append("']").toString();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result
-        + ((hostname == null) ? 0 : hostname.hashCode());
-    result = prime * result + getId();
-    return result;
+  public int compareTo(PerunBean perunBean) {
+    if (perunBean == null) {
+      throw new NullPointerException("PerunBean to compare with is null.");
+    }
+    if (perunBean instanceof Host) {
+      Host host = (Host) perunBean;
+      if (this.getHostname() == null && host.getHostname() != null) {
+        return -1;
+      }
+      if (host.getHostname() == null && this.getHostname() != null) {
+        return 1;
+      }
+      if (this.getHostname() == null && host.getHostname() == null) {
+        return 0;
+      }
+      return this.getHostname().compareToIgnoreCase(host.getHostname());
+    } else {
+      return (this.getId() - perunBean.getId());
+    }
   }
 
   @Override
@@ -91,25 +75,37 @@ public class Host extends Auditable implements Comparable<PerunBean> {
     return true;
   }
 
+  public String getHostname() {
+    return hostname;
+  }
+
+  public void setHostname(String hostname) {
+    this.hostname = hostname;
+  }
+
   @Override
-  public int compareTo(PerunBean perunBean) {
-    if (perunBean == null) {
-      throw new NullPointerException("PerunBean to compare with is null.");
-    }
-    if (perunBean instanceof Host) {
-      Host host = (Host) perunBean;
-      if (this.getHostname() == null && host.getHostname() != null) {
-        return -1;
-      }
-      if (host.getHostname() == null && this.getHostname() != null) {
-        return 1;
-      }
-      if (this.getHostname() == null && host.getHostname() == null) {
-        return 0;
-      }
-      return this.getHostname().compareToIgnoreCase(host.getHostname());
-    } else {
-      return (this.getId() - perunBean.getId());
-    }
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((hostname == null) ? 0 : hostname.hashCode());
+    result = prime * result + getId();
+    return result;
+  }
+
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", hostname=<").append(getHostname() == null ? "\\0" : BeansUtils.createEscaping(getHostname()))
+        .append(">").append(']').toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+
+    return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', hostname='")
+        .append(hostname).append("']").toString();
   }
 }

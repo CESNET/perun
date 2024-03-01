@@ -19,6 +19,15 @@ public class urn_perun_resource_attribute_def_def_k4GroupCode extends ResourceAt
     implements ResourceAttributesModuleImplApi {
 
   @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
+          "Code of Group in K4 can't be empty.");
+    }
+  }
+
+  @Override
   public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
       throws WrongAttributeValueException {
 
@@ -29,15 +38,6 @@ public class urn_perun_resource_attribute_def_def_k4GroupCode extends ResourceAt
       throw new WrongAttributeValueException("Code of Group in K4 mustn't exceed 20 characters.");
     }
 
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
-          "Code of Group in K4 can't be empty.");
-    }
   }
 
   @Override

@@ -22,10 +22,6 @@ public class FreeDenialServiceOnDestination extends AuditEvent {
     this.message = formatMessage("free denial: %s on %s.", service, destinationId);
   }
 
-  public Service getService() {
-    return service;
-  }
-
   public int getDestinationId() {
     return destinationId;
   }
@@ -33,6 +29,10 @@ public class FreeDenialServiceOnDestination extends AuditEvent {
   @Override
   public String getMessage() {
     return message;
+  }
+
+  public Service getService() {
+    return service;
   }
 
   @Override

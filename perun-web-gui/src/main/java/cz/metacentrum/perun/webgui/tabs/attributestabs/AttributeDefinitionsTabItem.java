@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "attr-def";
+  public static final String URL = "attr-def";
   ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
   /**
    * Perun web session

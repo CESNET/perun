@@ -6,8 +6,7 @@ import java.util.Objects;
 /**
  * Class representing an extended version of {@link ExtSource}.
  * <p>
- * This class is used for providing additional information about an ExtSource
- * via its attributes.
+ * This class is used for providing additional information about an ExtSource via its attributes.
  *
  * @author Lucie Kureckova <luckureckova@gmail.com>
  */
@@ -31,19 +30,6 @@ public class EnrichedExtSource {
     return Objects.equals(extSource, that.extSource) && Objects.equals(attributes, that.attributes);
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(extSource, attributes);
-  }
-
-  @Override
-  public String toString() {
-    return "EnrichedExtSource{" +
-        "extSource=" + extSource +
-        ", attributes=" + attributes +
-        '}';
-  }
-
   public Map<String, String> getAttributes() {
     return attributes;
   }
@@ -58,5 +44,15 @@ public class EnrichedExtSource {
 
   public void setExtSource(ExtSource extSource) {
     this.extSource = extSource;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(extSource, attributes);
+  }
+
+  @Override
+  public String toString() {
+    return "EnrichedExtSource{" + "extSource=" + extSource + ", attributes=" + attributes + '}';
   }
 }

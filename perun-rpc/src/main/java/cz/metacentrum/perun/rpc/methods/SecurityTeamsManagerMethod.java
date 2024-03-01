@@ -153,7 +153,8 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
   /*#
    * Get managers of SecurityTeam by its <code>id</code>.
    * @param securityTeam int Security team <code>id</code>
-   * @param onlyDirectAdmins boolean if true, get only direct SecurityTeam administrators (if false, get both direct and indirect)
+   * @param onlyDirectAdmins boolean if true, get only direct SecurityTeam administrators (if false, get both direct
+   * and indirect)
    * @return List<User> List of Users who are managers (members) of specified SecurityTeam.
    */
   getAdmins {
@@ -260,8 +261,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 
       ac.getSecurityTeamsManager()
           .addUserToBlacklist(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")),
-              ac.getUserById(parms.readInt("user")),
-              parms.readString("description"));
+              ac.getUserById(parms.readInt("user")), parms.readString("description"));
       return null;
     }
   },

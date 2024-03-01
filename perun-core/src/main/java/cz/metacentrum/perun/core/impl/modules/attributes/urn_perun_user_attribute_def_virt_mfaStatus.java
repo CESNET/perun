@@ -12,14 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Attribute module for mfaStatus attribute.
- * Contains string based on the value of mfaEnforceSettings (ENFORCED_ALL, ENFORCED_PARTIALLY, <empty string>).
+ * Attribute module for mfaStatus attribute. Contains string based on the value of mfaEnforceSettings (ENFORCED_ALL,
+ * ENFORCED_PARTIALLY, <empty string>).
  *
  * @author Matej Hakoš <492968@mail.muni.cz>
  */
 public class urn_perun_user_attribute_def_virt_mfaStatus extends UserVirtualAttributesModuleAbstract {
   private static final String MFA_ENFORCE_SETTINGS = AttributesManager.NS_USER_ATTR_DEF + ":mfaEnforceSettings";
-  private static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_mfaStatus.class);
+  private static Logger LOG = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_mfaStatus.class);
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
@@ -39,7 +39,7 @@ public class urn_perun_user_attribute_def_virt_mfaStatus extends UserVirtualAttr
       }
     } catch (AttributeNotExistsException e) {
       // Log non-existing attribute
-      log.warn("Attribute {} does not exist.", mfaEnforceSettings);
+      LOG.warn("Attribute {} does not exist.", mfaEnforceSettings);
     } catch (WrongAttributeAssignmentException e) {
       // If the attribute does not exist, mfaStatus is empty string
     }

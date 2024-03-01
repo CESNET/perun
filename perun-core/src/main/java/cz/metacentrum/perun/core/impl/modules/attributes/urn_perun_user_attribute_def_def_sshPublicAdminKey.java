@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +17,14 @@ import java.util.List;
  */
 public class urn_perun_user_attribute_def_def_sshPublicAdminKey extends UserAttributesModuleAbstract
     implements UserAttributesModuleImplApi {
+
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Cant be null.");
+    }
+  }
 
   @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
@@ -35,14 +42,6 @@ public class urn_perun_user_attribute_def_def_sshPublicAdminKey extends UserAttr
               "One of keys in attribute contains new line character. New line character is not allowed here.");
         }
       }
-    }
-  }
-
-  @Override
-  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    if (attribute.getValue() == null) {
-      throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Cant be null.");
     }
   }
 

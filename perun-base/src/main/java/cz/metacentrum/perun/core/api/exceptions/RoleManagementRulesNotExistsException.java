@@ -1,7 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * This exception is thrown when trying to get a role management rules which does not exist in the PerunPoliciesContainer
+ * This exception is thrown when trying to get a role management rules which does not exist in the
+ * PerunPoliciesContainer
  *
  * @author Peter Balčirák
  */

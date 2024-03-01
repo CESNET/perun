@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 class StreamGobbler extends Thread {
 
-  private final static Logger log = LoggerFactory
-      .getLogger(StreamGobbler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StreamGobbler.class);
   private InputStream is;
   private StringBuilder sb;
 
@@ -48,7 +47,7 @@ class StreamGobbler extends Thread {
           br.close();
         }
       } catch (IOException e) {
-        log.error(e.toString(), e);
+        LOG.error(e.toString(), e);
       }
     }
   }

@@ -1,23 +1,22 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jakub Peschel <410368@mail.muni.cz>
@@ -36,7 +35,32 @@ public class urn_perun_user_facility_attribute_def_virt_shellTest {
   private static Resource resource;
   private static Resource resource1;
   private static List<Resource> resourceList;
+
   public urn_perun_user_facility_attribute_def_virt_shellTest() {
+  }
+
+  @Test
+  public void getAttributeValueTest() throws Exception {
+    System.out.println("urn_perun_user_facility_attribute_def_virt_shell.GetAttributeValue()");
+
+    when(session.getPerunBl().getAttributesManagerBl()
+        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
+            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell"))).thenReturn(defDefShell);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
+        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells"))).thenReturn(facilityShell);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class),
+        eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredShells"))).thenReturn(preffered);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+        eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells")).getValue()).thenReturn(resourceShell);
+    when(session.getPerunBl().getUsersManagerBl()
+        .getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(
+        resourceList);
+
+    Attribute testAttr = classInstance.getAttributeValue(session, user, facility,
+        session.getPerunBl().getAttributesManagerBl()
+            .getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "shell"));
+    assertEquals("/mnt/bash2", testAttr.getValue());
+
   }
 
   @Before
@@ -71,29 +95,5 @@ public class urn_perun_user_facility_attribute_def_virt_shellTest {
 
     resourceList = new ArrayList<>();
     resourceList.add(resource1);
-  }
-
-  @Test
-  public void getAttributeValueTest() throws Exception {
-    System.out.println("urn_perun_user_facility_attribute_def_virt_shell.GetAttributeValue()");
-
-    when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class),
-            eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell"))).thenReturn(defDefShell);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class),
-        eq(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells"))).thenReturn(facilityShell);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(User.class),
-        eq(AttributesManager.NS_USER_ATTR_DEF + ":preferredShells"))).thenReturn(preffered);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
-        eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells")).getValue()).thenReturn(resourceShell);
-    when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(
-        resourceList);
-
-    Attribute testAttr = classInstance.getAttributeValue(session, user, facility,
-        session.getPerunBl().getAttributesManagerBl()
-            .getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "shell"));
-    assertEquals("/mnt/bash2", testAttr.getValue());
-
   }
 }

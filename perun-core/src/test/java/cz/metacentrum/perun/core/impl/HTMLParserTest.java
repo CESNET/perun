@@ -1,29 +1,21 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /*
  * @author: Matej Hakoš <492968@mail.muni.cz>
  */
 public class HTMLParserTest extends AbstractPerunIntegrationTest {
   private boolean originalForce;
-
-  @Before
-  public void setForce() {
-    originalForce = BeansUtils.getCoreConfig().getForceHTMLSanitization();
-    BeansUtils.getCoreConfig().setForceHTMLSanitization(true);
-  }
-
-  @After
-  public void revertForce() {
-    BeansUtils.getCoreConfig().setForceHTMLSanitization(originalForce);
-  }
 
   @Test
   public void checkParserAPI() {
@@ -53,6 +45,43 @@ public class HTMLParserTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
+  public void checkSafeCheckboxLabel() {
+    System.out.println("HTMLParserTest.checkSafeCheckboxLabel");
+
+    // this is the format in which options are stored, potentially parse before sanitizing if this causes issues
+    String input = "testVal#I have read <a href=\"https://www.example.eu\">these terms</a>|f#b";
+
+    assertTrue(new HTMLParser().isCheckboxLabelSafe(input));
+  }
+
+  @Test
+  public void checkSafeHtmlInput() {
+    System.out.println("HTMLParserTest.checkSafeHtmlInput");
+
+    String input = """
+        <hr>
+        <p class="helo">HELLO !</p>
+        <p style="background-color:blue; color:red;">Hello 2!</p>
+        <a href="https://www.example.eu">https://www.example.eu</a>
+        <a href="mailto:contact@email.eu">contact@email.eu</a>
+        """;
+
+    HTMLParser parser = new HTMLParser().sanitizeHTML(input).checkEscapedHTML();
+    assertTrue(parser.isInputValid());
+    assertEquals(parser.getMessage(), "");
+  }
+
+  @Test
+  public void checkUnsafeCheckboxLabel() {
+    System.out.println("HTMLParserTest.checkUnsafeCheckboxLabel");
+
+    // this is the format in which options are stored, potentially parse before sanitizing if this causes issues
+    String input = "testVal#I have read <a>these terms</a>|f#<script>alert(\"I AM UNSAFE!\")</script>";
+
+    assertFalse(new HTMLParser().isCheckboxLabelSafe(input));
+  }
+
+  @Test
   public void checkUnsafeHtmlInput() {
     System.out.println("HTMLParserTest.checkUnsafeHtmlInput");
 
@@ -69,9 +98,7 @@ public class HTMLParserTest extends AbstractPerunIntegrationTest {
         <p class="helo">HELLO !</p>
         <p non-existing-attr style="background-color:blue; background: url(''); color:red;">Hello 2!</p>""";
 
-    HTMLParser parser = new HTMLParser()
-        .sanitizeHTML(unsafeInput)
-        .checkEscapedHTML();
+    HTMLParser parser = new HTMLParser().sanitizeHTML(unsafeInput).checkEscapedHTML();
 
     assertFalse(parser.isInputValid());
     String[] unsafeTags = parser.getEscaped();
@@ -80,42 +107,14 @@ public class HTMLParserTest extends AbstractPerunIntegrationTest {
     assertEquals(unsafeTags[2], "background");
   }
 
-  @Test
-  public void checkSafeHtmlInput() {
-    System.out.println("HTMLParserTest.checkSafeHtmlInput");
-
-    String input = """
-        <hr>
-        <p class="helo">HELLO !</p>
-        <p style="background-color:blue; color:red;">Hello 2!</p>
-        <a href="https://www.example.eu">https://www.example.eu</a>
-        <a href="mailto:contact@email.eu">contact@email.eu</a>
-        """;
-
-    HTMLParser parser = new HTMLParser()
-        .sanitizeHTML(input)
-        .checkEscapedHTML();
-    assertTrue(parser.isInputValid());
-    assertEquals(parser.getMessage(), "");
+  @After
+  public void revertForce() {
+    BeansUtils.getCoreConfig().setForceHtmlSanitization(originalForce);
   }
 
-  @Test
-  public void checkSafeCheckboxLabel() {
-    System.out.println("HTMLParserTest.checkSafeCheckboxLabel");
-
-    // this is the format in which options are stored, potentially parse before sanitizing if this causes issues
-    String input = "testVal#I have read <a href=\"https://www.example.eu\">these terms</a>|f#b";
-
-    assertTrue(new HTMLParser().isCheckboxLabelSafe(input));
-  }
-
-  @Test
-  public void checkUnsafeCheckboxLabel() {
-    System.out.println("HTMLParserTest.checkUnsafeCheckboxLabel");
-
-    // this is the format in which options are stored, potentially parse before sanitizing if this causes issues
-    String input = "testVal#I have read <a>these terms</a>|f#<script>alert(\"I AM UNSAFE!\")</script>";
-
-    assertFalse(new HTMLParser().isCheckboxLabelSafe(input));
+  @Before
+  public void setForce() {
+    originalForce = BeansUtils.getCoreConfig().getForceHtmlSanitization();
+    BeansUtils.getCoreConfig().setForceHtmlSanitization(true);
   }
 }

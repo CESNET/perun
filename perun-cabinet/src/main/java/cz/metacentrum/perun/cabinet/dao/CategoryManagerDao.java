@@ -1,11 +1,10 @@
 package cz.metacentrum.perun.cabinet.dao;
 
-import java.util.List;
-
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.util.List;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,20 +28,7 @@ public interface CategoryManagerDao {
   Category createCategory(PerunSession sess, Category category) throws CabinetException;
 
   /**
-   * Updates category name or rank.
-   *
-   * @param sess     PerunSession
-   * @param category Category to update to
-   * @return Updated category
-   * @throws CabinetException       When Category doesn't exists
-   * @throws InternalErrorException When implementation fails
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-  Category updateCategory(PerunSession sess, Category category) throws CabinetException;
-
-  /**
-   * Delete category by its ID. If category contains any publications,
-   * it can't be deleted.
+   * Delete category by its ID. If category contains any publications, it can't be deleted.
    *
    * @param sess     PerunSession
    * @param category Category to be deleted
@@ -69,5 +55,17 @@ public interface CategoryManagerDao {
    * @throws InternalErrorException When implementation fails
    */
   Category getCategoryById(int id) throws CabinetException;
+
+  /**
+   * Updates category name or rank.
+   *
+   * @param sess     PerunSession
+   * @param category Category to update to
+   * @return Updated category
+   * @throws CabinetException       When Category doesn't exists
+   * @throws InternalErrorException When implementation fails
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
+  Category updateCategory(PerunSession sess, Category category) throws CabinetException;
 
 }

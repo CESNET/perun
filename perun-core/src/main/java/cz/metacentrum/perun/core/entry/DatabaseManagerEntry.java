@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * @author Michal Stava email:&lt;stavamichal@gmail.com&gt;
  */
 public class DatabaseManagerEntry implements DatabaseManager {
-  final static Logger log = LoggerFactory.getLogger(DatabaseManagerEntry.class);
+  static final Logger LOG = LoggerFactory.getLogger(DatabaseManagerEntry.class);
 
   private DatabaseManagerBl databaseManagerBl;
   private PerunBl perunBl;
@@ -61,6 +60,10 @@ public class DatabaseManagerEntry implements DatabaseManager {
     return getDatabaseManagerBl().getDatabaseInformation();
   }
 
+  public DatabaseManagerBl getDatabaseManagerBl() {
+    return this.databaseManagerBl;
+  }
+
   @Override
   public long getTimeOfQueryPerformance(PerunSession sess) throws PrivilegeException {
     Utils.checkPerunSession(sess);
@@ -71,10 +74,6 @@ public class DatabaseManagerEntry implements DatabaseManager {
     }
 
     return getDatabaseManagerBl().getTimeOfQueryPerformance();
-  }
-
-  public DatabaseManagerBl getDatabaseManagerBl() {
-    return this.databaseManagerBl;
   }
 
   public void setDatabaseManagerBl(DatabaseManagerBl databaseManagerBl) {

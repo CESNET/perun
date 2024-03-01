@@ -8,7 +8,7 @@ import org.springframework.ldap.NamingException;
 
 public class UpdateEventProcessor extends AbstractEventProcessor {
 
-  private final static Logger log = LoggerFactory.getLogger(UpdateEventProcessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UpdateEventProcessor.class);
 
   @Override
   public void processEvent(String msg, MessageBeans beans) {
@@ -16,27 +16,27 @@ public class UpdateEventProcessor extends AbstractEventProcessor {
       try {
         switch (beanFlag) {
           case MessageBeans.GROUP_F:
-            log.debug("Updating group {}", beans.getGroup());
+            LOG.debug("Updating group {}", beans.getGroup());
             perunGroup.updateGroup(beans.getGroup());
             break;
 
           case MessageBeans.RESOURCE_F:
-            log.debug("Updating resource {}", beans.getResource());
+            LOG.debug("Updating resource {}", beans.getResource());
             perunResource.updateResource(beans.getResource());
             break;
 
           case MessageBeans.FACILITY_F:
-            log.debug("Updating facility {}", beans.getFacility());
+            LOG.debug("Updating facility {}", beans.getFacility());
             perunFacility.updateFacility(beans.getFacility());
             break;
 
           case MessageBeans.USER_F:
-            log.debug("Updating user {}", beans.getUser());
+            LOG.debug("Updating user {}", beans.getUser());
             perunUser.updateUser(beans.getUser());
             break;
 
           case MessageBeans.VO_F:
-            log.debug("Updating VO {}", beans.getVo());
+            LOG.debug("Updating VO {}", beans.getVo());
             perunVO.updateVo(beans.getVo());
             break;
 
@@ -44,7 +44,7 @@ public class UpdateEventProcessor extends AbstractEventProcessor {
             break;
         }
       } catch (NamingException | InternalErrorException e) {
-        log.error("Error updating entry: {}", e.getMessage());
+        LOG.error("Error updating entry: {}", e.getMessage());
       }
     }
   }

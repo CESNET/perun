@@ -29,19 +29,18 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
 import cz.metacentrum.perun.core.implApi.SecurityTeamsManagerImplApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 
-  private final static Logger log = LoggerFactory.getLogger(SecurityTeamsManagerBlImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SecurityTeamsManagerBlImpl.class);
 
   private final SecurityTeamsManagerImplApi securityTeamsManagerImpl;
   private PerunBl perunBl;
@@ -51,28 +50,68 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
   }
 
   @Override
-  public List<SecurityTeam> getSecurityTeams(PerunSession sess) {
-    if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN) ||
-        AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.PERUNADMINBA)) {
-      return getSecurityTeamsManagerImpl().getAllSecurityTeams(sess);
-    } else if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.SECURITYADMIN)) {
+  public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) {
+    getSecurityTeamsManagerImpl().addUserToBlacklist(sess, securityTeam, user, description);
+    getPerunBl().getAuditer().log(sess, new UserAddedToBlackListOfSecurityTeam(user, securityTeam, description));
+  }
 
-      List<SecurityTeam> securityTeams = new ArrayList<>();
+  @Override
+  public void checkGroupIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group)
+      throws AlreadyAdminException {
+    getSecurityTeamsManagerImpl().checkGroupIsNotSecurityAdmin(sess, securityTeam, group);
+  }
 
-      // Get SecurityTeams where user is Admin
-      for (PerunBean st : AuthzResolver.getComplementaryObjectsForRole(sess, Role.SECURITYADMIN, SecurityTeam.class)) {
-        securityTeams.add((SecurityTeam) st);
-      }
+  @Override
+  public void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group)
+      throws GroupNotAdminException {
+    getSecurityTeamsManagerImpl().checkGroupIsSecurityAdmin(sess, securityTeam, group);
+  }
 
-      return securityTeams;
-    } else {
-      throw new InternalErrorException("Wrong Entry. Should throw PrivilegeException");
+  @Override
+  public void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam)
+      throws SecurityTeamNotExistsException {
+    getSecurityTeamsManagerImpl().checkSecurityTeamExists(sess, securityTeam);
+  }
+
+  @Override
+  public void checkSecurityTeamNotExists(PerunSession sess, SecurityTeam securityTeam)
+      throws SecurityTeamExistsException {
+    getSecurityTeamsManagerImpl().checkSecurityTeamNotExists(sess, securityTeam);
+  }
+
+  @Override
+  public void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam)
+      throws SecurityTeamExistsException {
+    getSecurityTeamsManagerImpl().checkSecurityTeamUniqueName(sess, securityTeam);
+  }
+
+  @Override
+  public void checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user)
+      throws UserAlreadyRemovedException {
+    if (!isUserBlacklisted(sess, securityTeam, user)) {
+      throw new UserAlreadyRemovedException("User " + user + " is not in blacklist of security team " + securityTeam);
     }
   }
 
   @Override
-  public List<SecurityTeam> getAllSecurityTeams(PerunSession sess) {
-    return getSecurityTeamsManagerImpl().getAllSecurityTeams(sess);
+  public void checkUserIsNotInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user)
+      throws UserAlreadyBlacklistedException {
+    if (isUserBlacklisted(sess, securityTeam, user)) {
+      throw new UserAlreadyBlacklistedException(
+          "User " + user + " is already in blacklist of security team " + securityTeam);
+    }
+  }
+
+  @Override
+  public void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user)
+      throws AlreadyAdminException {
+    getSecurityTeamsManagerImpl().checkUserIsNotSecurityAdmin(sess, securityTeam, user);
+  }
+
+  @Override
+  public void checkUserIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user)
+      throws UserNotAdminException {
+    getSecurityTeamsManagerImpl().checkUserIsSecurityAdmin(sess, securityTeam, user);
   }
 
   @Override
@@ -96,14 +135,6 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
   }
 
   @Override
-  public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam)
-      throws SecurityTeamNotExistsException {
-    securityTeam = getSecurityTeamsManagerImpl().updateSecurityTeam(sess, securityTeam);
-    getPerunBl().getAuditer().log(sess, new SecurityTeamUpdated(securityTeam));
-    return securityTeam;
-  }
-
-  @Override
   public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete)
       throws SecurityTeamNotExistsException, RelationExistsException {
 
@@ -114,7 +145,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
       try {
         AuthzResolverBlImpl.unsetRole(sess, adminGroup, securityTeam, Role.SECURITYADMIN);
       } catch (GroupNotAdminException e) {
-        log.warn(
+        LOG.warn(
             "When trying to unsetRole SecurityAdmin for group {} in the securityTeam {} the exception was thrown {}",
             adminGroup, securityTeam, e);
         //skip and log as warning
@@ -129,7 +160,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
       try {
         AuthzResolverBlImpl.unsetRole(sess, adminUser, securityTeam, Role.SECURITYADMIN);
       } catch (UserNotAdminException e) {
-        log.warn(
+        LOG.warn(
             "When trying to unsetRole SecurityAdmin for user {} in the securityTeam {} the exception was thrown {}",
             adminUser, securityTeam, e);
         //skip and log as warning
@@ -163,13 +194,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
   }
 
   @Override
-  public SecurityTeam getSecurityTeamById(PerunSession sess, int id) throws SecurityTeamNotExistsException {
-    return getSecurityTeamsManagerImpl().getSecurityTeamById(sess, id);
-  }
-
-  @Override
-  public SecurityTeam getSecurityTeamByName(PerunSession sess, String name) throws SecurityTeamNotExistsException {
-    return getSecurityTeamsManagerImpl().getSecurityTeamByName(sess, name);
+  public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) {
+    return getSecurityTeamsManagerImpl().getAdminGroups(sess, securityTeam);
   }
 
   @Override
@@ -182,26 +208,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
   }
 
   @Override
-  public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) {
-    return getSecurityTeamsManagerImpl().getAdminGroups(sess, securityTeam);
-  }
-
-  @Override
-  public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) {
-    getSecurityTeamsManagerImpl().addUserToBlacklist(sess, securityTeam, user, description);
-    getPerunBl().getAuditer().log(sess, new UserAddedToBlackListOfSecurityTeam(user, securityTeam, description));
-  }
-
-  @Override
-  public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) {
-    getSecurityTeamsManagerImpl().removeUserFromBlacklist(sess, securityTeam, user);
-    getPerunBl().getAuditer().log(sess, new UserRemovedFromBlackListOfSecurityTeam(user, securityTeam));
-  }
-
-  @Override
-  public void removeUserFromAllBlacklists(PerunSession sess, User user) {
-    getSecurityTeamsManagerImpl().removeUserFromAllBlacklists(sess, user);
-    getPerunBl().getAuditer().log(sess, new UserRemovedFromBlacklists(user));
+  public List<SecurityTeam> getAllSecurityTeams(PerunSession sess) {
+    return getSecurityTeamsManagerImpl().getAllSecurityTeams(sess);
   }
 
   @Override
@@ -230,63 +238,52 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
     return getSecurityTeamsManagerImpl().getBlacklistWithDescription(sess, securityTeams);
   }
 
-  @Override
-  public void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam)
-      throws SecurityTeamNotExistsException {
-    getSecurityTeamsManagerImpl().checkSecurityTeamExists(sess, securityTeam);
+  /**
+   * Gets the perunBl.
+   *
+   * @return The perunBl.
+   */
+  public PerunBl getPerunBl() {
+    return this.perunBl;
   }
 
   @Override
-  public void checkSecurityTeamNotExists(PerunSession sess, SecurityTeam securityTeam)
-      throws SecurityTeamExistsException {
-    getSecurityTeamsManagerImpl().checkSecurityTeamNotExists(sess, securityTeam);
+  public SecurityTeam getSecurityTeamById(PerunSession sess, int id) throws SecurityTeamNotExistsException {
+    return getSecurityTeamsManagerImpl().getSecurityTeamById(sess, id);
   }
 
   @Override
-  public void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam)
-      throws SecurityTeamExistsException {
-    getSecurityTeamsManagerImpl().checkSecurityTeamUniqueName(sess, securityTeam);
+  public SecurityTeam getSecurityTeamByName(PerunSession sess, String name) throws SecurityTeamNotExistsException {
+    return getSecurityTeamsManagerImpl().getSecurityTeamByName(sess, name);
   }
 
   @Override
-  public void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user)
-      throws AlreadyAdminException {
-    getSecurityTeamsManagerImpl().checkUserIsNotSecurityAdmin(sess, securityTeam, user);
-  }
+  public List<SecurityTeam> getSecurityTeams(PerunSession sess) {
+    if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN) ||
+        AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.PERUNADMINBA)) {
+      return getSecurityTeamsManagerImpl().getAllSecurityTeams(sess);
+    } else if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.SECURITYADMIN)) {
 
-  @Override
-  public void checkUserIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user)
-      throws UserNotAdminException {
-    getSecurityTeamsManagerImpl().checkUserIsSecurityAdmin(sess, securityTeam, user);
-  }
+      List<SecurityTeam> securityTeams = new ArrayList<>();
 
-  @Override
-  public void checkGroupIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group)
-      throws AlreadyAdminException {
-    getSecurityTeamsManagerImpl().checkGroupIsNotSecurityAdmin(sess, securityTeam, group);
-  }
+      // Get SecurityTeams where user is Admin
+      for (PerunBean st : AuthzResolver.getComplementaryObjectsForRole(sess, Role.SECURITYADMIN, SecurityTeam.class)) {
+        securityTeams.add((SecurityTeam) st);
+      }
 
-  @Override
-  public void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group)
-      throws GroupNotAdminException {
-    getSecurityTeamsManagerImpl().checkGroupIsSecurityAdmin(sess, securityTeam, group);
-  }
-
-  @Override
-  public void checkUserIsNotInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user)
-      throws UserAlreadyBlacklistedException {
-    if (isUserBlacklisted(sess, securityTeam, user)) {
-      throw new UserAlreadyBlacklistedException(
-          "User " + user + " is already in blacklist of security team " + securityTeam);
+      return securityTeams;
+    } else {
+      throw new InternalErrorException("Wrong Entry. Should throw PrivilegeException");
     }
   }
 
-  @Override
-  public void checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user)
-      throws UserAlreadyRemovedException {
-    if (!isUserBlacklisted(sess, securityTeam, user)) {
-      throw new UserAlreadyRemovedException("User " + user + " is not in blacklist of security team " + securityTeam);
-    }
+  /**
+   * Gets the securityTeamsManagerImpl.
+   *
+   * @return The securityTeamsManagerImpl.
+   */
+  public SecurityTeamsManagerImplApi getSecurityTeamsManagerImpl() {
+    return this.securityTeamsManagerImpl;
   }
 
   @Override
@@ -299,22 +296,16 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
     return getSecurityTeamsManagerImpl().isUserBlacklisted(sess, user);
   }
 
-  /**
-   * Gets the securityTeamsManagerImpl.
-   *
-   * @return The securityTeamsManagerImpl.
-   */
-  public SecurityTeamsManagerImplApi getSecurityTeamsManagerImpl() {
-    return this.securityTeamsManagerImpl;
+  @Override
+  public void removeUserFromAllBlacklists(PerunSession sess, User user) {
+    getSecurityTeamsManagerImpl().removeUserFromAllBlacklists(sess, user);
+    getPerunBl().getAuditer().log(sess, new UserRemovedFromBlacklists(user));
   }
 
-  /**
-   * Gets the perunBl.
-   *
-   * @return The perunBl.
-   */
-  public PerunBl getPerunBl() {
-    return this.perunBl;
+  @Override
+  public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) {
+    getSecurityTeamsManagerImpl().removeUserFromBlacklist(sess, securityTeam, user);
+    getPerunBl().getAuditer().log(sess, new UserRemovedFromBlackListOfSecurityTeam(user, securityTeam));
   }
 
   /**
@@ -324,5 +315,13 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
    */
   public void setPerunBl(PerunBl perunBl) {
     this.perunBl = perunBl;
+  }
+
+  @Override
+  public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam)
+      throws SecurityTeamNotExistsException {
+    securityTeam = getSecurityTeamsManagerImpl().updateSecurityTeam(sess, securityTeam);
+    getPerunBl().getAuditer().log(sess, new SecurityTeamUpdated(securityTeam));
+    return securityTeam;
   }
 }

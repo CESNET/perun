@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @org.springframework.stereotype.Service(value = "taskScheduler")
 public class TaskScheduler extends AbstractRunner {
 
-  private final static Logger log = LoggerFactory.getLogger(TaskScheduler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TaskScheduler.class);
   private PerunSession perunSession;
 
   private SchedulingPool schedulingPool;
@@ -64,77 +64,86 @@ public class TaskScheduler extends AbstractRunner {
 
   // ----- setters -------------------------------------
 
-  public SchedulingPool getSchedulingPool() {
-    return schedulingPool;
-  }
-
-  @Autowired
-  public void setSchedulingPool(SchedulingPool schedulingPool) {
-    this.schedulingPool = schedulingPool;
-  }
-
-  public Perun getPerun() {
-    return perun;
-  }
-
-  @Autowired
-  public void setPerun(Perun perun) {
-    this.perun = perun;
+  /**
+   * Encode string to base64 when it contains any message divider character "|".
+   *
+   * @param data Data to be checked
+   * @return Base64 encoded string if needed or original string
+   */
+  private String fixStringSeparators(String data) {
+    if (data.contains("|")) {
+      return new String(Base64.encodeBase64(data.getBytes()));
+    } else {
+      return data;
+    }
   }
 
   public Properties getDispatcherProperties() {
     return dispatcherProperties;
   }
 
-  @Resource(name = "dispatcherPropertiesBean")
-  public void setDispatcherProperties(Properties dispatcherProperties) {
-    this.dispatcherProperties = dispatcherProperties;
-  }
-
   public EngineMessageProducerFactory getEngineMessageProducerPool() {
     return engineMessageProducerFactory;
   }
 
-  @Autowired
-  public void setEngineMessageProducerPool(EngineMessageProducerFactory engineMessageProducerPool) {
-    this.engineMessageProducerFactory = engineMessageProducerPool;
+  public Perun getPerun() {
+    return perun;
   }
 
-  public DelayQueue<TaskSchedule> getWaitingTasksQueue() {
-    return waitingTasksQueue;
-  }
-
-  @Autowired
-  public void setWaitingTasksQueue(DelayQueue<TaskSchedule> waitingTasksQueue) {
-    this.waitingTasksQueue = waitingTasksQueue;
-  }
-
-  public DelayQueue<TaskSchedule> getWaitingForcedTasksQueue() {
-    return waitingForcedTasksQueue;
-  }
-
-  @Autowired
-  public void setWaitingForcedTasksQueue(DelayQueue<TaskSchedule> waitingForcedTasksQueue) {
-    this.waitingForcedTasksQueue = waitingForcedTasksQueue;
+  public SchedulingPool getSchedulingPool() {
+    return schedulingPool;
   }
 
   public TasksManagerBl getTasksManagerBl() {
     return tasksManagerBl;
   }
 
-  @Autowired
-  public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
-    this.tasksManagerBl = tasksManagerBl;
+  public DelayQueue<TaskSchedule> getWaitingForcedTasksQueue() {
+    return waitingForcedTasksQueue;
   }
 
-  // ----- methods -------------------------------------
+  /**
+   * Internal method which chooses next Task that will be processed, we try to take forced Task first, and if none is
+   * available, then we wait for a normal Task for a few seconds.
+   *
+   * @return Once one of the Queues returns non null TaskSchedule, we return it.
+   * @throws InterruptedException When blocking queue polling was interrupted.
+   */
+  private TaskSchedule getWaitingTaskSchedule() throws InterruptedException {
+    TaskSchedule taskSchedule = null;
+    while (!shouldStop()) {
+      LOG.debug(schedulingPool.getReport());
+      LOG.debug("WaitingTasksQueue has {} normal Tasks and {} forced Tasks.", waitingTasksQueue.size(),
+          waitingForcedTasksQueue.size());
+      taskSchedule = waitingForcedTasksQueue.poll();
+      if (taskSchedule == null) {
+        taskSchedule = waitingTasksQueue.poll(10, TimeUnit.SECONDS);
+      }
+      if (taskSchedule != null) {
+        break;
+      }
+    }
+    LOG.trace("[{}] Returning Task schedule {}.", taskSchedule.getTask().getId(), taskSchedule);
+    return taskSchedule;
+  }
 
+  public DelayQueue<TaskSchedule> getWaitingTasksQueue() {
+    return waitingTasksQueue;
+  }
+
+  protected void initPerunSession() {
+    if (perunSession == null) {
+      perunSession = perun.getPerunSession(new PerunPrincipal(dispatcherProperties.getProperty("perun.principal.name"),
+          dispatcherProperties.getProperty("perun.principal.extSourceName"),
+          dispatcherProperties.getProperty("perun.principal.extSourceType")), new PerunClient());
+    }
+  }
 
   /**
-   * This method runs in separate thread perpetually trying to take tasks from delay queue, blocking if none are available.
-   * If there is Task ready, we check if it source was updated. If it was, we put the task back to the queue (This
-   * can happen only limited number of times). If on the other hand it was not updated we perform additional checks using
-   * method sendToEngine.
+   * This method runs in separate thread perpetually trying to take tasks from delay queue, blocking if none are
+   * available. If there is Task ready, we check if it source was updated. If it was, we put the task back to the queue
+   * (This can happen only limited number of times). If on the other hand it was not updated we perform additional
+   * checks using method sendToEngine.
    */
   @Override
   public void run() {
@@ -142,10 +151,10 @@ public class TaskScheduler extends AbstractRunner {
       initPerunSession();
     } catch (InternalErrorException e1) {
       String message = "Dispatcher was unable to initialize Perun session.";
-      log.error(message, e1);
+      LOG.error(message, e1);
       throw new RuntimeException(message, e1);
     }
-    log.debug("Pool contains {} tasks in total", schedulingPool.getSize());
+    LOG.debug("Pool contains {} tasks in total", schedulingPool.getSize());
     TaskSchedule schedule;
     while (!shouldStop()) {
       try {
@@ -156,86 +165,45 @@ public class TaskScheduler extends AbstractRunner {
         schedule = getWaitingTaskSchedule();
       } catch (InterruptedException e) {
         String message = "Thread was interrupted, cannot continue.";
-        log.error(message, e);
+        LOG.error(message, e);
         throw new RuntimeException(message, e);
       }
       Task task = schedule.getTask();
       if (task.isSourceUpdated() && schedule.getDelayCount() > 0 && !task.isPropagationForced()) {
         // source data changed before sending, wait for more changes to come -> reschedule
-        log.warn("[{}] Task was not allowed to be sent to Engine now: {}.", task.getId(), task);
+        LOG.warn("[{}] Task was not allowed to be sent to Engine now: {}.", task.getId(), task);
         schedulingPool.scheduleTask(task, schedule.getDelayCount() - 1);
       } else {
         // send it to engine
         TaskScheduled reason = sendToEngine(task);
         switch (reason) {
           case QUEUE_ERROR:
-            log.warn("[{}] Task dispatcherQueue could not be set, so it is rescheduled: {}.", task.getId(), task);
+            LOG.warn("[{}] Task dispatcherQueue could not be set, so it is rescheduled: {}.", task.getId(), task);
             schedulingPool.scheduleTask(task, -1);
             break;
           case DENIED:
             // Task is lost from waiting queue, since somebody blocked service on facility, all destinations or globally
-            log.info("[{}] Execution was denied for Task before sending to Engine: {}.", task.getId(), task);
+            LOG.info("[{}] Execution was denied for Task before sending to Engine: {}.", task.getId(), task);
             break;
           case ERROR:
-            log.error("[{}] Unexpected error when scheduling Task, so it is rescheduled: {}.", task.getId(), task);
+            LOG.error("[{}] Unexpected error when scheduling Task, so it is rescheduled: {}.", task.getId(), task);
             schedulingPool.scheduleTask(task, -1);
             break;
           case SUCCESS:
-            log.info("[{}] Task was successfully sent to Engine: {}.", task.getId(), task);
+            LOG.info("[{}] Task was successfully sent to Engine: {}.", task.getId(), task);
             break;
           case DB_ERROR:
             // Task is lost from waiting queue, will be cleared from pool by propagation maintainer
-            log.warn("[{}] Facility, Service or Destination could not be found in DB for Task {}.", task.getId(), task);
+            LOG.warn("[{}] Facility, Service or Destination could not be found in DB for Task {}.", task.getId(), task);
+            break;
+          default:
             break;
         }
         // update task status in DB
         tasksManagerBl.updateTask(perunSession, task);
       }
     }
-    log.debug("TaskScheduler has stopped.");
-  }
-
-  /**
-   * Internal method which chooses next Task that will be processed, we try to take forced Task first,
-   * and if none is available, then we wait for a normal Task for a few seconds.
-   *
-   * @return Once one of the Queues returns non null TaskSchedule, we return it.
-   * @throws InterruptedException When blocking queue polling was interrupted.
-   */
-  private TaskSchedule getWaitingTaskSchedule() throws InterruptedException {
-    TaskSchedule taskSchedule = null;
-    while (!shouldStop()) {
-      log.debug(schedulingPool.getReport());
-      log.debug("WaitingTasksQueue has {} normal Tasks and {} forced Tasks.", waitingTasksQueue.size(),
-          waitingForcedTasksQueue.size());
-      taskSchedule = waitingForcedTasksQueue.poll();
-      if (taskSchedule == null) {
-        taskSchedule = waitingTasksQueue.poll(10, TimeUnit.SECONDS);
-      }
-      if (taskSchedule != null) {
-        break;
-      }
-    }
-    log.trace("[{}] Returning Task schedule {}.", taskSchedule.getTask().getId(), taskSchedule);
-    return taskSchedule;
-  }
-
-  /**
-   * Method waiting for propagation of tasks to the engine to be resumed.
-   * Called when propagation was suspended.
-   *
-   * @throws InterruptedException Waiting thread was interrupted.
-   */
-  private void waitForResumingPropagation() throws InterruptedException {
-    int sleepTime = 10000;
-    while (tasksManagerBl.isSuspendedTasksPropagation()) {
-      log.debug("Propagation of tasks is suspended.");
-      log.debug(schedulingPool.getReport());
-      log.debug("WaitingTasksQueue has {} normal Tasks and {} forced Tasks.", waitingTasksQueue.size(),
-          waitingForcedTasksQueue.size());
-      Thread.sleep(sleepTime);
-    }
-    log.debug("Propagation of tasks is resumed.");
+    LOG.debug("TaskScheduler has stopped.");
   }
 
   /**
@@ -256,22 +224,22 @@ public class TaskScheduler extends AbstractRunner {
       task.setService(service);
       task.setFacility(facility);
     } catch (ServiceNotExistsException e) {
-      log.error("[{}] Service for task does not exist...", task.getId());
+      LOG.error("[{}] Service for task does not exist...", task.getId());
       task.setEndTime(LocalDateTime.now());
       task.setStatus(TaskStatus.ERROR);
       return DB_ERROR;
     } catch (FacilityNotExistsException e) {
-      log.error("[{}] Facility for task does not exist...", task.getId());
+      LOG.error("[{}] Facility for task does not exist...", task.getId());
       task.setEndTime(LocalDateTime.now());
       task.setStatus(TaskStatus.ERROR);
       return DB_ERROR;
     } catch (PrivilegeException e) {
-      log.error("[{}] Privilege error accessing the database: {}", task.getId(), e.getMessage());
+      LOG.error("[{}] Privilege error accessing the database: {}", task.getId(), e.getMessage());
       task.setEndTime(LocalDateTime.now());
       task.setStatus(TaskStatus.ERROR);
       return DB_ERROR;
     } catch (InternalErrorException e) {
-      log.error("[{}] Internal error: {}", task.getId(), e.getMessage());
+      LOG.error("[{}] Internal error: {}", task.getId(), e.getMessage());
       task.setEndTime(LocalDateTime.now());
       task.setStatus(TaskStatus.ERROR);
       return DB_ERROR;
@@ -279,31 +247,31 @@ public class TaskScheduler extends AbstractRunner {
 
     EngineMessageProducer engineMessageProducer = engineMessageProducerFactory.getProducer();
 
-    log.debug("[{}] Scheduling {}.", task.getId(), task);
+    LOG.debug("[{}] Scheduling {}.", task.getId(), task);
 
     if (engineMessageProducer != null) {
-      log.debug("[{}] Assigned queue {} to task.", task.getId(), engineMessageProducer.getQueueName());
+      LOG.debug("[{}] Assigned queue {} to task.", task.getId(), engineMessageProducer.getQueueName());
     } else {
-      log.error("[{}] There are no engines registered.", task.getId());
+      LOG.error("[{}] There are no engines registered.", task.getId());
       return QUEUE_ERROR;
     }
 
     if (service.isEnabled()) {
-      log.debug("[{}] Service {} is enabled globally.", task.getId(), service.getId());
+      LOG.debug("[{}] Service {} is enabled globally.", task.getId(), service.getId());
     } else {
-      log.debug("[{}] Service {} is disabled globally.", task.getId(), service.getId());
+      LOG.debug("[{}] Service {} is disabled globally.", task.getId(), service.getId());
       return DENIED;
     }
 
     try {
       if (!((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(service, facility)) {
-        log.debug("[{}] Service {} is allowed on Facility {}.", task.getId(), service.getId(), facility.getId());
+        LOG.debug("[{}] Service {} is allowed on Facility {}.", task.getId(), service.getId(), facility.getId());
       } else {
-        log.debug("[{}] Service {} is blocked on Facility {}.", task.getId(), service.getId(), facility.getId());
+        LOG.debug("[{}] Service {} is blocked on Facility {}.", task.getId(), service.getId(), facility.getId());
         return DENIED;
       }
     } catch (Exception e) {
-      log.error("[{}] Error getting disabled status for Service, task will not run now: {}.", task.getId(), e);
+      LOG.error("[{}] Error getting disabled status for Service, task will not run now: {}.", task.getId(), e);
       return ERROR;
     }
 
@@ -311,35 +279,35 @@ public class TaskScheduler extends AbstractRunner {
     // - the task|[engine_id] part is added by dispatcherQueue
     List<Destination> destinations = task.getDestinations();
     if (task.isSourceUpdated() || destinations == null || destinations.isEmpty()) {
-      log.trace("[{}] No destinations for task, trying to query the database.", task.getId());
+      LOG.trace("[{}] No destinations for task, trying to query the database.", task.getId());
       try {
         initPerunSession();
         destinations = perun.getServicesManager().getDestinations(perunSession, task.getService(), task.getFacility());
       } catch (ServiceNotExistsException e) {
-        log.error("[{}] No destinations found for task. Service not exists...", task.getId());
+        LOG.error("[{}] No destinations found for task. Service not exists...", task.getId());
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         return DB_ERROR;
       } catch (FacilityNotExistsException e) {
-        log.error("[{}] No destinations found for task. Facility for task does not exist...", task.getId());
+        LOG.error("[{}] No destinations found for task. Facility for task does not exist...", task.getId());
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         return DB_ERROR;
       } catch (PrivilegeException e) {
-        log.error("[{}] No destinations found for task. Privilege error accessing the database: {}", task.getId(),
+        LOG.error("[{}] No destinations found for task. Privilege error accessing the database: {}", task.getId(),
             e.getMessage());
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         return DB_ERROR;
       } catch (InternalErrorException e) {
-        log.error("[{}] No destinations found for task. Internal error: {}", task.getId(), e.getMessage());
+        LOG.error("[{}] No destinations found for task. Internal error: {}", task.getId(), e.getMessage());
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         return DB_ERROR;
       }
     }
 
-    log.debug("[{}] Fetched destinations: {}", task.getId(), (destinations == null) ? "[]" : destinations.toString());
+    LOG.debug("[{}] Fetched destinations: {}", task.getId(), (destinations == null) ? "[]" : destinations.toString());
 
     if (destinations != null && !destinations.isEmpty()) {
       Iterator<Destination> iter = destinations.iterator();
@@ -362,12 +330,12 @@ public class TaskScheduler extends AbstractRunner {
           try {
             schedulingPool.onTaskDestinationComplete(result);
           } catch (Exception ex) {
-            log.warn("Couldn't store fake TaskResult about blocked destination.");
+            LOG.warn("Couldn't store fake TaskResult about blocked destination.");
           }
 
           // actually remove from destinations sent to engine
           iter.remove();
-          log.debug("[{}] Removed blocked destination: {}", task.getId(), dest.toString());
+          LOG.debug("[{}] Removed blocked destination: {}", task.getId(), dest.toString());
 
         }
       }
@@ -377,7 +345,7 @@ public class TaskScheduler extends AbstractRunner {
         return DENIED;
       }
     } else {
-      log.debug("[{}] No destination found for task: {}.", task.getId(), task);
+      LOG.debug("[{}] No destination found for task: {}.", task.getId(), task);
       return DENIED;
     }
 
@@ -385,21 +353,20 @@ public class TaskScheduler extends AbstractRunner {
 
     // construct JMS message for Engine
 
-    StringBuilder destinations_s = new StringBuilder("Destinations [");
+    StringBuilder destinationsString = new StringBuilder("Destinations [");
     if (destinations != null) {
       for (Destination destination : destinations) {
-        destinations_s.append(destination.serializeToString()).append(", ");
+        destinationsString.append(destination.serializeToString()).append(", ");
       }
     }
-    destinations_s.append("]");
+    destinationsString.append("]");
 
     // send message async
 
-    engineMessageProducer.sendMessage("[" + task.getId() + "]["
-        + task.isPropagationForced() + "]|["
-        + fixStringSeparators(task.getService().serializeToString()) + "]|["
-        + fixStringSeparators(task.getFacility().serializeToString()) + "]|["
-        + fixStringSeparators(destinations_s.toString()) + "]");
+    engineMessageProducer.sendMessage("[" + task.getId() + "][" + task.isPropagationForced() + "]|[" +
+                                      fixStringSeparators(task.getService().serializeToString()) + "]|[" +
+                                      fixStringSeparators(task.getFacility().serializeToString()) + "]|[" +
+                                      fixStringSeparators(destinationsString.toString()) + "]");
 
     // modify task status and reset forced flag
 
@@ -410,28 +377,58 @@ public class TaskScheduler extends AbstractRunner {
 
   }
 
-  /**
-   * Encode string to base64 when it contains any message divider character "|".
-   *
-   * @param data Data to be checked
-   * @return Base64 encoded string if needed or original string
-   */
-  private String fixStringSeparators(String data) {
-    if (data.contains("|")) {
-      return new String(Base64.encodeBase64(data.getBytes()));
-    } else {
-      return data;
-    }
+  @Resource(name = "dispatcherPropertiesBean")
+  public void setDispatcherProperties(Properties dispatcherProperties) {
+    this.dispatcherProperties = dispatcherProperties;
   }
 
-  protected void initPerunSession() {
-    if (perunSession == null) {
-      perunSession = perun.getPerunSession(new PerunPrincipal(
-              dispatcherProperties.getProperty("perun.principal.name"),
-              dispatcherProperties.getProperty("perun.principal.extSourceName"),
-              dispatcherProperties.getProperty("perun.principal.extSourceType")),
-          new PerunClient());
+  @Autowired
+  public void setEngineMessageProducerPool(EngineMessageProducerFactory engineMessageProducerPool) {
+    this.engineMessageProducerFactory = engineMessageProducerPool;
+  }
+
+  // ----- methods -------------------------------------
+
+  @Autowired
+  public void setPerun(Perun perun) {
+    this.perun = perun;
+  }
+
+  @Autowired
+  public void setSchedulingPool(SchedulingPool schedulingPool) {
+    this.schedulingPool = schedulingPool;
+  }
+
+  @Autowired
+  public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
+    this.tasksManagerBl = tasksManagerBl;
+  }
+
+  @Autowired
+  public void setWaitingForcedTasksQueue(DelayQueue<TaskSchedule> waitingForcedTasksQueue) {
+    this.waitingForcedTasksQueue = waitingForcedTasksQueue;
+  }
+
+  @Autowired
+  public void setWaitingTasksQueue(DelayQueue<TaskSchedule> waitingTasksQueue) {
+    this.waitingTasksQueue = waitingTasksQueue;
+  }
+
+  /**
+   * Method waiting for propagation of tasks to the engine to be resumed. Called when propagation was suspended.
+   *
+   * @throws InterruptedException Waiting thread was interrupted.
+   */
+  private void waitForResumingPropagation() throws InterruptedException {
+    int sleepTime = 10000;
+    while (tasksManagerBl.isSuspendedTasksPropagation()) {
+      LOG.debug("Propagation of tasks is suspended.");
+      LOG.debug(schedulingPool.getReport());
+      LOG.debug("WaitingTasksQueue has {} normal Tasks and {} forced Tasks.", waitingTasksQueue.size(),
+          waitingForcedTasksQueue.size());
+      Thread.sleep(sleepTime);
     }
+    LOG.debug("Propagation of tasks is resumed.");
   }
 
 }

@@ -1,9 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -12,10 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * @author Metodej Klang
@@ -24,13 +23,6 @@ public class ExtSourceISMUTest {
 
   @Spy
   private static ExtSourceISMU extSourceISMU;
-
-  @Before
-  public void setUp() throws Exception {
-    extSourceISMU = new ExtSourceISMU();
-
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   public void getUsersSubjectsTest() throws Exception {
@@ -64,5 +56,12 @@ public class ExtSourceISMUTest {
     // test the method
     List<Map<String, String>> actualSubjects = extSourceISMU.getUsersSubjects();
     assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    extSourceISMU = new ExtSourceISMU();
+
+    MockitoAnnotations.initMocks(this);
   }
 }

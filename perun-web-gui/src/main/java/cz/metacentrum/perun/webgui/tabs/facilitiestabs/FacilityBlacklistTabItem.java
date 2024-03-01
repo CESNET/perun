@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class FacilityBlacklistTabItem implements TabItem, TabItemWithUrl {
 
-  public final static String URL = "black";
+  public static final String URL = "black";
   /**
    * Perun web session
    */

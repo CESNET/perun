@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,22 +34,6 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
   private static final String A_R_projectsBasePath = AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath";
   private static final String A_GR_projectName = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectName";
   private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
-
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
-      throws WrongAttributeValueException {
-    String name = attribute.valueAsString();
-    if (name == null) {
-      return;
-    }
-
-    Matcher match = pattern.matcher(name);
-
-    if (!match.matches()) {
-      throw new WrongAttributeValueException(attribute, group, resource,
-          "Bad format of attribute projectName (expected something like 'project_name-24').");
-    }
-  }
 
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
@@ -137,13 +120,20 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
   }
 
   @Override
-  public List<String> getDependencies() {
-    List<String> dependencies = new ArrayList<>();
-    dependencies.add(A_GR_projectName);
-    dependencies.add(A_R_projectsBasePath);
-    return dependencies;
-  }
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    String name = attribute.valueAsString();
+    if (name == null) {
+      return;
+    }
 
+    Matcher match = pattern.matcher(name);
+
+    if (!match.matches()) {
+      throw new WrongAttributeValueException(attribute, group, resource,
+          "Bad format of attribute projectName (expected something like 'project_name-24').");
+    }
+  }
 
   @Override
   public AttributeDefinition getAttributeDefinition() {
@@ -154,5 +144,13 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
     attr.setType(String.class.getName());
     attr.setDescription("Name of project, directory where the project exists.");
     return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_GR_projectName);
+    dependencies.add(A_R_projectsBasePath);
+    return dependencies;
   }
 }

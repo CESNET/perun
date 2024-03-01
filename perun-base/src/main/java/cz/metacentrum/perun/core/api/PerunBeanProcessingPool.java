@@ -15,14 +15,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * This implementation is thread-safe.
  * <p>
- * You can put new waiting jobs in it and take waiting jobs to set them as running,
- * and then remove them after work with them is finished.
- * Jobs in processing pool are unique and can't be added if they are already
- * in list of waiting jobs or in set of running jobs.
- * New waiting job can skip order and be putted as first in the list of waiting jobs.
+ * You can put new waiting jobs in it and take waiting jobs to set them as running, and then remove them after work with
+ * them is finished. Jobs in processing pool are unique and can't be added if they are already in list of waiting jobs
+ * or in set of running jobs. New waiting job can skip order and be putted as first in the list of waiting jobs.
  * <p>
- * Note: this class doesn't run any task scheduler, it just provides structures and functionality to manipulate
- * with these structures used for processing job from the pool of waiting jobs.
+ * Note: this class doesn't run any task scheduler, it just provides structures and functionality to manipulate with
+ * these structures used for processing job from the pool of waiting jobs.
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
@@ -39,20 +37,60 @@ public class PerunBeanProcessingPool<T extends PerunBean> {
   private final Lock jobsAccessLock = new ReentrantLock(true);
 
   /**
+   * Get set of running jobs at this moment.
+   *
+   * @return set of running jobs at this moment
+   */
+  public Set<T> getRunningJobs() {
+    Set<T> runningJobs;
+    try {
+      //get lock for any operation with structures of jobs
+      jobsAccessLock.lock();
+
+      runningJobs = new HashSet<>(this.runningJobs);
+
+    } finally {
+      //in any case unlock access lock
+      jobsAccessLock.unlock();
+    }
+
+    return runningJobs;
+  }
+
+  /**
+   * Get ordered list of waiting jobs at this moment.
+   *
+   * @return ordered list of waiting jobs at this moment
+   */
+  public List<T> getWaitingJobs() {
+    List<T> waitingJobs;
+    try {
+      //get lock for any operation with structures of jobs
+      jobsAccessLock.lock();
+
+      waitingJobs = new ArrayList<>(this.waitingJobs);
+    } finally {
+      //in any case unlock access lock
+      jobsAccessLock.unlock();
+    }
+
+    return waitingJobs;
+  }
+
+  /**
    * Put new unique job to the list of waiting jobs.
    * <p>
-   * If job is already running, return false because there would be no change.
-   * If job is already waiting, check if asFirst is true. If yes, move it (remove and add) to
-   * the first place and return true. If not, return false.
-   * If there is no such job, add it and return true.
+   * If job is already running, return false because there would be no change. If job is already waiting, check if
+   * asFirst is true. If yes, move it (remove and add) to the first place and return true. If not, return false. If
+   * there is no such job, add it and return true.
    * <p>
    * Uniqueness of the job in pool is mandatory and it is no difference between waiting and running status of job in
    * this case.
    *
    * @param job     perunBean object which defines job
    * @param asFirst true if job will skip order and will be placed to the list as first (LIFO)
-   * @return true if unique job was added or job was added to the beginning of the queue (asFirst is true), false if job exists and
-   * was not added to the beginning of the queue (asFirst is false) or it is already running
+   * @return true if unique job was added or job was added to the beginning of the queue (asFirst is true), false if job
+   * exists and was not added to the beginning of the queue (asFirst is false) or it is already running
    * @throws InternalErrorException if job in parameter is null
    */
   public boolean putJobIfAbsent(T job, boolean asFirst) {
@@ -100,34 +138,6 @@ public class PerunBeanProcessingPool<T extends PerunBean> {
   }
 
   /**
-   * Take job from list of waiting jobs and add it to the list of running jobs.
-   *
-   * @return first waiting job from the list of waiting jobs
-   * @throws InterruptedException if acquiring of permit on semaphore was interrupted
-   */
-  public T takeJob() throws InterruptedException {
-    //I can take only if there is not empty list of waiting jobs
-    notEmptyPoolSemaphore.acquire();
-
-    T job;
-    try {
-      //If there is at least one job in the list of waiting jobs, get access to manipulate with it
-      jobsAccessLock.lock();
-
-      //We should always get not null job, because semaphore pool was not empty
-      job = waitingJobs.pollFirst();
-
-      runningJobs.add(job);
-    } finally {
-      //unlock access lock
-      jobsAccessLock.unlock();
-
-    }
-
-    return job;
-  }
-
-  /**
    * Remove jobs from set of running jobs. It means that we are done with this job.
    *
    * @param job perunBean object which defines job
@@ -155,43 +165,30 @@ public class PerunBeanProcessingPool<T extends PerunBean> {
   }
 
   /**
-   * Get set of running jobs at this moment.
+   * Take job from list of waiting jobs and add it to the list of running jobs.
    *
-   * @return set of running jobs at this moment
+   * @return first waiting job from the list of waiting jobs
+   * @throws InterruptedException if acquiring of permit on semaphore was interrupted
    */
-  public Set<T> getRunningJobs() {
-    Set<T> runningJobs;
+  public T takeJob() throws InterruptedException {
+    //I can take only if there is not empty list of waiting jobs
+    notEmptyPoolSemaphore.acquire();
+
+    T job;
     try {
-      //get lock for any operation with structures of jobs
+      //If there is at least one job in the list of waiting jobs, get access to manipulate with it
       jobsAccessLock.lock();
 
-      runningJobs = new HashSet<>(this.runningJobs);
+      //We should always get not null job, because semaphore pool was not empty
+      job = waitingJobs.pollFirst();
 
+      runningJobs.add(job);
     } finally {
-      //in any case unlock access lock
+      //unlock access lock
       jobsAccessLock.unlock();
+
     }
 
-    return runningJobs;
-  }
-
-  /**
-   * Get ordered list of waiting jobs at this moment.
-   *
-   * @return ordered list of waiting jobs at this moment
-   */
-  public List<T> getWaitingJobs() {
-    List<T> waitingJobs;
-    try {
-      //get lock for any operation with structures of jobs
-      jobsAccessLock.lock();
-
-      waitingJobs = new ArrayList<>(this.waitingJobs);
-    } finally {
-      //in any case unlock access lock
-      jobsAccessLock.unlock();
-    }
-
-    return waitingJobs;
+    return job;
   }
 }

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EgiuiPasswordManagerModule extends GenericPasswordManagerModule {
 
-  private final static Logger log = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
 
   public EgiuiPasswordManagerModule() {
     // set proper namespace
@@ -40,7 +40,7 @@ public class EgiuiPasswordManagerModule extends GenericPasswordManagerModule {
     }
 
     if (user == null) {
-      log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+      LOG.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
     } else {
       // set extSources and extSource related attributes
       try {

@@ -22,10 +22,22 @@ public interface MemberVirtualAttributesModuleImplApi
    * @param member       member which is needed for computing the value
    * @param attribute    attribute to operate on
    * @return true if attribute was really changed
-   * @throws InternalErrorException if an exception is raised in particular
-   *                                implementation, the exception is wrapped in InternalErrorException
+   * @throws InternalErrorException if an exception is raised in particular implementation, the exception is wrapped in
+   *                                InternalErrorException
    */
   Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute);
+
+  /**
+   * Currently do nothing.
+   *
+   * @param perunSession
+   * @param member       member which is needed for computing the value
+   * @param attribute    attribute to operate on
+   * @return
+   * @throws InternalErrorException if an exception is raised in particular implementation, the exception is wrapped in
+   *                                InternalErrorException
+   */
+  void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute);
 
   /**
    * Method sets attributes' values which are dependent on this virtual attribute.
@@ -36,16 +48,4 @@ public interface MemberVirtualAttributesModuleImplApi
    * @return
    */
   boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute);
-
-  /**
-   * Currently do nothing.
-   *
-   * @param perunSession
-   * @param member       member which is needed for computing the value
-   * @param attribute    attribute to operate on
-   * @return
-   * @throws InternalErrorException if an exception is raised in particular
-   *                                implementation, the exception is wrapped in InternalErrorException
-   */
-  void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute);
 }

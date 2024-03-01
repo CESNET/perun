@@ -1,15 +1,14 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.junit.Assert.assertEquals;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Simona Kruppova 410315
@@ -19,20 +18,15 @@ public class DatabaseManagerImplIntegrationTest extends AbstractPerunIntegration
 
   private DatabaseManagerBl dbManager;
 
-  @Before
-  public void setUp() throws Exception {
-    dbManager = perun.getDatabaseManagerBl();
-    System.out.println("DB information: " + dbManager.getDatabaseInformation());
+  @Test
+  public void getChangelogVersions() throws Exception {
+    List<DBVersion> versions = dbManager.getChangelogVersions("2.2.4", "changelogPatternTests/correctTestFile.txt");
+    assertEquals("It should load 2 new database versions from a file", 2, versions.size());
   }
 
   @Test(expected = InternalErrorException.class)
-  public void getChangelogVersionsOrder() throws Exception {
-    dbManager.getChangelogVersions("2.2.4", "changelogPatternTests/versionOrderTestFile.txt");
-  }
-
-  @Test(expected = InternalErrorException.class)
-  public void getChangelogVersionsTwoSame() throws Exception {
-    dbManager.getChangelogVersions("2.2.4", "changelogPatternTests/versionTwoSameTestFile.txt");
+  public void getChangelogVersionsDepth() throws Exception {
+    dbManager.getChangelogVersions("", "changelogPatternTests/vPatternTest-depth.txt");
   }
 
   @Test(expected = InternalErrorException.class)
@@ -41,8 +35,8 @@ public class DatabaseManagerImplIntegrationTest extends AbstractPerunIntegration
   }
 
   @Test(expected = InternalErrorException.class)
-  public void getChangelogVersionsDepth() throws Exception {
-    dbManager.getChangelogVersions("", "changelogPatternTests/vPatternTest-depth.txt");
+  public void getChangelogVersionsOrder() throws Exception {
+    dbManager.getChangelogVersions("2.2.4", "changelogPatternTests/versionOrderTestFile.txt");
   }
 
   @Test(expected = InternalErrorException.class)
@@ -56,13 +50,18 @@ public class DatabaseManagerImplIntegrationTest extends AbstractPerunIntegration
   }
 
   @Test(expected = InternalErrorException.class)
+  public void getChangelogVersionsTwoSame() throws Exception {
+    dbManager.getChangelogVersions("2.2.4", "changelogPatternTests/versionTwoSameTestFile.txt");
+  }
+
+  @Test(expected = InternalErrorException.class)
   public void getChangelogVersionsZero() throws Exception {
     dbManager.getChangelogVersions("", "changelogPatternTests/vPatternTest-zero.txt");
   }
 
-  @Test
-  public void getChangelogVersions() throws Exception {
-    List<DBVersion> versions = dbManager.getChangelogVersions("2.2.4", "changelogPatternTests/correctTestFile.txt");
-    assertEquals("It should load 2 new database versions from a file", 2, versions.size());
+  @Before
+  public void setUp() throws Exception {
+    dbManager = perun.getDatabaseManagerBl();
+    System.out.println("DB information: " + dbManager.getDatabaseInformation());
   }
 }

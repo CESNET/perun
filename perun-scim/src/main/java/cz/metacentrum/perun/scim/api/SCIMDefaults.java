@@ -29,4 +29,7 @@ public class SCIMDefaults {
   public static final String AUTH_HTTP_DESC = "HTTP Basic Standard";
   public static final String AUTH_OAUTH2_NAME = "OAuth 2.0";
   public static final String AUTH_OAUTH2_DESC = "OAuth 2.0 Protocol";
+
+  private SCIMDefaults() {
+  }
 }

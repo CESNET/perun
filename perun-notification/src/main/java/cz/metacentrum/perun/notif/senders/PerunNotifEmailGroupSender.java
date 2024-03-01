@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class PerunNotifEmailGroupSender implements PerunNotifSender {
 
-  private static final Logger logger = LoggerFactory.getLogger(PerunNotifEmailGroupSender.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PerunNotifEmailGroupSender.class);
 
   @Autowired
   private PerunBl perun;
@@ -40,19 +40,15 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
 
   private PerunSession session;
 
-  @PostConstruct
-  public void init() throws Exception {
-    session = NotifUtils.getPerunSession(perun);
-  }
-
   @Override
   public boolean canHandle(PerunNotifTypeOfReceiver typeOfReceiver) {
 
-    if (typeOfReceiver != null && typeOfReceiver.equals(PerunNotifTypeOfReceiver.EMAIL_GROUP)) {
-      return true;
-    } else {
-      return false;
-    }
+    return typeOfReceiver != null && typeOfReceiver.equals(PerunNotifTypeOfReceiver.EMAIL_GROUP);
+  }
+
+  @PostConstruct
+  public void init() throws Exception {
+    session = NotifUtils.getPerunSession(perun);
   }
 
   @Override
@@ -71,7 +67,7 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
         if (groupSender == null || groupSender.isEmpty()) {
           groupSender = template.getSender();
         }
-        logger.debug("Calculated sender : {}", groupSender);
+        LOGGER.debug("Calculated sender : {}", groupSender);
 
         Integer groupId = Integer.valueOf(receiver.getTarget());
         Group group = perun.getGroupsManagerBl().getGroupById(session, groupId);
@@ -89,17 +85,17 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
 
               messagesToSend.add(memberEmailDto);
             } catch (Exception ex) {
-              logger.error("PreferredEmail cannot be retrieved, userId: {}", member.getUserId(), ex);
+              LOGGER.error("PreferredEmail cannot be retrieved, userId: {}", member.getUserId(), ex);
             }
           }
         }
         usedPoolIds.addAll(messageDto.getUsedPoolIds());
       } catch (NumberFormatException ex) {
-        logger.error("GroupId cannot be parsed: {}", receiver.getTarget());
+        LOGGER.error("GroupId cannot be parsed: {}", receiver.getTarget());
       } catch (GroupNotExistsException ex) {
-        logger.error("Group with id: {} does not exists.", receiver.getTarget());
+        LOGGER.error("Group with id: {} does not exists.", receiver.getTarget());
       } catch (InternalErrorException ex) {
-        logger.error("Error during processing messageDto.", ex);
+        LOGGER.error("Error during processing messageDto.", ex);
       }
     }
 

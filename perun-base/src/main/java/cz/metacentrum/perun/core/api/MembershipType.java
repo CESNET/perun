@@ -8,15 +8,13 @@ import java.util.Map;
  * @author Papperwing
  */
 public enum MembershipType {
-  NOT_DEFINED(0),
-  DIRECT(1),
-  INDIRECT(2);
+  NOT_DEFINED(0), DIRECT(1), INDIRECT(2);
 
-  private static final Map<Integer, MembershipType> lookup = new HashMap<>();
+  private static final Map<Integer, MembershipType> LOOKUP = new HashMap<>();
 
   static {
     for (MembershipType o : EnumSet.allOf(MembershipType.class)) {
-      lookup.put(o.getCode(), o);
+      LOOKUP.put(o.getCode(), o);
     }
   }
 
@@ -27,7 +25,7 @@ public enum MembershipType {
   }
 
   public static MembershipType getMembershipType(int code) {
-    return lookup.get(code);
+    return LOOKUP.get(code);
   }
 
   public int getCode() {

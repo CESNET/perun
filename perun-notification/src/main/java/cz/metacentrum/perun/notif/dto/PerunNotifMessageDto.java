@@ -5,8 +5,8 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import java.util.Set;
 
 /**
- * Dto holds data for messages which are going to be sent using type specified
- * in PerunNotifReceiver. User: tomastunkl Date: 23.11.12 Time: 22:37
+ * Dto holds data for messages which are going to be sent using type specified in PerunNotifReceiver. User: tomastunkl
+ * Date: 23.11.12 Time: 22:37
  */
 public class PerunNotifMessageDto {
 
@@ -45,59 +45,59 @@ public class PerunNotifMessageDto {
    */
   private PerunNotifTemplate template;
 
-  public String getSender() {
-    return sender;
-  }
-
-  public void setSender(String sender) {
-    this.sender = sender;
-  }
-
-  public PerunNotifReceiver getReceiver() {
-    return receiver;
-  }
-
-  public void setReceiver(PerunNotifReceiver receiver) {
-    this.receiver = receiver;
-  }
-
   public String getMessageToSend() {
     return messageToSend;
-  }
-
-  public void setMessageToSend(String messageToSend) {
-    this.messageToSend = messageToSend;
-  }
-
-  public Set<Integer> getUsedPoolIds() {
-    return usedPoolIds;
-  }
-
-  public void setUsedPoolIds(Set<Integer> usedPoolIds) {
-    this.usedPoolIds = usedPoolIds;
   }
 
   public PoolMessage getPoolMessage() {
     return poolMessage;
   }
 
-  public void setPoolMessage(PoolMessage poolMessage) {
-    this.poolMessage = poolMessage;
+  public PerunNotifReceiver getReceiver() {
+    return receiver;
   }
 
-  public PerunNotifTemplate getTemplate() {
-    return template;
-  }
-
-  public void setTemplate(PerunNotifTemplate template) {
-    this.template = template;
+  public String getSender() {
+    return sender;
   }
 
   public String getSubject() {
     return subject;
   }
 
+  public PerunNotifTemplate getTemplate() {
+    return template;
+  }
+
+  public Set<Integer> getUsedPoolIds() {
+    return usedPoolIds;
+  }
+
+  public void setMessageToSend(String messageToSend) {
+    this.messageToSend = messageToSend;
+  }
+
+  public void setPoolMessage(PoolMessage poolMessage) {
+    this.poolMessage = poolMessage;
+  }
+
+  public void setReceiver(PerunNotifReceiver receiver) {
+    this.receiver = receiver;
+  }
+
+  public void setSender(String sender) {
+    this.sender = sender;
+  }
+
   public void setSubject(String subject) {
     this.subject = subject;
+  }
+
+  public void setTemplate(PerunNotifTemplate template) {
+    this.template = template;
+  }
+
+  public void setUsedPoolIds(Set<Integer> usedPoolIds) {
+    this.usedPoolIds = usedPoolIds;
   }
 }

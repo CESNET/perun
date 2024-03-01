@@ -1,18 +1,17 @@
 package cz.metacentrum.perun.core.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
@@ -26,13 +25,10 @@ public class ServicesManagerImplIntegrationTest extends AbstractPerunIntegration
   private Service service;
   private Destination destination;
 
-  @Before
-  public void setUp() throws Exception {
-    servicesManagerImpl = (ServicesManagerImplApi) ReflectionTestUtils.getField(
-        perun.getServicesManagerBl(), "servicesManagerImpl"
-    );
-
-    setUpEntities();
+  @Test
+  public void Foo() throws Exception {
+    servicesManagerImpl.blockServiceOnDestination(sess, service.getId(), destination.getId());
+    servicesManagerImpl.blockServiceOnFacility(sess, service.getId(), facility.getId());
   }
 
   @Test
@@ -79,40 +75,6 @@ public class ServicesManagerImplIntegrationTest extends AbstractPerunIntegration
     hasCorrectRichDestinationWithServiceDenial(richDestinations);
   }
 
-  @Test
-  public void Foo() throws Exception {
-    servicesManagerImpl.blockServiceOnDestination(sess, service.getId(), destination.getId());
-    servicesManagerImpl.blockServiceOnFacility(sess, service.getId(), facility.getId());
-  }
-
-  private void setUpEntities() throws Exception {
-    setUpFacility();
-    setUpService();
-    setUpDestination();
-
-    servicesManagerImpl.addDestination(sess, service, facility, destination);
-  }
-
-  private void setUpDestination() throws Exception {
-    destination = new Destination();
-    destination.setDestination("destination.host");
-    destination.setType(Destination.DESTINATIONHOSTTYPE);
-    destination = servicesManagerImpl.createDestination(sess, destination);
-  }
-
-  private void setUpFacility() throws Exception {
-    facility = new Facility();
-    facility.setName("TestFacility");
-    facility.setDescription("des");
-    facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
-  }
-
-  private void setUpService() {
-    service = new Service();
-    service.setName("Test service");
-    service = servicesManagerImpl.createService(sess, service);
-  }
-
   private void hasCorrectRichDestinationWithServiceDenial(List<RichDestination> richDestinations) {
     assertThat(richDestinations).hasSize(1);
 
@@ -134,5 +96,41 @@ public class ServicesManagerImplIntegrationTest extends AbstractPerunIntegration
     assertThat(richDestination.getFacility()).isEqualTo(facility);
     assertThat(richDestination.getService()).isEqualTo(service);
     assertThat(richDestination.isBlocked()).isFalse();
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    servicesManagerImpl =
+        (ServicesManagerImplApi) ReflectionTestUtils.getField(perun.getServicesManagerBl(), "servicesManagerImpl");
+
+    setUpEntities();
+  }
+
+  private void setUpDestination() throws Exception {
+    destination = new Destination();
+    destination.setDestination("destination.host");
+    destination.setType(Destination.DESTINATIONHOSTTYPE);
+    destination = servicesManagerImpl.createDestination(sess, destination);
+  }
+
+  private void setUpEntities() throws Exception {
+    setUpFacility();
+    setUpService();
+    setUpDestination();
+
+    servicesManagerImpl.addDestination(sess, service, facility, destination);
+  }
+
+  private void setUpFacility() throws Exception {
+    facility = new Facility();
+    facility.setName("TestFacility");
+    facility.setDescription("des");
+    facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+  }
+
+  private void setUpService() {
+    service = new Service();
+    service.setName("Test service");
+    service = servicesManagerImpl.createService(sess, service);
   }
 }

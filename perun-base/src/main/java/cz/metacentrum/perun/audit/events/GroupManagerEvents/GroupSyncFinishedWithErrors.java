@@ -18,13 +18,13 @@ public class GroupSyncFinishedWithErrors extends AuditEvent implements EngineIgn
     this.message = formatMessage("%s synchronization finished with errors.", group);
   }
 
+  public Group getGroup() {
+    return group;
+  }
+
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public Group getGroup() {
-    return group;
   }
 
   @Override

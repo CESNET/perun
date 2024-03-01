@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractApplicationExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
-
 import java.util.LinkedHashMap;
 
 /**
@@ -18,14 +17,8 @@ import java.util.LinkedHashMap;
 public class urn_perun_vo_attribute_def_def_applicationExpirationRules
     extends AbstractApplicationExpirationRulesModule<Vo> implements VoAttributesModuleImplApi {
   @Override
-  public Attribute fillAttribute(PerunSessionImpl perunSession, Vo vo, AttributeDefinition attribute) {
-    return new Attribute(attribute);
-  }
+  public void changedAttributeHook(PerunSessionImpl session, Vo vo, Attribute attribute) {
 
-  @Override
-  public void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute)
-      throws WrongAttributeValueException {
-    super.checkAttributeSyntax(perunSession, vo, attribute);
   }
 
   @Override
@@ -35,8 +28,14 @@ public class urn_perun_vo_attribute_def_def_applicationExpirationRules
   }
 
   @Override
-  public void changedAttributeHook(PerunSessionImpl session, Vo vo, Attribute attribute) {
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute)
+      throws WrongAttributeValueException {
+    super.checkAttributeSyntax(perunSession, vo, attribute);
+  }
 
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl perunSession, Vo vo, AttributeDefinition attribute) {
+    return new Attribute(attribute);
   }
 
   @Override

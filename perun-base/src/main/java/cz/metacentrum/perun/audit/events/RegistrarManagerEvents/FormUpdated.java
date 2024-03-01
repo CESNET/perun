@@ -15,17 +15,18 @@ public class FormUpdated extends AuditEvent implements EngineIgnoreEvent {
 
   public FormUpdated(ApplicationForm form) {
     this.form = form;
-    this.message = formatMessage("Application form ID=%d voID=%d %s has been updated.", form.getId(),
-        form.getVo().getId(), ((form.getGroup() != null) ? " groupID=" + form.getGroup().getId() : ""));
+    this.message =
+        formatMessage("Application form ID=%d voID=%d %s has been updated.", form.getId(), form.getVo().getId(),
+            ((form.getGroup() != null) ? " groupID=" + form.getGroup().getId() : ""));
+  }
+
+  public ApplicationForm getForm() {
+    return form;
   }
 
   @Override
   public String getMessage() {
     return message;
-  }
-
-  public ApplicationForm getForm() {
-    return form;
   }
 
   @Override

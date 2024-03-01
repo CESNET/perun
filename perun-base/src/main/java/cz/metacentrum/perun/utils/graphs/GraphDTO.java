@@ -18,19 +18,19 @@ public class GraphDTO {
     this.format = format;
   }
 
-  public String getGraph() {
-    return graph;
-  }
-
-  public void setGraph(String graph) {
-    this.graph = graph;
-  }
-
   public String getFormat() {
     return format;
   }
 
   public void setFormat(String format) {
     this.format = format;
+  }
+
+  public String getGraph() {
+    return graph;
+  }
+
+  public void setGraph(String graph) {
+    this.graph = graph;
   }
 }

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -7,16 +10,11 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_attribute_def_virt_userOrganizationsTest extends AbstractPerunIntegrationTest {
 
@@ -67,6 +65,10 @@ public class urn_perun_user_attribute_def_virt_userOrganizationsTest extends Abs
         value.get(vo2.getShortName()));
   }
 
+  private Member setUpMember(Vo vo) throws Exception {
+    return perun.getMembersManagerBl().createMember(sess, vo, user);
+  }
+
   private User setUpUser() {
     User newUser = new User();
     return perun.getUsersManagerBl().createUser(sess, newUser);
@@ -82,9 +84,5 @@ public class urn_perun_user_attribute_def_virt_userOrganizationsTest extends Abs
     Vo newVo = new Vo(1, "TestVo2", "TestVo2");
     return perun.getVosManagerBl().createVo(sess, newVo);
 
-  }
-
-  private Member setUpMember(Vo vo) throws Exception {
-    return perun.getMembersManagerBl().createMember(sess, vo, user);
   }
 }

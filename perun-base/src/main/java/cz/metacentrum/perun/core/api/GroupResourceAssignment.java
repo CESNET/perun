@@ -20,6 +20,27 @@ public class GroupResourceAssignment {
     this.failureCause = failureCause;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GroupResourceAssignment that = (GroupResourceAssignment) o;
+    return Objects.equals(getGroup(), that.getGroup()) && Objects.equals(getResource(), that.getResource()) &&
+           getStatus() == that.getStatus();
+  }
+
+  public String getFailureCause() {
+    return this.failureCause;
+  }
+
+  public void setFailureCause(String failureCause) {
+    this.failureCause = failureCause;
+  }
+
   public Group getGroup() {
     return group;
   }
@@ -44,27 +65,6 @@ public class GroupResourceAssignment {
     this.status = status;
   }
 
-  public String getFailureCause() {
-    return this.failureCause;
-  }
-
-  public void setFailureCause(String failureCause) {
-    this.failureCause = failureCause;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    GroupResourceAssignment that = (GroupResourceAssignment) o;
-    return Objects.equals(getGroup(), that.getGroup()) && Objects.equals(getResource(), that.getResource())
-        && getStatus() == that.getStatus();
-  }
-
   @Override
   public int hashCode() {
     return Objects.hash(getGroup(), getResource(), getStatus());
@@ -72,11 +72,7 @@ public class GroupResourceAssignment {
 
   @Override
   public String toString() {
-    return "GroupResourceAssignment{" +
-        "group=" + group +
-        ", resource=" + resource +
-        ", status=" + status +
-        ", failureCause=" + failureCause +
-        '}';
+    return "GroupResourceAssignment{" + "group=" + group + ", resource=" + resource + ", status=" + status +
+           ", failureCause=" + failureCause + '}';
   }
 }

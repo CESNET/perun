@@ -4,23 +4,24 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.MemberCandidate;
-import cz.metacentrum.perun.core.api.NamespaceRules;
-import cz.metacentrum.perun.core.api.Paginated;
-import cz.metacentrum.perun.core.api.MembersPageQuery;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MembersOrderColumn;
+import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
+import cz.metacentrum.perun.core.api.MembersOrderColumn;
+import cz.metacentrum.perun.core.api.MembersPageQuery;
+import cz.metacentrum.perun.core.api.NamespaceRules;
+import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsor;
+import cz.metacentrum.perun.core.api.SponsoredUserData;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -31,6 +32,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
@@ -48,9 +50,9 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotificationMemberMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.NotificationMemberMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -63,17 +65,9 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.api.SponsoredUserData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
-
-import java.util.Optional;
-import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,13 +76,18 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 public class MembersManagerEntry implements MembersManager {
 
-  final static Logger log = LoggerFactory.getLogger(MembersManagerEntry.class);
+  static final Logger LOG = LoggerFactory.getLogger(MembersManagerEntry.class);
 
   private MembersManagerBl membersManagerBl;
   private PerunBl perunBl;
@@ -105,178 +104,182 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public void deleteMember(PerunSession sess, Member member)
-      throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException,
-      MemberLifecycleAlteringForbiddenException {
+  public void addMemberCandidates(PerunSession sess, Vo vo, List<MemberCandidate> candidates)
+      throws PrivilegeException, GroupNotExistsException, UserNotExistsException, WrongReferenceAttributeValueException,
+      AlreadyMemberException, WrongAttributeValueException, ExtendMembershipException, VoNotExistsException {
     Utils.checkPerunSession(sess);
 
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "addMemberCandidates_Vo_List<MemberCandidate>_policy", vo)) {
+      throw new PrivilegeException(sess, "addMemberCandidates");
+    }
+
+    for (MemberCandidate candidate : candidates) {
+      if (candidate.getRichUser() != null) {
+        Member member = this.createMember(sess, vo, candidate.getRichUser());
+        getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
+      } else if (candidate.getCandidate() != null) {
+        Member member = this.createMember(sess, vo, candidate.getCandidate());
+        getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
+      }
+    }
+  }
+
+  @Override
+  public void addMemberCandidates(PerunSession sess, Vo vo, List<MemberCandidate> candidates, Group group)
+      throws PrivilegeException, ExternallyManagedException, MemberNotExistsException, GroupNotExistsException,
+      WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException,
+      AlreadyMemberException, WrongAttributeValueException, UserNotExistsException, ExtendMembershipException,
+      VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "addMemberCandidates_Vo_List<MemberCandidate>_Group_policy", group)) {
+      throw new PrivilegeException(sess, "addMemberCandidates");
+    }
+
+    for (MemberCandidate candidate : candidates) {
+      if (candidate.getMember() != null) {
+        getPerunBl().getGroupsManager().addMember(sess, group, candidate.getMember());
+      } else if (candidate.getRichUser() != null) {
+        Member member = this.createMember(sess, vo, candidate.getRichUser(), List.of(group));
+        getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
+      } else if (candidate.getCandidate() != null) {
+        Member member = this.createMember(sess, vo, candidate.getCandidate(), List.of(group));
+        getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
+      }
+    }
+  }
+
+  @Override
+  public boolean canBeMember(PerunSession sess, Vo vo, User user, String loa)
+      throws VoNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "canBeMember_Vo_User_String_policy", Arrays.asList(vo, user))) {
+      throw new PrivilegeException(sess, "canBeMember");
+    }
+
+    return getMembersManagerBl().canBeMember(sess, vo, user, loa);
+  }
+
+  @Override
+  public boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa)
+      throws VoNotExistsException, ExtendMembershipException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "canBeMemberWithReason_Vo_User_String_policy",
+        Arrays.asList(vo, user))) {
+      throw new PrivilegeException(sess, "canBeMemberWithReason");
+    }
+
+    return getMembersManagerBl().canBeMemberWithReason(sess, vo, user, loa);
+  }
+
+  @Override
+  public boolean canExtendMembership(PerunSession sess, Member member)
+      throws PrivilegeException, MemberNotExistsException {
+    Utils.checkPerunSession(sess);
     getMembersManagerBl().checkMemberExists(sess, member);
-    getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
 
     // Authorization
-    for (Group group : perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member)) {
-      if (!AuthzResolver.authorizedInternal(sess, "deleteMember_Member_policy", member, group)) {
-        throw new PrivilegeException(sess, "deleteMember");
-      }
+    if (!AuthzResolver.authorizedInternal(sess, "canExtendMembership_Member_policy", member)) {
+      throw new PrivilegeException(sess, "extendMembership");
     }
 
-
-    getMembersManagerBl().deleteMember(sess, member);
+    return getMembersManagerBl().canExtendMembership(sess, member);
   }
 
   @Override
-  public void deleteMembers(PerunSession sess, List<Member> members)
-      throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException,
-      MemberLifecycleAlteringForbiddenException {
+  public boolean canExtendMembershipWithReason(PerunSession sess, Member member)
+      throws PrivilegeException, MemberNotExistsException, ExtendMembershipException {
     Utils.checkPerunSession(sess);
-
-    for (Member member : members) {
-      getMembersManagerBl().checkMemberExists(sess, member);
-      getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
-    }
+    getMembersManagerBl().checkMemberExists(sess, member);
 
     // Authorization
-    for (Member member : members) {
-      for (Group group : perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member)) {
-        if (!AuthzResolver.authorizedInternal(sess, "deleteMembers_List<Member>_policy", member, group)) {
-          throw new PrivilegeException(sess, "deleteMembers");
-        }
-      }
+    if (!AuthzResolver.authorizedInternal(sess, "canExtendMembershipWithReason_Member_policy", member)) {
+      throw new PrivilegeException(sess, "canExtendMembershipWithReason");
     }
 
-    getMembersManagerBl().deleteMembers(sess, members);
+    return getMembersManagerBl().canExtendMembershipWithReason(sess, member);
+  }
+
+  /**
+   * Converts member to member with sponsors and sets all his sponsors.
+   *
+   * @param sess   perun session
+   * @param member sponsored member
+   * @return member with sponsors
+   */
+  private MemberWithSponsors convertMemberToMemberWithSponsors(PerunSession sess, RichMember member) {
+    MemberWithSponsors memberWithSponsors = new MemberWithSponsors(member);
+
+    List<Sponsor> sponsors = getPerunBl().getUsersManagerBl().getSponsors(sess, member).stream()
+        .map(user -> membersManagerBl.convertUserToSponsor(sess, user, member)).collect(Collectors.toList());
+    memberWithSponsors.setSponsors(sponsors);
+
+    return memberWithSponsors;
+  }
+
+  /**
+   * Converts members to members with sponsors and sets all corresponding sponsors.
+   *
+   * @param sess    perun session
+   * @param members sponsored members
+   * @param voId    id of the VO
+   * @return members with sponsors
+   */
+  private List<MemberWithSponsors> convertMembersToMembersWithSponsors(PerunSession sess, List<RichMember> members,
+                                                                       int voId) {
+    Map<Integer, List<Pair<User, Sponsorship>>> memberIdSponsorsMap =
+        getPerunBl().getUsersManagerBl().getSponsorsForSponsoredMembersInVo(sess, voId);
+    List<MemberWithSponsors> membersWithSponsors = new ArrayList<>();
+
+    for (RichMember member : members) {
+      MemberWithSponsors memberWithSponsors = new MemberWithSponsors(member);
+      List<Pair<User, Sponsorship>> memberSponsorPairs = memberIdSponsorsMap.get(member.getId());
+      for (Pair<User, Sponsorship> sponsorPair : memberSponsorPairs) {
+        Sponsor sponsor = new Sponsor(sponsorPair.getLeft());
+        Sponsorship sponsorship = sponsorPair.getRight();
+        sponsor.setActive(sponsorship.isActive());
+        sponsor.setValidityTo(sponsorship.getValidityTo());
+        memberWithSponsors.addSponsor(sponsor);
+      }
+      membersWithSponsors.add(memberWithSponsors);
+    }
+    return membersWithSponsors;
   }
 
   @Override
-  public void deleteAllMembers(PerunSession sess, Vo vo)
-      throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException,
-      MemberLifecycleAlteringForbiddenException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-    for (Member member : getPerunBl().getMembersManagerBl().getMembers(sess, vo)) {
-      getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
-      // Authorization
-      for (Group group : perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member)) {
-        if (!AuthzResolver.authorizedInternal(sess, "deleteAllMembers_Vo_policy", vo, member, group)) {
-          throw new PrivilegeException(sess, "deleteAllMembers");
+  public void copySponsoredMembers(PerunSession session, List<Member> sponsored, User copyFrom, User copyTo,
+                                   boolean copyValidity, LocalDate validityTo)
+      throws SponsorshipDoesNotExistException, UserNotInRoleException, PrivilegeException, MemberNotSponsoredException {
+    for (Member member : sponsored) {
+      MemberWithSponsors mws =
+          convertMemberToMemberWithSponsors(session, membersManagerBl.getRichMember(session, member));
+      if (copyValidity) {
+        Optional<Sponsor> fromSponsor =
+            mws.getSponsors().stream().filter((sponsor1 -> sponsor1.getUser().equals(copyFrom))).findAny();
+        if (fromSponsor.isEmpty()) {
+          throw new SponsorshipDoesNotExistException(member, copyFrom);
+        }
+        try {
+          sponsorMember(session, member, copyTo, fromSponsor.get().getValidityTo());
+        } catch (AlreadySponsorException ex) {
+          // skip members already sponsored by the destination sponsor
+        }
+      } else {
+        try {
+          sponsorMember(session, member, copyTo, validityTo);
+        } catch (AlreadySponsorException ex) {
+          // skip members already sponsored by the destination sponsor
         }
       }
     }
-
-
-    getMembersManagerBl().deleteAllMembers(sess, vo);
-  }
-
-  @Override
-  public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners,
-                                     SpecificUserType specificUserType)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException,
-      VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException,
-      GroupNotExistsException {
-    return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
-  }
-
-  @Override
-  public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners,
-                                     SpecificUserType specificUserType, List<Group> groups)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException,
-      VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException,
-      GroupNotExistsException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(specificUserType, "specificUserType");
-
-    Utils.notNull(candidate, "candidate");
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    if (specificUserOwners.isEmpty()) {
-      throw new InternalErrorException("List of specificUserOwners of " + candidate + " can't be empty.");
-    }
-
-    for (User u : specificUserOwners) {
-      getPerunBl().getUsersManagerBl().checkUserExists(sess, u);
-    }
-
-    if (!specificUserType.equals(SpecificUserType.SERVICE)) {
-      throw new InternalErrorException("Only service user type is allowed.");
-    }
-
-    // if any group is not from the vo, throw an exception
-    if (groups != null) {
-      for (Group group : groups) {
-        perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-        if (group.getVoId() != vo.getId()) {
-          throw new InternalErrorException(
-              "Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
-        }
-      }
-    }
-
-    // Authorization
-    if (groups != null && !groups.isEmpty()) {
-      for (Group group : groups) {
-        if (!AuthzResolver.authorizedInternal(sess,
-            "createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy", vo, group)) {
-          throw new PrivilegeException("createSpecificMember");
-        }
-      }
-    } else {
-      if (!AuthzResolver.authorizedInternal(sess,
-          "createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy", vo)) {
-        throw new PrivilegeException("createSpecificMember");
-      }
-    }
-
-    return getMembersManagerBl().createServiceMember(sess, vo, candidate, specificUserOwners, groups);
-  }
-
-  @Override
-  public Member createMember(PerunSession sess, Vo vo, Candidate candidate)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException,
-      VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
-    Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
-    Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
-
-    return this.createMember(sess, vo, candidate, new ArrayList<>());
-  }
-
-  @Override
-  public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException,
-      VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(candidate, "candidate");
-
-    Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
-    Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // if any group is not from the vo, throw an exception
-    if (groups != null) {
-      for (Group group : groups) {
-        perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-        if (group.getVoId() != vo.getId()) {
-          throw new InternalErrorException(
-              "Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
-        }
-      }
-    }
-
-    // Authorization
-    if (groups != null && !groups.isEmpty()) {
-      for (Group group : groups) {
-        if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_Candidate_List<Group>_policy", vo, group)) {
-          throw new PrivilegeException("createMember");
-        }
-      }
-    } else {
-      if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_Candidate_List<Group>_policy", vo)) {
-        throw new PrivilegeException("createMember");
-      }
-    }
-
-    return getMembersManagerBl().createMember(sess, vo, candidate, groups);
   }
 
   @Override
@@ -333,7 +336,6 @@ public class MembersManagerEntry implements MembersManager {
     return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, login, candidate, groups);
   }
 
-
   @Override
   public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa,
                              String login, Candidate candidate)
@@ -387,6 +389,55 @@ public class MembersManagerEntry implements MembersManager {
 
     return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate,
         groups);
+  }
+
+  @Override
+  public Member createMember(PerunSession sess, Vo vo, Candidate candidate)
+      throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException,
+      VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+    Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+    Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
+    return this.createMember(sess, vo, candidate, new ArrayList<>());
+  }
+
+  @Override
+  public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups)
+      throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException,
+      VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(candidate, "candidate");
+
+    Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+    Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // if any group is not from the vo, throw an exception
+    if (groups != null) {
+      for (Group group : groups) {
+        perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+        if (group.getVoId() != vo.getId()) {
+          throw new InternalErrorException(
+              "Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
+        }
+      }
+    }
+
+    // Authorization
+    if (groups != null && !groups.isEmpty()) {
+      for (Group group : groups) {
+        if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_Candidate_List<Group>_policy", vo, group)) {
+          throw new PrivilegeException("createMember");
+        }
+      }
+    } else {
+      if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_Candidate_List<Group>_policy", vo)) {
+        throw new PrivilegeException("createMember");
+      }
+    }
+
+    return getMembersManagerBl().createMember(sess, vo, candidate, groups);
   }
 
   @Override
@@ -459,7 +510,7 @@ public class MembersManagerEntry implements MembersManager {
         if (group.getVoId() != vo.getId()) {
           throw new InternalErrorException(
               "Group " + group + " is not from the vo " + vo + " where user with login " + login + " from ExtSource " +
-                  extSource + " should be added.");
+              extSource + " should be added.");
         }
       }
     }
@@ -475,9 +526,9 @@ public class MembersManagerEntry implements MembersManager {
           }
         }
         //ExtSource has to be assigned to at least one of the groups
-        boolean groupContainsExtSource = groups.stream()
-            .map(group -> getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group))
-            .anyMatch(extSources -> extSources.contains(extSource));
+        boolean groupContainsExtSource =
+            groups.stream().map(group -> getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group))
+                .anyMatch(extSources -> extSources.contains(extSource));
         if (!groupContainsExtSource) {
           throw new PrivilegeException(sess, "createMember - from login and extSource");
         }
@@ -493,307 +544,256 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource uea)
-      throws VoNotExistsException, MemberNotExistsException, PrivilegeException {
+  public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners,
+                                     SpecificUserType specificUserType)
+      throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException,
+      VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException,
+      GroupNotExistsException {
+    return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
+  }
+
+  @Override
+  public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners,
+                                     SpecificUserType specificUserType, List<Group> groups)
+      throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException,
+      VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException,
+      GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(specificUserType, "specificUserType");
+
+    Utils.notNull(candidate, "candidate");
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    if (specificUserOwners.isEmpty()) {
+      throw new InternalErrorException("List of specificUserOwners of " + candidate + " can't be empty.");
+    }
+
+    for (User u : specificUserOwners) {
+      getPerunBl().getUsersManagerBl().checkUserExists(sess, u);
+    }
+
+    if (!specificUserType.equals(SpecificUserType.SERVICE)) {
+      throw new InternalErrorException("Only service user type is allowed.");
+    }
+
+    // if any group is not from the vo, throw an exception
+    if (groups != null) {
+      for (Group group : groups) {
+        perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+        if (group.getVoId() != vo.getId()) {
+          throw new InternalErrorException(
+              "Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
+        }
+      }
+    }
+
+    // Authorization
+    if (groups != null && !groups.isEmpty()) {
+      for (Group group : groups) {
+        if (!AuthzResolver.authorizedInternal(sess,
+            "createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy", vo, group)) {
+          throw new PrivilegeException("createSpecificMember");
+        }
+      }
+    } else {
+      if (!AuthzResolver.authorizedInternal(sess,
+          "createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy", vo)) {
+        throw new PrivilegeException("createSpecificMember");
+      }
+    }
+
+    return getMembersManagerBl().createServiceMember(sess, vo, candidate, specificUserOwners, groups);
+  }
+
+  @Override
+  public RichMember createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor,
+                                          LocalDate validityTo, boolean sendActivationLink, String language, String url)
+      throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
+      ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException,
+      WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException,
+      AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException {
+    Utils.checkPerunSession(session);
+    Utils.notNull(vo, "vo");
+
+    if (data.getGuestName() == null) {
+      Utils.notNull(data.getFirstName(), "firstName");
+      Utils.notNull(data.getLastName(), "lastName");
+    }
+
+    LOG.info("createSponsoredMember(vo={},input={},sponsor={})", vo.getShortName(), data,
+        sponsor == null ? "null" : sponsor.getId());
+
+    if (sponsor == null) {
+      //sponsor is the caller, authorization is checked in Bl
+      sponsor = session.getPerunPrincipal().getUser();
+    } else {
+      //Authorization
+      if (!AuthzResolver.authorizedInternal(session,
+          "createSponsoredMember_Vo_String_Map<String_String>_String_User_LocalDate_policy",
+          Arrays.asList(vo, sponsor))) {
+        throw new PrivilegeException(session, "createSponsoredMember");
+      }
+    }
+    //create the sponsored member
+    return membersManagerBl.getRichMemberWithAttributes(session,
+        membersManagerBl.createSponsoredMember(session, data, vo, sponsor, validityTo, sendActivationLink, language,
+            url, Validation.ASYNC));
+  }
+
+  @Override
+  public List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace,
+                                                          List<String> names, String email, User sponsor,
+                                                          LocalDate validityTo, boolean sendActivationLink,
+                                                          String language, String url) throws PrivilegeException {
+    Utils.checkPerunSession(session);
+    Utils.notNull(vo, "vo");
+    Utils.notNull(namespace, "namespace");
+    Utils.notNull(names, "names");
+
+    if (sponsor == null) {
+      //sponsor is the caller, authorization is checked in Bl
+      sponsor = session.getPerunPrincipal().getUser();
+    } else {
+      //Authorization
+      if (!AuthzResolver.authorizedInternal(session, "createSponsoredMembers_Vo_String_List<String>_User_policy",
+          Arrays.asList(vo, sponsor))) {
+        throw new PrivilegeException(session, "createSponsoredMembers");
+      }
+    }
+
+    // create sponsored members
+    return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, email, sponsor, validityTo,
+        sendActivationLink, language, url, Validation.ASYNC);
+  }
+
+  @Override
+  public List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+                                                                 List<String> data, String header, User sponsor,
+                                                                 LocalDate validityTo, boolean sendActivationLink,
+                                                                 String language, String url, List<Group> groups)
+      throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(vo, "vo");
+    Utils.notNull(data, "names");
+    Utils.notNull(header, "header");
+
+    if (sponsor == null) {
+      //sponsor is the caller, authorization is checked in Bl
+      sponsor = sess.getPerunPrincipal().getUser();
+    } else {
+      //Authorization
+      if (!AuthzResolver.authorizedInternal(sess, "createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy",
+          vo, sponsor)) {
+        throw new PrivilegeException(sess, "createSponsoredMembersFromCSV");
+      }
+    }
+
+    for (Group group : groups) {
+      if (!AuthzResolver.authorizedInternal(sess,
+          "group-createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy", vo, group)) {
+        throw new PrivilegeException(sess, "createSponsoredMembersFromCSV");
+      }
+    }
+
+    return membersManagerBl.createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo,
+        sendActivationLink, language, url, Validation.ASYNC, groups);
+  }
+
+  @Override
+  public void deleteAllMembers(PerunSession sess, Vo vo)
+      throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException,
+      MemberLifecycleAlteringForbiddenException {
     Utils.checkPerunSession(sess);
 
     getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    for (Member member : getPerunBl().getMembersManagerBl().getMembers(sess, vo)) {
+      getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
+      // Authorization
+      for (Group group : perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member)) {
+        if (!AuthzResolver.authorizedInternal(sess, "deleteAllMembers_Vo_policy", vo, member, group)) {
+          throw new PrivilegeException(sess, "deleteAllMembers");
+        }
+      }
+    }
+
+
+    getMembersManagerBl().deleteAllMembers(sess, vo);
+  }
+
+  @Override
+  public void deleteMember(PerunSession sess, Member member)
+      throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException,
+      MemberLifecycleAlteringForbiddenException {
+    Utils.checkPerunSession(sess);
+
+    getMembersManagerBl().checkMemberExists(sess, member);
+    getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMemberByUserExtSource_Vo_UserExtSource_policy",
-        Arrays.asList(vo, uea))) {
-      throw new PrivilegeException(sess, "getMemberByUserExtSource");
+    for (Group group : perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member)) {
+      if (!AuthzResolver.authorizedInternal(sess, "deleteMember_Member_policy", member, group)) {
+        throw new PrivilegeException(sess, "deleteMember");
+      }
     }
 
-    return getMembersManagerBl().getMemberByUserExtSource(sess, vo, uea);
+
+    getMembersManagerBl().deleteMember(sess, member);
   }
 
   @Override
-  public Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException, PrivilegeException {
+  public void deleteMembers(PerunSession sess, List<Member> members)
+      throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException,
+      MemberLifecycleAlteringForbiddenException {
     Utils.checkPerunSession(sess);
 
-    Member member = getMembersManagerBl().getMemberById(sess, id);
-
-    //  Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMemberById_int_policy", member)) {
-      throw new PrivilegeException(sess, "getMemberById");
+    for (Member member : members) {
+      getMembersManagerBl().checkMemberExists(sess, member);
+      getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
     }
-
-    return member;
-  }
-
-  @Override
-  public List<Member> getMembersByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
-    Utils.checkPerunSession(sess);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMembersByIds_List<Integer>_policy")) {
-      throw new PrivilegeException(sess, "getMembersByIds");
+    for (Member member : members) {
+      for (Group group : perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member)) {
+        if (!AuthzResolver.authorizedInternal(sess, "deleteMembers_List<Member>_policy", member, group)) {
+          throw new PrivilegeException(sess, "deleteMembers");
+        }
+      }
     }
 
-    List<Member> members = getMembersManagerBl().getMembersByIds(sess, ids);
-    members.removeIf(
-        member -> !AuthzResolver.authorizedInternal(sess, "filter-getMembersByIds_List<Integer>_policy", member));
-
-    return members;
+    getMembersManagerBl().deleteMembers(sess, members);
   }
 
   @Override
-  public Member getMemberByUser(PerunSession sess, Vo vo, User user)
-      throws MemberNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+  public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser)
+      throws PrivilegeException, MemberNotExistsException, UserNotExistsException {
     Utils.checkPerunSession(sess);
+    Utils.notNull(sponsoredMember, "sponsoredMember");
+    Utils.notNull(sponsorUser, "sponsorUser");
 
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+    perunBl.getMembersManagerBl().checkMemberExists(sess, sponsoredMember);
+    perunBl.getUsersManagerBl().checkUserExists(sess, sponsorUser);
+
+    //Authorization
+    if (!(AuthzResolver.authorizedInternal(sess, "extendExpirationForSponsoredMember_Member_User_policy",
+        sponsoredMember))) {
+      throw new PrivilegeException(sess, "extendExpirationForSponsoredMember");
+    }
+
+    return membersManagerBl.extendExpirationForSponsoredMember(sess, sponsoredMember, sponsorUser);
+  }
+
+  @Override
+  public void extendMembership(PerunSession sess, Member member)
+      throws PrivilegeException, MemberNotExistsException, ExtendMembershipException {
+    Utils.checkPerunSession(sess);
+    getMembersManagerBl().checkMemberExists(sess, member);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMemberByUser_Vo_User_policy", Arrays.asList(vo, user))) {
-      throw new PrivilegeException(sess, "getMemberByUser");
+    if (!AuthzResolver.authorizedInternal(sess, "extendMembership_Member_policy", member)) {
+      throw new PrivilegeException(sess, "extendMembership");
     }
 
-    return getMembersManagerBl().getMemberByUser(sess, vo, user);
-  }
-
-  @Override
-  public List<Member> getMembersByUser(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMembersByUser_User_policy", user)) {
-      throw new PrivilegeException(sess, "getMembersByUser");
-    }
-
-    return getMembersManagerBl().getMembersByUser(sess, user);
-  }
-
-  @Override
-  public List<Member> getAllMembers(PerunSession sess) throws PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    if (!AuthzResolver.authorizedInternal(sess, "getAllMembers_policy")) {
-      throw new PrivilegeException(sess, "getAllMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl().getAllMembers(sess);
-  }
-
-  @Override
-  public List<Member> getMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getMembers");
-    }
-
-    return getMembersManagerBl().getMembers(sess, vo);
-  }
-
-  @Override
-  public List<Member> getMembers(PerunSession sess, Vo vo, Status status)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_Status_policy", vo)) {
-      throw new PrivilegeException(sess, "getMembers");
-    }
-
-    return getMembersManagerBl().getMembers(sess, vo, status);
-  }
-
-  @Override
-  public RichMember getRichMemberById(PerunSession sess, int id) throws PrivilegeException, MemberNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, id);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMemberById_int_policy", member)) {
-      throw new PrivilegeException(sess, "getRichMemberById");
-    }
-
-    return getPerunBl().getMembersManagerBl().getRichMember(sess, member);
-  }
-
-  @Override
-  public RichMember getRichMemberWithAttributes(PerunSession sess, Member member)
-      throws PrivilegeException, MemberNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMemberWithAttributes_Member_policy", member)) {
-      throw new PrivilegeException(sess, "getRichMemberWithAttributes");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMemberWithAttributes(sess, member));
-  }
-
-  @Override
-  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_List<AttributeDefinition>_policy",
-        vo)) {
-      throw new PrivilegeException(sess, "getRichMemberWithAttributes");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, attrsDef), null,
-            true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group)
-      throws PrivilegeException, GroupNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_List<String>_Group_policy", group)) {
-      throw new PrivilegeException(sess, "getRichMembersWithAttributes");
-    }
-
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().getRichMembersWithAttributes(sess, allowedStatuses, group), group, true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames)
-      throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Vo_List<String>_policy", vo)) {
-      throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
-    }
-
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().getRichMembersWithAttributesByNames(sess, vo, attrsNames), null, true);
-  }
-
-  @Override
-  public List<RichMember> getServiceUserRichMembers(PerunSession sess, Vo vo)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getServiceUserRichMembers_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getServiceUserRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getServiceUserRichMembers(sess, vo), null, true);
-  }
-
-  @Override
-  public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames)
-      throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_policy", vo)) {
-      throw new PrivilegeException(sess, "getCompleteRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames), null,
-            true);
-  }
-
-  @Override
-  public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames,
-                                                 List<String> allowedStatuses)
-      throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_List<String>_policy", vo)) {
-      throw new PrivilegeException(sess, "getCompleteRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames, allowedStatuses), null, true);
-  }
-
-  @Override
-  public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames,
-                                                 boolean lookingInParentGroup)
-      throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_boolean_policy", group)) {
-      throw new PrivilegeException(sess, "getCompleteRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), group, true);
-  }
-
-  @Override
-  public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource,
-                                                 List<String> attrsNames, List<String> allowedStatuses)
-      throws AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException,
-      GroupResourceMismatchException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-    perunBl.getResourcesManagerBl().checkResourceExists(sess, resource);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess,
-        "getCompleteRichMembers_Group_Resource_List<String>_List<String>_policy", Arrays.asList(group, resource))) {
-      throw new PrivilegeException(sess, "getCompleteRichMembers");
-    }
-
-    //TODO: method filterOnlyAllowedAttributes can work only with user and member attributes
-    //return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, resource, attrsNames, allowedStatuses), true);
-    return getMembersManagerBl().getCompleteRichMembers(sess, group, resource, attrsNames, allowedStatuses);
-  }
-
-  @Override
-  public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames,
-                                                 List<String> allowedStatuses, List<String> allowedGroupStatuses,
-                                                 boolean lookingInParentGroup)
-      throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess,
-        "getCompleteRichMembers_Group_List<String>_List<String>_List<String>_boolean_policy", group)) {
-      throw new PrivilegeException(sess, "getCompleteRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, allowedStatuses, allowedGroupStatuses,
-            lookingInParentGroup), group, true);
+    getMembersManagerBl().extendMembership(sess, member);
   }
 
   @Override
@@ -913,175 +913,6 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames)
-      throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Group_List<String>_policy",
-        group)) {
-      throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
-    }
-
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().getRichMembersWithAttributesByNames(sess, group, attrsNames), group, true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group,
-                                                       List<AttributeDefinition> attrsDef)
-      throws PrivilegeException, GroupNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Group_List<AttributeDefinition>_policy",
-        group)) {
-      throw new PrivilegeException(sess, "getRichMemberWithAttributes");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, group, attrsDef),
-            group, true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembers(PerunSession sess, Group group)
-      throws PrivilegeException, GroupNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Group_policy", group)) {
-      throw new PrivilegeException(sess, "getRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, group), group, true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo), null, true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_Status_policy", vo)) {
-      throw new PrivilegeException(sess, "getRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo, status), null, true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getRichMembersWithAttributes");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo), null, true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_Status_policy", vo)) {
-      throw new PrivilegeException(sess, "getRichMembersWithAttributes");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, status), null,
-            true);
-  }
-
-  @Override
-  public List<RichMember> getRichMembersNoUserAttributes(PerunSession sess, Vo vo)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersNoUserAttributes_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getRichMembersNoUserAttributes");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersNoUserAttributes(sess, vo), null, true);
-  }
-
-  @Override
-  public int getMembersCount(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getMembersCount");
-    }
-
-    return getMembersManagerBl().getMembersCount(sess, vo);
-  }
-
-  @Override
-  public int getMembersCount(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_Status_policy", vo)) {
-      throw new PrivilegeException(sess, "getMembersCount");
-    }
-
-    return getMembersManagerBl().getMembersCount(sess, vo, status);
-  }
-
-  @Override
-  public Vo getMemberVo(PerunSession sess, Member member) throws MemberNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    //TODO Authorization
-
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    return getMembersManagerBl().getMemberVo(sess, member);
-  }
-
-  @Override
   public List<Member> findMembersByName(PerunSession sess, String searchString) throws PrivilegeException {
     Utils.checkPerunSession(sess);
 
@@ -1109,21 +940,6 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public List<Member> findMembersInVo(PerunSession sess, Vo vo, String searchString)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "findMembersInVo_Vo_String_policy", vo)) {
-      throw new PrivilegeException(sess, "findMembersInVo");
-    }
-
-    return getMembersManagerBl().findMembersInVo(sess, vo, searchString);
-  }
-
-  @Override
   public List<Member> findMembersInGroup(PerunSession sess, Group group, String searchString)
       throws PrivilegeException, GroupNotExistsException {
     Utils.checkPerunSession(sess);
@@ -1135,21 +951,6 @@ public class MembersManagerEntry implements MembersManager {
     }
 
     return getMembersManagerBl().findMembersInGroup(sess, group, searchString);
-  }
-
-  @Override
-  public List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString)
-      throws PrivilegeException, GroupNotExistsException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInGroup_Group_String_policy", group)) {
-      throw new PrivilegeException(sess, "findRichMembersInGroup");
-    }
-
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().findRichMembersWithAttributesInGroup(sess, group, searchString), group, true);
   }
 
   @Override
@@ -1169,20 +970,18 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public List<RichMember> findRichMembersWithAttributesInParentGroup(PerunSession sess, Group group,
-                                                                     String searchString)
-      throws PrivilegeException, GroupNotExistsException {
+  public List<Member> findMembersInVo(PerunSession sess, Vo vo, String searchString)
+      throws PrivilegeException, VoNotExistsException {
     Utils.checkPerunSession(sess);
-    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInParentGroup_Group_String_policy",
-        group)) {
-      throw new PrivilegeException(sess, "findRichMembersInParentGroup");
+    if (!AuthzResolver.authorizedInternal(sess, "findMembersInVo_Vo_String_policy", vo)) {
+      throw new PrivilegeException(sess, "findMembersInVo");
     }
 
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().findRichMembersWithAttributesInParentGroup(sess, group, searchString), group, true);
+    return getMembersManagerBl().findMembersInVo(sess, vo, searchString);
   }
 
   @Override
@@ -1203,6 +1002,38 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
+  public List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString)
+      throws PrivilegeException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInGroup_Group_String_policy", group)) {
+      throw new PrivilegeException(sess, "findRichMembersInGroup");
+    }
+
+    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
+        getMembersManagerBl().findRichMembersWithAttributesInGroup(sess, group, searchString), group, true);
+  }
+
+  @Override
+  public List<RichMember> findRichMembersWithAttributesInParentGroup(PerunSession sess, Group group,
+                                                                     String searchString)
+      throws PrivilegeException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInParentGroup_Group_String_policy",
+        group)) {
+      throw new PrivilegeException(sess, "findRichMembersInParentGroup");
+    }
+
+    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
+        getMembersManagerBl().findRichMembersWithAttributesInParentGroup(sess, group, searchString), group, true);
+  }
+
+  @Override
   public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString)
       throws PrivilegeException, VoNotExistsException {
     Utils.checkPerunSession(sess);
@@ -1219,559 +1050,19 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public Member setStatus(PerunSession sess, Member member, Status status)
-      throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException, MemberNotValidYetException, MemberLifecycleAlteringForbiddenException {
+  public List<Member> getAllMembers(PerunSession sess) throws PrivilegeException {
     Utils.checkPerunSession(sess);
 
-    getMembersManagerBl().checkMemberExists(sess, member);
-    getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_policy", member)) {
-      throw new PrivilegeException(sess, "setStatus");
+    if (!AuthzResolver.authorizedInternal(sess, "getAllMembers_policy")) {
+      throw new PrivilegeException(sess, "getAllMembers");
     }
 
-    return getMembersManagerBl().setStatus(sess, member, status);
+    return getPerunBl().getMembersManagerBl().getAllMembers(sess);
   }
 
   @Override
-  public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo)
-      throws MemberNotExistsException, PrivilegeException, BanAlreadyExistsException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(suspendedTo, "suspendedTo");
-
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "suspendMemberTo_Member_Date_policy", member)) {
-      throw new PrivilegeException(sess, "suspendMemberTo");
-    }
-
-    membersManagerBl.suspendMemberTo(sess, member, suspendedTo);
-  }
-
-  @Override
-  public void unsuspendMember(PerunSession sess, Member member)
-      throws MemberNotExistsException, MemberNotSuspendedException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "unsuspendMember_Member_policy", member)) {
-      throw new PrivilegeException(sess, "unsuspendMember");
-    }
-
-    membersManagerBl.unsuspendMember(sess, member);
-  }
-
-  @Override
-  public Member validateMemberAsync(PerunSession sess, Member member)
-      throws PrivilegeException, MemberNotExistsException {
-    Utils.checkPerunSession(sess);
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "validateMemberAsync_Member_policy", member)) {
-      throw new PrivilegeException(sess, "validateMemberAsync");
-    }
-
-    getMembersManagerBl().validateMemberAsync(sess, member);
-
-    return member;
-  }
-
-  @Override
-  public void extendMembership(PerunSession sess, Member member)
-      throws PrivilegeException, MemberNotExistsException, ExtendMembershipException {
-    Utils.checkPerunSession(sess);
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "extendMembership_Member_policy", member)) {
-      throw new PrivilegeException(sess, "extendMembership");
-    }
-
-    getMembersManagerBl().extendMembership(sess, member);
-  }
-
-  @Override
-  public boolean canExtendMembership(PerunSession sess, Member member)
-      throws PrivilegeException, MemberNotExistsException {
-    Utils.checkPerunSession(sess);
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "canExtendMembership_Member_policy", member)) {
-      throw new PrivilegeException(sess, "extendMembership");
-    }
-
-    return getMembersManagerBl().canExtendMembership(sess, member);
-  }
-
-  @Override
-  public boolean canExtendMembershipWithReason(PerunSession sess, Member member) throws PrivilegeException,
-      MemberNotExistsException, ExtendMembershipException {
-    Utils.checkPerunSession(sess);
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "canExtendMembershipWithReason_Member_policy", member)) {
-      throw new PrivilegeException(sess, "canExtendMembershipWithReason");
-    }
-
-    return getMembersManagerBl().canExtendMembershipWithReason(sess, member);
-  }
-
-  @Override
-  public boolean canBeMember(PerunSession sess, Vo vo, User user, String loa)
-      throws VoNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "canBeMember_Vo_User_String_policy", Arrays.asList(vo, user))) {
-      throw new PrivilegeException(sess, "canBeMember");
-    }
-
-    return getMembersManagerBl().canBeMember(sess, vo, user, loa);
-  }
-
-  @Override
-  public boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws
-      VoNotExistsException, ExtendMembershipException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "canBeMemberWithReason_Vo_User_String_policy",
-        Arrays.asList(vo, user))) {
-      throw new PrivilegeException(sess, "canBeMemberWithReason");
-    }
-
-    return getMembersManagerBl().canBeMemberWithReason(sess, vo, user, loa);
-  }
-
-  @Override
-  public Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin)
-      throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException,
-      UserNotExistsException, VoNotExistsException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(extSourceName, "extSourceName");
-    Utils.notNull(extLogin, "extLogin");
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getMemberByExtSourceNameAndExtLogin_Vo_String_String_policy", vo)) {
-      throw new PrivilegeException(sess, "getMemberByExtSourceNameAndExtLogin");
-    }
-
-    return getMembersManagerBl().getMemberByExtSourceNameAndExtLogin(sess, vo, extSourceName, extLogin);
-  }
-
-  @Override
-  public Date getNewExtendMembership(PerunSession sess, Member member) throws MemberNotExistsException {
-    Utils.checkPerunSession(sess);
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    return getMembersManagerBl().getNewExtendMembership(sess, member);
-  }
-
-  @Override
-  public Date getNewExtendMembership(PerunSession sess, Vo vo, String loa)
-      throws VoNotExistsException, ExtendMembershipException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-    Utils.notNull(loa, "loa");
-
-    return getMembersManagerBl().getNewExtendMembership(sess, vo, loa);
-  }
-
-  @Override
-  public void sendUsernameReminderEmail(PerunSession sess, Member member, String namespace, String mailAttributeUrn,
-                                        String language)
-      throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException,
-      NotificationMemberMailNotExistsException {
-    Utils.checkPerunSession(sess);
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "sendUsernameReminderEmail_Member_String_String_String_policy",
-        member)) {
-      throw new PrivilegeException(sess, "sendUsernameReminder");
-    }
-
-    String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
-    getMembersManagerBl().sendUsernameReminderEmail(sess, member, namespace, mailAddress, language);
-  }
-
-  @Override
-  public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url,
-                                         String mailAttributeUrn, String language)
-      throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException,
-      NotificationMemberMailNotExistsException {
-
-    Utils.checkPerunSession(sess);
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "sendPasswordResetLinkEmail_Member_String_String_String_String_policy",
-        member)) {
-      throw new PrivilegeException(sess, "sendPasswordResetLinkEmail");
-    }
-
-    String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
-    getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url, mailAddress, language);
-  }
-
-  @Override
-  public void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url,
-                                             String mailAttributeUrn, String language)
-      throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException,
-      NotificationMemberMailNotExistsException {
-    Utils.checkPerunSession(sess);
-    getMembersManagerBl().checkMemberExists(sess, member);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess,
-        "sendAccountActivationLinkEmail_Member_String_String_String_String_policy", member)) {
-      throw new PrivilegeException(sess, "sendAccountActivationLinkEmail");
-    }
-
-    String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
-
-    getMembersManagerBl().sendAccountActivationLinkEmail(sess, member, namespace, url, mailAddress, language);
-  }
-
-  @Override
-  public RichMember createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor,
-                                          LocalDate validityTo, boolean sendActivationLink, String language, String url)
-      throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
-      ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException,
-      WrongReferenceAttributeValueException,
-      UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException,
-      InvalidSponsoredUserDataException, NamespaceRulesNotExistsException {
-    Utils.checkPerunSession(session);
-    Utils.notNull(vo, "vo");
-
-    if (data.getGuestName() == null) {
-      Utils.notNull(data.getFirstName(), "firstName");
-      Utils.notNull(data.getLastName(), "lastName");
-    }
-
-    log.info("createSponsoredMember(vo={},input={},sponsor={})", vo.getShortName(), data,
-        sponsor == null ? "null" : sponsor.getId());
-
-    if (sponsor == null) {
-      //sponsor is the caller, authorization is checked in Bl
-      sponsor = session.getPerunPrincipal().getUser();
-    } else {
-      //Authorization
-      if (!AuthzResolver.authorizedInternal(session,
-          "createSponsoredMember_Vo_String_Map<String_String>_String_User_LocalDate_policy",
-          Arrays.asList(vo, sponsor))) {
-        throw new PrivilegeException(session, "createSponsoredMember");
-      }
-    }
-    //create the sponsored member
-    return membersManagerBl.getRichMemberWithAttributes(session,
-        membersManagerBl.createSponsoredMember(session, data, vo, sponsor, validityTo, sendActivationLink, language,
-            url, Validation.ASYNC));
-  }
-
-  @Override
-  public RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace,
-                                       String password, String login, User sponsor, LocalDate validityTo)
-      throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
-      ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException,
-      WrongReferenceAttributeValueException,
-      UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException,
-      InvalidSponsoredUserDataException, NamespaceRulesNotExistsException {
-
-    Utils.checkPerunSession(session);
-    Utils.notNull(vo, "vo");
-    Utils.notNull(userToBeSponsored, "userToBeSponsored");
-
-    log.debug("setSponsoredMember(vo={},namespace='{}',displayName='{}',sponsor={}", vo.getShortName(), namespace,
-        userToBeSponsored.getFirstName() + " " + userToBeSponsored.getLastName(),
-        sponsor == null ? "null" : sponsor.getId());
-
-    if (sponsor == null) {
-      //sponsor is the caller, authorization is checked in Bl
-      //however still need to check for MFA for User object
-      if (!AuthzResolver.authorizedInternal(session,
-          "sponsoredUser-setSponsoredMember_Vo_User_String_String_User_LocalDate_policy", userToBeSponsored)) {
-        throw new PrivilegeException(session, "setSponsoredMember");
-      }
-      sponsor = session.getPerunPrincipal().getUser();
-    } else {
-      //Authorization and MFA
-      if (!AuthzResolver.authorizedInternal(session, "setSponsoredMember_Vo_User_String_String_User_LocalDate_policy",
-          vo, sponsor) ||
-          !AuthzResolver.authorizedInternal(session,
-              "sponsoredUser-setSponsoredMember_Vo_User_String_String_User_LocalDate_policy", userToBeSponsored)) {
-        throw new PrivilegeException(session, "setSponsoredMember");
-      }
-    }
-
-    var data = new SponsoredUserData();
-    data.setNamespace(namespace);
-    data.setPassword(password);
-    data.setLogin(login);
-
-    return membersManagerBl.getRichMember(session,
-        membersManagerBl.setSponsoredMember(session, data, vo, userToBeSponsored, sponsor, validityTo,
-            Validation.ASYNC));
-  }
-
-  @Override
-  public List<Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
-                                                                 List<String> data, String header, User sponsor,
-                                                                 LocalDate validityTo, boolean sendActivationLink,
-                                                                 String language, String url, List<Group> groups)
-      throws PrivilegeException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(vo, "vo");
-    Utils.notNull(data, "names");
-    Utils.notNull(header, "header");
-
-    if (sponsor == null) {
-      //sponsor is the caller, authorization is checked in Bl
-      sponsor = sess.getPerunPrincipal().getUser();
-    } else {
-      //Authorization
-      if (!AuthzResolver.authorizedInternal(sess,
-          "createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy", vo, sponsor)) {
-        throw new PrivilegeException(sess, "createSponsoredMembersFromCSV");
-      }
-    }
-
-    for (Group group : groups) {
-      if (!AuthzResolver.authorizedInternal(sess,
-          "group-createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy", vo, group)) {
-        throw new PrivilegeException(sess, "createSponsoredMembersFromCSV");
-      }
-    }
-
-    return membersManagerBl
-        .createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo, sendActivationLink,
-            language, url, Validation.ASYNC, groups);
-  }
-
-  @Override
-  public List<Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace,
-                                                          List<String> names, String email, User sponsor,
-                                                          LocalDate validityTo, boolean sendActivationLink,
-                                                          String language, String url) throws PrivilegeException {
-    Utils.checkPerunSession(session);
-    Utils.notNull(vo, "vo");
-    Utils.notNull(namespace, "namespace");
-    Utils.notNull(names, "names");
-
-    if (sponsor == null) {
-      //sponsor is the caller, authorization is checked in Bl
-      sponsor = session.getPerunPrincipal().getUser();
-    } else {
-      //Authorization
-      if (!AuthzResolver.authorizedInternal(session, "createSponsoredMembers_Vo_String_List<String>_User_policy",
-          Arrays.asList(vo, sponsor))) {
-        throw new PrivilegeException(session, "createSponsoredMembers");
-      }
-    }
-
-    // create sponsored members
-    return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, email, sponsor, validityTo,
-        sendActivationLink, language, url, Validation.ASYNC);
-  }
-
-  @Override
-  public RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor,
-                                            LocalDate validityTo)
-      throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException,
-      AlreadySponsorException {
-    Utils.checkPerunSession(session);
-    getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
-
-    if (sponsor == null) {
-      //sponsor is the caller
-      sponsor = session.getPerunPrincipal().getUser();
-    }
-
-    Vo memberVo;
-    try {
-      memberVo = perunBl.getVosManagerBl().getVoById(session, sponsoredMember.getVoId());
-    } catch (VoNotExistsException e) {
-      throw new InternalErrorException(e);
-    }
-
-    //Authorization and MFA
-    if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_LocalDate_policy", memberVo,
-        sponsor) ||
-        !AuthzResolver.authorizedInternal(session,
-            "sponsoredMember-setSponsorshipForMember_Member_User_LocalDate_policy", sponsoredMember)) {
-      throw new PrivilegeException(session, "setSponsorshipForMember");
-    }
-
-    //set member to be sponsored
-    return membersManagerBl.getRichMember(session,
-        membersManagerBl.setSponsorshipForMember(session, sponsoredMember, sponsor, validityTo));
-  }
-
-  @Override
-  public RichMember unsetSponsorshipForMember(PerunSession session, Member sponsoredMember)
-      throws MemberNotExistsException, MemberNotSponsoredException, PrivilegeException {
-    Utils.checkPerunSession(session);
-    getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(session, "unsetSponsorshipForMember_Member_policy", sponsoredMember)) {
-      throw new PrivilegeException(session, "unsetSponsorshipForMember");
-    }
-
-    //unset sponsorship for member
-    return membersManagerBl.getRichMember(session,
-        membersManagerBl.unsetSponsorshipForMember(session, sponsoredMember));
-  }
-
-  @Override
-  public RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor, LocalDate validityTo)
-      throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
-    Utils.checkPerunSession(session);
-    Utils.notNull(sponsored, "sponsored");
-    Utils.notNull(sponsor, "sponsor");
-    log.debug("sponsorMember(sponsored={},sponsor={}", sponsored.getId(), sponsor.getId());
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(session, "sponsored-sponsorMember_Member_User_LocalDate_policy", sponsored) ||
-        !AuthzResolver.authorizedInternal(session, "sponsor-sponsorMember_Member_User_LocalDate_policy", sponsor)) {
-      throw new PrivilegeException(session, "sponsorMember");
-    }
-    //create the link between sponsored and sponsoring users
-    return membersManagerBl.getRichMember(session,
-        membersManagerBl.sponsorMember(session, sponsored, sponsor, validityTo));
-  }
-
-  @Override
-  public void sponsorMembers(PerunSession session, List<Member> sponsored, User sponsor, LocalDate validityTo)
-      throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
-    for (Member member : sponsored) {
-      if (member.isSponsored()) {
-        sponsorMember(session, member, sponsor, validityTo);
-      } else {
-        try {
-          setSponsorshipForMember(session, member, sponsor, validityTo);
-        } catch (AlreadySponsoredMemberException | MemberNotExistsException ex) {
-          throw new InternalErrorException("Member should not be sponsored and should exist");
-        }
-      }
-    }
-  }
-
-  @Override
-  public void copySponsoredMembers(PerunSession session, List<Member> sponsored, User copyFrom, User copyTo,
-                                   boolean copyValidity, LocalDate validityTo)
-      throws SponsorshipDoesNotExistException, UserNotInRoleException, PrivilegeException, MemberNotSponsoredException {
-    for (Member member : sponsored) {
-      MemberWithSponsors mws =
-          convertMemberToMemberWithSponsors(session, membersManagerBl.getRichMember(session, member));
-      if (copyValidity) {
-        Optional<Sponsor> fromSponsor =
-            mws.getSponsors().stream().filter((sponsor1 -> sponsor1.getUser().equals(copyFrom))).findAny();
-        if (fromSponsor.isEmpty()) {
-          throw new SponsorshipDoesNotExistException(member, copyFrom);
-        }
-        try {
-          sponsorMember(session, member, copyTo, fromSponsor.get().getValidityTo());
-        } catch (AlreadySponsorException ex) {
-          // skip members already sponsored by the destination sponsor
-        }
-      } else {
-        try {
-          sponsorMember(session, member, copyTo, validityTo);
-        } catch (AlreadySponsorException ex) {
-          // skip members already sponsored by the destination sponsor
-        }
-      }
-    }
-  }
-
-
-  @Override
-  public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user, List<String> attrNames)
-      throws AttributeNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
-    Utils.checkPerunSession(sess);
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-    perunBl.getUsersManagerBl().checkUserExists(sess, user);
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_User_List<String>_policy",
-        Arrays.asList(vo, user))) {
-      throw new PrivilegeException(sess, "getSponsoredMembers");
-    }
-
-    List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
-    for (String attrName : attrNames) {
-      attributeDefinitions.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
-    }
-
-    //Filter members based on authorization
-    List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo, user).stream()
-        .filter(
-            member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_User_List<String>_policy",
-                member, vo))
-        .collect(Collectors.toList());
-    //Basic rich Members without attributes
-    List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
-    //Enriched rich members with attributes by list of attributes
-    richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess, richMembers, attributeDefinitions);
-    //RichMembers with filtered attributes by rights from session
-    richMembers = membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers, null, true);
-
-    return richMembers;
-  }
-
-  @Override
-  public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user)
-      throws PrivilegeException, VoNotExistsException, UserNotExistsException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(vo, "vo");
-    Utils.notNull(user, "user");
-
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-    perunBl.getUsersManagerBl().checkUserExists(sess, user);
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_User_policy", Arrays.asList(vo, user))) {
-      throw new PrivilegeException(sess, "getSponsoredMembers");
-    }
-
-    //Filter members based on authorization
-    List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo, user).stream()
-        .filter(
-            member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_User_policy", member, vo))
-        .collect(Collectors.toList());
-
-    return membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
-  }
-
-  @Override
-  public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo)
-      throws PrivilegeException, VoNotExistsException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(vo, "vo");
-
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getSponsoredMembers");
-    }
-
-    //Filter members based on authorization
-    return getAllSponsoredMembers(sess, vo).stream()
-        .filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_policy", member, vo))
-        .collect(Collectors.toList());
+  public List<NamespaceRules> getAllNamespacesRules() {
+    return membersManagerBl.getAllNamespacesRules();
   }
 
   @Override
@@ -1790,23 +1081,6 @@ public class MembersManagerEntry implements MembersManager {
     List<Member> sponsoredMembers = membersManagerBl.getSponsoredMembers(sess, vo);
 
     return membersManagerBl.convertMembersToRichMembers(sess, sponsoredMembers);
-  }
-
-  @Override
-  public List<MemberWithSponsors> getSponsoredMembersAndTheirSponsors(PerunSession sess, Vo vo, List<String> attrNames)
-      throws VoNotExistsException, PrivilegeException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(vo, "vo");
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
-      throw new PrivilegeException(sess, "getSponsoredMembersAndTheirSponsors");
-    }
-
-    return getAllSponsoredMembersAndTheirSponsors(sess, vo, attrNames).stream()
-        .filter(memberWithSponsors -> AuthzResolver.authorizedInternal(sess,
-            "filter-getSponsoredMembersAndTheirSponsors_Vo_policy", memberWithSponsors.getMember(), vo))
-        .collect(Collectors.toList());
   }
 
   @Override
@@ -1835,55 +1109,305 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser)
-      throws PrivilegeException, MemberNotExistsException, UserNotExistsException {
+  public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames)
+      throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
     Utils.checkPerunSession(sess);
-    Utils.notNull(sponsoredMember, "sponsoredMember");
-    Utils.notNull(sponsorUser, "sponsorUser");
 
-    perunBl.getMembersManagerBl().checkMemberExists(sess, sponsoredMember);
-    perunBl.getUsersManagerBl().checkUserExists(sess, sponsorUser);
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
-    //Authorization
-    if (!(AuthzResolver.authorizedInternal(sess, "extendExpirationForSponsoredMember_Member_User_policy",
-        sponsoredMember))) {
-      throw new PrivilegeException(sess, "extendExpirationForSponsoredMember");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_policy", vo)) {
+      throw new PrivilegeException(sess, "getCompleteRichMembers");
     }
 
-    return membersManagerBl.extendExpirationForSponsoredMember(sess, sponsoredMember, sponsorUser);
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames), null,
+            true);
   }
 
   @Override
-  public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws PrivilegeException {
+  public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames,
+                                                 List<String> allowedStatuses)
+      throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
     Utils.checkPerunSession(sess);
-    Utils.notNull(sponsoredMember, "sponsoredMember");
-    Utils.notNull(sponsorToRemove, "sponsorToRemove");
-    log.info("removeSponsor(sponsoredMember={},sponsorToRemove={}", sponsoredMember.getId(), sponsorToRemove.getId());
 
-    //Get the VO to which sponsoredMember belongs
-    Vo vo = membersManagerBl.getMemberVo(sess, sponsoredMember);
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "sponsored-removeSponsor_Member_User_policy", sponsoredMember) ||
-        !AuthzResolver.authorizedInternal(sess, "sponsor-removeSponsor_Member_User_policy", sponsorToRemove)) {
-      throw new PrivilegeException(sess, "removeSponsor");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_List<String>_policy", vo)) {
+      throw new PrivilegeException(sess, "getCompleteRichMembers");
     }
 
-    //Check that sponsoring user has a role SPONSOR for the VO
-    if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSOR, vo, true)) {
-      throw new PrivilegeException(sess,
-          "user " + sponsorToRemove.getId() + " is not in role SPONSOR for VO " + vo.getId());
-    }
-    //remove sponsor
-    membersManagerBl.removeSponsor(sess, sponsoredMember, sponsorToRemove);
+    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
+        getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames, allowedStatuses), null, true);
   }
 
   @Override
-  public void removeSponsors(PerunSession sess, Member sponsoredMember, List<User> sponsorsToRemove)
-      throws PrivilegeException {
-    for (User sponsor : sponsorsToRemove) {
-      removeSponsor(sess, sponsoredMember, sponsor);
+  public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames,
+                                                 boolean lookingInParentGroup)
+      throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_boolean_policy", group)) {
+      throw new PrivilegeException(sess, "getCompleteRichMembers");
     }
+
+    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
+        getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), group, true);
+  }
+
+  @Override
+  public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames,
+                                                 List<String> allowedStatuses, List<String> allowedGroupStatuses,
+                                                 boolean lookingInParentGroup)
+      throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess,
+        "getCompleteRichMembers_Group_List<String>_List<String>_List<String>_boolean_policy", group)) {
+      throw new PrivilegeException(sess, "getCompleteRichMembers");
+    }
+
+    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
+        getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, allowedStatuses, allowedGroupStatuses,
+            lookingInParentGroup), group, true);
+  }
+
+  @Override
+  public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource,
+                                                 List<String> attrsNames, List<String> allowedStatuses)
+      throws AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException,
+      GroupResourceMismatchException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+    perunBl.getResourcesManagerBl().checkResourceExists(sess, resource);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess,
+        "getCompleteRichMembers_Group_Resource_List<String>_List<String>_policy", Arrays.asList(group, resource))) {
+      throw new PrivilegeException(sess, "getCompleteRichMembers");
+    }
+
+    //TODO: method filterOnlyAllowedAttributes can work only with user and member attributes
+    //return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl()
+    // .getCompleteRichMembers(sess, group, resource, attrsNames, allowedStatuses), true);
+    return getMembersManagerBl().getCompleteRichMembers(sess, group, resource, attrsNames, allowedStatuses);
+  }
+
+  /**
+   * Extract mail address from the given attribute and given member object.
+   *
+   * @param sess             Perun session
+   * @param member           Member object
+   * @param mailAttributeUrn URN of the attribute which should contain mail address. Assumes the attribute is of type
+   *                         string.
+   * @return Non-blank attribute value which is expected to be mail address
+   * @throws AttributeNotExistsException              If the attribute specified by mailAttributeUrn parameter does not
+   *                                                  exist
+   * @throws NotificationMemberMailNotExistsException If the attribute has empty or blank value
+   */
+  private String getMailAddressFromAttribute(PerunSession sess, Member member, String mailAttributeUrn)
+      throws AttributeNotExistsException, NotificationMemberMailNotExistsException {
+    //check if attribute exists, throws AttributeNotExistsException
+    Attribute mailAttribute = null;
+    AttributeDefinition ad = getPerunBl().getAttributesManager().getAttributeDefinition(sess, mailAttributeUrn);
+
+    try {
+      if (ad.getEntity().equals("user")) {
+        User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+        mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, mailAttributeUrn);
+      }
+      if (ad.getEntity().equals("member")) {
+        mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, mailAttributeUrn);
+      }
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+
+    if (mailAttribute == null) {
+      throw new InternalErrorException("MailAttribute should not be null.");
+    }
+    String mailAddress = mailAttribute.valueAsString();
+    if (!StringUtils.hasText(mailAddress)) {
+      throw new NotificationMemberMailNotExistsException(
+          "Member " + member.getId() + " doesn't have the attribute " + mailAttributeUrn + " set.");
+    }
+    return mailAddress;
+  }
+
+  @Override
+  public Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin)
+      throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException,
+      UserNotExistsException, VoNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(extSourceName, "extSourceName");
+    Utils.notNull(extLogin, "extLogin");
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMemberByExtSourceNameAndExtLogin_Vo_String_String_policy", vo)) {
+      throw new PrivilegeException(sess, "getMemberByExtSourceNameAndExtLogin");
+    }
+
+    return getMembersManagerBl().getMemberByExtSourceNameAndExtLogin(sess, vo, extSourceName, extLogin);
+  }
+
+  @Override
+  public Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    Member member = getMembersManagerBl().getMemberById(sess, id);
+
+    //  Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMemberById_int_policy", member)) {
+      throw new PrivilegeException(sess, "getMemberById");
+    }
+
+    return member;
+  }
+
+  @Override
+  public Member getMemberByUser(PerunSession sess, Vo vo, User user)
+      throws MemberNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMemberByUser_Vo_User_policy", Arrays.asList(vo, user))) {
+      throw new PrivilegeException(sess, "getMemberByUser");
+    }
+
+    return getMembersManagerBl().getMemberByUser(sess, vo, user);
+  }
+
+  @Override
+  public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource uea)
+      throws VoNotExistsException, MemberNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMemberByUserExtSource_Vo_UserExtSource_policy",
+        Arrays.asList(vo, uea))) {
+      throw new PrivilegeException(sess, "getMemberByUserExtSource");
+    }
+
+    return getMembersManagerBl().getMemberByUserExtSource(sess, vo, uea);
+  }
+
+  @Override
+  public Vo getMemberVo(PerunSession sess, Member member) throws MemberNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    //TODO Authorization
+
+    getMembersManagerBl().checkMemberExists(sess, member);
+
+    return getMembersManagerBl().getMemberVo(sess, member);
+  }
+
+  @Override
+  public List<Member> getMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getMembers");
+    }
+
+    return getMembersManagerBl().getMembers(sess, vo);
+  }
+
+  @Override
+  public List<Member> getMembers(PerunSession sess, Vo vo, Status status)
+      throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_Status_policy", vo)) {
+      throw new PrivilegeException(sess, "getMembers");
+    }
+
+    return getMembersManagerBl().getMembers(sess, vo, status);
+  }
+
+  @Override
+  public List<Member> getMembersByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMembersByIds_List<Integer>_policy")) {
+      throw new PrivilegeException(sess, "getMembersByIds");
+    }
+
+    List<Member> members = getMembersManagerBl().getMembersByIds(sess, ids);
+    members.removeIf(
+        member -> !AuthzResolver.authorizedInternal(sess, "filter-getMembersByIds_List<Integer>_policy", member));
+
+    return members;
+  }
+
+  @Override
+  public List<Member> getMembersByUser(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMembersByUser_User_policy", user)) {
+      throw new PrivilegeException(sess, "getMembersByUser");
+    }
+
+    return getMembersManagerBl().getMembersByUser(sess, user);
+  }
+
+  @Override
+  public int getMembersCount(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getMembersCount");
+    }
+
+    return getMembersManagerBl().getMembersCount(sess, vo);
+  }
+
+  @Override
+  public int getMembersCount(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_Status_policy", vo)) {
+      throw new PrivilegeException(sess, "getMembersCount");
+    }
+
+    return getMembersManagerBl().getMembersCount(sess, vo, status);
+  }
+
+  /**
+   * Gets the membersManagerBl for this instance.
+   *
+   * @return The membersManagerBl.
+   */
+  public MembersManagerBl getMembersManagerBl() {
+    return this.membersManagerBl;
   }
 
   @Override
@@ -1928,52 +1452,102 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public void updateSponsorshipValidity(PerunSession sess, Member sponsoredMember, User sponsor,
-                                        LocalDate newValidity)
-      throws PrivilegeException, SponsorshipDoesNotExistException, MemberNotExistsException,
-      UserNotExistsException {
+  public Date getNewExtendMembership(PerunSession sess, Member member) throws MemberNotExistsException {
     Utils.checkPerunSession(sess);
-    Utils.notNull(sponsoredMember, "sponsoredMember");
-    Utils.notNull(sponsor, "sponsor");
+    getMembersManagerBl().checkMemberExists(sess, member);
 
-    perunBl.getMembersManagerBl().checkMemberExists(sess, sponsoredMember);
-    perunBl.getUsersManagerBl().checkUserExists(sess, sponsor);
-
-    Vo memberVo;
-    try {
-      memberVo = perunBl.getVosManagerBl().getVoById(sess, sponsoredMember.getVoId());
-    } catch (VoNotExistsException e) {
-      throw new InternalErrorException(e);
-    }
-
-    if (!AuthzResolver.authorizedInternal(sess, "updateSponsorshipValidity_Member_User_LocalDate", memberVo,
-        sponsor) ||
-        !AuthzResolver.authorizedInternal(sess, "sponsoredMember-updateSponsorshipValidity_Member_User_LocalDate",
-            sponsoredMember)) {
-      throw new PrivilegeException("updateSponsorshipValidity");
-    }
-
-    membersManagerBl.updateSponsorshipValidity(sess, sponsoredMember, sponsor, newValidity);
+    return getMembersManagerBl().getNewExtendMembership(sess, member);
   }
 
   @Override
-  public void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser)
-      throws UserNotExistsException, VoNotExistsException, PrivilegeException, ExtendMembershipException,
-      MemberNotExistsException, AlreadyMemberException {
+  public Date getNewExtendMembership(PerunSession sess, Vo vo, String loa)
+      throws VoNotExistsException, ExtendMembershipException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    Utils.notNull(loa, "loa");
+
+    return getMembersManagerBl().getNewExtendMembership(sess, vo, loa);
+  }
+
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
+
+  @Override
+  public RichMember getRichMemberById(PerunSession sess, int id) throws PrivilegeException, MemberNotExistsException {
     Utils.checkPerunSession(sess);
 
-    getPerunBl().getUsersManagerBl().checkUserExists(sess, sourceUser);
-    getPerunBl().getUsersManagerBl().checkUserExists(sess, targetUser);
-    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, id);
 
-    //Authorization
-    Member sourceMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, sourceUser);
-    if (!AuthzResolver.authorizedInternal(sess, "moveMembership_Vo_User_User_policy", vo, sourceUser, sourceMember,
-        targetUser)) {
-      throw new PrivilegeException("moveMembership");
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMemberById_int_policy", member)) {
+      throw new PrivilegeException(sess, "getRichMemberById");
     }
 
-    getMembersManagerBl().moveMembership(sess, vo, sourceUser, targetUser);
+    return getPerunBl().getMembersManagerBl().getRichMember(sess, member);
+  }
+
+  @Override
+  public RichMember getRichMemberWithAttributes(PerunSession sess, Member member)
+      throws PrivilegeException, MemberNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMemberWithAttributes_Member_policy", member)) {
+      throw new PrivilegeException(sess, "getRichMemberWithAttributes");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMemberWithAttributes(sess, member));
+  }
+
+  @Override
+  public List<RichMember> getRichMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getMembers");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo), null, true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembers(PerunSession sess, Group group)
+      throws PrivilegeException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Group_policy", group)) {
+      throw new PrivilegeException(sess, "getRichMembers");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, group), group, true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status)
+      throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_Status_policy", vo)) {
+      throw new PrivilegeException(sess, "getRichMembers");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo, status), null, true);
   }
 
   @Override
@@ -2003,148 +1577,354 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public void addMemberCandidates(PerunSession sess, Vo vo, List<MemberCandidate> candidates)
-      throws PrivilegeException, GroupNotExistsException, UserNotExistsException, WrongReferenceAttributeValueException,
-      AlreadyMemberException, WrongAttributeValueException, ExtendMembershipException, VoNotExistsException {
+  public List<RichMember> getRichMembersNoUserAttributes(PerunSession sess, Vo vo)
+      throws PrivilegeException, VoNotExistsException {
     Utils.checkPerunSession(sess);
 
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "addMemberCandidates_Vo_List<MemberCandidate>_policy", vo)) {
-      throw new PrivilegeException(sess, "addMemberCandidates");
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersNoUserAttributes_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getRichMembersNoUserAttributes");
     }
 
-    for (MemberCandidate candidate : candidates) {
-      if (candidate.getRichUser() != null) {
-        Member member = this.createMember(sess, vo, candidate.getRichUser());
-        getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
-      } else if (candidate.getCandidate() != null) {
-        Member member = this.createMember(sess, vo, candidate.getCandidate());
-        getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
-      }
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersNoUserAttributes(sess, vo), null, true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef)
+      throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_List<AttributeDefinition>_policy",
+        vo)) {
+      throw new PrivilegeException(sess, "getRichMemberWithAttributes");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, attrsDef), null,
+            true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group)
+      throws PrivilegeException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_List<String>_Group_policy", group)) {
+      throw new PrivilegeException(sess, "getRichMembersWithAttributes");
+    }
+
+    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
+        getMembersManagerBl().getRichMembersWithAttributes(sess, allowedStatuses, group), group, true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group,
+                                                       List<AttributeDefinition> attrsDef)
+      throws PrivilegeException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Group_List<AttributeDefinition>_policy",
+        group)) {
+      throw new PrivilegeException(sess, "getRichMemberWithAttributes");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, group, attrsDef),
+            group, true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo)
+      throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getRichMembersWithAttributes");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo), null, true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status)
+      throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_Status_policy", vo)) {
+      throw new PrivilegeException(sess, "getRichMembersWithAttributes");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, status), null,
+            true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames)
+      throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Vo_List<String>_policy", vo)) {
+      throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
+    }
+
+    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
+        getMembersManagerBl().getRichMembersWithAttributesByNames(sess, vo, attrsNames), null, true);
+  }
+
+  @Override
+  public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames)
+      throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Group_List<String>_policy",
+        group)) {
+      throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
+    }
+
+    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
+        getMembersManagerBl().getRichMembersWithAttributesByNames(sess, group, attrsNames), group, true);
+  }
+
+  @Override
+  public List<RichMember> getServiceUserRichMembers(PerunSession sess, Vo vo)
+      throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getServiceUserRichMembers_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getServiceUserRichMembers");
+    }
+
+    return getPerunBl().getMembersManagerBl()
+        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getServiceUserRichMembers(sess, vo), null, true);
+  }
+
+  @Override
+  public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user, List<String> attrNames)
+      throws AttributeNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+    Utils.checkPerunSession(sess);
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
+    perunBl.getUsersManagerBl().checkUserExists(sess, user);
+
+    //Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_User_List<String>_policy",
+        Arrays.asList(vo, user))) {
+      throw new PrivilegeException(sess, "getSponsoredMembers");
+    }
+
+    List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
+    for (String attrName : attrNames) {
+      attributeDefinitions.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
+    }
+
+    //Filter members based on authorization
+    List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo, user).stream().filter(
+        member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_User_List<String>_policy",
+            member, vo)).collect(Collectors.toList());
+    //Basic rich Members without attributes
+    List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
+    //Enriched rich members with attributes by list of attributes
+    richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess, richMembers, attributeDefinitions);
+    //RichMembers with filtered attributes by rights from session
+    richMembers = membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers, null, true);
+
+    return richMembers;
+  }
+
+  @Override
+  public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user)
+      throws PrivilegeException, VoNotExistsException, UserNotExistsException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(vo, "vo");
+    Utils.notNull(user, "user");
+
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
+    perunBl.getUsersManagerBl().checkUserExists(sess, user);
+
+    //Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_User_policy", Arrays.asList(vo, user))) {
+      throw new PrivilegeException(sess, "getSponsoredMembers");
+    }
+
+    //Filter members based on authorization
+    List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo, user).stream().filter(
+            member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_User_policy", member, vo))
+        .collect(Collectors.toList());
+
+    return membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
+  }
+
+  @Override
+  public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo)
+      throws PrivilegeException, VoNotExistsException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(vo, "vo");
+
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+    //Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getSponsoredMembers");
+    }
+
+    //Filter members based on authorization
+    return getAllSponsoredMembers(sess, vo).stream()
+        .filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_policy", member, vo))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<MemberWithSponsors> getSponsoredMembersAndTheirSponsors(PerunSession sess, Vo vo, List<String> attrNames)
+      throws VoNotExistsException, PrivilegeException, AttributeNotExistsException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(vo, "vo");
+
+    //Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
+      throw new PrivilegeException(sess, "getSponsoredMembersAndTheirSponsors");
+    }
+
+    return getAllSponsoredMembersAndTheirSponsors(sess, vo, attrNames).stream().filter(
+            memberWithSponsors -> AuthzResolver.authorizedInternal(sess,
+                "filter-getSponsoredMembersAndTheirSponsors_Vo_policy", memberWithSponsors.getMember(), vo))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser)
+      throws UserNotExistsException, VoNotExistsException, PrivilegeException, ExtendMembershipException,
+      MemberNotExistsException, AlreadyMemberException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, sourceUser);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, targetUser);
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+    //Authorization
+    Member sourceMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, sourceUser);
+    if (!AuthzResolver.authorizedInternal(sess, "moveMembership_Vo_User_User_policy", vo, sourceUser, sourceMember,
+        targetUser)) {
+      throw new PrivilegeException("moveMembership");
+    }
+
+    getMembersManagerBl().moveMembership(sess, vo, sourceUser, targetUser);
+  }
+
+  @Override
+  public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(sponsoredMember, "sponsoredMember");
+    Utils.notNull(sponsorToRemove, "sponsorToRemove");
+    LOG.info("removeSponsor(sponsoredMember={},sponsorToRemove={}", sponsoredMember.getId(), sponsorToRemove.getId());
+
+    //Get the VO to which sponsoredMember belongs
+    Vo vo = membersManagerBl.getMemberVo(sess, sponsoredMember);
+
+    //Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "sponsored-removeSponsor_Member_User_policy", sponsoredMember) ||
+        !AuthzResolver.authorizedInternal(sess, "sponsor-removeSponsor_Member_User_policy", sponsorToRemove)) {
+      throw new PrivilegeException(sess, "removeSponsor");
+    }
+
+    //Check that sponsoring user has a role SPONSOR for the VO
+    if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSOR, vo, true)) {
+      throw new PrivilegeException(sess,
+          "user " + sponsorToRemove.getId() + " is not in role SPONSOR for VO " + vo.getId());
+    }
+    //remove sponsor
+    membersManagerBl.removeSponsor(sess, sponsoredMember, sponsorToRemove);
+  }
+
+  @Override
+  public void removeSponsors(PerunSession sess, Member sponsoredMember, List<User> sponsorsToRemove)
+      throws PrivilegeException {
+    for (User sponsor : sponsorsToRemove) {
+      removeSponsor(sess, sponsoredMember, sponsor);
     }
   }
 
   @Override
-  public void addMemberCandidates(PerunSession sess, Vo vo, List<MemberCandidate> candidates, Group group)
-      throws PrivilegeException, ExternallyManagedException, MemberNotExistsException, GroupNotExistsException,
-      WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException,
-      AlreadyMemberException, WrongAttributeValueException, UserNotExistsException, ExtendMembershipException,
-      VoNotExistsException {
+  public void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url,
+                                             String mailAttributeUrn, String language)
+      throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException,
+      NotificationMemberMailNotExistsException {
     Utils.checkPerunSession(sess);
+    getMembersManagerBl().checkMemberExists(sess, member);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "addMemberCandidates_Vo_List<MemberCandidate>_Group_policy", group)) {
-      throw new PrivilegeException(sess, "addMemberCandidates");
+    if (!AuthzResolver.authorizedInternal(sess,
+        "sendAccountActivationLinkEmail_Member_String_String_String_String_policy", member)) {
+      throw new PrivilegeException(sess, "sendAccountActivationLinkEmail");
     }
 
-    for (MemberCandidate candidate : candidates) {
-      if (candidate.getMember() != null) {
-        getPerunBl().getGroupsManager().addMember(sess, group, candidate.getMember());
-      } else if (candidate.getRichUser() != null) {
-        Member member = this.createMember(sess, vo, candidate.getRichUser(), List.of(group));
-        getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
-      } else if (candidate.getCandidate() != null) {
-        Member member = this.createMember(sess, vo, candidate.getCandidate(), List.of(group));
-        getPerunBl().getMembersManagerBl().validateMemberAsync(sess, member);
-      }
-    }
+    String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
+
+    getMembersManagerBl().sendAccountActivationLinkEmail(sess, member, namespace, url, mailAddress, language);
   }
 
-  /**
-   * Converts member to member with sponsors and sets all his sponsors.
-   *
-   * @param sess   perun session
-   * @param member sponsored member
-   * @return member with sponsors
-   */
-  private MemberWithSponsors convertMemberToMemberWithSponsors(PerunSession sess, RichMember member) {
-    MemberWithSponsors memberWithSponsors = new MemberWithSponsors(member);
+  @Override
+  public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url,
+                                         String mailAttributeUrn, String language)
+      throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException,
+      NotificationMemberMailNotExistsException {
 
-    List<Sponsor> sponsors = getPerunBl().getUsersManagerBl().getSponsors(sess, member).stream()
-        .map(user -> membersManagerBl.convertUserToSponsor(sess, user, member))
-        .collect(Collectors.toList());
-    memberWithSponsors.setSponsors(sponsors);
+    Utils.checkPerunSession(sess);
+    getMembersManagerBl().checkMemberExists(sess, member);
 
-    return memberWithSponsors;
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "sendPasswordResetLinkEmail_Member_String_String_String_String_policy",
+        member)) {
+      throw new PrivilegeException(sess, "sendPasswordResetLinkEmail");
+    }
+
+    String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
+    getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url, mailAddress, language);
   }
 
-  /**
-   * Converts members to members with sponsors and sets all corresponding sponsors.
-   *
-   * @param sess    perun session
-   * @param members sponsored members
-   * @param voId    id of the VO
-   * @return members with sponsors
-   */
-  private List<MemberWithSponsors> convertMembersToMembersWithSponsors(PerunSession sess, List<RichMember> members,
-                                                                       int voId) {
-    Map<Integer, List<Pair<User, Sponsorship>>> memberIdSponsorsMap = getPerunBl().getUsersManagerBl()
-        .getSponsorsForSponsoredMembersInVo(sess, voId);
-    List<MemberWithSponsors> membersWithSponsors = new ArrayList<>();
+  @Override
+  public void sendUsernameReminderEmail(PerunSession sess, Member member, String namespace, String mailAttributeUrn,
+                                        String language)
+      throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException,
+      NotificationMemberMailNotExistsException {
+    Utils.checkPerunSession(sess);
+    getMembersManagerBl().checkMemberExists(sess, member);
 
-    for (RichMember member : members) {
-      MemberWithSponsors memberWithSponsors = new MemberWithSponsors(member);
-      List<Pair<User, Sponsorship>> memberSponsorPairs = memberIdSponsorsMap.get(member.getId());
-      for (Pair<User, Sponsorship> sponsorPair : memberSponsorPairs) {
-        Sponsor sponsor = new Sponsor(sponsorPair.getLeft());
-        Sponsorship sponsorship = sponsorPair.getRight();
-        sponsor.setActive(sponsorship.isActive());
-        sponsor.setValidityTo(sponsorship.getValidityTo());
-        memberWithSponsors.addSponsor(sponsor);
-      }
-      membersWithSponsors.add(memberWithSponsors);
-    }
-    return membersWithSponsors;
-  }
-
-  /**
-   * Extract mail address from the given attribute and given member object.
-   *
-   * @param sess             Perun session
-   * @param member           Member object
-   * @param mailAttributeUrn URN of the attribute which should contain mail address. Assumes the attribute is of
-   *                         type string.
-   * @return Non-blank attribute value which is expected to be mail address
-   * @throws AttributeNotExistsException              If the attribute specified by mailAttributeUrn parameter does not exist
-   * @throws NotificationMemberMailNotExistsException If the attribute has empty or blank value
-   */
-  private String getMailAddressFromAttribute(PerunSession sess, Member member, String mailAttributeUrn)
-      throws AttributeNotExistsException, NotificationMemberMailNotExistsException {
-    //check if attribute exists, throws AttributeNotExistsException
-    Attribute mailAttribute = null;
-    AttributeDefinition ad = getPerunBl().getAttributesManager().getAttributeDefinition(sess, mailAttributeUrn);
-
-    try {
-      if (ad.getEntity().equals("user")) {
-        User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
-        mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, mailAttributeUrn);
-      }
-      if (ad.getEntity().equals("member")) {
-        mailAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, mailAttributeUrn);
-      }
-    } catch (WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "sendUsernameReminderEmail_Member_String_String_String_policy",
+        member)) {
+      throw new PrivilegeException(sess, "sendUsernameReminder");
     }
 
-    if (mailAttribute == null) {
-      throw new InternalErrorException("MailAttribute should not be null.");
-    }
-    String mailAddress = mailAttribute.valueAsString();
-    if (!StringUtils.hasText(mailAddress)) {
-      throw new NotificationMemberMailNotExistsException(
-          "Member " + member.getId() + " doesn't have the attribute " + mailAttributeUrn + " set."
-      );
-    }
-    return mailAddress;
-  }
-
-  /**
-   * Gets the membersManagerBl for this instance.
-   *
-   * @return The membersManagerBl.
-   */
-  public MembersManagerBl getMembersManagerBl() {
-    return this.membersManagerBl;
+    String mailAddress = getMailAddressFromAttribute(sess, member, mailAttributeUrn);
+    getMembersManagerBl().sendUsernameReminderEmail(sess, member, namespace, mailAddress, language);
   }
 
   /**
@@ -2154,10 +1934,6 @@ public class MembersManagerEntry implements MembersManager {
    */
   public void setMembersManagerBl(MembersManagerBl membersManagerBl) {
     this.membersManagerBl = membersManagerBl;
-  }
-
-  public PerunBl getPerunBl() {
-    return this.perunBl;
   }
 
   /**
@@ -2170,7 +1946,217 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public List<NamespaceRules> getAllNamespacesRules() {
-    return membersManagerBl.getAllNamespacesRules();
+  public RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace,
+                                       String password, String login, User sponsor, LocalDate validityTo)
+      throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
+      ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException,
+      WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException,
+      AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException {
+
+    Utils.checkPerunSession(session);
+    Utils.notNull(vo, "vo");
+    Utils.notNull(userToBeSponsored, "userToBeSponsored");
+
+    LOG.debug("setSponsoredMember(vo={},namespace='{}',displayName='{}',sponsor={}", vo.getShortName(), namespace,
+        userToBeSponsored.getFirstName() + " " + userToBeSponsored.getLastName(),
+        sponsor == null ? "null" : sponsor.getId());
+
+    if (sponsor == null) {
+      //sponsor is the caller, authorization is checked in Bl
+      //however still need to check for MFA for User object
+      if (!AuthzResolver.authorizedInternal(session,
+          "sponsoredUser-setSponsoredMember_Vo_User_String_String_User_LocalDate_policy", userToBeSponsored)) {
+        throw new PrivilegeException(session, "setSponsoredMember");
+      }
+      sponsor = session.getPerunPrincipal().getUser();
+    } else {
+      //Authorization and MFA
+      if (!AuthzResolver.authorizedInternal(session, "setSponsoredMember_Vo_User_String_String_User_LocalDate_policy",
+          vo, sponsor) || !AuthzResolver.authorizedInternal(session,
+          "sponsoredUser-setSponsoredMember_Vo_User_String_String_User_LocalDate_policy", userToBeSponsored)) {
+        throw new PrivilegeException(session, "setSponsoredMember");
+      }
+    }
+
+    var data = new SponsoredUserData();
+    data.setNamespace(namespace);
+    data.setPassword(password);
+    data.setLogin(login);
+
+    return membersManagerBl.getRichMember(session,
+        membersManagerBl.setSponsoredMember(session, data, vo, userToBeSponsored, sponsor, validityTo,
+            Validation.ASYNC));
+  }
+
+  @Override
+  public RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor,
+                                            LocalDate validityTo)
+      throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException,
+      AlreadySponsorException {
+    Utils.checkPerunSession(session);
+    getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
+
+    if (sponsor == null) {
+      //sponsor is the caller
+      sponsor = session.getPerunPrincipal().getUser();
+    }
+
+    Vo memberVo;
+    try {
+      memberVo = perunBl.getVosManagerBl().getVoById(session, sponsoredMember.getVoId());
+    } catch (VoNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+
+    //Authorization and MFA
+    if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_LocalDate_policy", memberVo,
+        sponsor) || !AuthzResolver.authorizedInternal(session,
+        "sponsoredMember-setSponsorshipForMember_Member_User_LocalDate_policy", sponsoredMember)) {
+      throw new PrivilegeException(session, "setSponsorshipForMember");
+    }
+
+    //set member to be sponsored
+    return membersManagerBl.getRichMember(session,
+        membersManagerBl.setSponsorshipForMember(session, sponsoredMember, sponsor, validityTo));
+  }
+
+  @Override
+  public Member setStatus(PerunSession sess, Member member, Status status)
+      throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException,
+      WrongReferenceAttributeValueException, MemberNotValidYetException, MemberLifecycleAlteringForbiddenException {
+    Utils.checkPerunSession(sess);
+
+    getMembersManagerBl().checkMemberExists(sess, member);
+    getMembersManagerBl().checkMemberLifecycleIsAlterable(sess, member);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_policy", member)) {
+      throw new PrivilegeException(sess, "setStatus");
+    }
+
+    return getMembersManagerBl().setStatus(sess, member, status);
+  }
+
+  @Override
+  public RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor, LocalDate validityTo)
+      throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
+    Utils.checkPerunSession(session);
+    Utils.notNull(sponsored, "sponsored");
+    Utils.notNull(sponsor, "sponsor");
+    LOG.debug("sponsorMember(sponsored={},sponsor={}", sponsored.getId(), sponsor.getId());
+
+    //Authorization
+    if (!AuthzResolver.authorizedInternal(session, "sponsored-sponsorMember_Member_User_LocalDate_policy", sponsored) ||
+        !AuthzResolver.authorizedInternal(session, "sponsor-sponsorMember_Member_User_LocalDate_policy", sponsor)) {
+      throw new PrivilegeException(session, "sponsorMember");
+    }
+    //create the link between sponsored and sponsoring users
+    return membersManagerBl.getRichMember(session,
+        membersManagerBl.sponsorMember(session, sponsored, sponsor, validityTo));
+  }
+
+  @Override
+  public void sponsorMembers(PerunSession session, List<Member> sponsored, User sponsor, LocalDate validityTo)
+      throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
+    for (Member member : sponsored) {
+      if (member.isSponsored()) {
+        sponsorMember(session, member, sponsor, validityTo);
+      } else {
+        try {
+          setSponsorshipForMember(session, member, sponsor, validityTo);
+        } catch (AlreadySponsoredMemberException | MemberNotExistsException ex) {
+          throw new InternalErrorException("Member should not be sponsored and should exist");
+        }
+      }
+    }
+  }
+
+  @Override
+  public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo)
+      throws MemberNotExistsException, PrivilegeException, BanAlreadyExistsException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(suspendedTo, "suspendedTo");
+
+    getMembersManagerBl().checkMemberExists(sess, member);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "suspendMemberTo_Member_Date_policy", member)) {
+      throw new PrivilegeException(sess, "suspendMemberTo");
+    }
+
+    membersManagerBl.suspendMemberTo(sess, member, suspendedTo);
+  }
+
+  @Override
+  public RichMember unsetSponsorshipForMember(PerunSession session, Member sponsoredMember)
+      throws MemberNotExistsException, MemberNotSponsoredException, PrivilegeException {
+    Utils.checkPerunSession(session);
+    getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
+
+    //Authorization
+    if (!AuthzResolver.authorizedInternal(session, "unsetSponsorshipForMember_Member_policy", sponsoredMember)) {
+      throw new PrivilegeException(session, "unsetSponsorshipForMember");
+    }
+
+    //unset sponsorship for member
+    return membersManagerBl.getRichMember(session,
+        membersManagerBl.unsetSponsorshipForMember(session, sponsoredMember));
+  }
+
+  @Override
+  public void unsuspendMember(PerunSession sess, Member member)
+      throws MemberNotExistsException, MemberNotSuspendedException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    getMembersManagerBl().checkMemberExists(sess, member);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "unsuspendMember_Member_policy", member)) {
+      throw new PrivilegeException(sess, "unsuspendMember");
+    }
+
+    membersManagerBl.unsuspendMember(sess, member);
+  }
+
+  @Override
+  public void updateSponsorshipValidity(PerunSession sess, Member sponsoredMember, User sponsor, LocalDate newValidity)
+      throws PrivilegeException, SponsorshipDoesNotExistException, MemberNotExistsException, UserNotExistsException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(sponsoredMember, "sponsoredMember");
+    Utils.notNull(sponsor, "sponsor");
+
+    perunBl.getMembersManagerBl().checkMemberExists(sess, sponsoredMember);
+    perunBl.getUsersManagerBl().checkUserExists(sess, sponsor);
+
+    Vo memberVo;
+    try {
+      memberVo = perunBl.getVosManagerBl().getVoById(sess, sponsoredMember.getVoId());
+    } catch (VoNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+
+    if (!AuthzResolver.authorizedInternal(sess, "updateSponsorshipValidity_Member_User_LocalDate", memberVo, sponsor) ||
+        !AuthzResolver.authorizedInternal(sess, "sponsoredMember-updateSponsorshipValidity_Member_User_LocalDate",
+            sponsoredMember)) {
+      throw new PrivilegeException("updateSponsorshipValidity");
+    }
+
+    membersManagerBl.updateSponsorshipValidity(sess, sponsoredMember, sponsor, newValidity);
+  }
+
+  @Override
+  public Member validateMemberAsync(PerunSession sess, Member member)
+      throws PrivilegeException, MemberNotExistsException {
+    Utils.checkPerunSession(sess);
+    getMembersManagerBl().checkMemberExists(sess, member);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "validateMemberAsync_Member_policy", member)) {
+      throw new PrivilegeException(sess, "validateMemberAsync");
+    }
+
+    getMembersManagerBl().validateMemberAsync(sess, member);
+
+    return member;
   }
 }

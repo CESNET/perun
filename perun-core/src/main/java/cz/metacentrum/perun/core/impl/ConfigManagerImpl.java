@@ -14,8 +14,18 @@ public class ConfigManagerImpl implements ConfigManagerImplApi {
   private PerunAppsConfigLoader perunAppsConfigLoader;
   private PerunOidcConfigLoader perunOidcConfigLoader;
 
+  public OidcConfig getPerunOidcConfig(String name)
+      throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
+    return perunOidcConfigContainer.getOidcConfig(name);
+  }
+
   public void initialize() {
     this.perunOidcConfigContainer.setOidcConfigs(perunOidcConfigLoader.loadPerunOidcConfigs());
+  }
+
+  @Override
+  public void reloadAppsConfig() {
+    perunAppsConfigLoader.initialize();
   }
 
   @Override
@@ -25,15 +35,5 @@ public class ConfigManagerImpl implements ConfigManagerImplApi {
 
   public void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader) {
     this.perunOidcConfigLoader = perunOidcConfigLoader;
-  }
-
-  @Override
-  public void reloadAppsConfig() {
-    perunAppsConfigLoader.initialize();
-  }
-
-  public OidcConfig getPerunOidcConfig(String name)
-      throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
-    return perunOidcConfigContainer.getOidcConfig(name);
   }
 }

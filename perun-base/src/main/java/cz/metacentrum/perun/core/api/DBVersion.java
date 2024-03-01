@@ -23,24 +23,25 @@ public class DBVersion implements Comparable<DBVersion> {
     this.version = version;
   }
 
-  public String getVersion() {
-    return version;
-  }
-
-  public List<String> getCommands() {
-    return commands;
-  }
-
-  public void setCommands(List<String> commands) {
-    this.commands = commands;
-  }
-
   @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
+  public int compareTo(DBVersion version) {
+    if (version == null) {
+      throw new InternalErrorException(new NullPointerException("DBVersion version"));
+    }
 
-    return str.append(getClass().getSimpleName()).append(":[version='")
-        .append(version).append("', commands='").append(commands).append("']").toString();
+    String[] thisSplitVersion = this.version.split("\\.");
+    String[] splitVersion = version.getVersion().split("\\.");
+
+    //each version should have three numbers split by dots
+    for (int n = 0; n < 3; n++) {
+      if (Integer.parseInt(thisSplitVersion[n]) > Integer.parseInt(splitVersion[n])) {
+        return 1;
+      }
+      if (Integer.parseInt(thisSplitVersion[n]) < Integer.parseInt(splitVersion[n])) {
+        return -1;
+      }
+    }
+    return 0;
   }
 
   @Override
@@ -61,29 +62,28 @@ public class DBVersion implements Comparable<DBVersion> {
     return true;
   }
 
+  public List<String> getCommands() {
+    return commands;
+  }
+
+  public void setCommands(List<String> commands) {
+    this.commands = commands;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
   @Override
   public int hashCode() {
     return version.hashCode();
   }
 
   @Override
-  public int compareTo(DBVersion version) {
-    if (version == null) {
-      throw new InternalErrorException(new NullPointerException("DBVersion version"));
-    }
+  public String toString() {
+    StringBuilder str = new StringBuilder();
 
-    String[] thisSplitVersion = this.version.split("\\.");
-    String[] splitVersion = version.getVersion().split("\\.");
-
-    //each version should have three numbers split by dots
-    for (int n = 0; n < 3; n++) {
-      if (Integer.parseInt(thisSplitVersion[n]) > Integer.parseInt(splitVersion[n])) {
-        return 1;
-      }
-      if (Integer.parseInt(thisSplitVersion[n]) < Integer.parseInt(splitVersion[n])) {
-        return -1;
-      }
-    }
-    return 0;
+    return str.append(getClass().getSimpleName()).append(":[version='").append(version).append("', commands='")
+        .append(commands).append("']").toString();
   }
 }
