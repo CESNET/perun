@@ -856,10 +856,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	public Optional<BanOnVo> getBanForMember(PerunSession sess, int memberId) {
-		try {
-			return Optional.of(vosManagerImpl.getBanForMember(sess, memberId));
-		} catch (BanNotExistsException e) {
+		BanOnVo ban = vosManagerImpl.getBanForMember(sess, memberId);
+		if (ban == null) {
 			return Optional.empty();
+		} else {
+			return Optional.of(ban);
 		}
 	}
 
@@ -902,6 +903,9 @@ public class VosManagerBlImpl implements VosManagerBl {
 	@Override
 	public void removeBanForMember(PerunSession sess, int memberId) throws BanNotExistsException {
 		BanOnVo ban = vosManagerImpl.getBanForMember(sess, memberId);
+		if (ban == null)  {
+			throw new BanNotExistsException("Ban for member with id " + memberId + " does not exist.");
+		}
 		removeBan(sess, ban.getId());
 	}
 
