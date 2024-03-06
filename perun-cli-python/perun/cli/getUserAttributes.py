@@ -25,9 +25,9 @@ def main(user_id: int = typer.Option(3197, "-u", "--user_id", help="user ID")) -
         )
         console.print(table)
         # print user attributes
-        user_attributes: list[
-            Attribute
-        ] = perun.cli.rpc.attributes_manager.get_user_attributes(user_id)
+        user_attributes: list[Attribute] = (
+            perun.cli.rpc.attributes_manager.get_user_attributes(user_id)
+        )
         if user_attributes:
             table = Table(title="user attributes")
             table.add_column("namespace")
