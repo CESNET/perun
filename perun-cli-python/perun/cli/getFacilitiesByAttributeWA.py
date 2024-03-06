@@ -33,10 +33,10 @@ def main(
     attr_names = attr_names.split(",")
     try:
         console = Console()
-        facilitiesWithAttributes: list[
-            FacilityWithAttributes
-        ] = rpc.facilities_manager.get_facilities_by_attribute_with_attributes(
-            attr_name, attr_value, attr_names
+        facilitiesWithAttributes: list[FacilityWithAttributes] = (
+            rpc.facilities_manager.get_facilities_by_attribute_with_attributes(
+                attr_name, attr_value, attr_names
+            )
         )
         table = Table(title="facilities")
         table.add_column("id", justify="right")
