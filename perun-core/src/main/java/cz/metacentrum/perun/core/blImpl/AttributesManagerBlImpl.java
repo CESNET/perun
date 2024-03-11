@@ -119,6 +119,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribut
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAffiliationRegex;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupSynchronizationFilename;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
@@ -7635,6 +7636,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Lightweight Synchronization");
 		attr.setDescription("If true, then do not update actual members.");
 		//set attribute rights (with dummy id of attribute - not known yet)
+		policies = new ArrayList<>();
+		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+		policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+		attributes.put(attr, createInitialPolicyCollections(policies));
+
+		//urn:perun:group:attribute-def:def:groupSynchronizationFilename
+		attr = new urn_perun_group_attribute_def_def_groupSynchronizationFilename().getAttributeDefinition();
 		policies = new ArrayList<>();
 		policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
 		policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));

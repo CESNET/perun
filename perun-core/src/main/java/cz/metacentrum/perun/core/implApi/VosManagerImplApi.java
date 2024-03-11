@@ -249,14 +249,13 @@ public interface VosManagerImplApi {
 	BanOnVo getBanById(PerunSession sess, int banId) throws BanNotExistsException;
 
 	/**
-	 * Get ban for given member.
+	 * Get ban for given member or NULL if there is no ban.
 	 *
 	 * @param sess session
 	 * @param memberId member id
-	 * @return ban object
-	 * @throws BanNotExistsException if there is no ban for member with given id
+	 * @return ban object or NULL
 	 */
-	BanOnVo getBanForMember(PerunSession sess, int memberId) throws BanNotExistsException;
+	BanOnVo getBanForMember(PerunSession sess, int memberId);
 
 	/**
 	 * Get list of all bans for vo with given id.

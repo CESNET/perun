@@ -445,12 +445,12 @@ public class VosManagerImpl implements VosManagerImplApi {
 	}
 
 	@Override
-	public BanOnVo getBanForMember(PerunSession sess, int memberId) throws BanNotExistsException {
+	public BanOnVo getBanForMember(PerunSession sess, int memberId) {
 		try {
 			return jdbc.queryForObject("select " + banOnVoMappingSelectQuery + " from vos_bans where member_id=? ",
     			BAN_ON_VO_MAPPER, memberId);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new BanNotExistsException("Ban for member with id " + memberId + " does not exist.");
+			return null;
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

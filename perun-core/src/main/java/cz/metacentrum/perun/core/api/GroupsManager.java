@@ -91,6 +91,8 @@ public interface GroupsManager {
 	// Defines timestamp with start of last synchronization
 	String GROUP_START_OF_LAST_SYNC_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":startOfLastSynchronization";
 	String GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules";
+	String GROUP_SYNCHRONIZATION_FILE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupSynchronizationFilename";
+	// Defines filename attribute used in combination with directory config option in synchronizations
 
 	String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_]+(?: *[-a-zA-Z.0-9_]+)*$";
 	String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
