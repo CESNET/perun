@@ -1,5 +1,26 @@
 Upgrade notes
 
+## [34.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.2.0...v34.3.0) (2024-03-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** Existing Metacentrum IdP UES entries should be removed from all users.
+
+### Features
+
+* **core:** new extSource type JSON ([113ec07](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/113ec07fcc2e9586cd4d10b447290eac1ca70f08))
+
+
+### Bug Fixes
+
+* **core:** limit throwing BanNotExistsException ([598d728](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/598d7285cf572e706b858c4a8ae691b4724917f4))
+
+
+### Refactoring
+
+* **core:** do not generate metacentrum idp identity ([aac6d21](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/aac6d21e00705ae7d7db301dc49ce66c4cab91c5))
+
 ## [34.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.1.1...v34.2.0) (2024-03-01)
 
 

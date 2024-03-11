@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 34.2.0
+  version: 34.3.0
   title: Perun RPC API
   description: Perun Remote Procedure Calls Application Programming Interface
   contact:
