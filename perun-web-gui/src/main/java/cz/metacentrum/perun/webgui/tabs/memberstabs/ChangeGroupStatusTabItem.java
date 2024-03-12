@@ -35,197 +35,214 @@ import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
  */
 public class ChangeGroupStatusTabItem implements TabItem {
 
-	private RichMember member;
-	private int memberId;
-	private PerunWebSession session = PerunWebSession.getInstance();
-	private SimplePanel contentWidget = new SimplePanel();
-	private Label titleWidget = new Label("Loading member");
-	TabPanelForTabItems tabPanel;
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private int groupId;
+  TabPanelForTabItems tabPanel;
+  private RichMember member;
+  private int memberId;
+  private PerunWebSession session = PerunWebSession.getInstance();
+  private SimplePanel contentWidget = new SimplePanel();
+  private Label titleWidget = new Label("Loading member");
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private int groupId;
 
-	/**
-	 * Constructor
-	 *
-	 * @param member RichMember object, typically from table
-	 * @param groupId ID of group to change status in
-	 * @param events Events triggered when status is changed
-	 */
-	public ChangeGroupStatusTabItem(RichMember member, int groupId, JsonCallbackEvents events){
-		this.member = member;
-		this.memberId = member.getId();
-		this.events = events;
-		this.groupId = groupId;
-		this.tabPanel = new TabPanelForTabItems(this);
-	}
+  /**
+   * Constructor
+   *
+   * @param member  RichMember object, typically from table
+   * @param groupId ID of group to change status in
+   * @param events  Events triggered when status is changed
+   */
+  public ChangeGroupStatusTabItem(RichMember member, int groupId, JsonCallbackEvents events) {
+    this.member = member;
+    this.memberId = member.getId();
+    this.events = events;
+    this.groupId = groupId;
+    this.tabPanel = new TabPanelForTabItems(this);
+  }
 
-	public boolean isPrepared(){
-		return !(member == null);
-	}
+  public boolean isPrepared() {
+    return !(member == null);
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public void onClose() {
 
-	}
+  }
 
-	public Widget draw() {
+  public Widget draw() {
 
-		this.titleWidget.setText("Change group member status");
+    this.titleWidget.setText("Change group member status");
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("300px", "100%");
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("300px", "100%");
 
-		FlexTable layout = new FlexTable();
-		layout.setSize("100%","100%");
+    FlexTable layout = new FlexTable();
+    layout.setSize("100%", "100%");
 
-		layout.setStyleName("inputFormFlexTable");
+    layout.setStyleName("inputFormFlexTable");
 
-		final HTML text = new HTML("");
-		final ListBox lb = new ListBox(false);
-		lb.addItem("VALID", "VALID");
-		lb.addItem("EXPIRED", "EXPIRED");
+    final HTML text = new HTML("");
+    final ListBox lb = new ListBox(false);
+    lb.addItem("VALID", "VALID");
+    lb.addItem("EXPIRED", "EXPIRED");
 
-		layout.setHTML(0, 0, "Current status:");
-		layout.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-		layout.setHTML(0, 1, SafeHtmlUtils.fromString(member.getGroupStatus()).asString());
+    layout.setHTML(0, 0, "Current status:");
+    layout.getFlexCellFormatter().setStyleName(0, 0, "itemName");
+    layout.setHTML(0, 1, SafeHtmlUtils.fromString(member.getGroupStatus()).asString());
 
-		if (member.getGroupStatus().equalsIgnoreCase("VALID")) {
-			layout.setHTML(1, 0, "Member is properly configured and have access on provided resources.");
-		} else if (member.getGroupStatus().equalsIgnoreCase("EXPIRED")) {
-			layout.setHTML(1, 0, "Member didn't extend membership and DON'T have access on provided resources.");
-		}
-		layout.getFlexCellFormatter().setColSpan(1, 0, 2);
-		layout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+    if (member.getGroupStatus().equalsIgnoreCase("VALID")) {
+      layout.setHTML(1, 0, "Member is properly configured and have access on provided resources.");
+    } else if (member.getGroupStatus().equalsIgnoreCase("EXPIRED")) {
+      layout.setHTML(1, 0, "Member didn't extend membership and DON'T have access on provided resources.");
+    }
+    layout.getFlexCellFormatter().setColSpan(1, 0, 2);
+    layout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
 
-		layout.setHTML(2, 0, "New status:");
-		layout.getFlexCellFormatter().setStyleName(2, 0, "itemName");
-		layout.setWidget(2, 1, lb);
+    layout.setHTML(2, 0, "New status:");
+    layout.getFlexCellFormatter().setStyleName(2, 0, "itemName");
+    layout.setWidget(2, 1, lb);
 
-		layout.setWidget(3, 0, text);
-		layout.getFlexCellFormatter().setColSpan(3, 0, 2);
-		layout.getFlexCellFormatter().setStyleName(3, 0, "inputFormInlineComment");
+    layout.setWidget(3, 0, text);
+    layout.getFlexCellFormatter().setColSpan(3, 0, 2);
+    layout.getFlexCellFormatter().setStyleName(3, 0, "inputFormInlineComment");
 
-		// pick which one is already set
-		for (int i=0; i<lb.getItemCount(); i++) {
-			if (lb.getItemText(i).equalsIgnoreCase(member.getGroupStatus())) {
-				lb.setSelectedIndex(i);
-			}
-		}
+    // pick which one is already set
+    for (int i = 0; i < lb.getItemCount(); i++) {
+      if (lb.getItemText(i).equalsIgnoreCase(member.getGroupStatus())) {
+        lb.setSelectedIndex(i);
+      }
+    }
 
-		TabMenu menu = new TabMenu();
-		final TabItem tab = this;
+    TabMenu menu = new TabMenu();
+    final TabItem tab = this;
 
-		final CustomButton changeButton = new CustomButton("Change group status", ButtonTranslation.INSTANCE.changeStatus(member.getUser().getFullName()), SmallIcons.INSTANCE.diskIcon());
-		changeButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				SetGroupsMemberStatus request = new SetGroupsMemberStatus(groupId, memberId, JsonCallbackEvents.disableButtonEvents(changeButton, JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents(){
-					@Override
-					public void onFinished(JavaScriptObject jso) {
-						// close without refresh
-						session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-					}
-				})));
-				request.setStatus(lb.getValue(lb.getSelectedIndex()));
-			}
-		});
-		menu.addWidget(changeButton);
+    final CustomButton changeButton =
+        new CustomButton("Change group status", ButtonTranslation.INSTANCE.changeStatus(member.getUser().getFullName()),
+            SmallIcons.INSTANCE.diskIcon());
+    changeButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        SetGroupsMemberStatus request = new SetGroupsMemberStatus(groupId, memberId,
+            JsonCallbackEvents.disableButtonEvents(changeButton,
+                JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    // close without refresh
+                    session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+                  }
+                })));
+        request.setStatus(lb.getValue(lb.getSelectedIndex()));
+      }
+    });
+    menu.addWidget(changeButton);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, ButtonTranslation.INSTANCE.cancelButton(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    menu.addWidget(
+        TabMenu.getPredefinedButton(ButtonType.CANCEL, ButtonTranslation.INSTANCE.cancelButton(), new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+          }
+        }));
 
-		// listbox change handler
-		lb.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent changeEvent) {
+    // listbox change handler
+    lb.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent changeEvent) {
 
-				// clear
-				text.setHTML("");
+        // clear
+        text.setHTML("");
 
-				if (lb.getSelectedIndex() == 0) {
-					// VALIDATING NOTICE
-					if (!member.getGroupStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to VALID will give member access on provided resources.<br /><br />");
-				} else {
-					// INVALIDATING NOTICE
-					if (member.getGroupStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to "+lb.getValue(lb.getSelectedIndex())+" will <strong>prevent member from access to provided resources (based on provided service's rules)</strong>.<br /><br />");
-				}
+        if (lb.getSelectedIndex() == 0) {
+          // VALIDATING NOTICE
+          if (!member.getGroupStatus().equalsIgnoreCase("VALID")) {
+            text.setHTML("Changing status to VALID will give member access on provided resources.<br /><br />");
+          }
+        } else {
+          // INVALIDATING NOTICE
+          if (member.getGroupStatus().equalsIgnoreCase("VALID")) {
+            text.setHTML(
+                "Changing status to " + lb.getValue(lb.getSelectedIndex()) +
+                    " will <strong>prevent member from access to provided resources (based on provided service's rules)</strong>.<br /><br />");
+          }
+        }
 
-				// SET INFO
-				if (lb.getSelectedIndex() == 1) {
-					text.setHTML(text.getHTML()+"EXPIRED status means, that member didn't extend his membership in Group, but it's still possible for him to do so.");
-				}
+        // SET INFO
+        if (lb.getSelectedIndex() == 1) {
+          text.setHTML(text.getHTML() +
+              "EXPIRED status means, that member didn't extend his membership in Group, but it's still possible for him to do so.");
+        }
 
-			}
-		});
+      }
+    });
 
-		vp.add(layout);
-		vp.add(menu);
-		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+    vp.add(layout);
+    vp.add(menu);
+    vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-		this.contentWidget.setWidget(vp);
+    this.contentWidget.setWidget(vp);
 
-		return getWidget();
+    return getWidget();
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGreenIcon();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.userGreenIcon();
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 13487;
-		int result = 1;
-		result = prime * result + memberId;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 13487;
+    int result = 1;
+    result = prime * result + memberId;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ChangeGroupStatusTabItem other = (ChangeGroupStatusTabItem) obj;
-		if (memberId != other.memberId)
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ChangeGroupStatusTabItem other = (ChangeGroupStatusTabItem) obj;
+    if (memberId != other.memberId) {
+      return false;
+    }
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open() { }
+  public void open() {
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
 }

@@ -1,58 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-	<!-- Use in initialize script -->
-	<!-- -Dperun.conf.custom=/etc/perun/filename -->
-	<context:property-placeholder
-			ignore-resource-not-found="true" ignore-unresolvable="true"
-			location="@perun.jdbc@, file:${perun.conf.custom}jdbc.properties"/>
+    <!-- Use in initialize script -->
+    <!-- -Dperun.conf.custom=/etc/perun/filename -->
+    <context:property-placeholder
+            ignore-resource-not-found="true" ignore-unresolvable="true"
+            location="@perun.jdbc@, file:${perun.conf.custom}jdbc.properties"/>
 
-	<import resource="classpath:perun-core.xml"/>
+    <import resource="classpath:perun-core.xml"/>
 
-	<!-- Enable @AspectJ support -->
-	<aop:aspectj-autoproxy/>
+    <!-- Enable @AspectJ support -->
+    <aop:aspectj-autoproxy/>
 
-	<!-- Scans for @Repository, @Service and @Component -->
-	<context:component-scan base-package="cz.metacentrum.perun.auditlogger"/>
-	<context:annotation-config/>
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="cz.metacentrum.perun.auditlogger"/>
+    <context:annotation-config/>
 
-	<bean id="defaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="auditlogger.consumer">auditlogger</prop>
-				<prop key="auditlogger.statefile">./perun-auditlogger-last-state</prop>
-			</props>
-		</property>
-	</bean>
+    <bean id="defaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="auditlogger.consumer">auditlogger</prop>
+                <prop key="auditlogger.statefile">./perun-auditlogger-last-state</prop>
+            </props>
+        </property>
+    </bean>
 
-	<!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
-	<beans profile="production">
-		<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="defaultProperties"/>
-			<property name="locations">
-				<list>
-					<!--suppress SpringModelInspection -->
-					<value>file:@perun.conf@perun-auditlogger.properties</value>
-					<value>file:${perun.conf.custom}perun-auditlogger.properties</value>
-				</list>
-			</property>
-			<property name="ignoreResourceNotFound" value="true"/>
-		</bean>
-	</beans>
+    <!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
+    <beans profile="production">
+        <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties" ref="defaultProperties"/>
+            <property name="locations">
+                <list>
+                    <!--suppress SpringModelInspection -->
+                    <value>file:@perun.conf@perun-auditlogger.properties</value>
+                    <value>file:${perun.conf.custom}perun-auditlogger.properties</value>
+                </list>
+            </property>
+            <property name="ignoreResourceNotFound" value="true"/>
+        </bean>
+    </beans>
 
-	<!-- active in Spring profile "default", packs just default properties as a bean -->
-	<beans profile="default">
-		<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="defaultProperties"/>
-		</bean>
-	</beans>
+    <!-- active in Spring profile "default", packs just default properties as a bean -->
+    <beans profile="default">
+        <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties" ref="defaultProperties"/>
+        </bean>
+    </beans>
 </beans>

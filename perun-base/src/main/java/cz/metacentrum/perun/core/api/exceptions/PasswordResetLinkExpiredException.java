@@ -7,15 +7,15 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class PasswordResetLinkExpiredException extends PerunException {
 
-	public PasswordResetLinkExpiredException(String message) {
-		super(message);
-	}
+  public PasswordResetLinkExpiredException(String message) {
+    super(message);
+  }
 
-	public PasswordResetLinkExpiredException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public PasswordResetLinkExpiredException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public PasswordResetLinkExpiredException(Throwable cause) {
-		super(cause);
-	}
+  public PasswordResetLinkExpiredException(Throwable cause) {
+    super(cause);
+  }
 }

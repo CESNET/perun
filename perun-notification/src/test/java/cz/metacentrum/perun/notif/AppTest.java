@@ -1,284 +1,312 @@
 package cz.metacentrum.perun.notif;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.notif.entities.*;
+import cz.metacentrum.perun.notif.entities.PerunNotifObject;
+import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
+import cz.metacentrum.perun.notif.entities.PerunNotifRegex;
+import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
+import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
 import cz.metacentrum.perun.notif.enums.PerunNotifNotifyTrigger;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static org.junit.Assert.*;
 
 /**
  * Unit test for simple App.
  */
 public class AppTest extends AbstractTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(AppTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppTest.class);
 
-	private int userId;
-	private int memberId;
-	private int voId;
+  private int userId;
+  private int memberId;
+  private int voId;
 
-	@Test
-	public void testNotificationListener() throws Exception {
-		prepareData();
+  private void prepareData() throws PerunException {
+    // user
+    User user = new User();
+    user.setFirstName("John");
+    user.setMiddleName("");
+    user.setLastName("Smith");
+    user.setTitleBefore("");
+    user.setTitleAfter("");
+    User newUser = perun.getUsersManagerBl().createUser(sess, user);
+    userId = newUser.getId();
 
-		schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId + ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] created.");
-		schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId + ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] validated.");
+    // vo
+    Vo vo = new Vo(0, "NotifTestVo", "NTestVo");
+    Vo newVo = perun.getVosManager().createVo(sess, vo);
+    voId = newVo.getId();
 
-		schedulingManager.doNotification();
+    // member
+    Member member = perun.getMembersManagerBl().createMember(sess, newVo, newUser);
+    memberId = member.getId();
 
-		int i = 0;
-		boolean doWait = true;
-		while (doWait) {
-			if (smtpServer.getReceivedEmailSize() < 0) {
-				if (i < 15) {
-					try {
-						Thread.sleep(1000);
-					} catch (Exception ex) {
-						logger.error("Error during sleep.", ex);
-					}
-				} else {
-					doWait = false;
-				}
-			} else {
-				doWait = false;
-			}
-			i++;
-		}
+    // attribute preferred laguage
+    AttributeDefinition attrDef = perun.getAttributesManagerBl()
+        .getAttributeDefinition(sess, "urn:perun:user:attribute-def:def:preferredLanguage");
+    Attribute attr = new Attribute(attrDef);
+    attr.setValue("cs");
+    System.out.println("attribute: " + perun.getAttributesManagerBl()
+        .getAttribute(sess, user, "urn:perun:user:attribute-def:def:preferredLanguage"));
+    perun.getAttributesManagerBl().setAttribute(sess, user, attr);
 
-		if (smtpServer.getReceivedEmailSize() > 0) {
+    // template
+    PerunNotifTemplate template = new PerunNotifTemplate();
+    Map<String, List<String>> properties = new HashMap<>();
+    properties.put("cz.metacentrum.perun.core.api.Member", new ArrayList<>(Arrays.asList("getId()", "getUserId()")));
+    properties.put("METHOD", new ArrayList<>(Arrays.asList(
+        "getAttributesManagerBl().getAttribute(cz.metacentrum.perun.core.api.PerunSession, getUsersManagerBl()" +
+        ".getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member), " +
+        "\"urn:perun:user:attribute-def:def:preferredLanguage\").getValue().equals(\"en\")",
+        "getUsersManagerBl().getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core" +
+        ".api.Member).getId()",
+        "getAttributesManagerBl().getAttribute(cz.metacentrum.perun.core.api.PerunSession, getUsersManagerBl()" +
+        ".getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member), " +
+        "\"urn:perun:user:attribute-def:def:preferredLanguage\").getValue().equals(\"cs\")")));
+    template.setPrimaryProperties(properties);
+    template.setNotifyTrigger(PerunNotifNotifyTrigger.ALL_REGEX_IDS);
+    template.setYoungestMessageTime(10L);
+    template.setOldestMessageTime(20L);
+    template.setSender("noreply@meta.cz");
 
-		} else {
-			fail("Email not received.");
-		}
-	}
+    // regex for creation
+    PerunNotifRegex regexC = new PerunNotifRegex();
+    regexC.setNote("Member created");
+    regexC.setRegex("Member:.* created\\.");
+    PerunNotifRegex newRegexC = manager.createPerunNotifRegex(sess, regexC);
+    template.addPerunNotifRegex(newRegexC);
 
-	@Test
-	public void testPerunNotifNotificationManager() throws PerunException {
+    // regex for validation
+    PerunNotifRegex regexV = new PerunNotifRegex();
+    regexV.setNote("Member validated");
+    regexV.setRegex("Member:.* validated\\.");
+    PerunNotifRegex newRegexV = manager.createPerunNotifRegex(sess, regexV);
+    template.addPerunNotifRegex(newRegexV);
 
-		PerunNotifTemplate template = new PerunNotifTemplate();
-		template.setNotifyTrigger(PerunNotifNotifyTrigger.STREAM);
-		template.setOldestMessageTime(1L);
-		Map<String, List<String>> primaryProperties = new HashMap<String, List<String>>();
-		List<String> testProperty = new ArrayList<String>();
-		testProperty.add("property1");
-		primaryProperties.put("prop1", testProperty);
-		template.setPrimaryProperties(primaryProperties);
-		template.setYoungestMessageTime(0L);
-		template.setSender("sender");
+    // template message english
+    PerunNotifTemplateMessage messageEn = new PerunNotifTemplateMessage();
+    messageEn.setMessage("Good day," + "thank you for Your registration to virtual organization MetaCentrum VO," +
+                         "activity MetaCentrum association CESNET, which focuses on sophisticated computation." +
+                         "Name: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() + "\"][\"Member\"]).getFirstName()}<br/>" +
+                         "Surname: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() + "\"][\"Member\"]).getLastName()}<br/>" +
+                         "Accounts are valid on machines till $membershipExpiration");
+    messageEn.setLocale(Locale.forLanguageTag("en"));
+    messageEn.setSubject("Subject");
+    template.addPerunNotifTemplateMessage(messageEn);
 
-		manager.createPerunNotifTemplate(sess, template);
+    // template message czech
+    PerunNotifTemplateMessage messageCs = new PerunNotifTemplateMessage();
+    messageCs.setMessage("Dobrý den,\n" + "  děkujeme za Vaši registraci do virtualni organizace MetaCentrum VO,\n" +
+                         "aktivity MetaCentrum sdružení CESNET, zaměřené na náročné výpočty.\n" +
+                         "  Váš účet je nyní propagován na všechny servery, plně funkční bude\n" + "během hodiny.\n" +
+                         "  Jméno: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() + "\"][\"Member\"]).getFirstName()}<br/>\n" +
+                         "  Přijmení: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() + "\"][\"Member\"]).getLastName()}<br/>\n" +
+                         "Jazyk: ${perun.getAttributesManagerBl().getAttribute(perunSession, perun.getUsersManagerBl" +
+                         "().getUserByMember(perunSession, retrievedObjects[\"" +
+                         newRegexC.getId() +
+                         "\"][\"Member\"]), \"urn:perun:user:attribute-def:def:preferredLanguage\").getValue()}");
+    messageCs.setLocale(Locale.forLanguageTag("cs"));
+    messageCs.setSubject("Subject");
+    template.addPerunNotifTemplateMessage(messageCs);
 
-		PerunNotifTemplate templateFromDb = manager.getPerunNotifTemplateById(sess, template.getId());
-		assertNotNull(templateFromDb);
-		assertEquals(template, templateFromDb);
-		assertEquals(template.getNotifyTrigger(), templateFromDb.getNotifyTrigger());
-		assertEquals(template.getOldestMessageTime(), templateFromDb.getOldestMessageTime());
-		assertEquals(template.getPrimaryProperties(), templateFromDb.getPrimaryProperties());
-		assertEquals(template.getYoungestMessageTime(), templateFromDb.getYoungestMessageTime());
-		assertEquals(template.getSender(), templateFromDb.getSender());
+    // receiver
+    PerunNotifReceiver receiver = new PerunNotifReceiver();
+    receiver.setLocale("cs");
+    receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
+    receiver.setTarget("cz.metacentrum.perun.core.api.Member.getUserId");
+    template.setReceivers(new ArrayList<>(Arrays.asList(receiver)));
 
-		PerunNotifObject object = new PerunNotifObject();
-		object.setName("testName");
-		Set<String> properties = new HashSet<String>();
-		properties.add("testProperty");
-		object.setProperties(properties);
-		object.setObjectClass(Member.class);
-		manager.createPerunNotifObject(object);
+    manager.createPerunNotifTemplate(sess, template);
 
-		PerunNotifObject objectFromDb = manager.getPerunNotifObjectById(object.getId());
-		assertNotNull(objectFromDb);
-		assertEquals(object, objectFromDb);
-		assertEquals(object.getObjectClass(), objectFromDb.getObjectClass());
-		assertEquals(object.getName(), objectFromDb.getName());
-		assertEquals(object.getProperties(), objectFromDb.getProperties());
+  }
 
-		PerunNotifRegex regex = new PerunNotifRegex();
-		regex.setNote("note");
-		regex.setRegex("regex");
-		Set<PerunNotifObject> regexObjects = new HashSet<PerunNotifObject>();
-		regexObjects.add(objectFromDb);
-		regex.setObjects(regexObjects);
-		manager.createPerunNotifRegex(sess, regex);
+  @Test
+  public void testNotificationListener() throws Exception {
+    prepareData();
 
-		PerunNotifRegex regexFromDb = manager.getPerunNotifRegexById(sess, regex.getId());
-		assertNotNull(regexFromDb);
-		assertEquals(regex, regexFromDb);
-		assertEquals(regex.getNote(), regexFromDb.getNote());
-		assertEquals(regex.getRegex(), regexFromDb.getRegex());
-		assertEquals(regex.getObjects(), regexFromDb.getObjects());
+    schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId +
+                                               ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] created.");
+    schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId +
+                                               ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] validated.");
 
-		PerunNotifReceiver receiver = new PerunNotifReceiver();
-		receiver.setTarget("target");
-		receiver.setTemplateId(template.getId());
-		receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
-		receiver.setLocale("cs");
+    schedulingManager.doNotification();
 
-		manager.createPerunNotifReceiver(sess, receiver);
-		PerunNotifReceiver receiverFromDb = manager.getPerunNotifReceiverById(sess, receiver.getId());
-		assertNotNull(receiverFromDb);
-		assertEquals(receiver, receiverFromDb);
-		assertEquals(receiver.getTemplateId(), receiverFromDb.getTemplateId());
-		assertEquals(receiver.getTarget(), receiverFromDb.getTarget());
-		assertEquals(receiver.getTypeOfReceiver(), receiverFromDb.getTypeOfReceiver());
+    int i = 0;
+    boolean doWait = true;
+    while (doWait) {
+      if (smtpServer.getReceivedEmailSize() < 0) {
+        if (i < 15) {
+          try {
+            Thread.sleep(1000);
+          } catch (Exception ex) {
+            LOGGER.error("Error during sleep.", ex);
+          }
+        } else {
+          doWait = false;
+        }
+      } else {
+        doWait = false;
+      }
+      i++;
+    }
 
-		PerunNotifTemplateMessage templateMessage = new PerunNotifTemplateMessage();
-		templateMessage.setLocale(new Locale("cs"));
-		templateMessage.setMessage("message");
-		templateMessage.setTemplateId(template.getId());
-		templateMessage.setSubject("cesky subject");
+    if (smtpServer.getReceivedEmailSize() > 0) {
+      // do something
+    } else {
+      fail("Email not received.");
+    }
+  }
 
-		manager.createPerunNotifTemplateMessage(sess, templateMessage);
-		PerunNotifTemplateMessage templateMessageFromDb = manager.getPerunNotifTemplateMessageById(sess, templateMessage.getId());
-		assertNotNull(templateMessageFromDb);
-		assertEquals(templateMessage, templateMessageFromDb);
-		assertEquals(templateMessage.getMessage(), templateMessageFromDb.getMessage());
-		assertEquals(templateMessage.getTemplateId(), templateMessageFromDb.getTemplateId());
-		assertEquals(templateMessage.getLocale(), templateMessageFromDb.getLocale());
-		assertEquals(templateMessage.getSubject(), templateMessageFromDb.getSubject());
+  @Test
+  public void testPerunNotifNotificationManager() throws PerunException {
 
-		templateFromDb = manager.getPerunNotifTemplateById(sess, templateFromDb.getId());
-		templateFromDb.addPerunNotifRegex(regex);
-		templateFromDb = manager.updatePerunNotifTemplate(sess, templateFromDb);
+    PerunNotifTemplate template = new PerunNotifTemplate();
+    template.setNotifyTrigger(PerunNotifNotifyTrigger.STREAM);
+    template.setOldestMessageTime(1L);
+    Map<String, List<String>> primaryProperties = new HashMap<String, List<String>>();
+    List<String> testProperty = new ArrayList<String>();
+    testProperty.add("property1");
+    primaryProperties.put("prop1", testProperty);
+    template.setPrimaryProperties(primaryProperties);
+    template.setYoungestMessageTime(0L);
+    template.setSender("sender");
 
-		//Test for complete load of template
-		PerunNotifTemplate templateFromDbForTest = manager.getPerunNotifTemplateById(sess, template.getId());
+    manager.createPerunNotifTemplate(sess, template);
 
-		assertNotNull(templateFromDbForTest.getPerunNotifTemplateMessages());
-		assertNotNull(templateFromDbForTest.getMatchingRegexs());
-		assertNotNull(templateFromDbForTest.getOldestMessageTime());
-		assertNotNull(templateFromDbForTest.getYoungestMessageTime());
-		assertNotNull(templateFromDbForTest.getNotifyTrigger());
-		assertNotNull(templateFromDbForTest.getPrimaryProperties());
-		assertNotNull(templateFromDbForTest.getReceivers());
-		assertNotNull(templateFromDbForTest.getSerializedPrimaryProperties());
+    PerunNotifTemplate templateFromDb = manager.getPerunNotifTemplateById(sess, template.getId());
+    assertNotNull(templateFromDb);
+    assertEquals(template, templateFromDb);
+    assertEquals(template.getNotifyTrigger(), templateFromDb.getNotifyTrigger());
+    assertEquals(template.getOldestMessageTime(), templateFromDb.getOldestMessageTime());
+    assertEquals(template.getPrimaryProperties(), templateFromDb.getPrimaryProperties());
+    assertEquals(template.getYoungestMessageTime(), templateFromDb.getYoungestMessageTime());
+    assertEquals(template.getSender(), templateFromDb.getSender());
 
-		assertTrue(templateFromDbForTest.getReceivers().contains(receiver));
-		assertTrue(templateFromDbForTest.getMatchingRegexs().contains(regex));
-		assertTrue(templateFromDbForTest.getPerunNotifTemplateMessages().contains(templateMessage));
+    PerunNotifObject object = new PerunNotifObject();
+    object.setName("testName");
+    Set<String> properties = new HashSet<String>();
+    properties.add("testProperty");
+    object.setProperties(properties);
+    object.setObjectClass(Member.class);
+    manager.createPerunNotifObject(object);
 
-		manager.removePerunNotifTemplateMessage(sess, templateMessage.getId());
-		assertNull(manager.getPerunNotifTemplateMessageById(sess, templateMessage.getId()));
+    PerunNotifObject objectFromDb = manager.getPerunNotifObjectById(object.getId());
+    assertNotNull(objectFromDb);
+    assertEquals(object, objectFromDb);
+    assertEquals(object.getObjectClass(), objectFromDb.getObjectClass());
+    assertEquals(object.getName(), objectFromDb.getName());
+    assertEquals(object.getProperties(), objectFromDb.getProperties());
 
-		manager.removePerunNotifReceiverById(sess, receiver.getId());
-		assertNull(manager.getPerunNotifReceiverById(sess, receiver.getId()));
+    PerunNotifRegex regex = new PerunNotifRegex();
+    regex.setNote("note");
+    regex.setRegex("regex");
+    Set<PerunNotifObject> regexObjects = new HashSet<PerunNotifObject>();
+    regexObjects.add(objectFromDb);
+    regex.setObjects(regexObjects);
+    manager.createPerunNotifRegex(sess, regex);
 
-		manager.removePerunNotifTemplateRegexRelation(sess, template.getId(), regex.getId());
-		manager.removePerunNotifRegexById(sess, regex.getId());
-		assertNull(manager.getPerunNotifRegexById(sess, regex.getId()));
+    PerunNotifRegex regexFromDb = manager.getPerunNotifRegexById(sess, regex.getId());
+    assertNotNull(regexFromDb);
+    assertEquals(regex, regexFromDb);
+    assertEquals(regex.getNote(), regexFromDb.getNote());
+    assertEquals(regex.getRegex(), regexFromDb.getRegex());
+    assertEquals(regex.getObjects(), regexFromDb.getObjects());
 
-		manager.removePerunNotifObjectById(object.getId());
-		assertNull(manager.getPerunNotifObjectById(object.getId()));
+    PerunNotifReceiver receiver = new PerunNotifReceiver();
+    receiver.setTarget("target");
+    receiver.setTemplateId(template.getId());
+    receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
+    receiver.setLocale("cs");
 
-		templateFromDb = manager.getPerunNotifTemplateById(sess, template.getId());
-		assertTrue(templateFromDb.getMatchingRegexs() == null || templateFromDb.getMatchingRegexs().isEmpty());
-		assertTrue(templateFromDb.getPerunNotifTemplateMessages() == null || templateFromDb.getPerunNotifTemplateMessages().isEmpty());
-		assertTrue(templateFromDb.getReceivers() == null || templateFromDb.getReceivers().isEmpty());
+    manager.createPerunNotifReceiver(sess, receiver);
+    PerunNotifReceiver receiverFromDb = manager.getPerunNotifReceiverById(sess, receiver.getId());
+    assertNotNull(receiverFromDb);
+    assertEquals(receiver, receiverFromDb);
+    assertEquals(receiver.getTemplateId(), receiverFromDb.getTemplateId());
+    assertEquals(receiver.getTarget(), receiverFromDb.getTarget());
+    assertEquals(receiver.getTypeOfReceiver(), receiverFromDb.getTypeOfReceiver());
 
-		manager.removePerunNotifTemplateById(sess, template.getId());
-		assertNull(manager.getPerunNotifTemplateById(sess, template.getId()));
-	}
+    PerunNotifTemplateMessage templateMessage = new PerunNotifTemplateMessage();
+    templateMessage.setLocale(new Locale("cs"));
+    templateMessage.setMessage("message");
+    templateMessage.setTemplateId(template.getId());
+    templateMessage.setSubject("cesky subject");
 
-	private void prepareData() throws PerunException {
-		// user
-		User user = new User();
-		user.setFirstName("John");
-		user.setMiddleName("");
-		user.setLastName("Smith");
-		user.setTitleBefore("");
-		user.setTitleAfter("");
-		User newUser = perun.getUsersManagerBl().createUser(sess, user);
-		userId = newUser.getId();
+    manager.createPerunNotifTemplateMessage(sess, templateMessage);
+    PerunNotifTemplateMessage templateMessageFromDb =
+        manager.getPerunNotifTemplateMessageById(sess, templateMessage.getId());
+    assertNotNull(templateMessageFromDb);
+    assertEquals(templateMessage, templateMessageFromDb);
+    assertEquals(templateMessage.getMessage(), templateMessageFromDb.getMessage());
+    assertEquals(templateMessage.getTemplateId(), templateMessageFromDb.getTemplateId());
+    assertEquals(templateMessage.getLocale(), templateMessageFromDb.getLocale());
+    assertEquals(templateMessage.getSubject(), templateMessageFromDb.getSubject());
 
-		// vo
-		Vo vo = new Vo(0, "NotifTestVo", "NTestVo");
-		Vo newVo = perun.getVosManager().createVo(sess, vo);
-		voId = newVo.getId();
+    templateFromDb = manager.getPerunNotifTemplateById(sess, templateFromDb.getId());
+    templateFromDb.addPerunNotifRegex(regex);
+    templateFromDb = manager.updatePerunNotifTemplate(sess, templateFromDb);
 
-		// member
-		Member member = perun.getMembersManagerBl().createMember(sess, newVo, newUser);
-		memberId = member.getId();
+    //Test for complete load of template
+    PerunNotifTemplate templateFromDbForTest = manager.getPerunNotifTemplateById(sess, template.getId());
 
-		// attribute preferred laguage
-		AttributeDefinition attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:user:attribute-def:def:preferredLanguage");
-		Attribute attr = new Attribute(attrDef);
-		attr.setValue("cs");
-		System.out.println("attribute: " + perun.getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:preferredLanguage"));
-		perun.getAttributesManagerBl().setAttribute(sess, user, attr);
+    assertNotNull(templateFromDbForTest.getPerunNotifTemplateMessages());
+    assertNotNull(templateFromDbForTest.getMatchingRegexs());
+    assertNotNull(templateFromDbForTest.getOldestMessageTime());
+    assertNotNull(templateFromDbForTest.getYoungestMessageTime());
+    assertNotNull(templateFromDbForTest.getNotifyTrigger());
+    assertNotNull(templateFromDbForTest.getPrimaryProperties());
+    assertNotNull(templateFromDbForTest.getReceivers());
+    assertNotNull(templateFromDbForTest.getSerializedPrimaryProperties());
 
-		// template
-		PerunNotifTemplate template = new PerunNotifTemplate();
-		Map<String, List<String>> properties = new HashMap<>();
-		properties.put("cz.metacentrum.perun.core.api.Member", new ArrayList<>(Arrays.asList("getId()", "getUserId()")));
-		properties.put("METHOD", new ArrayList<>(Arrays.asList("getAttributesManagerBl().getAttribute(cz.metacentrum.perun.core.api.PerunSession, getUsersManagerBl().getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member), \"urn:perun:user:attribute-def:def:preferredLanguage\").getValue().equals(\"en\")",
-			"getUsersManagerBl().getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member).getId()",
-			"getAttributesManagerBl().getAttribute(cz.metacentrum.perun.core.api.PerunSession, getUsersManagerBl().getUserByMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Member), \"urn:perun:user:attribute-def:def:preferredLanguage\").getValue().equals(\"cs\")")));
-		template.setPrimaryProperties(properties);
-		template.setNotifyTrigger(PerunNotifNotifyTrigger.ALL_REGEX_IDS);
-		template.setYoungestMessageTime(10L);
-		template.setOldestMessageTime(20L);
-		template.setSender("noreply@meta.cz");
+    assertTrue(templateFromDbForTest.getReceivers().contains(receiver));
+    assertTrue(templateFromDbForTest.getMatchingRegexs().contains(regex));
+    assertTrue(templateFromDbForTest.getPerunNotifTemplateMessages().contains(templateMessage));
 
-		// regex for creation
-		PerunNotifRegex regexC = new PerunNotifRegex();
-		regexC.setNote("Member created");
-		regexC.setRegex("Member:.* created\\.");
-		PerunNotifRegex newRegexC = manager.createPerunNotifRegex(sess, regexC);
-		template.addPerunNotifRegex(newRegexC);
+    manager.removePerunNotifTemplateMessage(sess, templateMessage.getId());
+    assertNull(manager.getPerunNotifTemplateMessageById(sess, templateMessage.getId()));
 
-		// regex for validation
-		PerunNotifRegex regexV = new PerunNotifRegex();
-		regexV.setNote("Member validated");
-		regexV.setRegex("Member:.* validated\\.");
-		PerunNotifRegex newRegexV = manager.createPerunNotifRegex(sess, regexV);
-		template.addPerunNotifRegex(newRegexV);
+    manager.removePerunNotifReceiverById(sess, receiver.getId());
+    assertNull(manager.getPerunNotifReceiverById(sess, receiver.getId()));
 
-		// template message english
-		PerunNotifTemplateMessage messageEn = new PerunNotifTemplateMessage();
-		messageEn.setMessage("Good day,"
-			+ "thank you for Your registration to virtual organization MetaCentrum VO,"
-			+ "activity MetaCentrum association CESNET, which focuses on sophisticated computation."
-			+ "Name: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" + newRegexC.getId() + "\"][\"Member\"]).getFirstName()}<br/>"
-			+ "Surname: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" + newRegexC.getId() + "\"][\"Member\"]).getLastName()}<br/>"
-			+ "Accounts are valid on machines till $membershipExpiration");
-		messageEn.setLocale(Locale.forLanguageTag("en"));
-		messageEn.setSubject("Subject");
-		template.addPerunNotifTemplateMessage(messageEn);
+    manager.removePerunNotifTemplateRegexRelation(sess, template.getId(), regex.getId());
+    manager.removePerunNotifRegexById(sess, regex.getId());
+    assertNull(manager.getPerunNotifRegexById(sess, regex.getId()));
 
-		// template message czech
-		PerunNotifTemplateMessage messageCs = new PerunNotifTemplateMessage();
-		messageCs.setMessage("Dobrý den,\n" +
-			"  děkujeme za Vaši registraci do virtualni organizace MetaCentrum VO,\n" +
-			"aktivity MetaCentrum sdružení CESNET, zaměřené na náročné výpočty.\n" +
-			"  Váš účet je nyní propagován na všechny servery, plně funkční bude\n" +
-			"během hodiny.\n" +
-			"  Jméno: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" + newRegexC.getId() + "\"][\"Member\"]).getFirstName()}<br/>\n" +
-			"  Přijmení: ${perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" + newRegexC.getId() + "\"][\"Member\"]).getLastName()}<br/>\n" +
-			"Jazyk: ${perun.getAttributesManagerBl().getAttribute(perunSession, perun.getUsersManagerBl().getUserByMember(perunSession, retrievedObjects[\"" + newRegexC.getId() + "\"][\"Member\"]), \"urn:perun:user:attribute-def:def:preferredLanguage\").getValue()}");
-		messageCs.setLocale(Locale.forLanguageTag("cs"));
-		messageCs.setSubject("Subject");
-		template.addPerunNotifTemplateMessage(messageCs);
+    manager.removePerunNotifObjectById(object.getId());
+    assertNull(manager.getPerunNotifObjectById(object.getId()));
 
-		// receiver
-		PerunNotifReceiver receiver = new PerunNotifReceiver();
-		receiver.setLocale("cs");
-		receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
-		receiver.setTarget("cz.metacentrum.perun.core.api.Member.getUserId");
-		template.setReceivers(new ArrayList<>(Arrays.asList(receiver)));
+    templateFromDb = manager.getPerunNotifTemplateById(sess, template.getId());
+    assertTrue(templateFromDb.getMatchingRegexs() == null || templateFromDb.getMatchingRegexs().isEmpty());
+    assertTrue(templateFromDb.getPerunNotifTemplateMessages() == null ||
+               templateFromDb.getPerunNotifTemplateMessages().isEmpty());
+    assertTrue(templateFromDb.getReceivers() == null || templateFromDb.getReceivers().isEmpty());
 
-		manager.createPerunNotifTemplate(sess, template);
-
-	}
+    manager.removePerunNotifTemplateById(sess, template.getId());
+    assertNull(manager.getPerunNotifTemplateById(sess, template.getId()));
+  }
 }

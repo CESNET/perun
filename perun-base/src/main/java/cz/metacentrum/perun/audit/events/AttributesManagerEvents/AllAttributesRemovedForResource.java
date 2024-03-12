@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class AllAttributesRemovedForResource extends AuditEvent implements EngineIgnoreEvent {
 
-	private Resource resource;
-	private String message;
+  private Resource resource;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AllAttributesRemovedForResource() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AllAttributesRemovedForResource() {
+  }
 
-	public AllAttributesRemovedForResource(Resource resource) {
-		this.resource = resource;
-		this.message = formatMessage("All attributes removed for %s.", resource);
-	}
+  public AllAttributesRemovedForResource(Resource resource) {
+    this.resource = resource;
+    this.message = formatMessage("All attributes removed for %s.", resource);
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

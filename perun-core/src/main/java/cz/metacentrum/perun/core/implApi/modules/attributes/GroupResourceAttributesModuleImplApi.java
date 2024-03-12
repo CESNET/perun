@@ -15,55 +15,59 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  *
  * @author Milan Halenar <mhalenar@gmail.com>
  */
-public interface GroupResourceAttributesModuleImplApi extends AttributesModuleImplApi{
+public interface GroupResourceAttributesModuleImplApi extends AttributesModuleImplApi {
 
-	/**
-	 * Checks if value of this group-resource attribute has valid syntax.
-	 *
-	 * @param perunSession perun session
-	 * @param group group
-	 * @param resource resource for which you want to check validity of attribute
-	 * @param attribute attribute to check
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
-	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException;
+  /**
+   * If you need to do some further work with other modules, this method do that
+   *
+   * @param session   session
+   * @param group     the group
+   * @param resource  the resource
+   * @param attribute the attribute
+   */
+  void changedAttributeHook(PerunSessionImpl session, Group group, Resource resource, Attribute attribute);
 
-	/**
-	 * Checks if value of this group-resource attribute has valid semantics.
-	 *
-	 * @param perunSession perun session
-	 * @param group group
-	 * @param resource resource for which you want to check validity of attribute
-	 * @param attribute attribute to check
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 */
+  /**
+   * Checks if value of this group-resource attribute has valid semantics.
+   *
+   * @param perunSession perun session
+   * @param group        group
+   * @param resource     resource for which you want to check validity of attribute
+   * @param attribute    attribute to check
+   * @throws InternalErrorException            if an exception is raised in particular implementation, the exception is
+   *                                           wrapped in InternalErrorException
+   * @throws WrongAttributeAssignmentException
+   */
 
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+  void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
-	/**
-	 * This method MAY fill an attribute at the specified resource.
-	 *
-	 * @param perunSession perun session
-	 * @param group group
-	 * @param resource resource for which you want to check validity of attribute
-	 * @param attribute attribute to fill in
-	 * @return
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 */
-	Attribute fillAttribute(PerunSessionImpl perunSession, Group group, Resource resource, AttributeDefinition attribute) throws WrongAttributeAssignmentException;
+  /**
+   * Checks if value of this group-resource attribute has valid syntax.
+   *
+   * @param perunSession perun session
+   * @param group        group
+   * @param resource     resource for which you want to check validity of attribute
+   * @param attribute    attribute to check
+   * @throws InternalErrorException       if an exception is raised in particular implementation, the exception is
+   *                                      wrapped in InternalErrorException
+   * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+   */
+  void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException;
 
-	/**
-	 * If you need to do some further work with other modules, this method do that
-	 * @param session session
-	 * @param group the group
-	 * @param resource the resource
-	 * @param attribute the attribute
-	 */
-	void changedAttributeHook(PerunSessionImpl session, Group group, Resource resource, Attribute attribute);
+  /**
+   * This method MAY fill an attribute at the specified resource.
+   *
+   * @param perunSession perun session
+   * @param group        group
+   * @param resource     resource for which you want to check validity of attribute
+   * @param attribute    attribute to fill in
+   * @return
+   * @throws InternalErrorException            if an exception is raised in particular implementation, the exception is
+   *                                           wrapped in InternalErrorException
+   * @throws WrongAttributeAssignmentException
+   */
+  Attribute fillAttribute(PerunSessionImpl perunSession, Group group, Resource resource, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException;
 }

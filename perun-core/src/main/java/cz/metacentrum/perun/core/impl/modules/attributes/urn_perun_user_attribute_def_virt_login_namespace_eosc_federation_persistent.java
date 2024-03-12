@@ -12,56 +12,59 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Class for access def:eosc-federation-persistent-shadow attribute. It generates value if you call it for the first time.
- *
+ * Class for access def:eosc-federation-persistent-shadow attribute. It generates value if you call it for the first
+ * time.
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_login_namespace_eosc_federation_persistent extends UserVirtualAttributesModuleAbstract {
+public class urn_perun_user_attribute_def_virt_login_namespace_eosc_federation_persistent
+    extends UserVirtualAttributesModuleAbstract {
 
-	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:eosc-federation-persistent-shadow";
+  public static final String SHADOW =
+      "urn:perun:user:attribute-def:def:login-namespace:eosc-federation-persistent-shadow";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute eoscPersistent = new Attribute(attributeDefinition);
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:eosc-federation-persistent");
+    attr.setDisplayName("EOSC Federation login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login for EOSC Federation. It is set automatically with first call.");
+    return attr;
+  }
 
-		try {
-			Attribute eoscPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute eoscPersistent = new Attribute(attributeDefinition);
 
-			if (eoscPersistentShadow.getValue() == null) {
+    try {
+      Attribute eoscPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-				eoscPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, eoscPersistentShadow);
+      if (eoscPersistentShadow.getValue() == null) {
 
-				if (eoscPersistentShadow.getValue() == null) {
-					throw new InternalErrorException("EOSC Federation login couldn't be set automatically");
-				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, eoscPersistentShadow);
-			}
+        eoscPersistentShadow =
+            sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, eoscPersistentShadow);
 
-			eoscPersistent.setValue(eoscPersistentShadow.getValue());
-			return eoscPersistent;
+        if (eoscPersistentShadow.getValue() == null) {
+          throw new InternalErrorException("EOSC Federation login couldn't be set automatically");
+        }
+        sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, eoscPersistentShadow);
+      }
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+      eoscPersistent.setValue(eoscPersistentShadow.getValue());
+      return eoscPersistent;
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(SHADOW);
-	}
+    } catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException |
+             AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("login-namespace:eosc-federation-persistent");
-		attr.setDisplayName("EOSC Federation login");
-		attr.setType(String.class.getName());
-		attr.setDescription("Login for EOSC Federation. It is set automatically with first call.");
-		return attr;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(SHADOW);
+  }
 }

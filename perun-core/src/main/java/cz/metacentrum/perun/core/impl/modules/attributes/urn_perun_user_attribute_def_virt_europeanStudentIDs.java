@@ -10,26 +10,27 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  */
 @SuppressWarnings("unused")
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_europeanStudentIDs extends UserVirtualAttributeCollectedFromUserExtSource {
+public class urn_perun_user_attribute_def_virt_europeanStudentIDs
+    extends UserVirtualAttributeCollectedFromUserExtSource {
 
-	@Override
-	public String getSourceAttributeFriendlyName() {
-		return "europeanStudentID";
-	}
+  @Override
+  public String getDestinationAttributeDescription() {
+    return "All european student IDs of a user.";
+  }
 
-	@Override
-	public String getDestinationAttributeFriendlyName() {
-		return "europeanStudentIDs";
-	}
+  @Override
+  public String getDestinationAttributeDisplayName() {
+    return "europeanStudentIDs";
+  }
 
-	@Override
-	public String getDestinationAttributeDisplayName() {
-		return "europeanStudentIDs";
-	}
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "europeanStudentIDs";
+  }
 
-	@Override
-	public String getDestinationAttributeDescription() {
-		return "All european student IDs of a user.";
-	}
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "europeanStudentID";
+  }
 
 }

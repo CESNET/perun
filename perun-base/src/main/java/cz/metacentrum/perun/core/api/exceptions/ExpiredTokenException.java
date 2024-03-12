@@ -6,7 +6,7 @@ package cz.metacentrum.perun.core.api.exceptions;
  * @author Lucie Kureckova <luckureckova@gmail.com>
  */
 public class ExpiredTokenException extends PerunException {
-	public ExpiredTokenException(String message) {
-		super(message);
-	}
+  public ExpiredTokenException(String message) {
+    super(message);
+  }
 }

@@ -18,113 +18,117 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 public class ValidateMemberAsync {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "membersManager/validateMemberAsync";
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// params
-	private Member member;
-	// by default we care about result
-	private boolean hidden = false;
+  // URL to call
+  final String JSON_URL = "membersManager/validateMemberAsync";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // params
+  private Member member;
+  // by default we care about result
+  private boolean hidden = false;
 
-	/**
-	 * Creates a new request
-	 */
-	public ValidateMemberAsync() {}
+  /**
+   * Creates a new request
+   */
+  public ValidateMemberAsync() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events external events
-	 */
-	public ValidateMemberAsync(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events external events
+   */
+  public ValidateMemberAsync(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Attempts to create member in VO from candidate
-	 *
-	 * @param member
-	 *
-	 */
-	public void validateMemberAsync(final Member member)
-	{
+  /**
+   * Attempts to create member in VO from candidate
+   *
+   * @param member
+   */
+  public void validateMemberAsync(final Member member) {
 
-		this.member = member;
+    this.member = member;
 
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
+    // test arguments
+    if (!this.testAdding()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Validating member: " + member.getId() + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Validating member: " + member.getId() + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Member "+ member.getId() +" validated !");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Member " + member.getId() + " validated !");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.setHidden(hidden);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testAdding()
-	{
-		boolean result = true;
-		String errorMsg = "";
+      ;
+    };
 
-		if(member == null){
-			errorMsg += "Wrong 'Member' parameter. Can't be null.\n";
-			result = false;
-		}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.setHidden(hidden);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+  }
 
-		return result;
-	}
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testAdding() {
+    boolean result = true;
+    String errorMsg = "";
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+    if (member == null) {
+      errorMsg += "Wrong 'Member' parameter. Can't be null.\n";
+      result = false;
+    }
 
-		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("member", new JSONNumber(member.getId()));
-		return jsonQuery;
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-	}
+    return result;
+  }
 
-	public boolean isHidden() {
-		return hidden;
-	}
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
+    // create whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("member", new JSONNumber(member.getId()));
+    return jsonQuery;
+
+  }
+
+  public boolean isHidden() {
+    return hidden;
+  }
+
+  public void setHidden(boolean hidden) {
+    this.hidden = hidden;
+  }
 
 }

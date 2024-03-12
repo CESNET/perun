@@ -1,345 +1,336 @@
 package cz.metacentrum.perun.taskslib.model;
 
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Service;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Service;
-
 /**
- *
  * @author Michal Karm Babacek
  */
 public class Task implements Serializable {
 
-	private static final long serialVersionUID = -1809998673612582742L;
+  private static final long serialVersionUID = -1809998673612582742L;
+  private int id;
+  private int delay;
+  private int recurrence;
+  private LocalDateTime startTime;
+  private LocalDateTime sentToEngine;
+  private LocalDateTime sendStartTime;
+  private LocalDateTime schedule;
+  private LocalDateTime genStartTime;
+  private LocalDateTime genEndTime;
+  private LocalDateTime sendEndTime;
+  private LocalDateTime endTime;
+  private Service service;
+  private Facility facility;
+  private List<Destination> destinations;
+  private TaskStatus status;
+  private boolean sourceUpdated;
+  private boolean propagationForced;
 
-	public enum TaskStatus {
-		WAITING, PLANNED, GENERATING, GENERROR, GENERATED, SENDING, DONE, SENDERROR, ERROR, WARNING
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    Task other = (Task) obj;
+    if (!service.equals(other.service)) {
+      return false;
+    }
+    if (!facility.equals(other.facility)) {
+      return false;
+    }
+    if (id != other.id) {
+      return false;
+    }
+    return true;
+  }
 
-	private int id;
-	private int delay;
-	private int recurrence;
-	private LocalDateTime startTime;
-	private LocalDateTime sentToEngine;
-	private LocalDateTime sendStartTime;
-	private LocalDateTime schedule;
-	private LocalDateTime genStartTime;
-	private LocalDateTime genEndTime;
-	private LocalDateTime sendEndTime;
-	private LocalDateTime endTime;
-	private Service service;
-	private Facility facility;
-	private List<Destination> destinations;
-	private TaskStatus status;
-	private boolean sourceUpdated;
-	private boolean propagationForced;
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + id;
-		return result;
-	}
+  public int getDelay() {
+    return delay;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Task other = (Task) obj;
-		if (!service.equals(other.service))
-			return false;
-		if (!facility.equals(other.facility))
-			return false;
-		if (id != other.id)
-			return false;
-		return true;
-	}
+  public void setDelay(int delay) {
+    this.delay = delay;
+  }
 
-	public int getId() {
-		return id;
-	}
+  public List<Destination> getDestinations() {
+    return destinations;
+  }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+  public void setDestinations(List<Destination> destinations) {
+    this.destinations = destinations;
+  }
 
-	public int getDelay() {
-		return delay;
-	}
+  public LocalDateTime getEndTime() {
+    return endTime;
+  }
 
-	public void setDelay(int delay) {
-		this.delay = delay;
-	}
+  public void setEndTime(LocalDateTime endTime) {
+    this.endTime = endTime;
+  }
 
-	public int getRecurrence() {
-		return recurrence;
-	}
+  public void setEndTime(Long endTime) {
+    if (endTime != null) {
+      this.endTime = Instant.ofEpochMilli(endTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.endTime = null;
+    }
+  }
 
-	public void setRecurrence(int recurrence) {
-		this.recurrence = recurrence;
-	}
+  public Long getEndTimeAsLong() {
+    return (endTime == null) ? null : endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
 
-	public LocalDateTime getStartTime() {
-		return startTime;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	public Long getStartTimeAsLong() {
-		return (startTime == null) ? null : startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
+  public void setFacility(Facility facility) {
+    this.facility = facility;
+  }
 
-	public void setStartTime(LocalDateTime startTime) {
-		this.startTime = startTime;
-	}
+  public int getFacilityId() {
+    if (facility != null) {
+      return facility.getId();
+    } else {
+      return -1;
+    }
+  }
 
-	public void setStartTime(Long startTime) {
-		if (startTime != null) {
-			this.startTime = Instant.ofEpochMilli(startTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		} else {
-			this.startTime = null;
-		}
-	}
+  public LocalDateTime getGenEndTime() {
+    return genEndTime;
+  }
 
-	public LocalDateTime getSchedule() {
-		return schedule;
-	}
+  public void setGenEndTime(LocalDateTime genEndTime) {
+    this.genEndTime = genEndTime;
+  }
 
-	public Long getScheduleAsLong() {
-		return (schedule == null) ? null : schedule.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
+  public void setGenEndTime(Long genEndTime) {
+    if (genEndTime != null) {
+      this.genEndTime = Instant.ofEpochMilli(genEndTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.genEndTime = null;
+    }
+  }
 
-	public void setSchedule(LocalDateTime schedule) {
-		this.schedule = schedule;
-	}
+  public Long getGenEndTimeAsLong() {
+    return (genEndTime == null) ? null : genEndTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
 
-	public void setSchedule(Long schedule) {
-		if (schedule != null) {
-			this.schedule = Instant.ofEpochMilli(schedule).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		} else {
-			this.schedule = null;
-		}
-	}
+  public LocalDateTime getGenStartTime() {
+    return genStartTime;
+  }
 
+  public void setGenStartTime(LocalDateTime genStartTime) {
+    this.genStartTime = genStartTime;
+  }
 
-	public int getServiceId() {
-		if (service != null) {
-			return service.getId();
-		} else {
-			return -1;
-		}
-	}
+  public void setGenStartTime(Long genStartTime) {
+    if (genStartTime != null) {
+      this.genStartTime = Instant.ofEpochMilli(genStartTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.genStartTime = null;
+    }
+  }
 
-	public void setService(Service service) {
-		this.service = service;
-	}
+  public Long getGenStartTimeAsLong() {
+    return (genStartTime == null) ? null : genStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
 
-	public Service getService() {
-		return service;
-	}
+  public int getId() {
+    return id;
+  }
 
-	public int getFacilityId() {
-		if (facility != null) {
-			return facility.getId();
-		} else {
-			return -1;
-		}
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
-	public LocalDateTime getGenEndTime() {
-		return genEndTime;
-	}
+  public int getRecurrence() {
+    return recurrence;
+  }
 
-	public Long getGenEndTimeAsLong() {
-		return (genEndTime == null) ? null : genEndTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
+  public void setRecurrence(int recurrence) {
+    this.recurrence = recurrence;
+  }
 
-	public void setGenEndTime(LocalDateTime genEndTime) {
-		this.genEndTime = genEndTime;
-	}
+  public LocalDateTime getSchedule() {
+    return schedule;
+  }
 
-	public void setGenEndTime(Long genEndTime) {
-		if (genEndTime != null) {
-			this.genEndTime = Instant.ofEpochMilli(genEndTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		} else {
-			this.genEndTime = null;
-		}
-	}
+  public void setSchedule(LocalDateTime schedule) {
+    this.schedule = schedule;
+  }
 
-	public LocalDateTime getSendEndTime() {
-		return sendEndTime;
-	}
+  public void setSchedule(Long schedule) {
+    if (schedule != null) {
+      this.schedule = Instant.ofEpochMilli(schedule).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.schedule = null;
+    }
+  }
 
-	public Long getSendEndTimeAsLong() {
-		return (sendEndTime == null) ? null : sendEndTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
+  public Long getScheduleAsLong() {
+    return (schedule == null) ? null : schedule.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
 
-	public void setSendEndTime(LocalDateTime sendEndTime) {
-		this.sendEndTime = sendEndTime;
-	}
+  public LocalDateTime getSendEndTime() {
+    return sendEndTime;
+  }
 
-	public void setSendEndTime(Long sendEndTime) {
-		if (sendEndTime != null) {
-			this.sendEndTime = Instant.ofEpochMilli(sendEndTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		} else {
-			this.sendEndTime = null;
-		}
-	}
+  public void setSendEndTime(LocalDateTime sendEndTime) {
+    this.sendEndTime = sendEndTime;
+  }
 
-	public LocalDateTime getSendStartTime() {
-		return sendStartTime;
-	}
+  public void setSendEndTime(Long sendEndTime) {
+    if (sendEndTime != null) {
+      this.sendEndTime = Instant.ofEpochMilli(sendEndTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.sendEndTime = null;
+    }
+  }
 
-	public Long getSendStartTimeAsLong() {
-		return (sendStartTime == null) ? null : sendStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
+  public Long getSendEndTimeAsLong() {
+    return (sendEndTime == null) ? null : sendEndTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
 
-	public LocalDateTime getGenStartTime() {
-		return genStartTime;
-	}
+  public LocalDateTime getSendStartTime() {
+    return sendStartTime;
+  }
 
-	public Long getGenStartTimeAsLong() {
-		return (genStartTime == null) ? null : genStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
+  public void setSendStartTime(LocalDateTime sendStartTime) {
+    this.sendStartTime = sendStartTime;
+  }
 
-	public void setGenStartTime(LocalDateTime genStartTime) {
-		this.genStartTime = genStartTime;
-	}
+  public void setSendStartTime(Long sendStartTime) {
+    if (sendStartTime != null) {
+      this.sendStartTime = Instant.ofEpochMilli(sendStartTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.sendStartTime = null;
+    }
+  }
 
-	public void setGenStartTime(Long genStartTime) {
-		if (genStartTime != null) {
-			this.genStartTime = Instant.ofEpochMilli(genStartTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		} else {
-			this.genStartTime = null;
-		}
-	}
+  public Long getSendStartTimeAsLong() {
+    return (sendStartTime == null) ? null : sendStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
 
-	public LocalDateTime getSentToEngine() {
-		return sentToEngine;
-	}
+  public LocalDateTime getSentToEngine() {
+    return sentToEngine;
+  }
 
-	public Long getSentToEngineAsLong() {
-		return (sentToEngine == null) ? null : sentToEngine.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
+  public void setSentToEngine(LocalDateTime sentToEngine) {
+    this.sentToEngine = sentToEngine;
+  }
 
-	public void setSentToEngine(LocalDateTime sentToEngine) {
-		this.sentToEngine = sentToEngine;
-	}
+  public void setSentToEngine(Long sentToEngine) {
+    if (sentToEngine != null) {
+      this.sentToEngine = Instant.ofEpochMilli(sentToEngine).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.sentToEngine = null;
+    }
+  }
 
-	public void setSentToEngine(Long sentToEngine) {
-		if (sentToEngine != null) {
-			this.sentToEngine = Instant.ofEpochMilli(sentToEngine).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		} else {
-			this.sentToEngine = null;
-		}
-	}
+  public Long getSentToEngineAsLong() {
+    return (sentToEngine == null) ? null : sentToEngine.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
 
-	public void setSendStartTime(LocalDateTime sendStartTime) {
-		this.sendStartTime = sendStartTime;
-	}
+  public Service getService() {
+    return service;
+  }
 
-	public void setSendStartTime(Long sendStartTime) {
-		if (sendStartTime != null) {
-			this.sendStartTime = Instant.ofEpochMilli(sendStartTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		} else {
-			this.sendStartTime = null;
-		}
-	}
+  public void setService(Service service) {
+    this.service = service;
+  }
 
-	public LocalDateTime getEndTime() {
-		return endTime;
-	}
+  public int getServiceId() {
+    if (service != null) {
+      return service.getId();
+    } else {
+      return -1;
+    }
+  }
 
-	public Long getEndTimeAsLong() {
-		return (endTime == null) ? null : endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
+  public LocalDateTime getStartTime() {
+    return startTime;
+  }
 
-	public void setEndTime(LocalDateTime endTime) {
-		this.endTime = endTime;
-	}
+  public void setStartTime(LocalDateTime startTime) {
+    this.startTime = startTime;
+  }
 
-	public void setEndTime(Long endTime) {
-		if (endTime != null) {
-			this.endTime = Instant.ofEpochMilli(endTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		} else {
-			this.endTime = null;
-		}
-	}
+  public void setStartTime(Long startTime) {
+    if (startTime != null) {
+      this.startTime = Instant.ofEpochMilli(startTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    } else {
+      this.startTime = null;
+    }
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Long getStartTimeAsLong() {
+    return (startTime == null) ? null : startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  }
 
-	public void setFacility(Facility facility) {
-		this.facility = facility;
-	}
+  public TaskStatus getStatus() {
+    return status;
+  }
 
-	public List<Destination> getDestinations() {
-		return destinations;
-	}
+  public synchronized void setStatus(TaskStatus status) {
+    this.status = status;
+  }
 
-	public void setDestinations(List<Destination> destinations) {
-		this.destinations = destinations;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + id;
+    return result;
+  }
 
-	public TaskStatus getStatus() {
-		return status;
-	}
+  public boolean isPropagationForced() {
+    return propagationForced;
+  }
 
-	public synchronized void setStatus(TaskStatus status) {
-		this.status = status;
-	}
+  public void setPropagationForced(boolean propagationForced) {
+    this.propagationForced = propagationForced;
+  }
 
-	public String getBeanName(){
-		return this.getClass().getSimpleName();
-	}
+  public boolean isSourceUpdated() {
+    return sourceUpdated;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
-		return str.append(getClass().getSimpleName())
-				.append(":[id='").append(id)
-				.append("', status='").append(status)
-				.append("', delay='").append(delay)
-				.append("', recurrence='").append(recurrence)
-				.append("', sourceUpdated='").append(sourceUpdated)
-				.append("', forced='").append(propagationForced)
-				.append("', schedule='").append(schedule)
-				.append("', startTime='").append(startTime)
-				.append("', endTime='").append(endTime)
-				.append("', sentToEngine='").append(sentToEngine)
-				.append("', genStartTime='").append(genStartTime)
-				.append("', genEndTime='").append(genEndTime)
-				.append("', sendStartTime='").append(sendStartTime)
-				.append("', sendEndTime='").append(sendEndTime)
-				.append("', service='").append(service)
-				.append("', facility='").append(facility)
-				.append("', destinations='").append(destinations)
-				.append("']").toString();
-	}
+  public void setSourceUpdated(boolean sourceUpdated) {
+    this.sourceUpdated = sourceUpdated;
+  }
 
-	public boolean isSourceUpdated() {
-		return sourceUpdated;
-	}
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+    return str.append(getClass().getSimpleName()).append(":[id='").append(id).append("', status='").append(status)
+        .append("', delay='").append(delay).append("', recurrence='").append(recurrence).append("', sourceUpdated='")
+        .append(sourceUpdated).append("', forced='").append(propagationForced).append("', schedule='").append(schedule)
+        .append("', startTime='").append(startTime).append("', endTime='").append(endTime).append("', sentToEngine='")
+        .append(sentToEngine).append("', genStartTime='").append(genStartTime).append("', genEndTime='")
+        .append(genEndTime).append("', sendStartTime='").append(sendStartTime).append("', sendEndTime='")
+        .append(sendEndTime).append("', service='").append(service).append("', facility='").append(facility)
+        .append("', destinations='").append(destinations).append("']").toString();
+  }
 
-	public void setSourceUpdated(boolean sourceUpdated) {
-		this.sourceUpdated = sourceUpdated;
-	}
-
-	public boolean isPropagationForced() {
-		return propagationForced;
-	}
-
-	public void setPropagationForced(boolean propagationForced) {
-		this.propagationForced = propagationForced;
-	}
+  public enum TaskStatus {
+    WAITING, PLANNED, GENERATING, GENERROR, GENERATED, SENDING, DONE, SENDERROR, ERROR, WARNING
+  }
 }

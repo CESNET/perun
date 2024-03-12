@@ -39,80 +39,83 @@ import java.util.Set;
  */
 public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "propags";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Propagations");
+  private int mainrow = 0;
+  private int okCounter = 0;
+  private int errorCounter = 0;
+  private int notDeterminedCounter = 0;
+  private int procesingCounter = 0;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public PropagationsTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Propagations");
+  static public PropagationsTabItem load(Map<String, String> parameters) {
+    return new PropagationsTabItem();
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public PropagationsTabItem(){ }
+  public boolean isPrepared() {
+    return true;
+  }
 
-	private int mainrow = 0;
-	private int okCounter = 0;
-	private int errorCounter = 0;
-	private int notDeterminedCounter = 0;
-	private int procesingCounter = 0;
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    mainrow = 0;
+    okCounter = 0;
+    errorCounter = 0;
+    notDeterminedCounter = 0;
+    procesingCounter = 0;
+    VerticalPanel mainTab = new VerticalPanel();
+    mainTab.setWidth("100%");
 
-	public Widget draw() {
+    final TabItem tab = this;
 
-		mainrow = 0;
-		okCounter = 0;
-		errorCounter = 0;
-		notDeterminedCounter = 0;
-		procesingCounter = 0;
-		VerticalPanel mainTab = new VerticalPanel();
-		mainTab.setWidth("100%");
+    // MAIN PANEL
+    final ScrollPanel firstTabPanel = new ScrollPanel();
+    firstTabPanel.setSize("100%", "100%");
+    firstTabPanel.setStyleName("perun-tableScrollPanel");
 
-		final TabItem tab = this;
-
-		// MAIN PANEL
-		final ScrollPanel firstTabPanel = new ScrollPanel();
-		firstTabPanel.setSize("100%", "100%");
-		firstTabPanel.setStyleName("perun-tableScrollPanel");
-
-		final FlexTable help = new FlexTable();
-		help.setCellPadding(4);
-		help.setWidth("100%");
-		help.setHTML(0, 0, "<strong>Color&nbsp;notation:</strong>");
-		help.getFlexCellFormatter().setWidth(0, 0, "100px");
-		help.setHTML(0, 1, "<strong>OK</strong>");
-		help.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER);
-		help.getFlexCellFormatter().setWidth(0, 1, "50px");
-		help.getFlexCellFormatter().setStyleName(0, 1, "green");
-		help.setHTML(0, 2, "<strong>Error</strong>");
-		help.getFlexCellFormatter().setWidth(0, 2, "50px");
-		help.getFlexCellFormatter().setStyleName(0, 2, "red");
-		help.getFlexCellFormatter().setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_CENTER);
-		help.setHTML(0, 3, "<strong>Not&nbsp;determined</strong>");
-		help.getFlexCellFormatter().setWidth(0, 3, "50px");
-		help.getFlexCellFormatter().setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_CENTER);
-		help.getFlexCellFormatter().setStyleName(0, 3, "notdetermined");
+    final FlexTable help = new FlexTable();
+    help.setCellPadding(4);
+    help.setWidth("100%");
+    help.setHTML(0, 0, "<strong>Color&nbsp;notation:</strong>");
+    help.getFlexCellFormatter().setWidth(0, 0, "100px");
+    help.setHTML(0, 1, "<strong>OK</strong>");
+    help.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER);
+    help.getFlexCellFormatter().setWidth(0, 1, "50px");
+    help.getFlexCellFormatter().setStyleName(0, 1, "green");
+    help.setHTML(0, 2, "<strong>Error</strong>");
+    help.getFlexCellFormatter().setWidth(0, 2, "50px");
+    help.getFlexCellFormatter().setStyleName(0, 2, "red");
+    help.getFlexCellFormatter().setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_CENTER);
+    help.setHTML(0, 3, "<strong>Not&nbsp;determined</strong>");
+    help.getFlexCellFormatter().setWidth(0, 3, "50px");
+    help.getFlexCellFormatter().setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_CENTER);
+    help.getFlexCellFormatter().setStyleName(0, 3, "notdetermined");
 		/*
 			 help.setHTML(0, 4, "<strong>Processing</strong>");
 			 help.getFlexCellFormatter().setWidth(0, 4, "50px");
@@ -120,280 +123,286 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 			 help.getFlexCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER);
 			 */
 
-		final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(), ButtonTranslation.INSTANCE.refreshPropagationResults(),SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().reloadTab(tab);
-			}
-		});
+    final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(),
+        ButtonTranslation.INSTANCE.refreshPropagationResults(), SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().reloadTab(tab);
+      }
+    });
 
-		help.setWidget(0, 5, cb);
-		help.getFlexCellFormatter().setWidth(0, 5, "200px");
+    help.setWidget(0, 5, cb);
+    help.getFlexCellFormatter().setWidth(0, 5, "200px");
 
-		help.setHTML(0, 6, "&nbsp;");
-		help.getFlexCellFormatter().setWidth(0, 6, "50%");
+    help.setHTML(0, 6, "&nbsp;");
+    help.getFlexCellFormatter().setWidth(0, 6, "50%");
 
-		mainTab.add(help);
-		mainTab.add(new HTML("<hr size=\"2\" />"));
-		mainTab.add(firstTabPanel);
+    mainTab.add(help);
+    mainTab.add(new HTML("<hr size=\"2\" />"));
+    mainTab.add(firstTabPanel);
 
-		final FlexTable content = new FlexTable();
-		content.setWidth("100%");
-		content.setBorderWidth(0);
-		firstTabPanel.add(content);
-		content.setStyleName("propagationTable", true);
-		final AjaxLoaderImage im = new AjaxLoaderImage();
-		content.setWidget(0, 0, im);
-		content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+    final FlexTable content = new FlexTable();
+    content.setWidth("100%");
+    content.setBorderWidth(0);
+    firstTabPanel.add(content);
+    content.setStyleName("propagationTable", true);
+    final AjaxLoaderImage im = new AjaxLoaderImage();
+    content.setWidget(0, 0, im);
+    content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 
-		final GetFacilityState callback = new GetFacilityState(0, 0, new JsonCallbackEvents(){
-			public void onLoadingStart(){
-				im.loadingStart();
-				cb.setProcessing(true);
-			}
-			public void onError(PerunError error){
-				im.loadingError(error);
-				cb.setProcessing(false);
-			}
-			public void onFinished(JavaScriptObject jso) {
-				im.loadingFinished();
-				cb.setProcessing(false);
-				content.clear();
-				content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
-				ArrayList<FacilityState> list = JsonUtils.jsoAsList(jso);
-				if (list != null && !list.isEmpty()){
+    final GetFacilityState callback = new GetFacilityState(0, 0, new JsonCallbackEvents() {
+      public void onLoadingStart() {
+        im.loadingStart();
+        cb.setProcessing(true);
+      }
 
-					list = new TableSorter<FacilityState>().sortByNumberOfDestinations(list);
-					ArrayList<FacilityState> clusters = new ArrayList<FacilityState>();
-					ArrayList<FacilityState> hosts = new ArrayList<FacilityState>();
-					for (final FacilityState state : list) {
-						if (state.getDestinations().size() > 1) {
-							clusters.add(state);
-						} else {
-							hosts.add(state);
-						}
-					}
+      public void onError(PerunError error) {
+        im.loadingError(error);
+        cb.setProcessing(false);
+      }
 
-					clusters = new TableSorter<FacilityState>().sortByFacilityName(clusters);
-					hosts = new TableSorter<FacilityState>().sortByFacilityName(hosts);
+      public void onFinished(JavaScriptObject jso) {
+        im.loadingFinished();
+        cb.setProcessing(false);
+        content.clear();
+        content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
+        ArrayList<FacilityState> list = JsonUtils.jsoAsList(jso);
+        if (list != null && !list.isEmpty()) {
 
-					// PROCESS CLUSTERS (with more than one destinations)
+          list = new TableSorter<FacilityState>().sortByNumberOfDestinations(list);
+          ArrayList<FacilityState> clusters = new ArrayList<FacilityState>();
+          ArrayList<FacilityState> hosts = new ArrayList<FacilityState>();
+          for (final FacilityState state : list) {
+            if (state.getDestinations().size() > 1) {
+              clusters.add(state);
+            } else {
+              hosts.add(state);
+            }
+          }
 
-					for (final FacilityState state : clusters) {
+          clusters = new TableSorter<FacilityState>().sortByFacilityName(clusters);
+          hosts = new TableSorter<FacilityState>().sortByFacilityName(hosts);
 
-						content.setHTML(mainrow, 0, "<strong>" + SafeHtmlUtils.fromString((state.getFacility().getName() != null) ? state.getFacility().getName() : "").asString() + "</strong>");
+          // PROCESS CLUSTERS (with more than one destinations)
 
-						final FlowPanel inner = new FlowPanel();
-						content.setWidget(mainrow+1, 0, inner);
-						content.getFlexCellFormatter().setStyleName(mainrow + 1, 0, "propagationTablePadding");
+          for (final FacilityState state : clusters) {
 
-						Set<String> destinations = state.getDestinations().keySet();
-						ArrayList<String> destList = new ArrayList<String>();
-						int width = 0;
-						for (String dest : destinations) {
-							destList.add(dest);
-							if (dest.indexOf(".")*8 > width) {
-								width = dest.indexOf(".")*8;
-							}
-						}
+            content.setHTML(mainrow, 0, "<strong>" +
+                SafeHtmlUtils.fromString((state.getFacility().getName() != null) ? state.getFacility().getName() : "")
+                    .asString() + "</strong>");
 
-						Collections.sort(destList, new Comparator<String>() {
-							@Override
-							public int compare(String o1, String o2) {
-								return TableSorter.smartCompare(o1, o2);
-							}
-						});
+            final FlowPanel inner = new FlowPanel();
+            content.setWidget(mainrow + 1, 0, inner);
+            content.getFlexCellFormatter().setStyleName(mainrow + 1, 0, "propagationTablePadding");
 
-						for (final String dest : destList) {
+            Set<String> destinations = state.getDestinations().keySet();
+            ArrayList<String> destList = new ArrayList<String>();
+            int width = 0;
+            for (String dest : destinations) {
+              destList.add(dest);
+              if (dest.indexOf(".") * 8 > width) {
+                width = dest.indexOf(".") * 8;
+              }
+            }
 
-							int idx = ((!dest.contains(".")) ? dest.length() : dest.indexOf("."));
-							String show = SafeHtmlUtils.fromString(dest.substring(0, idx)).asString();
-							if (show.length() == 0) {
-								show = dest;
-								width = dest.length()*8;
-							}
-							Anchor hyp = new Anchor();
-							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+show+"</span>");
-							hyp.addClickHandler(new ClickHandler() {
-								public void onClick(ClickEvent clickEvent) {
-									session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), null, dest, true));
-								}
-							});
-							inner.add(hyp);
+            Collections.sort(destList, new Comparator<String>() {
+              @Override
+              public int compare(String o1, String o2) {
+                return TableSorter.smartCompare(o1, o2);
+              }
+            });
 
-							// style
-							if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
-								hyp.addStyleName("red");
-								errorCounter++;
-							} else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
-								hyp.addStyleName("green");
-								okCounter++;
-							} else {
-								hyp.addStyleName("notdetermined");
-								notDeterminedCounter++;
-							}
+            for (final String dest : destList) {
 
-						}
+              int idx = ((!dest.contains(".")) ? dest.length() : dest.indexOf("."));
+              String show = SafeHtmlUtils.fromString(dest.substring(0, idx)).asString();
+              if (show.length() == 0) {
+                show = dest;
+                width = dest.length() * 8;
+              }
+              Anchor hyp = new Anchor();
+              hyp.setHTML("<span style=\"display: inline-block; width: " + width + "px; text-align: center;\">" + show +
+                  "</span>");
+              hyp.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent clickEvent) {
+                  session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), null, dest, true));
+                }
+              });
+              inner.add(hyp);
 
-						if (destList.isEmpty()) {
-							notDeterminedCounter++;
-						}
+              // style
+              if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
+                hyp.addStyleName("red");
+                errorCounter++;
+              } else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
+                hyp.addStyleName("green");
+                okCounter++;
+              } else {
+                hyp.addStyleName("notdetermined");
+                notDeterminedCounter++;
+              }
 
-						mainrow++;
-						mainrow++;
+            }
 
-					}
+            if (destList.isEmpty()) {
+              notDeterminedCounter++;
+            }
 
-					// PROCESS HOSTS (with one or less destination)
+            mainrow++;
+            mainrow++;
 
-					// FIX WIDTH
-					int width = 0;
-					for (FacilityState state : hosts) {
-						if (state.getDestinations().size() < 2) {
-							if (state.getFacility().getName().length()*8 > width) {
-								width = state.getFacility().getName().length()*8;
-							}
-						}
-					}
+          }
 
-					FlowPanel inner = new FlowPanel();
+          // PROCESS HOSTS (with one or less destination)
 
-					for (final FacilityState state : hosts) {
+          // FIX WIDTH
+          int width = 0;
+          for (FacilityState state : hosts) {
+            if (state.getDestinations().size() < 2) {
+              if (state.getFacility().getName().length() * 8 > width) {
+                width = state.getFacility().getName().length() * 8;
+              }
+            }
+          }
 
-						Set<String> destinations = state.getDestinations().keySet();
-						ArrayList<String> destList = new ArrayList<String>();
-						for (String dest : destinations) {
-							destList.add(dest);
-						}
+          FlowPanel inner = new FlowPanel();
 
-						Collections.sort(destList, new Comparator<String>() {
-							@Override
-							public int compare(String o1, String o2) {
-								return TableSorter.smartCompare(o1, o2);
-							}
-						});
+          for (final FacilityState state : hosts) {
 
-						for (final String dest : destList) {
+            Set<String> destinations = state.getDestinations().keySet();
+            ArrayList<String> destList = new ArrayList<String>();
+            for (String dest : destinations) {
+              destList.add(dest);
+            }
 
-							Anchor hyp = new Anchor();
-							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+SafeHtmlUtils.fromString((dest != null) ? dest : "").asString()+"</span>");
-							inner.add(hyp);
-							hyp.addClickHandler(new ClickHandler() {
-								public void onClick(ClickEvent clickEvent) {
-									session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), null, dest, true));
-								}
-							});
+            Collections.sort(destList, new Comparator<String>() {
+              @Override
+              public int compare(String o1, String o2) {
+                return TableSorter.smartCompare(o1, o2);
+              }
+            });
 
-							// style
-							if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
-								hyp.addStyleName("red");
-								errorCounter++;
-							} else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
-								hyp.addStyleName("green");
-								okCounter++;
-							} else {
-								hyp.addStyleName("notdetermined");
-								notDeterminedCounter++;
-							}
-						}
+            for (final String dest : destList) {
 
-						if (destList.isEmpty()) {
-							Anchor hyp = new Anchor();
-							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+SafeHtmlUtils.fromString((state.getFacility().getName() != null) ? state.getFacility().getName() : "").asString()+"</span>");
-							inner.add(hyp);
-							hyp.addStyleName("notdetermined");
-							notDeterminedCounter++;
-						}
+              Anchor hyp = new Anchor();
+              hyp.setHTML("<span style=\"display: inline-block; width: " + width + "px; text-align: center;\">" +
+                  SafeHtmlUtils.fromString((dest != null) ? dest : "").asString() + "</span>");
+              inner.add(hyp);
+              hyp.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent clickEvent) {
+                  session.getTabManager().addTab(new DestinationResultsTabItem(state.getFacility(), null, dest, true));
+                }
+              });
 
-					}
+              // style
+              if (state.getDestinations().get(dest).equals(new JSONString("ERROR"))) {
+                hyp.addStyleName("red");
+                errorCounter++;
+              } else if (state.getDestinations().get(dest).equals(new JSONString("OK"))) {
+                hyp.addStyleName("green");
+                okCounter++;
+              } else {
+                hyp.addStyleName("notdetermined");
+                notDeterminedCounter++;
+              }
+            }
 
-					if (!hosts.isEmpty()) {
-						content.setHTML(mainrow, 0, "<strong>Single hosts</strong>");
-						mainrow++;
-					}
-					content.setWidget(mainrow, 0, inner);
-					content.getFlexCellFormatter().setStyleName(mainrow, 0, "propagationTablePadding");
-					mainrow++;
+            if (destList.isEmpty()) {
+              Anchor hyp = new Anchor();
+              hyp.setHTML("<span style=\"display: inline-block; width: " + width + "px; text-align: center;\">" +
+                  SafeHtmlUtils.fromString((state.getFacility().getName() != null) ? state.getFacility().getName() : "")
+                      .asString() + "</span>");
+              inner.add(hyp);
+              hyp.addStyleName("notdetermined");
+              notDeterminedCounter++;
+            }
 
-				}
+          }
 
-				// set counters
-				help.setHTML(0, 1, "<strong>Ok&nbsp;("+okCounter+")</strong>");
-				help.setHTML(0, 2, "<strong>Error&nbsp;("+errorCounter+")</strong>");
-				help.setHTML(0, 3, "<strong>Not&nbsp;determined&nbsp;("+notDeterminedCounter+")</strong>");
-				//help.setHTML(0, 4, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
+          if (!hosts.isEmpty()) {
+            content.setHTML(mainrow, 0, "<strong>Single hosts</strong>");
+            mainrow++;
+          }
+          content.setWidget(mainrow, 0, inner);
+          content.getFlexCellFormatter().setStyleName(mainrow, 0, "propagationTablePadding");
+          mainrow++;
 
-			}
-		}); // get for all facilities for VO
-		callback.retrieveData();
+        }
 
-		// resize perun table to correct size on screen
-		session.getUiElements().resizePerunTable(firstTabPanel, 400, this);
+        // set counters
+        help.setHTML(0, 1, "<strong>Ok&nbsp;(" + okCounter + ")</strong>");
+        help.setHTML(0, 2, "<strong>Error&nbsp;(" + errorCounter + ")</strong>");
+        help.setHTML(0, 3, "<strong>Not&nbsp;determined&nbsp;(" + notDeterminedCounter + ")</strong>");
+        //help.setHTML(0, 4, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
 
-		this.contentWidget.setWidget(mainTab);
-		return getWidget();
-	}
+      }
+    }); // get for all facilities for VO
+    callback.retrieveData();
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    // resize perun table to correct size on screen
+    session.getUiElements().resizePerunTable(firstTabPanel, 400, this);
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    this.contentWidget.setWidget(mainTab);
+    return getWidget();
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.arrowRightIcon();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 947;
-		int result = 1;
-		result = prime * result + 122341;
-		return result;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.arrowRightIcon();
+  }
 
-		return true;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 947;
+    int result = 1;
+    result = prime * result + 122341;
+    return result;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Propagations", getUrlWithParameters());
-	}
+    return true;
+  }
 
-	public boolean isAuthorized() {
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public final static String URL = "propags";
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Propagations", getUrlWithParameters());
+  }
 
-	public String getUrl() {
-		return URL;
-	}
+  public boolean isAuthorized() {
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-	public String getUrlWithParameters() {
-		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	static public PropagationsTabItem load(Map<String, String> parameters) {
-		return new PropagationsTabItem();
-	}
+  public String getUrlWithParameters() {
+    return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

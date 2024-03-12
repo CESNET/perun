@@ -13,75 +13,79 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class EmailSCIM {
 
-	@JsonProperty
-	private String type;
+  @JsonProperty
+  private String type;
 
-	@JsonProperty
-	private String value;
+  @JsonProperty
+  private String value;
 
-	@JsonProperty
-	private Boolean primary;
+  @JsonProperty
+  private Boolean primary;
 
-	public EmailSCIM(String type, String value, Boolean primary) {
-		this.type = type;
-		this.value = value;
-		this.primary = primary;
-	}
+  public EmailSCIM(String type, String value, Boolean primary) {
+    this.type = type;
+    this.value = value;
+    this.primary = primary;
+  }
 
-	public EmailSCIM() {
-	}
+  public EmailSCIM() {
+  }
 
-	public String getType() {
-		return type;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof EmailSCIM)) {
+      return false;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    EmailSCIM emailSCIM = (EmailSCIM) o;
 
-	public String getValue() {
-		return value;
-	}
+    if (getType() != null ? !getType().equals(emailSCIM.getType()) : emailSCIM.getType() != null) {
+      return false;
+    }
+    if (getValue() != null ? !getValue().equals(emailSCIM.getValue()) : emailSCIM.getValue() != null) {
+      return false;
+    }
+    return getPrimary() != null ? getPrimary().equals(emailSCIM.getPrimary()) : emailSCIM.getPrimary() == null;
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+  }
 
-	public Boolean getPrimary() {
-		return primary;
-	}
+  public Boolean getPrimary() {
+    return primary;
+  }
 
-	public void setPrimary(Boolean primary) {
-		this.primary = primary;
-	}
+  public String getType() {
+    return type;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof EmailSCIM)) return false;
+  public String getValue() {
+    return value;
+  }
 
-		EmailSCIM emailSCIM = (EmailSCIM) o;
+  @Override
+  public int hashCode() {
+    int result = getType() != null ? getType().hashCode() : 0;
+    result = 31 * result + (getValue() != null ? getValue().hashCode() : 0);
+    result = 31 * result + (getPrimary() != null ? getPrimary().hashCode() : 0);
+    return result;
+  }
 
-		if (getType() != null ? !getType().equals(emailSCIM.getType()) : emailSCIM.getType() != null) return false;
-		if (getValue() != null ? !getValue().equals(emailSCIM.getValue()) : emailSCIM.getValue() != null) return false;
-		return getPrimary() != null ? getPrimary().equals(emailSCIM.getPrimary()) : emailSCIM.getPrimary() == null;
+  public void setPrimary(Boolean primary) {
+    this.primary = primary;
+  }
 
-	}
+  public void setType(String type) {
+    this.type = type;
+  }
 
-	@Override
-	public int hashCode() {
-		int result = getType() != null ? getType().hashCode() : 0;
-		result = 31 * result + (getValue() != null ? getValue().hashCode() : 0);
-		result = 31 * result + (getPrimary() != null ? getPrimary().hashCode() : 0);
-		return result;
-	}
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-	@Override
-	public String toString() {
-		return "EmailSCIM{" +
-				"type='" + type + '\'' +
-				", value='" + value + '\'' +
-				", primary=" + primary +
-				'}';
-	}
+  @Override
+  public String toString() {
+    return "EmailSCIM{" + "type='" + type + '\'' + ", value='" + value + '\'' + ", primary=" + primary + '}';
+  }
 }

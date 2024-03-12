@@ -2,71 +2,70 @@ package cz.metacentrum.perun.core.api;
 
 public class BlockedLogin {
 
-	private int id;
-	private String login;
-	private String namespace;
+  private int id;
+  private String login;
+  private String namespace;
 
-	public BlockedLogin(String login, String namespace) {
-		this.login = login;
-		this.namespace = namespace;
-	}
+  public BlockedLogin(String login, String namespace) {
+    this.login = login;
+    this.namespace = namespace;
+  }
 
-	public BlockedLogin(int id, String login, String namespace) {
-		this.id = id;
-		this.login = login;
-		this.namespace = namespace;
-	}
+  public BlockedLogin(int id, String login, String namespace) {
+    this.id = id;
+    this.login = login;
+    this.namespace = namespace;
+  }
 
-	public int getId() {
-		return id;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    final BlockedLogin that = (BlockedLogin) obj;
+    if (!this.login.equals(that.getLogin())) {
+      return false;
+    }
 
-	public String getLogin() {
-		return login;
-	}
+    if ((this.namespace == null) ? (that.namespace != null) : !this.namespace.equals(that.namespace)) {
+      return false;
+    }
 
-	public void setLogin(String login) {
-		this.login = login;
-	}
+    return true;
+  }
 
-	public String getNamespace() {
-		return namespace;
-	}
+  public int getId() {
+    return id;
+  }
 
-	public void setNamespace(String namespace) {
-		this.namespace = namespace;
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
+  public String getLogin() {
+    return login;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
+  public void setLogin(String login) {
+    this.login = login;
+  }
 
-		final BlockedLogin that = (BlockedLogin) obj;
-		if(!this.login.equals(that.getLogin())) {
-			return false;
-		}
+  public String getNamespace() {
+    return namespace;
+  }
 
-		if ((this.namespace == null) ? (that.namespace != null) : !this.namespace.equals(that.namespace)) {
-			return false;
-		}
+  public void setNamespace(String namespace) {
+    this.namespace = namespace;
+  }
 
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = this.login.hashCode();
-		result = 31 * result + (this.namespace != null ? this.namespace.hashCode() : 0);
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    int result = this.login.hashCode();
+    result = 31 * result + (this.namespace != null ? this.namespace.hashCode() : 0);
+    return result;
+  }
 }

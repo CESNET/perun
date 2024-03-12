@@ -9,20 +9,20 @@ import com.google.gwt.http.client.Request;
  */
 public interface JsonCallbackWithPages {
 
-	/**
-	 * Retrieves the data from the db.
-	 * The table must be cleared before.
-	 * Returns callback id
-	 *
-	 * @param pageSize
-	 * @param pageNum Starts with 0.
-	 * @return callback
-	 */
-	Request retrieveData(int pageSize, int pageNum);
+  /**
+   * Retrieves the data from the db.
+   * The table must be cleared before.
+   * Returns callback id
+   *
+   * @param pageSize
+   * @param pageNum  Starts with 0.
+   * @return callback
+   */
+  Request retrieveData(int pageSize, int pageNum);
 
-	/**
-	 * Clears the table
-	 */
-	void clearTable();
+  /**
+   * Clears the table
+   */
+  void clearTable();
 
 }

@@ -1,14 +1,15 @@
 package cz.metacentrum.perun.cabinet;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.strategy.PublicationSystemStrategy;
-
 import java.util.List;
 import java.util.Objects;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Integration tests of AuthorshipManager
@@ -17,121 +18,120 @@ import static org.junit.Assert.*;
  */
 public class PublicationSystemManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
-	@Test
-	public void createPublicationSystem() throws Exception {
-		System.out.println("PublicationSystemManagerIntegrationTest.createPublicationSystem");
+  @Test
+  public void createPublicationSystem() throws Exception {
+    System.out.println("PublicationSystemManagerIntegrationTest.createPublicationSystem");
 
-		PublicationSystem ps = new PublicationSystem();
-		ps.setFriendlyName("PS for tests");
-		ps.setLoginNamespace("some");
-		ps.setUrl("http://seznam.cz");
-		ps.setUsername("");
-		ps.setPassword("");
-		ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
+    PublicationSystem ps = new PublicationSystem();
+    ps.setFriendlyName("PS for tests");
+    ps.setLoginNamespace("some");
+    ps.setUrl("http://seznam.cz");
+    ps.setUsername("");
+    ps.setPassword("");
+    ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
 
-		ps = getCabinetManager().createPublicationSystem(sess, ps);
-		PublicationSystem ps2 = getCabinetManager().getPublicationSystemById(ps.getId());
-		assertEquals(ps, ps2);
+    ps = getCabinetManager().createPublicationSystem(sess, ps);
+    PublicationSystem ps2 = getCabinetManager().getPublicationSystemById(ps.getId());
+    assertEquals(ps, ps2);
 
-	}
+  }
 
+  @Test
+  public void deletePublicationSystem() throws Exception {
+    System.out.println("PublicationSystemManagerIntegrationTest.deletePublicationSystem");
 
-	@Test
-	public void updatePublicationSystem() throws Exception {
-		System.out.println("PublicationSystemManagerIntegrationTest.updatePublicationSystem");
+    List<PublicationSystem> systems = getCabinetManager().getPublicationSystems(sess);
 
-		PublicationSystem ps = new PublicationSystem();
-		ps.setFriendlyName("PS for tests");
-		ps.setLoginNamespace("some");
-		ps.setUrl("http://seznam.cz");
-		ps.setUsername("");
-		ps.setPassword("");
-		ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
+    assertNotNull(systems);
+    assertTrue(!systems.isEmpty());
 
-		ps = getCabinetManager().createPublicationSystem(sess, ps);
+    PublicationSystem ps = systems.get(0);
 
-		PublicationSystem ps2 = getCabinetManager().getPublicationSystemById(ps.getId());
-		assertEquals(ps, ps2);
+    getCabinetManager().deletePublicationSystem(sess, ps);
 
-		ps.setUrl("http://www.seznam.cz");
-		ps = getCabinetManager().updatePublicationSystem(sess, ps);
+    List<PublicationSystem> systems2 = getCabinetManager().getPublicationSystems(sess);
+    assertNotNull(systems2);
+    assertTrue(!systems2.isEmpty());
+    assertTrue(!systems2.contains(ps));
 
-		PublicationSystem ps3 = getCabinetManager().getPublicationSystemById(ps.getId());
-		assertEquals(ps.getUrl(), ps3.getUrl());
-		assertFalse(Objects.equals(ps2.getUrl(), ps3.getUrl()));
+  }
 
-	}
+  @Test
+  public void getPublicationSystemById() throws Exception {
+    System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystemById");
 
-	@Test
-	public void deletePublicationSystem() throws Exception {
-		System.out.println("PublicationSystemManagerIntegrationTest.deletePublicationSystem");
+    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemById(pubSysZcu.getId());
+    assertNotNull(publicationSystem);
+    assertTrue(Objects.equals(publicationSystem, pubSysZcu));
 
-		List<PublicationSystem> systems = getCabinetManager().getPublicationSystems(sess);
+    PublicationSystemStrategy ps = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+    assertNotNull(ps);
 
-		assertNotNull(systems);
-		assertTrue(!systems.isEmpty());
+  }
 
-		PublicationSystem ps = systems.get(0);
+  @Test
+  public void getPublicationSystemByName() throws Exception {
+    System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystemByName");
 
-		getCabinetManager().deletePublicationSystem(sess, ps);
+    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByName(pubSysZcu.getFriendlyName());
+    assertNotNull(publicationSystem);
+    assertTrue(Objects.equals(publicationSystem, pubSysZcu));
 
-		List<PublicationSystem> systems2 = getCabinetManager().getPublicationSystems(sess);
-		assertNotNull(systems2);
-		assertTrue(!systems2.isEmpty());
-		assertTrue(!systems2.contains(ps));
+    PublicationSystemStrategy ps = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+    assertNotNull(ps);
 
-	}
+  }
 
-	@Test
-	public void getPublicationSystems() throws Exception {
-		System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystems");
-		List<PublicationSystem> systems = getCabinetManager().getPublicationSystems(sess);
+  @Test
+  public void getPublicationSystemByNamespace() throws Exception {
+    System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystemByNamespace");
 
-		assertNotNull(systems);
-		assertTrue(!systems.isEmpty());
-		assertTrue(systems.contains(pubSysMu));
-		assertTrue(systems.contains(pubSysZcu));
-		assertTrue(systems.contains(pubSysEuropePMC));
-		assertTrue(systems.size() == 4);
+    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("mu");
+    assertNotNull(publicationSystem);
+    assertTrue(Objects.equals(publicationSystem, pubSysMu));
 
-	}
+    PublicationSystemStrategy ps = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+    assertNotNull(ps);
+  }
 
-	@Test
-	public void getPublicationSystemByNamespace() throws Exception {
-		System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystemByNamespace");
+  @Test
+  public void getPublicationSystems() throws Exception {
+    System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystems");
+    List<PublicationSystem> systems = getCabinetManager().getPublicationSystems(sess);
 
-		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("mu");
-		assertNotNull(publicationSystem);
-		assertTrue(Objects.equals(publicationSystem, pubSysMu));
+    assertNotNull(systems);
+    assertTrue(!systems.isEmpty());
+    assertTrue(systems.contains(pubSysMu));
+    assertTrue(systems.contains(pubSysZcu));
+    assertTrue(systems.contains(pubSysEuropePMC));
+    assertTrue(systems.size() == 4);
 
-		PublicationSystemStrategy ps = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-		assertNotNull(ps);
-	}
+  }
 
-	@Test
-	public void getPublicationSystemById() throws Exception {
-		System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystemById");
+  @Test
+  public void updatePublicationSystem() throws Exception {
+    System.out.println("PublicationSystemManagerIntegrationTest.updatePublicationSystem");
 
-		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemById(pubSysZcu.getId());
-		assertNotNull(publicationSystem);
-		assertTrue(Objects.equals(publicationSystem, pubSysZcu));
+    PublicationSystem ps = new PublicationSystem();
+    ps.setFriendlyName("PS for tests");
+    ps.setLoginNamespace("some");
+    ps.setUrl("http://seznam.cz");
+    ps.setUsername("");
+    ps.setPassword("");
+    ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
 
-		PublicationSystemStrategy ps = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-		assertNotNull(ps);
+    ps = getCabinetManager().createPublicationSystem(sess, ps);
 
-	}
+    PublicationSystem ps2 = getCabinetManager().getPublicationSystemById(ps.getId());
+    assertEquals(ps, ps2);
 
-	@Test
-	public void getPublicationSystemByName() throws Exception {
-		System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystemByName");
+    ps.setUrl("http://www.seznam.cz");
+    ps = getCabinetManager().updatePublicationSystem(sess, ps);
 
-		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByName(pubSysZcu.getFriendlyName());
-		assertNotNull(publicationSystem);
-		assertTrue(Objects.equals(publicationSystem, pubSysZcu));
+    PublicationSystem ps3 = getCabinetManager().getPublicationSystemById(ps.getId());
+    assertEquals(ps.getUrl(), ps3.getUrl());
+    assertFalse(Objects.equals(ps2.getUrl(), ps3.getUrl()));
 
-		PublicationSystemStrategy ps = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-		assertNotNull(ps);
-
-	}
+  }
 
 }

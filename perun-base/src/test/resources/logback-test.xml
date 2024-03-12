@@ -3,24 +3,24 @@
 <configuration packagingData="true" debug="false">
 
 
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder>
-			<pattern>%d %-5level %file:%line - %msg%n</pattern>
-		</encoder>
-	</appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %-5level %file:%line - %msg%n</pattern>
+        </encoder>
+    </appender>
 
-	<root level="error">
-		<appender-ref ref="STDOUT" />
-	</root>
+    <root level="error">
+        <appender-ref ref="STDOUT"/>
+    </root>
 
-	<logger name="org.springframework" level="warn"/>
-	<logger name="cz.metacentrum.perun.core.impl.Auditer" level="off"/>
-	<logger name="cz.metacentrum.perun.core.api.exceptions" level="off"/>
-	<logger name="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" level="off"/>
-	<logger name="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl" level="off"/>
-	<logger name="cz.metacentrum.perun.core.entry.AttributesManagerEntryIntegrationTest" level="error"/>
+    <logger name="org.springframework" level="warn"/>
+    <logger name="cz.metacentrum.perun.core.impl.Auditer" level="off"/>
+    <logger name="cz.metacentrum.perun.core.api.exceptions" level="off"/>
+    <logger name="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" level="off"/>
+    <logger name="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl" level="off"/>
+    <logger name="cz.metacentrum.perun.core.entry.AttributesManagerEntryIntegrationTest" level="error"/>
 
-	<logger name="org.testcontainers" level="INFO"/>
-	<logger name="com.github.dockerjava" level="WARN"/>
+    <logger name="org.testcontainers" level="INFO"/>
+    <logger name="com.github.dockerjava" level="WARN"/>
 
 </configuration>

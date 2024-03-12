@@ -6,17 +6,17 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  * @author Michal Prochazka
  */
 public class PasswordDoesntMatchRuntimeException extends PerunRuntimeException {
-	static final long serialVersionUID = 0;
+  static final long serialVersionUID = 0;
 
-	public PasswordDoesntMatchRuntimeException(String message) {
-		super(message);
-	}
+  public PasswordDoesntMatchRuntimeException(String message) {
+    super(message);
+  }
 
-	public PasswordDoesntMatchRuntimeException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public PasswordDoesntMatchRuntimeException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public PasswordDoesntMatchRuntimeException(Throwable cause) {
-		super(cause);
-	}
+  public PasswordDoesntMatchRuntimeException(Throwable cause) {
+    super(cause);
+  }
 }

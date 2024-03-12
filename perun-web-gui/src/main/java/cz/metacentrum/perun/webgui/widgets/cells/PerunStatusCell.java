@@ -16,50 +16,50 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  */
 public class PerunStatusCell extends ClickableTextCell {
 
-	/*
-		 VALID  (0),
-		 INVALID (1),    //just created object, where some information (e.g. attribute)  is missing
-		 EXPIRED (3),
-		 DISABLED (4);   //use this status instead of deleting the entity
-		 */
-	static private final ImageResource VALID = SmallIcons.INSTANCE.acceptIcon();
-	static private final ImageResource INVALID = SmallIcons.INSTANCE.flagRedIcon();
-	static private final ImageResource EXPIRED = SmallIcons.INSTANCE.flagYellowIcon();
-	static private final ImageResource DISABLED = SmallIcons.INSTANCE.binClosedIcon();
+  /*
+       VALID  (0),
+       INVALID (1),    //just created object, where some information (e.g. attribute)  is missing
+       EXPIRED (3),
+       DISABLED (4);   //use this status instead of deleting the entity
+       */
+  static private final ImageResource VALID = SmallIcons.INSTANCE.acceptIcon();
+  static private final ImageResource INVALID = SmallIcons.INSTANCE.flagRedIcon();
+  static private final ImageResource EXPIRED = SmallIcons.INSTANCE.flagYellowIcon();
+  static private final ImageResource DISABLED = SmallIcons.INSTANCE.binClosedIcon();
 
-	@Override
-	public void render(com.google.gwt.cell.client.Cell.Context context,
-			String status, SafeHtmlBuilder sb) {
+  @Override
+  public void render(com.google.gwt.cell.client.Cell.Context context,
+                     String status, SafeHtmlBuilder sb) {
 
-		// selects the image according to the status
-		ImageResource ir = null;
+    // selects the image according to the status
+    ImageResource ir = null;
 
-		if (status == null) {
-			sb.appendHtmlConstant("<div class=\"" + "customClickableTextCell" + "\">");
-			sb.appendHtmlConstant("</div>");
-			return;
-		} else if(status.equalsIgnoreCase("VALID")){
-			ir = VALID;
-		} else if (status.equalsIgnoreCase("INVALID")){
-			ir = INVALID;
-		} else if (status.equalsIgnoreCase("EXPIRED")){
-			ir = EXPIRED;
-		} else if (status.equalsIgnoreCase("DISABLED")){
-			ir = DISABLED;
-		}
+    if (status == null) {
+      sb.appendHtmlConstant("<div class=\"" + "customClickableTextCell" + "\">");
+      sb.appendHtmlConstant("</div>");
+      return;
+    } else if (status.equalsIgnoreCase("VALID")) {
+      ir = VALID;
+    } else if (status.equalsIgnoreCase("INVALID")) {
+      ir = INVALID;
+    } else if (status.equalsIgnoreCase("EXPIRED")) {
+      ir = EXPIRED;
+    } else if (status.equalsIgnoreCase("DISABLED")) {
+      ir = DISABLED;
+    }
 
-		// if status not available
-		if(ir == null){
-			return;
-		}
+    // if status not available
+    if (ir == null) {
+      return;
+    }
 
-		// append the image
-		Element imageElement = new Image(ir).getElement();
-		imageElement.setTitle(status);
-		SafeHtml image = SafeHtmlUtils.fromSafeConstant((imageElement.getString()));
-		sb.appendHtmlConstant("<div class=\"" + "customClickableTextCell" + "\">");
-		sb.append(image);
-		sb.appendHtmlConstant("</div>");
-	}
+    // append the image
+    Element imageElement = new Image(ir).getElement();
+    imageElement.setTitle(status);
+    SafeHtml image = SafeHtmlUtils.fromSafeConstant((imageElement.getString()));
+    sb.appendHtmlConstant("<div class=\"" + "customClickableTextCell" + "\">");
+    sb.append(image);
+    sb.appendHtmlConstant("</div>");
+  }
 
 }

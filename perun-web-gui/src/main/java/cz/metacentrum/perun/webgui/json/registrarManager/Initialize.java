@@ -14,77 +14,75 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class Initialize implements JsonCallback {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/initialize";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/initialize";
+  // data
+  private String vo = "";
+  private String group = "";
+  private boolean hidden = false;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param voShortName vo name
+   * @param group       group name
+   */
+  public Initialize(String voShortName, String group) {
+    this.vo = voShortName;
+    this.group = group;
+  }
 
-	// data
-	private String vo = "";
-	private String group = "";
-	private boolean hidden = false;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param voShortName vo name
+   * @param group       group name
+   * @param events      Custom events
+   */
+  public Initialize(String voShortName, String group, JsonCallbackEvents events) {
+    this.events = events;
+    this.vo = voShortName;
+    this.group = group;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param voShortName vo name
-	 * @param group group name
-	 */
-	public Initialize(String voShortName, String group) {
-		this.vo = voShortName;
-		this.group = group;
-	}
+  public void onFinished(JavaScriptObject jso) {
+    session.getUiElements().setLogText("VO/Group information retrieved");
+    events.onFinished(jso);
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param voShortName vo name
-	 * @param group group name
-	 * @param events Custom events
-	 */
-	public Initialize(String voShortName, String group, JsonCallbackEvents events) {
-		this.events = events;
-		this.vo = voShortName;
-		this.group = group;
-	}
+  public void onError(PerunError error) {
+    session.getUiElements().setLogErrorText("Retrieving VO/Group information failed.");
+    events.onError(error);
+  }
 
-	public void onFinished(JavaScriptObject jso) {
-		session.getUiElements().setLogText("VO/Group information retrieved");
-		events.onFinished(jso);
-	}
+  public void onLoadingStart() {
+    events.onLoadingStart();
+  }
 
-	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Retrieving VO/Group information failed.");
-		events.onError(error);
-	}
+  public void setHidden(boolean hidden) {
+    this.hidden = hidden;
+  }
 
-	public void onLoadingStart() {
-		events.onLoadingStart();
-	}
+  public void retrieveData() {
 
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
+    String params = "";
 
-	public void retrieveData() {
+    if (vo != null && !vo.equals("")) {
+      params += "vo=" + vo;
+    }
+    if (group != null && !group.equals("")) {
+      params += "&group=" + group;
+    }
 
-		String params = "";
+    JsonClient client = new JsonClient();
+    client.setHidden(hidden);
+    client.retrieveData(JSON_URL, params, this);
 
-		if (vo != null && !vo.equals("")) {
-			params += "vo="+vo;
-		}
-		if (group != null && !group.equals("")) {
-			params += "&group="+group;
-		}
-
-		JsonClient client = new JsonClient();
-		client.setHidden(hidden);
-		client.retrieveData(JSON_URL, params, this);
-
-	}
+  }
 
 }

@@ -12,58 +12,63 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Class for access def:lifescienceid-persistent-shadow attribute. It generates value if you call it for the first time.
+ * Class for access def:lifescienceid-persistent-shadow attribute. It generates value if you call it for the first
+ * time.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_persistent extends UserVirtualAttributesModuleAbstract {
+public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_persistent
+    extends UserVirtualAttributesModuleAbstract {
 
-	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
+  public static final String SHADOW =
+      "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute lifescienceidPersistent = new Attribute(attributeDefinition);
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:lifescienceid-persistent");
+    attr.setDisplayName("Lifescienceid login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login to Lifescienceid. It is set automatically with first call.");
+    return attr;
+  }
 
-		try {
-			Attribute lifescienceidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute lifescienceidPersistent = new Attribute(attributeDefinition);
 
-			if (lifescienceidPersistentShadow.getValue() == null) {
+    try {
+      Attribute lifescienceidPersistentShadow =
+          sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-				lifescienceidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, lifescienceidPersistentShadow);
+      if (lifescienceidPersistentShadow.getValue() == null) {
 
-				if (lifescienceidPersistentShadow.getValue() == null) {
-					throw new InternalErrorException("Lifescienceid id couldn't be set automatically");
-				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, lifescienceidPersistentShadow);
-			}
+        lifescienceidPersistentShadow =
+            sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, lifescienceidPersistentShadow);
 
-			lifescienceidPersistent.setValue(lifescienceidPersistentShadow.getValue());
-			return lifescienceidPersistent;
+        if (lifescienceidPersistentShadow.getValue() == null) {
+          throw new InternalErrorException("Lifescienceid id couldn't be set automatically");
+        }
+        sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, lifescienceidPersistentShadow);
+      }
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+      lifescienceidPersistent.setValue(lifescienceidPersistentShadow.getValue());
+      return lifescienceidPersistent;
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(SHADOW);
-	}
+    } catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException |
+             AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("login-namespace:lifescienceid-persistent");
-		attr.setDisplayName("Lifescienceid login");
-		attr.setType(String.class.getName());
-		attr.setDescription("Login to Lifescienceid. It is set automatically with first call.");
-		return attr;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(SHADOW);
+  }
 }

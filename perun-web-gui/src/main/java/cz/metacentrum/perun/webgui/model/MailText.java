@@ -11,115 +11,116 @@ import com.google.gwt.json.client.JSONObject;
 
 public class MailText extends JavaScriptObject {
 
-	protected MailText() {}
+  protected MailText() {
+  }
 
-	/**
-	 * Creates a new MailTexts
-	 *
-	 * @param locale
-	 * @param subject
-	 * @param text
-	 * @return
-	 */
-	static public MailText construct(String locale, String subject, String text, boolean htmlFormat)
-	{
-		MailText txt = new JSONObject().getJavaScriptObject().cast();
+  /**
+   * Creates a new MailTexts
+   *
+   * @param locale
+   * @param subject
+   * @param text
+   * @return
+   */
+  static public MailText construct(String locale, String subject, String text, boolean htmlFormat) {
+    MailText txt = new JSONObject().getJavaScriptObject().cast();
 
-		txt.setLocale(locale);
-		txt.setSubject(subject);
-		txt.setText(text);
-		txt.setHtmlFormat(htmlFormat);
+    txt.setLocale(locale);
+    txt.setSubject(subject);
+    txt.setText(text);
+    txt.setHtmlFormat(htmlFormat);
 
-		return txt;
-	}
+    return txt;
+  }
 
-	/**
-	 * Get subject
-	 * @return subject
-	 */
-	public final native String getSubject() /*-{
+  /**
+   * Get subject
+   *
+   * @return subject
+   */
+  public final native String getSubject() /*-{
 		if(typeof this.subject === 'undefined') return "";
 		return this.subject;
 	}-*/;
 
-	/**
-	 * Set subject
-	 */
-	public final native void setSubject(String subject) /*-{
+  /**
+   * Set subject
+   */
+  public final native void setSubject(String subject) /*-{
 		this.subject = subject;
 	}-*/;
 
 
-	/**
-	 * Get text
-	 * @return text
-	 */
-	public final native String getText() /*-{
+  /**
+   * Get text
+   *
+   * @return text
+   */
+  public final native String getText() /*-{
 		if(typeof this.text === 'undefined') return "";
 		return this.text;
 	}-*/;
 
-	/**
-	 * Set text
-	 */
-	public final native void setText(String text) /*-{
+  /**
+   * Set text
+   */
+  public final native void setText(String text) /*-{
 		this.text = text;
 	}-*/;
 
-	/**
-	 * Set HTML format
-	 */
-	public final native void setHtmlFormat(boolean htmlFormat) /*-{
+  /**
+   * Set HTML format
+   */
+  public final native void setHtmlFormat(boolean htmlFormat) /*-{
 		this.htmlFormat = htmlFormat;
 	}-*/;
 
-	/**
-	 * Get locale
-	 * @return locale
-	 */
-	public final native String getLocale() /*-{
+  /**
+   * Get locale
+   *
+   * @return locale
+   */
+  public final native String getLocale() /*-{
 		if(typeof this.locale === 'undefined') return "";
 		return this.locale;
 	}-*/;
 
-	/**
-	 * Set locale
-	 */
-	public final native void setLocale(String locale) /*-{
+  /**
+   * Set locale
+   */
+  public final native void setLocale(String locale) /*-{
 		this.locale = locale;
 	}-*/;
 
 
-
-
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
+  /**
+   * Returns Perun specific type of object
+   *
+   * @return type of object
+   */
+  public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
 		return this.beanName;
 	}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
+  /**
+   * Sets Perun specific type of object
+   *
+   * @param type type of object
+   */
+  public final native void setObjectType(String type) /*-{
 		this.beanName = type;
 	}-*/;
 
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
+  /**
+   * Returns the status of this item in Perun system as String
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @return string which defines item status
+   */
+  public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
 }

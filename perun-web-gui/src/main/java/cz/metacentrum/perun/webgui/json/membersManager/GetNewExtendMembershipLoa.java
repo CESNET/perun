@@ -15,83 +15,83 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class GetNewExtendMembershipLoa implements JsonCallback {
 
-	static private final String JSON_URL = "membersManager/getNewExtendMembership";
-	private int loa = 0;
-	private int voId = 0;
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private Label widget = new Label();
+  static private final String JSON_URL = "membersManager/getNewExtendMembership";
+  private int loa = 0;
+  private int voId = 0;
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private Label widget = new Label();
 
-	/**
-	 * New instance of member info
-	 *
-	 * @param voId
-	 * @param loa
-	 */
-	public GetNewExtendMembershipLoa(int voId, int loa) {
-		this.voId = voId;
-		this.loa = loa;
-	}
+  /**
+   * New instance of member info
+   *
+   * @param voId
+   * @param loa
+   */
+  public GetNewExtendMembershipLoa(int voId, int loa) {
+    this.voId = voId;
+    this.loa = loa;
+  }
 
-	/**
-	 * New instance of member info.
-	 *
-	 * @param voId
-	 * @param loa
-	 * @param events
-	 */
-	public GetNewExtendMembershipLoa(int voId, int loa, JsonCallbackEvents events) {
-		this.loa = loa;
-		this.voId = voId;
-		this.events = events;
-	}
+  /**
+   * New instance of member info.
+   *
+   * @param voId
+   * @param loa
+   * @param events
+   */
+  public GetNewExtendMembershipLoa(int voId, int loa, JsonCallbackEvents events) {
+    this.loa = loa;
+    this.voId = voId;
+    this.events = events;
+  }
 
-	/**
-	 * Retrieves data
-	 */
-	public void retrieveData(){
+  /**
+   * Retrieves data
+   */
+  public void retrieveData() {
 
-		final String param = "loa=" + this.loa + "&vo=" + this.voId;
-		// retrieve data
-		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, param, this);
-	}
+    final String param = "loa=" + this.loa + "&vo=" + this.voId;
+    // retrieve data
+    JsonClient js = new JsonClient();
+    js.retrieveData(JSON_URL, param, this);
+  }
 
-	public Label getWidget() {
-		return this.widget;
-	}
+  public Label getWidget() {
+    return this.widget;
+  }
 
-	/**
-	 * When successfully finishes
-	 */
-	public void onFinished(JavaScriptObject jso) {
-		BasicOverlayType basic = jso.cast();
-		if (!basic.isNull()) {
-			widget.setText(basic.getString());
-		}
-		events.onFinished(jso);
-	}
+  /**
+   * When successfully finishes
+   */
+  public void onFinished(JavaScriptObject jso) {
+    BasicOverlayType basic = jso.cast();
+    if (!basic.isNull()) {
+      widget.setText(basic.getString());
+    }
+    events.onFinished(jso);
+  }
 
-	/**
-	 * When error
-	 */
-	public void onError(PerunError error) {
-		events.onError(error);
-	}
+  /**
+   * When error
+   */
+  public void onError(PerunError error) {
+    events.onError(error);
+  }
 
-	/**
-	 * When start
-	 */
-	public void onLoadingStart() {
-		events.onLoadingStart();
-	}
+  /**
+   * When start
+   */
+  public void onLoadingStart() {
+    events.onLoadingStart();
+  }
 
-	/**
-	 * Sets events to this callback
-	 *
-	 * @param events
-	 */
-	public void setEvents(JsonCallbackEvents events){
-		this.events = events;
-	}
+  /**
+   * Sets events to this callback
+   *
+   * @param events
+   */
+  public void setEvents(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
 }

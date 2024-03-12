@@ -4,45 +4,44 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA. User: tomastunkl Date: 29.09.12 Time: 23:48 To
- * change this template use File | Settings | File Templates.
+ * Created with IntelliJ IDEA. User: tomastunkl Date: 29.09.12 Time: 23:48 To change this template use File | Settings |
+ * File Templates.
  */
 public enum TagType {
 
-	FOR("for"),
-	IF("if");
+  FOR("for"), IF("if");
 
-	private TagType(String value) {
-		this.value = value;
-	}
+  private String value;
 
-	private String value;
+  private TagType(String value) {
+    this.value = value;
+  }
 
-	public String getValue() {
-		return value;
-	}
+  public static List<TagType> getAll() {
+    return Arrays.asList(values());
+  }
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+  public static TagType resolve(String value) {
 
-	public static List<TagType> getAll() {
-		return Arrays.asList(values());
-	}
+    if (value == null || value.isEmpty()) {
+      return null;
+    }
 
-	public static TagType resolve(String value) {
+    value = value.trim();
+    for (TagType type : getAll()) {
+      if (type.getValue().equalsIgnoreCase(value)) {
+        return type;
+      }
+    }
 
-		if (value == null || value.isEmpty()) {
-			return null;
-		}
+    return null;
+  }
 
-		value = value.trim();
-		for (TagType type : getAll()) {
-			if (type.getValue().equalsIgnoreCase(value)) {
-				return type;
-			}
-		}
+  public String getValue() {
+    return value;
+  }
 
-		return null;
-	}
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

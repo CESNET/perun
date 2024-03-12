@@ -6,68 +6,71 @@ import java.time.LocalDate;
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public class EnrichedSponsorship {
-	private User sponsor;
-	private Member sponsoredMember;
-	private LocalDate validityTo;
-	private boolean active;
+  private User sponsor;
+  private Member sponsoredMember;
+  private LocalDate validityTo;
+  private boolean active;
 
-	public User getSponsor() {
-		return sponsor;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-	public void setSponsor(User sponsor) {
-		this.sponsor = sponsor;
-	}
+    EnrichedSponsorship that = (EnrichedSponsorship) o;
 
-	public Member getSponsoredMember() {
-		return sponsoredMember;
-	}
+    if (getSponsor() != null ? !getSponsor().equals(that.getSponsor()) : that.getSponsor() != null) {
+      return false;
+    }
+    return getSponsoredMember() != null ? getSponsoredMember().equals(that.getSponsoredMember()) :
+        that.getSponsoredMember() == null;
+  }
 
-	public void setSponsoredMember(Member sponsoredMember) {
-		this.sponsoredMember = sponsoredMember;
-	}
+  public User getSponsor() {
+    return sponsor;
+  }
 
-	public LocalDate getValidityTo() {
-		return validityTo;
-	}
+  public void setSponsor(User sponsor) {
+    this.sponsor = sponsor;
+  }
 
-	public void setValidityTo(LocalDate validityTo) {
-		this.validityTo = validityTo;
-	}
+  public Member getSponsoredMember() {
+    return sponsoredMember;
+  }
 
-	public boolean isActive() {
-		return active;
-	}
+  public void setSponsoredMember(Member sponsoredMember) {
+    this.sponsoredMember = sponsoredMember;
+  }
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+  public LocalDate getValidityTo() {
+    return validityTo;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+  public void setValidityTo(LocalDate validityTo) {
+    this.validityTo = validityTo;
+  }
 
-		EnrichedSponsorship that = (EnrichedSponsorship) o;
+  @Override
+  public int hashCode() {
+    int result = getSponsor() != null ? getSponsor().hashCode() : 0;
+    result = 31 * result + (getSponsoredMember() != null ? getSponsoredMember().hashCode() : 0);
+    return result;
+  }
 
-		if (getSponsor() != null ? !getSponsor().equals(that.getSponsor()) : that.getSponsor() != null) return false;
-		return getSponsoredMember() != null ? getSponsoredMember().equals(that.getSponsoredMember()) : that.getSponsoredMember() == null;
-	}
+  public boolean isActive() {
+    return active;
+  }
 
-	@Override
-	public int hashCode() {
-		int result = getSponsor() != null ? getSponsor().hashCode() : 0;
-		result = 31 * result + (getSponsoredMember() != null ? getSponsoredMember().hashCode() : 0);
-		return result;
-	}
+  public void setActive(boolean active) {
+    this.active = active;
+  }
 
-	@Override
-	public String toString() {
-		return "EnrichedSponsorship[" +
-				"sponsor=" + sponsor +
-				", sponsoredMember=" + sponsoredMember +
-				", validityTo=" + validityTo +
-				", active=" + active +
-				']';
-	}
+  @Override
+  public String toString() {
+    return "EnrichedSponsorship[" + "sponsor=" + sponsor + ", sponsoredMember=" + sponsoredMember + ", validityTo=" +
+           validityTo + ", active=" + active + ']';
+  }
 }

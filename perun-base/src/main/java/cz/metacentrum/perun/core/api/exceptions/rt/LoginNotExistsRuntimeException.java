@@ -6,17 +6,17 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  * @author Michal Prochazka
  */
 public class LoginNotExistsRuntimeException extends PerunRuntimeException {
-	static final long serialVersionUID = 0;
+  static final long serialVersionUID = 0;
 
-	public LoginNotExistsRuntimeException(String message) {
-		super(message);
-	}
+  public LoginNotExistsRuntimeException(String message) {
+    super(message);
+  }
 
-	public LoginNotExistsRuntimeException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public LoginNotExistsRuntimeException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public LoginNotExistsRuntimeException(Throwable cause) {
-		super(cause);
-	}
+  public LoginNotExistsRuntimeException(Throwable cause) {
+    super(cause);
+  }
 }

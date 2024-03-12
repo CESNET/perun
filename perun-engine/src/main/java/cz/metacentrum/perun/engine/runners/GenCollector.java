@@ -1,129 +1,136 @@
 package cz.metacentrum.perun.engine.runners;
 
+import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.GENERROR;
+
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.engine.exceptions.TaskExecutionException;
-import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.engine.scheduling.impl.BlockingGenExecutorCompletionService;
+import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
+import java.time.ZoneId;
+import java.util.concurrent.BlockingDeque;
+import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.jms.JMSException;
-import java.time.ZoneId;
-import java.util.concurrent.BlockingDeque;
-
-import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.GENERROR;
-
 /**
  * This class represents permanently running thread, which should run in a single instance.
- *
- * It takes all done GEN Tasks (both successfully and not) from BlockingGenExecutorCompletionService
- * and report their outcome to the Dispatcher. Successful Tasks are put to the generatedTasks blocking deque
- * for later processing by SendPlanner (waiting to be sent to destinations). Failed Tasks are removed from
- * SchedulingPool (Engine).
- *
+ * <p>
+ * It takes all done GEN Tasks (both successfully and not) from BlockingGenExecutorCompletionService and report their
+ * outcome to the Dispatcher. Successful Tasks are put to the generatedTasks blocking deque for later processing by
+ * SendPlanner (waiting to be sent to destinations). Failed Tasks are removed from SchedulingPool (Engine).
+ * <p>
  * Expected Task status change is GENERATING -> GENERATED | GENERROR based on GenWorker outcome.
- *
- * @see cz.metacentrum.perun.engine.scheduling.impl.GenWorkerImpl
- * @see BlockingGenExecutorCompletionService
- * @see SchedulingPool#getGeneratedTasksQueue()
  *
  * @author David Šarman
  * @author Pavel Zlámal <zlamal@cesnet.cz>
+ * @see cz.metacentrum.perun.engine.scheduling.impl.GenWorkerImpl
+ * @see BlockingGenExecutorCompletionService
+ * @see SchedulingPool#getGeneratedTasksQueue()
  */
 public class GenCollector extends AbstractRunner {
 
-	private final static Logger log = LoggerFactory.getLogger(GenCollector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GenCollector.class);
 
-	@Autowired
-	private SchedulingPool schedulingPool;
-	@Autowired
-	private BlockingGenExecutorCompletionService genCompletionService;
-	@Autowired
-	private JMSQueueManager jmsQueueManager;
+  @Autowired
+  private SchedulingPool schedulingPool;
+  @Autowired
+  private BlockingGenExecutorCompletionService genCompletionService;
+  @Autowired
+  private JMSQueueManager jmsQueueManager;
 
-	public GenCollector() {
-	}
+  public GenCollector() {
+  }
 
-	public GenCollector(SchedulingPool schedulingPool, BlockingGenExecutorCompletionService genCompletionService, JMSQueueManager jmsQueueManager) {
-		this.schedulingPool = schedulingPool;
-		this.genCompletionService = genCompletionService;
-		this.jmsQueueManager = jmsQueueManager;
-	}
+  public GenCollector(SchedulingPool schedulingPool, BlockingGenExecutorCompletionService genCompletionService,
+                      JMSQueueManager jmsQueueManager) {
+    this.schedulingPool = schedulingPool;
+    this.genCompletionService = genCompletionService;
+    this.jmsQueueManager = jmsQueueManager;
+  }
 
-	@Override
-	public void run() {
-		BlockingDeque<Task> generatedTasks = schedulingPool.getGeneratedTasksQueue();
-		while (!shouldStop()) {
-			try {
+  private void jmsErrorLog(Integer id, Task.TaskStatus status) {
+    LOG.warn("[{}] Could not send GEN status update to {} to Dispatcher.", id, status);
+  }
 
-				Task task = genCompletionService.blockingTake();
-				// set ok status immediately
-				task.setStatus(Task.TaskStatus.GENERATED);
-				// report to Dispatcher
-				try {
-					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getGenEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-				} catch (JMSException e) {
-					jmsErrorLog(task.getId(), task.getStatus());
-				}
+  @Override
+  public void run() {
+    BlockingDeque<Task> generatedTasks = schedulingPool.getGeneratedTasksQueue();
+    while (!shouldStop()) {
+      try {
 
-				// push Task to generated
-				if (task.isPropagationForced()) {
-					generatedTasks.putFirst(task);
-				} else {
-					generatedTasks.put(task);
-				}
+        Task task = genCompletionService.blockingTake();
+        // set ok status immediately
+        task.setStatus(Task.TaskStatus.GENERATED);
+        // report to Dispatcher
+        try {
+          jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(),
+              task.getGenEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        } catch (JMSException e) {
+          jmsErrorLog(task.getId(), task.getStatus());
+        }
 
-			} catch (InterruptedException e) {
+        // push Task to generated
+        if (task.isPropagationForced()) {
+          generatedTasks.putFirst(task);
+        } else {
+          generatedTasks.put(task);
+        }
 
-				String errorStr = "Thread collecting generated Tasks was interrupted.";
-				log.error(errorStr);
-				throw new RuntimeException(errorStr, e);
+      } catch (InterruptedException e) {
 
-			} catch (TaskExecutionException e) {
+        String errorStr = "Thread collecting generated Tasks was interrupted.";
+        LOG.error(errorStr);
+        throw new RuntimeException(errorStr, e);
 
-				// GEN Task failed
-				Task task = e.getTask();
+      } catch (TaskExecutionException e) {
 
-				if (task == null) {
-					log.error("GEN Task failed, but TaskExecutionException doesn't contained Task object! Tasks will be cleaned by PropagationMaintainer#endStuckTasks()");
-				} else {
+        // GEN Task failed
+        Task task = e.getTask();
 
-					task.setStatus(GENERROR);
+        if (task == null) {
+          LOG.error(
+              "GEN Task failed, but TaskExecutionException doesn't contained Task object! Tasks will be cleaned by " +
+              "PropagationMaintainer#endStuckTasks()");
+        } else {
 
-					for (Destination dest : task.getDestinations()) {
-						try {
-							jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(task.getId(), dest.getId(), e.getStderr(), e.getStdout(), e.getReturnCode(), task.getService()));
-						} catch (JMSException | InterruptedException ex) {
-							log.error("[{}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(), dest, ex);
-						}
-					}
+          task.setStatus(GENERROR);
 
-					try {
-						jmsQueueManager.reportTaskStatus(task.getId(), GENERROR, System.currentTimeMillis());
-					} catch (JMSException | InterruptedException e1) {
-						jmsErrorLog(task.getId(), task.getStatus());
-					}
-					try {
-						schedulingPool.removeTask(task.getId());
-					} catch (TaskStoreException e1) {
-						log.error("[{}] Could not remove error GEN Task from SchedulingPool: {}", task.getId(), e1);
-					}
+          for (Destination dest : task.getDestinations()) {
+            try {
+              jmsQueueManager.reportTaskResult(
+                  schedulingPool.createTaskResult(task.getId(), dest.getId(), e.getStderr(), e.getStdout(),
+                      e.getReturnCode(), task.getService()));
+            } catch (JMSException | InterruptedException ex) {
+              LOG.error("[{}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(),
+                  dest, ex);
+            }
+          }
 
-				}
+          try {
+            jmsQueueManager.reportTaskStatus(task.getId(), GENERROR, System.currentTimeMillis());
+          } catch (JMSException | InterruptedException e1) {
+            jmsErrorLog(task.getId(), task.getStatus());
+          }
+          try {
+            schedulingPool.removeTask(task.getId());
+          } catch (TaskStoreException e1) {
+            LOG.error("[{}] Could not remove error GEN Task from SchedulingPool: {}", task.getId(), e1);
+          }
 
-			} catch (Throwable ex) {
-				log.error("Unexpected exception in GenCollector thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later.", ex);
-			}
-		}
-	}
+        }
 
-	private void jmsErrorLog(Integer id, Task.TaskStatus status) {
-		log.warn("[{}] Could not send GEN status update to {} to Dispatcher.", id, status);
-	}
+      } catch (Throwable ex) {
+        LOG.error(
+            "Unexpected exception in GenCollector thread. Stuck Tasks will be cleaned by " +
+            "PropagationMaintainer#endStuckTasks() later.",
+            ex);
+      }
+    }
+  }
 
 }

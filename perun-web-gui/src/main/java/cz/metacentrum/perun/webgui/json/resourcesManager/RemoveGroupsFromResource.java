@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Resource;
-
 import java.util.ArrayList;
 
 /**
@@ -21,115 +20,122 @@ import java.util.ArrayList;
  */
 public class RemoveGroupsFromResource {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "resourcesManager/removeGroupsFromResource";
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// ids
-	private Resource resource;
-	private ArrayList<Group> groups = new ArrayList<Group>();
+  // URL to call
+  final String JSON_URL = "resourcesManager/removeGroupsFromResource";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // ids
+  private Resource resource;
+  private ArrayList<Group> groups = new ArrayList<Group>();
 
-	/**
-	 * Creates a new request
-	 */
-	public RemoveGroupsFromResource() {}
+  /**
+   * Creates a new request
+   */
+  public RemoveGroupsFromResource() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events custom events
-	 */
-	public RemoveGroupsFromResource(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events custom events
+   */
+  public RemoveGroupsFromResource(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Attempts to remove group from resource
-	 *
-	 * @param groups groups which should be removed
-	 * @param resource resource where should be removed
-	 */
-	public void removeGroupsFromResource(final ArrayList<Group> groups, final Resource resource) {
+  /**
+   * Attempts to remove group from resource
+   *
+   * @param groups   groups which should be removed
+   * @param resource resource where should be removed
+   */
+  public void removeGroupsFromResource(final ArrayList<Group> groups, final Resource resource) {
 
-		this.resource = resource;
-		this.groups = groups;
+    this.resource = resource;
+    this.groups = groups;
 
-		// test arguments
-		if(!this.testRemoving()){
-			return;
-		}
+    // test arguments
+    if (!this.testRemoving()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Removing group(s) from resource: " + resource.getName() + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Removing group(s) from resource: " + resource.getName() + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Group(s) successfully removed from resource: "+ resource.getName());
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Group(s) successfully removed from resource: " + resource.getName());
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testRemoving() {
+      ;
+    };
 
-		boolean result = true;
-		String errorMsg = "";
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-		if(groups == null || groups.isEmpty()){
-			errorMsg += "Wrong parameter <strong>Groups</strong>.<br />";
-			result = false;
-		}
+  }
 
-		if(resource == null){
-			errorMsg += "Wrong parameter <strong>Resource</strong>.";
-			result = false;
-		}
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testRemoving() {
 
-		if(errorMsg.length()>0){
-			UiElements.generateAlert("Parameter error", errorMsg);
-		}
+    boolean result = true;
+    String errorMsg = "";
 
-		return result;
+    if (groups == null || groups.isEmpty()) {
+      errorMsg += "Wrong parameter <strong>Groups</strong>.<br />";
+      result = false;
+    }
 
-	}
+    if (resource == null) {
+      errorMsg += "Wrong parameter <strong>Resource</strong>.";
+      result = false;
+    }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Parameter error", errorMsg);
+    }
 
-		JSONObject jsonQuery = new JSONObject();
+    return result;
 
-		JSONArray array = new JSONArray();
-		for (int i=0; i<groups.size(); i++) {
-			array.set(i, new JSONNumber(groups.get(i).getId()));
-		}
-		jsonQuery.put("groups", array);
-		jsonQuery.put("resource", new JSONNumber(resource.getId()));
+  }
 
-		return jsonQuery;
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-	}
+    JSONObject jsonQuery = new JSONObject();
+
+    JSONArray array = new JSONArray();
+    for (int i = 0; i < groups.size(); i++) {
+      array.set(i, new JSONNumber(groups.get(i).getId()));
+    }
+    jsonQuery.put("groups", array);
+    jsonQuery.put("resource", new JSONNumber(resource.getId()));
+
+    return jsonQuery;
+
+  }
 
 }

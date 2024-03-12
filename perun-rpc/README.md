@@ -1,10 +1,17 @@
 # Perun RPC (server) #
 
-This module wraps others into a single web application and represents single Perun instance. Application contains server side RPC API which you can use to manage your Perun instance. For this purpose, Perl CLI tools are also provided in *perun-cli*. See on bottom how to make it work. GUI is provided by *perun-web-gui* module, which is not packaged inside *perun-rpc* and must be built and deployed separately into some web server (Apache).
+This module wraps others into a single web application and represents single Perun instance. Application contains server
+side RPC API which you can use to manage your Perun instance. For this purpose, Perl CLI tools are also provided in
+*perun-cli*. See on bottom how to make it work. GUI is provided by *perun-web-gui* module, which is not packaged inside
+*perun-rpc* and must be built and deployed separately into some web server (Apache).
 
-Application is expected to run inside Tomcat 7 container and receive all requests on AJP port (8009). Perun rely on Apache web server for passing requests, authentication of users and setting up environment variables. User credentials are passed to Perun to perform authorization. If approved, required action is performed and response returned to user through Apache web server.
+Application is expected to run inside Tomcat 7 container and receive all requests on AJP port (8009). Perun rely on
+Apache web server for passing requests, authentication of users and setting up environment variables. User credentials
+are passed to Perun to perform authorization. If approved, required action is performed and response returned to user
+through Apache web server.
 
-You can find full documentation of Perun RPC API [on our web](https://perun-aai.org/documentation/technical-documentation/rpc-api/index.html).
+You can find full documentation of Perun RPC
+API [on our web](https://perun-aai.org/documentation/technical-documentation/rpc-api/index.html).
 
 ### Build and local run ###
 
@@ -17,7 +24,8 @@ You can find full documentation of Perun RPC API [on our web](https://perun-aai.
 >
 > For now NON of these steps are covered on public wiki/web.
 >
-> **You can use [Perun ansible](https://github.com/CESNET/perun-ansible) scripts to install instance of Perun with default configuration and initial user with basic auth.**
+> **You can use [Perun ansible](https://github.com/CESNET/perun-ansible) scripts to install instance of Perun with
+default configuration and initial user with basic auth.**
 
 To build production version of Perun RPC from sources use Maven command in a project root folder:
 
@@ -25,11 +33,14 @@ To build production version of Perun RPC from sources use Maven command in a pro
 mvn clean install -pl perun-rpc -am -Dproduction -DskipTests
 ```
 
-You can then deploy ``perun-rpc/target/perun-rpc.war`` into running Tomcat and it will be running under *http(s)://localhost:8009/perun-rpc* path. 
+You can then deploy ``perun-rpc/target/perun-rpc.war`` into running Tomcat and it will be running under *http(s):
+//localhost:8009/perun-rpc* path.
 
-You must setup Apache to provide authentication or modify it to provide necessary data in HTTP headers. Otherwise all requests to the app will end with wrong authentication.
+You must setup Apache to provide authentication or modify it to provide necessary data in HTTP headers. Otherwise all
+requests to the app will end with wrong authentication.
 
-Also you must redirect all requests to the right URL (provided by tomcat), since GUI and CLI tools expect to find Perun on *http(s)://[hostname]/[krb/cert/fed/oauth]/rpc/[rest_of_request_path+params]* URL.
+Also you must redirect all requests to the right URL (provided by tomcat), since GUI and CLI tools expect to find Perun
+on *http(s)://[hostname]/[krb/cert/fed/oauth]/rpc/[rest_of_request_path+params]* URL.
 
 You can also run Perun locally (e.g. for some tests). Just run Maven with tomcat plugin in ``perun-rpc/`` folder:
 
@@ -52,6 +63,7 @@ apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl lib
 ```
 
 Setup path for Perl to locate Perun modules:
+
 ```
 export PERL5LIB="[folder_with_cli_tools]" 
 ```
@@ -59,9 +71,11 @@ export PERL5LIB="[folder_with_cli_tools]"
 And choose authentication method to follow the next steps:
 
 #### Kerberos, certificate or IdP federation ####
+
 Setup environment variables to locate your Perun instance:
 
-* URL to your Perun instance, pick krb for Kerberos authz, cert for certificate and fed for IDP federation (it depends on your Apache setup):
+* URL to your Perun instance, pick krb for Kerberos authz, cert for certificate and fed for IDP federation (it depends
+  on your Apache setup):
     ```
     export PERUN_URL="https://[instance_url]/[krb/cert/fed]/rpc/"
     ```
@@ -76,6 +90,7 @@ Setup environment variables to locate your Perun instance:
     ```
 
 #### OIDC ####
+
 * Install Python 3
 * Install its keyring library:
     ```
@@ -97,10 +112,9 @@ Setup environment variables to locate your Perun instance:
 
 
 * > Note that:
-  > 
+  >
   > * Endpoints are described in a sample file `perun-cli/Perun/auth/sample_oidc_config.yml`
   > * Tokens can be revoked by calling `./revokeOidcToken` script
   > * For bash mode it is recommended to perform the authentication beforehand by calling `./oidcAuthentication` script
-
 
 You can then test connection by listing VOs like: ``./listOfVos``

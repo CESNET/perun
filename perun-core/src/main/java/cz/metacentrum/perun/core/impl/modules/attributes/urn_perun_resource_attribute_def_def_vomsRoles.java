@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,36 +18,39 @@ import java.util.regex.Pattern;
  *
  * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
  */
-public class urn_perun_resource_attribute_def_def_vomsRoles extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_vomsRoles extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^[^<>&]*$");
+  private static final Pattern pattern = Pattern.compile("^[^<>&]*$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) {
-			return;
-		}
-		try {
-			List<String> vomRoles = attribute.valueAsList();
-			for (String vomRole : vomRoles) {
-				Matcher matcher = pattern.matcher(vomRole);
-				if(!matcher.matches()) {
-					throw new WrongAttributeValueException(attribute, resource, "Bad resource vomsRoles value. It should not contain '<>&' characters.");
-				}
-			}
-		} catch (ClassCastException e) {
-			throw new WrongAttributeValueException(attribute, "Value should be a list of Strings.");
-		}
-	}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+    try {
+      List<String> vomRoles = attribute.valueAsList();
+      for (String vomRole : vomRoles) {
+        Matcher matcher = pattern.matcher(vomRole);
+        if (!matcher.matches()) {
+          throw new WrongAttributeValueException(attribute, resource,
+              "Bad resource vomsRoles value. It should not contain '<>&' characters.");
+        }
+      }
+    } catch (ClassCastException e) {
+      throw new WrongAttributeValueException(attribute, "Value should be a list of Strings.");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setFriendlyName("vomsRoles");
-		attr.setDisplayName("Voms roles");
-		attr.setDescription("Default roles of all people assigned to this resource.");
-		attr.setType(ArrayList.class.getName());
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setFriendlyName("vomsRoles");
+    attr.setDisplayName("Voms roles");
+    attr.setDescription("Default roles of all people assigned to this resource.");
+    attr.setType(ArrayList.class.getName());
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    return attr;
+  }
 }

@@ -16,31 +16,31 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
  */
 public class WhetherEnabledCell extends AbstractCell<Boolean> {
 
-	static private final ImageResource ENABLED = SmallIcons.INSTANCE.acceptIcon();
-	static private final ImageResource DISABLED = SmallIcons.INSTANCE.crossIcon();
+  static private final ImageResource ENABLED = SmallIcons.INSTANCE.acceptIcon();
+  static private final ImageResource DISABLED = SmallIcons.INSTANCE.crossIcon();
 
-	@Override
-	public void render(com.google.gwt.cell.client.Cell.Context context, Boolean enabled, SafeHtmlBuilder sb) {
+  @Override
+  public void render(com.google.gwt.cell.client.Cell.Context context, Boolean enabled, SafeHtmlBuilder sb) {
 
-		// selects the image according to the status
-		ImageResource ir = null;
+    // selects the image according to the status
+    ImageResource ir = null;
 
-		if(enabled){
-			ir = ENABLED;
-		}else{
-			ir = DISABLED;
-		}
+    if (enabled) {
+      ir = ENABLED;
+    } else {
+      ir = DISABLED;
+    }
 
-		// if status not available
-		if(ir == null){
-			return;
-		}
+    // if status not available
+    if (ir == null) {
+      return;
+    }
 
-		// append the image
-		Element imageElement = new Image(ir).getElement();
-		imageElement.setTitle(String.valueOf(enabled));
-		SafeHtml image = SafeHtmlUtils.fromSafeConstant((imageElement.getString()));
-		sb.append(image);
-	}
+    // append the image
+    Element imageElement = new Image(ir).getElement();
+    imageElement.setTitle(String.valueOf(enabled));
+    SafeHtml image = SafeHtmlUtils.fromSafeConstant((imageElement.getString()));
+    sb.append(image);
+  }
 
 }

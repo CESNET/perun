@@ -9,68 +9,72 @@ import java.util.Objects;
  * @author Johana Supikova <xsupikov@fi.muni.cz>
  */
 public class MessagesPageQuery {
-	private int pageSize;
-	private int offset;
-	private SortingOrder order;
-	private List<String> selectedEvents;
+  private int pageSize;
+  private int offset;
+  private SortingOrder order;
+  private List<String> selectedEvents;
 
-	public MessagesPageQuery() { }
-	public MessagesPageQuery(int pageSize, int offset, SortingOrder order, List<String> selectedEvents) {
-		this.pageSize = pageSize;
-		this.offset = offset;
-		this.order  = order;
-		this.selectedEvents = selectedEvents;
-	}
+  public MessagesPageQuery() {
+  }
 
-	public int getPageSize() {
-		return pageSize;
-	}
+  public MessagesPageQuery(int pageSize, int offset, SortingOrder order, List<String> selectedEvents) {
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
+    this.selectedEvents = selectedEvents;
+  }
 
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof MessagesPageQuery that)) {
+      return false;
+    }
 
-	public int getOffset() {
-		return offset;
-	}
+    return (getPageSize() == that.getPageSize()) && (getOffset() == that.getOffset()) &&
+           (getOrder() == that.getOrder()) && (Objects.equals(getSelectedEvents(), that.getSelectedEvents()));
+  }
 
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
+  public int getOffset() {
+    return offset;
+  }
 
-	public SortingOrder getOrder() {
-		return this.order;
-	}
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
 
-	public void setOrder(SortingOrder order) {
-		this.order = order;
-	}
+  public SortingOrder getOrder() {
+    return this.order;
+  }
 
-	public List<String> getSelectedEvents() {
-		return this.selectedEvents;
-	}
+  public void setOrder(SortingOrder order) {
+    this.order = order;
+  }
 
-	public void setSelectedEvents(List<String>  selectedEvents) {
-		this.selectedEvents = selectedEvents;
-	}
+  public int getPageSize() {
+    return pageSize;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof MessagesPageQuery that)) return false;
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
+  }
 
-		return (getPageSize() == that.getPageSize())
-			&& (getOffset() == that.getOffset())
-			&& (getOrder() == that.getOrder())
-			&& (Objects.equals(getSelectedEvents(), that.getSelectedEvents()));
-	}
+  public List<String> getSelectedEvents() {
+    return this.selectedEvents;
+  }
 
-	@Override
-	public int hashCode() {
-		int result = getPageSize();
-		result = 31 * result + getOffset();
-		result = 31 * result + getOrder().hashCode();
-		result = 31 * result + getSelectedEvents().hashCode();
-		return result;
-	}
+  public void setSelectedEvents(List<String> selectedEvents) {
+    this.selectedEvents = selectedEvents;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = getPageSize();
+    result = 31 * result + getOffset();
+    result = 31 * result + getOrder().hashCode();
+    result = 31 * result + getSelectedEvents().hashCode();
+    return result;
+  }
 }

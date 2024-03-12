@@ -17,106 +17,110 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  */
 public class DeleteSecurityTeam {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "securityTeamsManager/deleteSecurityTeam";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// ids
-	private int securityTeamId = 0;
-	private boolean force = false;
+  // URL to call
+  final String JSON_URL = "securityTeamsManager/deleteSecurityTeam";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // ids
+  private int securityTeamId = 0;
+  private boolean force = false;
 
-	/**
-	 * Creates a new request
-	 *
-	 */
-	public DeleteSecurityTeam() {}
+  /**
+   * Creates a new request
+   */
+  public DeleteSecurityTeam() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public DeleteSecurityTeam(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public DeleteSecurityTeam(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testDeleting()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testDeleting() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(securityTeamId == 0){
-			errorMsg += "Wrong parameter <strong>SECURITY TEAM ID</strong>.\n";
-			result = false;
-		}
+    if (securityTeamId == 0) {
+      errorMsg += "Wrong parameter <strong>SECURITY TEAM ID</strong>.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Confirm c = new Confirm("Error while deleting Security Team", new HTML(errorMsg), true);
-			c.show();
-		}
+    if (errorMsg.length() > 0) {
+      Confirm c = new Confirm("Error while deleting Security Team", new HTML(errorMsg), true);
+      c.show();
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to delete Security Team, it first tests the values and then submits them.
-	 *
-	 * @param securityTeamId ID of SecurityTeam to be deleted
-	 * @param force true for force delete
-	 */
-	public void deleteSecurityTeam(final int securityTeamId,final boolean force) {
+  /**
+   * Attempts to delete Security Team, it first tests the values and then submits them.
+   *
+   * @param securityTeamId ID of SecurityTeam to be deleted
+   * @param force          true for force delete
+   */
+  public void deleteSecurityTeam(final int securityTeamId, final boolean force) {
 
-		this.securityTeamId = securityTeamId;
-		this.force = force;
+    this.securityTeamId = securityTeamId;
+    this.force = force;
 
-		// test arguments
-		if(!this.testDeleting()){
-			return;
-		}
+    // test arguments
+    if (!this.testDeleting()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting Security Team: " + securityTeamId + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Deleting Security Team: " + securityTeamId + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Security Team " + securityTeamId + " deleted.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Security Team " + securityTeamId + " deleted.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("securityTeam", new JSONNumber(securityTeamId));
-		if (force) {
-			jsonQuery.put("force", null);
-		}
-		return jsonQuery;
-	}
+      ;
+    };
+
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
+
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("securityTeam", new JSONNumber(securityTeamId));
+    if (force) {
+      jsonQuery.put("force", null);
+    }
+    return jsonQuery;
+  }
 
 }

@@ -33,7 +33,6 @@ import cz.metacentrum.perun.webgui.tabs.UsersTabs;
 import cz.metacentrum.perun.webgui.tabs.attributestabs.SetNewAttributeTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,222 +45,232 @@ import java.util.Map;
 
 public class UserExtSourceSettingsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "user-ext-src-settings";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("UserExtSource detail");
+  private int userExtSourceId = 0;
+  private UserExtSource userExtSource;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public UserExtSourceSettingsTabItem(int userExtSourceId) {
+    this.userExtSourceId = userExtSourceId;
+    new GetEntityById(PerunEntity.USER_EXT_SOURCE, userExtSourceId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        userExtSource = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("UserExtSource detail");
+  /**
+   * Creates a tab instance
+   */
+  public UserExtSourceSettingsTabItem(UserExtSource ues) {
+    this.userExtSourceId = ues.getId();
+    this.userExtSource = ues;
+  }
 
-	private int userExtSourceId = 0;
-	private UserExtSource userExtSource;
+  static public UserExtSourceSettingsTabItem load(Map<String, String> parameters) {
+    int uesId = 0;
+    if (parameters.containsKey("id")) {
+      uesId = Integer.parseInt(parameters.get("id"));
+    }
+    return new UserExtSourceSettingsTabItem(uesId);
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public UserExtSourceSettingsTabItem(int userExtSourceId) {
-		this.userExtSourceId = userExtSourceId;
-		new GetEntityById(PerunEntity.USER_EXT_SOURCE, userExtSourceId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				userExtSource = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public boolean isPrepared() {
+    return !(userExtSource == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public UserExtSourceSettingsTabItem(UserExtSource ues) {
-		this.userExtSourceId = ues.getId();
-		this.userExtSource = ues;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		return !(userExtSource == null);
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(userExtSource.getLogin().trim()));
 
-	public Widget draw() {
+    // MAIN TAB PANEL
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(userExtSource.getLogin().trim()));
+    // MENU
+    TabMenu menu = new TabMenu();
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		// MAIN TAB PANEL
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    final GetAttributesV2 callback = new GetAttributesV2(true);
+    callback.getUserExtSourceAttributes(userExtSource.getId());
+    final CellTable<Attribute> table = callback.getEmptyTable();
 
-		// MENU
-		TabMenu menu = new TabMenu();
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		final GetAttributesV2 callback = new GetAttributesV2(true);
-		callback.getUserExtSourceAttributes(userExtSource.getId());
-		final CellTable<Attribute> table = callback.getEmptyTable();
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    // save changes in attributes
+    final CustomButton saveChangesButton =
+        TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+    saveChangesButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
+          SetAttributes request =
+              new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
+                public void onFinished(JavaScriptObject jso) {
+                  callback.clearTable();
+                  callback.getUserExtSourceAttributes(userExtSourceId);
+                  callback.retrieveData();
+                }
+              }));
+          final Map<String, Integer> ids = new HashMap<String, Integer>();
+          ids.put("userExtSource", userExtSourceId);
+          request.setAttributes(ids, callback.getTableSelectedList());
+        }
+      }
+    });
 
-		menu.addWidget(UiElements.getRefreshButton(this));
+    menu.addWidget(saveChangesButton);
 
-		// save changes in attributes
-		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-		saveChangesButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
-					SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
-						public void onFinished(JavaScriptObject jso) {
-							callback.clearTable();
-							callback.getUserExtSourceAttributes(userExtSourceId);
-							callback.retrieveData();
-						}
-					}));
-					final Map<String, Integer> ids = new HashMap<String, Integer>();
-					ids.put("userExtSource", userExtSourceId);
-					request.setAttributes(ids, callback.getTableSelectedList());
-				}
-			}
-		});
+    // buttons
+    CustomButton setNewMemberAttributeButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(),
+            new ClickHandler() {
+              public void onClick(ClickEvent event) {
+                Map<String, Integer> ids = new HashMap<String, Integer>();
+                ids.put("userExtSource", userExtSource.getId());
+                session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids), true);
+              }
+            });
+    menu.addWidget(setNewMemberAttributeButton);
 
-		menu.addWidget(saveChangesButton);
+    // REMOVE ATTRIBUTES BUTTON
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
+    removeButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
 
-		// buttons
-		CustomButton setNewMemberAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				Map<String, Integer> ids = new HashMap<String,Integer>();
-				ids.put("userExtSource", userExtSource.getId());
-				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids), true);
-			}
-		});
-		menu.addWidget(setNewMemberAttributeButton);
+        // if selected
+        if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
 
-		// REMOVE ATTRIBUTES BUTTON
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
-		removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+          Map<String, Integer> ids = new HashMap<String, Integer>();
+          ids.put("userExtSource", userExtSource.getId());
 
-				// if selected
-				if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
+          RemoveAttributes request =
+              new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents() {
+                public void onFinished(JavaScriptObject jso) {
+                  callback.clearTable();
+                  callback.getUserExtSourceAttributes(userExtSource.getId());
+                  callback.retrieveData();
+                }
+              }));
 
-					Map<String, Integer> ids = new HashMap<String,Integer>();
-					ids.put("userExtSource", userExtSource.getId());
+          // make removeAttributes call
+          request.removeAttributes(ids, callback.getTableSelectedList());
 
-					RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
-						public void onFinished(JavaScriptObject jso) {
-							callback.clearTable();
-							callback.getUserExtSourceAttributes(userExtSource.getId());
-							callback.retrieveData();
-						}
-					}));
+        }
+      }
+    });
 
-					// make removeAttributes call
-					request.removeAttributes(ids, callback.getTableSelectedList());
+    removeButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(callback, table, removeButton);
+    menu.addWidget(removeButton);
 
-				}}});
+    callback.retrieveData();
 
-		removeButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(callback, table, removeButton);
-		menu.addWidget(removeButton);
+    // ATTRIBUTES TABLE
+    vp.add(sp);
+    vp.setCellHeight(sp, "100%");
 
-		callback.retrieveData();
+    this.contentWidget.setWidget(vp);
 
-		// ATTRIBUTES TABLE
-		vp.add(sp);
-		vp.setCellHeight(sp, "100%");
+    return getWidget();
+  }
 
-		this.contentWidget.setWidget(vp);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.worldIcon();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 5303;
+    int result = 432;
+    result = prime * result;
+    return result;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.worldIcon();
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    UserExtSourceSettingsTabItem other = (UserExtSourceSettingsTabItem) obj;
+    if (userExtSourceId != other.userExtSourceId) {
+      return false;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 5303;
-		int result = 432;
-		result = prime * result;
-		return result;
-	}
+    return true;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		UserExtSourceSettingsTabItem other = (UserExtSourceSettingsTabItem) obj;
-		if (userExtSourceId != other.userExtSourceId)
-			return false;
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-		return true;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs()
+        .setLocation(MainMenu.PERUN_ADMIN, "Users", UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl(),
+            "UserExtSource settings", getUrlWithParameters());
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean isAuthorized() {
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Users", UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl(), "UserExtSource settings", getUrlWithParameters());
-	}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public boolean isAuthorized() {
+  }
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
+  public String getUrl() {
+    return URL;
+  }
 
-	}
-
-	public final static String URL = "user-ext-src-settings";
-
-	public String getUrl() {
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userExtSourceId;
-	}
-
-	static public UserExtSourceSettingsTabItem load(Map<String, String> parameters) {
-		int uesId = 0;
-		if (parameters.containsKey("id")) {
-			uesId = Integer.parseInt(parameters.get("id"));
-		}
-		return new UserExtSourceSettingsTabItem(uesId);
-	}
+  public String getUrlWithParameters() {
+    return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userExtSourceId;
+  }
 
 }

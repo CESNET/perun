@@ -5,96 +5,98 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Class represents rights of an attribute. The rights relates to an Attribute and
- * a role. Object ActionType represents one right (READ or WRITE).
+ * Class represents rights of an attribute. The rights relates to an Attribute and a role. Object ActionType represents
+ * one right (READ or WRITE).
  *
  * @author Jiří Mauritz
  */
 @Deprecated
 public class AttributeRights {
 
-	/**
-	 * ID of the attribute.
-	 */
-	private int attributeId;
+  /**
+   * ID of the attribute.
+   */
+  private int attributeId;
 
-	/**
-	 * Role, that specifies the users, who have the rights upon the attribute.
-	 */
-	private String role;
+  /**
+   * Role, that specifies the users, who have the rights upon the attribute.
+   */
+  private String role;
 
-	/**
-	 * List of all rights the role has upon the attribute.
-	 */
-	private List<ActionType> rights;
+  /**
+   * List of all rights the role has upon the attribute.
+   */
+  private List<ActionType> rights;
 
-	public AttributeRights() {}
+  public AttributeRights() {
+  }
 
-	public AttributeRights(int attributeId, String role, List<ActionType> rights) {
-		this.attributeId = attributeId;
-		this.role = role != null ? role.toUpperCase() : null;
-		if (rights == null) {
-			this.rights = new ArrayList<ActionType>();
-		} else {
-			this.rights = rights;
-		}
-	}
+  public AttributeRights(int attributeId, String role, List<ActionType> rights) {
+    this.attributeId = attributeId;
+    this.role = role != null ? role.toUpperCase() : null;
+    if (rights == null) {
+      this.rights = new ArrayList<ActionType>();
+    } else {
+      this.rights = rights;
+    }
+  }
 
-	public int getAttributeId() {
-		return attributeId;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof AttributeRights)) {
+      return false;
+    }
+    final AttributeRights other = (AttributeRights) obj;
+    if (this.attributeId != other.attributeId) {
+      return false;
+    }
+    if (Objects.equals(role, other.role)) {
+      return false;
+    }
+    return true;
+  }
 
-	public String getRole() {
-		return role;
-	}
+  public int getAttributeId() {
+    return attributeId;
+  }
 
-	public List<ActionType> getRights() {
-		return rights;
-	}
+  public void setAttributeId(int attributeId) {
+    this.attributeId = attributeId;
+  }
 
-	public void setAttributeId(int attributeId) {
-		this.attributeId = attributeId;
-	}
+  public List<ActionType> getRights() {
+    return rights;
+  }
 
-	public void setRole(String role) {
-		this.role = role != null ? role.toUpperCase() : null;
-	}
+  public void setRights(List<ActionType> rights) {
+    this.rights = rights;
+  }
 
-	public void setRights(List<ActionType> rights) {
-		this.rights = rights;
-	}
+  public String getRole() {
+    return role;
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 7;
-		hash = 61 * hash + this.attributeId;
-		hash = 61 * hash + (this.role != null ? this.role.hashCode() : 0);
-		return hash;
-	}
+  public void setRole(String role) {
+    this.role = role != null ? role.toUpperCase() : null;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof AttributeRights)) {
-			return false;
-		}
-		final AttributeRights other = (AttributeRights) obj;
-		if (this.attributeId != other.attributeId) {
-			return false;
-		}
-		if (Objects.equals(role, other.role)) {
-			return false;
-		}
-		return true;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 61 * hash + this.attributeId;
+    hash = 61 * hash + (this.role != null ? this.role.hashCode() : 0);
+    return hash;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
 
-		return str.append("AttributeRights{").append("attributeId=").append(attributeId).append(", role=").append(role).append(", rights=").append(rights).append('}').toString();
-	}
+    return str.append("AttributeRights{").append("attributeId=").append(attributeId).append(", role=").append(role)
+        .append(", rights=").append(rights).append('}').toString();
+  }
 
 }

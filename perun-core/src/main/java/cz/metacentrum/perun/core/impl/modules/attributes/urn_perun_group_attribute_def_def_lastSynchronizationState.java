@@ -7,25 +7,25 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
 
 /**
  * Last synchronization state module
- *
- * If group is synchronized, there will be information about state of last synchronization.
- * If everything is ok, information will be 'OK'.
- * If there is some error, there will be text of an error.
- *
+ * <p>
+ * If group is synchronized, there will be information about state of last synchronization. If everything is ok,
+ * information will be 'OK'. If there is some error, there will be text of an error.
+ * <p>
  * If group has never been synchronized, this attribute will be empty.
  *
  * @author Michal Stava  stavamichal@gmail.com
  */
-public class urn_perun_group_attribute_def_def_lastSynchronizationState extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
+public class urn_perun_group_attribute_def_def_lastSynchronizationState extends GroupAttributesModuleAbstract
+    implements GroupAttributesModuleImplApi {
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-		attr.setFriendlyName("lastSynchronizationState");
-		attr.setDisplayName("Last synchronization State");
-		attr.setType(String.class.getName());
-		attr.setDescription("If group is synchronized, there will be information about state of last synchronization.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    attr.setFriendlyName("lastSynchronizationState");
+    attr.setDisplayName("Last synchronization State");
+    attr.setType(String.class.getName());
+    attr.setDescription("If group is synchronized, there will be information about state of last synchronization.");
+    return attr;
+  }
 }

@@ -1,45 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:annotation-config />
+    <context:annotation-config/>
 
-	<!-- needs perun-core.xml loaded before this file -->
+    <!-- needs perun-core.xml loaded before this file -->
 
-	<!-- Scans for @Repository, @Service and @Component -->
-	<context:component-scan base-package="cz.metacentrum.perun.notif.managers" />
-	<context:component-scan base-package="cz.metacentrum.perun.notif.dao" />
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="cz.metacentrum.perun.notif.managers"/>
+    <context:component-scan base-package="cz.metacentrum.perun.notif.dao"/>
 
-	<bean id="perunNotifAuditMessageDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifAuditMessageDaoImpl" autowire="byName">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <bean id="perunNotifAuditMessageDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifAuditMessageDaoImpl"
+          autowire="byName">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="perunNotifPoolMessageDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifPoolMessageDaoImpl" autowire="byName">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <bean id="perunNotifPoolMessageDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifPoolMessageDaoImpl"
+          autowire="byName">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="perunNotifRegexDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifRegexDaoImpl" autowire="byName">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <bean id="perunNotifRegexDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifRegexDaoImpl" autowire="byName">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="perunNotifTemplateDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifTemplateDaoImpl" autowire="byName">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <bean id="perunNotifTemplateDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifTemplateDaoImpl"
+          autowire="byName">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="perunNotifObjectDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifObjectDaoImpl" autowire="byName">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <bean id="perunNotifObjectDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifObjectDaoImpl"
+          autowire="byName">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="perunNotifTemplateManager" class="cz.metacentrum.perun.notif.managers.PerunNotifTemplateManagerImpl" autowire="byName">
-		<property name="notifSenders">
-			<list>
-				<bean id="perunNotifEmailGroupSender" class="cz.metacentrum.perun.notif.senders.PerunNotifEmailGroupSender" autowire="byName"/>
-				<bean id="perunNotifEmailUserSender" class="cz.metacentrum.perun.notif.senders.PerunNotifEmailUserSender" autowire="byName"/>
-			</list>
-		</property>
-	</bean>
+    <bean id="perunNotifTemplateManager" class="cz.metacentrum.perun.notif.managers.PerunNotifTemplateManagerImpl"
+          autowire="byName">
+        <property name="notifSenders">
+            <list>
+                <bean id="perunNotifEmailGroupSender"
+                      class="cz.metacentrum.perun.notif.senders.PerunNotifEmailGroupSender" autowire="byName"/>
+                <bean id="perunNotifEmailUserSender"
+                      class="cz.metacentrum.perun.notif.senders.PerunNotifEmailUserSender" autowire="byName"/>
+            </list>
+        </property>
+    </bean>
 
 </beans>

@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
 
-	<servlet>
-		<servlet-name>api</servlet-name>
-		<servlet-class>cz.metacentrum.perun.rpc.Api</servlet-class>
-	</servlet>
+    <servlet>
+        <servlet-name>api</servlet-name>
+        <servlet-class>cz.metacentrum.perun.rpc.Api</servlet-class>
+    </servlet>
 
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:perun-rpc.xml</param-value>
-	</context-param>
-	
-	<!-- Logback -->
-	<listener>
-		<listener-class>ch.qos.logback.classic.servlet.LogbackServletContextListener</listener-class>
-	</listener>
-	<!-- Spring -->
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
-	<listener>
-		<description>ServletContextListener</description>
-		<listener-class>cz.metacentrum.perun.rpc.Main</listener-class>
-	</listener>
-	<servlet-mapping>
-		<servlet-name>api</servlet-name>
-		<url-pattern>/*</url-pattern>
-	</servlet-mapping>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:perun-rpc.xml</param-value>
+    </context-param>
 
-	<!-- https://logback.qos.ch/manual/mdc.html#mis -->
-	<filter>
-		<filter-name>MDCInsertingServletFilter</filter-name>
-		<filter-class>ch.qos.logback.classic.helpers.MDCInsertingServletFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>MDCInsertingServletFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	<filter>
-		<filter-name>csrfFilter</filter-name>
-		<filter-class>cz.metacentrum.perun.rpc.csrf.CsrfFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>csrfFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
+    <!-- Logback -->
+    <listener>
+        <listener-class>ch.qos.logback.classic.servlet.LogbackServletContextListener</listener-class>
+    </listener>
+    <!-- Spring -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <description>ServletContextListener</description>
+        <listener-class>cz.metacentrum.perun.rpc.Main</listener-class>
+    </listener>
+    <servlet-mapping>
+        <servlet-name>api</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- https://logback.qos.ch/manual/mdc.html#mis -->
+    <filter>
+        <filter-name>MDCInsertingServletFilter</filter-name>
+        <filter-class>ch.qos.logback.classic.helpers.MDCInsertingServletFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MDCInsertingServletFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter>
+        <filter-name>csrfFilter</filter-name>
+        <filter-class>cz.metacentrum.perun.rpc.csrf.CsrfFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>csrfFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
 </web-app>

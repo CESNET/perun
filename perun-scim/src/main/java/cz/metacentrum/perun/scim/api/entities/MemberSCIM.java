@@ -13,75 +13,79 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class MemberSCIM {
 
-	@JsonProperty
-	private String value;
+  @JsonProperty
+  private String value;
 
-	@JsonProperty("$ref")
-	private String ref;
+  @JsonProperty("$ref")
+  private String ref;
 
-	@JsonProperty
-	private String display;
+  @JsonProperty
+  private String display;
 
-	public MemberSCIM(String value, String ref, String display) {
-		this.value = value;
-		this.ref = ref;
-		this.display = display;
-	}
+  public MemberSCIM(String value, String ref, String display) {
+    this.value = value;
+    this.ref = ref;
+    this.display = display;
+  }
 
-	public MemberSCIM() {
-	}
+  public MemberSCIM() {
+  }
 
-	public String getValue() {
-		return value;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof MemberSCIM)) {
+      return false;
+    }
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+    MemberSCIM that = (MemberSCIM) o;
 
-	public String getRef() {
-		return ref;
-	}
+    if (getValue() != null ? !getValue().equals(that.getValue()) : that.getValue() != null) {
+      return false;
+    }
+    if (getRef() != null ? !getRef().equals(that.getRef()) : that.getRef() != null) {
+      return false;
+    }
+    return getDisplay() != null ? getDisplay().equals(that.getDisplay()) : that.getDisplay() == null;
 
-	public void setRef(String ref) {
-		this.ref = ref;
-	}
+  }
 
-	public String getDisplay() {
-		return display;
-	}
+  public String getDisplay() {
+    return display;
+  }
 
-	public void setDisplay(String display) {
-		this.display = display;
-	}
+  public String getRef() {
+    return ref;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof MemberSCIM)) return false;
+  public String getValue() {
+    return value;
+  }
 
-		MemberSCIM that = (MemberSCIM) o;
+  @Override
+  public int hashCode() {
+    int result = getValue() != null ? getValue().hashCode() : 0;
+    result = 31 * result + (getRef() != null ? getRef().hashCode() : 0);
+    result = 31 * result + (getDisplay() != null ? getDisplay().hashCode() : 0);
+    return result;
+  }
 
-		if (getValue() != null ? !getValue().equals(that.getValue()) : that.getValue() != null) return false;
-		if (getRef() != null ? !getRef().equals(that.getRef()) : that.getRef() != null) return false;
-		return getDisplay() != null ? getDisplay().equals(that.getDisplay()) : that.getDisplay() == null;
+  public void setDisplay(String display) {
+    this.display = display;
+  }
 
-	}
+  public void setRef(String ref) {
+    this.ref = ref;
+  }
 
-	@Override
-	public int hashCode() {
-		int result = getValue() != null ? getValue().hashCode() : 0;
-		result = 31 * result + (getRef() != null ? getRef().hashCode() : 0);
-		result = 31 * result + (getDisplay() != null ? getDisplay().hashCode() : 0);
-		return result;
-	}
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-	@Override
-	public String toString() {
-		return "MemberSCIM{" +
-				"value='" + value + '\'' +
-				", ref='" + ref + '\'' +
-				", display='" + display + '\'' +
-				'}';
-	}
+  @Override
+  public String toString() {
+    return "MemberSCIM{" + "value='" + value + '\'' + ", ref='" + ref + '\'' + ", display='" + display + '\'' + '}';
+  }
 }

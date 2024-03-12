@@ -12,56 +12,57 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Class for access def:erasmus-persistent-shadow attribute. It generates value if you call it for the first time.
- *
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_login_namespace_erasmus_persistent extends UserVirtualAttributesModuleAbstract {
+public class urn_perun_user_attribute_def_virt_login_namespace_erasmus_persistent
+    extends UserVirtualAttributesModuleAbstract {
 
-	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:erasmus-persistent-shadow";
+  public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:erasmus-persistent-shadow";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute erasmusPersistent = new Attribute(attributeDefinition);
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:erasmus-persistent");
+    attr.setDisplayName("ERASMUS login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login for ERASMUS. It is set automatically with first call.");
+    return attr;
+  }
 
-		try {
-			Attribute erasmusPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute erasmusPersistent = new Attribute(attributeDefinition);
 
-			if (erasmusPersistentShadow.getValue() == null) {
+    try {
+      Attribute erasmusPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-				erasmusPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, erasmusPersistentShadow);
+      if (erasmusPersistentShadow.getValue() == null) {
 
-				if (erasmusPersistentShadow.getValue() == null) {
-					throw new InternalErrorException("ERASMUS ID couldn't be set automatically");
-				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, erasmusPersistentShadow);
-			}
+        erasmusPersistentShadow =
+            sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, erasmusPersistentShadow);
 
-			erasmusPersistent.setValue(erasmusPersistentShadow.getValue());
-			return erasmusPersistent;
+        if (erasmusPersistentShadow.getValue() == null) {
+          throw new InternalErrorException("ERASMUS ID couldn't be set automatically");
+        }
+        sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, erasmusPersistentShadow);
+      }
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+      erasmusPersistent.setValue(erasmusPersistentShadow.getValue());
+      return erasmusPersistent;
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(SHADOW);
-	}
+    } catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException |
+             AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("login-namespace:erasmus-persistent");
-		attr.setDisplayName("ERASMUS login");
-		attr.setType(String.class.getName());
-		attr.setDescription("Login for ERASMUS. It is set automatically with first call.");
-		return attr;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(SHADOW);
+  }
 }

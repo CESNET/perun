@@ -3,97 +3,91 @@ package cz.metacentrum.perun.notif.entities;
 import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import org.springframework.jdbc.core.RowMapper;
 
 /**
- * This entity represents one message from auditer. Is used to backup messages
- * during process of processing the message.
+ * This entity represents one message from auditer. Is used to backup messages during process of processing the
+ * message.
  *
  * @author tomas.tunkl
- *
  */
 //Table name is pn_audit_message
 public class PerunNotifAuditMessage {
 
-	/**
-	 * Column id Sequence pn_audit_message_id_seq
-	 *
-	 * Unique id of message
-	 */
-	private long id;
+  /**
+   * RowMapper to load entity from db row
+   */
+  public static final RowMapper<PerunNotifAuditMessage> PERUN_NOTIF_MESSAGE = new RowMapper<PerunNotifAuditMessage>() {
 
-	/**
-	 * Column message
-	 *
-	 * Holds audit message
-	 */
-	private String message;
+    public PerunNotifAuditMessage mapRow(ResultSet rs, int i) throws SQLException {
 
-	/**
-	 * Computed from message using auditparser
-	 */
-	private List<PerunBean> perunBeanList;
+      PerunNotifAuditMessage auditMessage = new PerunNotifAuditMessage();
+      auditMessage.setId(rs.getLong("id"));
+      auditMessage.setMessage(rs.getString("message"));
 
-	public PerunNotifAuditMessage() {
-	}
+      return auditMessage;
+    }
+  };
+  /**
+   * Column id Sequence pn_audit_message_id_seq
+   * <p>
+   * Unique id of message
+   */
+  private long id;
+  /**
+   * Column message
+   * <p>
+   * Holds audit message
+   */
+  private String message;
+  /**
+   * Computed from message using auditparser
+   */
+  private List<PerunBean> perunBeanList;
 
-	public PerunNotifAuditMessage(long id, String message) {
-		this.id = id;
-		this.message = message;
-	}
+  public PerunNotifAuditMessage() {
+  }
 
-	public long getId() {
-		return id;
-	}
+  public PerunNotifAuditMessage(long id, String message) {
+    this.id = id;
+    this.message = message;
+  }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+  public long getId() {
+    return id;
+  }
 
-	public String getMessage() {
-		return message;
-	}
+  public String getMessage() {
+    return message;
+  }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+  /**
+   * Parses message from auditer to list of perunBeans, this parsing is done only once
+   *
+   * @return
+   * @throws InternalErrorException
+   */
+  public List<PerunBean> getPerunBeanList() {
 
-	@Override
-	public String toString() {
-		return "id: " + getId() + " message: " + getMessage();
-	}
+    if (perunBeanList == null) {
+      perunBeanList = AuditParser.parseLog(message);
+    }
+    return perunBeanList;
+  }
 
-	/**
-	 * Parses message from auditer to list of perunBeans, this parsing is
-	 * done only once
-	 *
-	 * @return
-	 * @throws InternalErrorException
-	 */
-	public List<PerunBean> getPerunBeanList() {
+  public void setId(long id) {
+    this.id = id;
+  }
 
-		if (perunBeanList == null) {
-			perunBeanList = AuditParser.parseLog(message);
-		}
-		return perunBeanList;
-	}
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-	/**
-	 * RowMapper to load entity from db row
-	 */
-	public static final RowMapper<PerunNotifAuditMessage> PERUN_NOTIF_MESSAGE = new RowMapper<PerunNotifAuditMessage>() {
-
-		public PerunNotifAuditMessage mapRow(ResultSet rs, int i) throws SQLException {
-
-			PerunNotifAuditMessage auditMessage = new PerunNotifAuditMessage();
-			auditMessage.setId(rs.getLong("id"));
-			auditMessage.setMessage(rs.getString("message"));
-
-			return auditMessage;
-		}
-	};
+  @Override
+  public String toString() {
+    return "id: " + getId() + " message: " + getMessage();
+  }
 }

@@ -1,98 +1,109 @@
 package cz.metacentrum.perun.notif.utils;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.notif.dao.jdbc.PerunNotifTemplateDaoImpl;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class NotifUtils {
 
-	public static PerunSession session = null;
+  public static PerunSession session = null;
 
-	public static Map<String, String> parseMap(String row) {
+  private NotifUtils() {
+  }
 
-		if (row == null) {
-			return null;
-		}
+  public static Map<String, String> parseMap(String row) {
 
-		Map<String, String> result = new HashMap<String, String>();
+    if (row == null) {
+      return null;
+    }
 
-		String[] splittedValue = row.split(PerunNotifTemplateDaoImpl.DELIMITER);
-		for (String entry : splittedValue) {
-			String key = entry.substring(0, entry.indexOf("="));
-			String value = entry.substring(entry.indexOf(entry.indexOf("=")));
+    Map<String, String> result = new HashMap<String, String>();
 
-			result.put(key, value);
-		}
+    String[] splittedValue = row.split(PerunNotifTemplateDaoImpl.DELIMITER);
+    for (String entry : splittedValue) {
+      String key = entry.substring(0, entry.indexOf("="));
+      String value = entry.substring(entry.indexOf(entry.indexOf("=")));
 
-		return result;
-	}
+      result.put(key, value);
+    }
 
-	public static List<PerunBean> parseMessage(String message) {
+    return result;
+  }
 
-		List<PerunBean> result = new ArrayList<PerunBean>();
+  public static List<PerunBean> parseMessage(String message) {
 
-		cz.metacentrum.perun.core.api.User user = new cz.metacentrum.perun.core.api.User();
-		user.setId(92979);
-		user.setTitleBefore("Bc.");
-		user.setFirstName("Tom");
-		user.setLastName("Tunkl");
-		user.setTitleAfter("CSc.");
-		result.add(user);
 
-		Group group = new Group();
-		group.setId(0);
-		group.setName("members");
-		group.setDescription("Group test");
-		result.add(group);
+    List<PerunBean> result = new ArrayList<PerunBean>();
+    cz.metacentrum.perun.core.api.User user = new cz.metacentrum.perun.core.api.User();
+    user.setId(92979);
+    user.setTitleBefore("Bc.");
+    user.setFirstName("Tom");
+    user.setLastName("Tunkl");
+    user.setTitleAfter("CSc.");
+    result.add(user);
 
-		Vo vo = new Vo();
-		vo.setId(165684);
-		vo.setName("AttributesManagerTestVo");
-		vo.setShortName("AMTVO");
-		result.add(vo);
+    Group group = new Group();
+    group.setId(0);
+    group.setName("members");
+    group.setDescription("Group test");
+    result.add(group);
 
-		Facility facility = new Facility();
-		facility.setId(123736);
-		facility.setName("AttrTestFacility");
-		result.add(facility);
+    Vo vo = new Vo();
+    vo.setId(165684);
+    vo.setName("AttributesManagerTestVo");
+    vo.setShortName("AMTVO");
+    result.add(vo);
 
-		Resource resource = new Resource();
-		resource.setId(0);
-		resource.setName("ServicesManagerTestResource");
-		resource.setDescription("testovaci");
-		result.add(resource);
+    Facility facility = new Facility();
+    facility.setId(123736);
+    facility.setName("AttrTestFacility");
+    result.add(facility);
 
-		Destination destination = new Destination();
-		destination.setId(0);
-		destination.setType("CLUSTER");
-		result.add(destination);
+    Resource resource = new Resource();
+    resource.setId(0);
+    resource.setName("ServicesManagerTestResource");
+    resource.setDescription("testovaci");
+    result.add(resource);
 
-		Member member = new Member();
-		member.setId(6235);
-		member.setVoId(181);
-		member.setUserId(5032);
-		result.add(member);
+    Destination destination = new Destination();
+    destination.setId(0);
+    destination.setType("CLUSTER");
+    result.add(destination);
 
-		return result;
-	}
+    Member member = new Member();
+    member.setId(6235);
+    member.setVoId(181);
+    member.setUserId(5032);
+    result.add(member);
 
-	public static PerunSession getPerunSession(PerunBl perun) {
-		if (session == null) {
-			if (perun != null) {
-				session = perun.getPerunSession(
-						new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
-						new PerunClient());
-			} else {
-				throw new InternalErrorException("PerunBl is null");
-			}
-		}
-		return session;
-	}
+    return result;
+  }
+
+  public static PerunSession getPerunSession(PerunBl perun) {
+    if (session == null) {
+      if (perun != null) {
+        session = perun.getPerunSession(
+            new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+                ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
+      } else {
+        throw new InternalErrorException("PerunBl is null");
+      }
+    }
+    return session;
+  }
 }

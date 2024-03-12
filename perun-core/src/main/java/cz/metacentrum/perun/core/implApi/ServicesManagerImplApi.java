@@ -22,626 +22,612 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-
 import java.util.List;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
- *
- * Note: ServicesManager is not to be used directly by any client.
- * ServicesManager's functionality is going to be encapsulated in the Controller's
- * GeneralServiceManager.
- *
+ * <p>
+ * Note: ServicesManager is not to be used directly by any client. ServicesManager's functionality is going to be
+ * encapsulated in the Controller's GeneralServiceManager.
  */
 public interface ServicesManagerImplApi {
 
-	/**
-	 * Block Service on Facility. It won't be possible to propagate service on whole facility
-	 * or any of its destinations.
-	 *
-	 * @param session
-	 * @param serviceId The Service to be blocked on the Facility
-	 * @param facilityId The Facility on which we want to block the Service
-	 * @throws InternalErrorException
-	 */
-	void blockServiceOnFacility(PerunSession session, int serviceId, int facilityId) throws ServiceAlreadyBannedException;
+  /**
+   * Adds an destination for the facility and service.
+   *
+   * @param perunSession
+   * @param service
+   * @param facility
+   * @param destination  string contains destination address (mail, url, hostname, ...)
+   * @throws InternalErrorException
+   * @throws DestinationAlreadyAssignedException when the combination already exists
+   */
+  void addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination)
+      throws DestinationAlreadyAssignedException;
 
-	/**
-	 * Block Service on specific Destination. Service still can be propagated to other facility Destinations.
-	 *
-	 * @param session
-	 * @param serviceId The Service to be blocked on this particular destination
-	 * @param destinationId The destination on which we want to block the Service
-	 * @throws InternalErrorException
-	 */
-	void blockServiceOnDestination(PerunSession session, int serviceId, int destinationId) throws ServiceAlreadyBannedException;
+  /**
+   * Mark the attribute as required for the service. Required attribues are requisite for Service to run. If you add
+   * attribute which has a default attribute then this default attribute will be automatically add too.
+   *
+   * @param perunSession perunSession
+   * @param service      service to which the attribute will be added
+   * @param attribute    attribute to add
+   * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is
+   *                                           wrapped in InternalErrorException
+   * @throws AttributeAlreadyAssignedException if the attribute is already added
+   */
+  void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute)
+      throws AttributeAlreadyAssignedException;
 
-	/**
-	 * Unblock Service on whole Facility. If was not blocked, nothing happens.
-	 *
-	 * @param serviceId ID of Service to unblock on Facility.
-	 * @param facilityId ID of Facility to unblock Service on.
-	 */
-	void unblockServiceOnFacility(int serviceId, int facilityId);
+  /**
+   * Batch version of addRequiredAttribute
+   *
+   * @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession, Service, AttributeDefinition)
+   */
+  void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes)
+      throws AttributeAlreadyAssignedException;
 
-	/**
-	 * Unblock Service on specific Destination. If was not blocked, nothing happens.
-	 *
-	 * @param serviceId ID of Service to unblock on Destination.
-	 * @param destinationId ID of Destination to unblock Service on.
-	 */
-	void unblockServiceOnDestination(int serviceId, int destinationId);
+  /**
+   * Add the service to the package
+   *
+   * @param perunSession
+   * @param servicesPackage services package to which the service supposed to be added
+   * @param service         service to be added to the services package
+   * @throws InternalErrorException
+   * @throws ServicesPackageNotExistsException
+   * @throws ServiceNotExistsException
+   * @throws ServiceAlreadyAssignedException
+   */
+  void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service)
+      throws ServiceAlreadyAssignedException;
 
-	/**
-	 * Unblock all blocked Services on Facility.
-	 *
-	 * @param facility ID of Facility we want to unblock all Services.
-	 */
-	void unblockAllServicesOnFacility(int facility);
+  /**
+   * Block Service on specific Destination. Service still can be propagated to other facility Destinations.
+   *
+   * @param session
+   * @param serviceId     The Service to be blocked on this particular destination
+   * @param destinationId The destination on which we want to block the Service
+   * @throws InternalErrorException
+   */
+  void blockServiceOnDestination(PerunSession session, int serviceId, int destinationId)
+      throws ServiceAlreadyBannedException;
 
-	/**
-	 * Unblock all blocked Services on specified Destination.
-	 *
-	 * @param destination ID of Destination we want to unblock all Services.
-	 */
-	void unblockAllServicesOnDestination(int destination);
+  /**
+   * Block Service on Facility. It won't be possible to propagate service on whole facility or any of its destinations.
+   *
+   * @param session
+   * @param serviceId  The Service to be blocked on the Facility
+   * @param facilityId The Facility on which we want to block the Service
+   * @throws InternalErrorException
+   */
+  void blockServiceOnFacility(PerunSession session, int serviceId, int facilityId) throws ServiceAlreadyBannedException;
 
-	/**
-	 * Unblock Service everywhere. If was not blocked, nothing happens.
-	 *
-	 * @param serviceId ID of Service to unblock.
-	 */
-	void unblockService(int serviceId);
+  /**
+   * Check if service exists in underlaying data source.
+   *
+   * @param perunSession perun session
+   * @param service      service to check
+   * @throws InternalErrorException    if unexpected error occured
+   * @throws ServiceNotExistsException if service doesn't exists
+   */
+  void checkServiceExists(PerunSession perunSession, Service service) throws ServiceNotExistsException;
 
-	/**
-	 * Get Services blocked on Facility.
-	 *
-	 * @param facilityId ID of Facility to get blocked Services for.
-	 * @return List of blocked Services.
-	 */
-	List<Service> getServicesBlockedOnFacility(int facilityId);
+  /**
+   * Check if services package exists in underlaying data source.
+   *
+   * @param perunSession    perun session
+   * @param servicesPackage services package to check
+   * @throws InternalErrorException            if unexpected error occur
+   * @throws ServicesPackageNotExistsException if service doesn't exists
+   */
+  void checkServicesPackageExists(PerunSession perunSession, ServicesPackage servicesPackage)
+      throws ServicesPackageNotExistsException;
 
-	/**
-	 * Get Services blocked on Destination.
-	 *
-	 * @param destinationId ID of Destination to get blocked Services for.
-	 * @return List of blocked Services.
-	 */
-	List<Service> getServicesBlockedOnDestination(int destinationId);
+  Destination createDestination(PerunSession sess, Destination destination);
 
-	/**
-	 * Return TRUE if Service is blocked on Facility.
-	 *
-	 * @param serviceId ID of Service to check on.
-	 * @param facilityId ID of Facility to check on.
-	 * @return TRUE if Service is blocked on Facility / FALSE otherwise
-	 */
-	boolean isServiceBlockedOnFacility(int serviceId, int facilityId);
+  /**
+   * Creates new service.
+   *
+   * @param perunSession
+   * @param service
+   * @return new service
+   */
+  Service createService(PerunSession perunSession, Service service);
 
-	/**
-	 * Return TRUE if Service is blocked on Destination.
-	 *
-	 * @param serviceId ID of Service to check on.
-	 * @param destinationId ID of Destination to check on.
-	 * @return TRUE if Service is blocked on Destination / FALSE otherwise
-	 */
-	boolean isServiceBlockedOnDestination(int serviceId, int destinationId);
+  /**
+   * Insert a new package
+   *
+   * @param servicesPackage package to be inserted
+   * @param perunSession
+   * @return ServicesPackage object completely filled (including Id)
+   * @throws InternalErrorException
+   */
+  ServicesPackage createServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 
-	/**
-	 * Return list of services this destination points to.
-	 *
-	 * @param destinationId ID of destination
-	 * @return Services associated with this destination.
-	 */
-	List<Service> getServicesFromDestination(int destinationId);
+  /**
+   * Deletes destination.
+   *
+   * @param sess
+   * @param destination destination to be deleted
+   * @throws InternalErrorException
+   * @throws DestinationAlreadyRemovedException if there are 0 rows affected by deleting from DB
+   * @throws RelationExistsException            if the destination has some existing relations in DB
+   */
+  void deleteDestination(PerunSession sess, Destination destination)
+      throws DestinationAlreadyRemovedException, RelationExistsException;
 
-	/**
-	 * Creates new service.
-	 *
-	 * @param perunSession
-	 * @param service
-	 * @return new service
-	 */
-	Service createService(PerunSession perunSession, Service service);
+  /**
+   * Deletes the service.
+   *
+   * @param perunSession
+   * @param service
+   * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
+   */
+  void deleteService(PerunSession perunSession, Service service) throws ServiceAlreadyRemovedException;
 
-	/** Deletes the service.
-	 *
-	 * @param perunSession
-	 * @param service
-	 *
-	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
-	 */
-	void deleteService(PerunSession perunSession, Service service) throws ServiceAlreadyRemovedException;
+  /**
+   * Remove the package
+   *
+   * @param perunSession
+   * @param servicesPackage services package to be removed.
+   * @throws ServicesPackageNotExistsException
+   */
+  void deleteServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 
-	/** Updates the service.
-	 *
-	 * @param perunSession
-	 * @param service
-	 */
-	void updateService(PerunSession perunSession, Service service);
+  /**
+   * Determine if destination exists for specified facility and service.
+   *
+   * @param sess
+   * @param service
+   * @param facility
+   * @param destination
+   * @return true if the destination exists for the facility and the resource
+   * @throws InternalErrorException
+   */
+  boolean destinationExists(PerunSession sess, Service service, Facility facility, Destination destination);
 
-	/**
-	 * Get service by id.
-	 *
-	 * @param perunSession
-	 * @param id
-	 * @return service with specified id
-	 *
-	 * @throws InternalErrorException
-	 * @throws ServiceNotExistsException
-	 */
-	Service getServiceById(PerunSession perunSession, int id) throws ServiceNotExistsException;
+  boolean destinationExists(PerunSession sess, Destination destination);
 
-	/**
-	 * Get service by name.
-	 *
-	 * @param perunSession
-	 * @param name name of the service
-	 * @return service with specified name
-	 *
-	 * @throws InternalErrorException
-	 * @throws ServiceNotExistsException
-	 */
-	Service getServiceByName(PerunSession perunSession, String name) throws ServiceNotExistsException;
+  /**
+   * Get list of all rich destinations defined for the facility.
+   *
+   * @param perunSession
+   * @param facility
+   * @return list of rich destinations defined for the facility
+   * @throws InternalErrorException
+   */
+  List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility);
 
-	/**
-	 * get all services in perun
-	 *
-	 * @param perunSession
-	 * @return all services in perun
-	 *
-	 * @throws InternalErrorException
-	 */
-	List<Service> getServices(PerunSession perunSession);
+  /**
+   * Get list of all rich destinations defined for the service.
+   *
+   * @param perunSession
+   * @param service
+   * @return list of rich destinations defined for the service
+   * @throws InternalErrorException
+   */
+  List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service);
 
-	/**
-	 * Get all services with given attribute.
-	 *
-	 * @param sess perun session
-	 * @param attributeDefinition
-	 * @return all services with given attribute
-	 *
-	 * @throws InternalErrorException
-	 */
-	List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition);
+  /**
+   * Get all resources which use this service.
+   *
+   * @param sess
+   * @param service
+   * @return list of resources
+   * @throws InternalErrorException
+   */
+  List<Resource> getAssignedResources(PerunSession sess, Service service);
 
-	/**
-	 * Get all resources which use this service.
-	 *
-	 * @param sess
-	 * @param service
-	 * @return list of resources
-	 * @throws InternalErrorException
-	 */
-	List<Resource> getAssignedResources(PerunSession sess, Service service);
+  /**
+   * List all services associated with the facility (via resource).
+   *
+   * @param perunSession
+   * @param facility
+   * @return list of services assigned  to facility
+   * @throws InternalErrorException
+   */
+  List<Service> getAssignedServices(PerunSession perunSession, Facility facility);
 
-	/**
-	 * List packages
-	 *
-	 * @param perunSession
-	 *
-	 * @return list of packages in the DB
-	 *
-	 * @throws InternalErrorException
-	 */
-	List<ServicesPackage> getServicesPackages(PerunSession perunSession);
+  /**
+   * List all services associated with the facility and vo (via resource).
+   *
+   * @param perunSession
+   * @param facility
+   * @param vo
+   * @return list of services assigned  to facility and vo
+   * @throws InternalErrorException
+   */
+  List<Service> getAssignedServices(PerunSession perunSession, Facility facility, Vo vo);
 
-	/**
-	 * Get package by Id
-	 *
-	 * @param servicesPackageId id of the package we want to retrieve
-	 * @param perunSession
-	 *
-	 * @return package
-	 *
-	 * @throws InternalErrorException
-	 * @throws ServicesPackageNotExistsException
-	 */
-	ServicesPackage getServicesPackageById(PerunSession perunSession, int servicesPackageId) throws ServicesPackageNotExistsException;
+  /**
+   * Get destination by String destination and type
+   *
+   * @param sess
+   * @param destination Destination string representation
+   * @param type        type of destination
+   * @return Destination
+   * @throws InternalErrorException
+   * @throws DestinationNotExistsException
+   */
+  Destination getDestination(PerunSession sess, String destination, String type) throws DestinationNotExistsException;
 
-	/**
-	 * Get services package by name.
-	 * @param sess
-	 * @param name
-	 * @return package
-	 * @throws InternalErrorException
-	 * @throws ServicesPackageNotExistsException
-	 */
-	ServicesPackage getServicesPackageByName(PerunSession sess, String name) throws ServicesPackageNotExistsException;
-	/**
-	 * Insert a new package
-	 *
-	 * @param servicesPackage package to be inserted
-	 * @param perunSession
-	 *
-	 * @return ServicesPackage object completely filled (including Id)
-	 *
-	 * @throws InternalErrorException
-	 */
-	ServicesPackage createServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
+  /**
+   * Get destination by id
+   *
+   * @param perunSession
+   * @param id
+   * @return Destination with the id
+   * @throws InternalErrorException
+   * @throws DestinationNotExistsException
+   */
+  Destination getDestinationById(PerunSession perunSession, int id) throws DestinationNotExistsException;
 
-	/**
-	 * Update package
-	 *
-	 * @param servicesPackage with which is the old one supposed to be updated :-)
-	 * @param perunSession
-	 *
-	 * @throws InternalErrorException
-	 * @throws ServicesPackageNotExistsException
-	 */
-	void updateServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
+  /**
+   * Get list of all destinations defined for the service and facility.
+   *
+   * @param perunSession
+   * @param service
+   * @param facility
+   * @return list list of destinations defined for the service and facility
+   * @throws InternalErrorException
+   */
+  List<Destination> getDestinations(PerunSession perunSession, Service service, Facility facility);
 
-	/**
-	 * Remove the package
-	 *
-	 * @param perunSession
-	 * @param servicesPackage services package to be removed.
-	 * @throws ServicesPackageNotExistsException
-	 */
-	void deleteServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
+  /**
+   * Get list of all destinations.
+   *
+   * @param perunSession
+   * @return list of all destinations for session
+   * @throws InternalErrorException
+   */
+  List<Destination> getDestinations(PerunSession perunSession);
 
-	/**
-	 * Add the service to the package
-	 *
-	 * @param perunSession
-	 * @param servicesPackage services package to which the service supposed to be added
-	 * @param service service to be added to the services package
-	 *
-	 * @throws InternalErrorException
-	 * @throws ServicesPackageNotExistsException
-	 * @throws ServiceNotExistsException
-	 * @throws ServiceAlreadyAssignedException
-	 */
-	void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyAssignedException;
+  /**
+   * Get lists of all destinations for specific Facility
+   *
+   * @param perunSession
+   * @param facility     the facility
+   * @return lists of all destinations for specific Facility
+   * @throws InternalErrorException
+   */
+  List<Destination> getDestinations(PerunSession perunSession, Facility facility);
 
-	/**
-	 * Remove Service from Services Package
-	 *
-	 * @param perunSession
-	 * @param servicesPackage services package from which the service supposed to be removed
-	 * @param service service that will be removed from the services package
-	 *
-	 * @throws InternalErrorException
-	 * @throws ServicesPackageNotExistsException
-	 * @throws ServiceNotExistsException
-	 * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from service package in DB
-	 */
-	void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyRemovedFromServicePackageException;
+  /**
+   * Get count of all destinations.
+   *
+   * @param perunSession
+   * @return count of all destinations
+   * @throws InternalErrorException
+   */
+  int getDestinationsCount(PerunSession perunSession);
 
-	/**
-	 * Remove Service from all Services Packages
-	 *
-	 * @param perunSession
-	 * @param service service that will be removed from the services package
-	 *
-	 * @throws InternalErrorException
-	 * @throws ServiceNotExistsException
-	 * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from service package in DB
-	 */
-	void removeServiceFromAllServicesPackages(PerunSession sess, Service service);
-	
-	/**
-	 * List services stored in the packages
-	 *
-	 * @param servicesPackage the package from which we want to list the services
-	 *
-	 * @return list consisting services
-	 *
-	 * @throws InternalErrorException
-	 * @throws ServicesPackageNotExistsException
-	 */
-	List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
+  /**
+   * List all destinations for all facilities which are joined by resources to the VO.
+   *
+   * @param sess
+   * @param vo   vo for which we are searching destinations
+   * @return list of destinations
+   * @throws InternalErrorException
+   */
+  List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo);
 
-	/*
-		 getRequiredAttributes(PerunSession perunSession, Service service);
-		 */
+  /**
+   * Get list of all rich destinations defined for the service and the facility
+   *
+   * @param perunSession
+   * @param facility
+   * @param service
+   * @return list of rich destinations defined for the service and the facility
+   * @throws InternalErrorException
+   */
+  List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service);
 
-	/**
-	 * Mark the attribute as required for the service. Required attribues are requisite for Service to run.
-	 * If you add attribute which has a default attribute then this default attribute will be automatically add too.
-	 *
-	 * @param perunSession perunSession
-	 * @param service service to which the attribute will be added
-	 * @param attribute attribute to add
-	 *
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeAlreadyAssignedException if the attribute is already added
-	 */
-	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException;
+  /**
+   * Get service by id.
+   *
+   * @param perunSession
+   * @param id
+   * @return service with specified id
+   * @throws InternalErrorException
+   * @throws ServiceNotExistsException
+   */
+  Service getServiceById(PerunSession perunSession, int id) throws ServiceNotExistsException;
 
-	/**
-	 *  Batch version of addRequiredAttribute
-	 *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,AttributeDefinition)
-	 */
-	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException;
+  /*
+         getRequiredAttributes(PerunSession perunSession, Service service);
+         */
 
-	/**
-	 * Remove required attribute from service.
-	 * TODO If you try to remove attribute which is default for other Required attribute ...
-	 *
-	 * @param perunSession perunSession
-	 * @param service service from which the attribute will be removed
-	 * @param attribute attribute to remove
-	 *
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotAssignedException
-	 * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
-	 */
-	void removeRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeNotAssignedException;
+  /**
+   * Get service by name.
+   *
+   * @param perunSession
+   * @param name         name of the service
+   * @return service with specified name
+   * @throws InternalErrorException
+   * @throws ServiceNotExistsException
+   */
+  Service getServiceByName(PerunSession perunSession, String name) throws ServiceNotExistsException;
 
-	/**
-	 *  Batch version of removeRequiredAttribute
-	 *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,AttributeDefinition)
-	 */
-	void removeRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws AttributeNotAssignedException;
+  /**
+   * get all services in perun
+   *
+   * @param perunSession
+   * @return all services in perun
+   * @throws InternalErrorException
+   */
+  List<Service> getServices(PerunSession perunSession);
 
-	/**
-	 * Detate all required attributes from service
-	 *
-	 * @param perunSession perunSession
-	 * @param service service from which the attributes will be removed
-	 *
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
-	 */
-	void removeAllRequiredAttributes(PerunSession perunSession, Service service);
+  /**
+   * Get Services blocked on Destination.
+   *
+   * @param destinationId ID of Destination to get blocked Services for.
+   * @return List of blocked Services.
+   */
+  List<Service> getServicesBlockedOnDestination(int destinationId);
 
-	/**
-	 * Check if service exists in underlaying data source.
-	 *
-	 * @param perunSession perun session
-	 * @param service service to check
-	 * @return true if service exists in underlaying data source, false otherwise
-	 *
-	 * @throws InternalErrorException if unexpected error occured
-	 */
-	boolean serviceExists(PerunSession perunSession, Service service);
+  /**
+   * Get Services blocked on Facility.
+   *
+   * @param facilityId ID of Facility to get blocked Services for.
+   * @return List of blocked Services.
+   */
+  List<Service> getServicesBlockedOnFacility(int facilityId);
 
-	/**
-	 * Check if service exists in underlaying data source.
-	 *
-	 * @param perunSession perun session
-	 * @param service service to check
-	 *
-	 * @throws InternalErrorException if unexpected error occured
-	 * @throws ServiceNotExistsException if service doesn't exists
-	 */
-	void checkServiceExists(PerunSession perunSession, Service service) throws ServiceNotExistsException;
+  /**
+   * Get all services with given attribute.
+   *
+   * @param sess                perun session
+   * @param attributeDefinition
+   * @return all services with given attribute
+   * @throws InternalErrorException
+   */
+  List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition);
 
-	/**
-	 * Check if services package exists in underlaying data source.
-	 *
-	 * @param perunSession perun session
-	 * @param servicesPackage services package to check
-	 * @return true if services package exists in underlaying data source, false otherwise
-	 *
-	 * @throws InternalErrorException if unexpected error occur
-	 */
-	boolean servicesPackageExists(PerunSession perunSession, ServicesPackage servicesPackage);
+  /**
+   * Return list of services this destination points to.
+   *
+   * @param destinationId ID of destination
+   * @return Services associated with this destination.
+   */
+  List<Service> getServicesFromDestination(int destinationId);
 
-	/**
-	 * Check if services package exists in underlaying data source.
-	 *
-	 * @param perunSession perun session
-	 * @param servicesPackage services package to check
-	 *
-	 * @throws InternalErrorException if unexpected error occur
-	 * @throws ServicesPackageNotExistsException if service doesn't exists
-	 */
-	void checkServicesPackageExists(PerunSession perunSession, ServicesPackage servicesPackage) throws ServicesPackageNotExistsException;
+  /**
+   * List services stored in the packages
+   *
+   * @param servicesPackage the package from which we want to list the services
+   * @return list consisting services
+   * @throws InternalErrorException
+   * @throws ServicesPackageNotExistsException
+   */
+  List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 
-	/**
-	 * Adds an destination for the facility and service.
-	 *
-	 * @param perunSession
-	 * @param service
-	 * @param facility
-	 * @param destination string contains destination address (mail, url, hostname, ...)
-	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyAssignedException when the combination already exists
-	 */
-	void addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException;
+  /**
+   * Get package by Id
+   *
+   * @param servicesPackageId id of the package we want to retrieve
+   * @param perunSession
+   * @return package
+   * @throws InternalErrorException
+   * @throws ServicesPackageNotExistsException
+   */
+  ServicesPackage getServicesPackageById(PerunSession perunSession, int servicesPackageId)
+      throws ServicesPackageNotExistsException;
 
-	/**
-	 * Removes an destination from the facility and service.
-	 *
-	 * @param perunSession
-	 * @param service
-	 * @param facility
-	 * @param destination string contains destination address (mail, url, hostname, ...)
-	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyRemovedException
-	 */
-	void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyRemovedException;
+  /**
+   * Get services package by name.
+   *
+   * @param sess
+   * @param name
+   * @return package
+   * @throws InternalErrorException
+   * @throws ServicesPackageNotExistsException
+   */
+  ServicesPackage getServicesPackageByName(PerunSession sess, String name) throws ServicesPackageNotExistsException;
 
-	/**
-	 * Get destination by id
-	 *
-	 * @param perunSession
-	 * @param id
-	 * @return Destination with the id
-	 * @throws InternalErrorException
-	 * @throws DestinationNotExistsException
-	 */
-	Destination getDestinationById(PerunSession perunSession, int id) throws DestinationNotExistsException;
+  /**
+   * List packages
+   *
+   * @param perunSession
+   * @return list of packages in the DB
+   * @throws InternalErrorException
+   */
+  List<ServicesPackage> getServicesPackages(PerunSession perunSession);
 
+  /**
+   * Checks whether given service is assigned to given facility (through some resource).
+   *
+   * @param sess     session
+   * @param facility facility
+   * @param service  service
+   * @return true if service is assigned to given facility, false otherwise
+   */
+  boolean isServiceAssignedToFacility(PerunSession sess, Facility facility, Service service);
 
-	/**
-	 * Get list of all destinations defined for the service and facility.
-	 *
-	 * @param perunSession
-	 * @param service
-	 * @param facility
-	 * @return list list of destinations defined for the service and facility
-	 * @throws InternalErrorException
-	 */
-	List<Destination> getDestinations(PerunSession perunSession, Service service, Facility facility);
+  /**
+   * Return TRUE if Service is blocked on Destination.
+   *
+   * @param serviceId     ID of Service to check on.
+   * @param destinationId ID of Destination to check on.
+   * @return TRUE if Service is blocked on Destination / FALSE otherwise
+   */
+  boolean isServiceBlockedOnDestination(int serviceId, int destinationId);
 
-	/**
-	 * Get list of all destinations.
-	 *
-	 * @param perunSession
-	 * @return list of all destinations for session
-	 * @throws InternalErrorException
-	 */
-	List<Destination> getDestinations(PerunSession perunSession);
+  /**
+   * Return TRUE if Service is blocked on Facility.
+   *
+   * @param serviceId  ID of Service to check on.
+   * @param facilityId ID of Facility to check on.
+   * @return TRUE if Service is blocked on Facility / FALSE otherwise
+   */
+  boolean isServiceBlockedOnFacility(int serviceId, int facilityId);
 
-	/**
-	 * Get lists of all destinations for specific Facility
-	 *
-	 * @param perunSession
-	 * @param facility the facility
-	 * @return lists of all destinations for specific Facility
-	 * @throws InternalErrorException
-	 */
-	List<Destination> getDestinations(PerunSession perunSession, Facility facility);
+  /**
+   * Removes all defined destinations for the service and facility.
+   *
+   * @param perunSession
+   * @param service
+   * @param facility
+   * @throws InternalErrorException
+   */
+  void removeAllDestinations(PerunSession perunSession, Service service, Facility facility);
 
-	/**
-	 * Get list of all rich destinations defined for the facility.
-	 *
-	 * @param perunSession
-	 * @param facility
-	 * @return list of rich destinations defined for the facility
-	 * @throws InternalErrorException
-	 */
-	List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility);
+  /**
+   * Removes all defined destinations for the facility.
+   *
+   * @param perunSession
+   * @param facility     the facility
+   * @throws InternalErrorException
+   */
+  void removeAllDestinations(PerunSession perunSession, Facility facility);
 
-	/**
-	 * Get list of all rich destinations defined for the service.
-	 *
-	 * @param perunSession
-	 * @param service
-	 * @return list of rich destinations defined for the service
-	 * @throws InternalErrorException
-	 */
-	List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service);
+  /**
+   * Detate all required attributes from service
+   *
+   * @param perunSession perunSession
+   * @param service      service from which the attributes will be removed
+   * @throws InternalErrorException    if an exception raise in concrete implementation, the exception is wrapped in
+   *                                   InternalErrorException
+   * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
+   */
+  void removeAllRequiredAttributes(PerunSession perunSession, Service service);
 
-	/**
-	 * Get list of all rich destinations defined for the service and the facility
-	 *
-	 * @param perunSession
-	 * @param facility
-	 * @param service
-	 * @return list of rich destinations defined for the service and the facility
-	 * @throws InternalErrorException
-	 */
-	List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service);
+  /**
+   * Removes an destination from the facility and service.
+   *
+   * @param perunSession
+   * @param service
+   * @param facility
+   * @param destination  string contains destination address (mail, url, hostname, ...)
+   * @throws InternalErrorException
+   * @throws DestinationAlreadyRemovedException
+   */
+  void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination)
+      throws DestinationAlreadyRemovedException;
 
-	/**
-	 * Removes all defined destinations for the service and facility.
-	 *
-	 * @param perunSession
-	 * @param service
-	 * @param facility
-	 * @throws InternalErrorException
-	 */
-	void removeAllDestinations(PerunSession perunSession, Service service, Facility facility);
+  /**
+   * Remove required attribute from service.
+   * TODO If you try to remove attribute which is default for other Required attribute ...
+   *
+   * @param perunSession perunSession
+   * @param service      service from which the attribute will be removed
+   * @param attribute    attribute to remove
+   * @throws InternalErrorException        if an exception raise in concrete implementation, the exception is wrapped in
+   *                                       InternalErrorException
+   * @throws AttributeNotAssignedException
+   * @throws ServiceNotExistsException     if the service doesn't exists in underlaying data source
+   */
+  void removeRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute)
+      throws AttributeNotAssignedException;
 
-	/**
-	 * Removes all defined destinations for the facility.
-	 *
-	 * @param perunSession
-	 * @param facility the facility
-	 * @throws InternalErrorException
-	 */
-	void removeAllDestinations(PerunSession perunSession, Facility facility);
+  /**
+   * Batch version of removeRequiredAttribute
+   *
+   * @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession, Service,
+   * AttributeDefinition)
+   */
+  void removeRequiredAttributes(PerunSession perunSession, Service service,
+                                List<? extends AttributeDefinition> attributes) throws AttributeNotAssignedException;
 
-	/**
-	 * Get destination by String destination and type
-	 *
-	 * @param sess
-	 * @param destination Destination string representation
-	 * @param type type of destination
-	 * @return Destination
-	 *
-	 * @throws InternalErrorException
-	 * @throws DestinationNotExistsException
-	 */
-	Destination getDestination(PerunSession sess, String destination, String type) throws DestinationNotExistsException;
+  /**
+   * Remove Service from all Services Packages
+   *
+   * @param perunSession
+   * @param service      service that will be removed from the services package
+   * @throws InternalErrorException
+   * @throws ServiceNotExistsException
+   * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from service
+   *                                                          package in DB
+   */
+  void removeServiceFromAllServicesPackages(PerunSession sess, Service service);
 
-	/**
-	 *  Determine if destination exists for specified facility and service.
-	 *
-	 * @param sess
-	 * @param service
-	 * @param facility
-	 * @param destination
-	 * @return true if the destination exists for the facility and the resource
-	 *
-	 * @throws InternalErrorException
-	 */
-	boolean destinationExists(PerunSession sess, Service service, Facility facility, Destination destination);
+  /**
+   * Remove Service from Services Package
+   *
+   * @param perunSession
+   * @param servicesPackage services package from which the service supposed to be removed
+   * @param service         service that will be removed from the services package
+   * @throws InternalErrorException
+   * @throws ServicesPackageNotExistsException
+   * @throws ServiceNotExistsException
+   * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from service
+   *                                                          package in DB
+   */
+  void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service)
+      throws ServiceAlreadyRemovedFromServicePackageException;
 
-	Destination createDestination(PerunSession sess, Destination destination);
+  /**
+   * Check if service exists in underlaying data source.
+   *
+   * @param perunSession perun session
+   * @param service      service to check
+   * @return true if service exists in underlaying data source, false otherwise
+   * @throws InternalErrorException if unexpected error occured
+   */
+  boolean serviceExists(PerunSession perunSession, Service service);
 
-	boolean destinationExists(PerunSession sess, Destination destination);
+  /**
+   * Check if services package exists in underlaying data source.
+   *
+   * @param perunSession    perun session
+   * @param servicesPackage services package to check
+   * @return true if services package exists in underlaying data source, false otherwise
+   * @throws InternalErrorException if unexpected error occur
+   */
+  boolean servicesPackageExists(PerunSession perunSession, ServicesPackage servicesPackage);
 
-	/**
-	 * List all services associated with the facility (via resource).
-	 *
-	 * @param perunSession
-	 * @param facility
-	 *
-	 * @throws InternalErrorException
-	 *
-	 * @return list of services assigned  to facility
-	 */
-	List<Service> getAssignedServices(PerunSession perunSession, Facility facility);
+  /**
+   * Unblock all blocked Services on specified Destination.
+   *
+   * @param destination ID of Destination we want to unblock all Services.
+   */
+  void unblockAllServicesOnDestination(int destination);
 
-	/**
-	 * List all services associated with the facility and vo (via resource).
-	 *
-	 * @param perunSession
-	 * @param facility
-	 * @param vo
-	 *
-	 * @throws InternalErrorException
-	 *
-	 * @return list of services assigned  to facility and vo
-	 */
-	List<Service> getAssignedServices(PerunSession perunSession, Facility facility, Vo vo);
+  /**
+   * Unblock all blocked Services on Facility.
+   *
+   * @param facility ID of Facility we want to unblock all Services.
+   */
+  void unblockAllServicesOnFacility(int facility);
 
-	/**
-	 * List all destinations for all facilities which are joined by resources to the VO.
-	 *
-	 * @param sess
-	 * @param vo vo for which we are searching destinations
-	 * @return list of destinations
-	 *
-	 * @throws InternalErrorException
-	 */
-	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo);
+  /**
+   * Unblock Service everywhere. If was not blocked, nothing happens.
+   *
+   * @param serviceId ID of Service to unblock.
+   */
+  void unblockService(int serviceId);
 
-	/**
-	 * Get count of all destinations.
-	 *
-	 * @param perunSession
-	 *
-	 * @return count of all destinations
-	 *
-	 * @throws InternalErrorException
-	 */
-	int getDestinationsCount(PerunSession perunSession);
+  /**
+   * Unblock Service on specific Destination. If was not blocked, nothing happens.
+   *
+   * @param serviceId     ID of Service to unblock on Destination.
+   * @param destinationId ID of Destination to unblock Service on.
+   */
+  void unblockServiceOnDestination(int serviceId, int destinationId);
 
-	/**
-	 * Deletes destination.
-	 *
-	 * @param sess
-	 * @param destination destination to be deleted
-	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyRemovedException if there are 0 rows affected by deleting from DB
-	 * @throws RelationExistsException if the destination has some existing relations in DB
-	 */
-	void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException;
+  /**
+   * Unblock Service on whole Facility. If was not blocked, nothing happens.
+   *
+   * @param serviceId  ID of Service to unblock on Facility.
+   * @param facilityId ID of Facility to unblock Service on.
+   */
+  void unblockServiceOnFacility(int serviceId, int facilityId);
 
-	/**
-	 * Checks whether given service is assigned to given facility (through some resource).
-	 *
-	 * @param sess session
-	 * @param facility facility
-	 * @param service service
-	 * @return true if service is assigned to given facility, false otherwise
-	 */
-	boolean isServiceAssignedToFacility(PerunSession sess, Facility facility, Service service);
+  /**
+   * Updates the service.
+   *
+   * @param perunSession
+   * @param service
+   */
+  void updateService(PerunSession perunSession, Service service);
+
+  /**
+   * Update package
+   *
+   * @param servicesPackage with which is the old one supposed to be updated :-)
+   * @param perunSession
+   * @throws InternalErrorException
+   * @throws ServicesPackageNotExistsException
+   */
+  void updateServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 }

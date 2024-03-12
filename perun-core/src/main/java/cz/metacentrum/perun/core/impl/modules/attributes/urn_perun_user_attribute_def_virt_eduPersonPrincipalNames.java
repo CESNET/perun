@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,51 +23,55 @@ import java.util.regex.Pattern;
  * @author Michal Šťava <stavamichal@gmail.com>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends UserVirtualAttributesModuleAbstract
+    implements UserVirtualAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("[^@]+@[^@]+");
+  private static final Pattern pattern = Pattern.compile("[^@]+@[^@]+");
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("eduPersonPrincipalNames");
+    attr.setDisplayName("EPPN");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("Extsource logins from IDP.");
+    return attr;
+  }
 
-		// prevent duplicate entries in EPPN
-		Set<String> idpLogins = new HashSet<>();
-		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 
-		for(UserExtSource uES: userExtSources) {
-			if(uES.getExtSource() != null) {
-				String login = uES.getLogin();
-				String type = uES.getExtSource().getType();
+    // prevent duplicate entries in EPPN
+    Set<String> idpLogins = new HashSet<>();
+    List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
-				if(type != null && login != null) {
-					// insert only EPPN formatted data
-					Matcher matcher = pattern.matcher(login);
-					if(type.equals(ExtSourcesManager.EXTSOURCE_IDP) && matcher.matches()) {
-						idpLogins.add(login);
-					}
-				}
-			}
-		}
+    for (UserExtSource ues : userExtSources) {
+      if (ues.getExtSource() != null) {
+        String login = ues.getLogin();
+        String type = ues.getExtSource().getType();
 
-		Attribute attribute = new Attribute(attributeDefinition);
-		attribute.setValue(new ArrayList<>(idpLogins));
-		return attribute;
-	}
+        if (type != null && login != null) {
+          // insert only EPPN formatted data
+          Matcher matcher = pattern.matcher(login);
+          if (type.equals(ExtSourcesManager.EXTSOURCE_IDP) && matcher.matches()) {
+            idpLogins.add(login);
+          }
+        }
+      }
+    }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("eduPersonPrincipalNames");
-		attr.setDisplayName("EPPN");
-		attr.setType(ArrayList.class.getName());
-		attr.setDescription("Extsource logins from IDP.");
-		return attr;
-	}
+    Attribute attribute = new Attribute(attributeDefinition);
+    attribute.setValue(new ArrayList<>(idpLogins));
+    return attribute;
+  }
 
-	@Override
-	public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String login) {
-		if (login == null) return null;
-		return perunSession.getPerunBl().getUsersManagerBl().getUsersByExtSourceTypeAndLogin(perunSession, ExtSourcesManager.EXTSOURCE_IDP, login);
-	}
+  @Override
+  public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String login) {
+    if (login == null) {
+      return null;
+    }
+    return perunSession.getPerunBl().getUsersManagerBl()
+        .getUsersByExtSourceTypeAndLogin(perunSession, ExtSourcesManager.EXTSOURCE_IDP, login);
+  }
 }

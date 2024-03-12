@@ -1,117 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:tx="http://www.springframework.org/schema/tx"
+<beans xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-">
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 
-	<!-- needs perun-core.xml loaded before this file -->
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-	<!-- Enable @Transactional support -->
-	<tx:annotation-driven transaction-manager="perunTransactionManager"/>
+    <!-- needs perun-core.xml loaded before this file -->
 
-	<!-- Enable @AspectJ support -->
-	<!-- <aop:aspectj-autoproxy/> -->
+    <!-- Enable @Transactional support -->
+    <tx:annotation-driven transaction-manager="perunTransactionManager"/>
 
-	<!-- dao classes beans -->
+    <!-- Enable @AspectJ support -->
+    <!-- <aop:aspectj-autoproxy/> -->
 
-	<bean id="publicationSystemManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.PublicationSystemManagerDaoImpl">
-		<constructor-arg ref="dataSource" />
-	</bean>
+    <!-- dao classes beans -->
 
-	<bean id="categoryManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.CategoryManagerDaoImpl">
-		<constructor-arg ref="dataSource" />
-	</bean>
+    <bean id="publicationSystemManagerDao"
+          class="cz.metacentrum.perun.cabinet.dao.impl.PublicationSystemManagerDaoImpl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
 
-	<bean id="publicationManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.PublicationManagerDaoImpl">
-		<constructor-arg ref="dataSource" />
-	</bean>
+    <bean id="categoryManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.CategoryManagerDaoImpl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
 
-	<bean id="authorshipManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl">
-		<constructor-arg ref="dataSource" />
-	</bean>
+    <bean id="publicationManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.PublicationManagerDaoImpl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
 
-	<bean id="thanksManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl">
-		<constructor-arg ref="dataSource" />
-	</bean>
+    <bean id="authorshipManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
 
-	<!-- BL classes beans -->
+    <bean id="thanksManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
 
-	<bean id="publicationSystemManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl" init-method="initialize">
-		<property name="publicationSystemManagerDao" ref="publicationSystemManagerDao" />
-		<property name="perunBl" ref="perun" />
-	</bean>
+    <!-- BL classes beans -->
 
-	<bean id="publicationManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PublicationManagerBlImpl">
-		<property name="publicationManagerDao" ref="publicationManagerDao" />
-		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
-		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
-		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
-		<property name="thanksManagerBl" ref="thanksManagerBl" />
-	</bean>
+    <bean id="publicationSystemManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl"
+          init-method="initialize">
+        <property name="publicationSystemManagerDao" ref="publicationSystemManagerDao"/>
+        <property name="perunBl" ref="perun"/>
+    </bean>
 
-	<bean id="categoryManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CategoryManagerBlImpl">
-		<property name="categoryManagerDao" ref="categoryManagerDao" />
-		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
-		<property name="publicationManagerBl" ref="publicationManagerBl" />
-		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
-	</bean>
+    <bean id="publicationManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PublicationManagerBlImpl">
+        <property name="publicationManagerDao" ref="publicationManagerDao"/>
+        <property name="authorshipManagerBl" ref="authorshipManagerBl"/>
+        <property name="publicationSystemManagerBl" ref="publicationSystemManagerBl"/>
+        <property name="cabinetManagerBl" ref="cabinetManagerBl"/>
+        <property name="thanksManagerBl" ref="thanksManagerBl"/>
+    </bean>
 
-	<bean id="authorshipManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.AuthorshipManagerBlImpl">
-		<property name="authorshipManagerDao" ref="authorshipManagerDao" />
-		<property name="publicationManagerBl" ref="publicationManagerBl" />
-		<property name="categoryManagerBl" ref="categoryManagerBl" />
-		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
-		<property name="perun" ref="perun" />
-	</bean>
+    <bean id="categoryManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CategoryManagerBlImpl">
+        <property name="categoryManagerDao" ref="categoryManagerDao"/>
+        <property name="cabinetManagerBl" ref="cabinetManagerBl"/>
+        <property name="publicationManagerBl" ref="publicationManagerBl"/>
+        <property name="authorshipManagerBl" ref="authorshipManagerBl"/>
+    </bean>
 
-	<bean id="thanksManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.ThanksManagerBlImpl">
-		<property name="thanksManagerDao" ref="thanksManagerDao" />
-		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
-		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
-	</bean>
+    <bean id="authorshipManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.AuthorshipManagerBlImpl">
+        <property name="authorshipManagerDao" ref="authorshipManagerDao"/>
+        <property name="publicationManagerBl" ref="publicationManagerBl"/>
+        <property name="categoryManagerBl" ref="categoryManagerBl"/>
+        <property name="cabinetManagerBl" ref="cabinetManagerBl"/>
+        <property name="perun" ref="perun"/>
+    </bean>
 
-	<bean id="cabinetManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CabinetManagerBlImpl" init-method="initialize">
-		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
-	</bean>
+    <bean id="thanksManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.ThanksManagerBlImpl">
+        <property name="thanksManagerDao" ref="thanksManagerDao"/>
+        <property name="authorshipManagerBl" ref="authorshipManagerBl"/>
+        <property name="cabinetManagerBl" ref="cabinetManagerBl"/>
+    </bean>
 
-	<!-- api classes bean -->
+    <bean id="cabinetManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CabinetManagerBlImpl"
+          init-method="initialize">
+        <property name="publicationSystemManagerBl" ref="publicationSystemManagerBl"/>
+    </bean>
 
-	<bean id="cabinetManager" class="cz.metacentrum.perun.cabinet.api.impl.CabinetManagerImpl">
-		<property name="categoryManagerBl" ref="categoryManagerBl" />
-		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
-		<property name="thanksManagerBl" ref="thanksManagerBl" />
-		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
-		<property name="publicationManagerBl" ref="publicationManagerBl" />
-	</bean>
+    <!-- api classes bean -->
 
-	<beans profile="production">
-		<!-- Properties Bean, so far used in tests -->
-		<bean id="cabinetProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="locations">
-				<list>
-					<value>file:@perun.conf@perun-cabinet.properties</value>
-					<value>file:${perun.conf.custom}perun-cabinet.properties</value>
-				</list>
-			</property>
-			<property name="ignoreResourceNotFound" value="true"/>
-		</bean>
-	</beans>
+    <bean id="cabinetManager" class="cz.metacentrum.perun.cabinet.api.impl.CabinetManagerImpl">
+        <property name="categoryManagerBl" ref="categoryManagerBl"/>
+        <property name="publicationSystemManagerBl" ref="publicationSystemManagerBl"/>
+        <property name="thanksManagerBl" ref="thanksManagerBl"/>
+        <property name="authorshipManagerBl" ref="authorshipManagerBl"/>
+        <property name="publicationManagerBl" ref="publicationManagerBl"/>
+    </bean>
 
-	<beans profile="default">
-		<bean id="cabinetProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties">
-				<props>
-					<prop key="perun.cabinet.mu.login"></prop>
-					<prop key="perun.cabinet.mu.password"></prop>
-				</props>
-			</property>
-		</bean>
-	</beans>
+    <beans profile="production">
+        <!-- Properties Bean, so far used in tests -->
+        <bean id="cabinetProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="locations">
+                <list>
+                    <value>file:@perun.conf@perun-cabinet.properties</value>
+                    <value>file:${perun.conf.custom}perun-cabinet.properties</value>
+                </list>
+            </property>
+            <property name="ignoreResourceNotFound" value="true"/>
+        </bean>
+    </beans>
+
+    <beans profile="default">
+        <bean id="cabinetProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties">
+                <props>
+                    <prop key="perun.cabinet.mu.login"></prop>
+                    <prop key="perun.cabinet.mu.password"></prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
 
 
 </beans>

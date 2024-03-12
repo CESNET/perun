@@ -19,111 +19,117 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  */
 public class UpdateSecurityTeam {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "securityTeamsManager/updateSecurityTeam";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // vo
+  private SecurityTeam team;
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// vo
-	private SecurityTeam team;
+  /**
+   * Creates a new request
+   */
+  public UpdateSecurityTeam() {
+  }
 
-	// URL to call
-	final String JSON_URL = "securityTeamsManager/updateSecurityTeam";
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public UpdateSecurityTeam(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return
+   */
+  private boolean testCreating() {
 
-	/**
-	 * Creates a new request
-	 */
-	public UpdateSecurityTeam() {}
+    boolean result = true;
+    String errorMsg = "";
 
-	/**
-	 * Creates a new request with custom events
-	 * @param events Custom events
-	 */
-	public UpdateSecurityTeam(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    if (team == null) {
+      errorMsg += "Can't update NULL SecurityTeam.<br />";
+      result = false;
+    }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return
-	 */
-	private boolean testCreating() {
+    if (team.getName().length() == 0) {
+      errorMsg += "Security Team must have parameter <strong>Name</strong>.<br />";
+      result = false;
+    }
 
-		boolean result = true;
-		String errorMsg = "";
+    if (errorMsg.length() > 0) {
+      Confirm c = new Confirm("Error while updating SecurityTeam", new HTML(errorMsg), true);
+      c.show();
+    }
 
-		if(team == null){
-			errorMsg += "Can't update NULL SecurityTeam.<br />";
-			result = false;
-		}
+    return result;
+  }
 
-		if(team.getName().length() == 0){
-			errorMsg += "Security Team must have parameter <strong>Name</strong>.<br />";
-			result = false;
-		}
+  /**
+   * Attempts to update SecurityTeam, it first tests the values and then submits them.
+   *
+   * @param securityTeam SecurityTeam to update
+   */
+  public void updateSecurityTeam(final SecurityTeam securityTeam) {
 
-		if(errorMsg.length()>0){
-			Confirm c = new Confirm("Error while updating SecurityTeam", new HTML(errorMsg), true);
-			c.show();
-		}
+    this.team = securityTeam;
 
-		return result;
-	}
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-	/**
-	 * Attempts to update SecurityTeam, it first tests the values and then submits them.
-	 *
-	 * @param securityTeam SecurityTeam to update
-	 */
-	public void updateSecurityTeam(final SecurityTeam securityTeam) {
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Updating Security Team " + securityTeam.getName() + " failed.");
+        events.onError(error);
+      }
 
-		this.team = securityTeam;
+      ;
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Updating Security Team " + securityTeam.getName() + " successful.");
+        events.onFinished(jso);
+      }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Updating Security Team " + securityTeam.getName() + " failed.");
-				events.onError(error);
-			};
+      ;
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Updating Security Team " + securityTeam.getName() + " successful.");
-				events.onFinished(jso);
-			};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      ;
+    };
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
-		// vo
-		JSONObject newVo = new JSONObject();
-		newVo.put("id", new JSONNumber(team.getId()));
-		newVo.put("name", new JSONString(team.getName()));
-		newVo.put("description", new JSONString(team.getDescription()));
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // vo
+    JSONObject newVo = new JSONObject();
+    newVo.put("id", new JSONNumber(team.getId()));
+    newVo.put("name", new JSONString(team.getName()));
+    newVo.put("description", new JSONString(team.getDescription()));
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("securityTeam", newVo);
-		return jsonQuery;
-	}
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("securityTeam", newVo);
+    return jsonQuery;
+  }
 
 }

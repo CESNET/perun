@@ -7,35 +7,35 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class ExtSourceRemovedFromVo extends AuditEvent implements EngineIgnoreEvent {
 
-	private ExtSource source;
-	private Vo vo;
-	private String message;
+  private ExtSource source;
+  private Vo vo;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ExtSourceRemovedFromVo() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ExtSourceRemovedFromVo() {
+  }
 
-	public ExtSourceRemovedFromVo(ExtSource source, Vo vo) {
-		this.source = source;
-		this.vo = vo;
-		this.message = formatMessage("%s removed from %s.", source, vo);
-	}
+  public ExtSourceRemovedFromVo(ExtSource source, Vo vo) {
+    this.source = source;
+    this.vo = vo;
+    this.message = formatMessage("%s removed from %s.", source, vo);
+  }
 
-	public ExtSource getSource() {
-		return source;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Vo getVo() {
-		return vo;
-	}
+  public ExtSource getSource() {
+    return source;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Vo getVo() {
+    return vo;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

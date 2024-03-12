@@ -3,6 +3,7 @@ package cz.metacentrum.perun.notif.dao.jdbc;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.dao.PerunNotifObjectDao;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -10,101 +11,107 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 /**
- * Jdbc implementation of PerunNotifObjectDao
- * User: tomastunkl Date: 01.11.12 Time: 22:57
+ * Jdbc implementation of PerunNotifObjectDao User: tomastunkl Date: 01.11.12 Time: 22:57
  */
 @Repository("perunNotifObjectDao")
 public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNotifObjectDao {
 
-	private static final Logger logger = LoggerFactory.getLogger(PerunNotifObjectDao.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PerunNotifObjectDao.class);
 
-	@Override
-	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) {
+  @Override
+  public PerunNotifObject createPerunNotifObject(PerunNotifObject object) {
 
-		logger.debug("Saving PerunNotifObject: {} to db.", object);
-		int newPerunNotifObjectId = Utils.getNewId(this.getJdbcTemplate(), "pn_object_id_seq");
-		this.getJdbcTemplate().update("INSERT INTO pn_object(id, name, properties, class_name) values(?,?,?,?)", newPerunNotifObjectId, object.getName(), object.getSerializedProperties(), object.getObjectClass().getName());
+    LOGGER.debug("Saving PerunNotifObject: {} to db.", object);
+    int newPerunNotifObjectId = Utils.getNewId(this.getJdbcTemplate(), "pn_object_id_seq");
+    this.getJdbcTemplate()
+        .update("INSERT INTO pn_object(id, name, properties, class_name) values(?,?,?,?)", newPerunNotifObjectId,
+            object.getName(), object.getSerializedProperties(), object.getObjectClass().getName());
 
-		object.setId(newPerunNotifObjectId);
-		logger.debug("PerunNotifObject saved to db. Object: {}", object);
-		return object;
-	}
+    object.setId(newPerunNotifObjectId);
+    LOGGER.debug("PerunNotifObject saved to db. Object: {}", object);
+    return object;
+  }
 
-	@Override
-	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) {
+  @Override
+  public List<PerunNotifObject> getAll() {
 
-		logger.debug("Updating object in db: {}", object);
-		this.getJdbcTemplate().update("update pn_object set properties = ?, name = ?, class_name = ? where id = ?", object.getSerializedProperties(), object.getName(), object.getObjectClass().getName(), object.getId());
+    LOGGER.debug("Getting all object from db.");
+    return this.getJdbcTemplate().query("select * from pn_object", PerunNotifObject.PERUN_NOTIF_OBJECT);
+  }
 
-		PerunNotifObject result = getPerunNotifObjectById(object.getId());
-		logger.debug("PerunNotifObject updated in db, returning object: {}", result);
+  @Override
+  public PerunNotifObject getPerunNotifObjectById(int id) {
 
-		return result;
-	}
+    LOGGER.debug("Getting PerunNotifObject from db by id: {}", id);
+    try {
+      PerunNotifObject object = this.getJdbcTemplate()
+          .queryForObject("SELECT * FROM pn_object object where object.id = ?", PerunNotifObject.PERUN_NOTIF_OBJECT,
+              id);
+      LOGGER.debug("PerunNotifObject retrieved from db: {}", object);
+      return object;
+    } catch (EmptyResultDataAccessException ex) {
+      LOGGER.debug("PerunNotifObject with id: {} not found.", id);
+      return null;
+    }
+  }
 
-	@Override
-	public void removePerunNotifObjectById(int id) {
+  @Override
+  public boolean isObjectRelation(int templateId, Integer objectId) {
 
-		logger.debug("Removing relations of object and regex from db, object id: {}", id);
-		this.getJdbcTemplate().update("delete from pn_regex_object where object_id = ?", id);
+    LOGGER.debug("IsObjectRelation for templateId: {}, objectId: {}", templateId, objectId);
+    try {
+      SqlRowSet rowSet = this.getJdbcTemplate()
+          .queryForRowSet("select * from pn_regex_object where regex_id = ? AND object_id = ?", templateId, objectId);
+      LOGGER.debug("Relation between templateId: {} and objectId: {}, found.", templateId, objectId);
+      return rowSet.next();
+    } catch (EmptyResultDataAccessException ex) {
+      //This exception signals empty row
+      LOGGER.debug("Relation between templateId: {}, and objectId: {}, not found", templateId, objectId);
+      return false;
+    }
+  }
 
-		logger.debug("Removing object with id: {} from db.", id);
-		this.getJdbcTemplate().update("delete from pn_object where id = ?", id);
-	}
+  @Override
+  public void removePerunNotifObjectById(int id) {
 
-	@Override
-	public PerunNotifObject getPerunNotifObjectById(int id) {
+    LOGGER.debug("Removing relations of object and regex from db, object id: {}", id);
+    this.getJdbcTemplate().update("delete from pn_regex_object where object_id = ?", id);
 
-		logger.debug("Getting PerunNotifObject from db by id: {}", id);
-		try {
-			PerunNotifObject object = this.getJdbcTemplate().queryForObject("SELECT * FROM pn_object object where object.id = ?", PerunNotifObject.PERUN_NOTIF_OBJECT, id);
-			logger.debug("PerunNotifObject retrieved from db: {}", object);
-			return object;
-		} catch (EmptyResultDataAccessException ex) {
-			logger.debug("PerunNotifObject with id: {} not found.", id);
-			return null;
-		}
-	}
+    LOGGER.debug("Removing object with id: {} from db.", id);
+    this.getJdbcTemplate().update("delete from pn_object where id = ?", id);
+  }
 
-	@Override
-	public boolean isObjectRelation(int templateId, Integer objectId) {
+  @Override
+  public void removePerunNotifObjectRegexRelation(int regexId, int objectId) {
 
-		logger.debug("IsObjectRelation for templateId: {}, objectId: {}", templateId, objectId);
-		try {
-			SqlRowSet rowSet = this.getJdbcTemplate().queryForRowSet("select * from pn_regex_object where regex_id = ? AND object_id = ?", templateId, objectId);
-			logger.debug("Relation between templateId: {} and objectId: {}, found.", templateId, objectId);
-			return rowSet.next();
-		} catch (EmptyResultDataAccessException ex) {
-			//This exception signals empty row
-			logger.debug("Relation between templateId: {}, and objectId: {}, not found", templateId, objectId);
-			return false;
-		}
-	}
+    LOGGER.debug("Removing relation between object: {} and regex: {} from db.", objectId, regexId);
+    this.getJdbcTemplate()
+        .update("delete from pn_regex_object where regex_id = ? and object_id = ?", regexId, objectId);
+  }
 
-	@Override
-	public void saveObjectRelation(int templateId, Integer objectId) {
+  @Override
+  public void saveObjectRelation(int templateId, Integer objectId) {
 
-		logger.debug("Saving relation bewteen templateId: {}, and objectId: {} to db.", templateId, objectId);
-		int newId = Utils.getNewId(this.getJdbcTemplate(), "pn_regex_object_seq");
+    LOGGER.debug("Saving relation bewteen templateId: {}, and objectId: {} to db.", templateId, objectId);
+    int newId = Utils.getNewId(this.getJdbcTemplate(), "pn_regex_object_seq");
 
-		this.getJdbcTemplate().update("insert into pn_regex_object(id, regex_id, object_id) values(?,?,?)", newId, templateId, objectId);
-		logger.debug("Relation between templateId: {} and objectId: {} saved to db with id: {}", templateId, objectId, newId);
-	}
+    this.getJdbcTemplate()
+        .update("insert into pn_regex_object(id, regex_id, object_id) values(?,?,?)", newId, templateId, objectId);
+    LOGGER.debug("Relation between templateId: {} and objectId: {} saved to db with id: {}", templateId, objectId,
+        newId);
+  }
 
-	@Override
-	public void removePerunNotifObjectRegexRelation(int regexId, int objectId) {
+  @Override
+  public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) {
 
-		logger.debug("Removing relation between object: {} and regex: {} from db.", objectId, regexId);
-		this.getJdbcTemplate().update("delete from pn_regex_object where regex_id = ? and object_id = ?", regexId, objectId);
-	}
+    LOGGER.debug("Updating object in db: {}", object);
+    this.getJdbcTemplate().update("update pn_object set properties = ?, name = ?, class_name = ? where id = ?",
+        object.getSerializedProperties(), object.getName(), object.getObjectClass().getName(), object.getId());
 
-	@Override
-	public List<PerunNotifObject> getAll() {
+    PerunNotifObject result = getPerunNotifObjectById(object.getId());
+    LOGGER.debug("PerunNotifObject updated in db, returning object: {}", result);
 
-		logger.debug("Getting all object from db.");
-		return this.getJdbcTemplate().query("select * from pn_object", PerunNotifObject.PERUN_NOTIF_OBJECT);
-	}
+    return result;
+  }
 }

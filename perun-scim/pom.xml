@@ -1,70 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>perun</artifactId>
-		<groupId>cz.metacentrum</groupId>
-		<version>0.0.0-development</version>
-	</parent>
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>0.0.0-development</version>
+    </parent>
 
-	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-scim</artifactId>
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-scim</artifactId>
 
-	<name>perun-scim</name>
-	<description>Utility to handle SCIM protocol</description>
+    <name>perun-scim</name>
+    <description>Utility to handle SCIM protocol</description>
 
-	<properties>
-		<!-- common properties used by this module and all profiles -->
-	</properties>
+    <properties>
+        <!-- common properties used by this module and all profiles -->
+    </properties>
 
-	<!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
-	<build>
-		<resources>
-			<resource>
-				<!-- get common resources -->
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>
-	</build>
+    <!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
+    <build>
+        <resources>
+            <resource>
+                <!-- get common resources -->
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+    </build>
 
-	<dependencies>
+    <dependencies>
 
-		<!-- Perun -->
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <!-- Perun -->
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<!-- imports logback-test.xml for test from perun-base -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
+        <!-- imports logback-test.xml for test from perun-base -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>perun-base</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-			<type>jar</type>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-common</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 </project>

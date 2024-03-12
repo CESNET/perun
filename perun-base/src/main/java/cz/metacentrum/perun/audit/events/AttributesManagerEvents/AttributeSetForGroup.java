@@ -9,35 +9,35 @@ import cz.metacentrum.perun.core.api.Group;
  */
 public class AttributeSetForGroup extends AuditEvent {
 
-	private Attribute attribute;
-	private Group group;
-	private String message;
+  private Attribute attribute;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeSetForGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeSetForGroup() {
+  }
 
-	public AttributeSetForGroup(Attribute attribute, Group group) {
-		this.attribute = attribute;
-		this.group = group;
-		this.message = formatMessage("%s set for %s.", attribute, group);
-	}
+  public AttributeSetForGroup(Attribute attribute, Group group) {
+    this.attribute = attribute;
+    this.group = group;
+    this.message = formatMessage("%s set for %s.", attribute, group);
+  }
 
-	public Attribute getAttribute() {
-		return attribute;
-	}
+  public Attribute getAttribute() {
+    return attribute;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

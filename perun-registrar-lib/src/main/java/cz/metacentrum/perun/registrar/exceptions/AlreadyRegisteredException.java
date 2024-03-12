@@ -9,14 +9,14 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class AlreadyRegisteredException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public AlreadyRegisteredException(String message) {
-		super(message);
-	}
+  public AlreadyRegisteredException(String message) {
+    super(message);
+  }
 
-	public AlreadyRegisteredException(String message, Throwable ex) {
-		super(message, ex);
-	}
+  public AlreadyRegisteredException(String message, Throwable ex) {
+    super(message, ex);
+  }
 
 }

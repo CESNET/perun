@@ -48,7 +48,7 @@ namespaces:
     csv_gen_header: ""
     csv_gen_placeholder: ""
     csv_gen_header_description: ""
-    required_attributes: []
+    required_attributes: [ ]
     optional_attributes:
       - password
 

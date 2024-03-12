@@ -7,28 +7,31 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class SSHKeyNotValidException extends PerunException {
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public SSHKeyNotValidException(String message) {
-		super(message);
-	}
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public SSHKeyNotValidException(String message) {
+    super(message);
+  }
 
-	/**
-	 * Constructor with a message and Throwable object
-	 * @param message message with details about the cause
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public SSHKeyNotValidException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  /**
+   * Constructor with a message and Throwable object
+   *
+   * @param message message with details about the cause
+   * @param cause   Throwable that caused throwing of this exception
+   */
+  public SSHKeyNotValidException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	/**
-	 * Constructor with a Throwable object
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public SSHKeyNotValidException(Throwable cause) {
-		super(cause);
-	}
+  /**
+   * Constructor with a Throwable object
+   *
+   * @param cause Throwable that caused throwing of this exception
+   */
+  public SSHKeyNotValidException(Throwable cause) {
+    super(cause);
+  }
 }

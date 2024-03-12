@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- Quartz timer -->
+    <!-- Quartz timer -->
 
-	<bean id="notifScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="quartzProperties">
-			<props>
-				<prop key="org.quartz.threadPool.threadPriority">1</prop>
-				<!-- Since we start single thread once a day, we can lower default thread pool to 1 -->
-				<prop key="org.quartz.threadPool.threadCount">1</prop>
-			</props>
-		</property>
-		<property name="startupDelay" value="20" />
-		<property name="waitForJobsToCompleteOnShutdown" value="true" />
+    <bean id="notifScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="quartzProperties">
+            <props>
+                <prop key="org.quartz.threadPool.threadPriority">1</prop>
+                <!-- Since we start single thread once a day, we can lower default thread pool to 1 -->
+                <prop key="org.quartz.threadPool.threadCount">1</prop>
+            </props>
+        </property>
+        <property name="startupDelay" value="20"/>
+        <property name="waitForJobsToCompleteOnShutdown" value="true"/>
 
-		<property name="triggers">
-			<list>
-				<ref bean="doNotificationTrigger" />
-			</list>
-		</property>
+        <property name="triggers">
+            <list>
+                <ref bean="doNotificationTrigger"/>
+            </list>
+        </property>
 
-	</bean>
+    </bean>
 
-	<bean id="doNotificationTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-		<property name="jobDetail" ref="doNotificationJobDetail" />
-		<!-- start every 2 minutes -->
-		<!--detailed options could be find at http://quartz.sourceforge.net/javadoc/org/quartz/CronTrigger.html -->
-		<property name="cronExpression" value="0 0/2 * * * ?" />
-	</bean>
+    <bean id="doNotificationTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="doNotificationJobDetail"/>
+        <!-- start every 2 minutes -->
+        <!--detailed options could be find at http://quartz.sourceforge.net/javadoc/org/quartz/CronTrigger.html -->
+        <property name="cronExpression" value="0 0/2 * * * ?"/>
+    </bean>
 
-	<bean id="schedulingManager"
-		  class="cz.metacentrum.perun.notif.managers.SchedulingManagerImpl"
-		  autowire="byName">
-	</bean>
+    <bean id="schedulingManager"
+          class="cz.metacentrum.perun.notif.managers.SchedulingManagerImpl"
+          autowire="byName">
+    </bean>
 
-	<bean abstract="true" id="parentJobDetail"
-		  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-		<property name="targetObject" ref="schedulingManager" />
-	</bean>
+    <bean abstract="true" id="parentJobDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="schedulingManager"/>
+    </bean>
 
-	<bean id="doNotificationJobDetail" parent="parentJobDetail">
-		<property name="targetMethod" value="doNotification" />
-	</bean>
+    <bean id="doNotificationJobDetail" parent="parentJobDetail">
+        <property name="targetMethod" value="doNotification"/>
+    </bean>
 
 </beans>

@@ -9,14 +9,15 @@ package cz.metacentrum.perun.webgui.json;
  */
 public interface JsonStatusSetCallback {
 
-	/**
-	 * @param newStatus status to be set
-	 */
-	void setStatus(String newStatus);
+  /**
+   * @param newStatus status to be set
+   */
+  void setStatus(String newStatus);
 
-	/**
-	 * Sets the new events for the query
-	 * @param events
-	 */
-	void setEvents(JsonCallbackEvents events);
+  /**
+   * Sets the new events for the query
+   *
+   * @param events
+   */
+  void setEvents(JsonCallbackEvents events);
 }

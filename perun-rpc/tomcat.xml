@@ -1,49 +1,49 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Server port="8005" shutdown="SHUTDOWN" debug="FINE">
 
-<Service name="Catalina" debug="FINE">
+    <Service name="Catalina" debug="FINE">
 
-	<!-- must be kept, since Cargo plugin check "cargocpc" app on 8080 port -->
-	<Connector port="8080"
-	           address="127.0.0.1"
-	           maxThreads="150"
-	           minSpareThreads="25"
-	           enableLookups="false"
-	           connectionTimeout="20000"
-	           disableUploadTimeout="true"
-	           scheme="http"
-	           secure="false"
-	           debug="FINE"
-	           URIEncoding="UTF-8" />
+        <!-- must be kept, since Cargo plugin check "cargocpc" app on 8080 port -->
+        <Connector port="8080"
+                   address="127.0.0.1"
+                   maxThreads="150"
+                   minSpareThreads="25"
+                   enableLookups="false"
+                   connectionTimeout="20000"
+                   disableUploadTimeout="true"
+                   scheme="http"
+                   secure="false"
+                   debug="FINE"
+                   URIEncoding="UTF-8"/>
 
-	<!-- Define an AJP 1.3 Connector on port 8009 for PERUN -->
-	<Connector port="8009"
-	           protocol="AJP/1.3"
-	           address="127.0.0.1"
-	           tomcatAuthentication="false"
-	           URIEncoding="UTF-8"
-	           packetSize="65536"
-	           redirectPort="8080"
-	           secretRequired="false"
-	           allowedRequestAttributesPattern=".*" />
+        <!-- Define an AJP 1.3 Connector on port 8009 for PERUN -->
+        <Connector port="8009"
+                   protocol="AJP/1.3"
+                   address="127.0.0.1"
+                   tomcatAuthentication="false"
+                   URIEncoding="UTF-8"
+                   packetSize="65536"
+                   redirectPort="8080"
+                   secretRequired="false"
+                   allowedRequestAttributesPattern=".*"/>
 
-	<Engine name="Catalina" defaultHost="localhost" debug="FINE">
+        <Engine name="Catalina" defaultHost="localhost" debug="FINE">
 
-		<Realm className="org.apache.catalina.realm.MemoryRealm" />
+            <Realm className="org.apache.catalina.realm.MemoryRealm"/>
 
-		<!-- deploy cargo apps from "webapps" folder -->
-		<Host name="localhost" appBase="webapps" deployOnStartup="true" autoDeploy="true" unpackWARs="true">
+            <!-- deploy cargo apps from "webapps" folder -->
+            <Host name="localhost" appBase="webapps" deployOnStartup="true" autoDeploy="true" unpackWARs="true">
 
-			<!-- cargo replaces -->
-			@tomcat.webapps@
+                <!-- cargo replaces -->
+                @tomcat.webapps@
 
-			<!-- Logging -->
-			<Valve className="org.apache.catalina.valves.AccessLogValve"
-			       directory="logs" prefix="localhost_access_log." suffix=".txt"
-			       pattern="common" />
+                <!-- Logging -->
+                <Valve className="org.apache.catalina.valves.AccessLogValve"
+                       directory="logs" prefix="localhost_access_log." suffix=".txt"
+                       pattern="common"/>
 
-		</Host>
-	</Engine>
+            </Host>
+        </Engine>
 
-</Service>
+    </Service>
 </Server>

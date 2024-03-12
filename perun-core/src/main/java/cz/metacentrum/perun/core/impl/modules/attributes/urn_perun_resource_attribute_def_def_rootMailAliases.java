@@ -6,19 +6,21 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 
 /**
- *
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  */
-public class urn_perun_resource_attribute_def_def_rootMailAliases extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_rootMailAliases extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-    @Override
-    public AttributeDefinition getAttributeDefinition() {
-        AttributeDefinition attr = new AttributeDefinition();
-        attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-        attr.setFriendlyName("rootMailAliases");
-        attr.setDisplayName("The resource set root's aliases instead of users'. (non empty value = true, empty value = false)");
-        attr.setType(String.class.getName());
-        attr.setDescription("The resource set root's aliases instead of users'. (non empty value = true, empty value = false)");
-        return attr;
-    }
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("rootMailAliases");
+    attr.setDisplayName(
+        "The resource set root's aliases instead of users'. (non empty value = true, empty value = false)");
+    attr.setType(String.class.getName());
+    attr.setDescription(
+        "The resource set root's aliases instead of users'. (non empty value = true, empty value = false)");
+    return attr;
+  }
 }

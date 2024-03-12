@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserRemovedFromBlacklists extends AuditEvent {
 
-	private User user;
-	private String message;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public UserRemovedFromBlacklists() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public UserRemovedFromBlacklists() {
+  }
 
-	public UserRemovedFromBlacklists(User user) {
-		this.user = user;
-		this.message = formatMessage("%s remove from all blacklists.", user);
-	}
+  public UserRemovedFromBlacklists(User user) {
+    this.user = user;
+    this.message = formatMessage("%s remove from all blacklists.", user);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

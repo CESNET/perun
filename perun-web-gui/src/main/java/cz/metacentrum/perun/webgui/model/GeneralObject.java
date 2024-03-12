@@ -10,15 +10,17 @@ import com.google.gwt.core.client.JavaScriptObject;
  */
 public class GeneralObject extends JavaScriptObject {
 
-	protected GeneralObject() { }
+  protected GeneralObject() {
+  }
 
-	// JSNI methods to get Object data
+  // JSNI methods to get Object data
 
-	/**
-	 * Returns object id
-	 * @return
-	 */
-	public final native int getId() /*-{
+  /**
+   * Returns object id
+   *
+   * @return
+   */
+  public final native int getId() /*-{
 		if (!this.beanName) {
 			return this.id;
 		}
@@ -30,12 +32,13 @@ public class GeneralObject extends JavaScriptObject {
 			return this.id;
 		}
 	}-*/;
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
+
+  /**
+   * Returns Perun specific type of object
+   *
+   * @return type of object
+   */
+  public final native String getObjectType() /*-{
 		if (!this.objecttype) {
 			if (!this.beanName) {
 				return "JavaScriptObject";
@@ -45,42 +48,42 @@ public class GeneralObject extends JavaScriptObject {
 		return this.objecttype;
 	}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
+  /**
+   * Sets Perun specific type of object
+   *
+   * @param type type of object
+   */
+  public final native void setObjectType(String type) /*-{
 		this.objecttype = type;
 		this.beanName = type;
 	}-*/;
 
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
+  /**
+   * Returns the status of this item in Perun system as String
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @return string which defines item status
+   */
+  public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
 
-	/**
-	 * Sets the status
-	 * VALID, INVALID, EXPIRED, DISABLED
-	 *
-	 * @param status String which defines item status
-	 */
-	public final native String setStatus(String status) /*-{
+  /**
+   * Sets the status
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @param status String which defines item status
+   */
+  public final native String setStatus(String status) /*-{
 		this.status = status;
 	}-*/;
 
-	/**
-	 * Return name parameter or it's equivalent for any kind of PerunBean object
-	 *
-	 * @return name
-	 */
-	public final native String getName() /*-{
+  /**
+   * Return name parameter or it's equivalent for any kind of PerunBean object
+   *
+   * @return name
+   */
+  public final native String getName() /*-{
 		if (!this.beanName) {
 			return this.name;
 		} else {
@@ -116,33 +119,33 @@ public class GeneralObject extends JavaScriptObject {
 		}
 	}-*/;
 
-	public final native String getDescription() /*-{
+  public final native String getDescription() /*-{
 		return this.description;
 	}-*/;
 
-	public final native String getAttribute(String attrName) /*-{
+  public final native String getAttribute(String attrName) /*-{
 		return this[attrName] + "";
 	}-*/;
 
-	public final native void setChecked(boolean value) /*-{
-		this.checked = value;
-	}-*/;
-
-	public final native boolean isChecked() /*-{
+  public final native boolean isChecked() /*-{
 		if(typeof this.checked === 'undefined'){
 			this.checked = false;
 		}
 		return this.checked;
 	}-*/;
 
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(GeneralObject o)
-	{
-		return o.getId() == this.getId();
-	}
+  public final native void setChecked(boolean value) /*-{
+		this.checked = value;
+	}-*/;
+
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(GeneralObject o) {
+    return o.getId() == this.getId();
+  }
 
 }

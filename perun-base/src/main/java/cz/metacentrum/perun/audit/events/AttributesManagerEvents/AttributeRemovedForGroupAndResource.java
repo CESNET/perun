@@ -10,41 +10,41 @@ import cz.metacentrum.perun.core.api.Resource;
  */
 public class AttributeRemovedForGroupAndResource extends AuditEvent {
 
-	private AttributeDefinition attribute;
-	private Group group;
-	private Resource resource;
-	private String message;
+  private AttributeDefinition attribute;
+  private Group group;
+  private Resource resource;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeRemovedForGroupAndResource() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeRemovedForGroupAndResource() {
+  }
 
-	public AttributeRemovedForGroupAndResource(AttributeDefinition attribute, Group group, Resource resource) {
-		this.attribute = attribute;
-		this.group = group;
-		this.resource = resource;
-		this.message = formatMessage("%s removed for %s and %s.", attribute, group, resource);
-	}
+  public AttributeRemovedForGroupAndResource(AttributeDefinition attribute, Group group, Resource resource) {
+    this.attribute = attribute;
+    this.group = group;
+    this.resource = resource;
+    this.message = formatMessage("%s removed for %s and %s.", attribute, group, resource);
+  }
 
-	public AttributeDefinition getAttribute() {
-		return attribute;
-	}
+  public AttributeDefinition getAttribute() {
+    return attribute;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

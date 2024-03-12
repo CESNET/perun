@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class ResourceUpdated extends AuditEvent {
 
-	private Resource resource;
-	private String message;
+  private Resource resource;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ResourceUpdated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ResourceUpdated() {
+  }
 
-	public ResourceUpdated(Resource resource) {
-		this.resource = resource;
-		this.message = formatMessage("%s updated.", resource);
-	}
+  public ResourceUpdated(Resource resource) {
+    this.resource = resource;
+    this.message = formatMessage("%s updated.", resource);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

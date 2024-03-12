@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -18,60 +17,55 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Main test class defining context and common variables.
- * All other SCIM test classes are extending this class.
+ * Main test class defining context and common variables. All other SCIM test classes are extending this class.
  *
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @date 11.10.2016
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-scim.xml" })
+@ContextConfiguration(locations = {"classpath:perun-scim.xml"})
 @Transactional(transactionManager = "springTransactionManager")
 public abstract class AbstractSCIMTest {
 
-	@Autowired
-	private PerunBl perun;
-	private User testUser;
+  public PerunSession session;
+  @Autowired
+  private PerunBl perun;
+  private User testUser;
 
-	public PerunSession session;
+  public final void addMemberToGroup(Group group, Member member) throws Exception {
+    perun.getGroupsManagerBl().addMember(session, group, member);
+  }
 
-	@Before
-	public void setUpSession() throws Exception {
-		session = perun.getPerunSession(new PerunPrincipal(
-						"perunTests",
-						ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-						ExtSourcesManager.EXTSOURCE_INTERNAL),
-				new PerunClient());
+  public Group createGroup(Vo vo, String name, String desc) throws Exception {
+    return perun.getGroupsManagerBl().createGroup(session, vo, new Group(name, desc));
+  }
 
-		testUser = createTestUser();
-		session.getPerunPrincipal().setUser(testUser);
-	}
+  public Member createMember(Vo vo, User user) throws Exception {
+    return perun.getMembersManagerBl().createMember(session, vo, user);
+  }
 
-	private User createTestUser() {
-		User user = new User();
-		user.setFirstName("James");
-		user.setLastName("Bond");
-		return perun.getUsersManagerBl().createUser(session, user);
-	}
+  private User createTestUser() {
+    User user = new User();
+    user.setFirstName("James");
+    user.setLastName("Bond");
+    return perun.getUsersManagerBl().createUser(session, user);
+  }
 
-	public Vo createVo(int id, String name, String shortName) throws Exception {
-		return perun.getVosManagerBl().createVo(session, new Vo(id, name, shortName));
-	}
+  public User createUser(int id, String firstName, String lastName) throws Exception {
+    User user = new User(id, firstName, lastName, null, null, null);
+    return perun.getUsersManagerBl().createUser(session, user);
+  }
 
-	public Group createGroup(Vo vo, String name, String desc) throws Exception {
-		return perun.getGroupsManagerBl().createGroup(session, vo, new Group(name, desc));
-	}
+  public Vo createVo(int id, String name, String shortName) throws Exception {
+    return perun.getVosManagerBl().createVo(session, new Vo(id, name, shortName));
+  }
 
-	public User createUser(int id, String firstName, String lastName) throws Exception {
-		User user = new User(id, firstName, lastName, null, null, null);
-		return perun.getUsersManagerBl().createUser(session, user);
-	}
+  @Before
+  public void setUpSession() throws Exception {
+    session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+        ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 
-	public Member createMember(Vo vo, User user) throws Exception {
-		return perun.getMembersManagerBl().createMember(session, vo, user);
-	}
-
-	public final void addMemberToGroup(Group group, Member member) throws Exception {
-		perun.getGroupsManagerBl().addMember(session, group, member);
-	}
+    testUser = createTestUser();
+    session.getPerunPrincipal().setUser(testUser);
+  }
 }

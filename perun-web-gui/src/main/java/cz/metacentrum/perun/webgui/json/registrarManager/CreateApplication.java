@@ -9,7 +9,6 @@ import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItemData;
 import cz.metacentrum.perun.webgui.model.PerunError;
-
 import java.util.ArrayList;
 
 /**
@@ -19,94 +18,101 @@ import java.util.ArrayList;
  */
 public class CreateApplication {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/createApplication";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/createApplication";
+  // application form
+  private Application application;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // data
+  private ArrayList<ApplicationFormItemData> formData = new ArrayList<ApplicationFormItemData>();
 
-	// application form
-	private Application application;
+  /**
+   * Creates a new request
+   */
+  public CreateApplication() {
+  }
 
-	// data
-	private ArrayList<ApplicationFormItemData> formData = new ArrayList<ApplicationFormItemData>();
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public CreateApplication(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 */
-	public CreateApplication() {}
+  /**
+   * Creating application
+   *
+   * @param application
+   * @param formData
+   */
+  public void createApplication(Application application, ArrayList<ApplicationFormItemData> formData) {
+    this.application = application;
+    this.formData = formData;
 
-	/**
-	 * Creates a new request with custom events
-	 * @param events Custom events
-	 */
-	public CreateApplication(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-	/**
-	 * Creating application
-	 *
-	 * @param application
-	 * @param formData
-	 */
-	public void createApplication(Application application, ArrayList<ApplicationFormItemData> formData) {
-		this.application = application;
-		this.formData = formData;
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating application failed.");
+        events.onError(error);
+      }
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating application failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Application created.");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Application created.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	private boolean testCreating() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
-		// data to JSON array
-		JSONArray data = new JSONArray();
-		for(int i = 0; i<formData.size(); i++){
-			data.set(i, new JSONObject(formData.get(i)));
-		}
+  private boolean testCreating() {
+    // TODO Auto-generated method stub
+    return true;
+  }
 
-		// query
-		JSONObject query = new JSONObject();
-		query.put("app", new JSONObject(application));
-		query.put("data", data);
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // data to JSON array
+    JSONArray data = new JSONArray();
+    for (int i = 0; i < formData.size(); i++) {
+      data.set(i, new JSONObject(formData.get(i)));
+    }
 
-		return query;
-	}
+    // query
+    JSONObject query = new JSONObject();
+    query.put("app", new JSONObject(application));
+    query.put("data", data);
+
+    return query;
+  }
 
 }

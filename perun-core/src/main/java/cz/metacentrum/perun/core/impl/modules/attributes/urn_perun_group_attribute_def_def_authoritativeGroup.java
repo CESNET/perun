@@ -14,42 +14,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Authoritative group module.
- * If some group has authoritativeGroup attribute set to 1 (true), synchronizator
- * can remove member from whole vo if this group was the last authoritative and
- * synchronizator remove member from this group.
+ * Authoritative group module. If some group has authoritativeGroup attribute set to 1 (true), synchronizator can remove
+ * member from whole vo if this group was the last authoritative and synchronizator remove member from this group.
  *
  * @author Michal Stava  stavamichal@gmail.com
  */
-public class urn_perun_group_attribute_def_def_authoritativeGroup extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
+public class urn_perun_group_attribute_def_def_authoritativeGroup extends GroupAttributesModuleAbstract
+    implements GroupAttributesModuleImplApi {
 
-	private final static Logger log = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_authoritativeGroup.class);
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_authoritativeGroup.class);
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
-		//Null value is ok, means no settings for group
-		if(attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    //Null value is ok, means no settings for group
+    if (attribute.getValue() == null) {
+      return;
+    }
+    //Member group can't have set this attribute
+    if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+      throw new WrongReferenceAttributeValueException(attribute, null, group, null,
+          "Members group is authoritative automatic, there is not allowed to set this attribute for members group.");
+    }
+  }
 
-		Integer value = attribute.valueAsInteger();
-		if(value < 0 || value > 1) throw new WrongAttributeValueException(attribute, group, "Attribute can have only value 1 or 0 (true or false).");
-	}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Null value is ok, means no settings for group
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
-		//Null value is ok, means no settings for group
-		if (attribute.getValue() == null) return;
-		//Member group can't have set this attribute
-		if(group.getName().equals(VosManager.MEMBERS_GROUP)) throw new WrongReferenceAttributeValueException(attribute, null, group, null, "Members group is authoritative automatic, there is not allowed to set this attribute for members group.");
-	}
+    Integer value = attribute.valueAsInteger();
+    if (value < 0 || value > 1) {
+      throw new WrongAttributeValueException(attribute, group, "Attribute can have only value 1 or 0 (true or false).");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-		attr.setFriendlyName("authoritativeGroup");
-		attr.setDisplayName("Authoritative Group");
-		attr.setType(Integer.class.getName());
-		attr.setDescription("If group is authoritative for member. (for synchronization)");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    attr.setFriendlyName("authoritativeGroup");
+    attr.setDisplayName("Authoritative Group");
+    attr.setType(Integer.class.getName());
+    attr.setDescription("If group is authoritative for member. (for synchronization)");
+    return attr;
+  }
 }

@@ -15,51 +15,49 @@ import java.util.Map;
 
 public class RegistrarTabs {
 
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	static public final String URL = "reg";
-
-
-	/**
-	 * Creates a new instance of pages
-	 */
-	public RegistrarTabs(){}
-
-	/**
-	 * Loads the page
-	 *
-	 * @return true on success, false otherwise
-	 */
-	public boolean loadTab(String tab, Map<String, String> parameters) {
-
-		if(tab == null){
-			return false;
-		}
-		// if active
-		boolean open = ("1".equals(parameters.get("active")));
+  static public final String URL = "reg";
+  private PerunWebSession session = PerunWebSession.getInstance();
 
 
-		// which page?
-		if (tab.equals(EditMailTabItem.URL))
-		{
-			session.getTabManager().addTab(EditMailTabItem.load(parameters), open);
-			return true;
-		}
+  /**
+   * Creates a new instance of pages
+   */
+  public RegistrarTabs() {
+  }
 
-		if (tab.equals(MailsTabItem.URL))
-		{
-			session.getTabManager().addTab(MailsTabItem.load(parameters), open);
-			return true;
-		}
+  /**
+   * Loads the page
+   *
+   * @return true on success, false otherwise
+   */
+  public boolean loadTab(String tab, Map<String, String> parameters) {
 
-		if (tab.equals(AutoRegistrationGroupsTabItem.URL)) {
-			session.getTabManager().addTab(AutoRegistrationGroupsTabItem.load(parameters), open);
-			return true;
-		}
+    if (tab == null) {
+      return false;
+    }
+    // if active
+    boolean open = ("1".equals(parameters.get("active")));
 
 
-		return false;
+    // which page?
+    if (tab.equals(EditMailTabItem.URL)) {
+      session.getTabManager().addTab(EditMailTabItem.load(parameters), open);
+      return true;
+    }
 
-	}
+    if (tab.equals(MailsTabItem.URL)) {
+      session.getTabManager().addTab(MailsTabItem.load(parameters), open);
+      return true;
+    }
+
+    if (tab.equals(AutoRegistrationGroupsTabItem.URL)) {
+      session.getTabManager().addTab(AutoRegistrationGroupsTabItem.load(parameters), open);
+      return true;
+    }
+
+
+    return false;
+
+  }
 
 }

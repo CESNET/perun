@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class VoUpdated extends AuditEvent {
 
-	private Vo vo;
-	private String message;
+  private Vo vo;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public VoUpdated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public VoUpdated() {
+  }
 
-	public VoUpdated(Vo vo) {
-		this.vo = vo;
-		this.message = formatMessage("%s updated.", vo);
-	}
+  public VoUpdated(Vo vo) {
+    this.vo = vo;
+    this.message = formatMessage("%s updated.", vo);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Vo getVo() {
-		return vo;
-	}
+  public Vo getVo() {
+    return vo;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

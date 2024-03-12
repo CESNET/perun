@@ -1,608 +1,778 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	   xmlns:tx="http://www.springframework.org/schema/tx"
-	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:aop="http://www.springframework.org/schema/aop"
-	   xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-	   xmlns:context="http://www.springframework.org/schema/context"
-	   xmlns:task="http://www.springframework.org/schema/task"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+<beans xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
 >
 
-	<import resource="classpath:perun-base.xml"/>
+    <import resource="classpath:perun-base.xml"/>
 
-	<aop:config>
-		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHashedHierarchicalData(..))"/>
-		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHashedDataWithGroups(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.entry.*.*(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.setAttributeInNestedTransaction(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.insertAttribute(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttribute(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.mergeAttributeValueInNestedTransaction(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.validateMember(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.expireMember(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.createMemberSync(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ResourcesManagerBlImpl.processGroupResourceActivationAsync(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.removeFormerMemberWhileSynchronization(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.updateExistingMemberWhileSynchronization(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.addMissingMemberWhileSynchronization(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.synchronizeGroupStructure(..))"/>
-		<!--<aop:advisor advice-ref="txAdviceAuditerTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.*.*(..))"/>-->
-		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSql.*(..))"/>
-		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSqlComplex.*(..))"/>
-		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.flush(..))"/>
-		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.storeMessageToDb(..))"/>
-		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.storeMessagesToDb(..))"/>
-		<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupSynchronizationInNewTransaction(..))"/>
-		<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupStructureSynchronizationInNewTransaction(..))"/>
-		<!-- This transaction was moved to profiles definition - it needs to be Requires new in production, but Nested in tests-->
-		<!--<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>-->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupSynchronizationInNestedTransaction(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupStructureSynchronizationInNestedTransaction(..))"/>
-		<!-- START OF NESTED TRANSACTIONS FOR COMPATIBILITY WITH POSTGRESQL -->
-		<!-- AttributesManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeWithNullValue(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setVirtualAttribute(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.createAttribute(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.changedAttributeHook(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttributeDefinition(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeRight(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributePolicyCollections(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeActionCriticality(..))"/>
-		<!-- AuthzResolverImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addAdmin(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.setRole(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addVoRole(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.makeUserPerunAdmin(..))"/>
-		<!-- ExtSourcesManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.createExtSource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.updateExtSource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.addExtSource(..))"/>
-		<!-- FacilitiesManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.createFacility(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.updateFacility(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.setOwners(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.addOwner(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.addHost(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.assignSecurityTeam(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.setBan(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.updateBan(..))"/>
-		<!-- GroupsManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.createGroup(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.updateGroup(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.updateGroupName(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.addMember(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.saveGroupRelation(..))"/>
-		<!-- MembersManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.MembersManagerImpl.createMember(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.MembersManagerImpl.setStatus(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.MembersManagerImpl.storePasswordResetRequest(..))"/>
-		<!-- OwnersManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.OwnersManagerImpl.createOwner(..))"/>
-		<!-- ResourcesManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.createResource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.assignGroupToResource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.assignService(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.updateResource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.createResourceTag(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.updateResourceTag(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.assignResourceTagToResource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.setBan(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.updateBan(..))"/>
-		<!-- SecurityTeamsManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.createSecurityTeam(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.updateSecurityTeam(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.addUserToBlacklist(..))"/>
-		<!-- ServicesManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.createService(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.updateService(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.createServicesPackage(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.updateServicesPackage(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addServiceToServicesPackage(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addRequiredAttribute(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addDestination(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.createDestination(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.blockServiceOnDestination(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.blockServiceOnFacility(..))"/>
-		<!-- TasksManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.TasksManagerImpl.insertTask(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.TasksManagerImpl.insertNewTaskResult(..))"/>
-		<!-- UsersManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.addSpecificUserOwner(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.enableOwnership(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.disableOwnership(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.createUser(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.updateUser(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.updateNameTitles(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.updateUserExtSourceLastAccess(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.updateUserExtSource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.addUserExtSource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.requestPreferredEmailChange(..))"/>
-		<!-- VosManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.VosManagerImpl.createVo(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.VosManagerImpl.updateVo(..))"/>
-		<!-- ConsentsManagerImpl -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.createConsentHub(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.updateConsentHub(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.addFacility(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.removeFacility(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.createConsent(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.deleteConsent(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.changeConsentStatus(..))"/>
-		<!-- ResourceAssignmentChecker -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentChecker.removeSubgroupFromResource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentChecker.assignSubgroupsToResource(..))"/>
-		<!-- ResourceAssignmentActivator -->
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentActivator.tryActivateAssignment(..))"/>
-		<!-- END OF NESTED TRANSACTIONS FOR COMPATIBILITY WITH POSTGRESQL -->
-	</aop:config>
+    <aop:config>
+        <aop:advisor advice-ref="txAdviceReadOnlySerialized"
+                     pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHashedHierarchicalData(..))"/>
+        <aop:advisor advice-ref="txAdviceReadOnlySerialized"
+                     pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHashedDataWithGroups(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.entry.*.*(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.setAttributeInNestedTransaction(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.insertAttribute(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttribute(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.mergeAttributeValueInNestedTransaction(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.validateMember(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.expireMember(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.createMemberSync(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.ResourcesManagerBlImpl.processGroupResourceActivationAsync(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.removeFormerMemberWhileSynchronization(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.updateExistingMemberWhileSynchronization(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.addMissingMemberWhileSynchronization(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.synchronizeGroupStructure(..))"/>
+        <!--<aop:advisor advice-ref="txAdviceAuditerTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.*.*(..))"/>-->
+        <aop:advisor advice-ref="txAdviceNoneTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSql.*(..))"/>
+        <aop:advisor advice-ref="txAdviceNoneTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSqlComplex.*(..))"/>
+        <aop:advisor advice-ref="txAdviceNoneTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.flush(..))"/>
+        <aop:advisor advice-ref="txAdviceNoneTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.storeMessageToDb(..))"/>
+        <aop:advisor advice-ref="txAdviceNoneTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.storeMessagesToDb(..))"/>
+        <aop:advisor advice-ref="txAdviceRequiresNewTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupSynchronizationInNewTransaction(..))"/>
+        <aop:advisor advice-ref="txAdviceRequiresNewTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupStructureSynchronizationInNewTransaction(..))"/>
+        <!-- This transaction was moved to profiles definition - it needs to be Requires new in production, but Nested in tests-->
+        <!--<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>-->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupSynchronizationInNestedTransaction(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupStructureSynchronizationInNestedTransaction(..))"/>
+        <!-- START OF NESTED TRANSACTIONS FOR COMPATIBILITY WITH POSTGRESQL -->
+        <!-- AttributesManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeWithNullValue(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setVirtualAttribute(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.createAttribute(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.changedAttributeHook(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttributeDefinition(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeRight(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributePolicyCollections(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeActionCriticality(..))"/>
+        <!-- AuthzResolverImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addAdmin(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.setRole(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addVoRole(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.makeUserPerunAdmin(..))"/>
+        <!-- ExtSourcesManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.createExtSource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.updateExtSource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.addExtSource(..))"/>
+        <!-- FacilitiesManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.createFacility(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.updateFacility(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.setOwners(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.addOwner(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.addHost(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.assignSecurityTeam(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.setBan(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.updateBan(..))"/>
+        <!-- GroupsManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.createGroup(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.updateGroup(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.updateGroupName(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.addMember(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.GroupsManagerImpl.saveGroupRelation(..))"/>
+        <!-- MembersManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.MembersManagerImpl.createMember(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.MembersManagerImpl.setStatus(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.MembersManagerImpl.storePasswordResetRequest(..))"/>
+        <!-- OwnersManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.OwnersManagerImpl.createOwner(..))"/>
+        <!-- ResourcesManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.createResource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.assignGroupToResource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.assignService(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.updateResource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.createResourceTag(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.updateResourceTag(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.assignResourceTagToResource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.setBan(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.updateBan(..))"/>
+        <!-- SecurityTeamsManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.createSecurityTeam(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.updateSecurityTeam(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.addUserToBlacklist(..))"/>
+        <!-- ServicesManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.createService(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.updateService(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.createServicesPackage(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.updateServicesPackage(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addServiceToServicesPackage(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addRequiredAttribute(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addDestination(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.createDestination(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.blockServiceOnDestination(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.blockServiceOnFacility(..))"/>
+        <!-- TasksManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.TasksManagerImpl.insertTask(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.TasksManagerImpl.insertNewTaskResult(..))"/>
+        <!-- UsersManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.addSpecificUserOwner(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.enableOwnership(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.disableOwnership(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.createUser(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.updateUser(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.updateNameTitles(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.updateUserExtSourceLastAccess(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.updateUserExtSource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.addUserExtSource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.UsersManagerImpl.requestPreferredEmailChange(..))"/>
+        <!-- VosManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.VosManagerImpl.createVo(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.VosManagerImpl.updateVo(..))"/>
+        <!-- ConsentsManagerImpl -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.createConsentHub(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.updateConsentHub(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.addFacility(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.removeFacility(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.createConsent(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.deleteConsent(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ConsentsManagerImpl.changeConsentStatus(..))"/>
+        <!-- ResourceAssignmentChecker -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentChecker.removeSubgroupFromResource(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentChecker.assignSubgroupsToResource(..))"/>
+        <!-- ResourceAssignmentActivator -->
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.ResourceAssignmentActivator.tryActivateAssignment(..))"/>
+        <!-- END OF NESTED TRANSACTIONS FOR COMPATIBILITY WITH POSTGRESQL -->
+    </aop:config>
 
-	<aop:aspectj-autoproxy/>
+    <aop:aspectj-autoproxy/>
 
-	<tx:advice id="txAdviceCommon" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="false" rollback-for="Exception"/>
-		</tx:attributes>
-	</tx:advice>
-	<tx:advice id="txAdviceNoneTransaction" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" propagation="NOT_SUPPORTED"/>
-		</tx:attributes>
-	</tx:advice>
-	<tx:advice id="txAdviceAuditerTransaction" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="false" propagation="REQUIRED"/>
-		</tx:attributes>
-	</tx:advice>
-	<tx:advice id="txAdviceNestedTransaction" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="false" rollback-for="Exception" propagation="NESTED"/>
-		</tx:attributes>
-	</tx:advice>
-	<tx:advice id="txAdviceReadOnly" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="true" rollback-for="Exception" />
-		</tx:attributes>
-	</tx:advice>
-	<tx:advice id="txAdviceReadOnlySerialized" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="true" rollback-for="Exception" isolation="SERIALIZABLE"/>
-		</tx:attributes>
-	</tx:advice>
-	<tx:advice id="txAdviceRequiresNewTransaction" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="false" propagation="REQUIRES_NEW"/>
-		</tx:attributes>
-	</tx:advice>
+    <tx:advice id="txAdviceCommon" transaction-manager="perunTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" read-only="false" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    <tx:advice id="txAdviceNoneTransaction" transaction-manager="perunTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="NOT_SUPPORTED"/>
+        </tx:attributes>
+    </tx:advice>
+    <tx:advice id="txAdviceAuditerTransaction" transaction-manager="perunTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" read-only="false" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+    <tx:advice id="txAdviceNestedTransaction" transaction-manager="perunTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" read-only="false" rollback-for="Exception" propagation="NESTED"/>
+        </tx:attributes>
+    </tx:advice>
+    <tx:advice id="txAdviceReadOnly" transaction-manager="perunTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" read-only="true" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    <tx:advice id="txAdviceReadOnlySerialized" transaction-manager="perunTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" read-only="true" rollback-for="Exception" isolation="SERIALIZABLE"/>
+        </tx:attributes>
+    </tx:advice>
+    <tx:advice id="txAdviceRequiresNewTransaction" transaction-manager="perunTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" read-only="false" propagation="REQUIRES_NEW"/>
+        </tx:attributes>
+    </tx:advice>
 
 
-	<!--FIXME   a hack which forces Spring to call a static method -->
-	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setAuthzResolverImpl" scope="singleton">
-		<constructor-arg ref="authzResolverImpl" />
-	</bean>
+    <!--FIXME   a hack which forces Spring to call a static method -->
+    <bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setAuthzResolverImpl"
+          scope="singleton">
+        <constructor-arg ref="authzResolverImpl"/>
+    </bean>
 
-	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setPerunBl" scope="singleton">
-		<constructor-arg ref="perun" />
-	</bean>
+    <bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setPerunBl" scope="singleton">
+        <constructor-arg ref="perun"/>
+    </bean>
 
-	<!-- Spring @Async and @Scheduled annotations -->
-	<task:scheduler id="myScheduler" pool-size="10"/>
-	<task:annotation-driven executor="asyncExecutor" scheduler="myScheduler"/>
+    <!-- Spring @Async and @Scheduled annotations -->
+    <task:scheduler id="myScheduler" pool-size="10"/>
+    <task:annotation-driven executor="asyncExecutor" scheduler="myScheduler"/>
 
-	<!-- Perun implementation -->
-	<bean id="perun" class="cz.metacentrum.perun.core.blImpl.PerunBlImpl" scope="singleton" init-method="initialize" destroy-method="destroy" depends-on="databaseManagerBl">
-		<constructor-arg name="auditer" ref="auditer"/>
-		<property name="vosManagerBl" ref="vosManagerBl"/>
-		<property name="usersManagerBl" ref="usersManagerBl"/>
-		<property name="groupsManagerBl" ref="groupsManagerBl"/>
-		<property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
-		<property name="consentsManagerBl" ref="consentsManagerBl"/>
-		<property name="configManagerBl" ref="configManagerBl"/>
-		<property name="membersManagerBl" ref="membersManagerBl"/>
-		<property name="resourcesManagerBl" ref="resourcesManagerBl"/>
-		<property name="extSourcesManagerBl" ref="extSourcesManagerBl"/>
-		<property name="attributesManagerBl" ref="attributesManagerBl"/>
-		<property name="servicesManagerBl" ref="servicesManagerBl"/>
-		<property name="ownersManagerBl" ref="ownersManagerBl"/>
-		<property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
-		<property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
-		<property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
-		<property name="searcherBl" ref="searcherBl"/>
-		<property name="modulesUtilsBl" ref="modulesUtilsBl"/>
-		<property name="tasksManagerBl" ref="tasksManagerBl"/>
-		<property name="tasksManager" ref="tasksManager"/>
-		<property name="databaseManagerBl" ref="databaseManagerBl"/>
-		<property name="vosManager" ref="vosManager"/>
-		<property name="usersManager" ref="usersManager"/>
-		<property name="groupsManager" ref="groupsManager"/>
-		<property name="facilitiesManager" ref="facilitiesManager"/>
-		<property name="consentsManager" ref="consentsManager"/>
-		<property name="configManager" ref="configManager"/>
-		<property name="membersManager" ref="membersManager"/>
-		<property name="resourcesManager" ref="resourcesManager"/>
-		<property name="extSourcesManager" ref="extSourcesManager"/>
-		<property name="attributesManager" ref="attributesManager"/>
-		<property name="servicesManager" ref="servicesManager"/>
-		<property name="ownersManager" ref="ownersManager"/>
-		<property name="auditMessagesManager" ref="auditMessagesManager"/>
-		<property name="RTMessagesManager" ref="RTMessagesManager"/>
-		<property name="securityTeamsManager" ref="securityTeamsManager"/>
-		<property name="searcher" ref="searcher"/>
-		<property name="attributesManagerImpl" ref="attributesManagerImpl"/>
-		<property name="databaseManager" ref="databaseManager"/>
-		<property name="coreConfig" ref="coreConfig"/>
-		<property name="resourceAssignmentChecker" ref="resourceAssignmentChecker"/>
-		<property name="resourceAssignmentActivator" ref="resourceAssignmentActivator"/>
-	</bean>
+    <!-- Perun implementation -->
+    <bean id="perun" class="cz.metacentrum.perun.core.blImpl.PerunBlImpl" scope="singleton" init-method="initialize"
+          destroy-method="destroy" depends-on="databaseManagerBl">
+        <constructor-arg name="auditer" ref="auditer"/>
+        <property name="vosManagerBl" ref="vosManagerBl"/>
+        <property name="usersManagerBl" ref="usersManagerBl"/>
+        <property name="groupsManagerBl" ref="groupsManagerBl"/>
+        <property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
+        <property name="consentsManagerBl" ref="consentsManagerBl"/>
+        <property name="configManagerBl" ref="configManagerBl"/>
+        <property name="membersManagerBl" ref="membersManagerBl"/>
+        <property name="resourcesManagerBl" ref="resourcesManagerBl"/>
+        <property name="extSourcesManagerBl" ref="extSourcesManagerBl"/>
+        <property name="attributesManagerBl" ref="attributesManagerBl"/>
+        <property name="servicesManagerBl" ref="servicesManagerBl"/>
+        <property name="ownersManagerBl" ref="ownersManagerBl"/>
+        <property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
+        <property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
+        <property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
+        <property name="searcherBl" ref="searcherBl"/>
+        <property name="modulesUtilsBl" ref="modulesUtilsBl"/>
+        <property name="tasksManagerBl" ref="tasksManagerBl"/>
+        <property name="tasksManager" ref="tasksManager"/>
+        <property name="databaseManagerBl" ref="databaseManagerBl"/>
+        <property name="vosManager" ref="vosManager"/>
+        <property name="usersManager" ref="usersManager"/>
+        <property name="groupsManager" ref="groupsManager"/>
+        <property name="facilitiesManager" ref="facilitiesManager"/>
+        <property name="consentsManager" ref="consentsManager"/>
+        <property name="configManager" ref="configManager"/>
+        <property name="membersManager" ref="membersManager"/>
+        <property name="resourcesManager" ref="resourcesManager"/>
+        <property name="extSourcesManager" ref="extSourcesManager"/>
+        <property name="attributesManager" ref="attributesManager"/>
+        <property name="servicesManager" ref="servicesManager"/>
+        <property name="ownersManager" ref="ownersManager"/>
+        <property name="auditMessagesManager" ref="auditMessagesManager"/>
+        <property name="RTMessagesManager" ref="RTMessagesManager"/>
+        <property name="securityTeamsManager" ref="securityTeamsManager"/>
+        <property name="searcher" ref="searcher"/>
+        <property name="attributesManagerImpl" ref="attributesManagerImpl"/>
+        <property name="databaseManager" ref="databaseManager"/>
+        <property name="coreConfig" ref="coreConfig"/>
+        <property name="resourceAssignmentChecker" ref="resourceAssignmentChecker"/>
+        <property name="resourceAssignmentActivator" ref="resourceAssignmentActivator"/>
+    </bean>
 
-	<bean id="vosManager" class="cz.metacentrum.perun.core.entry.VosManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="vosManagerBl" ref="vosManagerBl"/>
-	</bean>
-	<bean id="usersManager" class="cz.metacentrum.perun.core.entry.UsersManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="usersManagerBl" ref="usersManagerBl"/>
-	</bean>
-	<bean id="tasksManager" class="cz.metacentrum.perun.core.entry.TasksManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="tasksManagerBl" ref="tasksManagerBl"/>
-	</bean>
-	<bean id="groupsManager" class="cz.metacentrum.perun.core.entry.GroupsManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="groupsManagerBl" ref="groupsManagerBl"/>
-	</bean>
-	<bean id="facilitiesManager" class="cz.metacentrum.perun.core.entry.FacilitiesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
-	</bean>
-	<bean id="consentsManager" class="cz.metacentrum.perun.core.entry.ConsentsManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="consentsManagerBl" ref="consentsManagerBl"/>
-	</bean>
-	<bean id="configManager" class="cz.metacentrum.perun.core.entry.ConfigManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="configManagerBl" ref="configManagerBl"/>
-	</bean>
-	<bean id="databaseManager" class="cz.metacentrum.perun.core.entry.DatabaseManagerEntry" scope="singleton">
-		<property name="databaseManagerBl" ref="databaseManagerBl"/>
-	</bean>
-	<bean id="membersManager" class="cz.metacentrum.perun.core.entry.MembersManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="membersManagerBl" ref="membersManagerBl"/>
-	</bean>
-	<bean id="resourcesManager" class="cz.metacentrum.perun.core.entry.ResourcesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="resourcesManagerBl" ref="resourcesManagerBl"/>
-	</bean>
-	<bean id="extSourcesManager" class="cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="extSourcesManagerBl" ref="extSourcesManagerBl"/>
-	</bean>
-	<bean id="attributesManager" class="cz.metacentrum.perun.core.entry.AttributesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="attributesManagerBl" ref="attributesManagerBl"/>
-	</bean>
-	<bean id="servicesManager" class="cz.metacentrum.perun.core.entry.ServicesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="servicesManagerBl" ref="servicesManagerBl"/>
-	</bean>
-	<bean id="ownersManager" class="cz.metacentrum.perun.core.entry.OwnersManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="ownersManagerBl" ref="ownersManagerBl"/>
-	</bean>
-	<bean id="auditMessagesManager" class="cz.metacentrum.perun.core.entry.AuditMessagesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
-	</bean>
-	<bean id="RTMessagesManager" class="cz.metacentrum.perun.core.entry.RTMessagesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
-	</bean>
-	<bean id="securityTeamsManager" class="cz.metacentrum.perun.core.entry.SecurityTeamsManagerEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
-	</bean>
-	<bean id="searcher" class="cz.metacentrum.perun.core.entry.SearcherEntry" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="searcherBl" ref="searcherBl"/>
-	</bean>
-	<bean id="vosManagerBl" class="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="vosManagerImpl" />
-	</bean>
-	<bean id="usersManagerBl" class="cz.metacentrum.perun.core.blImpl.UsersManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="usersManagerImpl" />
-	</bean>
-	<bean id="groupsManagerBl" class="cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="groupsManagerImpl" />
-	</bean>
-	<bean id="tasksManagerBl" class="cz.metacentrum.perun.core.blImpl.TasksManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="servicesManagerBl" ref="servicesManagerBl"/>
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="tasksManagerImpl" />
-	</bean>
-	<bean id="facilitiesManagerBl" class="cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="facilitiesManagerImpl" />
-	</bean>
-	<bean id="consentsManagerBl" class="cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="consentsManagerImpl" />
-	</bean>
-	<bean id="configManagerBl" class="cz.metacentrum.perun.core.blImpl.ConfigManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="configManagerImpl" />
-	</bean>
-	<bean id="databaseManagerBl" class="cz.metacentrum.perun.core.blImpl.DatabaseManagerBlImpl" scope="singleton" init-method="initialize">
-		<constructor-arg ref="databaseManagerImpl" />
-	</bean>
-	<bean id="membersManagerBl" class="cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="membersManagerImpl" />
-	</bean>
-	<bean id="resourcesManagerBl" class="cz.metacentrum.perun.core.blImpl.ResourcesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="resourcesManagerImpl" />
-	</bean>
-	<bean id="extSourcesManagerBl" class="cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="extSourcesManagerImpl" />
-	</bean>
-	<bean id="attributesManagerBl" class="cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl" scope="singleton" init-method="initialize" depends-on="authzResolverImpl">
-		<!-- depend on authz resolver impl to make sure roles are inserted in DB before attribute authz is set -->
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="attributesManagerImpl" />
-	</bean>
-	<bean id="servicesManagerBl" class="cz.metacentrum.perun.core.blImpl.ServicesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="servicesManagerImpl" />
-	</bean>
-	<bean id="modulesUtilsBl" class="cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-	</bean>
-	<bean id="ownersManagerBl" class="cz.metacentrum.perun.core.blImpl.OwnersManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="ownersManagerImpl" />
-	</bean>
-	<bean id="auditMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.AuditMessagesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<property name="auditer" ref="auditer"/>
-		<constructor-arg ref="auditMessagesManagerImpl" />
-	</bean>
-	<bean id="RTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg name="perunBl" ref="perun"/>
-		<constructor-arg name="rtURL" value="#{coreConfig.rtUrl}"/>
-		<constructor-arg name="rtDefaultQueue" value="#{coreConfig.rtDefaultQueue}"/>
-	</bean>
-	<bean id="securityTeamsManagerBl" class="cz.metacentrum.perun.core.blImpl.SecurityTeamsManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="securityTeamsManagerImpl" />
-	</bean>
-	<bean id="authzResolverBl" class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" scope="singleton" depends-on="databaseManagerBl">
-	</bean>
-	<bean id="searcherBl" class="cz.metacentrum.perun.core.blImpl.SearcherBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="searcherImpl" />
-	</bean>
+    <bean id="vosManager" class="cz.metacentrum.perun.core.entry.VosManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="vosManagerBl" ref="vosManagerBl"/>
+    </bean>
+    <bean id="usersManager" class="cz.metacentrum.perun.core.entry.UsersManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="usersManagerBl" ref="usersManagerBl"/>
+    </bean>
+    <bean id="tasksManager" class="cz.metacentrum.perun.core.entry.TasksManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="tasksManagerBl" ref="tasksManagerBl"/>
+    </bean>
+    <bean id="groupsManager" class="cz.metacentrum.perun.core.entry.GroupsManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="groupsManagerBl" ref="groupsManagerBl"/>
+    </bean>
+    <bean id="facilitiesManager" class="cz.metacentrum.perun.core.entry.FacilitiesManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
+    </bean>
+    <bean id="consentsManager" class="cz.metacentrum.perun.core.entry.ConsentsManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="consentsManagerBl" ref="consentsManagerBl"/>
+    </bean>
+    <bean id="configManager" class="cz.metacentrum.perun.core.entry.ConfigManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="configManagerBl" ref="configManagerBl"/>
+    </bean>
+    <bean id="databaseManager" class="cz.metacentrum.perun.core.entry.DatabaseManagerEntry" scope="singleton">
+        <property name="databaseManagerBl" ref="databaseManagerBl"/>
+    </bean>
+    <bean id="membersManager" class="cz.metacentrum.perun.core.entry.MembersManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="membersManagerBl" ref="membersManagerBl"/>
+    </bean>
+    <bean id="resourcesManager" class="cz.metacentrum.perun.core.entry.ResourcesManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="resourcesManagerBl" ref="resourcesManagerBl"/>
+    </bean>
+    <bean id="extSourcesManager" class="cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="extSourcesManagerBl" ref="extSourcesManagerBl"/>
+    </bean>
+    <bean id="attributesManager" class="cz.metacentrum.perun.core.entry.AttributesManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="attributesManagerBl" ref="attributesManagerBl"/>
+    </bean>
+    <bean id="servicesManager" class="cz.metacentrum.perun.core.entry.ServicesManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="servicesManagerBl" ref="servicesManagerBl"/>
+    </bean>
+    <bean id="ownersManager" class="cz.metacentrum.perun.core.entry.OwnersManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="ownersManagerBl" ref="ownersManagerBl"/>
+    </bean>
+    <bean id="auditMessagesManager" class="cz.metacentrum.perun.core.entry.AuditMessagesManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
+    </bean>
+    <bean id="RTMessagesManager" class="cz.metacentrum.perun.core.entry.RTMessagesManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
+    </bean>
+    <bean id="securityTeamsManager" class="cz.metacentrum.perun.core.entry.SecurityTeamsManagerEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
+    </bean>
+    <bean id="searcher" class="cz.metacentrum.perun.core.entry.SearcherEntry" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="searcherBl" ref="searcherBl"/>
+    </bean>
+    <bean id="vosManagerBl" class="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="vosManagerImpl"/>
+    </bean>
+    <bean id="usersManagerBl" class="cz.metacentrum.perun.core.blImpl.UsersManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="usersManagerImpl"/>
+    </bean>
+    <bean id="groupsManagerBl" class="cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="groupsManagerImpl"/>
+    </bean>
+    <bean id="tasksManagerBl" class="cz.metacentrum.perun.core.blImpl.TasksManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="servicesManagerBl" ref="servicesManagerBl"/>
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="tasksManagerImpl"/>
+    </bean>
+    <bean id="facilitiesManagerBl" class="cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="facilitiesManagerImpl"/>
+    </bean>
+    <bean id="consentsManagerBl" class="cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="consentsManagerImpl"/>
+    </bean>
+    <bean id="configManagerBl" class="cz.metacentrum.perun.core.blImpl.ConfigManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="configManagerImpl"/>
+    </bean>
+    <bean id="databaseManagerBl" class="cz.metacentrum.perun.core.blImpl.DatabaseManagerBlImpl" scope="singleton"
+          init-method="initialize">
+        <constructor-arg ref="databaseManagerImpl"/>
+    </bean>
+    <bean id="membersManagerBl" class="cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="membersManagerImpl"/>
+    </bean>
+    <bean id="resourcesManagerBl" class="cz.metacentrum.perun.core.blImpl.ResourcesManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="resourcesManagerImpl"/>
+    </bean>
+    <bean id="extSourcesManagerBl" class="cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="extSourcesManagerImpl"/>
+    </bean>
+    <bean id="attributesManagerBl" class="cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl" scope="singleton"
+          init-method="initialize" depends-on="authzResolverImpl">
+        <!-- depend on authz resolver impl to make sure roles are inserted in DB before attribute authz is set -->
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="attributesManagerImpl"/>
+    </bean>
+    <bean id="servicesManagerBl" class="cz.metacentrum.perun.core.blImpl.ServicesManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="servicesManagerImpl"/>
+    </bean>
+    <bean id="modulesUtilsBl" class="cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+    </bean>
+    <bean id="ownersManagerBl" class="cz.metacentrum.perun.core.blImpl.OwnersManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="ownersManagerImpl"/>
+    </bean>
+    <bean id="auditMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.AuditMessagesManagerBlImpl"
+          scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="auditer" ref="auditer"/>
+        <constructor-arg ref="auditMessagesManagerImpl"/>
+    </bean>
+    <bean id="RTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg name="perunBl" ref="perun"/>
+        <constructor-arg name="rtURL" value="#{coreConfig.rtUrl}"/>
+        <constructor-arg name="rtDefaultQueue" value="#{coreConfig.rtDefaultQueue}"/>
+    </bean>
+    <bean id="securityTeamsManagerBl" class="cz.metacentrum.perun.core.blImpl.SecurityTeamsManagerBlImpl"
+          scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="securityTeamsManagerImpl"/>
+    </bean>
+    <bean id="authzResolverBl" class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+    </bean>
+    <bean id="searcherBl" class="cz.metacentrum.perun.core.blImpl.SearcherBlImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="searcherImpl"/>
+    </bean>
 
-	<bean id="vosManagerImpl" class="cz.metacentrum.perun.core.impl.VosManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="usersManagerImpl" class="cz.metacentrum.perun.core.impl.UsersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="tasksManagerImpl" class="cz.metacentrum.perun.core.impl.TasksManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="groupsManagerImpl" class="cz.metacentrum.perun.core.impl.GroupsManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="facilitiesManagerImpl" class="cz.metacentrum.perun.core.impl.FacilitiesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="consentsManagerImpl" class="cz.metacentrum.perun.core.impl.ConsentsManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="configManagerImpl" class="cz.metacentrum.perun.core.impl.ConfigManagerImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
-		<property name="perunAppsConfigLoader" ref="perunAppsConfigLoader"/>
-		<property name="perunOidcConfigLoader" ref="perunOidcConfigLoader"/>
-	</bean>
-	<bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="membersManagerImpl" class="cz.metacentrum.perun.core.impl.MembersManagerImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-		<property name="loginNamespacesRulesConfigLoader" ref="loginNamespacesRulesConfigLoader"/>
-	</bean>
-	<bean id="resourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ResourcesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="extSourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-		<property name="self" ref="extSourcesManagerImpl"/>
-	</bean>
-	<bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perun" ref="perun"/>
-		<property name="self" ref="attributesManagerImpl"/>
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="servicesManagerImpl" class="cz.metacentrum.perun.core.impl.ServicesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="ownersManagerImpl" class="cz.metacentrum.perun.core.impl.OwnersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="securityTeamsManagerImpl" class="cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-		<property name="perunRolesLoader" ref="perunRolesLoader"/>
-	</bean>
-	<bean id="searcherImpl" class="cz.metacentrum.perun.core.impl.SearcherImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="auditMessagesManagerImpl" class="cz.metacentrum.perun.core.impl.AuditMessagesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="dataSource" />
-	</bean>
+    <bean id="vosManagerImpl" class="cz.metacentrum.perun.core.impl.VosManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="usersManagerImpl" class="cz.metacentrum.perun.core.impl.UsersManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="tasksManagerImpl" class="cz.metacentrum.perun.core.impl.TasksManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="groupsManagerImpl" class="cz.metacentrum.perun.core.impl.GroupsManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="facilitiesManagerImpl" class="cz.metacentrum.perun.core.impl.FacilitiesManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="consentsManagerImpl" class="cz.metacentrum.perun.core.impl.ConsentsManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="configManagerImpl" class="cz.metacentrum.perun.core.impl.ConfigManagerImpl" scope="singleton"
+          init-method="initialize" depends-on="databaseManagerBl">
+        <property name="perunAppsConfigLoader" ref="perunAppsConfigLoader"/>
+        <property name="perunOidcConfigLoader" ref="perunOidcConfigLoader"/>
+    </bean>
+    <bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="membersManagerImpl" class="cz.metacentrum.perun.core.impl.MembersManagerImpl" scope="singleton"
+          init-method="initialize" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+        <property name="loginNamespacesRulesConfigLoader" ref="loginNamespacesRulesConfigLoader"/>
+    </bean>
+    <bean id="resourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ResourcesManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="extSourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+        <property name="self" ref="extSourcesManagerImpl"/>
+    </bean>
+    <bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <property name="perun" ref="perun"/>
+        <property name="self" ref="attributesManagerImpl"/>
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="servicesManagerImpl" class="cz.metacentrum.perun.core.impl.ServicesManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="ownersManagerImpl" class="cz.metacentrum.perun.core.impl.OwnersManagerImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="securityTeamsManagerImpl" class="cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl"
+          scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton"
+          init-method="initialize" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+        <property name="perunRolesLoader" ref="perunRolesLoader"/>
+    </bean>
+    <bean id="searcherImpl" class="cz.metacentrum.perun.core.impl.SearcherImpl" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+    <bean id="auditMessagesManagerImpl" class="cz.metacentrum.perun.core.impl.AuditMessagesManagerImpl"
+          scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource"/>
+    </bean>
 
-	<bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" depends-on="coreConfig">
-		<property name="perunPool" ref="dataSource"/>
-	</bean>
+    <bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" depends-on="coreConfig">
+        <property name="perunPool" ref="dataSource"/>
+    </bean>
 
-	<bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean id="resourceAssignmentActivator" class="cz.metacentrum.perun.core.impl.ResourceAssignmentActivator" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="perun" />
-	</bean>
+    <bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton"
+          depends-on="databaseManagerBl">
+        <constructor-arg ref="perun"/>
+    </bean>
+    <bean id="resourceAssignmentActivator" class="cz.metacentrum.perun.core.impl.ResourceAssignmentActivator"
+          scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="perun"/>
+    </bean>
 
-	<bean id="resourceAssignmentChecker" class="cz.metacentrum.perun.core.impl.ResourceAssignmentChecker" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="perun" />
-	</bean>
+    <bean id="resourceAssignmentChecker" class="cz.metacentrum.perun.core.impl.ResourceAssignmentChecker"
+          scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="perun"/>
+    </bean>
 
-	<bean id="defaultBlockedLoginChecker" class="cz.metacentrum.perun.core.impl.DefaultBlockedLoginChecker" scope="singleton" init-method="checkDefaultBlockedLogins" depends-on="attributesManagerBl">
-		<constructor-arg ref="perun" />
-	</bean>
+    <bean id="defaultBlockedLoginChecker" class="cz.metacentrum.perun.core.impl.DefaultBlockedLoginChecker"
+          scope="singleton" init-method="checkDefaultBlockedLogins" depends-on="attributesManagerBl">
+        <constructor-arg ref="perun"/>
+    </bean>
 
-	<!-- moved to production and default to have a different tx manager for tests -->
-<!--	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">-->
-<!--		<property name="dataSource" ref="dataSource"/>-->
-<!--		<property name="auditer" ref="auditer"/>-->
-<!--		<property name="nestedTransactionAllowed" value="true"/>-->
-<!--	</bean>-->
+    <!-- moved to production and default to have a different tx manager for tests -->
+    <!--	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">-->
+    <!--		<property name="dataSource" ref="dataSource"/>-->
+    <!--		<property name="auditer" ref="auditer"/>-->
+    <!--		<property name="nestedTransactionAllowed" value="true"/>-->
+    <!--	</bean>-->
 
-	<bean id="springTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="nestedTransactionAllowed" value="true"/>
-	</bean>
+    <bean id="springTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="nestedTransactionAllowed" value="true"/>
+    </bean>
 
-	<!-- DAOs -->
+    <!-- DAOs -->
 
-	<beans profile="trace">
-		<import resource="classpath:perun-core-trace-log.xml"/>
-	</beans>
+    <beans profile="trace">
+        <import resource="classpath:perun-core-trace-log.xml"/>
+    </beans>
 
-	<!-- Real Perun DB -->
-	<beans profile="production">
-		<aop:config>
-			<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>
-		</aop:config>
+    <!-- Real Perun DB -->
+    <beans profile="production">
+        <aop:config>
+            <aop:advisor advice-ref="txAdviceRequiresNewTransaction"
+                         pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>
+        </aop:config>
 
-		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="@perun.jdbc@, file:${perun.conf.custom}/jdbc.properties"/>
+        <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                      location="@perun.jdbc@, file:${perun.conf.custom}/jdbc.properties"/>
 
-		<!-- DataSource implementation -->
-		<bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
-			<property name="driverClassName" value="${jdbc.driver}"/>
-			<property name="jdbcUrl" value="${jdbc.url}"/>
-			<property name="username" value="${jdbc.username}"/>
-			<property name="password" value="${jdbc.password}"/>
+        <!-- DataSource implementation -->
+        <bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
+            <property name="driverClassName" value="${jdbc.driver}"/>
+            <property name="jdbcUrl" value="${jdbc.url}"/>
+            <property name="username" value="${jdbc.username}"/>
+            <property name="password" value="${jdbc.password}"/>
 
-			<property name="maximumPoolSize" value="${jdbc.maximumPoolSize}"/>
-			<property name="minimumIdle" value="${jdbc.minimumIdle}"/>
-			<property name="connectionTimeout" value="${jdbc.connectionTimeout}"/>
-			<property name="maxLifetime" value="${jdbc.maxLifetime}"/>
-			<property name="idleTimeout" value="${jdbc.idleTimeout}"/>
-			<property name="leakDetectionThreshold" value="${jdbc.leakDetectionThreshold}" />
+            <property name="maximumPoolSize" value="${jdbc.maximumPoolSize}"/>
+            <property name="minimumIdle" value="${jdbc.minimumIdle}"/>
+            <property name="connectionTimeout" value="${jdbc.connectionTimeout}"/>
+            <property name="maxLifetime" value="${jdbc.maxLifetime}"/>
+            <property name="idleTimeout" value="${jdbc.idleTimeout}"/>
+            <property name="leakDetectionThreshold" value="${jdbc.leakDetectionThreshold}"/>
 
-			<property name="auditer" ref="auditer"/>
-		</bean>
+            <property name="auditer" ref="auditer"/>
+        </bean>
 
-		<!-- Spring's @Async execution runs asynchronously in production	-->
-		<task:executor id="asyncExecutor" pool-size="20-20" queue-capacity="5000" keep-alive="120" rejection-policy="DISCARD_OLDEST" />
+        <!-- Spring's @Async execution runs asynchronously in production	-->
+        <task:executor id="asyncExecutor" pool-size="20-20" queue-capacity="5000" keep-alive="120"
+                       rejection-policy="DISCARD_OLDEST"/>
 
-		<!-- PerunRolesLoader implementation -->
-		<bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
-			<property name="configurationPath" value="classpath:perun-roles.yml"/>
-			<property name="secondaryConfigurationPath" value="file:@perun.conf@perun-roles.yml"/>
-		</bean>
+        <!-- PerunRolesLoader implementation -->
+        <bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
+            <property name="configurationPath" value="classpath:perun-roles.yml"/>
+            <property name="secondaryConfigurationPath" value="file:@perun.conf@perun-roles.yml"/>
+        </bean>
 
-		<!-- LoginNamespacesRulesConfigLoader implementation -->
-		<bean id="loginNamespacesRulesConfigLoader" class="cz.metacentrum.perun.core.impl.LoginNamespacesRulesConfigLoader">
-			<property name="configurationPath" value="file:@perun.conf@login-namespaces-rules-config.yml"/>
-		</bean>
+        <!-- LoginNamespacesRulesConfigLoader implementation -->
+        <bean id="loginNamespacesRulesConfigLoader"
+              class="cz.metacentrum.perun.core.impl.LoginNamespacesRulesConfigLoader">
+            <property name="configurationPath" value="file:@perun.conf@login-namespaces-rules-config.yml"/>
+        </bean>
 
-		<!-- Loader for the perunAppsConfig-->
-		<bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader" init-method="initialize">
-			<property name="configPath" value="file:@perun.conf@perun-apps-config.yml"/>
-		</bean>
+        <!-- Loader for the perunAppsConfig-->
+        <bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader"
+              init-method="initialize">
+            <property name="configPath" value="file:@perun.conf@perun-apps-config.yml"/>
+        </bean>
 
-		<!-- PerunOidcConfigLoader implementation -->
-		<bean id="perunOidcConfigLoader" class="cz.metacentrum.perun.core.impl.PerunOidcConfigLoader">
-			<property name="configurationPath" value="file:@perun.conf@perun-oidc-config.yml"/>
-		</bean>
+        <!-- PerunOidcConfigLoader implementation -->
+        <bean id="perunOidcConfigLoader" class="cz.metacentrum.perun.core.impl.PerunOidcConfigLoader">
+            <property name="configurationPath" value="file:@perun.conf@perun-oidc-config.yml"/>
+        </bean>
 
-		<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
-			<property name="dataSource" ref="dataSource"/>
-			<property name="auditer" ref="auditer"/>
-			<property name="nestedTransactionAllowed" value="true"/>
-		</bean>
-	</beans>
+        <bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
+            <property name="dataSource" ref="dataSource"/>
+            <property name="auditer" ref="auditer"/>
+            <property name="nestedTransactionAllowed" value="true"/>
+        </bean>
+    </beans>
 
-	<!-- Containerized Perun for local testing -->
-	<beans profile="default">
-		<aop:config>
-			<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>
-		</aop:config>
+    <!-- Containerized Perun for local testing -->
+    <beans profile="default">
+        <aop:config>
+            <aop:advisor advice-ref="txAdviceNestedTransaction"
+                         pointcut="execution(* cz.metacentrum.perun.core.blImpl.ConsentsManagerBlImpl.evaluateConsents(..))"/>
+        </aop:config>
 
-		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="classpath:jdbc.properties"/>
+        <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                      location="classpath:jdbc.properties"/>
 
-		<!-- DataSource implementation -->
-		<bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
+        <!-- DataSource implementation -->
+        <bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
 
-			<property name="driverClassName" value="${jdbc.driver}"/>
-			<property name="jdbcUrl" value="${jdbc.url}"/>
-			<property name="username" value="${jdbc.username}"/>
-			<property name="password" value="${jdbc.password}"/>
+            <property name="driverClassName" value="${jdbc.driver}"/>
+            <property name="jdbcUrl" value="${jdbc.url}"/>
+            <property name="username" value="${jdbc.username}"/>
+            <property name="password" value="${jdbc.password}"/>
 
-			<property name="maximumPoolSize" value="${jdbc.maximumPoolSize}"/>
-			<property name="minimumIdle" value="${jdbc.minimumIdle}"/>
-			<property name="connectionTimeout" value="${jdbc.connectionTimeout}"/>
-			<property name="maxLifetime" value="${jdbc.maxLifetime}"/>
-			<property name="idleTimeout" value="${jdbc.idleTimeout}"/>
-			<property name="leakDetectionThreshold" value="${jdbc.leakDetectionThreshold}" />
+            <property name="maximumPoolSize" value="${jdbc.maximumPoolSize}"/>
+            <property name="minimumIdle" value="${jdbc.minimumIdle}"/>
+            <property name="connectionTimeout" value="${jdbc.connectionTimeout}"/>
+            <property name="maxLifetime" value="${jdbc.maxLifetime}"/>
+            <property name="idleTimeout" value="${jdbc.idleTimeout}"/>
+            <property name="leakDetectionThreshold" value="${jdbc.leakDetectionThreshold}"/>
 
-			<property name="auditer" ref="auditer"/>
+            <property name="auditer" ref="auditer"/>
 
-		</bean>
+        </bean>
 
-		<!-- PerunRolesLoader implementation -->
-		<bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
-			<property name="configurationPath" value="classpath:perun-roles.yml"/>
-			<property name="secondaryConfigurationPath" value="classpath:test-roles.yml"/>
-		</bean>
+        <!-- PerunRolesLoader implementation -->
+        <bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
+            <property name="configurationPath" value="classpath:perun-roles.yml"/>
+            <property name="secondaryConfigurationPath" value="classpath:test-roles.yml"/>
+        </bean>
 
-		<!-- LoginNamespacesRulesConfigLoader implementation -->
-		<bean id="loginNamespacesRulesConfigLoader" class="cz.metacentrum.perun.core.impl.LoginNamespacesRulesConfigLoader">
-			<property name="configurationPath" value="classpath:login-namespaces-rules-config.yml"/>
-		</bean>
+        <!-- LoginNamespacesRulesConfigLoader implementation -->
+        <bean id="loginNamespacesRulesConfigLoader"
+              class="cz.metacentrum.perun.core.impl.LoginNamespacesRulesConfigLoader">
+            <property name="configurationPath" value="classpath:login-namespaces-rules-config.yml"/>
+        </bean>
 
-		<!-- Loader for the perunAppsConfig-->
-		<bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader" init-method="initialize">
-			<property name="configPath" value="classpath:perun-apps-config.yml"/>
-		</bean>
+        <!-- Loader for the perunAppsConfig-->
+        <bean id="perunAppsConfigLoader" class="cz.metacentrum.perun.core.impl.PerunAppsConfigLoader"
+              init-method="initialize">
+            <property name="configPath" value="classpath:perun-apps-config.yml"/>
+        </bean>
 
-		<!-- PerunOidcConfigLoader implementation -->
-		<bean id="perunOidcConfigLoader" class="cz.metacentrum.perun.core.impl.PerunOidcConfigLoader">
-			<property name="configurationPath" value="classpath:perun-oidc-config.yml"/>
-		</bean>
+        <!-- PerunOidcConfigLoader implementation -->
+        <bean id="perunOidcConfigLoader" class="cz.metacentrum.perun.core.impl.PerunOidcConfigLoader">
+            <property name="configurationPath" value="classpath:perun-oidc-config.yml"/>
+        </bean>
 
-		<!-- Spring's @Async execution runs synchronously	-->
-		<bean id="asyncExecutor" class="org.springframework.core.task.SyncTaskExecutor">
-		</bean>
+        <!-- Spring's @Async execution runs synchronously	-->
+        <bean id="asyncExecutor" class="org.springframework.core.task.SyncTaskExecutor">
+        </bean>
 
-		<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
-			<property name="dataSource" ref="dataSource"/>
-			<property name="auditer" ref="auditer"/>
-			<property name="nestedTransactionAllowed" value="true"/>
-			<property name="globalRollbackOnParticipationFailure" value="false"/>
-		</bean>
-	</beans>
+        <bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
+            <property name="dataSource" ref="dataSource"/>
+            <property name="auditer" ref="auditer"/>
+            <property name="nestedTransactionAllowed" value="true"/>
+            <property name="globalRollbackOnParticipationFailure" value="false"/>
+        </bean>
+    </beans>
 
 </beans>

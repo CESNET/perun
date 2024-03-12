@@ -11,11 +11,10 @@ import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.implApi.AuditMessagesManagerImplApi;
-import org.reflections.Reflections;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.reflections.Reflections;
 
 /**
  * AuditMessagesManager manages audit messages (logs). Implementation of Business Logic.
@@ -24,117 +23,118 @@ import java.util.Map;
  */
 public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
-	private Auditer auditer;
-	private PerunBl perunBl;
-	private AuditMessagesManagerImplApi auditMessagesManagerImpl;
+  private Auditer auditer;
+  private PerunBl perunBl;
+  private AuditMessagesManagerImplApi auditMessagesManagerImpl;
 
-	public void setAuditer(Auditer auditer) {
-		this.auditer = auditer;
-	}
+  public AuditMessagesManagerBlImpl(AuditMessagesManagerImplApi auditMessagesManagerImpl) {
+    this.auditMessagesManagerImpl = auditMessagesManagerImpl;
+  }
 
-	public Auditer getAuditer() {
-		return auditer;
-	}
+  @Override
+  public void createAuditerConsumer(PerunSession perunSession, String consumerName) {
+    getAuditMessagesManagerImpl().createAuditerConsumer(perunSession, consumerName);
+  }
 
-	public PerunBl getPerunBl() {
-		return perunBl;
-	}
+  @Override
+  public List<String> findAllPossibleEvents(PerunSession sess) {
+    try {
+      Reflections reflections = new Reflections(AuditEvent.class);
+      List<String> events =
+          new ArrayList<>((reflections.getSubTypesOf(AuditEvent.class).stream().map(Class::getSimpleName).toList()));
 
-	public void setPerunBl(PerunBl perunBl) {
-		this.perunBl = perunBl;
-	}
+      // Remove subclasses outside subpackages.
+      events.remove("StringMessageEvent");
 
-	public AuditMessagesManagerImplApi getAuditMessagesManagerImpl() {
-		return auditMessagesManagerImpl;
-	}
+      return events;
+    } catch (Exception e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	public AuditMessagesManagerBlImpl(AuditMessagesManagerImplApi auditMessagesManagerImpl) {
-		this.auditMessagesManagerImpl = auditMessagesManagerImpl;
-	}
+  @Override
+  public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) {
+    return getAuditMessagesManagerImpl().getAllAuditerConsumers(perunSession);
+  }
 
-	@Override
-	public List<AuditMessage> getMessages(PerunSession perunSession, int count) {
-		return getAuditMessagesManagerImpl().getMessages(perunSession, count);
-	}
+  public AuditMessagesManagerImplApi getAuditMessagesManagerImpl() {
+    return auditMessagesManagerImpl;
+  }
 
-	@Override
-	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) {
-		return getAuditMessagesManagerImpl().getMessagesByCount(perunSession, count);
-	}
+  public Auditer getAuditer() {
+    return auditer;
+  }
 
-	@Override
-	public List<AuditMessage> getMessagesByIdAndCount(PerunSession perunSession, int id,int count) {
-		return getAuditMessagesManagerImpl().getMessagesByIdAndCount(perunSession, id, count);
-	}
+  @Override
+  public int getAuditerMessagesCount(PerunSession perunSession) {
+    return getAuditMessagesManagerImpl().getAuditerMessagesCount(perunSession);
+  }
 
-	@Override
-	public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
-		return getAuditMessagesManagerImpl().getMessagesPage(perunSession, query);
-	}
+  @Override
+  public int getLastMessageId(PerunSession perunSession) {
+    return getAuditMessagesManagerImpl().getLastMessageId(perunSession);
+  }
 
-	@Override
-	public List<String> findAllPossibleEvents(PerunSession sess) {
-		try {
-			Reflections reflections = new Reflections(AuditEvent.class);
-			List<String> events = new ArrayList<>((reflections.getSubTypesOf(AuditEvent.class).stream().map(Class::getSimpleName).toList()));
+  @Override
+  public List<AuditMessage> getMessages(PerunSession perunSession, int count) {
+    return getAuditMessagesManagerImpl().getMessages(perunSession, count);
+  }
 
-			// Remove subclasses outside subpackages.
-			events.remove("StringMessageEvent");
+  @Override
+  public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) {
+    return getAuditMessagesManagerImpl().getMessagesByCount(perunSession, count);
+  }
 
-			return events;
-		} catch (Exception e) {
-			throw new InternalErrorException(e);
-		}
-	}
+  @Override
+  public List<AuditMessage> getMessagesByIdAndCount(PerunSession perunSession, int id, int count) {
+    return getAuditMessagesManagerImpl().getMessagesByIdAndCount(perunSession, id, count);
+  }
 
-	@Override
-	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) {
-		return getAuditMessagesManagerImpl().pollConsumerMessages(perunSession, consumerName);
-	}
+  @Override
+  public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
+    return getAuditMessagesManagerImpl().getMessagesPage(perunSession, query);
+  }
 
-	@Override
-	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) {
-		return getAuditMessagesManagerImpl().pollConsumerMessages(perunSession, consumerName, lastProcessedId);
-	}
+  public PerunBl getPerunBl() {
+    return perunBl;
+  }
 
-	@Override
-	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) {
-		return getAuditMessagesManagerImpl().pollConsumerEvents(perunSession, consumerName);
-	}
+  @Override
+  public void log(PerunSession perunSession, String message) {
+    perunBl.getAuditer().log(perunSession, new StringMessageEvent(message));
+  }
 
-	@Override
-	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) {
-		return getAuditMessagesManagerImpl().pollConsumerEvents(perunSession, consumerName, lastProcessedId);
-	}
+  @Override
+  public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) {
+    return getAuditMessagesManagerImpl().pollConsumerEvents(perunSession, consumerName);
+  }
 
-	@Override
-	public void createAuditerConsumer(PerunSession perunSession, String consumerName) {
-		getAuditMessagesManagerImpl().createAuditerConsumer(perunSession, consumerName);
-	}
+  @Override
+  public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) {
+    return getAuditMessagesManagerImpl().pollConsumerEvents(perunSession, consumerName, lastProcessedId);
+  }
 
-	@Override
-	public void log(PerunSession perunSession, String message) {
-		perunBl.getAuditer().log(perunSession, new StringMessageEvent(message));
-	}
+  @Override
+  public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) {
+    return getAuditMessagesManagerImpl().pollConsumerMessages(perunSession, consumerName);
+  }
 
-	@Override
-	public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) {
-		return getAuditMessagesManagerImpl().getAllAuditerConsumers(perunSession);
-	}
+  @Override
+  public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) {
+    return getAuditMessagesManagerImpl().pollConsumerMessages(perunSession, consumerName, lastProcessedId);
+  }
 
-	@Override
-	public int getLastMessageId(PerunSession perunSession) {
-		return getAuditMessagesManagerImpl().getLastMessageId(perunSession);
-	}
+  public void setAuditer(Auditer auditer) {
+    this.auditer = auditer;
+  }
 
-	@Override
-	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) {
-		getAuditMessagesManagerImpl().setLastProcessedId(perunSession, consumerName, lastProcessedId);
-	}
+  @Override
+  public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) {
+    getAuditMessagesManagerImpl().setLastProcessedId(perunSession, consumerName, lastProcessedId);
+  }
 
-	@Override
-	public int getAuditerMessagesCount(PerunSession perunSession) {
-		return getAuditMessagesManagerImpl().getAuditerMessagesCount(perunSession);
-	}
+  public void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
+  }
 
 }

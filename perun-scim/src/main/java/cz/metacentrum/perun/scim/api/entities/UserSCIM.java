@@ -1,14 +1,9 @@
 package cz.metacentrum.perun.scim.api.entities;
 
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.collect.ImmutableList;
-
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,161 +16,168 @@ import java.util.List;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class UserSCIM {
 
-	@JsonIgnore
-	private Resource resource;
+  @JsonIgnore
+  private Resource resource;
 
-	@JsonProperty
-	private List<String> schemas;
+  @JsonProperty
+  private List<String> schemas;
 
-	@JsonProperty
-	private String userName;
+  @JsonProperty
+  private String userName;
 
-	@JsonProperty
-	private String name;
+  @JsonProperty
+  private String name;
 
-	@JsonProperty
-	private String displayName;
+  @JsonProperty
+  private String displayName;
 
-	@JsonProperty
-	private List<EmailSCIM> emails;
+  @JsonProperty
+  private List<EmailSCIM> emails;
 
-	public UserSCIM(Long id, Long externalId, Meta meta, List<String> schemas, String userName, String name, String displayName, List<EmailSCIM> emails) {
-		resource = new Resource();
-		resource.setId(id);
-		resource.setExternalId(externalId);
-		resource.setMeta(meta);
-		this.schemas = schemas;
-		this.userName = userName;
-		this.name = name;
-		this.displayName = displayName;
-		this.emails = emails;
-	}
+  public UserSCIM(Long id, Long externalId, Meta meta, List<String> schemas, String userName, String name,
+                  String displayName, List<EmailSCIM> emails) {
+    resource = new Resource();
+    resource.setId(id);
+    resource.setExternalId(externalId);
+    resource.setMeta(meta);
+    this.schemas = schemas;
+    this.userName = userName;
+    this.name = name;
+    this.displayName = displayName;
+    this.emails = emails;
+  }
 
-	public UserSCIM(Long id, Long externalId, Meta meta) {
-		resource = new Resource();
-		resource.setId(id);
-		resource.setExternalId(externalId);
-		resource.setMeta(meta);
-	}
+  public UserSCIM(Long id, Long externalId, Meta meta) {
+    resource = new Resource();
+    resource.setId(id);
+    resource.setExternalId(externalId);
+    resource.setMeta(meta);
+  }
 
-	public UserSCIM() {
-		resource = new Resource();
-	}
+  public UserSCIM() {
+    resource = new Resource();
+  }
 
-	public List<String> getSchemas() {
-		return schemas;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof UserSCIM)) {
+      return false;
+    }
 
-	public void setSchemas(List<String> schemas) {
-		this.schemas = schemas;
-	}
+    UserSCIM userSCIM = (UserSCIM) o;
 
-	public String getUserName() {
-		return userName;
-	}
+    if (getSchemas() != null ? !getSchemas().equals(userSCIM.getSchemas()) : userSCIM.getSchemas() != null) {
+      return false;
+    }
+    if (getUserName() != null ? !getUserName().equals(userSCIM.getUserName()) : userSCIM.getUserName() != null) {
+      return false;
+    }
+    if (getName() != null ? !getName().equals(userSCIM.getName()) : userSCIM.getName() != null) {
+      return false;
+    }
+    if (getDisplayName() != null ? !getDisplayName().equals(userSCIM.getDisplayName()) :
+        userSCIM.getDisplayName() != null) {
+      return false;
+    }
+    if (getResource() != null ? !getResource().equals(userSCIM.getResource()) : userSCIM.getResource() != null) {
+      return false;
+    }
+    return getEmails() != null ? getEmails().equals(userSCIM.getEmails()) : userSCIM.getEmails() == null;
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getDisplayName() {
+    return displayName;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public List<EmailSCIM> getEmails() {
+    return emails;
+  }
 
-	public String getDisplayName() {
-		return displayName;
-	}
+  public Long getExternalId() {
+    return resource.getExternalId();
+  }
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
+  public Long getId() {
+    return resource.getId();
+  }
 
-	public void setId(Long id) {
-		resource.setId(id);
-	}
+  public Meta getMeta() {
+    return resource.getMeta();
+  }
 
-	public void setExternalId(Long externalId) {
-		resource.setExternalId(externalId);
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setMeta(Meta meta) {
-		resource.setMeta(meta);
-	}
+  @JsonIgnore
+  public Resource getResource() {
+    return resource;
+  }
 
-	public Long getId() {
-		return resource.getId();
-	}
+  public List<String> getSchemas() {
+    return schemas;
+  }
 
-	public Long getExternalId() {
-		return resource.getExternalId();
-	}
+  public String getUserName() {
+    return userName;
+  }
 
-	public Meta getMeta() {
-		return resource.getMeta();
-	}
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (getSchemas() != null ? getSchemas().hashCode() : 0);
+    result = 31 * result + (getUserName() != null ? getUserName().hashCode() : 0);
+    result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+    result = 31 * result + (getDisplayName() != null ? getDisplayName().hashCode() : 0);
+    result = 31 * result + (getEmails() != null ? getEmails().hashCode() : 0);
+    result = 31 * result + (getResource() != null ? getResource().hashCode() : 0);
+    return result;
+  }
 
-	@JsonIgnore
-	public Resource getResource() {
-		return resource;
-	}
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
 
-	@JsonIgnore
-	public void setResource(Resource resource) {
-		this.resource = resource;
-	}
+  public void setEmails(List<EmailSCIM> emails) {
+    this.emails = emails;
+  }
 
-	public List<EmailSCIM> getEmails() {
-		return emails;
-	}
+  public void setExternalId(Long externalId) {
+    resource.setExternalId(externalId);
+  }
 
-	public void setEmails(List<EmailSCIM> emails) {
-		this.emails = emails;
-	}
+  public void setId(Long id) {
+    resource.setId(id);
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof UserSCIM)) return false;
+  public void setMeta(Meta meta) {
+    resource.setMeta(meta);
+  }
 
-		UserSCIM userSCIM = (UserSCIM) o;
+  public void setName(String name) {
+    this.name = name;
+  }
 
-		if (getSchemas() != null ? !getSchemas().equals(userSCIM.getSchemas()) : userSCIM.getSchemas() != null)
-			return false;
-		if (getUserName() != null ? !getUserName().equals(userSCIM.getUserName()) : userSCIM.getUserName() != null)
-			return false;
-		if (getName() != null ? !getName().equals(userSCIM.getName()) : userSCIM.getName() != null) return false;
-		if (getDisplayName() != null ? !getDisplayName().equals(userSCIM.getDisplayName()) : userSCIM.getDisplayName() != null)
-			return false;
-		if (getResource() != null ? !getResource().equals(userSCIM.getResource()) : userSCIM.getResource() != null)
-			return false;
-		return getEmails() != null ? getEmails().equals(userSCIM.getEmails()) : userSCIM.getEmails() == null;
+  @JsonIgnore
+  public void setResource(Resource resource) {
+    this.resource = resource;
+  }
 
-	}
+  public void setSchemas(List<String> schemas) {
+    this.schemas = schemas;
+  }
 
-	@Override
-	public int hashCode() {
-		int result = super.hashCode();
-		result = 31 * result + (getSchemas() != null ? getSchemas().hashCode() : 0);
-		result = 31 * result + (getUserName() != null ? getUserName().hashCode() : 0);
-		result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-		result = 31 * result + (getDisplayName() != null ? getDisplayName().hashCode() : 0);
-		result = 31 * result + (getEmails() != null ? getEmails().hashCode() : 0);
-		result = 31 * result + (getResource() != null ? getResource().hashCode() : 0);
-		return result;
-	}
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
 
-	@Override
-	public String toString() {
-		return "UserSCIM{" +
-				"schemas=" + schemas +
-				", userName='" + userName + '\'' +
-				", name='" + name + '\'' +
-				", displayName='" + displayName + '\'' +
-				", emails=" + emails +
-				'}';
-	}
+  @Override
+  public String toString() {
+    return "UserSCIM{" + "schemas=" + schemas + ", userName='" + userName + '\'' + ", name='" + name + '\'' +
+           ", displayName='" + displayName + '\'' + ", emails=" + emails + '}';
+  }
 }

@@ -7,10 +7,10 @@ import cz.metacentrum.perun.utils.graphs.Node;
  */
 public interface NodeGenerator<T> {
 
-	/**
-	 * Generates node with given id.
-	 *
-	 * @return generated node
-	 */
-	Node generate(T entity, Long id);
+  /**
+   * Generates node with given id.
+   *
+   * @return generated node
+   */
+  Node generate(T entity, Long id);
 }

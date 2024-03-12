@@ -6,17 +6,17 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  * @author Michal Prochazka
  */
 public class PasswordCreationFailedRuntimeException extends PerunRuntimeException {
-	static final long serialVersionUID = 0;
+  static final long serialVersionUID = 0;
 
-	public PasswordCreationFailedRuntimeException(String message) {
-		super(message);
-	}
+  public PasswordCreationFailedRuntimeException(String message) {
+    super(message);
+  }
 
-	public PasswordCreationFailedRuntimeException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public PasswordCreationFailedRuntimeException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public PasswordCreationFailedRuntimeException(Throwable cause) {
-		super(cause);
-	}
+  public PasswordCreationFailedRuntimeException(Throwable cause) {
+    super(cause);
+  }
 }

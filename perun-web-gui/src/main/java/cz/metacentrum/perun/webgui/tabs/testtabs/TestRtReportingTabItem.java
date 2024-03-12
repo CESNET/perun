@@ -4,7 +4,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.rtMessagesManager.SendMessageToRt;
@@ -12,7 +17,6 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.TestTabs;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
-
 import java.util.Map;
 
 /**
@@ -25,183 +29,173 @@ import java.util.Map;
 public class TestRtReportingTabItem implements TabItem, TabItemWithUrl {
 
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "rt";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  private TextBox subjectTextBox = new TextBox();
+  private TextBox messageTextBox = new TextBox();
+  private TextBox voIdTextBox = new TextBox();
+  private TextBox rtQueueTextBox = new TextBox();
+  private Label titleWidget = new Label("Testing RPC request");
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Changing shell request
+   */
+  public TestRtReportingTabItem() {
+  }
 
-	private TextBox subjectTextBox = new TextBox();
+  static public TestRtReportingTabItem load(Map<String, String> parameters) {
+    return new TestRtReportingTabItem();
+  }
 
-	private TextBox messageTextBox = new TextBox();
+  public boolean isPrepared() {
+    return true;
+  }
 
-	private TextBox voIdTextBox = new TextBox();
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	private TextBox rtQueueTextBox = new TextBox();
+  @Override
+  public void onClose() {
 
-	private Label titleWidget = new Label("Testing RPC request");
+  }
 
-	/**
-	 * Changing shell request
-	 */
-	public TestRtReportingTabItem(){ }
+  public Widget draw() {
 
-	public boolean isPrepared(){
-		return true;
-	}
+    Button sendMessageButton = new Button("Send to RT");
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+    final FlexTable ft = new FlexTable();
+    ft.setCellSpacing(15);
 
-	@Override
-	public void onClose() {
+    int row = 0;
 
-	}
+    ft.setText(row, 0, "Subject");
+    ft.setWidget(row, 1, subjectTextBox);
+    row++;
 
-	public Widget draw() {
+    ft.setText(row, 0, "Text");
+    ft.setWidget(row, 1, messageTextBox);
+    row++;
 
-		Button sendMessageButton = new Button("Send to RT");
+    ft.setText(row, 0, "VO ID (doesn't have to be specified)");
+    ft.setWidget(row, 1, voIdTextBox);
+    row++;
 
-		final FlexTable ft = new FlexTable();
-		ft.setCellSpacing(15);
-
-		int row = 0;
-
-		ft.setText(row, 0, "Subject");
-		ft.setWidget(row, 1, subjectTextBox);
-		row++;
-
-		ft.setText(row, 0, "Text");
-		ft.setWidget(row, 1, messageTextBox);
-		row++;
-
-		ft.setText(row, 0, "VO ID (doesn't have to be specified)");
-		ft.setWidget(row, 1, voIdTextBox);
-		row++;
-
-		ft.setText(row, 0, "RT queue (doesn't have to be specified)");
-		ft.setWidget(row, 1, rtQueueTextBox);
-		row++;
-
-
-		ft.setText(row, 0, "Send");
-		ft.setWidget(row, 1, sendMessageButton);
-		row++;
+    ft.setText(row, 0, "RT queue (doesn't have to be specified)");
+    ft.setWidget(row, 1, rtQueueTextBox);
+    row++;
 
 
-		sendMessageButton.addClickHandler(new ClickHandler() {
-
-			public void onClick(ClickEvent event) {
-				sendToRt();
-			}
-		});
-
-		this.contentWidget.setWidget(ft);
-
-		return getWidget();
-
-	}
-
-	protected void sendToRt()
-	{
-		String message = messageTextBox.getText();
-		String subject = subjectTextBox.getText();
-		String voIdString = voIdTextBox.getText();
-		String rtQueue = rtQueueTextBox.getText();
-		int voId = -1;
-
-		if(!voIdString.isEmpty())
-		{
-			try{
-				voId = Integer.parseInt(voIdString);
-			}catch(NumberFormatException e){
-				Window.alert("Incorrect VO id format");
-				return;
-			}
-		}
+    ft.setText(row, 0, "Send");
+    ft.setWidget(row, 1, sendMessageButton);
+    row++;
 
 
-		SendMessageToRt query = new SendMessageToRt();
+    sendMessageButton.addClickHandler(new ClickHandler() {
 
-		if(voId == -1){
-			query.sendMessage(rtQueue, subject, message);
-		}else{
-			query.sendMessage(rtQueue, subject, message, voId);
-		}
+      public void onClick(ClickEvent event) {
+        sendToRt();
+      }
+    });
 
+    this.contentWidget.setWidget(ft);
 
-	}
+    return getWidget();
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  protected void sendToRt() {
+    String message = messageTextBox.getText();
+    String subject = subjectTextBox.getText();
+    String voIdString = voIdTextBox.getText();
+    String rtQueue = rtQueueTextBox.getText();
+    int voId = -1;
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.settingToolsIcon();
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 1163;
-		int result = 4304;
-		result = prime * result;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+    if (!voIdString.isEmpty()) {
+      try {
+        voId = Integer.parseInt(voIdString);
+      } catch (NumberFormatException e) {
+        Window.alert("Incorrect VO id format");
+        return;
+      }
+    }
 
 
-		return true;
-	}
+    SendMessageToRt query = new SendMessageToRt();
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    if (voId == -1) {
+      query.sendMessage(rtQueue, subject, message);
+    } else {
+      query.sendMessage(rtQueue, subject, message, voId);
+    }
 
-	public void open()
-	{
 
-	}
+  }
 
-	public boolean isAuthorized() {
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return session.isPerunAdmin();
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.settingToolsIcon();
+  }
 
-	public final static String URL = "rt";
+  @Override
+  public int hashCode() {
+    final int prime = 1163;
+    int result = 4304;
+    result = prime * result;
+    return result;
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	public String getUrlWithParameters()
-	{
-		return TestTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
 
-	static public TestRtReportingTabItem load(Map<String, String> parameters)
-	{
-		return new TestRtReportingTabItem();
-	}
+    return true;
+  }
+
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
+
+  public void open() {
+
+  }
+
+  public boolean isAuthorized() {
+
+    return session.isPerunAdmin();
+
+  }
+
+  public String getUrl() {
+    return URL;
+  }
+
+  public String getUrlWithParameters() {
+    return TestTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

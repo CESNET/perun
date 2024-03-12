@@ -5,54 +5,60 @@ import java.util.Objects;
 
 /**
  * Host with list of all its attributes
+ *
  * @author Metodej Klang <metodej.klang@gmail.com>
  */
 public class EnrichedHost {
 
-	private Host host;
-	private List<Attribute> hostAttributes;
+  private Host host;
+  private List<Attribute> hostAttributes;
 
-	public EnrichedHost(){
-	}
+  public EnrichedHost() {
+  }
 
-	public EnrichedHost(Host host, List<Attribute> hostAttributes) {
-		this.host = host;
-		this.hostAttributes = hostAttributes;
-	}
+  public EnrichedHost(Host host, List<Attribute> hostAttributes) {
+    this.host = host;
+    this.hostAttributes = hostAttributes;
+  }
 
-	public Host getHost() {
-		return host;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnrichedHost that = (EnrichedHost) o;
+    return Objects.equals(host, that.getHost());
+  }
 
-	public List<Attribute> getHostAttributes() {
-		return hostAttributes;
-	}
+  public Host getHost() {
+    return host;
+  }
 
-	public void setHost(Host host) {
-		this.host = host;
-	}
+  public void setHost(Host host) {
+    this.host = host;
+  }
 
-	public void setHostAttributes(List<Attribute> hostAttributes) {
-		this.hostAttributes = hostAttributes;
-	}
+  public List<Attribute> getHostAttributes() {
+    return hostAttributes;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
+  public void setHostAttributes(List<Attribute> hostAttributes) {
+    this.hostAttributes = hostAttributes;
+  }
 
-		return str.append("EnrichedHost:[host='").append(host.toString()).append("', hostAttributes='").append(hostAttributes).append("']").toString();
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(host);
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		EnrichedHost that = (EnrichedHost) o;
-		return Objects.equals(host, that.getHost());
-	}
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(host);
-	}
+    return str.append("EnrichedHost:[host='").append(host.toString()).append("', hostAttributes='")
+        .append(hostAttributes).append("']").toString();
+  }
 }

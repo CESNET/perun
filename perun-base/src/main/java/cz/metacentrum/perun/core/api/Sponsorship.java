@@ -3,74 +3,75 @@ package cz.metacentrum.perun.core.api;
 import java.time.LocalDate;
 
 /**
- * Class representing relationship between a sponsor (User id)
- * and sponsored member (Member id).
+ * Class representing relationship between a sponsor (User id) and sponsored member (Member id).
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public class Sponsorship {
-	int sponsoredId;
-	int sponsorId;
-	LocalDate validityTo;
-	boolean active;
+  int sponsoredId;
+  int sponsorId;
+  LocalDate validityTo;
+  boolean active;
 
-	public int getSponsoredId() {
-		return sponsoredId;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-	public void setSponsoredId(int sponsoredId) {
-		this.sponsoredId = sponsoredId;
-	}
+    Sponsorship that = (Sponsorship) o;
 
-	public int getSponsorId() {
-		return sponsorId;
-	}
+    if (getSponsoredId() != that.getSponsoredId()) {
+      return false;
+    }
+    return getSponsorId() == that.getSponsorId();
+  }
 
-	public void setSponsorId(int sponsorId) {
-		this.sponsorId = sponsorId;
-	}
+  public int getSponsorId() {
+    return sponsorId;
+  }
 
-	public LocalDate getValidityTo() {
-		return validityTo;
-	}
+  public void setSponsorId(int sponsorId) {
+    this.sponsorId = sponsorId;
+  }
 
-	public void setValidityTo(LocalDate validityTo) {
-		this.validityTo = validityTo;
-	}
+  public int getSponsoredId() {
+    return sponsoredId;
+  }
 
-	public boolean isActive() {
-		return active;
-	}
+  public void setSponsoredId(int sponsoredId) {
+    this.sponsoredId = sponsoredId;
+  }
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+  public LocalDate getValidityTo() {
+    return validityTo;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+  public void setValidityTo(LocalDate validityTo) {
+    this.validityTo = validityTo;
+  }
 
-		Sponsorship that = (Sponsorship) o;
+  @Override
+  public int hashCode() {
+    int result = (int) (getSponsoredId() ^ (getSponsoredId() >>> 32));
+    result = 31 * result + (int) (getSponsorId() ^ (getSponsorId() >>> 32));
+    return result;
+  }
 
-		if (getSponsoredId() != that.getSponsoredId()) return false;
-		return getSponsorId() == that.getSponsorId();
-	}
+  public boolean isActive() {
+    return active;
+  }
 
-	@Override
-	public int hashCode() {
-		int result = (int) (getSponsoredId() ^ (getSponsoredId() >>> 32));
-		result = 31 * result + (int) (getSponsorId() ^ (getSponsorId() >>> 32));
-		return result;
-	}
+  public void setActive(boolean active) {
+    this.active = active;
+  }
 
-	@Override
-	public String toString() {
-		return "Sponsorship[" +
-				"sponsoredId=" + sponsoredId +
-				", sponsorId=" + sponsorId +
-				", validityTo=" + validityTo +
-				", active=" + active +
-				']';
-	}
+  @Override
+  public String toString() {
+    return "Sponsorship[" + "sponsoredId=" + sponsoredId + ", sponsorId=" + sponsorId + ", validityTo=" + validityTo +
+           ", active=" + active + ']';
+  }
 }

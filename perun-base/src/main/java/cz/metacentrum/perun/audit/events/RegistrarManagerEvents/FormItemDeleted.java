@@ -6,30 +6,31 @@ import cz.metacentrum.perun.registrar.model.ApplicationForm;
 
 public class FormItemDeleted extends AuditEvent implements EngineIgnoreEvent {
 
-	private ApplicationForm form;
-	private String message;
+  private ApplicationForm form;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public FormItemDeleted() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public FormItemDeleted() {
+  }
 
-	public FormItemDeleted(ApplicationForm form) {
-		this.form = form;
-		this.message = formatMessage("Application form item ID=%d voID=%d %s has been deleted", form.getId(),
-				form.getVo().getId(), ((form.getGroup() != null) ? " groupID=" + form.getGroup().getId() : ""));
-	}
+  public FormItemDeleted(ApplicationForm form) {
+    this.form = form;
+    this.message =
+        formatMessage("Application form item ID=%d voID=%d %s has been deleted", form.getId(), form.getVo().getId(),
+            ((form.getGroup() != null) ? " groupID=" + form.getGroup().getId() : ""));
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public ApplicationForm getForm() {
+    return form;
+  }
 
-	public ApplicationForm getForm() {
-		return form;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

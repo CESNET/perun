@@ -11,48 +11,48 @@ import com.google.gwt.i18n.client.Constants;
  */
 public interface PerunWebConstants extends Constants {
 
-	public static final PerunWebConstants INSTANCE =  GWT.create(PerunWebConstants.class);
+  public static final PerunWebConstants INSTANCE = GWT.create(PerunWebConstants.class);
 
-	/**
-	 * Return RPC URL modified for per-developer devel instances
-	 *
-	 * @return
-	 */
-	String perunRpcUrlModifier();
+  /**
+   * Return RPC URL modified for per-developer devel instances
+   *
+   * @return
+   */
+  String perunRpcUrlModifier();
 
-	/**
-	 * Default interval for refreshing window with pending requests
-	 *
-	 * @return time in milliseconds
-	 */
-	int pendingRequestsRefreshInterval();
+  /**
+   * Default interval for refreshing window with pending requests
+   *
+   * @return time in milliseconds
+   */
+  int pendingRequestsRefreshInterval();
 
-	/**
-	 * Link in the footer of GUI
-	 *
-	 * @return
-	 */
-	String footerPerunLink();
+  /**
+   * Link in the footer of GUI
+   *
+   * @return
+   */
+  String footerPerunLink();
 
-	/**
-	 * License text in footer
-	 *
-	 * @return
-	 */
-	String footerPerunLicense();
+  /**
+   * License text in footer
+   *
+   * @return
+   */
+  String footerPerunLicense();
 
-	/**
-	 * Copyright text in footer
-	 *
-	 * @return
-	 */
-	String footerPerunCopyright();
+  /**
+   * Copyright text in footer
+   *
+   * @return
+   */
+  String footerPerunCopyright();
 
-	/**
-	 * Copyright text in footer
-	 *
-	 * @return
-	 */
-	String guiVersion();
+  /**
+   * Copyright text in footer
+   *
+   * @return
+   */
+  String guiVersion();
 
 }

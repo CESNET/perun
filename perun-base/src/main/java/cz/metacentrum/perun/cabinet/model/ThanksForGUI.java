@@ -9,45 +9,46 @@ import java.util.Date;
  */
 public class ThanksForGUI extends Thanks {
 
-	private String ownerName;
+  private String ownerName;
 
-	public ThanksForGUI() {
-		super();
-	}
+  public ThanksForGUI() {
+    super();
+  }
 
-	public ThanksForGUI(int id, int publicationId, int ownerId,
-			String createdBy, Date createdDate) {
-		super(id, publicationId, ownerId, createdBy, createdDate);
-	}
+  public ThanksForGUI(int id, int publicationId, int ownerId, String createdBy, Date createdDate) {
+    super(id, publicationId, ownerId, createdBy, createdDate);
+  }
 
-	public ThanksForGUI(int id, int publicationId, int ownerId,
-			String createdBy, Date createdDate, int createByUid) {
-		super(id, publicationId, ownerId, createdBy, createdDate);
-		setCreatedByUid(createByUid);
-	}
+  public ThanksForGUI(int id, int publicationId, int ownerId, String createdBy, Date createdDate, int createByUid) {
+    super(id, publicationId, ownerId, createdBy, createdDate);
+    setCreatedByUid(createByUid);
+  }
 
-	public ThanksForGUI(Thanks thanks) {
-		setId(thanks.getId());
-		setPublicationId(thanks.getPublicationId());
-		setCreatedBy(thanks.getCreatedBy());
-		setCreatedDate(thanks.getCreatedDate());
-		setOwnerId(thanks.getOwnerId());
-		setCreatedByUid(thanks.getCreatedByUid());
-	}
+  public ThanksForGUI(Thanks thanks) {
+    setId(thanks.getId());
+    setPublicationId(thanks.getPublicationId());
+    setCreatedBy(thanks.getCreatedBy());
+    setCreatedDate(thanks.getCreatedDate());
+    setOwnerId(thanks.getOwnerId());
+    setCreatedByUid(thanks.getCreatedByUid());
+  }
 
-	public String getOwnerName() {
-		return ownerName;
-	}
+  public String getOwnerName() {
+    return ownerName;
+  }
 
-	public void setOwnerName(String owner) {
-		this.ownerName = owner;
-	}
+  public void setOwnerName(String owner) {
+    this.ownerName = owner;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
 
-		return str.append(getClass().getSimpleName()).append(":[id=").append(this.getId()).append(", pubId=").append(this.getPublicationId()).append(", ownerId=").append(this.getOwnerId()).append(", ownerName=").append(ownerName).append(", createdBy=").append(this.getCreatedBy()).append(", createdByUid=").append(this.getCreatedByUid()).append(", createdDate=").append(this.getCreatedDate()).append("]").toString();
-	}
+    return str.append(getClass().getSimpleName()).append(":[id=").append(this.getId()).append(", pubId=")
+        .append(this.getPublicationId()).append(", ownerId=").append(this.getOwnerId()).append(", ownerName=")
+        .append(ownerName).append(", createdBy=").append(this.getCreatedBy()).append(", createdByUid=")
+        .append(this.getCreatedByUid()).append(", createdDate=").append(this.getCreatedDate()).append("]").toString();
+  }
 
 }

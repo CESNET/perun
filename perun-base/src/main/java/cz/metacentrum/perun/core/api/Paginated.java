@@ -9,69 +9,79 @@ import java.util.List;
  */
 public class Paginated<T> {
 
-	private List<T> data;
-	private int offset;
-	private int pageSize;
-	private int totalCount;
+  private List<T> data;
+  private int offset;
+  private int pageSize;
+  private int totalCount;
 
-	public Paginated(List<T> data, int offset, int pageSize, int totalCount) {
-		this.data = data;
-		this.offset = offset;
-		this.pageSize = pageSize;
-		this.totalCount = totalCount;
-	}
+  public Paginated(List<T> data, int offset, int pageSize, int totalCount) {
+    this.data = data;
+    this.offset = offset;
+    this.pageSize = pageSize;
+    this.totalCount = totalCount;
+  }
 
-	public List<T> getData() {
-		return data;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Paginated)) {
+      return false;
+    }
 
-	public void setData(List<T> data) {
-		this.data = data;
-	}
+    Paginated<?> paginated = (Paginated<?>) o;
 
-	public int getOffset() {
-		return offset;
-	}
+    if (getOffset() != paginated.getOffset()) {
+      return false;
+    }
+    if (getPageSize() != paginated.getPageSize()) {
+      return false;
+    }
+    if (getTotalCount() != paginated.getTotalCount()) {
+      return false;
+    }
+    return getData() != null ? getData().equals(paginated.getData()) : paginated.getData() == null;
+  }
 
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
+  public List<T> getData() {
+    return data;
+  }
 
-	public int getPageSize() {
-		return pageSize;
-	}
+  public void setData(List<T> data) {
+    this.data = data;
+  }
 
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
+  public int getOffset() {
+    return offset;
+  }
 
-	public int getTotalCount() {
-		return totalCount;
-	}
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
 
-	public void setTotalCount(int totalCount) {
-		this.totalCount = totalCount;
-	}
+  public int getPageSize() {
+    return pageSize;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Paginated)) return false;
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
+  }
 
-		Paginated<?> paginated = (Paginated<?>) o;
+  public int getTotalCount() {
+    return totalCount;
+  }
 
-		if (getOffset() != paginated.getOffset()) return false;
-		if (getPageSize() != paginated.getPageSize()) return false;
-		if (getTotalCount() != paginated.getTotalCount()) return false;
-		return getData() != null ? getData().equals(paginated.getData()) : paginated.getData() == null;
-	}
+  public void setTotalCount(int totalCount) {
+    this.totalCount = totalCount;
+  }
 
-	@Override
-	public int hashCode() {
-		int result = getData() != null ? getData().hashCode() : 0;
-		result = 31 * result + getOffset();
-		result = 31 * result + getPageSize();
-		result = 31 * result + getTotalCount();
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    int result = getData() != null ? getData().hashCode() : 0;
+    result = 31 * result + getOffset();
+    result = 31 * result + getPageSize();
+    result = 31 * result + getTotalCount();
+    return result;
+  }
 }

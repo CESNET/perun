@@ -9,43 +9,48 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Module for project directory permissions.
- * Standard unix file system permissions in numeric format.
+ * Module for project directory permissions. Standard unix file system permissions in numeric format.
  *
  * @author Michal Stava <stavamichal@gmail.com>
  * @date 25.2.2014
  */
-public class urn_perun_group_resource_attribute_def_def_projectDirPermissions extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_projectDirPermissions
+    extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^[01234567]{3}$");
+  private static final Pattern pattern = Pattern.compile("^[01234567]{3}$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		Integer permissions = attribute.valueAsInteger();
-		//Permissions can be null (if null, it means DEFAULT 750)
-		if (permissions == null) return;
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    Integer permissions = attribute.valueAsInteger();
+    //Permissions can be null (if null, it means DEFAULT 750)
+    if (permissions == null) {
+      return;
+    }
 
-		//Only 3 consecutive numbers with value >=0 and <=7 are allowed
-		Matcher match = pattern.matcher(permissions.toString());
+    //Only 3 consecutive numbers with value >=0 and <=7 are allowed
+    Matcher match = pattern.matcher(permissions.toString());
 
-		if (!match.matches()) {
-			throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectDirPermissions (expected something like '750').");
-		}
-	}
+    if (!match.matches()) {
+      throw new WrongAttributeValueException(attribute, group, resource,
+          "Bad format of attribute projectDirPermissions (expected something like '750').");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("projectDirPermissions");
-		attr.setDisplayName("Project directory permission");
-		attr.setType(Integer.class.getName());
-		attr.setDescription("Permissions (ACL) to directory, where the project exists. Standard unix file system permissions in numeric format.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("projectDirPermissions");
+    attr.setDisplayName("Project directory permission");
+    attr.setType(Integer.class.getName());
+    attr.setDescription(
+        "Permissions (ACL) to directory, where the project exists. Standard unix file system permissions in numeric " +
+        "format.");
+    return attr;
+  }
 }

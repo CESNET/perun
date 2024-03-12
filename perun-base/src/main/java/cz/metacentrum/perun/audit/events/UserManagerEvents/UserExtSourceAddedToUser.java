@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 
 public class UserExtSourceAddedToUser extends AuditEvent {
 
-	private UserExtSource userExtSource;
-	private User user;
-	private String message;
+  private UserExtSource userExtSource;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public UserExtSourceAddedToUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public UserExtSourceAddedToUser() {
+  }
 
-	public UserExtSourceAddedToUser(UserExtSource userExtSource, User user) {
-		this.user = user;
-		this.userExtSource = userExtSource;
-		this.message = formatMessage("%s added to %s.", userExtSource, user);
-	}
+  public UserExtSourceAddedToUser(UserExtSource userExtSource, User user) {
+    this.user = user;
+    this.userExtSource = userExtSource;
+    this.message = formatMessage("%s added to %s.", userExtSource, user);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public UserExtSource getUserExtSource() {
-		return userExtSource;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public UserExtSource getUserExtSource() {
+    return userExtSource;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

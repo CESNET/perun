@@ -14,23 +14,27 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_resource_attribute_def_def_k4GroupPriority extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_k4GroupPriority extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
 
-		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException("Priority of Group in K4 can't be empty.");
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException("Priority of Group in K4 can't be empty.");
+    }
 
-	}
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("k4GroupPriority");
-		attr.setDisplayName("K4 Group Priority");
-		attr.setType(String.class.getName());
-		attr.setDescription("Priority of Group in K4.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("k4GroupPriority");
+    attr.setDisplayName("K4 Group Priority");
+    attr.setType(String.class.getName());
+    attr.setDescription("Priority of Group in K4.");
+    return attr;
+  }
 }

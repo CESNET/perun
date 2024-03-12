@@ -1,10 +1,22 @@
 package cz.metacentrum.perun.webgui.tabs.userstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
@@ -22,386 +34,407 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 
 /**
  * Tab for setting new login for user in selected namespace
- *
+ * <p>
  * USE ONLY AS INNER TAB !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AddLoginTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-	private Label titleWidget = new Label("Loading user");
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  private Label titleWidget = new Label("Loading user");
 
-	private int userId;
-	private User user;
-	private ArrayList<Attribute> usersLogins; // must be null by default
+  private int userId;
+  private User user;
+  private ArrayList<Attribute> usersLogins; // must be null by default
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param list list of "login" type attributes which user already has
-	 */
-	public AddLoginTabItem(ArrayList<Attribute> list){
-		this.user = session.getActiveUser();
-		this.userId = session.getActiveUser().getId();
-		if (list != null) {
-			this.usersLogins = list;
-		} else {
-			GetLogins request = new GetLogins(userId, new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					usersLogins = JsonUtils.jsoAsList(jso);
-				}
-			});
-			request.retrieveData();
-		}
+  /**
+   * Creates a tab instance
+   *
+   * @param list list of "login" type attributes which user already has
+   */
+  public AddLoginTabItem(ArrayList<Attribute> list) {
+    this.user = session.getActiveUser();
+    this.userId = session.getActiveUser().getId();
+    if (list != null) {
+      this.usersLogins = list;
+    } else {
+      GetLogins request = new GetLogins(userId, new JsonCallbackEvents() {
+        @Override
+        public void onFinished(JavaScriptObject jso) {
+          usersLogins = JsonUtils.jsoAsList(jso);
+        }
+      });
+      request.retrieveData();
+    }
 
-	}
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param list list of "login" type attributes which user already has
-	 */
-	public AddLoginTabItem(User user, ArrayList<Attribute> list){
-		this.user = user;
-		this.userId = user.getId();
-		if (list != null) {
-			this.usersLogins = list;
-		} else {
-			GetLogins request = new GetLogins(userId, new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					usersLogins = JsonUtils.jsoAsList(jso);
-				}
-			});
-			request.retrieveData();
-		}
+  /**
+   * Creates a tab instance
+   *
+   * @param list list of "login" type attributes which user already has
+   */
+  public AddLoginTabItem(User user, ArrayList<Attribute> list) {
+    this.user = user;
+    this.userId = user.getId();
+    if (list != null) {
+      this.usersLogins = list;
+    } else {
+      GetLogins request = new GetLogins(userId, new JsonCallbackEvents() {
+        @Override
+        public void onFinished(JavaScriptObject jso) {
+          usersLogins = JsonUtils.jsoAsList(jso);
+        }
+      });
+      request.retrieveData();
+    }
 
-	}
+  }
 
-	public boolean isPrepared(){
-		return (user != null && usersLogins != null);
-	}
+  public boolean isPrepared() {
+    return (user != null && usersLogins != null);
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public void onClose() {
 
-	}
+  }
 
-	public Widget draw() {
+  public Widget draw() {
 
-		titleWidget.setText("Add login");
+    titleWidget.setText("Add login");
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		final ExtendedTextBox userLogin = new ExtendedTextBox();
-		final ListBox namespace = new ListBox();
-		final CustomButton createLogin = TabMenu.getPredefinedButton(ButtonType.ADD, "Add login in selected namespace");
-		final Label notice = new Label("Your login will be automatically generated.");
-		notice.setVisible(false);
+    final ExtendedTextBox userLogin = new ExtendedTextBox();
+    final ListBox namespace = new ListBox();
+    final CustomButton createLogin = TabMenu.getPredefinedButton(ButtonType.ADD, "Add login in selected namespace");
+    final Label notice = new Label("Your login will be automatically generated.");
+    notice.setVisible(false);
 
-		// offer only available namespaces.
-		ArrayList<String> logins = new ArrayList<String>();
-		for (Attribute a : usersLogins) {
-			logins.add(a.getFriendlyNameParameter());
-		}
-		for (String s : Utils.getSupportedPasswordNamespaces()) {
-			if (!logins.contains(s)) {
-				namespace.addItem(s.toUpperCase(), s);
-			}
-		}
+    // offer only available namespaces.
+    ArrayList<String> logins = new ArrayList<String>();
+    for (Attribute a : usersLogins) {
+      logins.add(a.getFriendlyNameParameter());
+    }
+    for (String s : Utils.getSupportedPasswordNamespaces()) {
+      if (!logins.contains(s)) {
+        namespace.addItem(s.toUpperCase(), s);
+      }
+    }
 
-		final ExtendedTextBox.TextBoxValidator loginValidator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-				if (userLogin.getTextBox().getValue().trim().isEmpty()) {
-					userLogin.setError("Login can't be empty!");
-					return false;
-				}
-				RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
-				boolean match = regExp.test(userLogin.getTextBox().getValue().trim());
-				if (!match) {
-					userLogin.setError("Invalid format!");
-					return false;
-				}
-				if (userLogin.isProcessing() || userLogin.isHardError()) {
-					return false;
-				}
-				userLogin.setOk();
-				return true;
-			}
-		};
-		userLogin.setValidator(loginValidator);
+    final ExtendedTextBox.TextBoxValidator loginValidator = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+        if (userLogin.getTextBox().getValue().trim().isEmpty()) {
+          userLogin.setError("Login can't be empty!");
+          return false;
+        }
+        RegExp regExp = RegExp.compile(Utils.LOGIN_VALUE_MATCHER);
+        boolean match = regExp.test(userLogin.getTextBox().getValue().trim());
+        if (!match) {
+          userLogin.setError("Invalid format!");
+          return false;
+        }
+        if (userLogin.isProcessing() || userLogin.isHardError()) {
+          return false;
+        }
+        userLogin.setOk();
+        return true;
+      }
+    };
+    userLogin.setValidator(loginValidator);
 
-		final FlexTable layout = new FlexTable();
-		layout.addStyleName("inputFormFlexTable");
+    final FlexTable layout = new FlexTable();
+    layout.addStyleName("inputFormFlexTable");
 
-		layout.setHTML(0, 0, "Namespace:");
-		layout.setHTML(1, 0, "Login:");
+    layout.setHTML(0, 0, "Namespace:");
+    layout.setHTML(1, 0, "Login:");
 
-		for (int i=0; i<layout.getRowCount(); i++) {
-			layout.getFlexCellFormatter().addStyleName(i, 0, "itemName");
-		}
+    for (int i = 0; i < layout.getRowCount(); i++) {
+      layout.getFlexCellFormatter().addStyleName(i, 0, "itemName");
+    }
 
-		layout.setWidget(0, 1, namespace);
-		layout.setWidget(1, 1, userLogin);
+    layout.setWidget(0, 1, namespace);
+    layout.setWidget(1, 1, userLogin);
 
-		layout.getFlexCellFormatter().setColSpan(2, 0, 2);
-		layout.setWidget(2, 0, notice);
-		layout.getFlexCellFormatter().addStyleName(2, 0, "inputFormInlineComment");
+    layout.getFlexCellFormatter().setColSpan(2, 0, 2);
+    layout.setWidget(2, 0, notice);
+    layout.getFlexCellFormatter().addStyleName(2, 0, "inputFormInlineComment");
 
-		HTML help = new HTML("Login must<ul><li>start with lower-cased letter<li>be 2-15 characters long<li>consist only of<ul><li>lower-cased non-accented letters<li>digits<li>hyphens and underscores</ul></ul>");
-		help.setVisible(false);
-		layout.getFlexCellFormatter().setColSpan(3, 0, 2);
-		layout.setWidget(3, 0, help);
-		layout.getFlexCellFormatter().addStyleName(3, 0, "inputFormInlineComment");
+    HTML help = new HTML(
+        "Login must<ul><li>start with lower-cased letter<li>be 2-15 characters long<li>consist only of<ul><li>lower-cased non-accented letters<li>digits<li>hyphens and underscores</ul></ul>");
+    help.setVisible(false);
+    layout.getFlexCellFormatter().setColSpan(3, 0, 2);
+    layout.setWidget(3, 0, help);
+    layout.getFlexCellFormatter().addStyleName(3, 0, "inputFormInlineComment");
 
-		TabMenu menu = new TabMenu();
-		menu.addWidget(createLogin);
+    TabMenu menu = new TabMenu();
+    menu.addWidget(createLogin);
 
-		final TabItem tab = this;
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    final TabItem tab = this;
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		// user can't add new login
-		if (namespace.getItemCount() == 0) {
-			vp.add(new HTML("<p><strong>You already have login in all supported namespaces!</strong></p>"));
-			createLogin.setEnabled(false);
-		} else {
-			// user can add new login
-			vp.add(layout);
+    // user can't add new login
+    if (namespace.getItemCount() == 0) {
+      vp.add(new HTML("<p><strong>You already have login in all supported namespaces!</strong></p>"));
+      createLogin.setEnabled(false);
+    } else {
+      // user can add new login
+      vp.add(layout);
 
-			// check login availability
-			userLogin.getTextBox().addKeyUpHandler(new KeyUpHandler() {
-				@Override
-				public void onKeyUp(KeyUpEvent keyUpEvent) {
-					if (keyUpEvent.isDownArrow() || keyUpEvent.isUpArrow() || keyUpEvent.isLeftArrow() || keyUpEvent.isRightArrow()) {
-						// do not trigger when no text input
-						return;
-					}
-					final String value = userLogin.getTextBox().getValue().trim();
-					// trigger new validation on checked input or if previously was hard error
-					if ((!value.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(value)) || userLogin.isHardError()) {
-						new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), new JsonCallbackEvents(){
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								if (value.equals(userLogin.getTextBox().getValue().trim())) {
-									BasicOverlayType bo = jso.cast();
-									userLogin.setProcessing(false);
-									if (!bo.getBoolean()) {
-										userLogin.setHardError("Login is already in use!");
-									} else {
-										userLogin.removeHardError();
-										loginValidator.validateTextBox();
-									}
-								}
-							}
-						@Override
-						public void onLoadingStart(){
-							if (value.equals(userLogin.getTextBox().getValue().trim())) {
-								userLogin.removeHardError();
-								userLogin.setProcessing(true);
-							}
-						}
-						@Override
-						public void onError(PerunError error) {
-							if (value.equals(userLogin.getTextBox().getValue().trim())) {
-								if ("InvalidLoginException".equalsIgnoreCase(error.getName())) {
-									userLogin.setProcessing(false);
-									String text = error.getErrorInfo();
-									text = text.split(":", 2)[1];
-									text = (text == null || text.isEmpty()) ? error.getErrorInfo() : text;
-									userLogin.setHardError(text);
-								} else {
-									// generic error
-									userLogin.setProcessing(false);
-									userLogin.setHardError("Unable to check if login is available!");
-								}
-							}
-						}
-						}).retrieveData();
-					}
-				}
-			});
+      // check login availability
+      userLogin.getTextBox().addKeyUpHandler(new KeyUpHandler() {
+        @Override
+        public void onKeyUp(KeyUpEvent keyUpEvent) {
+          if (keyUpEvent.isDownArrow() || keyUpEvent.isUpArrow() || keyUpEvent.isLeftArrow() ||
+              keyUpEvent.isRightArrow()) {
+            // do not trigger when no text input
+            return;
+          }
+          final String value = userLogin.getTextBox().getValue().trim();
+          // trigger new validation on checked input or if previously was hard error
+          if ((!value.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(value)) || userLogin.isHardError()) {
+            new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()),
+                userLogin.getTextBox().getValue().trim(), new JsonCallbackEvents() {
+              @Override
+              public void onFinished(JavaScriptObject jso) {
+                if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                  BasicOverlayType bo = jso.cast();
+                  userLogin.setProcessing(false);
+                  if (!bo.getBoolean()) {
+                    userLogin.setHardError("Login is already in use!");
+                  } else {
+                    userLogin.removeHardError();
+                    loginValidator.validateTextBox();
+                  }
+                }
+              }
 
-			namespace.addChangeHandler(new ChangeHandler() {
-				public void onChange(ChangeEvent changeEvent) {
+              @Override
+              public void onLoadingStart() {
+                if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                  userLogin.removeHardError();
+                  userLogin.setProcessing(true);
+                }
+              }
 
-					if (namespace.getSelectedValue().equals("einfra")) {
-						help.setVisible(true);
-					} else {
-						help.setVisible(false);
-					}
+              @Override
+              public void onError(PerunError error) {
+                if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                  if ("InvalidLoginException".equalsIgnoreCase(error.getName())) {
+                    userLogin.setProcessing(false);
+                    String text = error.getErrorInfo();
+                    text = text.split(":", 2)[1];
+                    text = (text == null || text.isEmpty()) ? error.getErrorInfo() : text;
+                    userLogin.setHardError(text);
+                  } else {
+                    // generic error
+                    userLogin.setProcessing(false);
+                    userLogin.setHardError("Unable to check if login is available!");
+                  }
+                }
+              }
+            }).retrieveData();
+          }
+        }
+      });
 
-					if (namespace.getSelectedValue().equals("mu")) {
+      namespace.addChangeHandler(new ChangeHandler() {
+        public void onChange(ChangeEvent changeEvent) {
 
-						userLogin.getTextBox().setValue("");
-						userLogin.removeHardError();
-						userLogin.setOk();
-						userLogin.getTextBox().setEnabled(false);
-						notice.setVisible(true);
+          if (namespace.getSelectedValue().equals("einfra")) {
+            help.setVisible(true);
+          } else {
+            help.setVisible(false);
+          }
 
-					} else {
+          if (namespace.getSelectedValue().equals("mu")) {
 
-						userLogin.getTextBox().setEnabled(true);
-						notice.setVisible(false);
+            userLogin.getTextBox().setValue("");
+            userLogin.removeHardError();
+            userLogin.setOk();
+            userLogin.getTextBox().setEnabled(false);
+            notice.setVisible(true);
 
-						final String value = userLogin.getTextBox().getValue().trim();
-						// trigger new validation on checked input or if previously was hard error
-						if ((!value.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(value)) || userLogin.isHardError()) {
-							new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), new JsonCallbackEvents() {
-								@Override
-								public void onFinished(JavaScriptObject jso) {
-									if (value.equals(userLogin.getTextBox().getValue().trim())) {
-										BasicOverlayType bo = jso.cast();
-										userLogin.setProcessing(false);
-										if (!bo.getBoolean()) {
-											userLogin.setError("Login is already in use!");
-										} else {
-											userLogin.removeHardError();
-											loginValidator.validateTextBox();
-										}
-									}
-								}
-								@Override
-								public void onLoadingStart() {
-									if (value.equals(userLogin.getTextBox().getValue().trim())) {
-										userLogin.removeHardError();
-										userLogin.setProcessing(true);
-									}
-								}
-								@Override
-								public void onError(PerunError error) {
-									if (value.equals(userLogin.getTextBox().getValue().trim())) {
-										userLogin.setProcessing(false);
-										userLogin.setHardError("Error while loading.");
-									}
-								}
-							}).retrieveData();
-						}
+          } else {
 
-					}
-				}
-			});
+            userLogin.getTextBox().setEnabled(true);
+            notice.setVisible(false);
 
-			createLogin.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
+            final String value = userLogin.getTextBox().getValue().trim();
+            // trigger new validation on checked input or if previously was hard error
+            if ((!value.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(value)) ||
+                userLogin.isHardError()) {
+              new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()),
+                  userLogin.getTextBox().getValue().trim(), new JsonCallbackEvents() {
+                @Override
+                public void onFinished(JavaScriptObject jso) {
+                  if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                    BasicOverlayType bo = jso.cast();
+                    userLogin.setProcessing(false);
+                    if (!bo.getBoolean()) {
+                      userLogin.setError("Login is already in use!");
+                    } else {
+                      userLogin.removeHardError();
+                      loginValidator.validateTextBox();
+                    }
+                  }
+                }
 
-					if (namespace.getSelectedValue().equals("mu")) {
+                @Override
+                public void onLoadingStart() {
+                  if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                    userLogin.removeHardError();
+                    userLogin.setProcessing(true);
+                  }
+                }
 
-						session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), SelfPasswordTabItem.Actions.CREATE));
+                @Override
+                public void onError(PerunError error) {
+                  if (value.equals(userLogin.getTextBox().getValue().trim())) {
+                    userLogin.setProcessing(false);
+                    userLogin.setHardError("Error while loading.");
+                  }
+                }
+              }).retrieveData();
+            }
 
-					} else {
+          }
+        }
+      });
 
-						if (!loginValidator.validateTextBox()) return;
+      createLogin.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
 
-						SetLogin request = new SetLogin(JsonCallbackEvents.disableButtonEvents(createLogin, new JsonCallbackEvents() {
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), SelfPasswordTabItem.Actions.CREATE));
-							}
-						}));
-						request.setLogin(user, namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim());
-					}
+          if (namespace.getSelectedValue().equals("mu")) {
 
-				}
-			});
+            session.getTabManager().addTabToCurrentTab(
+                new SelfPasswordTabItem(user, namespace.getValue(namespace.getSelectedIndex()),
+                    userLogin.getTextBox().getValue().trim(), SelfPasswordTabItem.Actions.CREATE));
 
-		}
+          } else {
 
-		if (namespace.getSelectedValue().equals("mu")) {
+            if (!loginValidator.validateTextBox()) {
+              return;
+            }
 
-			userLogin.getTextBox().setValue("");
-			userLogin.removeHardError();
-			userLogin.setOk();
-			userLogin.getTextBox().setEnabled(false);
-			notice.setVisible(true);
+            SetLogin request =
+                new SetLogin(JsonCallbackEvents.disableButtonEvents(createLogin, new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    session.getTabManager().addTabToCurrentTab(
+                        new SelfPasswordTabItem(user, namespace.getValue(namespace.getSelectedIndex()),
+                            userLogin.getTextBox().getValue().trim(), SelfPasswordTabItem.Actions.CREATE));
+                  }
+                }));
+            request.setLogin(user, namespace.getValue(namespace.getSelectedIndex()),
+                userLogin.getTextBox().getValue().trim());
+          }
 
-		} else if (namespace.getSelectedValue().equals("einfra")) {
-			help.setVisible(true);
-		}
+        }
+      });
 
-		vp.add(menu);
-		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+    }
 
-		this.contentWidget.setWidget(vp);
-		return getWidget();
+    if (namespace.getSelectedValue().equals("mu")) {
 
-	}
+      userLogin.getTextBox().setValue("");
+      userLogin.removeHardError();
+      userLogin.setOk();
+      userLogin.getTextBox().setEnabled(false);
+      notice.setVisible(true);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    } else if (namespace.getSelectedValue().equals("einfra")) {
+      help.setVisible(true);
+    }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    vp.add(menu);
+    vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.keyIcon();
-	}
+    this.contentWidget.setWidget(vp);
+    return getWidget();
 
-	@Override
-	public int hashCode() {
-		final int prime = 1171;
-		int result = 432;
-		result = prime * result;
-		return result;
-	}
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		if (this.userId != ((AddLoginTabItem)obj).userId)
-			return false;
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return true;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.keyIcon();
+  }
 
-	public void open() {}
+  @Override
+  public int hashCode() {
+    final int prime = 1171;
+    int result = 432;
+    result = prime * result;
+    return result;
+  }
 
-	public boolean isAuthorized() {
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    if (this.userId != ((AddLoginTabItem) obj).userId) {
+      return false;
+    }
 
-		if (session.isSelf(userId)) {
-			return true;
-		} else {
-			return false;
-		}
+    return true;
+  }
 
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
+
+  public void open() {
+  }
+
+  public boolean isAuthorized() {
+
+    if (session.isSelf(userId)) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
 
 }

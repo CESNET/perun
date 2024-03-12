@@ -7,41 +7,41 @@ import cz.metacentrum.perun.core.api.User;
 
 public class RoleUnsetForUser extends AuditEvent implements EngineIgnoreEvent {
 
-	private PerunBean object;
-	private User user;
-	private String role;
-	private String message;
+  private PerunBean object;
+  private User user;
+  private String role;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public RoleUnsetForUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public RoleUnsetForUser() {
+  }
 
-	public RoleUnsetForUser(PerunBean object, User user, String role) {
-		this.object = object;
-		this.user = user;
-		this.role = role.toUpperCase();
-		this.message = formatMessage("Role %s was unset for %s on %s.", role.toUpperCase(), user, object);
-	}
+  public RoleUnsetForUser(PerunBean object, User user, String role) {
+    this.object = object;
+    this.user = user;
+    this.role = role.toUpperCase();
+    this.message = formatMessage("Role %s was unset for %s on %s.", role.toUpperCase(), user, object);
+  }
 
-	public PerunBean getObject() {
-		return object;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public PerunBean getObject() {
+    return object;
+  }
 
-	public String getRole() {
-		return role;
-	}
+  public String getRole() {
+    return role;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

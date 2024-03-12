@@ -33,247 +33,287 @@ import cz.metacentrum.perun.core.implApi.ResourceAssignmentActivatorApi;
  */
 public interface PerunBl extends Perun {
 
-	String INTERNALPRINCIPAL = "INTERNAL";
+  String INTERNALPRINCIPAL = "INTERNAL";
 
-	/**
-	 * Gets a (possibly cached) Perun session.
-	 * @throws InternalErrorException raised when session cannot be created.
-	 * @param actor identification of the actor, who will perform operations.
-	 * @return perun session
-	 */
-	PerunSession getPerunSession(PerunPrincipal actor, PerunClient client);
+  /**
+   * Gets a Attributes manager.
+   *
+   * @return Attributes manager
+   */
+  AttributesManager getAttributesManager();
 
-	/**
-	 * Gets a groups manager.
-	 * @return groups manager
-	 */
-	GroupsManager getGroupsManager();
+  /**
+   * Gets a Attributes manager buisness logic.
+   *
+   * @return Attributes manager
+   */
+  AttributesManagerBl getAttributesManagerBl();
 
-	/**
-	 * Gets a resource manager.
-	 * @return resource manager
-	 */
-	FacilitiesManager getFacilitiesManager();
+  /**
+   * Gets a AuditMessages manager.
+   *
+   * @return AuditMessages manager
+   */
+  AuditMessagesManager getAuditMessagesManager();
 
-	/**
-	 * Gets a database manager.
-	 * @return database manager
-	 */
-	DatabaseManager getDatabaseManager();
-	
-	/**
-	 * Gets a users manager.
-	 * @return users manager
-	 */
-	UsersManager getUsersManager();
+  /**
+   * Gets a AuditMessages manager business logic.
+   *
+   * @return groups manager
+   */
+  AuditMessagesManagerBl getAuditMessagesManagerBl();
 
-	/**
-	 * Gets a members manager.
-	 * @return members manager
-	 */
-	MembersManager getMembersManager();
+  /**
+   * Gets a ConfigManager
+   *
+   * @return ConfigManager
+   */
+  ConfigManager getConfigManager();
 
-	/**
-	 * Gets a VOs manager.
-	 * @return VOs manager
-	 */
-	VosManager getVosManager();
+  /**
+   * Gets a ConfigManagerBl
+   *
+   * @return ConfigManagerBl
+   */
+  ConfigManagerBl getConfigManagerBl();
 
-	/**
-	 * Gets a Resources manager.
-	 * @return Resources manager
-	 */
-	ResourcesManager getResourcesManager();
+  /**
+   * Gets a ConsentsManager
+   *
+   * @return ConsentsManager
+   */
+  ConsentsManager getConsentsManager();
 
-	/**
-	 * Gets a ExtSources manager.
-	 * @return ExtSources manager
-	 */
-	ExtSourcesManager getExtSourcesManager();
+  /**
+   * Gets a ConsentsManagerBl
+   *
+   * @return ConsentsManagerBl
+   */
+  ConsentsManagerBl getConsentsManagerBl();
 
-	/**
-	 * Gets a Attributes manager.
-	 * @return Attributes manager
-	 */
-	AttributesManager getAttributesManager();
+  /**
+   * Gets a database manager.
+   *
+   * @return database manager
+   */
+  DatabaseManager getDatabaseManager();
 
-	/**
-	 * Gets a Services manager.
-	 * @return Services manager
-	 */
-	ServicesManager getServicesManager();
+  /**
+   * Gets a database manager buisness logic.
+   *
+   * @return database manager
+   */
+  DatabaseManagerBl getDatabaseManagerBl();
 
-	/**
-	 * Gets a Owners manager.
-	 * @return Owners manager
-	 */
-	OwnersManager getOwnersManager();
+  /**
+   * Gets a ExtSources manager.
+   *
+   * @return ExtSources manager
+   */
+  ExtSourcesManager getExtSourcesManager();
 
-	/**
-	 * Gets a AuditMessages manager.
-	 * @return AuditMessages manager
-	 */
-	AuditMessagesManager getAuditMessagesManager();
+  /**
+   * Gets a ExtSources manager buisness logic.
+   *
+   * @return ExtSources manager
+   */
+  ExtSourcesManagerBl getExtSourcesManagerBl();
 
-	/**
-	 * Gets a Messages manager.
-	 * @return Messages manager
-	 */
-	RTMessagesManager getRTMessagesManager();
+  /**
+   * Gets a resource manager.
+   *
+   * @return resource manager
+   */
+  FacilitiesManager getFacilitiesManager();
 
-	/**
-	 * Gets a Security Teams manager.
-	 * @return Security Teams manager
-	 */
-	SecurityTeamsManager getSecurityTeamsManager();
+  /**
+   * Gets a resource manager buisness logic.
+   *
+   * @return resource manager
+   */
+  FacilitiesManagerBl getFacilitiesManagerBl();
 
-	/**
-	 * Gets a Searcher.
-	 * @return Searcher
-	 */
-	Searcher getSearcher();
+  /**
+   * Gets a groups manager.
+   *
+   * @return groups manager
+   */
+  GroupsManager getGroupsManager();
 
-	/**
-	 * Gets a TasksManager
-	 * @return TasksManager
-	 */
-	TasksManager getTasksManager();
+  /**
+   * Gets a groups manager buisness logic.
+   *
+   * @return groups manager
+   */
+  GroupsManagerBl getGroupsManagerBl();
 
-	/**
-	 * Gets a ConfigManager
-	 * @return ConfigManager
-	 */
-	ConfigManager getConfigManager();
+  /**
+   * Gets a members manager.
+   *
+   * @return members manager
+   */
+  MembersManager getMembersManager();
 
-	/**
-	 * Gets a ConsentsManager
-	 * @return ConsentsManager
-	 */
-	ConsentsManager getConsentsManager();
+  /**
+   * Gets a members manager buisness logic.
+   *
+   * @return members manager
+   */
+  MembersManagerBl getMembersManagerBl();
 
-	/**
-	 * Gets a ResourceAssignmentChecker
-	 * @return ResourceAssignmentChecker
-	 */
-	ResourceAssignmentChecker getResourceAssignmentChecker();
+  /**
+   * Gets a ModulesUtilsBl
+   *
+   * @return ModulesUtilsBl
+   */
+  ModulesUtilsBl getModulesUtilsBl();
 
-	/**
-	 * Gets a ResourceAssignmentActivatorApi
-	 * @return ResourceAssignmentActivatorApi
-	 */
-	ResourceAssignmentActivatorApi getResourceAssignmentActivator();
+  /**
+   * Gets a Owners manager.
+   *
+   * @return Owners manager
+   */
+  OwnersManager getOwnersManager();
 
-	/**
-	 * Gets a AuditMessages manager business logic.
-	 * @return groups manager
-	 */
-	AuditMessagesManagerBl getAuditMessagesManagerBl();
+  /**
+   * Gets a Owners manager buisness logic.
+   *
+   * @return Owners manager
+   */
+  OwnersManagerBl getOwnersManagerBl();
 
-	/**
-	 * Gets a groups manager buisness logic.
-	 * @return groups manager
-	 */
-	GroupsManagerBl getGroupsManagerBl();
+  /**
+   * Gets a (possibly cached) Perun session.
+   *
+   * @param actor identification of the actor, who will perform operations.
+   * @return perun session
+   * @throws InternalErrorException raised when session cannot be created.
+   */
+  PerunSession getPerunSession(PerunPrincipal actor, PerunClient client);
 
-	/**
-	 * Gets a resource manager buisness logic.
-	 * @return resource manager
-	 */
-	FacilitiesManagerBl getFacilitiesManagerBl();
+  /**
+   * Gets a Messages manager.
+   *
+   * @return Messages manager
+   */
+  RTMessagesManager getRTMessagesManager();
 
-	/**
-	 * Gets a database manager buisness logic.
-	 * @return database manager
-	 */
-	DatabaseManagerBl getDatabaseManagerBl();
-	
-	/**
-	 * Gets a users manager buisness logic.
-	 * @return users manager
-	 */
-	UsersManagerBl getUsersManagerBl();
+  /**
+   * Gets a Messages manager.
+   *
+   * @return Messages manager
+   */
+  RTMessagesManagerBl getRTMessagesManagerBl();
 
-	/**
-	 * Gets a members manager buisness logic.
-	 * @return members manager
-	 */
-	MembersManagerBl getMembersManagerBl();
+  /**
+   * Gets a ResourceAssignmentActivatorApi
+   *
+   * @return ResourceAssignmentActivatorApi
+   */
+  ResourceAssignmentActivatorApi getResourceAssignmentActivator();
 
-	/**
-	 * Gets a VOs manager buisness logic.
-	 * @return VOs manager
-	 */
-	VosManagerBl getVosManagerBl();
+  /**
+   * Gets a ResourceAssignmentChecker
+   *
+   * @return ResourceAssignmentChecker
+   */
+  ResourceAssignmentChecker getResourceAssignmentChecker();
 
-	/**
-	 * Gets a Resources manager buisness logic.
-	 * @return Resources manager
-	 */
-	ResourcesManagerBl getResourcesManagerBl();
+  /**
+   * Gets a Resources manager.
+   *
+   * @return Resources manager
+   */
+  ResourcesManager getResourcesManager();
 
-	/**
-	 * Gets a ExtSources manager buisness logic.
-	 * @return ExtSources manager
-	 */
-	ExtSourcesManagerBl getExtSourcesManagerBl();
+  /**
+   * Gets a Resources manager buisness logic.
+   *
+   * @return Resources manager
+   */
+  ResourcesManagerBl getResourcesManagerBl();
 
-	/**
-	 * Gets a Attributes manager buisness logic.
-	 * @return Attributes manager
-	 */
-	AttributesManagerBl getAttributesManagerBl();
+  /**
+   * Gets a Searcher.
+   *
+   * @return Searcher
+   */
+  Searcher getSearcher();
 
-	/**
-	 * Gets a Services manager buisness logic.
-	 * @return Services manager
-	 */
-	ServicesManagerBl getServicesManagerBl();
+  /**
+   * Gets a SearcherBl
+   *
+   * @return SearcherBl
+   */
+  SearcherBl getSearcherBl();
 
-	/**
-	 * Gets a Owners manager buisness logic.
-	 * @return Owners manager
-	 */
-	OwnersManagerBl getOwnersManagerBl();
+  /**
+   * Gets a Security Teams manager.
+   *
+   * @return Security Teams manager
+   */
+  SecurityTeamsManager getSecurityTeamsManager();
 
-	/**
-	 * Gets a Messages manager.
-	 * @return Messages manager
-	 */
-	RTMessagesManagerBl getRTMessagesManagerBl();
+  /**
+   * Gets a Security Teams manager.
+   *
+   * @return Security Teams manager
+   */
+  SecurityTeamsManagerBl getSecurityTeamsManagerBl();
 
-	/**
-	 * Gets a Security Teams manager.
-	 * @return Security Teams manager
-	 */
-	SecurityTeamsManagerBl getSecurityTeamsManagerBl();
+  /**
+   * Gets a Services manager.
+   *
+   * @return Services manager
+   */
+  ServicesManager getServicesManager();
 
-	/**
-	 * Gets a SearcherBl
-	 * @return SearcherBl
-	 */
-	SearcherBl getSearcherBl();
+  /**
+   * Gets a Services manager buisness logic.
+   *
+   * @return Services manager
+   */
+  ServicesManagerBl getServicesManagerBl();
 
-	/**
-	 * Gets a ModulesUtilsBl
-	 * @return  ModulesUtilsBl
-	 */
-	ModulesUtilsBl getModulesUtilsBl();
+  /**
+   * Gets a TasksManager
+   *
+   * @return TasksManager
+   */
+  TasksManager getTasksManager();
 
-	/**
-	 * Gets a TasksManagerBl
-	 * @return TasksManagerBl
-	 */
-	TasksManagerBl getTasksManagerBl();
+  /**
+   * Gets a TasksManagerBl
+   *
+   * @return TasksManagerBl
+   */
+  TasksManagerBl getTasksManagerBl();
 
-	/**
-	 * Gets a ConfigManagerBl
-	 * @return ConfigManagerBl
-	 */
-	ConfigManagerBl getConfigManagerBl();
+  /**
+   * Gets a users manager.
+   *
+   * @return users manager
+   */
+  UsersManager getUsersManager();
 
-	/**
-	 * Gets a ConsentsManagerBl
-	 * @return ConsentsManagerBl
-	 */
-	ConsentsManagerBl getConsentsManagerBl();
+  /**
+   * Gets a users manager buisness logic.
+   *
+   * @return users manager
+   */
+  UsersManagerBl getUsersManagerBl();
+
+  /**
+   * Gets a VOs manager.
+   *
+   * @return VOs manager
+   */
+  VosManager getVosManager();
+
+  /**
+   * Gets a VOs manager buisness logic.
+   *
+   * @return VOs manager
+   */
+  VosManagerBl getVosManagerBl();
 }

@@ -8,16 +8,16 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 public enum IntegrationManagerMethod implements ManagerMethod {
 
-	/*#
-	 * Get all member-group relations for all groups with all member-group attributes.
-	 *
-	 * @param sess session
-	 * @return GroupMemberData group-member relations with attributes
-	 */
-	getGroupMemberData {
-		@Override
-		public GroupMemberData call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getIntegrationManager().getGroupMemberData(ac.getSession());
-		}
-	}
+  /*#
+   * Get all member-group relations for all groups with all member-group attributes.
+   *
+   * @param sess session
+   * @return GroupMemberData group-member relations with attributes
+   */
+  getGroupMemberData {
+    @Override
+    public GroupMemberData call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getIntegrationManager().getGroupMemberData(ac.getSession());
+    }
+  }
 }

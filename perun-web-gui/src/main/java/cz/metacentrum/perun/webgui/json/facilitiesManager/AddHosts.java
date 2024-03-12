@@ -18,125 +18,133 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class AddHosts {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "facilitiesManager/addHosts";
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private int facilityId = 0;
-	private String[] hostNames;
+  // URL to call
+  final String JSON_URL = "facilitiesManager/addHosts";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private int facilityId = 0;
+  private String[] hostNames;
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param facilityId ID of facility
-	 */
-	public AddHosts(int facilityId) {
-		this.facilityId = facilityId;
-	}
+  /**
+   * Creates a new request
+   *
+   * @param facilityId ID of facility
+   */
+  public AddHosts(int facilityId) {
+    this.facilityId = facilityId;
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param facilityId ID of facility
-	 * @param events external events
-	 */
-	public AddHosts(int facilityId, final JsonCallbackEvents events) {
-		this.facilityId = facilityId;
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param facilityId ID of facility
+   * @param events     external events
+   */
+  public AddHosts(int facilityId, final JsonCallbackEvents events) {
+    this.facilityId = facilityId;
+    this.events = events;
+  }
 
-	/**
-	 * Adds hosts to cluster - makes RPC call
-	 *
-	 * @param hosts array of hostnames
-	 */
-	public void addHosts(String[] hosts) {
+  /**
+   * Adds hosts to cluster - makes RPC call
+   *
+   * @param hosts array of hostnames
+   */
+  public void addHosts(String[] hosts) {
 
-		this.hostNames = hosts;
+    this.hostNames = hosts;
 
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
+    // test arguments
+    if (!this.testAdding()) {
+      return;
+    }
 
-		// json object
-		JSONObject jsonQuery = prepareJSONObject();
+    // json object
+    JSONObject jsonQuery = prepareJSONObject();
 
-		// local events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+    // local events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding hosts failed.");
-				events.onError(error);
-			};
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Adding hosts failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Hosts added to cluster: "+ facilityId);
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Hosts added to cluster: " + facilityId);
+        events.onFinished(jso);
+      }
 
-		};
+      ;
 
-		// create request
-		JsonPostClient request = new JsonPostClient(newEvents);
-		request.sendData(JSON_URL, jsonQuery);
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	}
+      ;
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testAdding() {
+    };
 
-		boolean result = true;
-		String errorMsg = "";
+    // create request
+    JsonPostClient request = new JsonPostClient(newEvents);
+    request.sendData(JSON_URL, jsonQuery);
 
-		if(facilityId == 0){
-			errorMsg += "Wrong parameter <strong>Facility</strong>.</br>";
-			result = false;
-		}
+  }
 
-		if(hostNames.length == 0){
-			errorMsg += "You must enter at least 1 host name.";
-			result = false;
-		}
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testAdding() {
 
-		if(errorMsg.length()>0){
-			UiElements.generateAlert("Parameter error", errorMsg);
-		}
+    boolean result = true;
+    String errorMsg = "";
 
-		return result;
-	}
+    if (facilityId == 0) {
+      errorMsg += "Wrong parameter <strong>Facility</strong>.</br>";
+      result = false;
+    }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+    if (hostNames.length == 0) {
+      errorMsg += "You must enter at least 1 host name.";
+      result = false;
+    }
 
-		JSONNumber facility = new JSONNumber(facilityId);
-		JSONArray hostnames = new JSONArray();
-		// put names in array
-		for (int i=0; i<hostNames.length; i++) {
-			if (hostNames[i] == "") continue; // empty host names are excluded
-			hostnames.set(i, new JSONString(hostNames[i]));
-		}
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Parameter error", errorMsg);
+    }
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("facility", facility);
-		jsonQuery.put("hostnames", hostnames);
-		return jsonQuery;
+    return result;
+  }
 
-	}
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+
+    JSONNumber facility = new JSONNumber(facilityId);
+    JSONArray hostnames = new JSONArray();
+    // put names in array
+    for (int i = 0; i < hostNames.length; i++) {
+      if (hostNames[i] == "") {
+        continue; // empty host names are excluded
+      }
+      hostnames.set(i, new JSONString(hostNames[i]));
+    }
+
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("facility", facility);
+    jsonQuery.put("hostnames", hostnames);
+    return jsonQuery;
+
+  }
 
 }

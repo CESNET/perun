@@ -9,92 +9,98 @@ import org.slf4j.LoggerFactory;
  * @author Martin Kuba
  */
 public abstract class PerunException extends Exception {
-	static final long serialVersionUID = 0;
+  static final long serialVersionUID = 0;
 
-	private final static Logger log = LoggerFactory.getLogger("ultimate_logger");
-	private String errorId = Long.toHexString(System.currentTimeMillis());
+  private static final Logger LOG = LoggerFactory.getLogger("ultimate_logger");
+  private String errorId = Long.toHexString(System.currentTimeMillis());
 
-	/**
-	 * Constructor with no parameters
-	 */
-	public PerunException() {
-		super();
+  /**
+   * Constructor with no parameters
+   */
+  public PerunException() {
+    super();
 
-		log.debug("Exception {}: {}.", errorId, this);
-	}
+    LOG.debug("Exception {}: {}.", errorId, this);
+  }
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public PerunException(String message) {
-		super(message);
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public PerunException(String message) {
+    super(message);
 
-		log.debug("Exception {}: {}.", errorId, this);
-	}
+    LOG.debug("Exception {}: {}.", errorId, this);
+  }
 
-	/**
-	 * Constructor with a message and Throwable object
-	 * @param message message with details about the cause
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public PerunException(String message, Throwable cause) {
-		super(message, cause);
+  /**
+   * Constructor with a message and Throwable object
+   *
+   * @param message message with details about the cause
+   * @param cause   Throwable that caused throwing of this exception
+   */
+  public PerunException(String message, Throwable cause) {
+    super(message, cause);
 
-		log.debug("Exception {}: {}.", errorId, this);
-	}
+    LOG.debug("Exception {}: {}.", errorId, this);
+  }
 
-	/**
-	 * Constructor with a Throwable object
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public PerunException(Throwable cause) {
+  /**
+   * Constructor with a Throwable object
+   *
+   * @param cause Throwable that caused throwing of this exception
+   */
+  public PerunException(Throwable cause) {
 
-		super(cause!=null?cause.getMessage():null,cause);
+    super(cause != null ? cause.getMessage() : null, cause);
 
-		log.debug("Exception {}: {}.", errorId, this);
-	}
+    LOG.debug("Exception {}: {}.", errorId, this);
+  }
 
-	/**
-	 * Return template of a message that is more user friendly and can be displayed in GUI.
-	 * If an exception doesn't implement this message, returns null as default.
-	 *
-	 * There can be used placeholder in the template, using format '%{field}%' (e.g.: '%{invalidGroup}%')
-	 * where the 'group' should be a field of the given exception, that can be accessed.
-	 *
-	 * @return template of a friendly message or null, if no template is defined for given exception
-	 */
-	@SuppressWarnings("unused") // this method is used during serialization
-	public String getFriendlyMessageTemplate() {
-		return null;
-	}
+  /**
+   * Getter for the errorId
+   *
+   * @return id of the error
+   */
+  public String getErrorId() {
+    return errorId;
+  }
 
-	@Override
-	public String getMessage() {
-		return "Error "+errorId+": "+super.getMessage();
-	}
+  /**
+   * Setter for the errorId
+   *
+   * @param errorId id of the error
+   */
+  public void setErrorId(String errorId) {
+    this.errorId = errorId;
+  }
 
-	/**
-	 * Getter for the errorId
-	 * @return id of the error
-	 */
-	public String getErrorId() {
-		return errorId;
-	}
+  /**
+   * Return template of a message that is more user friendly and can be displayed in GUI. If an exception doesn't
+   * implement this message, returns null as default.
+   * <p>
+   * There can be used placeholder in the template, using format '%{field}%' (e.g.: '%{invalidGroup}%') where the
+   * 'group' should be a field of the given exception, that can be accessed.
+   *
+   * @return template of a friendly message or null, if no template is defined for given exception
+   */
+  @SuppressWarnings("unused") // this method is used during serialization
+  public String getFriendlyMessageTemplate() {
+    return null;
+  }
 
-	/**
-	 * Setter for the errorId
-	 * @param errorId id of the error
-	 */
-	public void setErrorId(String errorId) {
-		this.errorId = errorId;
-	}
+  @Override
+  public String getMessage() {
+    return "Error " + errorId + ": " + super.getMessage();
+  }
 
-	/**
-	 * Getter for the class name
-	 * @return class simpleName
-	 */
-	public String getName() {
-		return this.getClass().getSimpleName();
-	}
+  /**
+   * Getter for the class name
+   *
+   * @return class simpleName
+   */
+  public String getName() {
+    return this.getClass().getSimpleName();
+  }
 }

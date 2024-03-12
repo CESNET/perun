@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs;
 
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-
 import java.util.Map;
 
 /**
@@ -12,38 +11,35 @@ import java.util.Map;
  */
 public class OtherTabs {
 
-	private PerunWebSession session = PerunWebSession.getInstance();
+  static public final String URL = "other";
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	static public final String URL = "other";
+  /**
+   * Creates a new instance of pages
+   */
+  public OtherTabs() {
+  }
 
-	/**
-	 * Creates a new instance of pages
-	 */
-	public OtherTabs(){}
+  /**
+   * Loads the page
+   */
+  public boolean loadTab(String tab, Map<String, String> parameters) {
+    if (tab == null) {
+      return false;
+    }
 
-	/**
-	 * Loads the page
-	 */
-	public boolean loadTab(String tab, Map<String, String> parameters) {
-		if(tab == null){
-			return false;
-		}
-
-		// if active
-		boolean open = ("1".equals(parameters.get("active")));
-
-
+    // if active
+    boolean open = ("1".equals(parameters.get("active")));
 
 
-		// user home
-		if (tab.equals(PageNotFoundTabItem.URL))
-		{
-			session.getTabManager().addTab(new PageNotFoundTabItem(), open);
-			return true;
-		}
+    // user home
+    if (tab.equals(PageNotFoundTabItem.URL)) {
+      session.getTabManager().addTab(new PageNotFoundTabItem(), open);
+      return true;
+    }
 
-		return false;
+    return false;
 
-	}
+  }
 
 }

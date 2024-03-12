@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class MemberDisabled extends AuditEvent {
 
-	private Member member;
-	private String message;
+  private Member member;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public MemberDisabled() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public MemberDisabled() {
+  }
 
-	public MemberDisabled(Member member) {
-		this.member = member;
-		this.message = formatMessage("%s disabled.", member);
-	}
+  public MemberDisabled(Member member) {
+    this.member = member;
+    this.message = formatMessage("%s disabled.", member);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

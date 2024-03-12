@@ -10,19 +10,19 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class SCIMException extends PerunException {
 
-	public SCIMException() {
-		super();
-	}
+  public SCIMException() {
+    super();
+  }
 
-	public SCIMException(String message) {
-		super(message);
-	}
+  public SCIMException(String message) {
+    super(message);
+  }
 
-	public SCIMException(Throwable cause) {
-		super(cause);
-	}
+  public SCIMException(Throwable cause) {
+    super(cause);
+  }
 
-	public SCIMException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public SCIMException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

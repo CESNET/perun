@@ -11,97 +11,100 @@ import java.util.Objects;
  */
 public class ConsentHub extends Auditable {
 
-	private String name;
-	private boolean enforceConsents = true;
-	private List<Facility> facilities;
+  private String name;
+  private boolean enforceConsents = true;
+  private List<Facility> facilities;
 
-	public ConsentHub() {
-	}
+  public ConsentHub() {
+  }
 
-	public ConsentHub(int id, String name, boolean enforceConsents, List<Facility> facilities) {
-		super(id);
-		this.name = name;
-		this.enforceConsents = enforceConsents;
-		this.facilities = facilities;
-	}
+  public ConsentHub(int id, String name, boolean enforceConsents, List<Facility> facilities) {
+    super(id);
+    this.name = name;
+    this.enforceConsents = enforceConsents;
+    this.facilities = facilities;
+  }
 
-	public ConsentHub(int id, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid, String name, boolean enforceConsents, List<Facility> facilities) {
-		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
-		this.name = name;
-		this.enforceConsents = enforceConsents;
-		this.facilities = facilities;
-	}
+  public ConsentHub(int id, String createdAt, String createdBy, String modifiedAt, String modifiedBy,
+                    Integer createdByUid, Integer modifiedByUid, String name, boolean enforceConsents,
+                    List<Facility> facilities) {
+    super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
+    this.name = name;
+    this.enforceConsents = enforceConsents;
+    this.facilities = facilities;
+  }
 
-	public String getName() {
-		return name;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    ConsentHub that = (ConsentHub) o;
+    return Objects.equals(name, that.name);
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public List<Facility> getFacilities() {
+    return facilities;
+  }
 
-	public boolean isEnforceConsents() {
-		return enforceConsents;
-	}
+  public void setFacilities(List<Facility> facilities) {
+    this.facilities = facilities;
+  }
 
-	public void setEnforceConsents(boolean enforceConsents) {
-		this.enforceConsents = enforceConsents;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public List<Facility> getFacilities() {
-		return facilities;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public void setFacilities(List<Facility> facilities) {
-		this.facilities = facilities;
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), name);
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
-		ConsentHub that = (ConsentHub) o;
-		return Objects.equals(name, that.name);
-	}
+  public boolean isEnforceConsents() {
+    return enforceConsents;
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(super.hashCode(), name);
-	}
+  public void setEnforceConsents(boolean enforceConsents) {
+    this.enforceConsents = enforceConsents;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
+  @Override
+  public String serializeToString() {
+    StringBuilder str = new StringBuilder();
 
-		return str.append(
-			"ConsentHub:[id='").append(getId()).append(
-			"', name='").append(name).append(
-			"', enforceConsents='").append(enforceConsents).append(
-			"', facilities='").append(facilities).append(
-			"']").toString();
-	}
+    List<String> facilities = new ArrayList<>();
+    String facilitiesString;
 
-	@Override
-	public String serializeToString() {
-		StringBuilder str = new StringBuilder();
+    if (getFacilities() == null) {
+      facilitiesString = "\\0";
+    } else {
+      for (Facility facility : getFacilities()) {
+        facilities.add(facility.serializeToString());
+      }
+      facilitiesString = facilities.toString();
+    }
+    return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
+        .append(", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">")
+        .append(", enforceConsents=<").append(isEnforceConsents()).append(">").append(", facilities=<")
+        .append(facilitiesString).append(">").append(']').toString();
+  }
 
-		List<String> facilities = new ArrayList<>();
-		String facilitiesString;
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
 
-		if (getFacilities() == null) {
-			facilitiesString = "\\0";
-		} else {
-			for (Facility facility : getFacilities()) {
-				facilities.add(facility.serializeToString());
-			}
-			facilitiesString = facilities.toString();
-		}
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			"id=<").append(getId()).append(">").append(
-			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
-			", enforceConsents=<").append(isEnforceConsents()).append(">").append(
-			", facilities=<").append(facilitiesString).append(">").append(
-			']').toString();
-	}
+    return str.append("ConsentHub:[id='").append(getId()).append("', name='").append(name)
+        .append("', enforceConsents='").append(enforceConsents).append("', facilities='").append(facilities)
+        .append("']").toString();
+  }
 }

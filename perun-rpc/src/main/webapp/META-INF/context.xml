@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context sessionCookieName="PERUNSESSION" sessionCookiePath="/" >
-	<CookieProcessor sameSiteCookies="strict" />
+<Context sessionCookieName="PERUNSESSION" sessionCookiePath="/">
+    <CookieProcessor sameSiteCookies="strict"/>
 </Context>

@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.Facility;
 
 public class DestinationsRemovedFromAllServices extends AuditEvent {
 
-	private Facility facility;
-	private String message;
+  private Facility facility;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public DestinationsRemovedFromAllServices() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public DestinationsRemovedFromAllServices() {
+  }
 
-	public DestinationsRemovedFromAllServices(Facility facility) {
-		this.facility = facility;
-		this.message = formatMessage("All destinations removed from %s for all services.", facility);
-	}
+  public DestinationsRemovedFromAllServices(Facility facility) {
+    this.facility = facility;
+    this.message = formatMessage("All destinations removed from %s for all services.", facility);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

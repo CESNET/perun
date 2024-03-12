@@ -14,66 +14,64 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class ValidateEmail implements JsonCallback {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/validateEmail";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/validateEmail";
+  // data
+  private String i = "";
+  private String m = "";
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param i
+   * @param m
+   */
+  public ValidateEmail(String i, String m) {
+    this.i = i;
+    this.m = m;
+  }
 
-	// data
-	private String i = "";
-	private String m = "";
+  /**
+   * Creates a new request with custom events
+   *
+   * @param i
+   * @param m
+   * @param events Custom events
+   */
+  public ValidateEmail(String i, String m, JsonCallbackEvents events) {
+    this.events = events;
+    this.i = i;
+    this.m = m;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param i
-	 * @param m
-	 */
-	public ValidateEmail(String i, String m) {
-		this.i = i;
-		this.m = m;
-	}
+  public void onFinished(JavaScriptObject jso) {
+    session.getUiElements().setLogSuccessText("Email validated.");
+    events.onFinished(jso);
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param i
-	 * @param m
-	 * @param events Custom events
-	 */
-	public ValidateEmail(String i, String m, JsonCallbackEvents events) {
-		this.events = events;
-		this.i = i;
-		this.m = m;
-	}
+  public void onError(PerunError error) {
+    session.getUiElements().setLogErrorText("Validating email failed.");
+    events.onError(error);
+  }
 
-	public void onFinished(JavaScriptObject jso) {
-		session.getUiElements().setLogSuccessText("Email validated.");
-		events.onFinished(jso);
-	}
+  public void onLoadingStart() {
+    events.onLoadingStart();
+  }
 
-	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Validating email failed.");
-		events.onError(error);
-	}
+  public void retrieveData() {
 
-	public void onLoadingStart() {
-		events.onLoadingStart();
-	}
+    String params = "";
 
-	public void retrieveData() {
+    params += "i=" + i + "&m=" + m;
 
-		String params = "";
+    JsonClient client = new JsonClient();
+    client.retrieveData(JSON_URL, params, this);
 
-		params += "i="+i+"&m="+m;
-
-		JsonClient client = new JsonClient();
-		client.retrieveData(JSON_URL, params, this);
-
-	}
+  }
 
 }

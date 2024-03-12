@@ -7,12 +7,13 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class MemberNotSponsoredException extends PerunException {
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public MemberNotSponsoredException(String message) {
-		super(message);
-	}
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public MemberNotSponsoredException(String message) {
+    super(message);
+  }
 
 }

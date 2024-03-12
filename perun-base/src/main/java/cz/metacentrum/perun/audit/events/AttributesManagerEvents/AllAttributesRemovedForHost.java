@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Host;
 
 public class AllAttributesRemovedForHost extends AuditEvent implements EngineIgnoreEvent {
 
-	private Host host;
-	private String message;
+  private Host host;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AllAttributesRemovedForHost() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AllAttributesRemovedForHost() {
+  }
 
-	public AllAttributesRemovedForHost(Host host) {
-		this.host = host;
-		this.message = formatMessage("All attributes removed for %s.", host);
-	}
+  public AllAttributesRemovedForHost(Host host) {
+    this.host = host;
+    this.message = formatMessage("All attributes removed for %s.", host);
+  }
 
-	public Host getHost() {
-		return host;
-	}
+  public Host getHost() {
+    return host;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

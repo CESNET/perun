@@ -4,7 +4,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonClient;
-import cz.metacentrum.perun.webgui.model.Member;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
@@ -14,93 +13,91 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class GetMemberByUser implements JsonCallback {
 
-	// User ID
-	private int userId;
+  // JSON URL
+  static private final String JSON_URL = "membersManager/getMemberByUser";
+  // User ID
+  private int userId;
+  // VO ID
+  private int voId;
+  // External events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// VO ID
-	private int voId;
+  private boolean hidden = false;
 
-	// JSON URL
-	static private final String JSON_URL = "membersManager/getMemberByUser";
+  /**
+   * New instance of member info
+   *
+   * @param voId
+   * @param userId
+   */
+  public GetMemberByUser(int voId, int userId) {
+    this.voId = voId;
+    this.userId = userId;
+  }
 
-	// External events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * New instance of member info.
+   *
+   * @param voId
+   * @param userId
+   * @param events
+   */
+  public GetMemberByUser(int voId, int userId, JsonCallbackEvents events) {
+    this.userId = userId;
+    this.voId = voId;
+    this.events = events;
+  }
 
-	private boolean hidden = false;
+  /**
+   * Retrieves data
+   */
+  public void retrieveData() {
 
-	/**
-	 * New instance of member info
-	 *
-	 * @param voId
-	 * @param userId
-	 */
-	public GetMemberByUser(int voId, int userId) {
-		this.voId = voId;
-		this.userId = userId;
-	}
+    final String param = "user=" + this.userId + "&vo=" + this.voId;
 
-	/**
-	 * New instance of member info.
-	 *
-	 * @param voId
-	 * @param userId
-	 * @param events
-	 */
-	public GetMemberByUser(int voId, int userId, JsonCallbackEvents events) {
-		this.userId = userId;
-		this.voId = voId;
-		this.events = events;
-	}
+    // retrieve data
+    JsonClient js = new JsonClient();
+    js.setHidden(hidden);
+    js.retrieveData(JSON_URL, param, this);
+  }
 
-	/**
-	 * Retrieves data
-	 */
-	public void retrieveData(){
+  /**
+   * When successfully finishes
+   */
+  public void onFinished(JavaScriptObject jso) {
+    events.onFinished(jso);
+  }
 
-		final String param = "user=" + this.userId + "&vo=" + this.voId;
+  /**
+   * When error
+   */
+  public void onError(PerunError error) {
+    events.onError(error);
+  }
 
-		// retrieve data
-		JsonClient js = new JsonClient();
-		js.setHidden(hidden);
-		js.retrieveData(JSON_URL, param, this);
-	}
+  /**
+   * When start
+   */
+  public void onLoadingStart() {
+    events.onLoadingStart();
+  }
 
-	/**
-	 * When successfully finishes
-	 */
-	public void onFinished(JavaScriptObject jso) {
-		events.onFinished(jso);
-	}
+  /**
+   * Sets events to this callback
+   *
+   * @param events
+   */
+  public void setEvents(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * When error
-	 */
-	public void onError(PerunError error) {
-		events.onError(error);
-	}
-
-	/**
-	 * When start
-	 */
-	public void onLoadingStart() {
-		events.onLoadingStart();
-	}
-
-	/**
-	 * Sets events to this callback
-	 *
-	 * @param events
-	 */
-	public void setEvents(JsonCallbackEvents events){
-		this.events = events;
-	}
-
-	/**
-	 * Set callback as hidden (do not show error popup)
-	 * @param hidden
-	 */
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
+  /**
+   * Set callback as hidden (do not show error popup)
+   *
+   * @param hidden
+   */
+  public void setHidden(boolean hidden) {
+    this.hidden = hidden;
+  }
 
 }

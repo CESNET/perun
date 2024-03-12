@@ -11,193 +11,190 @@ import cz.metacentrum.perun.core.api.Vo;
  */
 public class Application {
 
-	public static enum AppState { NEW, VERIFIED, APPROVED, REJECTED }
+  private int id;
+  private Vo vo;
+  private Group group;
+  private AppType type;
+  private String fedInfo;
+  private AppState state = AppState.NEW;
+  private String extSourceName;
+  private String extSourceType;
+  private int extSourceLoa = 0; // 0 - by default
+  private User user;
+  private String autoApproveError;
+  private String createdBy;
+  private String createdAt;
+  private String modifiedBy;
+  private String modifiedAt;
 
-	public static enum AppType { INITIAL, EXTENSION, EMBEDDED }
+  public Application() {
+  }
 
-	private int id;
-	private Vo vo;
-	private Group group;
-	private AppType type;
-	private String fedInfo;
-	private AppState state = AppState.NEW;
-	private String extSourceName;
-	private String extSourceType;
-	private int extSourceLoa = 0; // 0 - by default
-	private User user;
-	private String autoApproveError;
-	private String createdBy;
-	private String createdAt;
-	private String modifiedBy;
-	private String modifiedAt;
+  public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName,
+                     String extSourceType, User user) {
+    this.id = id;
+    this.vo = vo;
+    this.group = group;
+    this.type = type;
+    this.fedInfo = fedInfo;
+    this.state = state;
+    this.extSourceName = extSourceName;
+    this.extSourceType = extSourceType;
+    this.user = user;
+  }
 
-	public Application() {
-	}
+  public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName,
+                     String extSourceType, int extSourceLoa, User user) {
+    this(id, vo, group, type, fedInfo, state, extSourceName, extSourceType, user);
+    this.extSourceLoa = extSourceLoa;
+  }
 
-	public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName, String extSourceType, User user) {
-		this.id = id;
-		this.vo = vo;
-		this.group = group;
-		this.type = type;
-		this.fedInfo = fedInfo;
-		this.state = state;
-		this.extSourceName = extSourceName;
-		this.extSourceType = extSourceType;
-		this.user = user;
-	}
+  public String getAutoApproveError() {
+    return autoApproveError;
+  }
 
-	public Application(int id, Vo vo, Group group, AppType type, String fedInfo, AppState state, String extSourceName, String extSourceType, int extSourceLoa, User user) {
-		this(id, vo, group, type, fedInfo, state, extSourceName, extSourceType, user);
-		this.extSourceLoa = extSourceLoa;
-	}
+  public void setAutoApproveError(String error) {
+    this.autoApproveError = error;
+  }
 
-	public int getId() {
-		return id;
-	}
+  /**
+   * Return bean name as PerunBean does.
+   *
+   * @return Class simple name (beanName)
+   */
+  public String getBeanName() {
+    return this.getClass().getSimpleName();
+  }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+  public String getCreatedAt() {
+    return createdAt;
+  }
 
-	public Vo getVo() {
-		return vo;
-	}
+  public void setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
+  }
 
-	public void setVo(Vo vo) {
-		this.vo = vo;
-	}
+  public String getCreatedBy() {
+    return createdBy;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 
-	public void setGroup(Group group) {
-		this.group = group;
-	}
+  public int getExtSourceLoa() {
+    return extSourceLoa;
+  }
 
-	public AppType getType() {
-		return type;
-	}
+  public void setExtSourceLoa(int extSourceLoa) {
+    this.extSourceLoa = extSourceLoa;
+  }
 
-	public void setType(AppType type) {
-		this.type = type;
-	}
+  public String getExtSourceName() {
+    return extSourceName;
+  }
 
-	public String getFedInfo() {
-		return fedInfo;
-	}
+  public void setExtSourceName(String extSourceName) {
+    this.extSourceName = extSourceName;
+  }
 
-	public void setFedInfo(String fedInfo) {
-		this.fedInfo = fedInfo;
-	}
+  public String getExtSourceType() {
+    return extSourceType;
+  }
 
-	public AppState getState() {
-		return state;
-	}
+  public void setExtSourceType(String extSourceType) {
+    this.extSourceType = extSourceType;
+  }
 
-	public void setState(AppState state) {
-		this.state = state;
-	}
+  public String getFedInfo() {
+    return fedInfo;
+  }
 
-	public String getExtSourceName() {
-		return extSourceName;
-	}
+  public void setFedInfo(String fedInfo) {
+    this.fedInfo = fedInfo;
+  }
 
-	public void setExtSourceName(String extSourceName) {
-		this.extSourceName = extSourceName;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public void setExtSourceType(String extSourceType) {
-		this.extSourceType = extSourceType;
-	}
+  public void setGroup(Group group) {
+    this.group = group;
+  }
 
-	public String getExtSourceType() {
-		return extSourceType;
-	}
+  public int getId() {
+    return id;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+  public String getModifiedAt() {
+    return modifiedAt;
+  }
 
-	public int getExtSourceLoa() {
-		return extSourceLoa;
-	}
+  public void setModifiedAt(String modifiedAt) {
+    this.modifiedAt = modifiedAt;
+  }
 
-	public void setExtSourceLoa(int extSourceLoa) {
-		this.extSourceLoa = extSourceLoa;
-	}
+  public String getModifiedBy() {
+    return modifiedBy;
+  }
 
-	public String getCreatedBy() {
-		return createdBy;
-	}
+  public void setModifiedBy(String modifiedBy) {
+    this.modifiedBy = modifiedBy;
+  }
 
-	public String getCreatedAt() {
-		return createdAt;
-	}
+  public AppState getState() {
+    return state;
+  }
 
-	public String getModifiedBy() {
-		return modifiedBy;
-	}
+  public void setState(AppState state) {
+    this.state = state;
+  }
 
-	public String getModifiedAt() {
-		return modifiedAt;
-	}
+  public AppType getType() {
+    return type;
+  }
 
-	public String getAutoApproveError() {
-		return autoApproveError;
-	}
+  public void setType(AppType type) {
+    this.type = type;
+  }
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	public void setCreatedAt(String createdAt) {
-		this.createdAt = createdAt;
-	}
+  public void setUser(User user) {
+    this.user = user;
+  }
 
-	public void setModifiedBy(String modifiedBy) {
-		this.modifiedBy = modifiedBy;
-	}
+  public Vo getVo() {
+    return vo;
+  }
 
-	public void setModifiedAt(String modifiedAt) {
-		this.modifiedAt = modifiedAt;
-	}
+  public void setVo(Vo vo) {
+    this.vo = vo;
+  }
 
-	public void setAutoApproveError(String error) {
-		this.autoApproveError = error;
-	}
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName() + ":[" + "id='" + getId() + '\'' + ", vo='" + getVo() + '\'' + ", group='" +
+           getGroup() + '\'' + ", fedInfo='" + getFedInfo() + '\'' + ", type='" + getType().toString() + '\'' +
+           ", state='" + getState().toString() + '\'' + ", autoApproveError='" + getAutoApproveError() + '\'' +
+           ", extSourceName='" + getExtSourceName() + '\'' + ", extSourceType='" + getExtSourceType() + '\'' +
+           ", extSourceLoa='" + getExtSourceLoa() + '\'' + ", user='" + getUser() + '\'' + ", created_at='" +
+           getCreatedAt() + '\'' + ", created_by='" + getCreatedBy() + '\'' + ", modified_at='" + getModifiedAt() +
+           '\'' + ", modified_by='" + getModifiedBy() + '\'' + ']';
+  }
 
-	/**
-	 * Return bean name as PerunBean does.
-	 *
-	 * @return Class simple name (beanName)
-	 */
-	public String getBeanName() {
-		return this.getClass().getSimpleName();
-	}
+  public static enum AppState {
+    NEW, VERIFIED, APPROVED, REJECTED
+  }
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-			"id='" + getId() + '\'' +
-			", vo='" + getVo() + '\'' +
-			", group='" + getGroup() + '\'' +
-			", fedInfo='" + getFedInfo() + '\'' +
-			", type='" + getType().toString() + '\'' +
-			", state='" + getState().toString() + '\'' +
-			", autoApproveError='" + getAutoApproveError() + '\'' +
-			", extSourceName='" + getExtSourceName() + '\'' +
-			", extSourceType='" + getExtSourceType() + '\'' +
-			", extSourceLoa='" + getExtSourceLoa() + '\'' +
-			", user='" + getUser() + '\'' +
-			", created_at='" + getCreatedAt() + '\'' +
-			", created_by='" + getCreatedBy() + '\'' +
-			", modified_at='" + getModifiedAt() + '\'' +
-			", modified_by='" + getModifiedBy() + '\'' + ']';
-	}
+  public static enum AppType {
+    INITIAL, EXTENSION, EMBEDDED
+  }
 
 }

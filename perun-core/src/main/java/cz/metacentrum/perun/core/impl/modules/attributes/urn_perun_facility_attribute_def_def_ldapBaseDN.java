@@ -11,42 +11,49 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
 
 /**
- * Created by Oliver Mrázik on 3. 7. 2014.
- * author: Oliver Mrázik
- * version: 2014-07-03
+ * Created by Oliver Mrázik on 3. 7. 2014. author: Oliver Mrázik version: 2014-07-03
  */
-public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
+public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAttributesModuleAbstract
+    implements FacilityAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, facility, null, "attribute is null");
+    }
+  }
 
-		if (attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongAttributeValueException {
 
-		String value = attribute.valueAsString();
-		if (value.length() < 3) {
-			throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
-		}
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		String sub = value.substring(0,3);
+    String value = attribute.valueAsString();
+    if (value.length() < 3) {
+      throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
+    }
 
-		if ( !(sub.equalsIgnoreCase("ou=") || sub.equalsIgnoreCase("dc=")) ) {
-			throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
-		}
-	}
+    String sub = value.substring(0, 3);
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, facility, null, "attribute is null");
-	}
+    if (!(sub.equalsIgnoreCase("ou=") || sub.equalsIgnoreCase("dc="))) {
+      throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-		attr.setFriendlyName("ldapBaseDN");
-		attr.setDisplayName("LDAP base DN");
-		attr.setType(String.class.getName());
-		attr.setDescription("Base part of DN, which will be used for all entities propagated to facility. Should be like \"ou=sth,dc=example,dc=domain\" (without quotes)");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setFriendlyName("ldapBaseDN");
+    attr.setDisplayName("LDAP base DN");
+    attr.setType(String.class.getName());
+    attr.setDescription(
+        "Base part of DN, which will be used for all entities propagated to facility. Should be like \"ou=sth," +
+        "dc=example,dc=domain\" (without quotes)");
+    return attr;
+  }
 }

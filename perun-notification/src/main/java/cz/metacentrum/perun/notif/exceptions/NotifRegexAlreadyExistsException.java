@@ -10,19 +10,19 @@ import cz.metacentrum.perun.notif.entities.PerunNotifRegex;
  */
 public class NotifRegexAlreadyExistsException extends PerunException {
 
-	public NotifRegexAlreadyExistsException(Throwable cause) {
-		super(cause);
-	}
+  public NotifRegexAlreadyExistsException(Throwable cause) {
+    super(cause);
+  }
 
-	public NotifRegexAlreadyExistsException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public NotifRegexAlreadyExistsException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 
-	public NotifRegexAlreadyExistsException(String msg) {
-		super(msg);
-	}
+  public NotifRegexAlreadyExistsException(String msg) {
+    super(msg);
+  }
 
-	public NotifRegexAlreadyExistsException(PerunNotifRegex regex) {
-		super("Regex with regular expression: " + regex.getRegex() + "already exists.");
-	}
+  public NotifRegexAlreadyExistsException(PerunNotifRegex regex) {
+    super("Regex with regular expression: " + regex.getRegex() + "already exists.");
+  }
 }

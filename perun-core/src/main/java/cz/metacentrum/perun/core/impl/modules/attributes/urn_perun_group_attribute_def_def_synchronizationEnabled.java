@@ -13,79 +13,92 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Synchronization enabled
- *
- * true if synchronization is enabled and attributes synchronizationInterval, groupMembersQuery and groupExtSource are all filled in
- * false if not
- * empty if there is no setting (means not synchronized)
+ * <p>
+ * true if synchronization is enabled and attributes synchronizationInterval, groupMembersQuery and groupExtSource are
+ * all filled in false if not empty if there is no setting (means not synchronized)
  *
  * @author Michal Stava  stavamichal@gmail.com
  */
-public class urn_perun_group_attribute_def_def_synchronizationEnabled extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
+public class urn_perun_group_attribute_def_def_synchronizationEnabled extends GroupAttributesModuleAbstract
+    implements GroupAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
-		//Null value is ok, means no settings for group
-		if(attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+    try {
+      if (attribute.valueAsString().equals("true")) {
+        if (sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)) {
+          throw new WrongReferenceAttributeValueException(attribute,
+              "Synchronization cannot be enabled for groups in auto registration.");
+        }
 
-		String attrValue = attribute.valueAsString();
+        Attribute conflictingAttribute = sess.getPerunBl().getAttributesManagerBl()
+            .getAttribute(sess, group, GroupsManager.GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME);
+        if (conflictingAttribute.getValue() != null && !conflictingAttribute.valueAsMap().isEmpty()) {
+          throw new WrongReferenceAttributeValueException(attribute, conflictingAttribute, group, null, group, null,
+              conflictingAttribute.toString() + " can not be set in order to enable synchronization.");
+        }
 
-		if(!attrValue.equals("true") && !attrValue.equals("false")) {
-			throw new WrongAttributeValueException(attribute, group, "If attribute is not null, only string 'true' or 'false' is correct format.");
-		}
-	}
+        Attribute requiredAttribute = sess.getPerunBl().getAttributesManagerBl()
+            .getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+        if (requiredAttribute.getValue() == null) {
+          throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, group, null, group, null,
+              requiredAttribute.toString() + " must be set in order to enable synchronization.");
+        }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) return;
-		try {
-			if (attribute.valueAsString().equals("true")) {
-				if (sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)) {
-					throw new WrongReferenceAttributeValueException(attribute, "Synchronization cannot be enabled for groups in auto registration.");
-				}
+        requiredAttribute =
+            sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+        if (requiredAttribute.getValue() == null) {
+          throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, group, null, group, null,
+              requiredAttribute.toString() + " must be set in order to enable synchronization.");
+        }
+      }
+    } catch (AttributeNotExistsException e) {
+      throw new ConsistencyErrorException(e);
+    }
+  }
 
-				Attribute conflictingAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME);
-				if (conflictingAttribute.getValue() != null && !conflictingAttribute.valueAsMap().isEmpty()) {
-					throw new WrongReferenceAttributeValueException(attribute, conflictingAttribute, group, null, group, null, conflictingAttribute.toString() + " can not be set in order to enable synchronization.");
-				}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    //Null value is ok, means no settings for group
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-				Attribute requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-				if (requiredAttribute.getValue() == null) {
-					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, group, null, group, null, requiredAttribute.toString() + " must be set in order to enable synchronization.");
-				}
+    String attrValue = attribute.valueAsString();
 
-				requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-				if (requiredAttribute.getValue() == null) {
-					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, group, null, group, null, requiredAttribute.toString() + " must be set in order to enable synchronization.");
-				}
-			}
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException(e);
-		}
-	}
+    if (!attrValue.equals("true") && !attrValue.equals("false")) {
+      throw new WrongAttributeValueException(attribute, group,
+          "If attribute is not null, only string 'true' or 'false' is correct format.");
+    }
+  }
 
-	@Override
-	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<>();
-		dependencies.add(GroupsManager.GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME);
-		dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-		dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-		return dependencies;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    attr.setFriendlyName("synchronizationEnabled");
+    attr.setDisplayName("Synchronization Enabled");
+    attr.setType(String.class.getName());
+    attr.setDescription("Enables group synchronization from external source.");
+    return attr;
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-		attr.setFriendlyName("synchronizationEnabled");
-		attr.setDisplayName("Synchronization Enabled");
-		attr.setType(String.class.getName());
-		attr.setDescription("Enables group synchronization from external source.");
-		return attr;
-	}
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(GroupsManager.GROUP_MEMBERSHIP_EXPIRATION_RULES_ATTRNAME);
+    dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+    dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    return dependencies;
+  }
 }

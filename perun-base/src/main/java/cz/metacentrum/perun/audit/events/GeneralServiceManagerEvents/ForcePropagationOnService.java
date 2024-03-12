@@ -9,29 +9,29 @@ import cz.metacentrum.perun.core.api.Service;
  */
 public class ForcePropagationOnService extends AuditEvent implements EngineForceEvent {
 
-	private Service service;
-	private String message;
+  private Service service;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ForcePropagationOnService() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ForcePropagationOnService() {
+  }
 
-	public ForcePropagationOnService(Service service) {
-		this.service = service;
-		this.message = formatMessage("force propagation: On %s.", service);
-	}
+  public ForcePropagationOnService(Service service) {
+    this.service = service;
+    this.message = formatMessage("force propagation: On %s.", service);
+  }
 
-	public Service getService() {
-		return service;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Service getService() {
+    return service;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

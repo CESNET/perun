@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserRemovedFromBlackListOfSecurityTeam extends AuditEvent {
 
-	private User user;
-	private SecurityTeam securityTeam;
-	private String message;
+  private User user;
+  private SecurityTeam securityTeam;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public UserRemovedFromBlackListOfSecurityTeam() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public UserRemovedFromBlackListOfSecurityTeam() {
+  }
 
-	public UserRemovedFromBlackListOfSecurityTeam(User user, SecurityTeam securityTeam) {
-		this.user = user;
-		this.securityTeam = securityTeam;
-		this.message = formatMessage("%s remove from blacklist of %s.", user, securityTeam);
-	}
+  public UserRemovedFromBlackListOfSecurityTeam(User user, SecurityTeam securityTeam) {
+    this.user = user;
+    this.securityTeam = securityTeam;
+    this.message = formatMessage("%s remove from blacklist of %s.", user, securityTeam);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public SecurityTeam getSecurityTeam() {
+    return securityTeam;
+  }
 
-	public SecurityTeam getSecurityTeam() {
-		return securityTeam;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- this file loads other Spring configs. In Intellij IDEA, use  right-click -> Diagrams -> Show diagram -> Spring Model Dependencies
-	     to see all dependencies, there must be no duplicities (red arrows) in the diagram. -->
+    <!-- this file loads other Spring configs. In Intellij IDEA, use  right-click -> Diagrams -> Show diagram -> Spring Model Dependencies
+         to see all dependencies, there must be no duplicities (red arrows) in the diagram. -->
 
-	<!-- perun-core is needed for perun-registrar-lib.xml, perun-controller.xml, perun-cabinet.xml,
-	     perun-notification.xml -->
-	<import resource="classpath:perun-core.xml"/>
+    <!-- perun-core is needed for perun-registrar-lib.xml, perun-controller.xml, perun-cabinet.xml,
+         perun-notification.xml -->
+    <import resource="classpath:perun-core.xml"/>
 
-	<!--  <import resource="classpath:perun-controller.xml"/>  -->
-	<import resource="classpath:perun-core-synchronizers.xml"/>
-	<import resource="classpath:perun-cabinet.xml"/>
-	<import resource="classpath:perun-registrar-lib.xml"/>
-	<import resource="classpath:perun-registrar-lib-scheduler.xml"/>
-	<import resource="classpath:perun-notification.xml"/>
-	<import resource="classpath:perun-notification-scheduler.xml"/>
-	<import resource="classpath:perun-dispatcher.xml"/>
-	<import resource="classpath:perun-dispatcher-scheduler.xml"/>
-	<import resource="classpath:perun-integration.xml"/>
+    <!--  <import resource="classpath:perun-controller.xml"/>  -->
+    <import resource="classpath:perun-core-synchronizers.xml"/>
+    <import resource="classpath:perun-cabinet.xml"/>
+    <import resource="classpath:perun-registrar-lib.xml"/>
+    <import resource="classpath:perun-registrar-lib-scheduler.xml"/>
+    <import resource="classpath:perun-notification.xml"/>
+    <import resource="classpath:perun-notification-scheduler.xml"/>
+    <import resource="classpath:perun-dispatcher.xml"/>
+    <import resource="classpath:perun-dispatcher-scheduler.xml"/>
+    <import resource="classpath:perun-integration.xml"/>
 
 </beans>

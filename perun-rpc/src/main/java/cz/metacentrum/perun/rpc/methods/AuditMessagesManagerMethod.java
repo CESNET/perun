@@ -11,178 +11,183 @@ import java.util.Map;
 
 public enum AuditMessagesManagerMethod implements ManagerMethod {
 
-	/*#
-	 * Returns exact number of newest audit messages defined by 'count' param (disregarding message IDs).
-	 * If there is less messages present, then all of them are returned.
-	 *
-	 * @param count int Messages limit
-	 * @return List<AuditMessage> Audit messages
-	 */
-	/*#
-	 * Returns 100 newest audit messages from audit log. If there is a less messages than 100,
-	 * then all of them are returned.
-	 *
-	 * @return List<AuditMessage> Audit messages
-	 */
-	getMessages {
-		@Override
-		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
+  /*#
+   * Returns exact number of newest audit messages defined by 'count' param (disregarding message IDs).
+   * If there is less messages present, then all of them are returned.
+   *
+   * @param count int Messages limit
+   * @return List<AuditMessage> Audit messages
+   */
+  /*#
+   * Returns 100 newest audit messages from auditLOG. If there is a less messages than 100,
+   * then all of them are returned.
+   *
+   * @return List<AuditMessage> Audit messages
+   */
+  getMessages {
+    @Override
+    public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("count")) return ac.getAuditMessagesManager().getMessages(ac.getSession(), parms.readInt("count"));
-			else return ac.getAuditMessagesManager().getMessages(ac.getSession());
-		}
-	},
+      if (parms.contains("count")) {
+        return ac.getAuditMessagesManager().getMessages(ac.getSession(), parms.readInt("count"));
+      } else {
+        return ac.getAuditMessagesManager().getMessages(ac.getSession());
+      }
+    }
+  },
 
-	/*#
-	 * Returns all messages with IDs within the range from max(ID) to (max(ID)-count), where number of returned messages
-	 * is equal or less than 'count' param, because some IDs could be skipped in the sequence.
-	 *
-	 * @param count int Number of IDs to subtract from max_id
-	 * @return List<AuditMessage> List of audit messages
-	 */
-	getMessagesByCount {
-		@Override
-		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().getMessagesByCount(ac.getSession(), parms.readInt("count"));
-		}
-	},
+  /*#
+   * Returns all messages with IDs within the range from max(ID) to (max(ID)-count), where number of returned messages
+   * is equal or less than 'count' param, because some IDs could be skipped in the sequence.
+   *
+   * @param count int Number of IDs to subtract from max_id
+   * @return List<AuditMessage> List of audit messages
+   */
+  getMessagesByCount {
+    @Override
+    public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getAuditMessagesManager().getMessagesByCount(ac.getSession(), parms.readInt("count"));
+    }
+  },
 
-	/*#
-	 * Returns "count" number of messages that are more or equal than the given ID (ascending order),
-	 * i.e. the method returns newer messages by provided ID.
-	 *
-	 * @param perunSession perun session
-	 * @param id starting id from which the messages will be taken
-	 * @param count Number of messages that will be returned
-	 * @return List of audit messages
-	 */
-	getMessagesByIdAndCount {
-		@Override
-		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().getMessagesByIdAndCount(ac.getSession(), parms.readInt("id"), parms.readInt("count"));
-		}
-	},
+  /*#
+   * Returns "count" number of messages that are more or equal than the given ID (ascending order),
+   * i.e. the method returns newer messages by provided ID.
+   *
+   * @param perunSession perun session
+   * @param id starting id from which the messages will be taken
+   * @param count Number of messages that will be returned
+   * @return List of audit messages
+   */
+  getMessagesByIdAndCount {
+    @Override
+    public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getAuditMessagesManager()
+          .getMessagesByIdAndCount(ac.getSession(), parms.readInt("id"), parms.readInt("count"));
+    }
+  },
 
-	/*#
-	 * Get page of audit messages. Query parameter specifies offset, page size and allows filtering  by name of event. Total count is only estimated.
-	 *
-	 * @param query MessagesPageQuery Query with page information
-	 * @return Paginated<AuditMessage> page of requested audit messages
-	 */
-	getMessagesPage {
-		@Override
-		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().getMessagesPage(ac.getSession(),
-				parms.read("query", MessagesPageQuery.class));
-		}
-	},
+  /*#
+   * Get page of audit messages. Query parameter specifies offset, page size and allows filtering  by name of event.
+   * Total count is only estimated.
+   *
+   * @param query MessagesPageQuery Query with page information
+   * @return Paginated<AuditMessage> page of requested audit messages
+   */
+  getMessagesPage {
+    @Override
+    public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getAuditMessagesManager()
+          .getMessagesPage(ac.getSession(), parms.read("query", MessagesPageQuery.class));
+    }
+  },
 
-	/*#
-	 * Return list of names of all possible events
-	 *
-	 * @return list of all possible events
-	 */
-	findAllPossibleEvents {
-		@Override
-		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().findAllPossibleEvents(ac.getSession());
-		}
-	},
+  /*#
+   * Return list of names of all possible events
+   *
+   * @return list of all possible events
+   */
+  findAllPossibleEvents {
+    @Override
+    public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getAuditMessagesManager().findAllPossibleEvents(ac.getSession());
+    }
+  },
 
-	/*#
-	 * Returns list of AuditMessages from audit log with IDs > lastProcessedId for registered auditer consumer
-	 * specified by consumerName param.
-	 *
-	 * @param consumerName String Consumer to get messages for
-	 * @return List<AuditMessage> List of Audit Messages
-	 */
-	pollConsumerMessages {
-		@Override
-		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().pollConsumerMessages(ac.getSession(), parms.readString("consumerName"));
-		}
-	},
+  /*#
+   * Returns list of AuditMessages from audit log with IDs > lastProcessedId for registered auditer consumer
+   * specified by consumerName param.
+   *
+   * @param consumerName String Consumer to get messages for
+   * @return List<AuditMessage> List of Audit Messages
+   */
+  pollConsumerMessages {
+    @Override
+    public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getAuditMessagesManager().pollConsumerMessages(ac.getSession(), parms.readString("consumerName"));
+    }
+  },
 
-	/*#
-	 * Set ID of last processed message for specified consumer.
-	 *
-	 * @param consumerName String name of consumer
-	 * @param lastProcessedId int id of message to what consumer will be set
-	 * @throws InternalErrorException
-	 */
-	setLastProcessedId {
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
-			ac.getAuditMessagesManager().setLastProcessedId(ac.getSession(), parms.readString("consumerName"),
-			  parms.readInt("lastProcessedId"));
-			return null;
-		}
-	},
+  /*#
+   * Set ID of last processed message for specified consumer.
+   *
+   * @param consumerName String name of consumer
+   * @param lastProcessedId int id of message to what consumer will be set
+   * @throws InternalErrorException
+   */
+  setLastProcessedId {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getAuditMessagesManager()
+          .setLastProcessedId(ac.getSession(), parms.readString("consumerName"), parms.readInt("lastProcessedId"));
+      return null;
+    }
+  },
 
-	/*#
-	 * Creates new auditer consumer with last processed id which equals current auditer log max id.
-	 *
-	 * @param consumerName String New name for consumer
-	 * @exampleParam consumerName "NewConsumer"
-	 */
-	createAuditerConsumer {
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
-			ac.getAuditMessagesManager().createAuditerConsumer(ac.getSession(), parms.readString("consumerName"));
-			return null;
-		}
-	},
+  /*#
+   * Creates new auditer consumer with last processed id which equals current auditer log max id.
+   *
+   * @param consumerName String New name for consumer
+   * @exampleParam consumerName "NewConsumer"
+   */
+  createAuditerConsumer {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getAuditMessagesManager().createAuditerConsumer(ac.getSession(), parms.readString("consumerName"));
+      return null;
+    }
+  },
 
-	/*#
-	 * Get all auditer consumers as a map with key=value pairs like String(name)=Integer(lastProcessedId).
-	 *
-	 * @return Map<String, Integer> Mapping of all auditer consumers to their last processed message ID.
-	 */
-	getAllAuditerConsumers {
-		@Override
-		public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().getAllAuditerConsumers(ac.getSession());
-		}
-	},
+  /*#
+   * Get all auditer consumers as a map with key=value pairs like String(name)=Integer(lastProcessedId).
+   *
+   * @return Map<String, Integer> Mapping of all auditer consumers to their last processed message ID.
+   */
+  getAllAuditerConsumers {
+    @Override
+    public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getAuditMessagesManager().getAllAuditerConsumers(ac.getSession());
+    }
+  },
 
-	/*#
-	 * Get ID of last (newest) message in auditer logs.
-	 *
-	 * @return Integer ID of last (newest) message.
-	 */
-	getLastMessageId {
-		@Override
-		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().getLastMessageId(ac.getSession());
-		}
-	},
+  /*#
+   * Get ID of last (newest) message in auditer logs.
+   *
+   * @return Integer ID of last (newest) message.
+   */
+  getLastMessageId {
+    @Override
+    public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getAuditMessagesManager().getLastMessageId(ac.getSession());
+    }
+  },
 
-	/*#
-	 * Get count of all messages stored in auditer logs.
-	 *
-	 * @return Integer Count of all messages.
-	 */
-	getAuditerMessagesCount {
-		@Override
-		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().getAuditerMessagesCount(ac.getSession());
-		}
-	},
+  /*#
+   * Get count of all messages stored in auditer logs.
+   *
+   * @return Integer Count of all messages.
+   */
+  getAuditerMessagesCount {
+    @Override
+    public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getAuditMessagesManager().getAuditerMessagesCount(ac.getSession());
+    }
+  },
 
-	/*#
-	 * Log arbitrary auditer message/event to the audit log.
-	 *
-	 * @param msg String Message to be logged
-	 */
-	log {
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
-			ac.getAuditMessagesManager().log(ac.getSession(), parms.readString("msg"));
-			return null;
-		}
-	}
+  /*#
+   * Log arbitrary auditer message/event to the auditLOG.
+   *
+   * @param msg String Message to be logged
+   */
+  log {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getAuditMessagesManager().log(ac.getSession(), parms.readString("msg"));
+      return null;
+    }
+  }
 
 }

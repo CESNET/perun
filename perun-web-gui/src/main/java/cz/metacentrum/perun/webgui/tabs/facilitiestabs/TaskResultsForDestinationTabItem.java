@@ -40,190 +40,199 @@ import java.util.Objects;
  */
 public class TaskResultsForDestinationTabItem implements TabItem, TabItemWithUrl {
 
-	public static final String URL = "taskresultsdetail";
+  public static final String URL = "taskresultsdetail";
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading Task");
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading Task");
 
-	// data
-	private Destination destination;
-	private Task task;
-	private int destinationId;
-	private int taskId;
+  // data
+  private Destination destination;
+  private Task task;
+  private int destinationId;
+  private int taskId;
 
-	public TaskResultsForDestinationTabItem(Task task, Destination destination) {
-		this.destination = destination;
-		this.task = task;
-		this.destinationId = destination.getId();
-		this.taskId = task.getId();
-	}
+  public TaskResultsForDestinationTabItem(Task task, Destination destination) {
+    this.destination = destination;
+    this.task = task;
+    this.destinationId = destination.getId();
+    this.taskId = task.getId();
+  }
 
-	public TaskResultsForDestinationTabItem(int taskId, int destinationId) {
-		this.taskId = taskId;
-		this.destinationId = destinationId;
-		new GetEntityById(PerunEntity.DESTINATION, destinationId, new JsonCallbackEvents() {
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				destination = jso.cast();
-			}
-		}).retrieveData();
-		new GetEntityById(PerunEntity.TASK, taskId, new JsonCallbackEvents() {
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				task = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public TaskResultsForDestinationTabItem(int taskId, int destinationId) {
+    this.taskId = taskId;
+    this.destinationId = destinationId;
+    new GetEntityById(PerunEntity.DESTINATION, destinationId, new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        destination = jso.cast();
+      }
+    }).retrieveData();
+    new GetEntityById(PerunEntity.TASK, taskId, new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        task = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	@Override
-	public String getUrl() {
-		return URL;
-	}
+  public static TaskResultsForDestinationTabItem load(Task task, Destination destination) {
+    return new TaskResultsForDestinationTabItem(task, destination);
+  }
 
-	@Override
-	public String getUrlWithParameters() {
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + task.getId() + "&destinationId=" + destinationId;
-	}
+  public static TaskResultsForDestinationTabItem load(Map<String, String> parameters) {
+    int tid = Integer.parseInt(parameters.get("id"));
+    int did = Integer.parseInt(parameters.get("destinationId"));
+    return new TaskResultsForDestinationTabItem(tid, did);
+  }
 
-	@Override
-	public Widget draw() {
-		this.titleWidget.setText(destination.getDestination() + ": " + task.getService().getName());
+  @Override
+  public String getUrl() {
+    return URL;
+  }
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+  @Override
+  public String getUrlWithParameters() {
+    return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + task.getId() + "&destinationId=" +
+        destinationId;
+  }
 
-		final GetRichTaskResultsByTaskAndDestination callback = new GetRichTaskResultsByTaskAndDestination(task.getId(), destinationId);
+  @Override
+  public Widget draw() {
+    this.titleWidget.setText(destination.getDestination() + ": " + task.getService().getName());
 
-		// refresh table events
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		TabMenu menu = new TabMenu();
-		menu.addWidget(UiElements.getRefreshButton(this));
+    final GetRichTaskResultsByTaskAndDestination callback =
+        new GetRichTaskResultsByTaskAndDestination(task.getId(), destinationId);
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove all TaskResults");
-		removeButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				final ArrayList<TaskResult> tasksResultsToDelete = callback.getTableSelectedList();
-				String text = "Following TaskResults will be deleted.";
-				UiElements.showDeleteConfirm(tasksResultsToDelete, text, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i = 0; i < tasksResultsToDelete.size(); i++) {
-							if (i == tasksResultsToDelete.size()-1) {
-								DeleteTaskResults request = new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-								request.deleteTaskResult(tasksResultsToDelete.get(i).getId());
-							} else {
-								DeleteTaskResults request = new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton));
-								request.deleteTaskResult(tasksResultsToDelete.get(i).getId());
-							}
-						}
-					}});
-			}
-		});
-		menu.addWidget(removeButton);
+    // refresh table events
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
 
-		CellTable<TaskResult> table = callback.getTable();
+    TabMenu menu = new TabMenu();
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove all TaskResults");
+    removeButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        final ArrayList<TaskResult> tasksResultsToDelete = callback.getTableSelectedList();
+        String text = "Following TaskResults will be deleted.";
+        UiElements.showDeleteConfirm(tasksResultsToDelete, text, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+            for (int i = 0; i < tasksResultsToDelete.size(); i++) {
+              if (i == tasksResultsToDelete.size() - 1) {
+                DeleteTaskResults request =
+                    new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+                request.deleteTaskResult(tasksResultsToDelete.get(i).getId());
+              } else {
+                DeleteTaskResults request = new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton));
+                request.deleteTaskResult(tasksResultsToDelete.get(i).getId());
+              }
+            }
+          }
+        });
+      }
+    });
+    menu.addWidget(removeButton);
 
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
-		vp.add(sp);
+    CellTable<TaskResult> table = callback.getTable();
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		removeButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(callback, table, removeButton);
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
+    vp.add(sp);
 
-		this.contentWidget.setWidget(vp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		return getWidget();
-	}
+    removeButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(callback, table, removeButton);
 
-	@Override
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    this.contentWidget.setWidget(vp);
 
-	@Override
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    return getWidget();
+  }
 
-	@Override
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.databaseServerIcon();
-	}
+  @Override
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	@Override
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(),
-				"Propagation results detail: " + destination.getDestination() + " - " + task.getService().getName(), getUrlWithParameters());
-	}
+  @Override
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.databaseServerIcon();
+  }
 
-	@Override
-	public boolean isAuthorized() {
-		return session.isFacilityAdmin(task.getFacility().getId());
-	}
+  @Override
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public boolean isPrepared() {
-		return task != null && destination != null;
-	}
+  @Override
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(),
+        "Propagation results detail: " + destination.getDestination() + " - " + task.getService().getName(),
+        getUrlWithParameters());
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isAuthorized() {
+    return session.isFacilityAdmin(task.getFacility().getId());
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public boolean isPrepared() {
+    return task != null && destination != null;
+  }
 
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		TaskResultsForDestinationTabItem that = (TaskResultsForDestinationTabItem) o;
-		return taskId == that.taskId &&
-				destinationId == that.destinationId;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(taskId, destinationId);
-	}
+  }
 
-	public static TaskResultsForDestinationTabItem load(Task task, Destination destination) {
-		return new TaskResultsForDestinationTabItem(task, destination);
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TaskResultsForDestinationTabItem that = (TaskResultsForDestinationTabItem) o;
+    return taskId == that.taskId &&
+        destinationId == that.destinationId;
+  }
 
-	public static TaskResultsForDestinationTabItem load(Map<String, String> parameters) {
-		int tid = Integer.parseInt(parameters.get("id"));
-		int did = Integer.parseInt(parameters.get("destinationId"));
-		return new TaskResultsForDestinationTabItem(tid, did);
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(taskId, destinationId);
+  }
 }

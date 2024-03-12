@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -10,18 +9,18 @@ import java.util.List;
  */
 public class GenMemberDataNode {
 
-	private final List<String> hashes;
+  private final List<String> hashes;
 
-	public GenMemberDataNode(List<String> hashes) {
-		this.hashes = hashes;
-	}
+  public GenMemberDataNode(List<String> hashes) {
+    this.hashes = hashes;
+  }
 
-	public void addHashes(Collection<String> hashes) {
-		this.hashes.addAll(hashes);
-	}
+  public void addHashes(Collection<String> hashes) {
+    this.hashes.addAll(hashes);
+  }
 
-	public List<String> getH() {
-		return Collections.unmodifiableList(hashes);
-	}
+  public List<String> getH() {
+    return Collections.unmodifiableList(hashes);
+  }
 
 }

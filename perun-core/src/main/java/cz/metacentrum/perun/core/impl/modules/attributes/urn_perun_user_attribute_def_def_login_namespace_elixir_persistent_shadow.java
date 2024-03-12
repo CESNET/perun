@@ -9,80 +9,82 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserPersistentShadowAttribute;
 
 /**
- * Class for checking logins uniqueness in the namespace and filling elixir-persistent id.
- * It is only storage! Use module login elixir_persistent for access the value.
+ * Class for checking logins uniqueness in the namespace and filling elixir-persistent id. It is only storage! Use
+ * module login elixir_persistent for access the value.
  *
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
- *
  * @date 06.07.2015
  */
 public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow
-		extends UserPersistentShadowAttribute {
+    extends UserPersistentShadowAttribute {
 
-	private final static String extSourceNameElixir = "https://login.elixir-czech.org/idp/";
-	private final static String domainNameElixir = "elixir-europe.org";
-	private final static String attrNameElixir = "login-namespace:elixir-persistent-shadow";
-	private final static String lifeScienceShadow = "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
-	private final static String bbmriShadow = "urn:perun:user:attribute-def:def:login-namespace:bbmri-persistent-shadow";
+  private static final String extSourceNameElixir = "https://login.elixir-czech.org/idp/";
+  private static final String domainNameElixir = "elixir-europe.org";
+  private static final String attrNameElixir = "login-namespace:elixir-persistent-shadow";
+  private static final String lifeScienceShadow =
+      "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
+  private static final String bbmriShadow = "urn:perun:user:attribute-def:def:login-namespace:bbmri-persistent-shadow";
 
-	@Override
-	public String getFriendlyName() {
-		return attrNameElixir;
-	}
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
+    // Check if user has login in namespace lifescienceid-persistent-shadow
+    Attribute persistentShadow = null;
+    try {
+      persistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, lifeScienceShadow);
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
+      // ignored
+    }
 
-	@Override
-	public String getExtSourceName() {
-		return extSourceNameElixir;
-	}
+    if (persistentShadow == null || persistentShadow.getValue() == null) {
+      // Check if user has login in namespace bbmri-persistent-shadow
+      try {
+        persistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, bbmriShadow);
+      } catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
+        // ignored
+      }
+    }
 
-	@Override
-	public String getDomainName() {
-		return domainNameElixir;
-	}
+    if (persistentShadow != null && persistentShadow.getValue() != null) {
+      Attribute filledAttribute = new Attribute(attribute);
+      String value = persistentShadow.getValue().toString();
+      String valueWithoutScope = value.split("@", 2)[0];
+      String attrValue = valueWithoutScope + "@" + domainNameElixir;
+      filledAttribute.setValue(attrValue);
+      return filledAttribute;
+    }
 
-	@Override
-	public String getDescription() {
-		return "Login to ELIXIR. Do not use it directly! " +
-			   "Use \"user:virt:login-namespace:elixir-persistent\" attribute instead.";
-	}
+    return super.fillAttribute(sess, user, attribute);
+  }
 
-	@Override
-	public String getDisplayName() {
-		return "ELIXIR login";
-	}
+  @Override
+  public String getDescription() {
+    return "Login to ELIXIR. Do not use it directly! " +
+           "Use \"user:virt:login-namespace:elixir-persistent\" attribute instead.";
+  }
 
-	@Override
-	public String getFriendlyNameParameter() {
-		return "elixir-persistent-shadow";
-	}
+  @Override
+  public String getDisplayName() {
+    return "ELIXIR login";
+  }
 
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
-		// Check if user has login in namespace lifescienceid-persistent-shadow
-		Attribute persistentShadow = null;
-		try {
-			persistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, lifeScienceShadow);
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
-		}
+  @Override
+  public String getDomainName() {
+    return domainNameElixir;
+  }
 
-		if (persistentShadow == null || persistentShadow.getValue() == null) {
-			// Check if user has login in namespace bbmri-persistent-shadow
-			try {
-				persistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, bbmriShadow);
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException ignored) {
-			}
-		}
+  @Override
+  public String getExtSourceName() {
+    return extSourceNameElixir;
+  }
 
-		if (persistentShadow != null && persistentShadow.getValue() != null) {
-			Attribute filledAttribute = new Attribute(attribute);
-			String value = persistentShadow.getValue().toString();
-			String valueWithoutScope = value.split("@", 2) [0];
-			String attrValue = valueWithoutScope + "@" + domainNameElixir;
-			filledAttribute.setValue(attrValue);
-			return filledAttribute;
-		}
+  @Override
+  public String getFriendlyName() {
+    return attrNameElixir;
+  }
 
-		return super.fillAttribute(sess, user, attribute);
-	}
+  @Override
+  public String getFriendlyNameParameter() {
+    return "elixir-persistent-shadow";
+  }
 }

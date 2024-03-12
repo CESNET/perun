@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -20,34 +19,37 @@ import java.util.regex.Pattern;
  *
  * @author Vladimir Mecko vladimir.mecko@gmail.com
  */
-public class urn_perun_group_resource_attribute_def_def_vomsRoles extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_vomsRoles extends GroupResourceAttributesModuleAbstract
+    implements GroupResourceAttributesModuleImplApi {
 
-	private final Pattern pattern = Pattern.compile("^[^<>&]*$");
+  private final Pattern pattern = Pattern.compile("^[^<>&]*$");
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) {
-			return;
-		}
-		List<String> vomRoles = attribute.valueAsList();
+  @Override
+  @SuppressWarnings("unchecked")
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
+    List<String> vomRoles = attribute.valueAsList();
 
-		for (String vomRole : vomRoles) {
-			Matcher matcher = pattern.matcher(vomRole);
-			if(!matcher.matches()) {
-				throw new WrongAttributeValueException(attribute, "Bad group vomsRoles value. It should not contain '<>&' characters.");
-			}
-		}
-	}
+    for (String vomRole : vomRoles) {
+      Matcher matcher = pattern.matcher(vomRole);
+      if (!matcher.matches()) {
+        throw new WrongAttributeValueException(attribute,
+            "Bad group vomsRoles value. It should not contain '<>&' characters.");
+      }
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setFriendlyName("vomsRoles");
-		attr.setDisplayName("Voms roles");
-		attr.setDescription("Voms roles");
-		attr.setType(ArrayList.class.getName());
-		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setFriendlyName("vomsRoles");
+    attr.setDisplayName("Voms roles");
+    attr.setDescription("Voms roles");
+    attr.setType(ArrayList.class.getName());
+    attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+    return attr;
+  }
 }

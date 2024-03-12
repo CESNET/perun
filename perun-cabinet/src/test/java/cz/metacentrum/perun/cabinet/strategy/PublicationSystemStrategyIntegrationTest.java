@@ -1,15 +1,15 @@
 package cz.metacentrum.perun.cabinet.strategy;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 /**
  * Integration tests for retrieving publications using different strategies.
@@ -18,73 +18,79 @@ import static org.junit.Assert.fail;
  */
 public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegrationTest {
 
-	@Test
-	public void contactPublicationSystemMUTest() throws Exception {
-		System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemMUTest");
+  @Test
+  public void contactPublicationSystemEuropePMCTest() throws Exception {
+    System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemEuropePMCTest");
 
-		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("mu");
-		assertNotNull(publicationSystem);
+    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("europepmc");
+    assertNotNull(publicationSystem);
 
-		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-		assertNotNull(prezentator);
+    PublicationSystemStrategy prezentator =
+        (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+    assertNotNull(prezentator);
 
-		String authorId = "39700";
-		int yearSince = 2009;
-		int yearTill = 2010;
-		HttpResponse result = prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
+    String authorId = "0000-0002- 1767-9318";
+    int yearSince = 2017;
+    int yearTill = 0;
+    HttpResponse result =
+        prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
+    assertNotNull(result);
 
-		assertNotNull(result);
+  }
 
-	}
+  @Test
+  public void contactPublicationSystemMUTest() throws Exception {
+    System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemMUTest");
 
-	@Test
-	public void contactPublicationSystemOBDTest() throws Exception {
-		System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemOBDTest");
+    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("mu");
+    assertNotNull(publicationSystem);
 
-		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("zcu");
-		assertNotNull(publicationSystem);
+    PublicationSystemStrategy prezentator =
+        (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+    assertNotNull(prezentator);
 
-		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-		assertNotNull(prezentator);
+    String authorId = "39700";
+    int yearSince = 2009;
+    int yearTill = 2010;
+    HttpResponse result =
+        prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
 
-		PublicationSystemStrategy obd = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-		assertNotNull(obd);
+    assertNotNull(result);
 
-		String authorId = "Sitera,Jiří";
-		int yearSince = 2006;
-		int yearTill = 2009;
-		HttpUriRequest request = obd.getHttpRequest(authorId, yearSince, yearTill, publicationSystem);
+  }
 
-		try {
-			HttpResponse response = obd.execute(request);
-			assertNotNull(response);
-		} catch (CabinetException ex) {
-			if (!ex.getType().equals(ErrorCodes.HTTP_IO_EXCEPTION)) {
-				fail("Different exception code, was: "+ex.getType() +", but expected: HTTP_IO_EXCEPTION.");
-				// fail if different error
-			} else {
-				System.out.println("-- Test silently skipped because of HTTP_IO_EXCEPTION");
-			}
-		}
+  @Test
+  public void contactPublicationSystemOBDTest() throws Exception {
+    System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemOBDTest");
 
-	}
+    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("zcu");
+    assertNotNull(publicationSystem);
 
-	@Test
-	public void contactPublicationSystemEuropePMCTest() throws Exception {
-		System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemEuropePMCTest");
+    PublicationSystemStrategy prezentator =
+        (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+    assertNotNull(prezentator);
 
-		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("europepmc");
-		assertNotNull(publicationSystem);
+    PublicationSystemStrategy obd =
+        (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+    assertNotNull(obd);
 
-		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-		assertNotNull(prezentator);
+    String authorId = "Sitera,Jiří";
+    int yearSince = 2006;
+    int yearTill = 2009;
+    HttpUriRequest request = obd.getHttpRequest(authorId, yearSince, yearTill, publicationSystem);
 
-		String authorId = "0000-0002- 1767-9318";
-		int yearSince = 2017;
-		int yearTill = 0;
-		HttpResponse result = prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
-		assertNotNull(result);
+    try {
+      HttpResponse response = obd.execute(request);
+      assertNotNull(response);
+    } catch (CabinetException ex) {
+      if (!ex.getType().equals(ErrorCodes.HTTP_IO_EXCEPTION)) {
+        fail("Different exception code, was: " + ex.getType() + ", but expected: HTTP_IO_EXCEPTION.");
+        // fail if different error
+      } else {
+        System.out.println("-- Test silently skipped because of HTTP_IO_EXCEPTION");
+      }
+    }
 
-	}
+  }
 
 }

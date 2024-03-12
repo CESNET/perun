@@ -11,83 +11,84 @@ import com.google.gwt.core.client.JsArray;
 
 public class Identity extends JavaScriptObject {
 
-	protected Identity() {}
+  protected Identity() {
+  }
 
-	/**
-	 * Gets ID of user
-	 *
-	 * @return ID of user
-	 */
-	public final native int getId() /*-{
+  /**
+   * Gets ID of user
+   *
+   * @return ID of user
+   */
+  public final native int getId() /*-{
 		return this.id;
 	}-*/;
 
-	/**
-	 * Gets name of user
-	 *
-	 * @return name of user
-	 */
-	public final native String getName() /*-{
+  /**
+   * Gets name of user
+   *
+   * @return name of user
+   */
+  public final native String getName() /*-{
 		return this.name;
 	}-*/;
 
-	/**
-	 * Gets users organization
-	 *
-	 * @return users organization
-	 */
-	public final native String getOrganization() /*-{
+  /**
+   * Gets users organization
+   *
+   * @return users organization
+   */
+  public final native String getOrganization() /*-{
 		return this.organization;
 	}-*/;
 
 
-	/**
-	 * Get obfuscated email address.
-	 *
-	 * @return obfuscated email address
-	 */
-	public final native String getEmail() /*-{
+  /**
+   * Get obfuscated email address.
+   *
+   * @return obfuscated email address
+   */
+  public final native String getEmail() /*-{
 		return this.email;
 	}-*/;
 
-	/**
-	 * Get list of users external identities
-	 *
-	 * @return external identities
-	 */
-	public final native JsArray<ExtSource> getExternalIdentities() /*-{
+  /**
+   * Get list of users external identities
+   *
+   * @return external identities
+   */
+  public final native JsArray<ExtSource> getExternalIdentities() /*-{
 		return this.identities;
 	}-*/;
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
+  /**
+   * Returns Perun specific type of object
+   *
+   * @return type of object
+   */
+  public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
 		return this.beanName;
 	}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
+  /**
+   * Sets Perun specific type of object
+   *
+   * @param type type of object
+   */
+  public final native void setObjectType(String type) /*-{
 		this.beanName = type;
 	}-*/;
 
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(Identity o)
-	{
-		return o.getId() == this.getId();
-	}
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(Identity o) {
+    return o.getId() == this.getId();
+  }
 
 }

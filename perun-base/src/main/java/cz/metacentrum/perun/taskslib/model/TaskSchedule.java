@@ -1,98 +1,94 @@
 package cz.metacentrum.perun.taskslib.model;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
-
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 public class TaskSchedule implements Delayed {
-	private final Task task;
-	private long base;
-	private long delay;
-	private int delayCount;
+  private final Task task;
+  private long base;
+  private long delay;
+  private int delayCount;
 
-	public TaskSchedule(long delay, Task task) {
-		this.delay = delay;
-		this.task = task;
-	}
+  public TaskSchedule(long delay, Task task) {
+    this.delay = delay;
+    this.task = task;
+  }
 
-	public void setBase(long base) {
-		this.base = base;
-	}
+  @Override
+  public int compareTo(Delayed delayed) {
+    return Long.compare(getDelay(TimeUnit.MILLISECONDS), delayed.getDelay(TimeUnit.MILLISECONDS));
+  }
 
-	public long getDelay() {
-		return delay;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof TaskSchedule)) {
+      return false;
+    }
 
-	public void setDelay(long delay) {
-		this.delay = delay;
-	}
+    final TaskSchedule other = (TaskSchedule) obj;
+    if (task == null) {
+      if (other.task != null) {
+        return false;
+      }
+    } else if (!(task.equals(other.task))) {
+      return false;
+    }
 
-	public Task getTask() {
-		return task;
-	}
+    return true;
+  }
 
-	public int getDelayCount() {
-		return delayCount;
-	}
+  @Override
+  public long getDelay(TimeUnit unit) {
+    return unit.convert(this.delay - (System.currentTimeMillis() - base), TimeUnit.MILLISECONDS);
+  }
 
-	public void setDelayCount(int delayCount) {
-		this.delayCount = delayCount;
-	}
+  public long getDelay() {
+    return delay;
+  }
 
-	@Override
-	public long getDelay(TimeUnit unit) {
-		return unit.convert(this.delay - (System.currentTimeMillis() - base), TimeUnit.MILLISECONDS);
-	}
+  public void setDelay(long delay) {
+    this.delay = delay;
+  }
 
-	@Override
-	public int compareTo(Delayed delayed) {
-		return Long.compare(getDelay(TimeUnit.MILLISECONDS), delayed.getDelay(TimeUnit.MILLISECONDS));
-	}
+  public int getDelayCount() {
+    return delayCount;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((task == null) ? 0 : task.hashCode());
+  public void setDelayCount(int delayCount) {
+    this.delayCount = delayCount;
+  }
 
-		return result;
-	}
+  public Task getTask() {
+    return task;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof TaskSchedule)) {
-			return false;
-		}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((task == null) ? 0 : task.hashCode());
 
-		final TaskSchedule other = (TaskSchedule) obj;
-		if (task == null) {
-			if (other.task != null) {
-				return false;
-			}
-		} else if (!(task.equals(other.task))) {
-			return false;
-		}
+    return result;
+  }
 
-		return true;
-	}
+  public void setBase(long base) {
+    this.base = base;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
-		return str.append(getClass().getSimpleName())
-				.append(":[base='").append(BeansUtils.getDateFormatter().format(base))
-				.append("', delay='").append((delay == 0) ? delay : delay/1000).append("s")
-				.append("', remaining='").append(getDelay(TimeUnit.SECONDS)).append("s")
-				.append("', delayCount='").append(delayCount)
-				.append("', task='").append(task)
-				.append("']").toString();
-	}
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+    return str.append(getClass().getSimpleName()).append(":[base='").append(BeansUtils.getDateFormatter().format(base))
+        .append("', delay='").append((delay == 0) ? delay : delay / 1000).append("s").append("', remaining='")
+        .append(getDelay(TimeUnit.SECONDS)).append("s").append("', delayCount='").append(delayCount).append("', task='")
+        .append(task).append("']").toString();
+  }
 
 }

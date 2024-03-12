@@ -10,61 +10,62 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
- * This interface serves as a template for checking and filling in resource's
- * attributes.
+ * This interface serves as a template for checking and filling in resource's attributes.
  *
  * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
 public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi {
 
-	/**
-	 * This method tries to fill a value of the resource attribute. Value may be copied from some facility attribute.
-	 *
-	 * @param perunSession perun session
-	 * @param resource resource, attribute of which you want to fill
-	 * @param attribute attribute to fill. If attributes already have set value, this value won't be overwriten. This means the attribute value must be empty otherwise this method won't fill it.
-	 * @return attribute which MAY have filled value
-	 *
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 */
-	Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws WrongAttributeAssignmentException;
+  /**
+   * If you need to do some further work with other modules, this method do that
+   *
+   * @param session   session
+   * @param resource  resource
+   * @param attribute the attribute
+   */
+  void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException;
 
-	/**
-	 * Checks if value of this resource attribute has valid syntax.
-	 *
-	 * @param perunSession perun session
-	 * @param resource resource for which you want to check validity of attribute
-	 * @param attribute attribute to check
-	 *
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value has wrong / illegal syntax
-	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException;
+  /**
+   * Checks if value of this resource attribute has valid semantics.
+   *
+   * @param perunSession perun session
+   * @param resource     resource for which you want to check validity of attribute
+   * @param attribute    attribute to check
+   * @throws InternalErrorException                if an exception is raised in particular implementation, the exception
+   *                                               is wrapped in InternalErrorException
+   * @throws WrongReferenceAttributeValueException if an referenced attribute against the parameter one is to be
+   *                                               compared is not available
+   * @throws WrongAttributeAssignmentException
+   */
+  void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
-	/**
-	 * Checks if value of this resource attribute has valid semantics.
-	 *
-	 * @param perunSession perun session
-	 * @param resource resource for which you want to check validity of attribute
-	 * @param attribute attribute to check
-	 *
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongReferenceAttributeValueException if an referenced attribute against
-	 *         the parameter one is to be compared is not available
-	 * @throws WrongAttributeAssignmentException
-	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+  /**
+   * Checks if value of this resource attribute has valid syntax.
+   *
+   * @param perunSession perun session
+   * @param resource     resource for which you want to check validity of attribute
+   * @param attribute    attribute to check
+   * @throws InternalErrorException       if an exception is raised in particular implementation, the exception is
+   *                                      wrapped in InternalErrorException
+   * @throws WrongAttributeValueException if the attribute value has wrong / illegal syntax
+   */
+  void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException;
 
-	/**
-	 * If you need to do some further work with other modules, this method do that
-	 *
-	 * @param session session
-	 * @param resource resource
-	 * @param attribute the attribute
-	 */
-	void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException;
+  /**
+   * This method tries to fill a value of the resource attribute. Value may be copied from some facility attribute.
+   *
+   * @param perunSession perun session
+   * @param resource     resource, attribute of which you want to fill
+   * @param attribute    attribute to fill. If attributes already have set value, this value won't be overwriten. This
+   *                     means the attribute value must be empty otherwise this method won't fill it.
+   * @return attribute which MAY have filled value
+   * @throws InternalErrorException            if an exception is raised in particular implementation, the exception is
+   *                                           wrapped in InternalErrorException
+   * @throws WrongAttributeAssignmentException
+   */
+  Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException;
 }

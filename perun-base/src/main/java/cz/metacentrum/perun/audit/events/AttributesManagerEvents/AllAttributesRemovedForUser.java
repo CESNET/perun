@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.User;
 
 public class AllAttributesRemovedForUser extends AuditEvent implements EngineIgnoreEvent {
 
-	private User user;
-	private String message;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AllAttributesRemovedForUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AllAttributesRemovedForUser() {
+  }
 
-	public AllAttributesRemovedForUser(User user) {
-		this.user = user;
-		this.message = formatMessage("All attributes removed for %s.", user);
-	}
+  public AllAttributesRemovedForUser(User user) {
+    this.user = user;
+    this.message = formatMessage("All attributes removed for %s.", user);
+  }
 
-	public User getUser() {
-		return user;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

@@ -9,35 +9,35 @@ import cz.metacentrum.perun.core.api.User;
  */
 public class AttributeSetForUser extends AuditEvent {
 
-	private Attribute attribute;
-	private User user;
-	private String message;
+  private Attribute attribute;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeSetForUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeSetForUser() {
+  }
 
-	public AttributeSetForUser(Attribute attribute, User user) {
-		this.attribute = attribute;
-		this.user = user;
-		this.message = formatMessage("%s set for %s.", attribute, user);
-	}
+  public AttributeSetForUser(Attribute attribute, User user) {
+    this.attribute = attribute;
+    this.user = user;
+    this.message = formatMessage("%s set for %s.", attribute, user);
+  }
 
-	public Attribute getAttribute() {
-		return attribute;
-	}
+  public Attribute getAttribute() {
+    return attribute;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

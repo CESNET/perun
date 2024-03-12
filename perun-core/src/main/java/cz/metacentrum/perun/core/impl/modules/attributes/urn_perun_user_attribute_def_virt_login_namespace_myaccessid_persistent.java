@@ -12,59 +12,60 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Class for access def:myaccessid-persistent-shadow attribute. It generates value if you call it for the first time.
- *
  */
 @SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_login_namespace_myaccessid_persistent
-	extends UserVirtualAttributesModuleAbstract {
+    extends UserVirtualAttributesModuleAbstract {
 
 
-	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:myaccessid-persistent-shadow";
+  public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:myaccessid-persistent-shadow";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute myAccessIdPersistent = new Attribute(attributeDefinition);
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:myaccessid-persistent");
+    attr.setDisplayName("MyAccessId login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login for MyAccessID. It is set automatically with first call.");
+    return attr;
+  }
 
-		try {
-			Attribute myAccessIdPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute myAccessIdPersistent = new Attribute(attributeDefinition);
 
-			if (myAccessIdPersistentShadow.getValue() == null) {
+    try {
+      Attribute myAccessIdPersistentShadow =
+          sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-				myAccessIdPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, myAccessIdPersistentShadow);
+      if (myAccessIdPersistentShadow.getValue() == null) {
 
-				if (myAccessIdPersistentShadow.getValue() == null) {
-					throw new InternalErrorException("MyAccessID couldn't be set automatically");
-				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, myAccessIdPersistentShadow);
-			}
+        myAccessIdPersistentShadow =
+            sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, myAccessIdPersistentShadow);
 
-			myAccessIdPersistent.setValue(myAccessIdPersistentShadow.getValue());
-			return myAccessIdPersistent;
+        if (myAccessIdPersistentShadow.getValue() == null) {
+          throw new InternalErrorException("MyAccessID couldn't be set automatically");
+        }
+        sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, myAccessIdPersistentShadow);
+      }
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+      myAccessIdPersistent.setValue(myAccessIdPersistentShadow.getValue());
+      return myAccessIdPersistent;
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(SHADOW);
-	}
+    } catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException |
+             AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("login-namespace:myaccessid-persistent");
-		attr.setDisplayName("MyAccessId login");
-		attr.setType(String.class.getName());
-		attr.setDescription("Login for MyAccessID. It is set automatically with first call.");
-		return attr;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(SHADOW);
+  }
 
 }

@@ -17,112 +17,118 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class CreateResourceTag {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "resourcesManager/createResourceTag";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private String tagName;
-	private int voId;
+  // URL to call
+  final String JSON_URL = "resourcesManager/createResourceTag";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private String tagName;
+  private int voId;
 
-	/**
-	 * Creates a new request
-	 */
-	public CreateResourceTag() {
-	}
+  /**
+   * Creates a new request
+   */
+  public CreateResourceTag() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public CreateResourceTag(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public CreateResourceTag(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testDeleting()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testDeleting() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(tagName == null || tagName.isEmpty()){
-			errorMsg += "Wrong parameter 'resource tag name'.</br>";
-			result = false;
-		}
+    if (tagName == null || tagName.isEmpty()) {
+      errorMsg += "Wrong parameter 'resource tag name'.</br>";
+      result = false;
+    }
 
-		if(voId == 0){
-			errorMsg += "Wrong parameter 'VO ID'.";
-			result = false;
-		}
+    if (voId == 0) {
+      errorMsg += "Wrong parameter 'VO ID'.";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			UiElements.generateAlert("Parameter error", errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Parameter error", errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to delete resource tag, it first tests the values and then submits them
-	 *
-	 * @param tagName Resource tag name
-	 * @param voId ID of VO to create resource tag for
-	 */
-	public void createResourceTag(final String tagName, final int voId) {
+  /**
+   * Attempts to delete resource tag, it first tests the values and then submits them
+   *
+   * @param tagName Resource tag name
+   * @param voId    ID of VO to create resource tag for
+   */
+  public void createResourceTag(final String tagName, final int voId) {
 
-		this.tagName = tagName;
-		this.voId = voId;
+    this.tagName = tagName;
+    this.voId = voId;
 
-		// test arguments
-		if(!this.testDeleting()){
-			return;
-		}
+    // test arguments
+    if (!this.testDeleting()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating resource tag failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating resource tag failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Resource tag created.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Resource tag created.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+      ;
+    };
 
-		JSONObject jsonQuery = new JSONObject();
-		JSONObject jsonTag = new JSONObject();
-		jsonTag.put("id", null);
-		jsonTag.put("tagName", new JSONString(tagName));
-		jsonTag.put("voId", new JSONNumber(voId));
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-		jsonQuery.put("resourceTag", jsonTag);
-		jsonQuery.put("vo", new JSONNumber(voId));
+  }
 
-		return jsonQuery;
-	}
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+
+    JSONObject jsonQuery = new JSONObject();
+    JSONObject jsonTag = new JSONObject();
+    jsonTag.put("id", null);
+    jsonTag.put("tagName", new JSONString(tagName));
+    jsonTag.put("voId", new JSONNumber(voId));
+
+    jsonQuery.put("resourceTag", jsonTag);
+    jsonQuery.put("vo", new JSONNumber(voId));
+
+    return jsonQuery;
+  }
 
 }

@@ -20,121 +20,127 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class UpdateApplicationMail {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/updateApplicationMail";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/updateApplicationMail";
+  // data
+  private ApplicationMail appMail;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   */
+  public UpdateApplicationMail() {
+  }
 
-	// data
-	private ApplicationMail appMail;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public UpdateApplicationMail(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 */
-	public UpdateApplicationMail() {}
+  /**
+   * Updates ApplicationMail
+   *
+   * @param appMail
+   */
+  public void updateMail(ApplicationMail appMail) {
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public UpdateApplicationMail(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    this.appMail = appMail;
 
-	/**
-	 * Updates ApplicationMail
-	 *
-	 * @param appMail
-	 */
-	public void updateMail(ApplicationMail appMail) {
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		this.appMail = appMail;
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Updating email failed.");
+        events.onError(error);
+      }
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Updating email failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Email updated.");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Email updated.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	private boolean testCreating() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+  private boolean testCreating() {
+    // TODO Auto-generated method stub
+    return true;
+  }
 
-		JSONObject mail = new JSONObject();
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-		// update send
-		mail.put("send", JSONBoolean.getInstance(appMail.isSend()));
+    JSONObject mail = new JSONObject();
 
-		JSONObject mailTexts = new JSONObject();
+    // update send
+    mail.put("send", JSONBoolean.getInstance(appMail.isSend()));
 
-		// update texts
-		MailText mt = appMail.getMessage("en");
-		mailTexts.put("en", new JSONObject(mt));
+    JSONObject mailTexts = new JSONObject();
 
-		if (!Utils.getNativeLanguage().isEmpty()) {
-			MailText mt2 = appMail.getMessage(Utils.getNativeLanguage().get(0));
-			mailTexts.put(Utils.getNativeLanguage().get(0), new JSONObject(mt2));
-		}
+    // update texts
+    MailText mt = appMail.getMessage("en");
+    mailTexts.put("en", new JSONObject(mt));
 
-		mail.put("message", mailTexts);
+    if (!Utils.getNativeLanguage().isEmpty()) {
+      MailText mt2 = appMail.getMessage(Utils.getNativeLanguage().get(0));
+      mailTexts.put(Utils.getNativeLanguage().get(0), new JSONObject(mt2));
+    }
 
-		// update HTML texts (we don't edit them in GUI)
-		JSONObject mailTextsHTML = new JSONObject();
+    mail.put("message", mailTexts);
 
-		MailText mth = appMail.getMessageHTML("en");
-		mailTextsHTML.put("en", new JSONObject(mth));
+    // update HTML texts (we don't edit them in GUI)
+    JSONObject mailTextsHTML = new JSONObject();
 
-		if (!Utils.getNativeLanguage().isEmpty()) {
-			MailText mth2 = appMail.getMessageHTML(Utils.getNativeLanguage().get(0));
-			mailTextsHTML.put(Utils.getNativeLanguage().get(0), new JSONObject(mth2));
-		}
-		mail.put("htmlMessage", mailTextsHTML);
+    MailText mth = appMail.getMessageHTML("en");
+    mailTextsHTML.put("en", new JSONObject(mth));
 
-		// sending other values just for sure
-		mail.put("id", new JSONNumber(appMail.getId()));
-		mail.put("appType", new JSONString(appMail.getAppType()));
-		mail.put("mailType", new JSONString(appMail.getMailType()));
-		mail.put("formId", new JSONNumber(appMail.getFormId()));
+    if (!Utils.getNativeLanguage().isEmpty()) {
+      MailText mth2 = appMail.getMessageHTML(Utils.getNativeLanguage().get(0));
+      mailTextsHTML.put(Utils.getNativeLanguage().get(0), new JSONObject(mth2));
+    }
+    mail.put("htmlMessage", mailTextsHTML);
 
-		JSONObject request = new JSONObject();
-		request.put("mail", mail);
+    // sending other values just for sure
+    mail.put("id", new JSONNumber(appMail.getId()));
+    mail.put("appType", new JSONString(appMail.getAppType()));
+    mail.put("mailType", new JSONString(appMail.getMailType()));
+    mail.put("formId", new JSONNumber(appMail.getFormId()));
 
-		return request;
+    JSONObject request = new JSONObject();
+    request.put("mail", mail);
 
-	}
+    return request;
+
+  }
 
 }

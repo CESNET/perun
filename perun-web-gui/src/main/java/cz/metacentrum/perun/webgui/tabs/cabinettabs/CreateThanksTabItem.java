@@ -6,7 +6,12 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
@@ -25,7 +30,6 @@ import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,244 +40,242 @@ import java.util.Map;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
+public class CreateThanksTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "create-thanks";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Add acknowledgement");
+  // data
+  private int publicationId;
+  private Publication publication;
+  private JsonCallbackEvents events;
+  private HTML alreadyAddedOwners = new HTML("");
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param publicationId id
+   */
+  public CreateThanksTabItem(int publicationId) {
+    this.publicationId = publicationId;
+    new GetEntityById(PerunEntity.PUBLICATION, publicationId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        publication = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Add acknowledgement");
+  /**
+   * Creates a tab instance
+   *
+   * @param publication
+   */
+  public CreateThanksTabItem(Publication publication) {
+    this.publication = publication;
+    this.publicationId = publication.getId();
+  }
 
-	// data
-	private int publicationId;
-	private Publication publication;
-	private JsonCallbackEvents events;
+  /**
+   * Creates a tab instance
+   *
+   * @param publication
+   * @param extEvents
+   */
+  public CreateThanksTabItem(Publication publication, JsonCallbackEvents extEvents) {
+    this.publication = publication;
+    this.publicationId = publication.getId();
+    this.events = extEvents;
+  }
 
-	private HTML alreadyAddedOwners = new HTML("");
+  static public CreateThanksTabItem load(Map<String, String> parameters) {
+    int publicationId = Integer.parseInt(parameters.get("pubId"));
+    return new CreateThanksTabItem(publicationId);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param publicationId id
-	 */
-	public CreateThanksTabItem(int publicationId){
-		this.publicationId = publicationId;
-		new GetEntityById(PerunEntity.PUBLICATION, publicationId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				publication = jso.cast();
-			}
-		}).retrieveData();
-	}
+  public boolean isPrepared() {
+    return !(publication == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param publication
-	 */
-	public CreateThanksTabItem(Publication publication){
-		this.publication = publication;
-		this.publicationId = publication.getId();
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param publication
-	 * @param extEvents
-	 */
-	public CreateThanksTabItem(Publication publication, JsonCallbackEvents extEvents){
-		this.publication = publication;
-		this.publicationId = publication.getId();
-		this.events = extEvents;
-	}
+  @Override
+  public void onClose() {
 
-	public boolean isPrepared(){
-		return !(publication == null);
-	}
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public Widget draw() {
 
-	@Override
-	public void onClose() {
+    // MAIN PANEL
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-	}
+    // CALLBACK
+    final GetOwners owners = new GetOwners();
+    // FIXME - maybe make it configurable in a future
+    List<String> names = Arrays.asList("e-INFRA CZ LM2018140", "ELIXIR CZ LM2018131", "CESNET LM2015042 (MetaCentrum)",
+        "CERIT-SC LM2015085");
+    owners.setFilterByNames(names);
 
-	public Widget draw() {
+    // MENU
+    TabMenu menu = new TabMenu();
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		// MAIN PANEL
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    // add button
+    final CustomButton addButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, "Add acknowledgement for selected owner(s)");
 
-		// CALLBACK
-		final GetOwners owners = new GetOwners();
-		// FIXME - maybe make it configurable in a future
-		List<String> names = Arrays.asList("e-INFRA CZ LM2018140", "ELIXIR CZ LM2018131", "CESNET LM2015042 (MetaCentrum)", "CERIT-SC LM2015085");
-		owners.setFilterByNames(names);
+    final TabItem tab = this;
 
-		// MENU
-		TabMenu menu = new TabMenu();
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    // click handler
+    addButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        ArrayList<Owner> list = owners.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          for (int i = 0; i < list.size(); i++) {
+            final String name = list.get(i).getName();
+            // add name events
+            JsonCallbackEvents thanksEvents = new JsonCallbackEvents() {
+              public void onFinished(JavaScriptObject jso) {
+                updateAlreadyAdded(name);
+              }
+            };
+            // merge with refresh?
+            if (i == list.size() - 1 && events != null) {
+              thanksEvents = JsonCallbackEvents.mergeEvents(thanksEvents, events);
+            }
+            CreateThanks request =
+                new CreateThanks(publicationId, JsonCallbackEvents.disableButtonEvents(addButton, thanksEvents));
+            request.createThanks(list.get(i).getId());
+            if (i == list.size() - 1) {
+              owners.clearTableSelectedSet();
+            }
+          }
+        }
+      }
+    });
 
-		// add button
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add acknowledgement for selected owner(s)");
+    menu.addWidget(addButton);
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        // trigger refresh of sub-tab via event
+        events.onFinished(null);
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		final TabItem tab = this;
+    // add already added
+    vp.add(alreadyAddedOwners);
+    vp.setCellHeight(alreadyAddedOwners, "30px");
 
-		// click handler
-		addButton.addClickHandler(new ClickHandler(){
-			@Override
-			public void onClick(ClickEvent event) {
-				ArrayList<Owner> list = owners.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					for (int i=0; i<list.size(); i++) {
-						final String name = list.get(i).getName();
-						// add name events
-						JsonCallbackEvents thanksEvents = new JsonCallbackEvents(){
-							public void onFinished(JavaScriptObject jso){
-								updateAlreadyAdded(name);
-							}
-						};
-						// merge with refresh?
-						if (i == list.size()-1 && events != null) {
-							thanksEvents = JsonCallbackEvents.mergeEvents(thanksEvents, events);
-						}
-						CreateThanks request = new CreateThanks(publicationId, JsonCallbackEvents.disableButtonEvents(addButton, thanksEvents));
-						request.createThanks(list.get(i).getId());
-						if (i == list.size()-1) {
-							owners.clearTableSelectedSet();
-						}
-					}
-				}
-			}
-		});
+    // TABLE
+    owners.setFilterByType("administrative"); // show only administrative contacts
+    CellTable<Owner> table = owners.getTable();
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel();
+    sp.add(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    vp.add(sp);
+    // resize small tab panel to correct size on screen
+    session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-		menu.addWidget(addButton);
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				// trigger refresh of sub-tab via event
-				events.onFinished(null);
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    addButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(owners, table, addButton);
 
-		// add already added
-		vp.add(alreadyAddedOwners);
-		vp.setCellHeight(alreadyAddedOwners, "30px");
+    this.contentWidget.setWidget(vp);
 
-		// TABLE
-		owners.setFilterByType("administrative"); // show only administrative contacts
-		CellTable<Owner> table = owners.getTable();
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel();
-		sp.add(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp);
-		// resize small tab panel to correct size on screen
-		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+    return getWidget();
+  }
 
-		addButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(owners, table, addButton);
+  protected void updateAlreadyAdded(String newlyAdded) {
+    String text = alreadyAddedOwners.getHTML();
+    if (text.length() == 0) {
+      text += "<strong>Added:</strong> ";
+    } else {
+      text += ", ";
+    }
 
-		this.contentWidget.setWidget(vp);
+    text += SafeHtmlUtils.fromString(newlyAdded).asString();
+    alreadyAddedOwners.setHTML(text);
+  }
 
-		return getWidget();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	protected void updateAlreadyAdded(String newlyAdded)
-	{
-		String text = alreadyAddedOwners.getHTML();
-		if(text.length() == 0){
-			text += "<strong>Added:</strong> ";
-		}else{
-			text += ", ";
-		}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-		text += SafeHtmlUtils.fromString(newlyAdded).asString();
-		alreadyAddedOwners.setHTML(text);
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 607;
+    int result = 1;
+    result = prime * result + publicationId;
+    return result;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    CreateThanksTabItem other = (CreateThanksTabItem) obj;
+    if (publicationId != other.publicationId) {
+      return false;
+    }
+    return true;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 607;
-		int result = 1;
-		result = prime * result + publicationId;
-		return result;
-	}
+  public void open() {
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CreateThanksTabItem other = (CreateThanksTabItem)obj;
-		if (publicationId != other.publicationId)
-			return false;
-		return true;
-	}
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean isAuthorized() {
 
-	public void open() {
+    if (session.isSelf()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
-	public boolean isAuthorized() {
+  public String getUrl() {
+    return URL;
+  }
 
-		if (session.isSelf()) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "create-thanks";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?pubId=" + publicationId;
-	}
-
-	static public CreateThanksTabItem load(Map<String, String> parameters)
-	{
-		int publicationId = Integer.parseInt(parameters.get("pubId"));
-		return new CreateThanksTabItem(publicationId);
-	}
+  public String getUrlWithParameters() {
+    return CabinetTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?pubId=" + publicationId;
+  }
 
 }

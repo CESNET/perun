@@ -7,12 +7,13 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class AlreadySponsoredMemberException extends PerunException {
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public AlreadySponsoredMemberException(String message) {
-		super(message);
-	}
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public AlreadySponsoredMemberException(String message) {
+    super(message);
+  }
 
 }

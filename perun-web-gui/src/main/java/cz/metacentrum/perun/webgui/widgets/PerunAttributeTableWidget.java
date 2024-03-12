@@ -28,304 +28,306 @@ import java.util.Map;
  */
 public class PerunAttributeTableWidget extends Composite {
 
-	/**
-	 * Save event
-	 * @author Vaclav Mach <374430@mail.muni.cz>
-	 */
-	public interface SaveEvent {
-		void save(ArrayList<Attribute> attrs);
-	}
+  /**
+   * Main Widget
+   */
+  final private FlexTable ft = new FlexTable();
+  /**
+   * Attrs list
+   */
+  private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+  private Map<Integer, Object> originalAttributes = new HashMap<Integer, Object>();
+  /**
+   * Save event
+   */
+  private SaveEvent saveEvent;
+  /**
+   * Whether description shown
+   */
+  private boolean descriptionShown = false;
+  /**
+   * IDS used for default Save action
+   */
+  private Map<String, Integer> ids;
+  private boolean dark = false;
+  private CustomButton saveButton;
+  private boolean displaySaveButton = true;
+  /**
+   * Creates a new table
+   */
+  public PerunAttributeTableWidget() {
+    this.initWidget(ft);
+  }
 
-	/**
-	 * Attrs list
-	 */
-	private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
-	private Map<Integer, Object> originalAttributes = new HashMap<Integer, Object>();
+  /**
+   * Creates a new table
+   */
+  public PerunAttributeTableWidget(Map<String, Integer> ids) {
+    this.initWidget(ft);
+    this.ids = ids;
+  }
 
-	/**
-	 * Main Widget
-	 */
-	final private FlexTable ft = new FlexTable();
+  /**
+   * Creates a new tabel with save event
+   *
+   * @param saveEvent
+   */
+  public PerunAttributeTableWidget(Map<String, Integer> ids, SaveEvent saveEvent) {
+    this(ids);
+    this.saveEvent = saveEvent;
+  }
 
-	/**
-	 * Save event
-	 */
-	private SaveEvent saveEvent;
+  /**
+   * Creates a new tabel with save event
+   *
+   * @param saveEvent
+   * @param descriptionShown
+   * @param attributes
+   */
+  public PerunAttributeTableWidget(Map<String, Integer> ids, SaveEvent saveEvent, boolean descriptionShown,
+                                   ArrayList<Attribute> attributes) {
+    this(ids, saveEvent);
+    this.descriptionShown = descriptionShown;
+    this.add(attributes);
+  }
 
-	/**
-	 * Whether description shown
-	 */
-	private boolean descriptionShown = false;
+  /**
+   * Whether to show description
+   *
+   * @param descriptionShown
+   */
+  public void setDescriptionShown(boolean descriptionShown) {
+    this.descriptionShown = descriptionShown;
+  }
 
-	/**
-	 * IDS used for default Save action
-	 */
-	private Map<String, Integer> ids;
+  /**
+   * Adds attributes
+   */
+  public void add(ArrayList<Attribute> attributes) {
+    this.attributes.addAll(attributes);
+    for (Attribute a : attributes) {
+      this.originalAttributes.put(a.getId(), a.getValue());
+    }
+    build();
+  }
 
-	private boolean dark = false;
-	private CustomButton saveButton;
-	private boolean displaySaveButton = true;
+  /**
+   * Add single attribute without rebuild
+   */
+  public void add(Attribute attribute) {
+    this.attributes.add(attribute);
+    this.originalAttributes.put(attribute.getId(), attribute.getValue());
+  }
 
-	/**
-	 * Creates a new table
-	 */
-	public PerunAttributeTableWidget(){
-		this.initWidget(ft);
-	}
+  /**
+   * Removes all attributes
+   */
+  public void clear() {
+    this.originalAttributes.clear();
+    this.attributes.clear();
+    build();
+  }
 
-	/**
-	 * Creates a new table
-	 */
-	public PerunAttributeTableWidget(Map<String, Integer> ids){
-		this.initWidget(ft);
-		this.ids = ids;
-	}
+  /**
+   * Removes an attribute
+   */
+  public void remove(Attribute attr) {
+    this.originalAttributes.remove(attr.getId());
+    this.attributes.remove(attr);
+    build();
+  }
 
-	/**
-	 * Creates a new tabel with save event
-	 * @param saveEvent
-	 */
-	public PerunAttributeTableWidget(Map<String, Integer> ids, SaveEvent saveEvent){
-		this(ids);
-		this.saveEvent = saveEvent;
-	}
+  public FlexTable getWidget() {
+    return this.ft;
+  }
 
-	/**
-	 * Creates a new tabel with save event
-	 * @param saveEvent
-	 * @param descriptionShown
-	 * @param attributes
-	 */
-	public PerunAttributeTableWidget(Map<String, Integer> ids, SaveEvent saveEvent, boolean descriptionShown, ArrayList<Attribute> attributes){
-		this(ids, saveEvent);
-		this.descriptionShown = descriptionShown;
-		this.add(attributes);
-	}
+  public boolean isDark() {
+    return this.dark;
+  }
 
-	/**
-	 * Whether to show description
-	 *
-	 * @param descriptionShown
-	 */
-	public void setDescriptionShown(boolean descriptionShown){
-		this.descriptionShown = descriptionShown;
-	}
+  public void setDark(boolean dark) {
+    this.dark = dark;
+  }
 
-	/**
-	 * Adds attributes
-	 */
-	public void add(ArrayList<Attribute> attributes){
-		this.attributes.addAll(attributes);
-		for (Attribute a : attributes) {
-			this.originalAttributes.put(a.getId(), a.getValue());
-		}
-		build();
-	}
+  public boolean isDisplaySaveButton() {
+    return displaySaveButton;
+  }
 
-	/**
-	 * Add single attribute without rebuild
-	 */
-	public void add(Attribute attribute){
-		this.attributes.add(attribute);
-		this.originalAttributes.put(attribute.getId(), attribute.getValue());
-	}
+  public void setDisplaySaveButton(boolean displaySaveButton) {
+    this.displaySaveButton = displaySaveButton;
+  }
 
-	/**
-	 * Removes all attributes
-	 */
-	public void clear(){
-		this.originalAttributes.clear();
-		this.attributes.clear();
-		build();
-	}
+  public CustomButton getSaveButton() {
+    return this.saveButton;
+  }
 
-	/**
-	 * Removes an attribute
-	 */
-	public void remove(Attribute attr){
-		this.originalAttributes.remove(attr.getId());
-		this.attributes.remove(attr);
-		build();
-	}
+  public void setIds(Map<String, Integer> ids) {
+    this.ids = ids;
+  }
 
-	public FlexTable getWidget(){
-		return this.ft;
-	}
+  public void setEvents(SaveEvent saveEvent) {
+    this.saveEvent = saveEvent;
+  }
 
-	public boolean isDark() {
-		return this.dark;
-	}
+  /**
+   * Builds the table
+   */
+  public void build() {
 
-	public void setDark(boolean dark) {
-		this.dark = dark;
-	}
+    ft.clear(true);
+    if (!dark) {
+      ft.setStyleName("inputFormFlexTable");
+    } else {
+      ft.setStyleName("inputFormFlexTableDark");
+    }
 
-	public boolean isDisplaySaveButton() {
-		return displaySaveButton;
-	}
-
-	public void setDisplaySaveButton(boolean displaySaveButton) {
-		this.displaySaveButton = displaySaveButton;
-	}
-
-	public CustomButton getSaveButton() {
-		return this.saveButton;
-	}
-
-	public void setIds(Map<String, Integer> ids) {
-		this.ids = ids;
-	}
-
-	public void setEvents(SaveEvent saveEvent) {
-		this.saveEvent = saveEvent;
-	}
-
-	/**
-	 * Builds the table
-	 */
-	public void build() {
-
-		ft.clear(true);
-		if (!dark) {
-			ft.setStyleName("inputFormFlexTable");
-		} else {
-			ft.setStyleName("inputFormFlexTableDark");
-		}
-
-		int nameCol = 0;
-		int valCol = 1;
-		int descCol = -1;
+    int nameCol = 0;
+    int valCol = 1;
+    int descCol = -1;
 
 
-		if(descriptionShown) {
-			nameCol = 0;
-			descCol = 2;
-			valCol = 1;
-		}
+    if (descriptionShown) {
+      nameCol = 0;
+      descCol = 2;
+      valCol = 1;
+    }
 
-		int row = 0;
+    int row = 0;
 
-		final Map<Attribute, PerunAttributeValueCell> valueCells = new HashMap<Attribute, PerunAttributeValueCell>();
+    final Map<Attribute, PerunAttributeValueCell> valueCells = new HashMap<Attribute, PerunAttributeValueCell>();
 
-		// save button
-		saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes");
-		saveButton.addClickHandler(new ClickHandler() {
+    // save button
+    saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "Save changes");
+    saveButton.addClickHandler(new ClickHandler() {
 
-			public void onClick(ClickEvent event) {
+      public void onClick(ClickEvent event) {
 
-				// saving
-				ArrayList<Attribute> newAttributes = new ArrayList<Attribute>();
+        // saving
+        ArrayList<Attribute> newAttributes = new ArrayList<Attribute>();
 
-				// for each find
-				for(Map.Entry<Attribute, PerunAttributeValueCell> entry : valueCells.entrySet()) {
-					Attribute attrOld = entry.getKey();
-					PerunAttributeValueCell valueCell = entry.getValue();
+        // for each find
+        for (Map.Entry<Attribute, PerunAttributeValueCell> entry : valueCells.entrySet()) {
+          Attribute attrOld = entry.getKey();
+          PerunAttributeValueCell valueCell = entry.getValue();
 
-					// save the value
-					Attribute attr = valueCell.getValue(attrOld);
-					newAttributes.add(attr);
-				}
+          // save the value
+          Attribute attr = valueCell.getValue(attrOld);
+          newAttributes.add(attr);
+        }
 
-				save(newAttributes);
+        save(newAttributes);
 
-			}
-		});
+      }
+    });
 
-		if (displaySaveButton) {
-			ft.setWidget(row, 0, saveButton);
-			row++;
-		}
+    if (displaySaveButton) {
+      ft.setWidget(row, 0, saveButton);
+      row++;
+    }
 
-		for (Attribute attr : attributes) {
+    for (Attribute attr : attributes) {
 
-			PerunAttributeNameCell nameCell = new PerunAttributeNameCell();
-			PerunAttributeValueCell valueCell = new PerunAttributeValueCell();
+      PerunAttributeNameCell nameCell = new PerunAttributeNameCell();
+      PerunAttributeValueCell valueCell = new PerunAttributeValueCell();
 
-			// name
-			SafeHtml nameCellHtml = nameCell.getRenderer().render(attr);
-			ft.setHTML(row, nameCol, nameCellHtml.asString()+"<strong>:</strong>");
-			ft.getFlexCellFormatter().setStyleName(row, nameCol, "itemName");
+      // name
+      SafeHtml nameCellHtml = nameCell.getRenderer().render(attr);
+      ft.setHTML(row, nameCol, nameCellHtml.asString() + "<strong>:</strong>");
+      ft.getFlexCellFormatter().setStyleName(row, nameCol, "itemName");
 
-			// value
-			SafeHtml valueCellHtml = valueCell.getRenderer().render(attr);
-			ft.setHTML(row, valCol, valueCellHtml);
-			valueCells.put(attr, valueCell);
+      // value
+      SafeHtml valueCellHtml = valueCell.getRenderer().render(attr);
+      ft.setHTML(row, valCol, valueCellHtml);
+      valueCells.put(attr, valueCell);
 
-			// description
-			if(descriptionShown){
-				PerunAttributeDescriptionCell descCell = new PerunAttributeDescriptionCell();
-				SafeHtml descCellHtml = descCell.getRenderer().render(attr);
-				ft.setHTML(row, descCol, descCellHtml);
-			}
+      // description
+      if (descriptionShown) {
+        PerunAttributeDescriptionCell descCell = new PerunAttributeDescriptionCell();
+        SafeHtml descCellHtml = descCell.getRenderer().render(attr);
+        ft.setHTML(row, descCol, descCellHtml);
+      }
 
-			row++;
-		}
+      row++;
+    }
 
-	}
+  }
 
-	/**
-	 * Saves the attributes
-	 * If attribute with value null, asks if remove it
-	 * Called recursively
-	 *
-	 * @param attrs
-	 */
-	private void save(final ArrayList<Attribute> attrs) {
+  /**
+   * Saves the attributes
+   * If attribute with value null, asks if remove it
+   * Called recursively
+   *
+   * @param attrs
+   */
+  private void save(final ArrayList<Attribute> attrs) {
 
-		// call the method
-		if(saveEvent == null) {
-			// ids must be set
-			if (ids == null || ids.isEmpty()) return;
+    // call the method
+    if (saveEvent == null) {
+      // ids must be set
+      if (ids == null || ids.isEmpty()) {
+        return;
+      }
 
-			final ArrayList<Attribute> toSet = new ArrayList<Attribute>();
-			final ArrayList<Attribute> toRemove = new ArrayList<Attribute>();
+      final ArrayList<Attribute> toSet = new ArrayList<Attribute>();
+      final ArrayList<Attribute> toRemove = new ArrayList<Attribute>();
 
-			for (Attribute a : attrs) {
-				Object oldValue = originalAttributes.get(a.getId());
-				if (a.getValue().equals(oldValue)) {
-					// do not save not changed
-				} else if (a.getValueAsObject() == null) {
-					toRemove.add(a);
-				} else {
-					toSet.add(a);
-				}
-			}
+      for (Attribute a : attrs) {
+        Object oldValue = originalAttributes.get(a.getId());
+        if (a.getValue().equals(oldValue)) {
+          // do not save not changed
+        } else if (a.getValueAsObject() == null) {
+          toRemove.add(a);
+        } else {
+          toSet.add(a);
+        }
+      }
 
-			if (!toSet.isEmpty()) {
-				SetAttributes request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveButton, new JsonCallbackEvents(){
-					@Override
-					public void onFinished(JavaScriptObject jso) {
-						// for all attributes to be saved/removed
-						for (Attribute a : toSet) {
-							originalAttributes.put(a.getId(), a.getValueAsObject());
-						}
-					}
-				}));
-				request.setAttributes(ids, toSet);
-			}
-			if (!toRemove.isEmpty()) {
-				RemoveAttributes request2 = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(saveButton, new JsonCallbackEvents(){
-					@Override
-					public void onFinished(JavaScriptObject jso) {
-						// for all attributes to be saved/removed
-						for (Attribute a : toRemove) {
-							originalAttributes.put(a.getId(), a.getValueAsObject());
-						}
-					}
-				}));
-				request2.removeAttributes(ids, toRemove);
-			}
+      if (!toSet.isEmpty()) {
+        SetAttributes request =
+            new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveButton, new JsonCallbackEvents() {
+              @Override
+              public void onFinished(JavaScriptObject jso) {
+                // for all attributes to be saved/removed
+                for (Attribute a : toSet) {
+                  originalAttributes.put(a.getId(), a.getValueAsObject());
+                }
+              }
+            }));
+        request.setAttributes(ids, toSet);
+      }
+      if (!toRemove.isEmpty()) {
+        RemoveAttributes request2 =
+            new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(saveButton, new JsonCallbackEvents() {
+              @Override
+              public void onFinished(JavaScriptObject jso) {
+                // for all attributes to be saved/removed
+                for (Attribute a : toRemove) {
+                  originalAttributes.put(a.getId(), a.getValueAsObject());
+                }
+              }
+            }));
+        request2.removeAttributes(ids, toRemove);
+      }
 
-			if (toSet.isEmpty() && toRemove.isEmpty()) {
-				UiElements.generateAlert("No changes", "No changes to save.");
-			}
+      if (toSet.isEmpty() && toRemove.isEmpty()) {
+        UiElements.generateAlert("No changes", "No changes to save.");
+      }
 
-			return;
+      return;
 
-		}
+    }
 
-		saveEvent.save(attrs);
+    saveEvent.save(attrs);
 
-	}
+  }
+
+  /**
+   * Save event
+   *
+   * @author Vaclav Mach <374430@mail.muni.cz>
+   */
+  public interface SaveEvent {
+    void save(ArrayList<Attribute> attrs);
+  }
 
 }

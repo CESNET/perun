@@ -1,228 +1,241 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:property-placeholder properties-ref="coreProperties" ignore-unresolvable="true"/>
+    <context:property-placeholder properties-ref="coreProperties" ignore-unresolvable="true"/>
 
-	<!-- type-safe configuration -->
-	<bean id="coreConfig" class="cz.metacentrum.perun.core.api.CoreConfig" init-method="initBeansUtils">
-		<property name="properties" ref="coreProperties"/>
-		<property name="admins" value="#{'${perun.admins}'.split('\s*,\s*')}"/>
-		<property name="alternativePasswordManagerProgram" value="${perun.alternativePasswordManager.program}"/>
-		<property name="dbInitializatorEnabled" value="${perun.DBInitializatorEnabled}"/>
-		<property name="dontLookupUsers" value="#{'${perun.dont.lookup.users}'.split('\s*,\s*')}"/>
-		<property name="extSourcesMultipleIdentifiers" value="#{'${perun.extsources.multiple.identifiers}'.split('\s*,\s*')}"/>
-		<property name="lookupUserByIdentifiersAndExtSourceLogin" value="${perun.lookup.user.by.identifiers.and.extSourceLogin}"/>
-		<property name="userDeletionForced" value="${perun.user.deletion.forced}"/>
-		<property name="forceConsents" value="${perun.force.consents}"/>
-		<property name="requestUserInfoEndpoint" value="${perun.requestUserInfoEndpoint}"/>
-		<property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
-		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
-		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
-		<property name="roleUpdateInterval" value="${perun.roleUpdateInterval}"/>
-		<property name="groupSynchronizationTimeout" value="${perun.group.synchronization.timeout}"/>
-		<property name="groupStructureSynchronizationInterval" value="${perun.group.structure.synchronization.interval}"/>
-		<property name="groupStructureSynchronizationTimeout" value="${perun.group.structure.synchronization.timeout}"/>
-		<property name="groupMaxConcurentGroupsToSynchronize" value="${perun.group.maxConcurentGroupsToSynchronize}"/>
-		<property name="groupMaxConcurrentGroupsStructuresToSynchronize" value="${perun.group.structure.maxConcurrentGroupsStructuresToSynchronize}"/>
-		<property name="groupNameSecondaryRegex" value="${perun.group.nameSecondaryRegex}"/>
-		<property name="groupFullNameSecondaryRegex" value="${perun.group.fullNameSecondaryRegex}"/>
-		<property name="instanceId" value="${perun.instanceId}"/>
-		<property name="instanceName" value="${perun.instanceName}"/>
-		<property name="externalProgramsDependencies" value="#{'${perun.externalProgramsDependencies}'.split('\s*,\s*')}"/>
-		<property name="mailchangeBackupFrom" value="${perun.mailchange.backupFrom}"/>
-		<property name="mailchangeReplyTo" value="${perun.mailchange.replyTo}"/>
-		<property name="mailchangeSecretKey" value="${perun.mailchange.secretKey}"/>
-		<property name="mailchangeValidationWindow" value="${perun.mailchange.validationWindow}"/>
-		<property name="nativeLanguage" value="${perun.native.language}"/>
-		<property name="notificationPrincipals" value="#{'${perun.notification.principals}'.split('\s*,\s*')}"/>
-		<property name="passwordManagerProgram" value="${perun.passwordManager.program}"/>
-		<property name="proxyIdPs" value="#{'${perun.proxyIdPs}'.split('\s*,\s*')}"/>
-		<property name="pwdresetInitVector" value="${perun.pwdreset.initVector}"/>
-		<property name="pwdresetSecretKey" value="${perun.pwdreset.secretKey}"/>
-		<property name="pwdresetValidationWindow" value="${perun.pwdreset.validationWindow}"/>
-		<property name="accountActivationValidationWindow" value="${perun.accountActivation.validationWindow}"/>
-		<property name="readOnlyPerun" value="${perun.readOnlyPerun}"/>
-		<property name="recaptchaPrivateKey" value="${perun.recaptcha.privatekey}"/>
-		<property name="registrarPrincipals" value="#{'${perun.registrar.principals}'.split('\s*,\s*')}"/>
-		<property name="rpcPowerusers" value="#{'${perun.rpc.powerusers}'.split('\s*,\s*')}"/>
-		<property name="rpcPrincipal" value="${perun.rpc.principal}"/>
-		<property name="rtDefaultQueue" value="${perun.rt.defaultQueue}"/>
-		<property name="rtServiceuserPassword" value="${perun.rt.serviceuser.password}"/>
-		<property name="rtServiceuserUsername" value="${perun.rt.serviceuser.username}"/>
-		<property name="rtUrl" value="${perun.rt.url}"/>
-		<property name="smsProgram" value="${perun.sms.program}"/>
-		<property name="userExtSourcesPersistent" value="${perun.userExtSources.persistent}"/>
-		<property name="attributesForUpdateIdP" value="#{'${perun.attributesForUpdate.idp}'.split('\s*,\s*')}"/>
-		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
-		<property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
-		<property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}" />
-		<property name="pdfFontPath" value="${perun.pdfFontPath}" />
-		<property name="notifSendMessages" value="${notif.sendMessages}" />
-		<property name="smtpHost" value="${mail.smtp.host}" />
-		<property name="smtpFrom" value="${mail.smtp.from}" />
-		<property name="smtpPort" value="${mail.smtp.port}" />
-		<property name="smtpAuth" value="${mail.smtp.auth}" />
-		<property name="smtpStartTls" value="${mail.smtp.starttls.enable}" />
-		<property name="mailDebug" value="${mail.debug}" />
-		<property name="smtpUser" value="${perun.smtp.user}" />
-		<property name="smtpPass" value="${perun.smtp.pass}" />
-		<property name="autocreatedNamespaces" value="#{'${perun.autocreatedNamespaces}'.split('\s*,\s*')}" />
-		<property name="rtSendToMail" value="${perun.rt.sendToMail}" />
-		<property name="queryTimeout" value="${perun.queryTimeout}" />
-		<property name="defaultLoaIdP" value="${perun.defaultLoa.idp}"/>
-		<property name="attributesToSearchUsersAndMembersBy" value="#{'${perun.attributesToSearchUsersAndMembersBy}'.split('\s*,\s*')}"/>
-		<property name="attributesToAnonymize" value="#{'${perun.attributesToAnonymize}'.split('\s*,\s*')}"/>
-		<property name="attributesToKeep" value="#{'${perun.attributesToKeep}'.split('\s*,\s*')}"/>
-		<property name="sendIdentityAlerts" value="${perun.sendIdentityAlerts}"/>
-		<property name="findSimilarUsersDisabled" value="${perun.findSimilarUsersDisabled}"/>
-		<property name="userInfoEndpointExtSourceLogin" value="#{'${perun.userInfoEndpoint.extSourceLogin}'.split('\s*,\s*')}"/>
-		<property name="userInfoEndpointExtSourceName" value="${perun.userInfoEndpoint.extSourceName}"/>
-		<property name="userInfoEndpointExtSourceFriendlyName" value="#{'${perun.userInfoEndpoint.extSourceFriendlyName}'.split('\s*,\s*')}"/>
-		<property name="mfaAuthTimeout" value="${perun.introspectionEndpoint.mfaAuthTimeout}"/>
-		<property name="mfaAuthTimeoutPercentageForceLogIn" value="${perun.introspectionEndpoint.mfaAuthTimeoutPercentageForceLogIn}"/>
-		<property name="enforceMfa" value="${perun.enforceMfa}"/>
-		<property name="appAllowedRoles" value="#{'${perun.appAllowedRoles.apps}'.split('\s*,\s*')}"/>
-		<property name="introspectionEndpointMfaAcrValue" value="${perun.introspectionEndpoint.mfaAcrValue}"/>
-		<property name="idpLoginValidity" value="${perun.idpLoginValidity}"/>
-		<property name="idpLoginValidityExceptions" value="#{'${perun.idpLoginValidityExceptions}'.split('\s*,\s*')}"/>
-		<property name="forceHTMLSanitization" value="${perun.forceHtmlSanitization}"/>
-	</bean>
+    <!-- type-safe configuration -->
+    <bean id="coreConfig" class="cz.metacentrum.perun.core.api.CoreConfig" init-method="initBeansUtils">
+        <property name="properties" ref="coreProperties"/>
+        <property name="admins" value="#{'${perun.admins}'.split('\s*,\s*')}"/>
+        <property name="alternativePasswordManagerProgram" value="${perun.alternativePasswordManager.program}"/>
+        <property name="dbInitializatorEnabled" value="${perun.DBInitializatorEnabled}"/>
+        <property name="dontLookupUsers" value="#{'${perun.dont.lookup.users}'.split('\s*,\s*')}"/>
+        <property name="extSourcesMultipleIdentifiers"
+                  value="#{'${perun.extsources.multiple.identifiers}'.split('\s*,\s*')}"/>
+        <property name="lookupUserByIdentifiersAndExtSourceLogin"
+                  value="${perun.lookup.user.by.identifiers.and.extSourceLogin}"/>
+        <property name="userDeletionForced" value="${perun.user.deletion.forced}"/>
+        <property name="forceConsents" value="${perun.force.consents}"/>
+        <property name="requestUserInfoEndpoint" value="${perun.requestUserInfoEndpoint}"/>
+        <property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
+        <property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
+        <property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
+        <property name="roleUpdateInterval" value="${perun.roleUpdateInterval}"/>
+        <property name="groupSynchronizationTimeout" value="${perun.group.synchronization.timeout}"/>
+        <property name="groupStructureSynchronizationInterval"
+                  value="${perun.group.structure.synchronization.interval}"/>
+        <property name="groupStructureSynchronizationTimeout" value="${perun.group.structure.synchronization.timeout}"/>
+        <property name="groupMaxConcurentGroupsToSynchronize" value="${perun.group.maxConcurentGroupsToSynchronize}"/>
+        <property name="groupMaxConcurrentGroupsStructuresToSynchronize"
+                  value="${perun.group.structure.maxConcurrentGroupsStructuresToSynchronize}"/>
+        <property name="groupNameSecondaryRegex" value="${perun.group.nameSecondaryRegex}"/>
+        <property name="groupFullNameSecondaryRegex" value="${perun.group.fullNameSecondaryRegex}"/>
+        <property name="instanceId" value="${perun.instanceId}"/>
+        <property name="instanceName" value="${perun.instanceName}"/>
+        <property name="externalProgramsDependencies"
+                  value="#{'${perun.externalProgramsDependencies}'.split('\s*,\s*')}"/>
+        <property name="mailchangeBackupFrom" value="${perun.mailchange.backupFrom}"/>
+        <property name="mailchangeReplyTo" value="${perun.mailchange.replyTo}"/>
+        <property name="mailchangeSecretKey" value="${perun.mailchange.secretKey}"/>
+        <property name="mailchangeValidationWindow" value="${perun.mailchange.validationWindow}"/>
+        <property name="nativeLanguage" value="${perun.native.language}"/>
+        <property name="notificationPrincipals" value="#{'${perun.notification.principals}'.split('\s*,\s*')}"/>
+        <property name="passwordManagerProgram" value="${perun.passwordManager.program}"/>
+        <property name="proxyIdPs" value="#{'${perun.proxyIdPs}'.split('\s*,\s*')}"/>
+        <property name="pwdresetInitVector" value="${perun.pwdreset.initVector}"/>
+        <property name="pwdresetSecretKey" value="${perun.pwdreset.secretKey}"/>
+        <property name="pwdresetValidationWindow" value="${perun.pwdreset.validationWindow}"/>
+        <property name="accountActivationValidationWindow" value="${perun.accountActivation.validationWindow}"/>
+        <property name="readOnlyPerun" value="${perun.readOnlyPerun}"/>
+        <property name="recaptchaPrivateKey" value="${perun.recaptcha.privatekey}"/>
+        <property name="registrarPrincipals" value="#{'${perun.registrar.principals}'.split('\s*,\s*')}"/>
+        <property name="rpcPowerusers" value="#{'${perun.rpc.powerusers}'.split('\s*,\s*')}"/>
+        <property name="rpcPrincipal" value="${perun.rpc.principal}"/>
+        <property name="rtDefaultQueue" value="${perun.rt.defaultQueue}"/>
+        <property name="rtServiceuserPassword" value="${perun.rt.serviceuser.password}"/>
+        <property name="rtServiceuserUsername" value="${perun.rt.serviceuser.username}"/>
+        <property name="rtUrl" value="${perun.rt.url}"/>
+        <property name="smsProgram" value="${perun.sms.program}"/>
+        <property name="userExtSourcesPersistent" value="${perun.userExtSources.persistent}"/>
+        <property name="attributesForUpdateIdP" value="#{'${perun.attributesForUpdate.idp}'.split('\s*,\s*')}"/>
+        <property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
+        <property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
+        <property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}"/>
+        <property name="pdfFontPath" value="${perun.pdfFontPath}"/>
+        <property name="notifSendMessages" value="${notif.sendMessages}"/>
+        <property name="smtpHost" value="${mail.smtp.host}"/>
+        <property name="smtpFrom" value="${mail.smtp.from}"/>
+        <property name="smtpPort" value="${mail.smtp.port}"/>
+        <property name="smtpAuth" value="${mail.smtp.auth}"/>
+        <property name="smtpStartTls" value="${mail.smtp.starttls.enable}"/>
+        <property name="mailDebug" value="${mail.debug}"/>
+        <property name="smtpUser" value="${perun.smtp.user}"/>
+        <property name="smtpPass" value="${perun.smtp.pass}"/>
+        <property name="autocreatedNamespaces" value="#{'${perun.autocreatedNamespaces}'.split('\s*,\s*')}"/>
+        <property name="rtSendToMail" value="${perun.rt.sendToMail}"/>
+        <property name="queryTimeout" value="${perun.queryTimeout}"/>
+        <property name="defaultLoaIdP" value="${perun.defaultLoa.idp}"/>
+        <property name="attributesToSearchUsersAndMembersBy"
+                  value="#{'${perun.attributesToSearchUsersAndMembersBy}'.split('\s*,\s*')}"/>
+        <property name="attributesToAnonymize" value="#{'${perun.attributesToAnonymize}'.split('\s*,\s*')}"/>
+        <property name="attributesToKeep" value="#{'${perun.attributesToKeep}'.split('\s*,\s*')}"/>
+        <property name="sendIdentityAlerts" value="${perun.sendIdentityAlerts}"/>
+        <property name="findSimilarUsersDisabled" value="${perun.findSimilarUsersDisabled}"/>
+        <property name="userInfoEndpointExtSourceLogin"
+                  value="#{'${perun.userInfoEndpoint.extSourceLogin}'.split('\s*,\s*')}"/>
+        <property name="userInfoEndpointExtSourceName" value="${perun.userInfoEndpoint.extSourceName}"/>
+        <property name="userInfoEndpointExtSourceFriendlyName"
+                  value="#{'${perun.userInfoEndpoint.extSourceFriendlyName}'.split('\s*,\s*')}"/>
+        <property name="mfaAuthTimeout" value="${perun.introspectionEndpoint.mfaAuthTimeout}"/>
+        <property name="mfaAuthTimeoutPercentageForceLogIn"
+                  value="${perun.introspectionEndpoint.mfaAuthTimeoutPercentageForceLogIn}"/>
+        <property name="enforceMfa" value="${perun.enforceMfa}"/>
+        <property name="appAllowedRoles" value="#{'${perun.appAllowedRoles.apps}'.split('\s*,\s*')}"/>
+        <property name="introspectionEndpointMfaAcrValue" value="${perun.introspectionEndpoint.mfaAcrValue}"/>
+        <property name="idpLoginValidity" value="${perun.idpLoginValidity}"/>
+        <property name="idpLoginValidityExceptions" value="#{'${perun.idpLoginValidityExceptions}'.split('\s*,\s*')}"/>
+        <property name="forceHtmlSanitization" value="${perun.forceHtmlSanitization}"/>
+    </bean>
 
 
+    <!-- Properties Bean for perun-core -->
 
+    <bean id="defaultCoreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="perun.admins">perunTests, perunEngine, perunDispatcher, perunRegistrar,
+                    perunSynchronizer, perunCabinet
+                </prop>
+                <prop key="perun.engine.principals">perunEngine</prop>
+                <prop key="perun.registrar.principals"/>
+                <prop key="perun.notification.principals">perunNotifications</prop>
+                <prop key="perun.rpc.principal">perunRpc</prop>
+                <prop key="perun.dont.lookup.users">perunTests, perunEngine, perunDispatcher,
+                    perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc, perunLdapc
+                </prop>
+                <prop key="perun.lookup.user.by.identifiers.and.extSourceLogin">false</prop>
+                <prop key="perun.user.deletion.forced">false</prop>
+                <prop key="perun.force.consents">false</prop>
+                <prop key="perun.requestUserInfoEndpoint">false</prop>
+                <prop key="perun.group.synchronization.interval">1</prop>
+                <prop key="perun.group.synchronization.timeout">10</prop>
+                <prop key="perun.group.structure.synchronization.interval">1</prop>
+                <prop key="perun.group.structure.synchronization.timeout">10</prop>
+                <prop key="perun.group.maxConcurentGroupsToSynchronize">10</prop>
+                <prop key="perun.group.structure.maxConcurrentGroupsStructuresToSynchronize">10</prop>
+                <prop key="perun.group.nameSecondaryRegex"/>
+                <prop key="perun.group.fullNameSecondaryRegex"/>
+                <prop key="perun.rpc.powerusers"/>
+                <prop key="perun.perun.db.name">perun</prop>
+                <prop key="perun.rt.url">https://rt3.cesnet.cz/rt/REST/1.0/ticket/new</prop>
+                <prop key="perun.rt.defaultQueue">perun</prop>
+                <prop key="perun.rt.serviceuser.username">perunv3-rt</prop>
+                <prop key="perun.rt.serviceuser.password">password</prop>
+                <prop key="perun.rt.sendToMail"/>
+                <prop key="perun.passwordManager.program">/usr/local/bin/perun.passwordManager</prop>
+                <prop key="perun.alternativePasswordManager.program">/usr/local/bin/perun.altPasswordManager</prop>
+                <prop key="perun.recaptcha.privatekey"/>
+                <prop key="perun.mailchange.secretKey"/>
+                <prop key="perun.mailchange.backupFrom"/>
+                <prop key="perun.mailchange.replyTo"/>
+                <prop key="perun.mailchange.validationWindow">6</prop>
+                <prop key="perun.pwdreset.secretKey">jda3ufK92DKs2335af</prop>
+                <prop key="perun.pwdreset.initVector">2Akd14k3o9s1d2G5</prop>
+                <prop key="perun.pwdreset.validationWindow">6</prop>
+                <prop key="perun.accountActivation.validationWindow">72</prop>
+                <prop key="perun.native.language">cs,Česky,Czech</prop>
+                <prop key="perun.loginNamespace.generated"/>
+                <prop key="perun.sms.program"/>
+                <prop key="perun.readOnlyPerun">false</prop>
+                <prop key="perun.DBInitializatorEnabled">false</prop>
+                <prop key="perun.userExtSources.persistent">PERUN,[\w\d]*</prop>
+                <prop key="perun.proxyIdPs"/>
+                <prop key="perun.attributesForUpdate.idp">
+                    mail,cn,sn,givenName,o,ou,eppn,affiliation,displayName,uid,epuid,schacHomeOrganization,voPersonExternalAffiliation,alternativeLoginName,isCesnetEligibleLastSeen,IdPOrganizationName,sourceIdPName,entitlement,assurance,eduPersonOrcid,organizationURL,eIDASPersonIdentifier,europeanStudentID,internalEligibilities
+                </prop>
+                <prop key="perun.attributesForUpdate.x509">mail,cn,o,dn,cadn,certificate</prop>
+                <prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
+                <prop key="perun.instanceName">Perun</prop>
+                <prop key="perun.externalProgramsDependencies">ssh-keygen, openssl</prop>
+                <prop key="perun.allowedCorsDomains"></prop>
+                <prop key="perun.queryTimeout">-1</prop>
+                <prop key="perun.roleUpdateInterval">5</prop>
+                <prop key="perun.defaultLoa.idp">2</prop>
+                <prop key="perun.attributesToSearchUsersAndMembersBy">urn:perun:user:attribute-def:def:preferredMail,
+                    urn:perun:member:attribute-def:def:mail
+                </prop>
+                <prop key="perun.attributesToAnonymize"></prop>
+                <prop key="perun.attributesToKeep">urn:perun:user:attribute-def:def:login-namespace:*,
+                    urn:perun:user:attribute-def:def:uid-namespace:*
+                </prop>
+                <prop key="perun.idpLoginValidityExceptions"/>
+                <prop key="perun.idpLoginValidity">24</prop>
+                <!--
+                   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
+                -->
+                <prop key="perun.oidc.issuers">i1,i2</prop>
+                <prop key="perun.oidc.i1.iss">https://login.cesnet.cz/oidc/</prop>
+                <prop key="perun.oidc.i1.extsource.name">https://login.cesnet.cz/idp/</prop>
+                <prop key="perun.oidc.i1.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
+                <prop key="perun.oidc.i2.iss">https://login.elixir-czech.org/oidc/</prop>
+                <prop key="perun.oidc.i2.extsource.name">https://login.elixir-czech.org/idp/</prop>
+                <prop key="perun.oidc.i2.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
 
+                <prop key="perun.appAllowedRoles.apps"></prop>
 
+                <prop key="notif.sendMessages">true</prop>
+                <prop key="mail.smtp.host">localhost</prop>
+                <prop key="mail.smtp.from"></prop>
+                <prop key="mail.smtp.port">25</prop>
+                <prop key="mail.smtp.auth">false</prop>
+                <prop key="mail.smtp.starttls.enable">false</prop>
+                <prop key="mail.debug">false</prop>
+                <prop key="perun.smtp.user"></prop>
+                <prop key="perun.smtp.pass"></prop>
 
-	<!-- Properties Bean for perun-core -->
+                <prop key="perun.autocreatedNamespaces"></prop>
+                <prop key="perun.sendIdentityAlerts">false</prop>
+                <prop key="perun.findSimilarUsersDisabled">false</prop>
 
-	<bean id="defaultCoreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="perun.admins">perunTests, perunEngine, perunDispatcher, perunRegistrar,
-					perunSynchronizer, perunCabinet
-				</prop>
-				<prop key="perun.engine.principals">perunEngine</prop>
-				<prop key="perun.registrar.principals"/>
-				<prop key="perun.notification.principals">perunNotifications</prop>
-				<prop key="perun.rpc.principal">perunRpc</prop>
-				<prop key="perun.dont.lookup.users">perunTests, perunEngine, perunDispatcher,
-					perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc, perunLdapc
-				</prop>
-				<prop key="perun.lookup.user.by.identifiers.and.extSourceLogin">false</prop>
-				<prop key="perun.user.deletion.forced">false</prop>
-				<prop key="perun.force.consents">false</prop>
-				<prop key="perun.requestUserInfoEndpoint">false</prop>
-				<prop key="perun.group.synchronization.interval">1</prop>
-				<prop key="perun.group.synchronization.timeout">10</prop>
-				<prop key="perun.group.structure.synchronization.interval">1</prop>
-				<prop key="perun.group.structure.synchronization.timeout">10</prop>
-				<prop key="perun.group.maxConcurentGroupsToSynchronize">10</prop>
-				<prop key="perun.group.structure.maxConcurrentGroupsStructuresToSynchronize">10</prop>
-				<prop key="perun.group.nameSecondaryRegex"/>
-				<prop key="perun.group.fullNameSecondaryRegex"/>
-				<prop key="perun.rpc.powerusers"/>
-				<prop key="perun.perun.db.name">perun</prop>
-				<prop key="perun.rt.url">https://rt3.cesnet.cz/rt/REST/1.0/ticket/new</prop>
-				<prop key="perun.rt.defaultQueue">perun</prop>
-				<prop key="perun.rt.serviceuser.username">perunv3-rt</prop>
-				<prop key="perun.rt.serviceuser.password">password</prop>
-				<prop key="perun.rt.sendToMail" />
-				<prop key="perun.passwordManager.program">/usr/local/bin/perun.passwordManager</prop>
-				<prop key="perun.alternativePasswordManager.program">/usr/local/bin/perun.altPasswordManager</prop>
-				<prop key="perun.recaptcha.privatekey"/>
-				<prop key="perun.mailchange.secretKey"/>
-				<prop key="perun.mailchange.backupFrom"/>
-				<prop key="perun.mailchange.replyTo"/>
-				<prop key="perun.mailchange.validationWindow">6</prop>
-				<prop key="perun.pwdreset.secretKey">jda3ufK92DKs2335af</prop>
-				<prop key="perun.pwdreset.initVector">2Akd14k3o9s1d2G5</prop>
-				<prop key="perun.pwdreset.validationWindow">6</prop>
-				<prop key="perun.accountActivation.validationWindow">72</prop>
-				<prop key="perun.native.language">cs,Česky,Czech</prop>
-				<prop key="perun.loginNamespace.generated"/>
-				<prop key="perun.sms.program"/>
-				<prop key="perun.readOnlyPerun">false</prop>
-				<prop key="perun.DBInitializatorEnabled">false</prop>
-				<prop key="perun.userExtSources.persistent">PERUN,[\w\d]*</prop>
-				<prop key="perun.proxyIdPs"/>
-				<prop key="perun.attributesForUpdate.idp">mail,cn,sn,givenName,o,ou,eppn,affiliation,displayName,uid,epuid,schacHomeOrganization,voPersonExternalAffiliation,alternativeLoginName,isCesnetEligibleLastSeen,IdPOrganizationName,sourceIdPName,entitlement,assurance,eduPersonOrcid,organizationURL,eIDASPersonIdentifier,europeanStudentID,internalEligibilities</prop>
-				<prop key="perun.attributesForUpdate.x509">mail,cn,o,dn,cadn,certificate</prop>
-				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
-				<prop key="perun.instanceName">Perun</prop>
-				<prop key="perun.externalProgramsDependencies">ssh-keygen, openssl</prop>
-				<prop key="perun.allowedCorsDomains"></prop>
-				<prop key="perun.queryTimeout">-1</prop>
-				<prop key="perun.roleUpdateInterval">5</prop>
-				<prop key="perun.defaultLoa.idp">2</prop>
-				<prop key="perun.attributesToSearchUsersAndMembersBy">urn:perun:user:attribute-def:def:preferredMail, urn:perun:member:attribute-def:def:mail</prop>
-				<prop key="perun.attributesToAnonymize"></prop>
-				<prop key="perun.attributesToKeep">urn:perun:user:attribute-def:def:login-namespace:*, urn:perun:user:attribute-def:def:uid-namespace:*</prop>
-				<prop key="perun.idpLoginValidityExceptions"/>
-				<prop key="perun.idpLoginValidity">24</prop>
-				<!--
-				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
-				-->
-				<prop key="perun.oidc.issuers">i1,i2</prop>
-				<prop key="perun.oidc.i1.iss">https://login.cesnet.cz/oidc/</prop>
-				<prop key="perun.oidc.i1.extsource.name">https://login.cesnet.cz/idp/</prop>
-				<prop key="perun.oidc.i1.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
-				<prop key="perun.oidc.i2.iss">https://login.elixir-czech.org/oidc/</prop>
-				<prop key="perun.oidc.i2.extsource.name">https://login.elixir-czech.org/idp/</prop>
-				<prop key="perun.oidc.i2.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
+                <prop key="perun.userInfoEndpoint.extSourceLogin">eduperson_unique_id, eduperson_principal_name,
+                    saml2_nameid_persistent, eduperson_targeted_id, voperson_external_id
+                </prop>
+                <prop key="perun.userInfoEndpoint.extSourceName">target_issuer</prop>
+                <prop key="perun.userInfoEndpoint.extSourceFriendlyName">target_backend, display_name, text</prop>
+                <prop key="perun.introspectionEndpoint.mfaAuthTimeout">1440</prop>
+                <prop key="perun.introspectionEndpoint.mfaAuthTimeoutPercentageForceLogIn">75</prop>
+                <prop key="perun.introspectionEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
+                <prop key="perun.enforceMfa">false</prop>
+                <prop key="perun.forceHtmlSanitization">false</prop>
+            </props>
+        </property>
+    </bean>
 
-				<prop key="perun.appAllowedRoles.apps"></prop>
+    <!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
+    <beans profile="production">
+        <bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties" ref="defaultCoreProperties"/>
+            <property name="locations">
+                <list>
+                    <value>file:@perun.conf@perun.properties</value>
+                    <value>file:${perun.conf.custom}perun.properties</value>
+                </list>
+            </property>
+            <property name="ignoreResourceNotFound" value="true"/>
+        </bean>
+    </beans>
 
-				<prop key="notif.sendMessages">true</prop>
-				<prop key="mail.smtp.host">localhost</prop>
-				<prop key="mail.smtp.from"></prop>
-				<prop key="mail.smtp.port">25</prop>
-				<prop key="mail.smtp.auth">false</prop>
-				<prop key="mail.smtp.starttls.enable">false</prop>
-				<prop key="mail.debug">false</prop>
-				<prop key="perun.smtp.user"></prop>
-				<prop key="perun.smtp.pass"></prop>
-
-				<prop key="perun.autocreatedNamespaces"></prop>
-				<prop key="perun.sendIdentityAlerts">false</prop>
-				<prop key="perun.findSimilarUsersDisabled">false</prop>
-
-				<prop key="perun.userInfoEndpoint.extSourceLogin">eduperson_unique_id, eduperson_principal_name, saml2_nameid_persistent, eduperson_targeted_id, voperson_external_id</prop>
-				<prop key="perun.userInfoEndpoint.extSourceName">target_issuer</prop>
-				<prop key="perun.userInfoEndpoint.extSourceFriendlyName">target_backend, display_name, text</prop>
-				<prop key="perun.introspectionEndpoint.mfaAuthTimeout">1440</prop>
-				<prop key="perun.introspectionEndpoint.mfaAuthTimeoutPercentageForceLogIn">75</prop>
-				<prop key="perun.introspectionEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
-				<prop key="perun.enforceMfa">false</prop>
-				<prop key="perun.forceHtmlSanitization">false</prop>
-			</props>
-		</property>
-	</bean>
-
-	<!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
-	<beans profile="production">
-		<bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="defaultCoreProperties"/>
-			<property name="locations">
-				<list>
-					<value>file:@perun.conf@perun.properties</value>
-					<value>file:${perun.conf.custom}perun.properties</value>
-				</list>
-			</property>
-			<property name="ignoreResourceNotFound" value="true"/>
-		</bean>
-	</beans>
-
-	<!-- active in Spring profile "default", packs default properties and few others as a bean -->
-	<beans profile="default">
-		<bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="defaultCoreProperties" />
-			<!-- Following file should be present only in test resources !! -->
-			<property name="location" value="classpath:perun-tests.properties" />
-			<property name="ignoreResourceNotFound" value="true" />
-		</bean>
-	</beans>
+    <!-- active in Spring profile "default", packs default properties and few others as a bean -->
+    <beans profile="default">
+        <bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties" ref="defaultCoreProperties"/>
+            <!-- Following file should be present only in test resources !! -->
+            <property name="location" value="classpath:perun-tests.properties"/>
+            <property name="ignoreResourceNotFound" value="true"/>
+        </bean>
+    </beans>
 
 </beans>

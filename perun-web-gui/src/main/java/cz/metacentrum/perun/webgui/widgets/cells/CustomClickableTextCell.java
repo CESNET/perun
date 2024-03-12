@@ -10,39 +10,37 @@ import com.google.gwt.user.client.ui.HTML;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class CustomClickableTextCell extends ClickableTextCell
-{
-	private String style;
+public class CustomClickableTextCell extends ClickableTextCell {
+  private String style;
 
-	/**
-	 * Creates a new Clickable text cell
-	 */
-	public CustomClickableTextCell()
-	{
-		super();
-		style = "customClickableTextCell";
-	}
+  /**
+   * Creates a new Clickable text cell
+   */
+  public CustomClickableTextCell() {
+    super();
+    style = "customClickableTextCell";
+  }
 
-	/**
-	 * Renders the widget.
-	 */
-	@Override
-	protected void render(Context context, SafeHtml value, SafeHtmlBuilder sb) {
-		if (value != null) {
-			sb.appendHtmlConstant("<div class=\"" + style + "\">");
-			sb.appendHtmlConstant(value.asString().replaceAll("\n", "<br>"));
-			sb.appendHtmlConstant("</div>");
-		}
-	}
+  /**
+   * Renders the widget.
+   */
+  @Override
+  protected void render(Context context, SafeHtml value, SafeHtmlBuilder sb) {
+    if (value != null) {
+      sb.appendHtmlConstant("<div class=\"" + style + "\">");
+      sb.appendHtmlConstant(value.asString().replaceAll("\n", "<br>"));
+      sb.appendHtmlConstant("</div>");
+    }
+  }
 
-	/**
-	 * Adds a class to the style
-	 * @param style
-	 */
-	public void addStyleName(String style)
-	{
-		this.style += " " + style;
-	}
+  /**
+   * Adds a class to the style
+   *
+   * @param style
+   */
+  public void addStyleName(String style) {
+    this.style += " " + style;
+  }
 
 
 }

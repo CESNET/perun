@@ -1,47 +1,47 @@
 <configuration packagingData="false" debug="false" scan="false" scanPeriod="30 seconds">
 
-	<contextName>perun-auditlogger</contextName>
+    <contextName>perun-auditlogger</contextName>
 
-	<!-- variable defining the directory where log files will be put, takes system property perun.log -->
-	<variable name="LOGDIR" value="${perun.log:-/var/log/perun/}" />
+    <!-- variable defining the directory where log files will be put, takes system property perun.log -->
+    <variable name="LOGDIR" value="${perun.log:-/var/log/perun/}"/>
 
-	<!-- production setting for format of log lines -->
-	<variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
+    <!-- production setting for format of log lines -->
+    <variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
 
-	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-auditlogger">
-		<file>${LOGDIR}perun-auditlogger.log</file>
-		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-auditlogger.log.%d.%i.gz</fileNamePattern>
-			<maxFileSize>100MB</maxFileSize>
-			<maxHistory>30</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${ENCODER_PATTERN}</pattern>
-		</encoder>
-	</appender>
+    <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-auditlogger">
+        <file>${LOGDIR}perun-auditlogger.log</file>
+        <!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGDIR}perun-auditlogger.log.%d.%i.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${ENCODER_PATTERN}</pattern>
+        </encoder>
+    </appender>
 
-	<root level="info">
-		<appender-ref ref="perun-auditlogger"/>
-	</root>
+    <root level="info">
+        <appender-ref ref="perun-auditlogger"/>
+    </root>
 
-	<logger name="cz.metacentrum.perun.auditlogger" level="info"/>
+    <logger name="cz.metacentrum.perun.auditlogger" level="info"/>
 
-	<!-- keep Spring quiet -->
-	<logger name="org.springframework" level="warn"/>
+    <!-- keep Spring quiet -->
+    <logger name="org.springframework" level="warn"/>
 
-	<!-- Actual audit messages logging -->
-	<appender class="org.gnieh.logback.SystemdJournalAppender" name="journal-audit">
-		<syslogIdentifier>perun_audit</syslogIdentifier>
-		<logLoggerName>true</logLoggerName>
-		<encoder>
-			<pattern>%msg</pattern>
-		</encoder>
-	</appender>
+    <!-- Actual audit messages logging -->
+    <appender class="org.gnieh.logback.SystemdJournalAppender" name="journal-audit">
+        <syslogIdentifier>perun_audit</syslogIdentifier>
+        <logLoggerName>true</logLoggerName>
+        <encoder>
+            <pattern>%msg</pattern>
+        </encoder>
+    </appender>
 
-	<logger name="journal-audit" level="info" additivity="false">
-		<appender-ref ref="journal-audit" />
-	</logger>
+    <logger name="journal-audit" level="info" additivity="false">
+        <appender-ref ref="journal-audit"/>
+    </logger>
 
 </configuration>

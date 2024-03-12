@@ -10,749 +10,749 @@ import com.google.gwt.i18n.client.Messages;
  */
 public interface ButtonTranslation extends Messages {
 
-	public static final ButtonTranslation INSTANCE = GWT.create(ButtonTranslation.class);
+  public static final ButtonTranslation INSTANCE = GWT.create(ButtonTranslation.class);
 
-	/* ========== BUTTON TEXT ==================*/
+  /* ========== BUTTON TEXT ==================*/
 
-	/* PRE-DEFINED BUTTONS */
+  /* PRE-DEFINED BUTTONS */
 
-	@DefaultMessage("Add")
-	String addButton();
+  @DefaultMessage("Add")
+  String addButton();
 
-	@DefaultMessage("Add{0}")
-	String addButtonWhat(String what);
+  @DefaultMessage("Add{0}")
+  String addButtonWhat(String what);
 
-	@DefaultMessage("Create")
-	String createButton();
+  @DefaultMessage("Create")
+  String createButton();
 
-	@DefaultMessage("Create{0}")
-	String createButtonWhat(String what);
+  @DefaultMessage("Create{0}")
+  String createButtonWhat(String what);
 
-	@DefaultMessage("Remove")
-	String removeButton();
+  @DefaultMessage("Remove")
+  String removeButton();
 
-	@DefaultMessage("Remove{0}")
-	String removeButtonWhat(String what);
+  @DefaultMessage("Remove{0}")
+  String removeButtonWhat(String what);
 
-	@DefaultMessage("Move")
-	String moveButton();
+  @DefaultMessage("Move")
+  String moveButton();
 
-	@DefaultMessage("Delete")
-	String deleteButton();
+  @DefaultMessage("Delete")
+  String deleteButton();
 
-	@DefaultMessage("Delete{0}")
-	String deleteButtonWhat(String what);
+  @DefaultMessage("Delete{0}")
+  String deleteButtonWhat(String what);
 
-	@DefaultMessage("Save")
-	String saveButton();
+  @DefaultMessage("Save")
+  String saveButton();
 
-	@DefaultMessage("Save{0}")
-	String saveButtonWhat(String what);
+  @DefaultMessage("Save{0}")
+  String saveButtonWhat(String what);
 
-	@DefaultMessage("Search")
-	String searchButton();
+  @DefaultMessage("Search")
+  String searchButton();
 
-	@DefaultMessage("Search{0}")
-	String searchButtonWhat(String what);
+  @DefaultMessage("Search{0}")
+  String searchButtonWhat(String what);
 
-	@DefaultMessage("Filter")
-	String filterButton();
+  @DefaultMessage("Filter")
+  String filterButton();
 
-	@DefaultMessage("Filter{0}")
-	String filterButtonWhat(String what);
+  @DefaultMessage("Filter{0}")
+  String filterButtonWhat(String what);
 
-	@DefaultMessage("Ok")
-	String okButton();
+  @DefaultMessage("Ok")
+  String okButton();
 
-	@DefaultMessage("Cancel")
-	String cancelButton();
+  @DefaultMessage("Cancel")
+  String cancelButton();
 
-	@DefaultMessage("Close")
-	String closeButton();
+  @DefaultMessage("Close")
+  String closeButton();
 
-	@DefaultMessage("Continue")
-	String continueButton();
+  @DefaultMessage("Continue")
+  String continueButton();
 
-	@DefaultMessage("Back")
-	String backButton();
+  @DefaultMessage("Back")
+  String backButton();
 
-	@DefaultMessage("Finish")
-	String finishButton();
+  @DefaultMessage("Finish")
+  String finishButton();
 
-	@DefaultMessage("Fill")
-	String fillButton();
+  @DefaultMessage("Fill")
+  String fillButton();
 
-	@DefaultMessage("List all members")
-	String listAllMembersButton();
+  @DefaultMessage("List all members")
+  String listAllMembersButton();
 
-	@DefaultMessage("List all")
-	String listAllUsersButton();
+  @DefaultMessage("List all")
+  String listAllUsersButton();
 
-	@DefaultMessage("Verify")
-	String verifyButton();
+  @DefaultMessage("Verify")
+  String verifyButton();
 
-	@DefaultMessage("Approve")
-	String approveButton();
+  @DefaultMessage("Approve")
+  String approveButton();
 
-	@DefaultMessage("Reject")
-	String rejectButton();
+  @DefaultMessage("Reject")
+  String rejectButton();
 
-	@DefaultMessage("Refresh")
-	String refreshButton();
+  @DefaultMessage("Refresh")
+  String refreshButton();
 
-	@DefaultMessage("Preview")
-	String previewButton();
+  @DefaultMessage("Preview")
+  String previewButton();
 
-	@DefaultMessage("Settings")
-	String settingsButton();
+  @DefaultMessage("Settings")
+  String settingsButton();
 
-	@DefaultMessage("Settings{0}")
-	String settingsButtonWhat(String what);
+  @DefaultMessage("Settings{0}")
+  String settingsButtonWhat(String what);
 
-	@DefaultMessage("Enable")
-	String enableButton();
+  @DefaultMessage("Enable")
+  String enableButton();
 
-	@DefaultMessage("Disable")
-	String disableButton();
+  @DefaultMessage("Disable")
+  String disableButton();
 
-	/* CUSTOM BUTTONS */
+  /* CUSTOM BUTTONS */
 
-	@DefaultMessage("Copy from VO")
-	String copyFromVoButton();
+  @DefaultMessage("Copy from VO")
+  String copyFromVoButton();
 
-	@DefaultMessage("Copy from group")
-	String copyFromGroupButton();
+  @DefaultMessage("Copy from group")
+  String copyFromGroupButton();
 
-	@DefaultMessage("Notifications")
-	String emailNotificationsButton();
+  @DefaultMessage("Notifications")
+  String emailNotificationsButton();
 
-	@DefaultMessage("Auto registration groups")
-	String autoRegGroups();
+  @DefaultMessage("Auto registration groups")
+  String autoRegGroups();
 
-	@DefaultMessage("E-mail footer")
-	String mailFooterButton();
+  @DefaultMessage("E-mail footer")
+  String mailFooterButton();
 
-	@DefaultMessage("Create service member")
-	String createServiceMemberButton();
+  @DefaultMessage("Create service member")
+  String createServiceMemberButton();
 
-	@DefaultMessage("Search in external sources")
-	String searchForMembersInExtSourcesButton();
+  @DefaultMessage("Search in external sources")
+  String searchForMembersInExtSourcesButton();
 
-	@DefaultMessage("Search among existing users")
-	String searchForMembersInPerunUsersButton();
+  @DefaultMessage("Search among existing users")
+  String searchForMembersInPerunUsersButton();
 
-	@DefaultMessage("Edit")
-	String editFormItemButton();
+  @DefaultMessage("Edit")
+  String editFormItemButton();
 
-	@DefaultMessage("Restore")
-	String undeleteFormItemButton();
+  @DefaultMessage("Restore")
+  String undeleteFormItemButton();
 
-	@DefaultMessage("Switch to EXTENSION")
-	String switchToExtensionButton();
+  @DefaultMessage("Switch to EXTENSION")
+  String switchToExtensionButton();
 
-	@DefaultMessage("Switch to INITIAL")
-	String switchToInitialButton();
+  @DefaultMessage("Switch to INITIAL")
+  String switchToInitialButton();
 
-	@DefaultMessage("Switch to {0}")
-	String switchToCzechButton(String lang);
+  @DefaultMessage("Switch to {0}")
+  String switchToCzechButton(String lang);
 
-	@DefaultMessage("Switch to English")
-	String switchToEnglishButton();
+  @DefaultMessage("Switch to English")
+  String switchToEnglishButton();
 
-	@DefaultMessage("Add member")
-	String addMemberButton();
+  @DefaultMessage("Add member")
+  String addMemberButton();
 
-	@DefaultMessage("Add manager")
-	String addManagerButton();
+  @DefaultMessage("Add manager")
+  String addManagerButton();
 
-	@DefaultMessage("Create group")
-	String createGroupButton();
+  @DefaultMessage("Create group")
+  String createGroupButton();
 
-	@DefaultMessage("Add member to resource")
-	String addMemberToResourceButton();
+  @DefaultMessage("Add member to resource")
+  String addMemberToResourceButton();
 
-	@DefaultMessage("Edit")
-	String editButton();
+  @DefaultMessage("Edit")
+  String editButton();
 
-	@DefaultMessage("Force propagation")
-	String forcePropagationButton();
+  @DefaultMessage("Force propagation")
+  String forcePropagationButton();
 
-	@DefaultMessage("Block")
-	String blockPropagationButton();
+  @DefaultMessage("Block")
+  String blockPropagationButton();
 
-	@DefaultMessage("Allow")
-	String allowPropagationButton();
+  @DefaultMessage("Allow")
+  String allowPropagationButton();
 
-	@DefaultMessage("List users without VO")
-	String listUsersWithoutVoButton();
+  @DefaultMessage("List users without VO")
+  String listUsersWithoutVoButton();
 
-	@DefaultMessage("Logout")
-	String logoutButton();
+  @DefaultMessage("Logout")
+  String logoutButton();
 
-	@DefaultMessage("Select")
-	String selectIdentityButton();
+  @DefaultMessage("Select")
+  String selectIdentityButton();
 
-	/* ========== BUTTON TITLE - ON HOVER TEXT TRANSLATION ==================*/
+  /* ========== BUTTON TITLE - ON HOVER TEXT TRANSLATION ==================*/
 
-	/* ATTRIBUTES */
+  /* ATTRIBUTES */
 
-	@DefaultMessage("Create new attribute definition")
-	String createAttributeDefinition();
+  @DefaultMessage("Create new attribute definition")
+  String createAttributeDefinition();
 
-	@DefaultMessage("Delete selected attribute definitions")
-	String deleteAttributeDefinition();
+  @DefaultMessage("Delete selected attribute definitions")
+  String deleteAttributeDefinition();
 
-	@DefaultMessage("Filter attribute definitions by name")
-	String filterAttributeDefinition();
+  @DefaultMessage("Filter attribute definitions by name")
+  String filterAttributeDefinition();
 
-	@DefaultMessage("Save new attributes")
-	String saveNewAttributes();
+  @DefaultMessage("Save new attributes")
+  String saveNewAttributes();
 
-	@DefaultMessage("Save changes in selected attributes")
-	String saveChangesInAttributes();
+  @DefaultMessage("Save changes in selected attributes")
+  String saveChangesInAttributes();
 
-	@DefaultMessage("Set new attributes")
-	String setNewAttributes();
+  @DefaultMessage("Set new attributes")
+  String setNewAttributes();
 
-	@DefaultMessage("Remove values from selected attributes")
-	String removeAttributes();
+  @DefaultMessage("Remove values from selected attributes")
+  String removeAttributes();
 
-	/* VOS */
+  /* VOS */
 
-	@DefaultMessage("Create new virtual organization")
-	String createVo();
+  @DefaultMessage("Create new virtual organization")
+  String createVo();
 
-	@DefaultMessage("Delete selected virtual organizations")
-	String deleteVo();
+  @DefaultMessage("Delete selected virtual organizations")
+  String deleteVo();
 
-	@DefaultMessage("Filter virtual organizations by name")
-	String filterVo();
+  @DefaultMessage("Filter virtual organizations by name")
+  String filterVo();
 
-	/* SLDS */
+  /* SLDS */
 
-	@DefaultMessage("Create new Service Level Description")
-	String createSLD();
+  @DefaultMessage("Create new Service Level Description")
+  String createSLD();
 
-	@DefaultMessage("Delete selected SLDs")
-	String deleteSLD();
+  @DefaultMessage("Delete selected SLDs")
+  String deleteSLD();
 
-	/* MEMBERS */
+  /* MEMBERS */
 
-	@DefaultMessage("Add new member to VO")
-	String addMemberToVo();
+  @DefaultMessage("Add new member to VO")
+  String addMemberToVo();
 
-	@DefaultMessage("Add selected candidates to VO")
-	String addSelectedCandidateToVo();
+  @DefaultMessage("Add selected candidates to VO")
+  String addSelectedCandidateToVo();
 
-	@DefaultMessage("Remove selected members from VO")
-	String removeMemberFromVo();
+  @DefaultMessage("Remove selected members from VO")
+  String removeMemberFromVo();
 
-	@DefaultMessage("Search for members in VO by name, email or login")
-	String searchMemberInVo();
+  @DefaultMessage("Search for members in VO by name, email or login")
+  String searchMemberInVo();
 
-	@DefaultMessage("Add new member to group")
-	String addMemberToGroup();
+  @DefaultMessage("Add new member to group")
+  String addMemberToGroup();
 
-	@DefaultMessage("Add selected members to group")
-	String addSelectedMemberToGroup();
+  @DefaultMessage("Add selected members to group")
+  String addSelectedMemberToGroup();
 
-	@DefaultMessage("Remove selected members from group")
-	String removeMemberFromGroup();
+  @DefaultMessage("Remove selected members from group")
+  String removeMemberFromGroup();
 
-	@DefaultMessage("Search for members in group by name, email or login")
-	String searchMemberInGroup();
+  @DefaultMessage("Search for members in group by name, email or login")
+  String searchMemberInGroup();
 
-	@DefaultMessage("Search for members in parent group by name, email or login")
-	String searchMemberInParentGroup();
+  @DefaultMessage("Search for members in parent group by name, email or login")
+  String searchMemberInParentGroup();
 
-	@DefaultMessage("List all members in VO")
-	String listAllMembersInVo();
+  @DefaultMessage("List all members in VO")
+  String listAllMembersInVo();
 
-	@DefaultMessage("List all members in group")
-	String listAllMembersInGroup();
+  @DefaultMessage("List all members in group")
+  String listAllMembersInGroup();
 
-	@DefaultMessage("Create service member in VO (can have multiple users assigned)")
-	String createServiceMember();
+  @DefaultMessage("Create service member in VO (can have multiple users assigned)")
+  String createServiceMember();
 
-	@DefaultMessage("Search in external sources like LDAP, SQL DB,...")
-	String searchForMembersInExtSources();
+  @DefaultMessage("Search in external sources like LDAP, SQL DB,...")
+  String searchForMembersInExtSources();
 
-	@DefaultMessage("Search among existing Perun users")
-	String searchForMembersInPerunUsers();
+  @DefaultMessage("Search among existing Perun users")
+  String searchForMembersInPerunUsers();
 
-	@DefaultMessage("Add member to specific resource")
-	String addMemberToResource();
+  @DefaultMessage("Add member to specific resource")
+  String addMemberToResource();
 
-	@DefaultMessage("Filter members by name")
-	String filterMembers();
+  @DefaultMessage("Filter members by name")
+  String filterMembers();
 
-	@DefaultMessage("Change membership status for {0}")
-	String changeStatus(String name);
+  @DefaultMessage("Change membership status for {0}")
+  String changeStatus(String name);
 
-	/* MANAGERS */
+  /* MANAGERS */
 
-	@DefaultMessage("Add new VO manager")
-	String addManagerToVo();
+  @DefaultMessage("Add new VO manager")
+  String addManagerToVo();
 
-	@DefaultMessage("Add selected users as VO`s managers")
-	String addSelectedManagersToVo();
+  @DefaultMessage("Add selected users as VO`s managers")
+  String addSelectedManagersToVo();
 
-	@DefaultMessage("Remove selected VO managers")
-	String removeManagerFromVo();
+  @DefaultMessage("Remove selected VO managers")
+  String removeManagerFromVo();
 
-	@DefaultMessage("Add group as new VO manager")
-	String addManagerGroupToVo();
+  @DefaultMessage("Add group as new VO manager")
+  String addManagerGroupToVo();
 
-	@DefaultMessage("Add selected groups as VO`s managers")
-	String addSelectedManagersGroupToVo();
+  @DefaultMessage("Add selected groups as VO`s managers")
+  String addSelectedManagersGroupToVo();
 
-	@DefaultMessage("Remove selected groups from VO managers")
-	String removeManagerGroupFromVo();
+  @DefaultMessage("Remove selected groups from VO managers")
+  String removeManagerGroupFromVo();
 
-	@DefaultMessage("Add new group manager")
-	String addManagerToGroup();
+  @DefaultMessage("Add new group manager")
+  String addManagerToGroup();
 
-	@DefaultMessage("Add selected users as groups managers")
-	String addSelectedManagersToGroup();
+  @DefaultMessage("Add selected users as groups managers")
+  String addSelectedManagersToGroup();
 
-	@DefaultMessage("Remove selected group managers")
-	String removeManagerFromGroup();
+  @DefaultMessage("Remove selected group managers")
+  String removeManagerFromGroup();
 
-	@DefaultMessage("Add group as new group manager")
-	String addManagerGroupToGroup();
+  @DefaultMessage("Add group as new group manager")
+  String addManagerGroupToGroup();
 
-	@DefaultMessage("Add selected groups as groups managers")
-	String addSelectedManagersGroupToGroup();
+  @DefaultMessage("Add selected groups as groups managers")
+  String addSelectedManagersGroupToGroup();
 
-	@DefaultMessage("Remove selected groups from group managers")
-	String removeManagerGroupFromGroup();
+  @DefaultMessage("Remove selected groups from group managers")
+  String removeManagerGroupFromGroup();
 
-	@DefaultMessage("Add new facility manager")
-	String addManagerToFacility();
+  @DefaultMessage("Add new facility manager")
+  String addManagerToFacility();
 
-	@DefaultMessage("Add selected users as facility managers")
-	String addSelectedManagersToFacility();
+  @DefaultMessage("Add selected users as facility managers")
+  String addSelectedManagersToFacility();
 
-	@DefaultMessage("Remove selected facility managers")
-	String removeManagerFromFacility();
+  @DefaultMessage("Remove selected facility managers")
+  String removeManagerFromFacility();
 
-	@DefaultMessage("Add new group as facility manager")
-	String addManagerGroupToFacility();
+  @DefaultMessage("Add new group as facility manager")
+  String addManagerGroupToFacility();
 
-	@DefaultMessage("Add selected groups as facility managers")
-	String addSelectedManagersGroupToFacility();
+  @DefaultMessage("Add selected groups as facility managers")
+  String addSelectedManagersGroupToFacility();
 
-	@DefaultMessage("Remove selected groups from facility managers")
-	String removeManagerGroupFromFacility();
+  @DefaultMessage("Remove selected groups from facility managers")
+  String removeManagerGroupFromFacility();
 
-	/* USERS */
+  /* USERS */
 
-	@DefaultMessage("Search for users by name, email or login")
-	String searchUsers();
+  @DefaultMessage("Search for users by name, email or login")
+  String searchUsers();
 
-	@DefaultMessage("List all users in Perun without VO")
-	String listUsersWithoutVo();
+  @DefaultMessage("List all users in Perun without VO")
+  String listUsersWithoutVo();
 
-	/* RESOURCES */
+  /* RESOURCES */
 
-	@DefaultMessage("Create new resource for VO")
-	String createResource();
+  @DefaultMessage("Create new resource for VO")
+  String createResource();
 
-	@DefaultMessage("Delete selected resources")
-	String deleteResource();
+  @DefaultMessage("Delete selected resources")
+  String deleteResource();
 
-	@DefaultMessage("Filter resources by name or tag")
-	String filterResources();
+  @DefaultMessage("Filter resources by name or tag")
+  String filterResources();
 
-	@DefaultMessage("Edit resource details")
-	String editResourceDetails();
+  @DefaultMessage("Edit resource details")
+  String editResourceDetails();
 
-	@DefaultMessage("Save changes in resource details")
-	String saveResourceDetails();
+  @DefaultMessage("Save changes in resource details")
+  String saveResourceDetails();
 
-	@DefaultMessage("Assign new group to this resource")
-	String assignGroupToResource();
+  @DefaultMessage("Assign new group to this resource")
+  String assignGroupToResource();
 
-	@DefaultMessage("Assign group to selected resources")
-	String assignGroupToSelectedResources();
+  @DefaultMessage("Assign group to selected resources")
+  String assignGroupToSelectedResources();
 
-	@DefaultMessage("Assign this group to new resources")
-	String assignGroupToResources();
+  @DefaultMessage("Assign this group to new resources")
+  String assignGroupToResources();
 
-	@DefaultMessage("Assign new tags to this resource")
-	String assignTagsToResource();
+  @DefaultMessage("Assign new tags to this resource")
+  String assignTagsToResource();
 
-	@DefaultMessage("Remove selected groups from this resource")
-	String removeGroupFromResource();
+  @DefaultMessage("Remove selected groups from this resource")
+  String removeGroupFromResource();
 
-	@DefaultMessage("Remove group from selected resources")
-	String removeGroupFromSelectedResources();
+  @DefaultMessage("Remove group from selected resources")
+  String removeGroupFromSelectedResources();
 
-	@DefaultMessage("Remove selected tags from this resource")
-	String removeSelectedTagsFromResource();
+  @DefaultMessage("Remove selected tags from this resource")
+  String removeSelectedTagsFromResource();
 
-	@DefaultMessage("Assign new service to this resource")
-	String assignServiceToResource();
+  @DefaultMessage("Assign new service to this resource")
+  String assignServiceToResource();
 
-	@DefaultMessage("Remove selected services from this resource")
-	String removeServiceFromResource();
+  @DefaultMessage("Remove selected services from this resource")
+  String removeServiceFromResource();
 
-	@DefaultMessage("Assign selected groups to resource")
-	String assignSelectedGroupsToResource();
+  @DefaultMessage("Assign selected groups to resource")
+  String assignSelectedGroupsToResource();
 
-	@DefaultMessage("Assign selected services to resource")
-	String assignSelectedServicesToResource();
+  @DefaultMessage("Assign selected services to resource")
+  String assignSelectedServicesToResource();
 
-	@DefaultMessage("Assign selected tags to resource")
-	String assignSelectedTagsToResource();
+  @DefaultMessage("Assign selected tags to resource")
+  String assignSelectedTagsToResource();
 
-	@DefaultMessage("Fill values for all empty displayed attributes based on current configuration. Changes are not saved until you click on \"Save\" button.")
-	String fillResourceAttributes();
+  @DefaultMessage("Fill values for all empty displayed attributes based on current configuration. Changes are not saved until you click on \"Save\" button.")
+  String fillResourceAttributes();
 
-	@DefaultMessage("Finish assigning of selected group")
-	String finishGroupAssigning();
+  @DefaultMessage("Finish assigning of selected group")
+  String finishGroupAssigning();
 
-	/* RESOURCES TAGS */
+  /* RESOURCES TAGS */
 
-	@DefaultMessage("Save changes in resource`s tags names")
-	String updateResourceTag();
+  @DefaultMessage("Save changes in resource`s tags names")
+  String updateResourceTag();
 
-	@DefaultMessage("Create new resource`s tag in VO")
-	String createResourceTag();
+  @DefaultMessage("Create new resource`s tag in VO")
+  String createResourceTag();
 
-	@DefaultMessage("Delete selected resource`s tags from VO")
-	String deleteResourceTag();
+  @DefaultMessage("Delete selected resource`s tags from VO")
+  String deleteResourceTag();
 
 
-	/* GROUPS */
+  /* GROUPS */
 
-	@DefaultMessage("Create new group")
-	String createGroup();
+  @DefaultMessage("Create new group")
+  String createGroup();
 
-	@DefaultMessage("Create new sub-group")
-	String createSubGroup();
+  @DefaultMessage("Create new sub-group")
+  String createSubGroup();
 
-	@DefaultMessage("Delete selected groups")
-	String deleteGroup();
+  @DefaultMessage("Delete selected groups")
+  String deleteGroup();
 
-	@DefaultMessage("Delete selected sub-groups")
-	String deleteSubGroup();
+  @DefaultMessage("Delete selected sub-groups")
+  String deleteSubGroup();
 
-	@DefaultMessage("Move selected groups")
-	String moveGroup();
+  @DefaultMessage("Move selected groups")
+  String moveGroup();
 
-	@DefaultMessage("Filter groups by name")
-	String filterGroup();
+  @DefaultMessage("Filter groups by name")
+  String filterGroup();
 
-	@DefaultMessage("Edit group details")
-	String editGroupDetails();
+  @DefaultMessage("Edit group details")
+  String editGroupDetails();
 
-	@DefaultMessage("Save changes in group`s details")
-	String saveGroupDetails();
+  @DefaultMessage("Save changes in group`s details")
+  String saveGroupDetails();
 
-	@DefaultMessage("Add new group union")
-	String addGroupUnion();
+  @DefaultMessage("Add new group union")
+  String addGroupUnion();
 
-	@DefaultMessage("Remove selected group union")
-	String removeGroupUnion();
+  @DefaultMessage("Remove selected group union")
+  String removeGroupUnion();
 
-	/* EXT SOURCES */
+  /* EXT SOURCES */
 
-	@DefaultMessage("Add new external source of users")
-	String addExtSource();
+  @DefaultMessage("Add new external source of users")
+  String addExtSource();
 
-	@DefaultMessage("Add selected external sources of users")
-	String addSelectedExtSource();
+  @DefaultMessage("Add selected external sources of users")
+  String addSelectedExtSource();
 
-	@DefaultMessage("Remove selected external sources of users")
-	String removeExtSource();
+  @DefaultMessage("Remove selected external sources of users")
+  String removeExtSource();
 
-	/* APPLICATIONS + NOTIFICATIONS */
+  /* APPLICATIONS + NOTIFICATIONS */
 
-	@DefaultMessage("Verify selected applications")
-	String verifyApplication();
+  @DefaultMessage("Verify selected applications")
+  String verifyApplication();
 
-	@DefaultMessage("Approve selected applications (must be in state VERIFIED)")
-	String approveApplication();
+  @DefaultMessage("Approve selected applications (must be in state VERIFIED)")
+  String approveApplication();
 
-	@DefaultMessage("Reject selected applications")
-	String rejectApplication();
+  @DefaultMessage("Reject selected applications")
+  String rejectApplication();
 
-	@DefaultMessage("Delete selected applications (must be in state NEW or REJECTED)")
-	String deleteApplication();
+  @DefaultMessage("Delete selected applications (must be in state NEW or REJECTED)")
+  String deleteApplication();
 
-	@DefaultMessage("Filter applications by user")
-	String filterApplications();
+  @DefaultMessage("Filter applications by user")
+  String filterApplications();
 
-	@DefaultMessage("Save changes made in application form")
-	String saveApplicationFormSettings();
+  @DefaultMessage("Save changes made in application form")
+  String saveApplicationFormSettings();
 
-	@DefaultMessage("Add new application form item")
-	String addNewAppFormItem();
+  @DefaultMessage("Add new application form item")
+  String addNewAppFormItem();
 
-	@DefaultMessage("Preview application form (with unsaved changes)")
-	String previewAppForm();
+  @DefaultMessage("Preview application form (with unsaved changes)")
+  String previewAppForm();
 
-	@DefaultMessage("Change application form settings")
-	String changeAppFormSettings();
+  @DefaultMessage("Change application form settings")
+  String changeAppFormSettings();
 
-	@DefaultMessage("Copy all form items from another VO into this")
-	String copyFromVo();
+  @DefaultMessage("Copy all form items from another VO into this")
+  String copyFromVo();
 
-	@DefaultMessage("Copy all form items from another group into this")
-	String copyFromGroup();
+  @DefaultMessage("Copy all form items from another group into this")
+  String copyFromGroup();
 
-	@DefaultMessage("Manage e-mail notifications")
-	String emailNotifications();
+  @DefaultMessage("Manage e-mail notifications")
+  String emailNotifications();
 
-	@DefaultMessage("Manage groups for automatic registration")
-	String autoRegistrationGroups();
+  @DefaultMessage("Manage groups for automatic registration")
+  String autoRegistrationGroups();
 
-	@DefaultMessage("Add group to automatic registration")
-	String addGroupToAutoReg();
+  @DefaultMessage("Add group to automatic registration")
+  String addGroupToAutoReg();
 
-	@DefaultMessage("Remove group from automatic registration")
-	String removeGroupFromAutoReg();
+  @DefaultMessage("Remove group from automatic registration")
+  String removeGroupFromAutoReg();
 
-	@DefaultMessage("Copy notifications from another VO into yours")
-	String copyMailsFromVo();
+  @DefaultMessage("Copy notifications from another VO into yours")
+  String copyMailsFromVo();
 
-	@DefaultMessage("Copy notifications from another group into yours")
-	String copyMailsFromGroup();
+  @DefaultMessage("Copy notifications from another group into yours")
+  String copyMailsFromGroup();
 
-	@DefaultMessage("Add new mail notification")
-	String addMail();
+  @DefaultMessage("Add new mail notification")
+  String addMail();
 
-	@DefaultMessage("Remove selected mail notifications")
-	String removeMail();
+  @DefaultMessage("Remove selected mail notifications")
+  String removeMail();
 
-	@DefaultMessage("Enable sending for selected mail notifications")
-	String enableMail();
+  @DefaultMessage("Enable sending for selected mail notifications")
+  String enableMail();
 
-	@DefaultMessage("Disable sending for selected mail notifications")
-	String disableMail();
+  @DefaultMessage("Disable sending for selected mail notifications")
+  String disableMail();
 
-	@DefaultMessage("Edit common footer, which can be added to each mail by mailFooter")
-	String editMailFooter();
+  @DefaultMessage("Edit common footer, which can be added to each mail by mailFooter")
+  String editMailFooter();
 
-	@DefaultMessage("Edit form item properties")
-	String editFormItem();
+  @DefaultMessage("Edit form item properties")
+  String editFormItem();
 
-	@DefaultMessage("Delete form item")
-	String deleteFormItem();
+  @DefaultMessage("Delete form item")
+  String deleteFormItem();
 
-	@DefaultMessage("Move form item up")
-	String moveFormItemUp();
+  @DefaultMessage("Move form item up")
+  String moveFormItemUp();
 
-	@DefaultMessage("Move form item down")
-	String moveFormItemDown();
+  @DefaultMessage("Move form item down")
+  String moveFormItemDown();
 
-	@DefaultMessage("Restore deleted form item")
-	String undeleteFormItem();
+  @DefaultMessage("Restore deleted form item")
+  String undeleteFormItem();
 
-	@DefaultMessage("Create and configure new form item")
-	String createFormItem();
+  @DefaultMessage("Create and configure new form item")
+  String createFormItem();
 
-	@DefaultMessage("Save local changes of form item")
-	String saveFormItem();
+  @DefaultMessage("Save local changes of form item")
+  String saveFormItem();
 
-	@DefaultMessage("Switch between INITIAL and EXTENSION")
-	String switchBetweenInitialAndExtension();
+  @DefaultMessage("Switch between INITIAL and EXTENSION")
+  String switchBetweenInitialAndExtension();
 
-	@DefaultMessage("Switch between English and native language")
-	String switchBetweenCzechAndEnglish();
+  @DefaultMessage("Switch between English and native language")
+  String switchBetweenCzechAndEnglish();
 
-	@DefaultMessage("Create new e-mail notification for application")
-	String createEmailNotificationForApplication();
+  @DefaultMessage("Create new e-mail notification for application")
+  String createEmailNotificationForApplication();
 
-	@DefaultMessage("Save changes in e-mail notification for application")
-	String saveEmailNotificationForApplication();
+  @DefaultMessage("Save changes in e-mail notification for application")
+  String saveEmailNotificationForApplication();
 
-	@DefaultMessage("Create empty application form")
-	String createEmptyApplicationForm();
+  @DefaultMessage("Create empty application form")
+  String createEmptyApplicationForm();
 
-	@DefaultMessage("Add new item into selectionbox / combobox widget")
-	String addNewSelectionBoxItem();
+  @DefaultMessage("Add new item into selectionbox / combobox widget")
+  String addNewSelectionBoxItem();
 
-	@DefaultMessage("Save changes in mail footer definition")
-	String saveMailFooter();
+  @DefaultMessage("Save changes in mail footer definition")
+  String saveMailFooter();
 
-	@DefaultMessage("Filter applications by VO or group")
-	String filterByVoOrGroup();
+  @DefaultMessage("Filter applications by VO or group")
+  String filterByVoOrGroup();
 
-	/* OWNERS */
+  /* OWNERS */
 
-	@DefaultMessage("Create new owner")
-	String createOwner();
+  @DefaultMessage("Create new owner")
+  String createOwner();
 
-	@DefaultMessage("Delete selected owners")
-	String deleteOwner();
+  @DefaultMessage("Delete selected owners")
+  String deleteOwner();
 
-	@DefaultMessage("Filter owners by name, contact or type")
-	String filterOwners();
+  @DefaultMessage("Filter owners by name, contact or type")
+  String filterOwners();
 
-	@DefaultMessage("Add selected owners")
-	String addOwners();
+  @DefaultMessage("Add selected owners")
+  String addOwners();
 
-	@DefaultMessage("Add new owners")
-	String addNewOwners();
+  @DefaultMessage("Add new owners")
+  String addNewOwners();
 
-	@DefaultMessage("Remove selected owners")
-	String removeSelectedOwners();
+  @DefaultMessage("Remove selected owners")
+  String removeSelectedOwners();
 
-	/* FACILITIES */
+  /* FACILITIES */
 
-	@DefaultMessage("Create new facility")
-	String createFacility();
+  @DefaultMessage("Create new facility")
+  String createFacility();
 
-	@DefaultMessage("Delete selected facilities")
-	String deleteFacilities();
+  @DefaultMessage("Delete selected facilities")
+  String deleteFacilities();
 
-	@DefaultMessage("Filter facilities by name or owner")
-	String filterFacilities();
+  @DefaultMessage("Filter facilities by name or owner")
+  String filterFacilities();
 
-	@DefaultMessage("Edit facility details")
-	String editFacilityDetails();
+  @DefaultMessage("Edit facility details")
+  String editFacilityDetails();
 
-	@DefaultMessage("Save changes in facility details")
-	String saveFacilityDetails();
+  @DefaultMessage("Save changes in facility details")
+  String saveFacilityDetails();
 
-	@DefaultMessage("Finish configuration of facility")
-	String finishFacilityConfiguration();
+  @DefaultMessage("Finish configuration of facility")
+  String finishFacilityConfiguration();
 
-	@DefaultMessage("Refresh list of propagation results")
-	String refreshPropagationResults();
+  @DefaultMessage("Refresh list of propagation results")
+  String refreshPropagationResults();
 
-	@DefaultMessage("Add new destination")
-	String addDestination();
+  @DefaultMessage("Add new destination")
+  String addDestination();
 
-	@DefaultMessage("Remove selected destinations")
-	String removeSelectedDestinations();
+  @DefaultMessage("Remove selected destinations")
+  String removeSelectedDestinations();
 
-	@DefaultMessage("Filter destinations by name or service")
-	String filterDestination();
+  @DefaultMessage("Filter destinations by name or service")
+  String filterDestination();
 
-	@DefaultMessage("Filter destinations by name or facility")
-	String filterDestinationByFacility();
+  @DefaultMessage("Filter destinations by name or facility")
+  String filterDestinationByFacility();
 
-	@DefaultMessage("Force propagation of selected services")
-	String forcePropagation();
+  @DefaultMessage("Force propagation of selected services")
+  String forcePropagation();
 
-	@DefaultMessage("Block propagation of selected services")
-	String blockServicesOnFacility();
+  @DefaultMessage("Block propagation of selected services")
+  String blockServicesOnFacility();
 
-	@DefaultMessage("Allow propagation of selected services")
-	String allowServicesOnFacility();
+  @DefaultMessage("Allow propagation of selected services")
+  String allowServicesOnFacility();
 
-	@DefaultMessage("Add new hosts to facility")
-	String addHost();
+  @DefaultMessage("Add new hosts to facility")
+  String addHost();
 
-	@DefaultMessage("Remove selected hosts from facility")
-	String removeHosts();
+  @DefaultMessage("Remove selected hosts from facility")
+  String removeHosts();
 
-	@DefaultMessage("Filter hosts by name")
-	String filterHosts();
+  @DefaultMessage("Filter hosts by name")
+  String filterHosts();
 
-	@DefaultMessage("Delete selected Tasks")
-	String deleteTasks();
+  @DefaultMessage("Delete selected Tasks")
+  String deleteTasks();
 
-	/* PERUN ADMIN */
+  /* PERUN ADMIN */
 
-	@DefaultMessage("Refresh list of audit messages")
-	String refreshAuditMessages();
+  @DefaultMessage("Refresh list of audit messages")
+  String refreshAuditMessages();
 
-	/* SERVICES */
+  /* SERVICES */
 
-	@DefaultMessage("Create new service in Perun")
-	String createService();
+  @DefaultMessage("Create new service in Perun")
+  String createService();
 
-	@DefaultMessage("Delete selected services from Perun")
-	String deleteSelectedServices();
+  @DefaultMessage("Delete selected services from Perun")
+  String deleteSelectedServices();
 
-	@DefaultMessage("Add required attribute")
-	String addRequiredAttribute();
+  @DefaultMessage("Add required attribute")
+  String addRequiredAttribute();
 
-	@DefaultMessage("Add selected attribute definitions between required by service")
-	String addSelectedRequiredAttribute();
+  @DefaultMessage("Add selected attribute definitions between required by service")
+  String addSelectedRequiredAttribute();
 
-	@DefaultMessage("Remove selected attribute definitions from required by service")
-	String removeSelectedRequiredAttributes();
+  @DefaultMessage("Remove selected attribute definitions from required by service")
+  String removeSelectedRequiredAttributes();
 
-	@DefaultMessage("Filter services by name")
-	String filterServices();
+  @DefaultMessage("Filter services by name")
+  String filterServices();
 
-	@DefaultMessage("Edit service details")
-	String editServiceDetails();
+  @DefaultMessage("Edit service details")
+  String editServiceDetails();
 
-	@DefaultMessage("Save changes in service details")
-	String saveServiceDetails();
+  @DefaultMessage("Save changes in service details")
+  String saveServiceDetails();
 
-	/* SERVICE PACKAGES */
+  /* SERVICE PACKAGES */
 
-	@DefaultMessage("Create new service package in Perun")
-	String createServicePackage();
+  @DefaultMessage("Create new service package in Perun")
+  String createServicePackage();
 
-	@DefaultMessage("Delete selected service packages from Perun")
-	String deleteSelectedServicePackages();
+  @DefaultMessage("Delete selected service packages from Perun")
+  String deleteSelectedServicePackages();
 
-	@DefaultMessage("Save changes in services packages")
-	String saveChangesInServicesPackages();
+  @DefaultMessage("Save changes in services packages")
+  String saveChangesInServicesPackages();
 
-	/* TAGS */
+  /* TAGS */
 
-	@DefaultMessage("Filter resources tags by name")
-	String filterTags();
+  @DefaultMessage("Filter resources tags by name")
+  String filterTags();
 
-	/* CABINET */
+  /* CABINET */
 
-	@DefaultMessage("Filter authors by name")
-	String filterAuthors();
+  @DefaultMessage("Filter authors by name")
+  String filterAuthors();
 
 
-	/* ======= TITLES FOR DISABLED BUTTONS =============== */
+  /* ======= TITLES FOR DISABLED BUTTONS =============== */
 
-	@DefaultMessage("Click to logout from Perun GUI")
-	String logout();
+  @DefaultMessage("Click to logout from Perun GUI")
+  String logout();
 
-	@DefaultMessage("Click to select identity")
-	String select();
+  @DefaultMessage("Click to select identity")
+  String select();
 
-	/* SECURITY TEAMS */
+  /* SECURITY TEAMS */
 
-	@DefaultMessage("Filter security team by name")
-	String filterSecurityTeam();
+  @DefaultMessage("Filter security team by name")
+  String filterSecurityTeam();
 
-	@DefaultMessage("Create new Security Team")
-	String createSecurityTeam();
+  @DefaultMessage("Create new Security Team")
+  String createSecurityTeam();
 
-	@DefaultMessage("Delete Security Team(s)")
-	String deleteSecurityTeam();
+  @DefaultMessage("Delete Security Team(s)")
+  String deleteSecurityTeam();
 
-	@DefaultMessage("Add member to SecurityTeam")
-	String addMemberToSecurityTeam();
+  @DefaultMessage("Add member to SecurityTeam")
+  String addMemberToSecurityTeam();
 
-	@DefaultMessage("Remove member(s) from SecurityTeam")
-	String removeMemberOfSecurityTeam();
+  @DefaultMessage("Remove member(s) from SecurityTeam")
+  String removeMemberOfSecurityTeam();
 
-	@DefaultMessage("Add selected users as manager to SecurityTeam")
-	String addSelectedManagersToSecurityTeam();
+  @DefaultMessage("Add selected users as manager to SecurityTeam")
+  String addSelectedManagersToSecurityTeam();
 
-	@DefaultMessage("Add user(s) to blacklist")
-	String addUsersToBlacklist();
+  @DefaultMessage("Add user(s) to blacklist")
+  String addUsersToBlacklist();
 
-	@DefaultMessage("Add selected user(s) to blacklist")
-	String addSelectedUsersToBlacklist();
+  @DefaultMessage("Add selected user(s) to blacklist")
+  String addSelectedUsersToBlacklist();
 
-	@DefaultMessage("Remove selected user(s) from blacklist")
-	String removeSelectedUsersFromBlacklist();
+  @DefaultMessage("Remove selected user(s) from blacklist")
+  String removeSelectedUsersFromBlacklist();
 
-	@DefaultMessage("Assign SecurityTeam")
-	String assignSecurityTeam();
+  @DefaultMessage("Assign SecurityTeam")
+  String assignSecurityTeam();
 
-	@DefaultMessage("Remove selected SecurityTeam(s)")
-	String removeSelectedSecurityTeams();
+  @DefaultMessage("Remove selected SecurityTeam(s)")
+  String removeSelectedSecurityTeams();
 
-	@DefaultMessage("Filter blacklisted users by name")
-	String filterBlacklist();
+  @DefaultMessage("Filter blacklisted users by name")
+  String filterBlacklist();
 
 }

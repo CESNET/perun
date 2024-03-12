@@ -7,18 +7,18 @@ package cz.metacentrum.perun.webgui.tabs;
  */
 public interface TabItemWithUrl extends TabItem {
 
-	/**
-	 * Return only part with its own code name
-	 * Eg. "detail" for VoDetailTabItem
-	 *
-	 * @return
-	 */
-	public String getUrl();
+  /**
+   * Return only part with its own code name
+   * Eg. "detail" for VoDetailTabItem
+   *
+   * @return
+   */
+  public String getUrl();
 
-	/**
-	 * Returns built URL with all parameters
-	 *
-	 * @return
-	 */
-	public String getUrlWithParameters();
+  /**
+   * Returns built URL with all parameters
+   *
+   * @return
+   */
+  public String getUrlWithParameters();
 }

@@ -16,82 +16,86 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class UpdateFacility {
 
-	// Session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // Json URL
+  static private final String JSON_URL = "facilitiesManager/updateFacility";
+  // Session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // External events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// External events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * New instance of CreateGroup
+   */
+  public UpdateFacility() {
+  }
 
-	// Json URL
-	static private final String JSON_URL = "facilitiesManager/updateFacility";
+  /**
+   * New instance of CreateGroup
+   *
+   * @param events
+   */
+  public UpdateFacility(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * New instance of CreateGroup
-	 */
-	public UpdateFacility() {
-	}
+  /**
+   * Updates facility details
+   *
+   * @param fac Facility with updated details
+   */
+  public void updateFacility(Facility fac) {
 
-	/**
-	 * New instance of CreateGroup
-	 *
-	 * @param events
-	 */
-	public UpdateFacility(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    if (fac == null) {
+      UiElements.generateAlert("Error updating facility", "Facility to update can't be null.");
+      return;
+    }
 
-	/**
-	 * Updates facility details
-	 *
-	 * @param fac Facility with updated details
-	 */
-	public void updateFacility(Facility fac) {
+    // GROUP OBJECT
+    JSONObject oldFacility = new JSONObject(fac);
+    // RECONSTRUCT OBJECT
+    JSONObject newFacility = new JSONObject();
+    newFacility.put("id", oldFacility.get("id"));
+    newFacility.put("name", oldFacility.get("name"));
+    newFacility.put("description", oldFacility.get("description"));
+    newFacility.put("type", oldFacility.get("type"));
+    newFacility.put("beanName", oldFacility.get("beanName"));
+    newFacility.put("createdAt", oldFacility.get("createdAt"));
+    newFacility.put("createdBy", oldFacility.get("createdBy"));
+    newFacility.put("modifiedAt", oldFacility.get("modifiedAt"));
+    newFacility.put("modifiedBy", oldFacility.get("modifiedBy"));
 
-		if (fac == null) {
-			UiElements.generateAlert("Error updating facility", "Facility to update can't be null.");
-			return;
-		}
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("facility", newFacility);
 
-		// GROUP OBJECT
-		JSONObject oldFacility = new JSONObject(fac);
-		// RECONSTRUCT OBJECT
-		JSONObject newFacility = new JSONObject();
-		newFacility.put("id", oldFacility.get("id"));
-		newFacility.put("name", oldFacility.get("name"));
-		newFacility.put("description", oldFacility.get("description"));
-		newFacility.put("type", oldFacility.get("type"));
-		newFacility.put("beanName", oldFacility.get("beanName"));
-		newFacility.put("createdAt", oldFacility.get("createdAt"));
-		newFacility.put("createdBy", oldFacility.get("createdBy"));
-		newFacility.put("modifiedAt", oldFacility.get("modifiedAt"));
-		newFacility.put("modifiedBy", oldFacility.get("modifiedBy"));
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Updating facility failed.");
+        events.onError(error);
+      }
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("facility", newFacility);
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Updating facility failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        Facility fac = jso.cast();
+        session.getUiElements().setLogSuccessText("Facility " + fac.getName() + " successfully updated!");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				Facility fac = jso.cast();
-				session.getUiElements().setLogSuccessText("Facility "+ fac.getName() +" successfully updated!");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, jsonQuery);
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, jsonQuery);
+
+  }
 
 }

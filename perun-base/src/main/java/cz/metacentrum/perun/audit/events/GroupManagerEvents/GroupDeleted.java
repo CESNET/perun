@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class GroupDeleted extends AuditEvent {
 
-	private Group group;
-	private String message;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public GroupDeleted() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public GroupDeleted() {
+  }
 
-	public GroupDeleted(Group group) {
-		this.group = group;
-		this.message = formatMessage("%s deleted.", group);
-	}
+  public GroupDeleted(Group group) {
+    this.group = group;
+    this.message = formatMessage("%s deleted.", group);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

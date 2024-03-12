@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
@@ -15,80 +18,78 @@ import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsupTest {
 
-	private static urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup classInstance;
-	private static PerunSessionImpl session;
-	private static User user;
-	private static Attribute attributeToCheck;
-	private static Attribute attribute;
+  private static urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup classInstance;
+  private static PerunSessionImpl session;
+  private static User user;
+  private static Attribute attributeToCheck;
+  private static Attribute attribute;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup();
-		session = mock(PerunSessionImpl.class);
-		user = new User();
-		attributeToCheck = new Attribute();
-		attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attributeToCheck.setFriendlyName("login-namespace:eduroam-vsup");
-		attribute = new Attribute();
-		attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attribute.setFriendlyName("login-namespace:eduroam-vsup");
-		attribute.setValue("same_value");
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup();
+    session = mock(PerunSessionImpl.class);
+    user = new User();
+    attributeToCheck = new Attribute();
+    attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attributeToCheck.setFriendlyName("login-namespace:eduroam-vsup");
+    attribute = new Attribute();
+    attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attribute.setFriendlyName("login-namespace:eduroam-vsup");
+    attribute.setValue("same_value");
 
-		PerunBl perunBl = mock(PerunBl.class);
-		when(session.getPerunBl()).thenReturn(perunBl);
+    PerunBl perunBl = mock(PerunBl.class);
+    when(session.getPerunBl()).thenReturn(perunBl);
 
-		ModulesUtilsBl modulesUtilsBl = mock(ModulesUtilsBl.class);
-		when(perunBl.getModulesUtilsBl()).thenReturn(modulesUtilsBl);
+    ModulesUtilsBl modulesUtilsBl = mock(ModulesUtilsBl.class);
+    when(perunBl.getModulesUtilsBl()).thenReturn(modulesUtilsBl);
 
-		UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
-		when(perunBl.getUsersManagerBl()).thenReturn(usersManagerBl);
+    UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
+    when(perunBl.getUsersManagerBl()).thenReturn(usersManagerBl);
 
-		PasswordManagerModule module = mock(GenericPasswordManagerModule.class);
-		when(session.getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, "eduroam-vsup")).thenReturn(module);
+    PasswordManagerModule module = mock(GenericPasswordManagerModule.class);
+    when(session.getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, "eduroam-vsup")).thenReturn(module);
 
-		AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
-		when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
-		when(attributesManagerBl.getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:vsup")).thenReturn(attribute);
-	}
+    AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
+    when(perunBl.getAttributesManagerBl()).thenReturn(attributesManagerBl);
+    when(attributesManagerBl.getAttribute(session, user,
+        AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:vsup")).thenReturn(attribute);
+  }
 
-	@Test
-	public void testCorrectSyntax() throws Exception {
-		System.out.println("testCheckAttributeSyntax()");
-		String value = "my_example";
-		attributeToCheck.setValue(value);
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeSemanticsWithWrongValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+    String value = "not_same_value";
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithWrongValue()");
-		String value = "admin";
-		attributeToCheck.setValue(value);
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
+    System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+    String value = "admin";
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 
-	@Test
-	public void testCorrectSemantics() throws Exception {
-		System.out.println("testCheckAttributeSyntax()");
-		String value = "same_value";
-		attributeToCheck.setValue(value);
+  @Test
+  public void testCorrectSemantics() throws Exception {
+    System.out.println("testCheckAttributeSyntax()");
+    String value = "same_value";
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
 
-	@Test(expected = WrongReferenceAttributeValueException.class)
-	public void testCheckAttributeSemanticsWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithWrongValue()");
-		String value = "not_same_value";
-		attributeToCheck.setValue(value);
+  @Test
+  public void testCorrectSyntax() throws Exception {
+    System.out.println("testCheckAttributeSyntax()");
+    String value = "my_example";
+    attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-	}
+    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+  }
 }

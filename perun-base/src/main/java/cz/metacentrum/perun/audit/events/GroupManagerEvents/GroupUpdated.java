@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class GroupUpdated extends AuditEvent {
 
-	private Group group;
-	private String message;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public GroupUpdated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public GroupUpdated() {
+  }
 
-	public GroupUpdated(Group group) {
-		this.group = group;
-		this.message = formatMessage("%s updated.", group);
-	}
+  public GroupUpdated(Group group) {
+    this.group = group;
+    this.message = formatMessage("%s updated.", group);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

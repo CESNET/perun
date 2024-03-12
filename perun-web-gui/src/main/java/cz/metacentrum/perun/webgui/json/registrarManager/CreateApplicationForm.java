@@ -16,96 +16,99 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class CreateApplicationForm {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/createApplicationForm";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/createApplicationForm";
+  private PerunEntity entity;
+  private int id;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param entity VO or GROUP
+   * @param id     ID of entity
+   */
+  public CreateApplicationForm(PerunEntity entity, int id) {
+    this.entity = entity;
+    this.id = id;
+  }
 
-	private PerunEntity entity;
-	private int id;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param entity VO or GROUP
+   * @param id     ID of entity
+   * @param events Custom events
+   */
+  public CreateApplicationForm(PerunEntity entity, int id, JsonCallbackEvents events) {
+    this(entity, id);
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param entity VO or GROUP
-	 * @param id ID of entity
-	 */
-	public CreateApplicationForm(PerunEntity entity, int id) {
-		this.entity = entity;
-		this.id = id;
-	}
+  /**
+   * Creating application form
+   */
+  public void createApplicationForm() {
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param entity VO or GROUP
-	 * @param id ID of entity
-	 * @param events Custom events
-	 */
-	public CreateApplicationForm(PerunEntity entity, int id, JsonCallbackEvents events) {
-		this(entity, id);
-		this.events = events;
-	}
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-	/**
-	 * Creating application form
-	 */
-	public void createApplicationForm()
-	{
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating application form failed.");
+        events.onError(error);
+      }
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating application form failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Application form created.");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Application form created.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	private boolean testCreating() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
+  private boolean testCreating() {
+    // TODO Auto-generated method stub
+    return true;
+  }
 
-		// query
-		JSONObject query = new JSONObject();
-		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			query.put("vo", new JSONNumber(id));
-		} else if (PerunEntity.GROUP.equals(entity)) {
-			query.put("group", new JSONNumber(id));
-		}
-		return query;
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-	}
+    // query
+    JSONObject query = new JSONObject();
+    if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+      query.put("vo", new JSONNumber(id));
+    } else if (PerunEntity.GROUP.equals(entity)) {
+      query.put("group", new JSONNumber(id));
+    }
+    return query;
+
+  }
 
 }

@@ -17,115 +17,136 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Michal Stava email:&lt;stavamichal@gmail.com&gt;
  */
-public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName
+    extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
 
-	private static final String A_GR_systemUnixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGID";
-	private static final String A_GR_systemIsUnixGroup = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isSystemUnixGroup";
-	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]*$");
+  private static final String A_GR_systemUnixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGID";
+  private static final String A_GR_systemIsUnixGroup =
+      AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isSystemUnixGroup";
+  private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]*$");
 
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) {
-		return new Attribute(attributeDefinition);
-	}
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		String groupName = attribute.valueAsString();
-		if (groupName == null) return;
+    String groupName = attribute.valueAsString();
+    Attribute isSystemGroup;
 
-		Matcher matcher = pattern.matcher(groupName);
-		if (!matcher.matches())
-			throw new WrongAttributeValueException(attribute, group, resource, "String with other chars than numbers, letters or symbols _ and - is not allowed value.");
-	}
+    if (groupName == null) {
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+      try {
+        isSystemGroup =
+            sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemIsUnixGroup);
+      } catch (AttributeNotExistsException ex) {
+        throw new ConsistencyErrorException("Not exist Attribute " + A_GR_systemIsUnixGroup + " for group " + group,
+            ex);
+      } catch (GroupResourceMismatchException ex) {
+        throw new InternalErrorException(ex);
+      }
 
-		String groupName = attribute.valueAsString();
-		Attribute isSystemGroup;
+      if (isSystemGroup.getValue() != null && isSystemGroup.valueAsInteger() == 1) {
+        throw new WrongReferenceAttributeValueException(attribute, isSystemGroup, group, resource,
+            "Attribute cant be null if " + group + " on " + resource + " is system unix group.");
+      }
 
-		if(groupName==null) {
+      return;
+    }
 
-			try {
-				isSystemGroup = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemIsUnixGroup);
-			} catch(AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException("Not exist Attribute " + A_GR_systemIsUnixGroup +  " for group " + group,ex);
-			} catch (GroupResourceMismatchException ex) {
-				throw new InternalErrorException(ex);
-			}
+    //Get facility for the resource
+    Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 
-			if(isSystemGroup.getValue() != null && isSystemGroup.valueAsInteger()==1) {
-				throw new WrongReferenceAttributeValueException(attribute, isSystemGroup, group, resource, "Attribute cant be null if " + group + " on " + resource + " is system unix group.");
-			}
-			
-			return;
-		}
+    //List of pairs (group and resource) which has the attribute with the value
+    List<Pair<Group, Resource>> listGroupPairsResource =
+        sess.getPerunBl().getGroupsManagerBl().getGroupResourcePairsByAttribute(sess, attribute);
 
-		//Get facility for the resource
-		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+    //Searching through all pairs and if is not checking group/resource/attribute, then try for being on the same
+    // facility, if yes then throw exception but only if these groups have not the same GID too.
+    for (Pair<Group, Resource> p : listGroupPairsResource) {
+      if (!p.getLeft().equals(group) || !p.getRight().equals(resource)) {
+        Facility facilityForTest = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, p.getRight());
 
-		//List of pairs (group and resource) which has the attribute with the value
-		List<Pair<Group,Resource>> listGroupPairsResource =sess.getPerunBl().getGroupsManagerBl().getGroupResourcePairsByAttribute(sess, attribute);
+        Attribute group1GID;
+        Attribute group2GID;
 
-		//Searching through all pairs and if is not checking group/resource/attribute, then try for being on the same facility, if yes then throw exception but only if these groups have not the same GID too.
-		for(Pair<Group,Resource> p : listGroupPairsResource) {
-			if(!p.getLeft().equals(group) || !p.getRight().equals(resource)) {
-				Facility facilityForTest = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, p.getRight());
+        try {
+          group1GID =
+              sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGID);
+        } catch (AttributeNotExistsException ex) {
+          throw new ConsistencyErrorException(
+              "Attribute " + A_GR_systemUnixGID + " not exists for group " + group + " and resource " + resource, ex);
+        } catch (GroupResourceMismatchException ex) {
+          throw new InternalErrorException(ex);
+        }
 
-				Attribute group1GID;
-				Attribute group2GID;
+        try {
 
-				try {
-					group1GID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGID);
-				} catch (AttributeNotExistsException ex) {
-					throw new ConsistencyErrorException("Attribute "+ A_GR_systemUnixGID +" not exists for group " + group + " and resource " + resource,ex);
-				} catch (GroupResourceMismatchException ex) {
-					throw new InternalErrorException(ex);
-				}
+          group2GID = sess.getPerunBl().getAttributesManagerBl()
+              .getAttribute(sess, p.getRight(), p.getLeft(), A_GR_systemUnixGID);
+        } catch (AttributeNotExistsException ex) {
+          throw new ConsistencyErrorException(
+              "Attribute " + A_GR_systemUnixGID + " not exists for group " + p.getLeft() + " and resource " +
+              p.getRight(), ex);
+        } catch (GroupResourceMismatchException ex) {
+          throw new InternalErrorException(ex);
+        }
 
-				try {
+        if (facilityForTest.equals(facility) &&
+            (group1GID.getValue() != null ? (!group1GID.getValue().equals(group2GID.getValue())) : group2GID != null)) {
+          throw new WrongReferenceAttributeValueException(attribute, attribute, group, resource,
+              "Group name " + groupName +
+              "is already used by another group-resource and these have not the same GID and GroupName.  " +
+              p.getLeft() + " " + p.getRight());
+        }
+      }
+    }
 
-					group2GID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, p.getRight(), p.getLeft(), A_GR_systemUnixGID);
-				} catch (AttributeNotExistsException ex) {
-					throw new ConsistencyErrorException("Attribute "+ A_GR_systemUnixGID +" not exists for group " + p.getLeft() + " and resource " + p.getRight() ,ex);
-				} catch (GroupResourceMismatchException ex) {
-					throw new InternalErrorException(ex);
-				}
+  }
 
-				if(facilityForTest.equals(facility) && (group1GID.getValue() != null ? (! group1GID.getValue().equals(group2GID.getValue())) : group2GID != null)) {
-					throw new WrongReferenceAttributeValueException(attribute, attribute, group, resource, "Group name " + groupName + "is already used by another group-resource and these have not the same GID and GroupName.  " + p.getLeft() + " " + p.getRight());
-				}
-			}
-		}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    String groupName = attribute.valueAsString();
+    if (groupName == null) {
+      return;
+    }
 
-	}
+    Matcher matcher = pattern.matcher(groupName);
+    if (!matcher.matches()) {
+      throw new WrongAttributeValueException(attribute, group, resource,
+          "String with other chars than numbers, letters or symbols _ and - is not allowed value.");
+    }
+  }
 
-	@Override
-	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<>();
-		dependencies.add(A_GR_systemUnixGID);
-		dependencies.add(A_GR_systemIsUnixGroup);
-		return dependencies;
-	}
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource,
+                                 AttributeDefinition attributeDefinition) {
+    return new Attribute(attributeDefinition);
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("systemUnixGroupName");
-		attr.setDisplayName("Name of system unix group");
-		attr.setType(String.class.getName());
-		attr.setDescription("Name of the system unix group.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("systemUnixGroupName");
+    attr.setDisplayName("Name of system unix group");
+    attr.setType(String.class.getName());
+    attr.setDescription("Name of the system unix group.");
+    return attr;
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add(A_GR_systemUnixGID);
+    dependencies.add(A_GR_systemIsUnixGroup);
+    return dependencies;
+  }
 }

@@ -20,99 +20,103 @@ import cz.metacentrum.perun.webgui.model.User;
  */
 public class SendInvitation {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/sendInvitation";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/sendInvitation";
+  private int voId = 0;
+  private int groupId = 0;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param voId
+   * @param groupId
+   */
+  public SendInvitation(int voId, int groupId) {
+    this.voId = voId;
+    this.groupId = groupId;
+  }
 
-	private int voId = 0;
-	private int groupId = 0;
+  /**
+   * Creates a new request
+   *
+   * @param voId
+   * @param groupId
+   * @param events  Custom events
+   */
+  public SendInvitation(int voId, int groupId, JsonCallbackEvents events) {
+    this.voId = voId;
+    this.groupId = groupId;
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param voId
-	 * @param groupId
-	 */
-	public SendInvitation(int voId, int groupId) {
-		this.voId = voId;
-		this.groupId = groupId;
-	}
+  /**
+   * Send request to invite user
+   */
+  public void inviteUser(User user) {
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param voId
-	 * @param groupId
-	 * @param events Custom events
-	 */
-	public SendInvitation(int voId, int groupId, JsonCallbackEvents events) {
-		this.voId = voId;
-		this.groupId = groupId;
-		this.events = events;
-	}
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Inviting user failed.");
+        events.onError(error);
+      }
 
-	/**
-	 * Send request to invite user
-	 */
-	public void inviteUser(User user) {
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Inviting user failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("User invited.");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("User invited.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// query
-		JSONObject query = new JSONObject();
+      ;
+    };
 
-		query.put("voId", new JSONNumber(voId));
-		if (groupId != 0) {
-			query.put("groupId", new JSONNumber(groupId));
-		}
-		query.put("userId", new JSONNumber(user.getId()));
+    // query
+    JSONObject query = new JSONObject();
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, query);
+    query.put("voId", new JSONNumber(voId));
+    if (groupId != 0) {
+      query.put("groupId", new JSONNumber(groupId));
+    }
+    query.put("userId", new JSONNumber(user.getId()));
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, query);
 
-	/**
-	 * Send request to invite user
-	 */
-	public void inviteUser(Candidate candidate) {
-		inviteUser(candidate.getEmail(), candidate.getDisplayName(), "");
-	}
+  }
 
-	/**
-	 * Send request to invite user
-	 */
-	public void inviteUser(String email, String name, String language) {
+  /**
+   * Send request to invite user
+   */
+  public void inviteUser(Candidate candidate) {
+    inviteUser(candidate.getEmail(), candidate.getDisplayName(), "");
+  }
 
-		if (email == null || email.isEmpty())  {
-			UiElements.generateAlert("Input error", "Email address to send invitation to is empty.");
-			return;
-		}
-		if (!JsonUtils.isValidEmail(email)) {
-			UiElements.generateAlert("Input error", "Email address format is not valid.");
-			return;
-		}
+  /**
+   * Send request to invite user
+   */
+  public void inviteUser(String email, String name, String language) {
+
+    if (email == null || email.isEmpty()) {
+      UiElements.generateAlert("Input error", "Email address to send invitation to is empty.");
+      return;
+    }
+    if (!JsonUtils.isValidEmail(email)) {
+      UiElements.generateAlert("Input error", "Email address format is not valid.");
+      return;
+    }
 		/*
 		if (name == null || name.isEmpty()) {
 			UiElements.generateAlert("Input error", "Name of user to invite can't be empty.");
@@ -120,47 +124,49 @@ public class SendInvitation {
 		}
 		*/
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Inviting user failed.");
-				events.onError(error);
-			}
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Inviting user failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("User invited.");
-				events.onFinished(jso);
-			}
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("User invited.");
+        events.onFinished(jso);
+      }
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			}
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
+    };
 
-		// query
-		JSONObject query = new JSONObject();
+    // query
+    JSONObject query = new JSONObject();
 
-		query.put("voId", new JSONNumber(voId));
-		if (groupId != 0) {
-			query.put("groupId", new JSONNumber(groupId));
-		}
-		if (name != null && !name.isEmpty()) query.put("name", new JSONString(name));
-		query.put("email", new JSONString(email));
+    query.put("voId", new JSONNumber(voId));
+    if (groupId != 0) {
+      query.put("groupId", new JSONNumber(groupId));
+    }
+    if (name != null && !name.isEmpty()) {
+      query.put("name", new JSONString(name));
+    }
+    query.put("email", new JSONString(email));
 
-		if (language != null && !language.isEmpty()) {
-			query.put("language", new JSONString(language));
-		} else {
-			query.put("language", new JSONObject(null));
-		}
+    if (language != null && !language.isEmpty()) {
+      query.put("language", new JSONString(language));
+    } else {
+      query.put("language", new JSONObject(null));
+    }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, query);
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, query);
 
-	}
+  }
 
-	public void setEvents(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  public void setEvents(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
 }

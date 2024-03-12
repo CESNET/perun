@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -12,154 +16,156 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-
 public class urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeenTest extends AbstractPerunIntegrationTest {
-	private urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeen classInstance;
-	private Attribute uesAttribute;
-	private User user;
-	private PerunSessionImpl mockedSession;
-	private UserExtSource userExtSource;
-	private static final String A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN = AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen";
+  private static final String A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN =
+      AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen";
+  private urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeen classInstance;
+  private Attribute uesAttribute;
+  private User user;
+  private PerunSessionImpl mockedSession;
+  private UserExtSource userExtSource;
 
-	@Before
-	public void setUp() throws Exception {
-		classInstance = new urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeen();
-		mockedSession = mock(PerunSessionImpl.class);
-		uesAttribute = new Attribute();
-		setUpUser();
-		userExtSource = new UserExtSource();
-		userExtSource.setUserId(user.getId());
+  @Before
+  public void setUp() throws Exception {
+    classInstance = new urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeen();
+    mockedSession = mock(PerunSessionImpl.class);
+    uesAttribute = new Attribute();
+    setUpUser();
+    userExtSource = new UserExtSource();
+    userExtSource.setUserId(user.getId());
 
-		AttributeDefinition def = new AttributeDefinition();
-		def.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		def.setType(String.class.getName());
-		def.setDescription("isCesnetEligibleLastSeen");
-		def.setDisplayName("isCesnetEligibleLastSeen");
-		def.setFriendlyName("isCesnetEligibleLastSeen");
-		try {
-			perun.getAttributesManagerBl().createAttribute(sess, def);
-		} catch (AttributeDefinitionExistsException ex) {
-			// OK
-		}
-	}
+    AttributeDefinition def = new AttributeDefinition();
+    def.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    def.setType(String.class.getName());
+    def.setDescription("isCesnetEligibleLastSeen");
+    def.setDisplayName("isCesnetEligibleLastSeen");
+    def.setFriendlyName("isCesnetEligibleLastSeen");
+    try {
+      perun.getAttributesManagerBl().createAttribute(sess, def);
+    } catch (AttributeDefinitionExistsException ex) {
+      // OK
+    }
+  }
 
-	@Test
-	public void testCheckAttributeSyntaxCorrect() throws Exception {
-		System.out.println("testCheckAttributeSyntaxCorrect()");
+  private void setUpUser() {
+    user = new User();
+    user.setFirstName("Firstname");
+    user.setLastName("Lastname");
+    user = perun.getUsersManagerBl().createUser(sess, user);
+    assertNotNull(user);
+  }
 
-		uesAttribute.setValue("2019-06-17 17:18:28");
+  private void setUpUserIsCesnetEligibleAttribute(String value) throws Exception {
+    Attribute attr = new Attribute(perun.getAttributesManagerBl()
+        .getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen"));
+    attr.setValue(value);
+    perun.getAttributesManagerBl().setAttribute(sess, user, attr);
+  }
 
-		classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
-	}
+  @Test
+  public void testChangedAttributeHookAttributeWasRemoved() throws Exception {
+    System.out.println("testChangedAttributeHookAttributeWasRemoved()");
 
-	@Test
-	public void testCheckAttributeSyntaxCorrectWithMilliseconds() throws Exception {
-		System.out.println("testCheckAttributeSyntaxCorrectWithMilliseconds()");
+    uesAttribute.setValue(null); // attribute was removed
+    String timestamp = "2019-06-17 17:18:28";
+    setUpUserIsCesnetEligibleAttribute(timestamp);
 
-		uesAttribute.setValue("2019-06-17 17:18:28.22");
+    classInstance.changedAttributeHook((PerunSessionImpl) sess, userExtSource, uesAttribute);
+    Attribute userAttribute =
+        perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
+    assertEquals(userAttribute.getValue(), timestamp);
+  }
 
-		classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
-	}
+  @Test
+  public void testChangedAttributeHookUserAttributeHasNullValue() throws Exception {
+    System.out.println("testChangedAttributeHookUserAttributeHasNullValue()");
 
-	@Test
-	public void testCheckAttributeSyntaxNull() throws Exception {
-		System.out.println("testCheckAttributeSyntaxNull()");
+    uesAttribute.setValue("2019-06-17 17:18:28.5");
 
-		uesAttribute.setValue(null);
+    classInstance.changedAttributeHook((PerunSessionImpl) sess, userExtSource, uesAttribute);
+    Attribute userAttribute =
+        perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
+    assertEquals(userAttribute.getValue(), uesAttribute.getValue());
+  }
 
-		classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
-	}
+  @Test
+  public void testChangedAttributeHookValueIsMoreRecent() throws Exception {
+    System.out.println("testChangedAttributeHookValueIsMoreRecent()");
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxIncorrect() throws Exception {
-		System.out.println("testCheckAttributeSyntaxIncorrect()");
+    uesAttribute.setValue("2020-06-17 17:18:28");
+    setUpUserIsCesnetEligibleAttribute("2019-06-17 17:18:28");
 
-		uesAttribute.setValue("incorrect");
+    classInstance.changedAttributeHook((PerunSessionImpl) sess, userExtSource, uesAttribute);
+    Attribute userAttribute =
+        perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
+    assertEquals(userAttribute.getValue(), uesAttribute.getValue());
+  }
 
-		classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
-	}
+  @Test
+  public void testChangedAttributeHookValueIsNotMoreRecent() throws Exception {
+    System.out.println("testChangedAttributeHookValueIsNotMoreRecent()");
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxIncorrectMonths() throws Exception {
-		System.out.println("testCheckAttributeSyntaxIncorrectMonths()");
+    uesAttribute.setValue("2018-06-17 17:18:28");
+    String timestamp = "2019-06-17 17:18:28";
+    setUpUserIsCesnetEligibleAttribute(timestamp);
 
-		uesAttribute.setValue("2019-13-17 17:18:28");
+    classInstance.changedAttributeHook((PerunSessionImpl) sess, userExtSource, uesAttribute);
+    Attribute userAttribute =
+        perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
+    assertEquals(userAttribute.getValue(), timestamp);
+  }
 
-		classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
-	}
+  @Test
+  public void testCheckAttributeSyntaxCorrect() throws Exception {
+    System.out.println("testCheckAttributeSyntaxCorrect()");
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxIncorrectMinutes() throws Exception {
-		System.out.println("testCheckAttributeSyntaxIncorrectMinutes()");
+    uesAttribute.setValue("2019-06-17 17:18:28");
 
-		uesAttribute.setValue("2019-12-17 17:68:28");
+    classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
+  }
 
-		classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
-	}
+  @Test
+  public void testCheckAttributeSyntaxCorrectWithMilliseconds() throws Exception {
+    System.out.println("testCheckAttributeSyntaxCorrectWithMilliseconds()");
 
-	@Test
-	public void testChangedAttributeHookUserAttributeHasNullValue() throws Exception {
-		System.out.println("testChangedAttributeHookUserAttributeHasNullValue()");
+    uesAttribute.setValue("2019-06-17 17:18:28.22");
 
-		uesAttribute.setValue("2019-06-17 17:18:28.5");
+    classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
+  }
 
-		classInstance.changedAttributeHook((PerunSessionImpl) sess, userExtSource, uesAttribute);
-		Attribute userAttribute = perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
-		assertEquals(userAttribute.getValue(), uesAttribute.getValue());
-	}
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxIncorrect() throws Exception {
+    System.out.println("testCheckAttributeSyntaxIncorrect()");
 
-	@Test
-	public void testChangedAttributeHookAttributeWasRemoved() throws Exception {
-		System.out.println("testChangedAttributeHookAttributeWasRemoved()");
+    uesAttribute.setValue("incorrect");
 
-		uesAttribute.setValue(null); // attribute was removed
-		String timestamp = "2019-06-17 17:18:28";
-		setUpUserIsCesnetEligibleAttribute(timestamp);
+    classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
+  }
 
-		classInstance.changedAttributeHook((PerunSessionImpl) sess, userExtSource, uesAttribute);
-		Attribute userAttribute = perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
-		assertEquals(userAttribute.getValue(), timestamp);
-	}
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxIncorrectMinutes() throws Exception {
+    System.out.println("testCheckAttributeSyntaxIncorrectMinutes()");
 
-	@Test
-	public void testChangedAttributeHookValueIsMoreRecent() throws Exception {
-		System.out.println("testChangedAttributeHookValueIsMoreRecent()");
+    uesAttribute.setValue("2019-12-17 17:68:28");
 
-		uesAttribute.setValue("2020-06-17 17:18:28");
-		setUpUserIsCesnetEligibleAttribute("2019-06-17 17:18:28");
+    classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
+  }
 
-		classInstance.changedAttributeHook((PerunSessionImpl) sess, userExtSource, uesAttribute);
-		Attribute userAttribute = perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
-		assertEquals(userAttribute.getValue(), uesAttribute.getValue());
-	}
+  @Test(expected = WrongAttributeValueException.class)
+  public void testCheckAttributeSyntaxIncorrectMonths() throws Exception {
+    System.out.println("testCheckAttributeSyntaxIncorrectMonths()");
 
-	@Test
-	public void testChangedAttributeHookValueIsNotMoreRecent() throws Exception {
-		System.out.println("testChangedAttributeHookValueIsNotMoreRecent()");
+    uesAttribute.setValue("2019-13-17 17:18:28");
 
-		uesAttribute.setValue("2018-06-17 17:18:28");
-		String timestamp = "2019-06-17 17:18:28";
-		setUpUserIsCesnetEligibleAttribute(timestamp);
+    classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
+  }
 
-		classInstance.changedAttributeHook((PerunSessionImpl) sess, userExtSource, uesAttribute);
-		Attribute userAttribute = perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_IS_CESNET_ELIGIBLE_LAST_SEEN);
-		assertEquals(userAttribute.getValue(), timestamp);
-	}
+  @Test
+  public void testCheckAttributeSyntaxNull() throws Exception {
+    System.out.println("testCheckAttributeSyntaxNull()");
 
-	private void setUpUser() {
-		user = new User();
-		user.setFirstName("Firstname");
-		user.setLastName("Lastname");
-		user = perun.getUsersManagerBl().createUser(sess, user);
-		assertNotNull(user);
-	}
+    uesAttribute.setValue(null);
 
-	private void setUpUserIsCesnetEligibleAttribute(String value) throws Exception {
-		Attribute attr = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen"));
-		attr.setValue(value);
-		perun.getAttributesManagerBl().setAttribute(sess, user, attr);
-	}
+    classInstance.checkAttributeSyntax(mockedSession, userExtSource, uesAttribute);
+  }
 }

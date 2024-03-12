@@ -9,48 +9,49 @@ import java.util.Objects;
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
 public class EnrichedGroup {
-	private Group group;
-	private List<Attribute> attributes;
+  private Group group;
+  private List<Attribute> attributes;
 
-	public EnrichedGroup(Group group, List<Attribute> attributes) {
-		this.group = group;
-		this.attributes = attributes;
-	}
+  public EnrichedGroup(Group group, List<Attribute> attributes) {
+    this.group = group;
+    this.attributes = attributes;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnrichedGroup that = (EnrichedGroup) o;
+    return getGroup().equals(that.getGroup());
+  }
 
-	public void setGroup(Group group) {
-		this.group = group;
-	}
+  public List<Attribute> getAttributes() {
+    return attributes;
+  }
 
-	public List<Attribute> getAttributes() {
-		return attributes;
-	}
+  public void setAttributes(List<Attribute> attributes) {
+    this.attributes = attributes;
+  }
 
-	public void setAttributes(List<Attribute> attributes) {
-		this.attributes = attributes;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		EnrichedGroup that = (EnrichedGroup) o;
-		return getGroup().equals(that.getGroup());
-	}
+  public void setGroup(Group group) {
+    this.group = group;
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getGroup());
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(getGroup());
+  }
 
-	@Override
-	public String toString() {
-		return "EnrichedGroup{" +
-			"group=" + group +
-			", attributes=" + attributes +
-			'}';
-	}
+  @Override
+  public String toString() {
+    return "EnrichedGroup{" + "group=" + group + ", attributes=" + attributes + '}';
+  }
 }

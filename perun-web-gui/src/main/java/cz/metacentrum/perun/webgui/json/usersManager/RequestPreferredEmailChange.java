@@ -23,111 +23,120 @@ import cz.metacentrum.perun.webgui.model.User;
  */
 public class RequestPreferredEmailChange {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "usersManager/requestPreferredEmailChange";
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// local variables for entity to send
-	private User user;
-	private String email;
+  // URL to call
+  final String JSON_URL = "usersManager/requestPreferredEmailChange";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // local variables for entity to send
+  private User user;
+  private String email;
 
-	/**
-	 * Creates a new request
-	 */
-	public RequestPreferredEmailChange() {}
+  /**
+   * Creates a new request
+   */
+  public RequestPreferredEmailChange() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events custom events
-	 */
-	public RequestPreferredEmailChange(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events custom events
+   */
+  public RequestPreferredEmailChange(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Request change of preferred email
-	 *
-	 * @param user
-	 * @param email
-	 */
-	public void requestChange(final User user, final String email) {
+  /**
+   * Request change of preferred email
+   *
+   * @param user
+   * @param email
+   */
+  public void requestChange(final User user, final String email) {
 
-		this.user = user;
-		this.email = email;
+    this.user = user;
+    this.email = email;
 
-		// test arguments
-		if(!this.testRemoving()){
-			return;
-		}
+    // test arguments
+    if (!this.testRemoving()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Requesting change of preferred email failed.");
-				events.onError(error); // custom events
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Requesting change of preferred email failed.");
+        events.onError(error); // custom events
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Request to change preferred email was submitted.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Request to change preferred email was submitted.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testRemoving() {
+      ;
+    };
 
-		boolean result = true;
-		String errorMsg = "";
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-		if(user == null){
-			errorMsg += "Wrong parameter <strong>User</strong>.</br>";
-			result = false;
-		}
-		if(!JsonUtils.isValidEmail(email)){
-			errorMsg += "Wrong parameter <strong>Email</strong.>";
-			result = false;
-		}
+  }
 
-		if(errorMsg.length()>0){
-			UiElements.generateAlert("Wrong parameter", errorMsg);
-		}
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testRemoving() {
 
-		return result;
-	}
+    boolean result = true;
+    String errorMsg = "";
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
-		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("user", new JSONNumber(user.getId()));
-		jsonQuery.put("email", new JSONString(email));
-		String locale = LocaleInfo.getCurrentLocale().getLocaleName();
-		if ("default".equals(locale)) locale = "en";
-		jsonQuery.put("lang", new JSONString(locale));
-		jsonQuery.put("customUrl", new JSONString(Window.Location.getProtocol() + "//" + Window.Location.getHostName()
-			+ "/" + PerunWebSession.getInstance().getRpcServer() + "/gui/"));
-		return jsonQuery;
-	}
+    if (user == null) {
+      errorMsg += "Wrong parameter <strong>User</strong>.</br>";
+      result = false;
+    }
+    if (!JsonUtils.isValidEmail(email)) {
+      errorMsg += "Wrong parameter <strong>Email</strong.>";
+      result = false;
+    }
+
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Wrong parameter", errorMsg);
+    }
+
+    return result;
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // create whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("user", new JSONNumber(user.getId()));
+    jsonQuery.put("email", new JSONString(email));
+    String locale = LocaleInfo.getCurrentLocale().getLocaleName();
+    if ("default".equals(locale)) {
+      locale = "en";
+    }
+    jsonQuery.put("lang", new JSONString(locale));
+    jsonQuery.put("customUrl", new JSONString(Window.Location.getProtocol() + "//" + Window.Location.getHostName()
+        + "/" + PerunWebSession.getInstance().getRpcServer() + "/gui/"));
+    return jsonQuery;
+  }
 
 }

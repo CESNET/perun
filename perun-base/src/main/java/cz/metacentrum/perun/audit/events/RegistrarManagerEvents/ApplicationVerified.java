@@ -6,30 +6,30 @@ import cz.metacentrum.perun.registrar.model.Application;
 
 public class ApplicationVerified extends AuditEvent implements EngineIgnoreEvent {
 
-	private Application app;
-	private String message;
+  private Application app;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ApplicationVerified() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ApplicationVerified() {
+  }
 
-	public ApplicationVerified(Application app) {
-		this.app = app;
-		this.message = formatMessage("Application ID=%d voID=%d %s has been verified.", app.getId(),
-				app.getVo().getId(), ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : ""));
-	}
+  public ApplicationVerified(Application app) {
+    this.app = app;
+    this.message = formatMessage("Application ID=%d voID=%d %s has been verified.", app.getId(), app.getVo().getId(),
+        ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : ""));
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Application getApp() {
+    return app;
+  }
 
-	public Application getApp() {
-		return app;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

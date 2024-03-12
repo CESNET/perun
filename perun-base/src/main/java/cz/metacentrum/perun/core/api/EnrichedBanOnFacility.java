@@ -4,66 +4,65 @@ import java.util.Objects;
 
 /**
  * Contains the ban on facility, the facility itself and (rich)user which has been baned
- *
  */
 public class EnrichedBanOnFacility {
-	private RichUser user;
-	private Facility facility;
-	private BanOnFacility ban;
+  private RichUser user;
+  private Facility facility;
+  private BanOnFacility ban;
 
-	public EnrichedBanOnFacility() {
-		super();
-	}
+  public EnrichedBanOnFacility() {
+    super();
+  }
 
-	public EnrichedBanOnFacility(RichUser user, Facility facility, BanOnFacility ban) {
-		this.user = user;
-		this.facility = facility;
-		this.ban = ban;
-	}
+  public EnrichedBanOnFacility(RichUser user, Facility facility, BanOnFacility ban) {
+    this.user = user;
+    this.facility = facility;
+    this.ban = ban;
+  }
 
-	public RichUser getUser() {
-		return user;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    EnrichedBanOnFacility that = (EnrichedBanOnFacility) o;
+    return Objects.equals(getBan(), that.getBan());
+  }
 
-	public void setUser(RichUser user) {
-		this.user = user;
-	}
+  public BanOnFacility getBan() {
+    return ban;
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public void setBan(BanOnFacility ban) {
+    this.ban = ban;
+  }
 
-	public void setFacility(Facility facility) {
-		this.facility = facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	public BanOnFacility getBan() {
-		return ban;
-	}
+  public void setFacility(Facility facility) {
+    this.facility = facility;
+  }
 
-	public void setBan(BanOnFacility ban) {
-		this.ban = ban;
-	}
+  public RichUser getUser() {
+    return user;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		EnrichedBanOnFacility that = (EnrichedBanOnFacility) o;
-		return Objects.equals(getBan(), that.getBan());
-	}
+  public void setUser(RichUser user) {
+    this.user = user;
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getBan());
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(getBan());
+  }
 
-	@Override
-	public String toString() {
-		return "EnrichedBanOnFacility{" +
-			"user=" + user +
-			", facility=" + facility +
-			", ban=" + ban +
-			'}';
-	}
+  @Override
+  public String toString() {
+    return "EnrichedBanOnFacility{" + "user=" + user + ", facility=" + facility + ", ban=" + ban + '}';
+  }
 }

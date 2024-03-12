@@ -10,55 +10,59 @@ import java.util.Objects;
  * @author Jakub Hejda <Jakub.Hejda@cesnet.cz>
  */
 public class MemberWithSponsors {
-	private RichMember member;
-	private List<Sponsor> sponsors;
+  private RichMember member;
+  private List<Sponsor> sponsors;
 
-	/**
-	 * Constructor
-	 */
-	public MemberWithSponsors() {
-	}
+  /**
+   * Constructor
+   */
+  public MemberWithSponsors() {
+  }
 
-	/**
-	 * Constructor
-	 */
-	public MemberWithSponsors(RichMember member) {
-		this.member = member;
-	}
+  /**
+   * Constructor
+   */
+  public MemberWithSponsors(RichMember member) {
+    this.member = member;
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public void addSponsor(Sponsor sponsor) {
+    if (this.sponsors == null) {
+      this.sponsors = new ArrayList<>();
+    }
+    this.sponsors.add(sponsor);
+  }
 
-	public void setMember(RichMember member) {
-		this.member = member;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MemberWithSponsors that = (MemberWithSponsors) o;
+    return Objects.equals(member, that.member);
+  }
 
-	public List<Sponsor> getSponsors() {
-		return sponsors;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	public void setSponsors(List<Sponsor> sponsors) {
-		this.sponsors = sponsors;
-	}
+  public void setMember(RichMember member) {
+    this.member = member;
+  }
 
-	public void addSponsor(Sponsor sponsor) {
-		if (this.sponsors == null) {
-			this.sponsors = new ArrayList<>();
-		}
-		this.sponsors.add(sponsor);
-	}
+  public List<Sponsor> getSponsors() {
+    return sponsors;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		MemberWithSponsors that = (MemberWithSponsors) o;
-		return Objects.equals(member, that.member);
-	}
+  public void setSponsors(List<Sponsor> sponsors) {
+    this.sponsors = sponsors;
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(member);
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(member);
+  }
 }

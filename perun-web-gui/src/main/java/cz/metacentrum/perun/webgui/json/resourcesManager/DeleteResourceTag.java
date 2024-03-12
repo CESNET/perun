@@ -16,105 +16,111 @@ import cz.metacentrum.perun.webgui.model.ResourceTag;
  */
 public class DeleteResourceTag {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "resourcesManager/deleteResourceTag";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private ResourceTag tag;
+  // URL to call
+  final String JSON_URL = "resourcesManager/deleteResourceTag";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private ResourceTag tag;
 
-	/**
-	 * Creates a new request
-	 */
-	public DeleteResourceTag() {
-	}
+  /**
+   * Creates a new request
+   */
+  public DeleteResourceTag() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public DeleteResourceTag(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public DeleteResourceTag(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testDeleting()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testDeleting() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(tag == null){
-			errorMsg += "Wrong parameter 'resource tag'.";
-			result = false;
-		}
+    if (tag == null) {
+      errorMsg += "Wrong parameter 'resource tag'.";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			UiElements.generateAlert("Parameter error", errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Parameter error", errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to delete resource tag, it first tests the values and then submits them
-	 *
-	 * @param tag Resource tag to be deleted
-	 */
-	public void deleteResourceTag(final ResourceTag tag) {
+  /**
+   * Attempts to delete resource tag, it first tests the values and then submits them
+   *
+   * @param tag Resource tag to be deleted
+   */
+  public void deleteResourceTag(final ResourceTag tag) {
 
-		this.tag = tag;
+    this.tag = tag;
 
-		// test arguments
-		if(!this.testDeleting()){
-			return;
-		}
+    // test arguments
+    if (!this.testDeleting()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting resource tag failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Deleting resource tag failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Resource tag deleted.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Resource tag deleted.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+      ;
+    };
 
-		JSONObject jsonQuery = new JSONObject();
-		JSONObject jsonTag = new JSONObject(tag);
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-		JSONObject newJsonTag = new JSONObject();
-		newJsonTag.put("id", jsonTag.get("id"));
-		newJsonTag.put("tagName", jsonTag.get("tagName"));
-		newJsonTag.put("voId", jsonTag.get("voId"));
+  }
 
-		jsonQuery.put("resourceTag", newJsonTag);
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-		return jsonQuery;
-	}
+    JSONObject jsonQuery = new JSONObject();
+    JSONObject jsonTag = new JSONObject(tag);
+
+    JSONObject newJsonTag = new JSONObject();
+    newJsonTag.put("id", jsonTag.get("id"));
+    newJsonTag.put("tagName", jsonTag.get("tagName"));
+    newJsonTag.put("voId", jsonTag.get("voId"));
+
+    jsonQuery.put("resourceTag", newJsonTag);
+
+    return jsonQuery;
+  }
 
 }

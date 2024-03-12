@@ -13,104 +13,105 @@ import java.util.Map;
 
 public class Candidate extends JavaScriptObject {
 
-	protected Candidate() {}
+  protected Candidate() {
+  }
 
-	/**
-	 * Get user ext source of candidate
-	 *
-	 * @return user ext source of candidate
-	 */
-	public final native UserExtSource getUserExtSource() /*-{
+  /**
+   * Get user ext source of candidate
+   *
+   * @return user ext source of candidate
+   */
+  public final native UserExtSource getUserExtSource() /*-{
 		return this.userExtSource;
 	}-*/;
 
-	/**
-	 * Get attributes of candidate from ext source
-	 *
-	 * @return attributes of candidate from ext source
-	 */
-	public final native Map<String, String> getAttributes() /*-{
+  /**
+   * Get attributes of candidate from ext source
+   *
+   * @return attributes of candidate from ext source
+   */
+  public final native Map<String, String> getAttributes() /*-{
 		return this.attributes;
 	}-*/;
 
-	/**
-	 * Get additionalUserExtSources of candidate from ext source
-	 *
-	 * @return additionalUserExt sources for candidate from ext source
-	 */
-	public final native ArrayList<UserExtSource> getAdditionalUserExtSources() /*-{
+  /**
+   * Get additionalUserExtSources of candidate from ext source
+   *
+   * @return additionalUserExt sources for candidate from ext source
+   */
+  public final native ArrayList<UserExtSource> getAdditionalUserExtSources() /*-{
 		return this.additionalUserExtSources
 	}-*/;
 
-	/**
-	 * Get ID of candidate
-	 *
-	 * @return ID of candidate
-	 */
-	public final native String getId() /*-{
+  /**
+   * Get ID of candidate
+   *
+   * @return ID of candidate
+   */
+  public final native String getId() /*-{
 		return this.id;
 	}-*/;
 
-	/**
-	 * Get first name of candidate
-	 *
-	 * @return first name of candidate
-	 */
-	public final native String getFirstName() /*-{
+  /**
+   * Get first name of candidate
+   *
+   * @return first name of candidate
+   */
+  public final native String getFirstName() /*-{
 		return this.firstName;
 	}-*/;
 
-	/**
-	 * Get last name of candidate
-	 *
-	 * @return last name of candidate
-	 */
-	public final native String getLastName() /*-{
+  /**
+   * Get last name of candidate
+   *
+   * @return last name of candidate
+   */
+  public final native String getLastName() /*-{
 		return this.lastName;
 	}-*/;
 
-	/**
-	 * Get middle name of candidate
-	 *
-	 * @return middle name of candidate
-	 */
-	public final native String getMiddleName() /*-{
+  /**
+   * Get middle name of candidate
+   *
+   * @return middle name of candidate
+   */
+  public final native String getMiddleName() /*-{
 		return this.middleName;
 	}-*/;
 
-	/**
-	 * Get title before name of candidate
-	 *
-	 * @return title before name of candidate
-	 */
-	public final native String getTitleBefore() /*-{
+  /**
+   * Get title before name of candidate
+   *
+   * @return title before name of candidate
+   */
+  public final native String getTitleBefore() /*-{
 		return this.titleBefore;
 	}-*/;
 
-	/**
-	 * Get title after name of candidate
-	 *
-	 * @return title after name of candidate
-	 */
-	public final native String getTitleAfter() /*-{
+  /**
+   * Get title after name of candidate
+   *
+   * @return title after name of candidate
+   */
+  public final native String getTitleAfter() /*-{
 		return this.titleAfter;
 	}-*/;
 
-	/**
-	 * Get full name of candidate
-	 *
-	 * @return last+first name of candidate
-	 */
-	public final native String getFullName() /*-{
+  /**
+   * Get full name of candidate
+   *
+   * @return last+first name of candidate
+   */
+  public final native String getFullName() /*-{
 		return this.lastName + " " + this.firstName;
 	}-*/;
 
-	/**
-	 * Get display name of candidate
-	 *
-	 * @return complete view of names and titles of candidate
-	 */
-	public final native String getDisplayName() /*-{
+  /**
+   * Get display name of candidate
+   *
+   * @return complete view of names and titles of candidate
+   */
+  public final native String getDisplayName() /*-{
 		var displayName = "";
 		if(this.titleBefore != null){
 			displayName += this.titleBefore + " ";
@@ -130,12 +131,12 @@ public class Candidate extends JavaScriptObject {
 		return displayName;
 	}-*/;
 
-	/**
-	 * Get email of candidate
-	 *
-	 * @return email of candidate
-	 */
-	public final native String getEmail() /*-{
+  /**
+   * Get email of candidate
+   *
+   * @return email of candidate
+   */
+  public final native String getEmail() /*-{
 		if (this.attributes['urn:perun:member:attribute-def:def:mail'] != null) {
 			return this.attributes['urn:perun:member:attribute-def:def:mail'];
 		} else if (this.attributes['urn:perun:user:attribute-def:def:preferredMail'] != null) {
@@ -144,21 +145,21 @@ public class Candidate extends JavaScriptObject {
 		return "";
 	}-*/;
 
-	/**
-	 * Get attributes of candidate from external source
-	 *
-	 * @return attributes of candidate from external source
-	 */
-	public final native String getAttribute(String name) /*-{
+  /**
+   * Get attributes of candidate from external source
+   *
+   * @return attributes of candidate from external source
+   */
+  public final native String getAttribute(String name) /*-{
 		return this.attributes[name];
 	}-*/;
 
-	/**
-	 * Gets all logins stored in user attributes
-	 *
-	 * @return users logins
-	 */
-	public final native String getLogins() /*-{
+  /**
+   * Gets all logins stored in user attributes
+   *
+   * @return users logins
+   */
+  public final native String getLogins() /*-{
 		var logins = "";
 		for (var prop in this.attributes) {
 			if (this.attributes.hasOwnProperty(prop)) {
@@ -178,44 +179,45 @@ public class Candidate extends JavaScriptObject {
 	}-*/;
 
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
+  /**
+   * Returns Perun specific type of object
+   *
+   * @return type of object
+   */
+  public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
 		return this.beanName;
 	}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
+  /**
+   * Sets Perun specific type of object
+   *
+   * @param type type of object
+   */
+  public final native void setObjectType(String type) /*-{
 		this.beanName = type;
 	}-*/;
 
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
+  /**
+   * Returns the status of this item in Perun system as String
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @return string which defines item status
+   */
+  public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
 
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(Candidate o) {
-		return o.getId().equals(this.getId());
-	}
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(Candidate o) {
+    return o.getId().equals(this.getId());
+  }
 
 }
