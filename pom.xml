@@ -237,7 +237,7 @@
 				<configuration>
 					<configLocation>checkstyle.xml</configLocation>
 <!--				<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-					<failOnViolation>false</failOnViolation>
+<!--					<failOnViolation>false</failOnViolation>-->
 				</configuration>
 				<executions>
 					 <execution>
