@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import com.google.api.client.util.Base64;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SshKeyNotValidException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -76,11 +76,11 @@ public class SSHValidator {
    * Checks whether is the SSH key in the correct format.
    *
    * @param sshKey SSH key to be checked
-   * @throws SshKeyNotValidException that is thrown whenever SSH key is not in correct format
+   * @throws SSHKeyNotValidException that is thrown whenever SSH key is not in correct format
    */
-  public static void validateSSH(String sshKey) throws SshKeyNotValidException {
+  public static void validateSSH(String sshKey) throws SSHKeyNotValidException {
     if (sshKey == null || sshKey.isEmpty()) {
-      throw new SshKeyNotValidException("SSH key has to cannot be empty or null");
+      throw new SSHKeyNotValidException("SSH key has to cannot be empty or null");
     }
     try {
       sshKey = removeSSHKeyCommandPrefix(sshKey);
@@ -89,25 +89,25 @@ public class SSHValidator {
 
       String[] sshKeyParts = sshKey.split(" ");
       if (sshKeyParts.length < 2) {
-        throw new SshKeyNotValidException(
+        throw new SSHKeyNotValidException(
             "SSH public key has to consists at least from the key type and the Base64 encoded public key.");
       }
 
       String sshKeyType = sshKeyParts[0];
       if (!ALLOWED_SSH_TYPES.contains(sshKeyType)) {
-        throw new SshKeyNotValidException(
+        throw new SSHKeyNotValidException(
             "The " + sshKeyType + " key type is not allowed. Allowed types are: " + ALLOWED_SSH_TYPES + ".");
       }
 
       try {
         sshBase64KeyBytes = Base64.decodeBase64(sshKeyParts[1]);
       } catch (Exception exception) {
-        throw new SshKeyNotValidException("Provided Base64 encoded public key is not valid.");
+        throw new SSHKeyNotValidException("Provided Base64 encoded public key is not valid.");
       }
 
       String sshBase64KeyType = decodeType(sshBase64KeyBytes, pos);
       if (!sshBase64KeyType.equals(sshKeyType)) {
-        throw new SshKeyNotValidException("SSH types are not same. Type defined before the Base64 is: " + sshKeyType +
+        throw new SSHKeyNotValidException("SSH types are not same. Type defined before the Base64 is: " + sshKeyType +
                                           " and type inside the Base64 is: " + sshBase64KeyType + ".");
       }
 
@@ -120,10 +120,10 @@ public class SSHValidator {
           decodeEcdsa(sshBase64KeyBytes, pos);
         }
       } catch (Exception ex) {
-        throw new SshKeyNotValidException("Provided Base64 encoded public key is not valid.");
+        throw new SSHKeyNotValidException("Provided Base64 encoded public key is not valid.");
       }
     } catch (Exception e) {
-      throw new SshKeyNotValidException("Invalid SSH key format:  " + e.getMessage());
+      throw new SSHKeyNotValidException("Invalid SSH key format:  " + e.getMessage());
     }
     // check one more time with ssh-keygen for edge cases
     runSshKeygen(sshKey);
@@ -133,9 +133,9 @@ public class SSHValidator {
    * Validates ssh public key using the ssh-keygen tool
    *
    * @param sshKey ssh public key to verify
-   * @throws SshKeyNotValidException when validation fails
+   * @throws SSHKeyNotValidException when validation fails
    */
-  private static void runSshKeygen(String sshKey) throws SshKeyNotValidException {
+  private static void runSshKeygen(String sshKey) throws SSHKeyNotValidException {
     File tempSSH = null;
     try {
       tempSSH = File.createTempFile("perunSSHAttr", ".txt");
@@ -153,9 +153,9 @@ public class SSHValidator {
       if (returnCode != 0) {
         LOG.error("SSH validation error: " + error + " for key: " + sshKey + " with error code: " + returnCode);
         if (returnCode == 255) {
-          throw new SshKeyNotValidException("Provided SSH key is not valid");
+          throw new SSHKeyNotValidException("Provided SSH key is not valid");
         }
-        throw new SshKeyNotValidException("SSH validation failed with: " + error);
+        throw new SSHKeyNotValidException("SSH validation failed with: " + error);
       }
     } catch (IOException | InterruptedException ex) {
       throw new InternalErrorException("File error while verifying ssh key");

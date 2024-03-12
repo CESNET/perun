@@ -27,11 +27,11 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SshKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -1610,7 +1610,7 @@ public interface UsersManager {
    *
    * @param sess   sess
    * @param sshKey ssh public key to verify
-   * @throws SshKeyNotValidException when validation fails
+   * @throws SSHKeyNotValidException when validation fails
    */
-  void validateSshKey(PerunSession sess, String sshKey) throws SshKeyNotValidException;
+  void validateSSHKey(PerunSession sess, String sshKey) throws SSHKeyNotValidException;
 }

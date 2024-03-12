@@ -21,7 +21,7 @@ import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SshKeyNotValidException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -741,9 +741,9 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
         "+KEJ07Qb4NAXfgcrVakP/6647FAXCgyY8Len9c/0aTn7SVd1aC3aTGRvLtvPNPzhbDJGKzjPs90So0GZ+q7s= " +
         "martin@martin-ThinkPad-T480";
 
-    assertThatExceptionOfType(SshKeyNotValidException.class).isThrownBy(() -> Utils.validateSSHPublicKey(invalid1));
+    assertThatExceptionOfType(SSHKeyNotValidException.class).isThrownBy(() -> Utils.validateSSHPublicKey(invalid1));
 
-    assertThatExceptionOfType(SshKeyNotValidException.class).isThrownBy(() -> Utils.validateSSHPublicKey(invalid2));
+    assertThatExceptionOfType(SSHKeyNotValidException.class).isThrownBy(() -> Utils.validateSSHPublicKey(invalid2));
 
     assertThatNoException().isThrownBy(() -> Utils.validateSSHPublicKey(validECDSA));
     assertThatNoException().isThrownBy(() -> Utils.validateSSHPublicKey(validED25519));

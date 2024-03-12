@@ -99,12 +99,12 @@ import static org.mockito.Mockito.when;
  */
 public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-	private final static String CLASS_NAME = "UsersManager.";
-	private final static String ATTR_UES_O = "o";
-	private final static String ATTR_UES_CN = "cn";
-	private final static String URN_ATTR_USER_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
-	private final static String URN_ATTR_UES_O = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_O;
-	private final static String URN_ATTR_UES_CN = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_CN;
+	private static final String CLASS_NAME = "UsersManager.";
+	private static final String ATTR_UES_O = "o";
+	private static final String ATTR_UES_CN = "cn";
+	private static final String URN_ATTR_USER_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
+	private static final String URN_ATTR_UES_O = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_O;
+	private static final String URN_ATTR_UES_CN = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_CN;
 
 	private static final String defaultBlockedLogin = "perunEngine";
 	private static final String globallyBlockedLogin = "globalLogin";
@@ -2202,7 +2202,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Candidate candidate = new Candidate(user, userExtSource);
 		candidate.setAttributes(Collections.singletonMap(perun.getAttributesManager().NS_USER_ATTR + ":attribute", "value"));
 
-		JSONObject jsonObject = candidate.convertAttributesToJSON();
+		JSONObject jsonObject = candidate.convertAttributesToJson();
 
 		assertEquals(8, jsonObject.length());
 		assertEquals("value", jsonObject.getJSONArray(perun.getAttributesManager().NS_USER_ATTR + ":attribute").getString(0));
@@ -2216,7 +2216,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Candidate candidate = new Candidate(user, userExtSource);
 		candidate.setAttributes(Collections.singletonMap(perun.getAttributesManager().NS_USER_ATTR + ":attribute", null));
 
-		JSONObject jsonObject = candidate.convertAttributesToJSON();
+		JSONObject jsonObject = candidate.convertAttributesToJson();
 
 		assertEquals(8, jsonObject.length());
 		assertTrue(jsonObject.getJSONArray(perun.getAttributesManager().NS_USER_ATTR + ":attribute").isNull(0));

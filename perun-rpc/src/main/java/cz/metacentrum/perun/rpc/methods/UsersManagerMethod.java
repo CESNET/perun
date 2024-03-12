@@ -1603,7 +1603,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getUsersManager().validateSshKey(ac.getSession(), parms.readString("sshKey"));
+      ac.getUsersManager().validateSSHKey(ac.getSession(), parms.readString("sshKey"));
       return null;
     }
   },

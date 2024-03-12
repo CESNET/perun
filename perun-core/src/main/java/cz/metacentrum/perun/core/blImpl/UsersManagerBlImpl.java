@@ -71,9 +71,9 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SshKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -2671,7 +2671,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
-  public void validateSSHKey(PerunSession sess, String sshKey) throws SshKeyNotValidException {
+  public void validateSSHKey(PerunSession sess, String sshKey) throws SSHKeyNotValidException {
     Utils.validateSSHPublicKey(sshKey);
   }
 

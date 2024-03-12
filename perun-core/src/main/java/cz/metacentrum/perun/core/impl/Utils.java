@@ -56,9 +56,9 @@ import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
-import cz.metacentrum.perun.core.api.exceptions.SshKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
@@ -2158,7 +2158,7 @@ public class Utils {
     }
   }
 
-  public static void validateSSHPublicKey(String sshKey) throws SshKeyNotValidException {
+  public static void validateSSHPublicKey(String sshKey) throws SSHKeyNotValidException {
     SSHValidator.validateSSH(sshKey);
   }
 
