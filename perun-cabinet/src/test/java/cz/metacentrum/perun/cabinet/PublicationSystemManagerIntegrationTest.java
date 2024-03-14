@@ -86,9 +86,9 @@ public class PublicationSystemManagerIntegrationTest extends CabinetBaseIntegrat
   public void getPublicationSystemByNamespace() throws Exception {
     System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystemByNamespace");
 
-    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("mu");
+    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("zcu");
     assertNotNull(publicationSystem);
-    assertTrue(Objects.equals(publicationSystem, pubSysMu));
+    assertTrue(Objects.equals(publicationSystem, pubSysZcu));
 
     PublicationSystemStrategy ps = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
     assertNotNull(ps);
@@ -101,10 +101,9 @@ public class PublicationSystemManagerIntegrationTest extends CabinetBaseIntegrat
 
     assertNotNull(systems);
     assertTrue(!systems.isEmpty());
-    assertTrue(systems.contains(pubSysMu));
     assertTrue(systems.contains(pubSysZcu));
     assertTrue(systems.contains(pubSysEuropePMC));
-    assertTrue(systems.size() == 4);
+    assertTrue(systems.size() == 3);
 
   }
 
