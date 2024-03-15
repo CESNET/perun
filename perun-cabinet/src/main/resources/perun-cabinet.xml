@@ -89,29 +89,4 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="publicationManagerBl" ref="publicationManagerBl"/>
     </bean>
 
-    <beans profile="production">
-        <!-- Properties Bean, so far used in tests -->
-        <bean id="cabinetProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-            <property name="locations">
-                <list>
-                    <value>file:@perun.conf@perun-cabinet.properties</value>
-                    <value>file:${perun.conf.custom}perun-cabinet.properties</value>
-                </list>
-            </property>
-            <property name="ignoreResourceNotFound" value="true"/>
-        </bean>
-    </beans>
-
-    <beans profile="default">
-        <bean id="cabinetProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-            <property name="properties">
-                <props>
-                    <prop key="perun.cabinet.mu.login"></prop>
-                    <prop key="perun.cabinet.mu.password"></prop>
-                </props>
-            </property>
-        </bean>
-    </beans>
-
-
 </beans>

@@ -39,27 +39,6 @@ public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegra
   }
 
   @Test
-  public void contactPublicationSystemMUTest() throws Exception {
-    System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemMUTest");
-
-    PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("mu");
-    assertNotNull(publicationSystem);
-
-    PublicationSystemStrategy prezentator =
-        (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
-    assertNotNull(prezentator);
-
-    String authorId = "39700";
-    int yearSince = 2009;
-    int yearTill = 2010;
-    HttpResponse result =
-        prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
-
-    assertNotNull(result);
-
-  }
-
-  @Test
   public void contactPublicationSystemOBDTest() throws Exception {
     System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemOBDTest");
 

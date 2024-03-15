@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import java.util.Date;
-import java.util.Properties;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +42,8 @@ public abstract class CabinetBaseIntegrationTest {
   public Owner owner;
   public Category c1 = null;
   public PublicationSystem pubSysZcu;
-  public PublicationSystem pubSysMu;
   public PublicationSystem pubSysEuropePMC;
   protected CabinetManager cabinetManager;
-  @Autowired
-  protected Properties cabinetProperties;
   protected PerunSession sess;
   @Autowired
   PerunBl perun;
@@ -105,17 +101,6 @@ public abstract class CabinetBaseIntegrationTest {
 
     pubSysZcu = getCabinetManager().createPublicationSystem(sess, ps);
     assertTrue(pubSysZcu.getId() > 0);
-
-    PublicationSystem ps2 = new PublicationSystem();
-    ps2.setFriendlyName("Masarykova Univerzita - Prezentátor");
-    ps2.setLoginNamespace("mu");
-    ps2.setUrl("https://is.muni.cz/auth/prezentator/index.pl");
-    ps2.setUsername(cabinetProperties.getProperty("perun.cabinet.mu.login"));
-    ps2.setPassword(cabinetProperties.getProperty("perun.cabinet.mu.password"));
-    ps2.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
-
-    pubSysMu = getCabinetManager().createPublicationSystem(sess, ps2);
-    assertTrue(pubSysMu.getId() > 0);
 
     PublicationSystem ps3 = new PublicationSystem();
     ps3.setFriendlyName("Europe PMC");
@@ -188,12 +173,6 @@ public abstract class CabinetBaseIntegrationTest {
   @Autowired
   public void setCabinetManager(CabinetManager cabinetManager) {
     this.cabinetManager = cabinetManager;
-  }
-
-  // test -------------------------------
-
-  public void setCabinetProperties(Properties cabinetProperties) {
-    this.cabinetProperties = cabinetProperties;
   }
 
 }
