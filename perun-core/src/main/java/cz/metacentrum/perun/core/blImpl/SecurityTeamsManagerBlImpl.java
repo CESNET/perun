@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -126,7 +127,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
         AuthzResolverBlImpl.setRole(sess, user, securityTeam, Role.SECURITYADMIN);
       } catch (AlreadyAdminException e) {
         throw new ConsistencyErrorException("Newly created securityTeam already have an admin.", e);
-      } catch (RoleCannotBeManagedException e) {
+      } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
         throw new InternalErrorException(e);
       }
     }

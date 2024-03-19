@@ -1857,8 +1857,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Vo createdVo =
         perun.getVosManager().createVo(sess, new Vo(0, "PasswordResetManagerTestVo", "PasswordResetManagerTestVo"));
 
-    final Member createdMember = createSomeMember(createdVo);
-    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, null, Role.PASSWORDRESETMANAGER);
 
@@ -1872,8 +1872,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     System.out.println(CLASS_NAME + "testProxyRole");
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "ProxyRoleTestVo", "ProxyRoleTestVo"));
 
-    final Member createdMember = createSomeMember(createdVo);
-    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, null, Role.PROXY);
 
@@ -1888,8 +1888,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Vo createdVo =
         perun.getVosManager().createVo(sess, new Vo(0, "SpregApplicationTestVo", "SpregApplicationTestVo"));
 
-    final Member createdMember = createSomeMember(createdVo);
-    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, null, Role.SPREGAPPLICATION);
 

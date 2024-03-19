@@ -49,6 +49,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
@@ -373,7 +374,7 @@ public class VosManagerBlImpl implements VosManagerBl {
       } catch (AlreadyAdminException ex) {
         throw new ConsistencyErrorException(
             "Add manager to newly created VO failed because there is a particular manager already assigned", ex);
-      } catch (RoleCannotBeManagedException e) {
+      } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
         throw new InternalErrorException(e);
       }
     } else {

@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -46,8 +47,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 
   @Override
   public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user)
-      throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException,
-      RoleCannotBeManagedException {
+          throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException,
+          RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
     getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -59,8 +60,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 
   @Override
   public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group)
-      throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException,
-      RoleCannotBeManagedException {
+          throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException,
+          RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
     getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);

@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -113,10 +114,12 @@ public interface GroupsManager {
    * @throws GroupNotExistsException
    * @throws AlreadyAdminException
    * @throws UserNotExistsException
+   * @throws RoleCannotBeManagedException
+   * @throws RoleCannotBeSetException
    */
   void addAdmin(PerunSession perunSession, Group group, User user)
       throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException,
-                 RoleCannotBeManagedException;
+      RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Adds a group administrator to the group.
@@ -128,9 +131,12 @@ public interface GroupsManager {
    * @throws PrivilegeException
    * @throws GroupNotExistsException
    * @throws AlreadyAdminException
+   * @throws RoleCannotBeManagedException
+   * @throws RoleCannotBeSetException
    */
   void addAdmin(PerunSession perunSession, Group group, Group authorizedGroup)
-      throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, RoleCannotBeManagedException;
+      throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, RoleCannotBeManagedException,
+      RoleCannotBeSetException;
 
   /**
    * Adds member of the VO to the group in the same VO.

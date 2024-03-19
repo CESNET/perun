@@ -91,6 +91,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -448,7 +449,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         }
         // if the principal is Authorized to set the Sponsor role, set it
         AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
-      } catch (AlreadyAdminException | RoleCannotBeManagedException | RoleManagementRulesNotExistsException e) {
+      } catch (AlreadyAdminException | RoleCannotBeManagedException | RoleManagementRulesNotExistsException |
+               RoleCannotBeSetException e) {
         throw new InternalErrorException(e);
       }
     }
@@ -3383,8 +3385,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         throw new ConsistencyErrorException(e);
       } catch (AlreadySponsorException e) {
         LOG.warn("When moving sponsorships from sponsor {} to sponsor {}, the sponsor already sponsored " +
-                 "member {}. Exception: {}", sourceUser, targetUser, sponsoredMember, e);
-      } catch (UserNotInRoleException | AlreadyAdminException | RoleCannotBeManagedException e) {
+            "member {}. Exception: {}", sourceUser, targetUser, sponsoredMember, e);
+      } catch (UserNotInRoleException | AlreadyAdminException | RoleCannotBeManagedException |
+               RoleCannotBeSetException e) {
         throw new InternalErrorException(e);
       }
     }

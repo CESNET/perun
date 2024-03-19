@@ -46,6 +46,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -104,8 +105,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
   @Override
   public void addAdmin(PerunSession sess, Resource resource, User user)
-      throws UserNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException,
-      RoleCannotBeManagedException {
+          throws UserNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException,
+          RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
     getResourcesManagerBl().checkResourceExists(sess, resource);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -115,8 +116,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
   @Override
   public void addAdmin(PerunSession sess, Resource resource, Group group)
-      throws GroupNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException,
-      RoleCannotBeManagedException {
+          throws GroupNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException,
+          RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
     getResourcesManagerBl().checkResourceExists(sess, resource);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);

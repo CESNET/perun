@@ -54,6 +54,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -91,7 +92,7 @@ public class GroupsManagerEntry implements GroupsManager {
   @Override
   public void addAdmin(PerunSession sess, Group group, User user)
       throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException,
-                 RoleCannotBeManagedException {
+      RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
     getGroupsManagerBl().checkGroupExists(sess, group);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -101,7 +102,8 @@ public class GroupsManagerEntry implements GroupsManager {
 
   @Override
   public void addAdmin(PerunSession sess, Group group, Group authorizedGroup)
-      throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, RoleCannotBeManagedException {
+      throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, RoleCannotBeManagedException,
+      RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
     getGroupsManagerBl().checkGroupExists(sess, group);
     getGroupsManagerBl().checkGroupExists(sess, authorizedGroup);

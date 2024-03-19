@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -49,10 +50,13 @@ public interface VosManager {
    * @throws PrivilegeException
    * @throws AlreadyAdminException
    * @throws VoNotExistsException
+   * @throws UserNotExistsException
+   * @throws RoleCannotBeManagedException
+   * @throws RoleCannotBeSetException
    */
   void addAdmin(PerunSession perunSession, Vo vo, User user)
-      throws PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException,
-      RoleCannotBeManagedException;
+          throws PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Add a group administrator to the VO.
@@ -65,10 +69,12 @@ public interface VosManager {
    * @throws AlreadyAdminException
    * @throws VoNotExistsException
    * @throws GroupNotExistsException
+   * @throws RoleCannotBeManagedException
+   * @throws RoleCannotBeSetException
    */
   void addAdmin(PerunSession perunSession, Vo vo, Group group)
-      throws PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException,
-      RoleCannotBeManagedException;
+          throws PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Adds new relationship between vo and a member vo. If user is member in both vos, updates memberOrganizations list
@@ -96,10 +102,12 @@ public interface VosManager {
    * @throws VoNotExistsException
    * @throws UserNotExistsException
    * @throws PrivilegeException
+   * @throws RoleCannotBeManagedException
+   * @throws RoleCannotBeSetException
    */
   void addSponsorRole(PerunSession sess, Vo vo, User user)
-      throws AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException,
-      RoleCannotBeManagedException;
+          throws AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Adds role SPONSOR for group in a VO.
@@ -112,10 +120,12 @@ public interface VosManager {
    * @throws VoNotExistsException
    * @throws GroupNotExistsException
    * @throws PrivilegeException
+   * @throws RoleCannotBeSetException
+   * @throws RoleCannotBeManagedException
    */
   void addSponsorRole(PerunSession sess, Vo vo, Group group)
-      throws AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException,
-      RoleCannotBeManagedException;
+          throws AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * For the given vo, creates sponsored members for each sponsored user who is a member of the given vo. Original
