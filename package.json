@@ -17,7 +17,7 @@
 	},
 	"config": {
 		"commitizen": {
-			"path": "./node_modules/@commitlint/cz-commitlint"
+			"path": "@commitlint/cz-commitlint"
 		}
 	}
 }
