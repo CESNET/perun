@@ -66,6 +66,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -127,7 +128,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
       throws AlreadyAdminException {
     try {
       AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCESELFSERVICE);
-    } catch (RoleCannotBeManagedException e) {
+    } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
       throw new InternalErrorException(e);
     }
     getPerunBl().getAuditer().log(sess, new ResourceSelfServiceAddedForGroup(resource, group));
@@ -137,7 +138,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   public void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws AlreadyAdminException {
     try {
       AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCESELFSERVICE);
-    } catch (RoleCannotBeManagedException e) {
+    } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
       throw new InternalErrorException(e);
     }
   }

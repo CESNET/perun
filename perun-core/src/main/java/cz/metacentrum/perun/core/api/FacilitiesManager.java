@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
@@ -48,8 +49,8 @@ public interface FacilitiesManager {
    * Adds user administrator to the Facility.
    */
   void addAdmin(PerunSession sess, Facility facility, User user)
-      throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException,
-      RoleCannotBeManagedException;
+          throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Adds group administrator to the Facility.
@@ -58,7 +59,7 @@ public interface FacilitiesManager {
    */
   void addAdmin(PerunSession sess, Facility facility, Group group)
       throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, AlreadyAdminException,
-      RoleCannotBeManagedException;
+      RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Adds host to the Facility. Adds host only if host and destination with the same name doesn't exist or if privilege

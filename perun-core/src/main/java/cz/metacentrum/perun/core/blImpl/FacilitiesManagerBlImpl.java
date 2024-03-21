@@ -60,6 +60,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -252,7 +253,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
         AuthzResolverBlImpl.setRole(sess, admin, destinationFacility, Role.FACILITYADMIN);
       } catch (AlreadyAdminException ex) {
         // we can ignore the exception in this particular case, user can be admin in both of the facilities
-      } catch (RoleCannotBeManagedException e) {
+      } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
         throw new InternalErrorException(e);
       }
     }
@@ -262,7 +263,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
         AuthzResolverBlImpl.setRole(sess, adminGroup, destinationFacility, Role.FACILITYADMIN);
       } catch (AlreadyAdminException ex) {
         // we can ignore the exception in this particular case, group can be admin in both of the facilities
-      } catch (RoleCannotBeManagedException e) {
+      } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
         throw new InternalErrorException(e);
       }
     }
@@ -310,7 +311,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
       } catch (AlreadyAdminException ex) {
         throw new ConsistencyErrorException(
             "Add manager to newly created Facility failed because there is particular manager already assigned", ex);
-      } catch (RoleCannotBeManagedException e) {
+      } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
         throw new InternalErrorException(e);
       }
     } else {

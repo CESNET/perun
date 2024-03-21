@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -74,10 +75,12 @@ public interface ResourcesManager {
    * @throws PrivilegeException
    * @throws AlreadyAdminException
    * @throws ResourceNotExistsException
+   * @throws RoleCannotBeManagedException
+   * @throws RoleCannotBeSetException
    */
   void addAdmin(PerunSession sess, Resource resource, User user)
-      throws UserNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException,
-      RoleCannotBeManagedException;
+          throws UserNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Add role resource admin to group for the selected resource.
@@ -90,10 +93,11 @@ public interface ResourcesManager {
    * @throws PrivilegeException
    * @throws AlreadyAdminException
    * @throws ResourceNotExistsException
+   * @throws RoleCannotBeManagedException
    */
   void addAdmin(PerunSession sess, Resource resource, Group group)
-      throws GroupNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException,
-      RoleCannotBeManagedException;
+          throws GroupNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Sets ResourceSelfService role to given group for given resource.

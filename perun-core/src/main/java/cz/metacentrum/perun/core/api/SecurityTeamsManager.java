@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -32,10 +33,12 @@ public interface SecurityTeamsManager {
    * @throws SecurityTeamNotExistsException
    * @throws UserNotExistsException
    * @throws AlreadyAdminException
+   * @throws RoleCannotBeManagedException
+   * @throws RoleCannotBeSetException
    */
   void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user)
-      throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException,
-      RoleCannotBeManagedException;
+          throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Create group as security admins group of given security team (all users in group will have security admin rights)
@@ -48,10 +51,12 @@ public interface SecurityTeamsManager {
    * @throws SecurityTeamNotExistsException
    * @throws GroupNotExistsException
    * @throws AlreadyAdminException
+   * @throws RoleCannotBeManagedException
+   * @throws RoleCannotBeSetException
    */
   void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group)
-      throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException,
-      RoleCannotBeManagedException;
+          throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException,
+          RoleCannotBeManagedException, RoleCannotBeSetException;
 
   /**
    * Add User to black list of security team to filter him out.

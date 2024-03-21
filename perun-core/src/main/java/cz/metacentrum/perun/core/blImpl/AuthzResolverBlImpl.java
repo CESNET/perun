@@ -69,6 +69,7 @@ import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
@@ -3655,9 +3656,17 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    * @param complementaryObject object for which role will be set
    */
   public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, String role)
-      throws AlreadyAdminException, RoleCannotBeManagedException {
+      throws AlreadyAdminException, RoleCannotBeManagedException, RoleCannotBeSetException {
     if (!objectAndRoleManageableByEntity(user.getBeanName(), complementaryObject, role)) {
       throw new RoleCannotBeManagedException(role, complementaryObject, user);
+    }
+
+    try {
+      if (AuthzResolverImpl.getRoleManagementRules(role).shouldSkipMFA() && !user.isServiceUser()) {
+        throw new RoleCannotBeSetException("MFA skippable role " + role + " can not be set for non-service user");
+      }
+    } catch (RoleManagementRulesNotExistsException ex) {
+      throw new InternalErrorException("Management rules not exist for the role " + role, ex);
     }
 
     checkMfaForSettingRole(sess, user, complementaryObject, role);
@@ -3692,9 +3701,17 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    * @param complementaryObject object for which role will be set
    */
   public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, String role)
-      throws AlreadyAdminException, RoleCannotBeManagedException {
+      throws AlreadyAdminException, RoleCannotBeManagedException, RoleCannotBeSetException {
     if (!objectAndRoleManageableByEntity(authorizedGroup.getBeanName(), complementaryObject, role)) {
       throw new RoleCannotBeManagedException(role, complementaryObject, authorizedGroup);
+    }
+
+    try {
+      if (AuthzResolverImpl.getRoleManagementRules(role).shouldSkipMFA()) {
+        throw new RoleCannotBeSetException("MFA skippable role " + role + " can not be set for group");
+      }
+    } catch (RoleManagementRulesNotExistsException ex) {
+      throw new InternalErrorException("Management rules not exist for the role " + role, ex);
     }
 
     checkMfaForSettingRole(sess, authorizedGroup, complementaryObject, role);

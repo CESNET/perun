@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -109,11 +110,15 @@ public class EscPithiaOrganizations extends DefaultRegistrarModule {
         AuthzResolverBlImpl.setRole(session, organizationAdminsGroup, organizationAdminsGroup, Role.GROUPADMIN);
       } catch (RoleCannotBeManagedException e) {
         throw new InternalErrorException("Unable to set group manager for group - organization:admins!", e);
+      } catch (RoleCannotBeSetException e) {
+        throw new InternalErrorException(e.getMessage());
       }
       try {
         AuthzResolverBlImpl.setRole(session, organizationAdminsGroup, organizationMembersGroup, Role.GROUPADMIN);
       } catch (RoleCannotBeManagedException e) {
         throw new InternalErrorException("Unable to set group manager for group - organization:members!", e);
+      } catch (RoleCannotBeSetException e) {
+        throw new InternalErrorException(e.getMessage());
       }
 
       // make requestor a member and admin of new organization

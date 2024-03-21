@@ -108,6 +108,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -1468,7 +1469,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
           AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
         } catch (AlreadyAdminException e) {
           throw new ConsistencyErrorException("Newly created group already have an admin.", e);
-        } catch (RoleCannotBeManagedException e) {
+        } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
           throw new InternalErrorException(e);
         }
       }

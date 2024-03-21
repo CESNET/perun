@@ -30,6 +30,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -72,8 +73,8 @@ public class VosManagerEntry implements VosManager {
 
   @Override
   public void addAdmin(PerunSession sess, Vo vo, User user)
-      throws PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException,
-      RoleCannotBeManagedException {
+          throws PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException,
+          RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.notNull(sess, "sess");
     vosManagerBl.checkVoExists(sess, vo);
     perunBl.getUsersManagerBl().checkUserExists(sess, user);
@@ -83,8 +84,8 @@ public class VosManagerEntry implements VosManager {
 
   @Override
   public void addAdmin(PerunSession sess, Vo vo, Group group)
-      throws PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException,
-      RoleCannotBeManagedException {
+          throws PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException,
+          RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.notNull(sess, "sess");
     vosManagerBl.checkVoExists(sess, vo);
     perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -112,8 +113,8 @@ public class VosManagerEntry implements VosManager {
    */
   @Override
   public void addSponsorRole(PerunSession sess, Vo vo, User user)
-      throws AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException,
-      RoleCannotBeManagedException {
+          throws AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException,
+          RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
     vosManagerBl.checkVoExists(sess, vo);
     perunBl.getUsersManagerBl().checkUserExists(sess, user);
@@ -128,8 +129,8 @@ public class VosManagerEntry implements VosManager {
    */
   @Override
   public void addSponsorRole(PerunSession sess, Vo vo, Group group)
-      throws AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException,
-      RoleCannotBeManagedException {
+          throws AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException,
+          RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
     vosManagerBl.checkVoExists(sess, vo);
     perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
