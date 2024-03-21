@@ -23,7 +23,6 @@ public interface BlockingCompletionService<V> {
    * @param taskWorker The EngineWorker instance which will be executed
    * @return Returns Future holding the executing Task.
    * @throws InterruptedException Thrown if the Thread was interrupted while waiting for a place in ThreadPool.
-   * @see BlockingBoundedMap
    */
   Future<V> blockingSubmit(EngineWorker<V> taskWorker) throws InterruptedException;
 
