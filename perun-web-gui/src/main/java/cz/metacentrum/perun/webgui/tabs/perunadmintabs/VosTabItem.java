@@ -39,195 +39,194 @@ import java.util.Map;
  */
 public class VosTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "vos";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("VOs");
+  private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public VosTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("VOs");
-	private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
+  static public VosTabItem load(Map<String, String> parameters) {
+    return new VosTabItem();
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public VosTabItem(){ }
+  public boolean isPrepared() {
+    return true;
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public void onClose() {
+  }
 
-	}
+  public Widget draw() {
 
-	public Widget draw() {
+    // MAIN PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		// MAIN PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    // Get vos request
+    final GetVos getVos = new GetVos();
 
-		// Get vos request
-		final GetVos getVos = new GetVos();
+    // Events for reloading when finished
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(getVos);
 
-		// Events for reloading when finished
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(getVos);
+    // create new VO button
+    TabMenu tabMenu = new TabMenu();
+    tabMenu.addWidget(UiElements.getRefreshButton(this));
+    // add menu to the main panel
+    firstTabPanel.add(tabMenu);
+    firstTabPanel.setCellHeight(tabMenu, "30px");
 
-		// create new VO button
-		TabMenu tabMenu = new TabMenu();
-		tabMenu.addWidget(UiElements.getRefreshButton(this));
-		// add menu to the main panel
-		firstTabPanel.add(tabMenu);
-		firstTabPanel.setCellHeight(tabMenu, "30px");
+    tabMenu.addWidget(
+        TabMenu.getPredefinedButton(ButtonType.CREATE, true, buttonTranslation.createVo(), new ClickHandler() {
+          public void onClick(ClickEvent event) {
+            session.getTabManager().addTabToCurrentTab(new CreateVoTabItem());
+          }
+        }));
 
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, buttonTranslation.createVo(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new CreateVoTabItem());
-			}
-		}));
+    final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, buttonTranslation.deleteVo());
+    removeButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, buttonTranslation.deleteVo());
-		removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+        final ArrayList<VirtualOrganization> itemsToRemove = getVos.getTableSelectedList();
+        UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+            for (int i = 0; i < itemsToRemove.size(); i++) {
+              DeleteVo request;
+              if (i == itemsToRemove.size() - 1) {
+                request = new DeleteVo(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+              } else {
+                request = new DeleteVo(JsonCallbackEvents.disableButtonEvents(removeButton));
+              }
+              request.deleteVo(itemsToRemove.get(i).getId(), false);
+            }
+          }
+        });
 
-				final ArrayList<VirtualOrganization> itemsToRemove = getVos.getTableSelectedList();
-				UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i=0; i<itemsToRemove.size(); i++ ) {
-							DeleteVo request;
-							if(i == itemsToRemove.size() - 1){
-								request = new DeleteVo(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-							}else{
-								request = new DeleteVo(JsonCallbackEvents.disableButtonEvents(removeButton));
-							}
-							request.deleteVo(itemsToRemove.get(i).getId(), false);
-						}
-					}
-				});
+      }
+    });
+    tabMenu.addWidget(removeButton);
 
-			}
-		});
-		tabMenu.addWidget(removeButton);
+    // filter
+    tabMenu.addFilterWidget(new ExtendedSuggestBox(getVos.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        getVos.filterTable(text);
+      }
+    }, buttonTranslation.filterVo());
 
-		// filter
-		tabMenu.addFilterWidget(new ExtendedSuggestBox(getVos.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				getVos.filterTable(text);
-			}
-		}, buttonTranslation.filterVo());
+    // get the table with custom onclick
+    CellTable<VirtualOrganization> table =
+        getVos.getTable(new FieldUpdater<VirtualOrganization, VirtualOrganization>() {
+          @Override
+          public void update(int index, VirtualOrganization object, VirtualOrganization value) {
+            session.getTabManager().addTab(new VoDetailTabItem(object));
+          }
+        });
 
-		// get the table with custom onclick
-		CellTable<VirtualOrganization> table = getVos.getTable(new FieldUpdater<VirtualOrganization, VirtualOrganization>() {
-			@Override
-			public void update(int index, VirtualOrganization object, VirtualOrganization value) {
-				session.getTabManager().addTab(new VoDetailTabItem(object));
-			}
-		});
+    removeButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(getVos, table, removeButton);
 
-		removeButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(getVos, table, removeButton);
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    // add the table to the main panel
 
-		// add the table to the main panel
+    firstTabPanel.add(sp);
 
-		firstTabPanel.add(sp);
+    session.getUiElements().resizePerunTable(sp, 350, 0, this);
 
-		session.getUiElements().resizePerunTable(sp, 350, 0, this);
+    this.contentWidget.setWidget(firstTabPanel);
 
-		this.contentWidget.setWidget(firstTabPanel);
+    return getWidget();
+  }
 
-		return getWidget();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.buildingIcon();
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.buildingIcon();
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1471;
+    int result = 1;
+    result = prime * result + 341;
+    return result;
+  }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1471;
-		int result = 1;
-		result = prime * result + 341;
-		return result;
-	}
+    return true;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-		return true;
-	}
+  public void open() {
+    // update links
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs()
+        .setLocation(MainMenu.PERUN_ADMIN, "Virtual organizations", getUrlWithParameters());
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean isAuthorized() {
 
-	public void open()
-	{
-		// update links
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Virtual organizations", getUrlWithParameters());
-	}
+    if (session.isPerunAdmin()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public boolean isAuthorized() {
+  }
 
-		if (session.isPerunAdmin()) {
-			return true;
-		} else {
-			return false;
-		}
+  public String getUrl() {
+    return URL;
+  }
 
-	}
-
-	public final static String URL = "vos";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public VosTabItem load(Map<String, String> parameters)
-	{
-		return new VosTabItem();
-	}
+  public String getUrlWithParameters() {
+    return PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

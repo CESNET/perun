@@ -15,56 +15,55 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class VerifyCaptcha implements JsonCallback {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/verifyCaptcha";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/verifyCaptcha";
+  // application form
+  private String challenge;
+  private String response;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   */
+  public VerifyCaptcha(String challenge, String response) {
+    this.challenge = challenge;
+    this.response = response;
+  }
 
-	// application form
-	private String challenge;
-	private String response;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public VerifyCaptcha(String challenge, String response, JsonCallbackEvents events) {
+    this.challenge = challenge;
+    this.response = response;
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 */
-	public VerifyCaptcha(String challenge, String response) {
-		this.challenge = challenge;
-		this.response = response;
-	}
+  @Override
+  public void onFinished(JavaScriptObject jso) {
+    events.onFinished(jso);
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 * @param events Custom events
-	 */
-	public VerifyCaptcha(String challenge, String response, JsonCallbackEvents events) {
-		this.challenge = challenge;
-		this.response = response;
-		this.events = events;
-	}
+  @Override
+  public void onError(PerunError error) {
+    events.onError(error);
+  }
 
-	@Override
-	public void onFinished(JavaScriptObject jso) {
-		events.onFinished(jso);
-	}
+  @Override
+  public void onLoadingStart() {
+    events.onLoadingStart();
+  }
 
-	@Override
-	public void onError(PerunError error) {
-		events.onError(error);
-	}
+  @Override
+  public void retrieveData() {
+    JsonClient js = new JsonClient();
+    js.retrieveData(JSON_URL, "challenge=" + challenge + "&response=" + response, this);
 
-	@Override
-	public void onLoadingStart() {
-		events.onLoadingStart();
-	}
-
-	@Override
-	public void retrieveData() {
-		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, "challenge="+challenge+"&response="+response, this);
-
-	}
+  }
 }

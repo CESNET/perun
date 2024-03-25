@@ -14,65 +14,63 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class GetPendingPreferredEmailChanges implements JsonCallback {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "usersManager/getPendingPreferredEmailChanges";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "usersManager/getPendingPreferredEmailChanges";
+  // data
+  private int u = 0;
+  private boolean hidden = false;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param u user ID to request validation for
+   */
+  public GetPendingPreferredEmailChanges(int u) {
+    this.u = u;
+  }
 
-	// data
-	private int u = 0;
-	private boolean hidden = false;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param u      user ID to request validation for
+   * @param events Custom events
+   */
+  public GetPendingPreferredEmailChanges(int u, JsonCallbackEvents events) {
+    this.events = events;
+    this.u = u;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param u user ID to request validation for
-	 */
-	public GetPendingPreferredEmailChanges(int u) {
-		this.u = u;
-	}
+  public void onFinished(JavaScriptObject jso) {
+    events.onFinished(jso);
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param u user ID to request validation for
-	 * @param events Custom events
-	 */
-	public GetPendingPreferredEmailChanges(int u, JsonCallbackEvents events) {
-		this.events = events;
-		this.u = u;
-	}
+  public void onError(PerunError error) {
+    events.onError(error);
+  }
 
-	public void onFinished(JavaScriptObject jso) {
-		events.onFinished(jso);
-	}
+  public void onLoadingStart() {
+    events.onLoadingStart();
+  }
 
-	public void onError(PerunError error) {
-		events.onError(error);
-	}
+  public void retrieveData() {
 
-	public void onLoadingStart() {
-		events.onLoadingStart();
-	}
+    String params = "";
 
-	public void retrieveData() {
+    params += "user=" + u;
 
-		String params = "";
+    JsonClient client = new JsonClient();
+    client.setHidden(hidden);
+    client.retrieveData(JSON_URL, params, this);
 
-		params += "user="+u;
+  }
 
-		JsonClient client = new JsonClient();
-		client.setHidden(hidden);
-		client.retrieveData(JSON_URL, params, this);
-
-	}
-
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
+  public void setHidden(boolean hidden) {
+    this.hidden = hidden;
+  }
 
 }

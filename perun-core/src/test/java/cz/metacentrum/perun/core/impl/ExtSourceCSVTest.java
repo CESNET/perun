@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,89 +10,90 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  * @author Metodej Klang
  */
 public class ExtSourceCSVTest {
 
-	@Spy
-	private static ExtSourceCSV extSourceCSV;
+  @Spy
+  private static ExtSourceCSV extSourceCSV;
 
-	@Before
-	public void setUp() throws Exception {
-		extSourceCSV = new ExtSourceCSV();
+  @Test
+  public void getUsersSubjectsQueryWithContainsTest() throws Exception {
+    System.out.println("getUsersSubjectsQueryWithContainsTest");
 
-		MockitoAnnotations.initMocks(this);
-	}
+    // create temporal csv file containing new subjects
+    File temp = File.createTempFile("temp", ".csv");
+    temp.deleteOnExit();
 
-	@Test
-	public void getUsersSubjectsQueryWithContainsTest() throws Exception {
-		System.out.println("getUsersSubjectsQueryWithContainsTest");
+    // define needed attributes
+    Map<String, String> mapOfAttributes = new HashMap<>();
+    mapOfAttributes.put("usersQuery", "login contains ");
+    mapOfAttributes.put("file", temp.getAbsolutePath());
+    mapOfAttributes.put("csvMapping", "firstName={firstName},\nlogin={login}");
+    doReturn(mapOfAttributes).when(extSourceCSV).getAttributes();
 
-		// create temporal csv file containing new subjects
-		File temp = File.createTempFile("temp",".csv");
-		temp.deleteOnExit();
+    // fill in the file
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter(temp))) {
+      bw.write("\"firstName\",\"login\"\n\"bruce\",\"xwayne\"\n\"batman\",\"xbatman\"");
+    }
 
-		// define needed attributes
-		Map<String, String> mapOfAttributes = new HashMap<>();
-		mapOfAttributes.put("usersQuery", "login contains ");
-		mapOfAttributes.put("file", temp.getAbsolutePath());
-		mapOfAttributes.put("csvMapping", "firstName={firstName},\nlogin={login}");
-		doReturn(mapOfAttributes).when(extSourceCSV).getAttributes();
+    // create expected subject to get
+    List<Map<String, String>> expectedSubjects = new ArrayList<>();
+    Map<String, String> mapOfSubject = new HashMap<>();
+    mapOfSubject.put("firstName", "bruce");
+    mapOfSubject.put("login", "xwayne");
+    expectedSubjects.add(mapOfSubject);
+    mapOfSubject = new HashMap<>();
+    mapOfSubject.put("firstName", "batman");
+    mapOfSubject.put("login", "xbatman");
+    expectedSubjects.add(mapOfSubject);
 
-		// fill in the file
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(temp))) {
-			bw.write("\"firstName\",\"login\"\n\"bruce\",\"xwayne\"\n\"batman\",\"xbatman\"");
-		}
+    List<Map<String, String>> actualSubjects = extSourceCSV.getUsersSubjects();
+    assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
 
-		// create expected subject to get
-		List<Map<String, String>> expectedSubjects = new ArrayList<>();
-		Map<String, String> mapOfSubject = new HashMap<>();
-		mapOfSubject.put("firstName", "bruce");
-		mapOfSubject.put("login", "xwayne");
-		expectedSubjects.add(mapOfSubject);
-		mapOfSubject = new HashMap<>();
-		mapOfSubject.put("firstName", "batman");
-		mapOfSubject.put("login", "xbatman");
-		expectedSubjects.add(mapOfSubject);
+  @Test
+  public void getUsersSubjectsQueryWithEqualTest() throws Exception {
+    System.out.println("getUsersSubjectsQueryWithEqualTest");
 
-		List<Map<String, String>> actualSubjects = extSourceCSV.getUsersSubjects();
-		assertEquals("subjects should be same", expectedSubjects, actualSubjects);
-	}
+    // create temporal csv file containing new subjects
+    File temp = File.createTempFile("temp", ".csv");
+    temp.deleteOnExit();
 
-	@Test
-	public void getUsersSubjectsQueryWithEqualTest() throws Exception {
-		System.out.println("getUsersSubjectsQueryWithEqualTest");
+    // define needed attributes
+    Map<String, String> mapOfAttributes = new HashMap<>();
+    mapOfAttributes.put("usersQuery", "login=xwayne");
+    mapOfAttributes.put("file", temp.getAbsolutePath());
+    mapOfAttributes.put("csvMapping", "firstName={firstName},\nlogin={login}");
+    doReturn(mapOfAttributes).when(extSourceCSV).getAttributes();
 
-		// create temporal csv file containing new subjects
-		File temp = File.createTempFile("temp",".csv");
-		temp.deleteOnExit();
+    // fill in the file
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter(temp))) {
+      bw.write("\"firstName\",\"login\"\n\"bruce\",\"xwayne\"\n\"batman\",\"xbatman\"");
+    }
 
-		// define needed attributes
-		Map<String, String> mapOfAttributes = new HashMap<>();
-		mapOfAttributes.put("usersQuery", "login=xwayne");
-		mapOfAttributes.put("file", temp.getAbsolutePath());
-		mapOfAttributes.put("csvMapping", "firstName={firstName},\nlogin={login}");
-		doReturn(mapOfAttributes).when(extSourceCSV).getAttributes();
+    // create expected subject to get
+    List<Map<String, String>> expectedSubjects = new ArrayList<>();
+    Map<String, String> mapOfSubject = new HashMap<>();
+    mapOfSubject.put("firstName", "bruce");
+    mapOfSubject.put("login", "xwayne");
+    expectedSubjects.add(mapOfSubject);
 
-		// fill in the file
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(temp))) {
-			bw.write("\"firstName\",\"login\"\n\"bruce\",\"xwayne\"\n\"batman\",\"xbatman\"");
-		}
+    // test the method
+    List<Map<String, String>> actualSubjects = extSourceCSV.getUsersSubjects();
+    assertEquals("subjects should be same", expectedSubjects, actualSubjects);
+  }
 
-		// create expected subject to get
-		List<Map<String, String>> expectedSubjects = new ArrayList<>();
-		Map<String, String> mapOfSubject = new HashMap<>();
-		mapOfSubject.put("firstName", "bruce");
-		mapOfSubject.put("login", "xwayne");
-		expectedSubjects.add(mapOfSubject);
+  @Before
+  public void setUp() throws Exception {
+    extSourceCSV = new ExtSourceCSV();
 
-		// test the method
-		List<Map<String, String>> actualSubjects = extSourceCSV.getUsersSubjects();
-		assertEquals("subjects should be same", expectedSubjects, actualSubjects);
-	}
+    MockitoAnnotations.initMocks(this);
+  }
 }

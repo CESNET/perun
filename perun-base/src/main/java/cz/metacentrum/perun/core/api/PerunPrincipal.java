@@ -3,9 +3,7 @@ package cz.metacentrum.perun.core.api;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.registrar.model.Application;
-
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -15,208 +13,219 @@ import java.util.Map;
  */
 public class PerunPrincipal {
 
-	private String actor;
-	private String extSourceName;
-	private String extSourceType;
-	private int extSourceLoa = 0; // 0 by default
-	private User user;
-	// Contains principal's roles together with objects which specifies the role, e.g. VOADMIN -> list contains VO names
-	private volatile AuthzRoles authzRoles = new AuthzRoles();
-	// The PERUNADMIN role is enabled and will not be manually removed
-	private String referer = "";
-	// Time of the last update of roles
-	private long rolesUpdatedAt = System.currentTimeMillis();
-	// Map contains additional attributes, e.g. from authentication system
-	private Map<String, String> additionalInformations = new HashMap<String, String>();
-	// Specifies if the principal has initialized authZResolver
-	private volatile boolean authzInitialized = false;
-	// Keywords of additionalInformations
-	public static final String AUTH_TIME = "authTime";
-	public static final String ACR_MFA = "acrMfa";
-	public static final String ISSUER = "issuer";
-	public static final String ACCESS_TOKEN = "accessToken";
+  // Keywords of additionalInformations
+  public static final String AUTH_TIME = "authTime";
+  public static final String ACR_MFA = "acrMfa";
+  public static final String ISSUER = "issuer";
+  public static final String ACCESS_TOKEN = "accessToken";
+  private String actor;
+  private String extSourceName;
+  private String extSourceType;
+  private int extSourceLoa = 0; // 0 by default
+  private User user;
+  // Contains principal's roles together with objects which specifies the role, e.g. VOADMIN -> list contains VO names
+  private volatile AuthzRoles authzRoles = new AuthzRoles();
+  // The PERUNADMIN role is enabled and will not be manually removed
+  private String referer = "";
+  // Time of the last update of roles
+  private long rolesUpdatedAt = System.currentTimeMillis();
+  // Map contains additional attributes, e.g. from authentication system
+  private Map<String, String> additionalInformations = new HashMap<String, String>();
+  // Specifies if the principal has initialized authZResolver
+  private volatile boolean authzInitialized = false;
 
-	/**
-	 * Creates a new instance for a given string.
-	 * @param actor string identifying the user in Grouper
-	 * @throws InternalErrorException actor is null
-	 */
-	public PerunPrincipal(String actor, String extSourceName, String extSourceType) {
-		if (actor == null) throw new InternalErrorException(new NullPointerException("actor is null"));
-		if (extSourceName == null) throw new InternalErrorException(new NullPointerException("extSourceName is null"));
-		if (extSourceType == null) throw new InternalErrorException(new NullPointerException("extSourceType is null"));
+  /**
+   * Creates a new instance for a given string.
+   *
+   * @param actor string identifying the user in Grouper
+   * @throws InternalErrorException actor is null
+   */
+  public PerunPrincipal(String actor, String extSourceName, String extSourceType) {
+    if (actor == null) {
+      throw new InternalErrorException(new NullPointerException("actor is null"));
+    }
+    if (extSourceName == null) {
+      throw new InternalErrorException(new NullPointerException("extSourceName is null"));
+    }
+    if (extSourceType == null) {
+      throw new InternalErrorException(new NullPointerException("extSourceType is null"));
+    }
 
-		this.actor = actor;
-		this.extSourceName = extSourceName;
-		this.extSourceType = extSourceType;
-	}
+    this.actor = actor;
+    this.extSourceName = extSourceName;
+    this.extSourceType = extSourceType;
+  }
 
-	public PerunPrincipal(String actor, String extSourceName, String extSourceType, User user) {
-		this(actor, extSourceName, extSourceType);
-		this.user = user;
-	}
+  public PerunPrincipal(String actor, String extSourceName, String extSourceType, User user) {
+    this(actor, extSourceName, extSourceType);
+    this.user = user;
+  }
 
-	public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa) {
-		this(actor, extSourceName, extSourceType);
-		this.extSourceLoa = extSourceLoa;
-	}
+  public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa) {
+    this(actor, extSourceName, extSourceType);
+    this.extSourceLoa = extSourceLoa;
+  }
 
-	public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa, Map<String, String> additionalInformations) {
-		this(actor, extSourceName, extSourceType, extSourceLoa);
-		this.additionalInformations = additionalInformations;
-	}
+  public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa,
+                        Map<String, String> additionalInformations) {
+    this(actor, extSourceName, extSourceType, extSourceLoa);
+    this.additionalInformations = additionalInformations;
+  }
 
-	public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa, Map<String, String> additionalInformations, String referer) {
-		this(actor, extSourceName, extSourceType, extSourceLoa);
-		this.additionalInformations = additionalInformations;
-		this.referer = referer;
-	}
+  public PerunPrincipal(String actor, String extSourceName, String extSourceType, int extSourceLoa,
+                        Map<String, String> additionalInformations, String referer) {
+    this(actor, extSourceName, extSourceType, extSourceLoa);
+    this.additionalInformations = additionalInformations;
+    this.referer = referer;
+  }
 
-	public PerunPrincipal(Application app, Map<String, String> additionalAttributes) {
-		this(
-			app.getCreatedBy(),
-			app.getExtSourceName(),
-			app.getExtSourceType(),
-			app.getExtSourceLoa(),
-			additionalAttributes
-		);
-	}
+  public PerunPrincipal(Application app, Map<String, String> additionalAttributes) {
+    this(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(),
+        additionalAttributes);
+  }
 
-	/**
-	 * Returns actor string representation.
-	 * @return string representing actor
-	 */
-	public String getActor() {
-		return actor;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    PerunPrincipal other = (PerunPrincipal) obj;
+    if (actor == null) {
+      if (other.actor != null) {
+        return false;
+      }
+    } else if (!actor.equals(other.actor)) {
+      return false;
+    }
+    if (extSourceName == null) {
+      if (other.extSourceName != null) {
+        return false;
+      }
+    } else if (!extSourceName.equals(other.extSourceName)) {
+      return false;
+    }
+    if (user == null) {
+      if (other.user != null) {
+        return false;
+      }
+    } else if (!user.equals(other.user)) {
+      return false;
+    }
+    return true;
+  }
 
-	@Override
-	public String toString() {
-		return new StringBuilder(getClass().getSimpleName()).append(":[")
-				.append("actor='").append(actor).append("', ")
-				.append("user='").append((user != null ? user : "null")).append("', ")
-				.append("extSourceName='").append(extSourceName).append("', ")
-				.append("authzRoles='").append(authzRoles).append("', ")
-				.append("rolesUpdatedAt='").append(rolesUpdatedAt).append("' ")
-				.append("authzInitialized='").append(authzInitialized).append("']").toString();
-	}
+  /**
+   * Returns actor string representation.
+   *
+   * @return string representing actor
+   */
+  public String getActor() {
+    return actor;
+  }
 
-	public String getExtSourceName() {
-		return extSourceName;
-	}
+  public Map<String, String> getAdditionalInformations() {
+    return additionalInformations;
+  }
 
-	public void setExtSourceName(String extSourceName) {
-		this.extSourceName = extSourceName;
-	}
+  public void setAdditionalInformations(Map<String, String> additionalInformations) {
+    this.additionalInformations = additionalInformations;
+  }
 
-	public boolean isAuthzInitialized() {
-		return authzInitialized;
-	}
+  public int getExtSourceLoa() {
+    return extSourceLoa;
+  }
 
-	public void setAuthzInitialized(boolean authzInitialized) {
-		this.authzInitialized = authzInitialized;
-	}
+  public void setExtSourceLoa(int extSourceLoa) {
+    this.extSourceLoa = extSourceLoa;
+  }
 
-	public User getUser() {
-		return this.user;
-	}
+  public String getExtSourceName() {
+    return extSourceName;
+  }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+  public void setExtSourceName(String extSourceName) {
+    this.extSourceName = extSourceName;
+  }
 
-	public int getUserId() {
-		if (this.user == null) {
-			return -1;
-		}
-		return this.user.getId();
-	}
+  public String getExtSourceType() {
+    return extSourceType;
+  }
 
-	public AuthzRoles getRoles() {
-		//return (AuthzRoles) Collections.unmodifiableMap(authzRoles);
-		return this.authzRoles;
-	}
+  public void setExtSourceType(String extSourceType) {
+    this.extSourceType = extSourceType;
+  }
 
-	public void setRoles(AuthzRoles authzRoles) {
-		this.authzRoles = authzRoles;
-	}
+  public String getReferer() {
+    return referer;
+  }
 
-	public Map<String, String> getAdditionalInformations() {
-		return additionalInformations;
-	}
+  public void setReferer(String referer) {
+    this.referer = referer;
+  }
 
-	public void setAdditionalInformations(Map<String, String> additionalInformations) {
-		this.additionalInformations = additionalInformations;
-	}
+  public AuthzRoles getRoles() {
+    //return (AuthzRoles) Collections.unmodifiableMap(authzRoles);
+    return this.authzRoles;
+  }
 
-	public String getExtSourceType() {
-		return extSourceType;
-	}
+  public void setRoles(AuthzRoles authzRoles) {
+    this.authzRoles = authzRoles;
+  }
 
-	public void setExtSourceType(String extSourceType) {
-		this.extSourceType = extSourceType;
-	}
+  public long getRolesUpdatedAt() {
+    return rolesUpdatedAt;
+  }
 
-	public int getExtSourceLoa() {
-		return extSourceLoa;
-	}
+  public void setRolesUpdatedAt(long rolesUpdatedAt) {
+    this.rolesUpdatedAt = rolesUpdatedAt;
+  }
 
-	public void setExtSourceLoa(int extSourceLoa) {
-		this.extSourceLoa = extSourceLoa;
-	}
+  public User getUser() {
+    return this.user;
+  }
 
-	public long getRolesUpdatedAt() {
-		return rolesUpdatedAt;
-	}
+  public void setUser(User user) {
+    this.user = user;
+  }
 
-	public void setRolesUpdatedAt(long rolesUpdatedAt) {
-		this.rolesUpdatedAt = rolesUpdatedAt;
-	}
+  public int getUserId() {
+    if (this.user == null) {
+      return -1;
+    }
+    return this.user.getId();
+  }
 
-	public String getReferer() {
-		return referer;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((actor == null) ? 0 : actor.hashCode());
+    result = prime * result + ((extSourceName == null) ? 0 : extSourceName.hashCode());
+    result = prime * result + ((user == null) ? 0 : user.hashCode());
+    result = prime * result + extSourceLoa;
+    return result;
+  }
 
-	public void setReferer(String referer) {
-		this.referer = referer;
-	}
+  public boolean isAuthzInitialized() {
+    return authzInitialized;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((actor == null) ? 0 : actor.hashCode());
-		result = prime * result
-			+ ((extSourceName == null) ? 0 : extSourceName.hashCode());
-		result = prime * result + ((user == null) ? 0 : user.hashCode());
-		result = prime * result + extSourceLoa;
-		return result;
-	}
+  public void setAuthzInitialized(boolean authzInitialized) {
+    this.authzInitialized = authzInitialized;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PerunPrincipal other = (PerunPrincipal) obj;
-		if (actor == null) {
-			if (other.actor != null)
-				return false;
-		} else if (!actor.equals(other.actor))
-			return false;
-		if (extSourceName == null) {
-			if (other.extSourceName != null)
-				return false;
-		} else if (!extSourceName.equals(other.extSourceName))
-			return false;
-		if (user == null) {
-			if (other.user != null)
-				return false;
-		} else if (!user.equals(other.user))
-			return false;
-		return true;
-	}
+  @Override
+  public String toString() {
+    return new StringBuilder(getClass().getSimpleName()).append(":[").append("actor='").append(actor).append("', ")
+        .append("user='").append((user != null ? user : "null")).append("', ").append("extSourceName='")
+        .append(extSourceName).append("', ").append("authzRoles='").append(authzRoles).append("', ")
+        .append("rolesUpdatedAt='").append(rolesUpdatedAt).append("' ").append("authzInitialized='")
+        .append(authzInitialized).append("']").toString();
+  }
 }

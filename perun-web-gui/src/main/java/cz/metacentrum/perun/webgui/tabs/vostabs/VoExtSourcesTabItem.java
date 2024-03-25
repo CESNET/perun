@@ -5,12 +5,20 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -25,7 +33,6 @@ import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -35,227 +42,230 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl{
+public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "ext-sources";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading vo ext sources");
+  // data
+  private VirtualOrganization vo;
+  private int voId;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param vo
+   */
+  public VoExtSourcesTabItem(VirtualOrganization vo) {
+    this.vo = vo;
+    this.voId = vo.getId();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading vo ext sources");
+  /**
+   * Creates a tab instance
+   *
+   * @param voId
+   */
+  public VoExtSourcesTabItem(int voId) {
+    this.voId = voId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        vo = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+  }
 
-	// data
-	private VirtualOrganization vo;
-	private int voId;
+  static public VoExtSourcesTabItem load(Map<String, String> parameters) {
+    int voId = Integer.parseInt(parameters.get("id"));
+    return new VoExtSourcesTabItem(voId);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param vo
-	 */
-	public VoExtSourcesTabItem(VirtualOrganization vo){
-		this.vo = vo;
-		this.voId = vo.getId();
-	}
+  public boolean isPrepared() {
+    return !(vo == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param voId
-	 */
-	public VoExtSourcesTabItem(int voId){
-		this.voId = voId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				vo = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		return !(vo == null);
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()) + ": " + "ext sources");
 
-	public Widget draw() {
+    // main panel
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"ext sources");
+    // HORIZONTAL MENU
+    TabMenu menu = new TabMenu();
+    // refresh
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		// main panel
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    // get VO resources
+    final GetVoExtSources extSources = new GetVoExtSources(voId);
 
-		// HORIZONTAL MENU
-		TabMenu menu = new TabMenu();
-		// refresh
-		menu.addWidget(UiElements.getRefreshButton(this));
+    // refresh table event
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(extSources);
 
-		// get VO resources
-		final GetVoExtSources extSources = new GetVoExtSources(voId);
+    // create ext source button
+    CustomButton addButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addExtSource(),
+            new ClickHandler() {
+              public void onClick(ClickEvent event) {
+                session.getTabManager().addTabToCurrentTab(new AddVoExtSourceTabItem(voId), true);
+              }
+            });
+    menu.addWidget(addButton);
 
-		// refresh table event
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(extSources);
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeExtSource());
+    removeButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        final ArrayList<ExtSource> extSourcesToRemove = extSources.getTableSelectedList();
+        String text =
+            "Following external sources will be removed from VO. You won't be able to import members from them anymore.";
+        UiElements.showDeleteConfirm(extSourcesToRemove, text, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+            for (int i = 0; i < extSourcesToRemove.size(); i++) {
+              RemoveExtSource request;
+              if (i == extSourcesToRemove.size() - 1) {
+                request = new RemoveExtSource(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+              } else {
+                request = new RemoveExtSource(JsonCallbackEvents.disableButtonEvents(removeButton));
+              }
+              request.removeVoExtSource(voId, extSourcesToRemove.get(i).getId());
+            }
+          }
+        });
+      }
+    });
+    menu.addWidget(removeButton);
 
-		// create ext source button
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addExtSource(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new AddVoExtSourceTabItem(voId), true);
-			}
-		});
-		menu.addWidget(addButton);
+    // authorization - enable buttons for perun admin only.
+    if (!session.isPerunAdmin()) {
+      addButton.setEnabled(false);
+      removeButton.setEnabled(false);
+      extSources.setCheckable(false);
+    }
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeExtSource());
-		removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				final ArrayList<ExtSource> extSourcesToRemove = extSources.getTableSelectedList();
-				String text = "Following external sources will be removed from VO. You won't be able to import members from them anymore.";
-				UiElements.showDeleteConfirm(extSourcesToRemove, text, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i=0; i<extSourcesToRemove.size(); i++) {
-							RemoveExtSource request;
-							if (i == extSourcesToRemove.size()-1) {
-								request = new RemoveExtSource(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-							} else {
-								request = new RemoveExtSource(JsonCallbackEvents.disableButtonEvents(removeButton));
-							}
-							request.removeVoExtSource(voId, extSourcesToRemove.get(i).getId());
-						}
-					}
-				});
-			}
-		});
-		menu.addWidget(removeButton);
+    menu.addFilterWidget(new ExtendedSuggestBox(extSources.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        extSources.filterTable(text);
+      }
+    }, "Filter external sources by name or type");
 
-		// authorization - enable buttons for perun admin only.
-		if (!session.isPerunAdmin()) {
-			addButton.setEnabled(false);
-			removeButton.setEnabled(false);
-			extSources.setCheckable(false);
-		}
+    // add menu to the main panel
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		menu.addFilterWidget(new ExtendedSuggestBox(extSources.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				extSources.filterTable(text);
-			}
-		}, "Filter external sources by name or type");
+    CellTable<ExtSource> table = extSources.getTable();
 
-		// add menu to the main panel
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    if (session.isPerunAdmin()) {
+      removeButton.setEnabled(false);
+      JsonUtils.addTableManagedButton(extSources, table, removeButton);
+    }
 
-		CellTable<ExtSource> table = extSources.getTable();
+    table.addStyleName("perun-table");
+    table.setWidth("100%");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		if (session.isPerunAdmin()) {
-			removeButton.setEnabled(false);
-			JsonUtils.addTableManagedButton(extSources, table, removeButton);
-		}
+    vp.add(sp);
 
-		table.addStyleName("perun-table");
-		table.setWidth("100%");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		vp.add(sp);
+    this.contentWidget.setWidget(vp);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    return getWidget();
+  }
 
-		this.contentWidget.setWidget(vp);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.worldIcon();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1601;
+    int result = 1;
+    result = prime * result + voId;
+    return result;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.worldIcon();
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    VoExtSourcesTabItem other = (VoExtSourcesTabItem) obj;
+    if (voId != other.voId) {
+      return false;
+    }
+    return true;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1601;
-		int result = 1;
-		result = prime * result + voId;
-		return result;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		VoExtSourcesTabItem other = (VoExtSourcesTabItem) obj;
-		if (voId != other.voId)
-			return false;
-		return true;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(vo, "External sources", getUrlWithParameters());
+    if (vo != null) {
+      session.setActiveVo(vo);
+      return;
+    }
+    session.setActiveVoId(voId);
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean isAuthorized() {
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(vo, "External sources", getUrlWithParameters());
-		if(vo != null){
-			session.setActiveVo(vo);
-			return;
-		}
-		session.setActiveVoId(voId);
-	}
+    if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-	public boolean isAuthorized() {
+  public String getUrl() {
+    return URL;
+  }
 
-		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public final static String URL = "ext-sources";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
-	}
-
-	static public VoExtSourcesTabItem load(Map<String, String> parameters) {
-		int voId = Integer.parseInt(parameters.get("id"));
-		return new VoExtSourcesTabItem(voId);
-	}
+  public String getUrlWithParameters() {
+    return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
+  }
 
 }

@@ -1,5 +1,10 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupExchangeMailAliasesUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailUrn;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupPreferredMailUrn;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -13,8 +18,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,265 +27,293 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsUrn;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupExchangeMailAliasesUrn;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupMailUrn;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupPreferredMailUrn;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
- * Attribute module for Primary school mail at VŠUP.
- * Expected format is "firstName.lastName[counter]@umprum.cz".
- * Artistic names have preference over normal: "u:d:artisticFirstName", "u:d:artisticLastName".
- * If firstName contains more names, only first is taken.
- * If lastName contains more names, space is replaced with dash.
- * Value can be empty or manually changed if necessary.
- * In case of users name change, attribute value must be changed manually !!
- * Value is filled/generated only for normal users (service users shouldn't have this attribute set)!!
- *
- * On value change, map of usedMails in entityless attributes is checked and updated.
- * Also u:d:vsupPreferredMail is set to current value, if is empty or equals u:d:vsupMail.
+ * Attribute module for Primary school mail at VŠUP. Expected format is "firstName.lastName[counter]@umprum.cz".
+ * Artistic names have preference over normal: "u:d:artisticFirstName", "u:d:artisticLastName". If firstName contains
+ * more names, only first is taken. If lastName contains more names, space is replaced with dash. Value can be empty or
+ * manually changed if necessary. In case of users name change, attribute value must be changed manually !! Value is
+ * filled/generated only for normal users (service users shouldn't have this attribute set)!!
+ * <p>
+ * On value change, map of usedMails in entityless attributes is checked and updated. Also u:d:vsupPreferredMail is set
+ * to current value, if is empty or equals u:d:vsupMail.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_vsupExchangeMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_vsupExchangeMail extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	// VŠUP EXCHANGE MAIL PATTERN !!
-	private static final Pattern vsupExchangeMailPattern = Pattern.compile("^[-A-Za-z]+\\.[-A-Za-z]+([0-9])*@umprum\\.cz$");
+  // VŠUP EXCHANGE MAIL PATTERN !!
+  private static final Pattern vsupExchangeMailPattern =
+      Pattern.compile("^[-A-Za-z]+\\.[-A-Za-z]+([0-9])*@umprum\\.cz$");
 
+  /**
+   * Normalize string for the purpose of generating safe mail value.
+   *
+   * @return normalized string
+   */
+  public static String normalizeStringForMail(String toBeNormalized) {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
-		// can be empty
-		if (attribute.getValue() == null) return;
+    if (toBeNormalized == null || toBeNormalized.trim().isEmpty()) {
+      return null;
+    }
 
-		// if set, must match generic format
-		Matcher emailMatcher = vsupExchangeMailPattern.matcher(attribute.valueAsString());
-		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Primary mail alias is not in a correct form: \"firstName.lastName[counter]@umprum.cz\".");
-	}
+    toBeNormalized = toBeNormalized.toLowerCase();
+    toBeNormalized = java.text.Normalizer.normalize(toBeNormalized, java.text.Normalizer.Form.NFD)
+        .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    toBeNormalized = toBeNormalized.replaceAll("[^-a-zA-Z]+", "");
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+    // unable to fill login for users without name or with partial name
+    if (toBeNormalized.isEmpty()) {
+      return null;
+    }
 
-		// can be empty
-		if (attribute.getValue() == null) return;
+    return toBeNormalized;
 
-		// We must check uniqueness since vsupExchangeMail is filled by itself and filling function iterates until value is correct.
+  }
 
-		try {
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
 
-			// lock this logic
-			Attribute reservedMailsAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeForUpdate(sess, user, usedMailsUrn);
+    // list of reserved mails for user
+    Attribute reservedMailsAttribute;
+    ArrayList<String> reservedMailsAttributeValue;
 
-			List<User> users = sess.getPerunBl().getUsersManagerBl().getUsersByAttributeValue(sess, usedMailsUrn, attribute.valueAsString());
-			if (users.size() > 1) {
-				String ids = ArrayUtils.toString( users.stream().map(User::getId).collect(Collectors.toList()));
-				throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null, "VŠUP primary mail: '"+attribute.getValue()+"' is shared between users with IDs: "+ids+".");
-			}
+    // other vsup mail attributes to get values from
+    Attribute vsupMailAttribute;
+    Attribute vsupPreferredMailAttribute;
+    Attribute vsupExchangeMailAliasesAttribute;
 
-			if (users.size() == 1) {
-				User ownerUser = users.get(0);
-				if (!Objects.equals(ownerUser.getId(), user.getId())) {
-					throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null, "VŠUP primary mail: '"+attribute.getValue()+"' is already in use by User ID: " + ownerUser.getId() + ".");
-				}
-			}
+    // output sets used for comparison
+    Set<String> reservedMailsOfUser = new HashSet<>();
+    Set<String> actualMailsOfUser = new HashSet<>();
 
-		} catch (AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new ConsistencyErrorException("Attribute is not of user type.", ex);
-		}
+    // get related attributes
+    try {
+      reservedMailsAttribute =
+          session.getPerunBl().getAttributesManagerBl().getAttributeForUpdate(session, user, usedMailsUrn);
+      vsupMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
+      vsupPreferredMailAttribute =
+          session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupPreferredMailUrn);
+      vsupExchangeMailAliasesAttribute =
+          session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailAliasesUrn);
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
+    } catch (WrongAttributeAssignmentException e) {
+      throw new InternalErrorException(e);
+    }
 
-	}
+    // if REMOVE action and reserved map is empty -> consistency error
 
-	@Override
-	public List<String> getDependencies() {
-		return Collections.singletonList(usedMailsUrn);
-	}
+    if (attribute.getValue() == null && reservedMailsAttribute.getValue() == null) {
+      throw new ConsistencyErrorException(
+          "User attribute 'urn:perun:user:attribute-def:def:usedMails' is empty, but we are removing " +
+          "'vsupExchangeMail' value, so there should have been entry in usedMails attribute.");
+    }
 
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
+    // get value from reserved mails attribute
 
-		if (user.isSpecificUser()) {
-			// Do not fill value for service/sponsored users
-			return new Attribute(attribute);
-		}
+    if (reservedMailsAttribute.getValue() == null) {
+      reservedMailsAttributeValue = new ArrayList<>();
+    } else {
+      reservedMailsAttributeValue = reservedMailsAttribute.valueAsList();
+    }
 
-		String firstName = user.getFirstName();
-		String lastName = user.getLastName();
-		Attribute filledAttribute = new Attribute(attribute);
+    // fill set for comparison
+    reservedMailsOfUser.addAll(reservedMailsAttributeValue);
 
-		try {
-			Attribute artFirstName = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:artisticFirstName");
-			Attribute artLastName = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:artisticLastName");
+    if (vsupMailAttribute.getValue() != null) {
+      actualMailsOfUser.add(vsupMailAttribute.valueAsString());
+    }
+    if (vsupPreferredMailAttribute.getValue() != null) {
+      actualMailsOfUser.add(vsupPreferredMailAttribute.valueAsString());
+    }
+    if (vsupExchangeMailAliasesAttribute.getValue() != null) {
+      actualMailsOfUser.addAll(vsupExchangeMailAliasesAttribute.valueAsList());
+    }
 
-			if (artFirstName.getValue() != null) firstName = artFirstName.valueAsString();
-			if (artLastName.getValue() != null) lastName = artLastName.valueAsString();
+    // Remove values, which are no longer set to any of user mail attributes
+    for (String mail : reservedMailsOfUser) {
+      if (!actualMailsOfUser.contains(mail)) {
+        // Remove mail, which is not in attributes anymore
+        reservedMailsAttributeValue.remove(mail);
+        // since this attribute holds single value, we can break the cycle here
+        break;
+      }
+    }
 
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException("Definition for artistic names of user doesn't exists.", e);
-		}
+    // if SET action and new mail is not present (prevent duplicates within the value)
+    if (attribute.getValue() != null && !reservedMailsAttributeValue.contains(attribute.valueAsString())) {
+      reservedMailsAttributeValue.add(attribute.valueAsString());
+    }
 
-		if (lastName == null || firstName == null) {
-			return filledAttribute;
-		}
+    // save changes in reserved mails attribute
+    try {
+      // always set value to attribute, since we might start with null in attribute and empty list in variable !!
+      reservedMailsAttribute.setValue(reservedMailsAttributeValue);
+      session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, reservedMailsAttribute);
+    } catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
 
-		// if first name contains more names (divided by spaces), then take only first
-		firstName = firstName.split(" ")[0];
-		// if last name contains more names (divided by spaces), then replace space with dash
-		lastName = lastName.replaceAll(" ", "-");
+    // if set, check u:d:vsupPreferredMail and set its value if is currently empty or equals vsupMail (in both
+    // domains @vsup.cz or @umprum.cz)
+    if (attribute.getValue() != null) {
 
-		// remove all diacritics marks from name
-		String mail = normalizeStringForMail(firstName) + "." + normalizeStringForMail(lastName);
+      String preferredMail = vsupPreferredMailAttribute.valueAsString();
+      if (preferredMail == null || Objects.equals(preferredMail, vsupMailAttribute.valueAsString()) ||
+          Objects.equals(preferredMail, vsupMailAttribute.valueAsString().replace("@vsup.cz", "@umprum.cz"))) {
+        vsupPreferredMailAttribute.setValue(attribute.getValue());
+        try {
+          session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, vsupPreferredMailAttribute);
+        } catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
+          throw new InternalErrorException("Unable to store generated vsupExchangeMail to vsupPreferredMail.", e);
+        }
+      }
+    }
 
-		// fill value - start as mail, mail2, mail3, ....
-		int iterator = 1;
-		while (iterator >= 1) {
-			if (iterator > 1) {
-				filledAttribute.setValue(mail + iterator + "@umprum.cz");
-			} else {
-				filledAttribute.setValue(mail + "@umprum.cz");
-			}
-			try {
-				checkAttributeSemantics(session, user, filledAttribute);
-				return filledAttribute;
-			} catch (WrongReferenceAttributeValueException ex) {
-				// continue in a WHILE cycle
-				iterator++;
-			}
-		}
+  }
 
-		return filledAttribute;
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
 
-	}
+    // can be empty
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+    // We must check uniqueness since vsupExchangeMail is filled by itself and filling function iterates until value
+    // is correct.
 
-		// list of reserved mails for user
-		Attribute reservedMailsAttribute;
-		ArrayList<String> reservedMailsAttributeValue;
+    try {
 
-		// other vsup mail attributes to get values from
-		Attribute vsupMailAttribute;
-		Attribute vsupPreferredMailAttribute;
-		Attribute vsupExchangeMailAliasesAttribute;
+      // lock this logic
+      Attribute reservedMailsAttribute =
+          sess.getPerunBl().getAttributesManagerBl().getAttributeForUpdate(sess, user, usedMailsUrn);
 
-		// output sets used for comparison
-		Set<String> reservedMailsOfUser = new HashSet<>();
-		Set<String> actualMailsOfUser = new HashSet<>();
+      List<User> users =
+          sess.getPerunBl().getUsersManagerBl().getUsersByAttributeValue(sess, usedMailsUrn, attribute.valueAsString());
+      if (users.size() > 1) {
+        String ids = ArrayUtils.toString(users.stream().map(User::getId).collect(Collectors.toList()));
+        throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null,
+            "VŠUP primary mail: '" + attribute.getValue() + "' is shared between users with IDs: " + ids + ".");
+      }
 
-		// get related attributes
-		try {
-			reservedMailsAttribute = session.getPerunBl().getAttributesManagerBl().getAttributeForUpdate(session, user, usedMailsUrn);
-			vsupMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
-			vsupPreferredMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupPreferredMailUrn);
-			vsupExchangeMailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupExchangeMailAliasesUrn);
-		} catch (AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		}
+      if (users.size() == 1) {
+        User ownerUser = users.get(0);
+        if (!Objects.equals(ownerUser.getId(), user.getId())) {
+          throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null,
+              "VŠUP primary mail: '" + attribute.getValue() + "' is already in use by User ID: " + ownerUser.getId() +
+              ".");
+        }
+      }
 
-		// if REMOVE action and reserved map is empty -> consistency error
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new ConsistencyErrorException("Attribute is not of user type.", ex);
+    }
 
-		if (attribute.getValue() == null && reservedMailsAttribute.getValue() == null) {
-			throw new ConsistencyErrorException("User attribute 'urn:perun:user:attribute-def:def:usedMails' is empty, but we are removing 'vsupExchangeMail' value, so there should have been entry in usedMails attribute.");
-		}
+  }
 
-		// get value from reserved mails attribute
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongAttributeValueException {
+    // can be empty
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		if (reservedMailsAttribute.getValue() == null) {
-			reservedMailsAttributeValue = new ArrayList<>();
-		} else {
-			reservedMailsAttributeValue = reservedMailsAttribute.valueAsList();
-		}
+    // if set, must match generic format
+    Matcher emailMatcher = vsupExchangeMailPattern.matcher(attribute.valueAsString());
+    if (!emailMatcher.find()) {
+      throw new WrongAttributeValueException(attribute, user,
+          "Primary mail alias is not in a correct form: \"firstName.lastName[counter]@umprum.cz\".");
+    }
+  }
 
-		// fill set for comparison
-		reservedMailsOfUser.addAll(reservedMailsAttributeValue);
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute)
+      throws WrongAttributeAssignmentException {
 
-		if (vsupMailAttribute.getValue() != null) {
-			actualMailsOfUser.add(vsupMailAttribute.valueAsString());
-		}
-		if (vsupPreferredMailAttribute.getValue() != null) {
-			actualMailsOfUser.add(vsupPreferredMailAttribute.valueAsString());
-		}
-		if (vsupExchangeMailAliasesAttribute.getValue() != null) {
-			actualMailsOfUser.addAll(vsupExchangeMailAliasesAttribute.valueAsList());
-		}
+    if (user.isSpecificUser()) {
+      // Do not fill value for service/sponsored users
+      return new Attribute(attribute);
+    }
 
-		// Remove values, which are no longer set to any of user mail attributes
-		for (String mail : reservedMailsOfUser) {
-			if (!actualMailsOfUser.contains(mail)) {
-				// Remove mail, which is not in attributes anymore
-				reservedMailsAttributeValue.remove(mail);
-				// since this attribute holds single value, we can break the cycle here
-				break;
-			}
-		}
+    String firstName = user.getFirstName();
+    String lastName = user.getLastName();
+    Attribute filledAttribute = new Attribute(attribute);
 
-		// if SET action and new mail is not present (prevent duplicates within the value)
-		if (attribute.getValue() != null && !reservedMailsAttributeValue.contains(attribute.valueAsString())) {
-			reservedMailsAttributeValue.add(attribute.valueAsString());
-		}
+    try {
+      Attribute artFirstName = session.getPerunBl().getAttributesManagerBl()
+          .getAttribute(session, user, "urn:perun:user:attribute-def:def:artisticFirstName");
+      Attribute artLastName = session.getPerunBl().getAttributesManagerBl()
+          .getAttribute(session, user, "urn:perun:user:attribute-def:def:artisticLastName");
 
-		// save changes in reserved mails attribute
-		try {
-			// always set value to attribute, since we might start with null in attribute and empty list in variable !!
-			reservedMailsAttribute.setValue(reservedMailsAttributeValue);
-			session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, reservedMailsAttribute);
-		} catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+      if (artFirstName.getValue() != null) {
+        firstName = artFirstName.valueAsString();
+      }
+      if (artLastName.getValue() != null) {
+        lastName = artLastName.valueAsString();
+      }
 
-		// if set, check u:d:vsupPreferredMail and set its value if is currently empty or equals vsupMail (in both domains @vsup.cz or @umprum.cz)
-		if (attribute.getValue() != null) {
+    } catch (AttributeNotExistsException e) {
+      throw new ConsistencyErrorException("Definition for artistic names of user doesn't exists.", e);
+    }
 
-			String preferredMail = vsupPreferredMailAttribute.valueAsString();
-			if (preferredMail == null || Objects.equals(preferredMail, vsupMailAttribute.valueAsString()) ||
-					Objects.equals(preferredMail, vsupMailAttribute.valueAsString().replace("@vsup.cz", "@umprum.cz"))) {
-				vsupPreferredMailAttribute.setValue(attribute.getValue());
-				try {
-					session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, vsupPreferredMailAttribute);
-				} catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
-					throw new InternalErrorException("Unable to store generated vsupExchangeMail to vsupPreferredMail.", e);
-				}
-			}
-		}
+    if (lastName == null || firstName == null) {
+      return filledAttribute;
+    }
 
-	}
+    // if first name contains more names (divided by spaces), then take only first
+    firstName = firstName.split(" ")[0];
+    // if last name contains more names (divided by spaces), then replace space with dash
+    lastName = lastName.replaceAll(" ", "-");
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("vsupExchangeMail");
-		attr.setDisplayName("School mail (primary)");
-		attr.setType(String.class.getName());
-		attr.setDescription("Generated primary school mail in a \"name.surname[counter]@umprum.cz\" form. It is used by o365 Exchange server. Value can be empty. On users name change, attribute value must be fixed manually.");
-		return attr;
-	}
+    // remove all diacritics marks from name
+    String mail = normalizeStringForMail(firstName) + "." + normalizeStringForMail(lastName);
 
-	/**
-	 * Normalize string for the purpose of generating safe mail value.
-	 *
-	 * @return normalized string
-	 */
-	public static String normalizeStringForMail(String toBeNormalized) {
+    // fill value - start as mail, mail2, mail3, ....
+    int iterator = 1;
+    while (iterator >= 1) {
+      if (iterator > 1) {
+        filledAttribute.setValue(mail + iterator + "@umprum.cz");
+      } else {
+        filledAttribute.setValue(mail + "@umprum.cz");
+      }
+      try {
+        checkAttributeSemantics(session, user, filledAttribute);
+        return filledAttribute;
+      } catch (WrongReferenceAttributeValueException ex) {
+        // continue in a WHILE cycle
+        iterator++;
+      }
+    }
 
-		if (toBeNormalized == null || toBeNormalized.trim().isEmpty()) return null;
+    return filledAttribute;
 
-		toBeNormalized = toBeNormalized.toLowerCase();
-		toBeNormalized = java.text.Normalizer.normalize(toBeNormalized, java.text.Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+","");
-		toBeNormalized = toBeNormalized.replaceAll("[^-a-zA-Z]+", "");
+  }
 
-		// unable to fill login for users without name or with partial name
-		if (toBeNormalized.isEmpty()) {
-			return null;
-		}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("vsupExchangeMail");
+    attr.setDisplayName("School mail (primary)");
+    attr.setType(String.class.getName());
+    attr.setDescription(
+        "Generated primary school mail in a \"name.surname[counter]@umprum.cz\" form. It is used by o365 Exchange " +
+        "server. Value can be empty. On users name change, attribute value must be fixed manually.");
+    return attr;
+  }
 
-		return toBeNormalized;
-
-	}
+  @Override
+  public List<String> getDependencies() {
+    return Collections.singletonList(usedMailsUrn);
+  }
 
 }

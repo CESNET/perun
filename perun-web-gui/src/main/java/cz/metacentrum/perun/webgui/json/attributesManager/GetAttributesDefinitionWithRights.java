@@ -12,7 +12,12 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.json.*;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonCallbackOracle;
+import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
+import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.comparators.AttributeComparator;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Attribute;
@@ -23,8 +28,12 @@ import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeDescriptionCell;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeNameCell;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Ajax query to get all attributes definitions in Perun but stores them as attributes
@@ -32,378 +41,380 @@ import java.util.*;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
-public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCallbackTable<Attribute>, JsonCallbackOracle<Attribute> {
+public class GetAttributesDefinitionWithRights
+    implements JsonCallback, JsonCallbackTable<Attribute>, JsonCallbackOracle<Attribute> {
 
-	// session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	private final String JSON_URL = "attributesManager/getAttributesDefinitionWithRights";
-	// Data provider and tables
-	private ListDataProvider<Attribute> dataProvider = new ListDataProvider<Attribute>();
-	private PerunTable<Attribute> table;
-	private ArrayList<Attribute> list = new ArrayList<Attribute>();
-	// Selection model
-	final MultiSelectionModel<Attribute> selectionModel = new MultiSelectionModel<Attribute>(new GeneralKeyProvider<Attribute>());
-	// External events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// filters
-	private boolean noCore = false; // default is to show core attributes
-	private boolean checkable = true;
-	// oracle support
-	private ArrayList<Attribute> fullBackup = new ArrayList<Attribute>();
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+  // Selection model
+  final MultiSelectionModel<Attribute> selectionModel =
+      new MultiSelectionModel<Attribute>(new GeneralKeyProvider<Attribute>());
+  private final String JSON_URL = "attributesManager/getAttributesDefinitionWithRights";
+  // session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // Data provider and tables
+  private ListDataProvider<Attribute> dataProvider = new ListDataProvider<Attribute>();
+  private PerunTable<Attribute> table;
+  private ArrayList<Attribute> list = new ArrayList<Attribute>();
+  // External events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // filters
+  private boolean noCore = false; // default is to show core attributes
+  private boolean checkable = true;
+  // oracle support
+  private ArrayList<Attribute> fullBackup = new ArrayList<Attribute>();
+  private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 
-	//	private String entity = "";  // default is to show all types of entity
+  //	private String entity = "";  // default is to show all types of entity
 
-	// if Set empty -> show all
-	private Set<String> entities = new HashSet<String>();
+  // if Set empty -> show all
+  private Set<String> entities = new HashSet<String>();
 
-	// loader image
-	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+  // loader image
+  private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 
-	private Map<String, Integer> ids = new HashMap<String, Integer>();
+  private Map<String, Integer> ids = new HashMap<String, Integer>();
 
-	/**
-	 * Creates new instance of callback
-	 *
-	 */
-	public GetAttributesDefinitionWithRights(Map<String, Integer> ids) {
-		this.ids = ids;
-	}
+  /**
+   * Creates new instance of callback
+   */
+  public GetAttributesDefinitionWithRights(Map<String, Integer> ids) {
+    this.ids = ids;
+  }
 
-	/**
-	 * Creates new instance of callback
-	 *
-	 * @param events external events
-	 */
-	public GetAttributesDefinitionWithRights(Map<String, Integer> ids, JsonCallbackEvents events) {
-		this.ids = ids;
-		this.events = events;
-	}
+  /**
+   * Creates new instance of callback
+   *
+   * @param events external events
+   */
+  public GetAttributesDefinitionWithRights(Map<String, Integer> ids, JsonCallbackEvents events) {
+    this.ids = ids;
+    this.events = events;
+  }
 
-	/**
-	 * Returns table widget with attributes definitions
-	 *
-	 * @return table widget
-	 */
-	public CellTable<Attribute> getTable() {
+  /**
+   * Returns table widget with attributes definitions
+   *
+   * @return table widget
+   */
+  public CellTable<Attribute> getTable() {
 
-		retrieveData();
+    retrieveData();
 
-		// Table data provider.
-		dataProvider = new ListDataProvider<Attribute>(list);
+    // Table data provider.
+    dataProvider = new ListDataProvider<Attribute>(list);
 
-		// Cell table
-		table = new PerunTable<Attribute>(list);
+    // Cell table
+    table = new PerunTable<Attribute>(list);
 
-		// Connect the table to the data provider.
-		dataProvider.addDataDisplay(table);
+    // Connect the table to the data provider.
+    dataProvider.addDataDisplay(table);
 
-		// Sorting
-		ListHandler<Attribute> columnSortHandler = new ListHandler<Attribute>(dataProvider.getList());
-		table.addColumnSortHandler(columnSortHandler);
+    // Sorting
+    ListHandler<Attribute> columnSortHandler = new ListHandler<Attribute>(dataProvider.getList());
+    table.addColumnSortHandler(columnSortHandler);
 
-		// set empty content & loader
-		table.setEmptyTableWidget(loaderImage);
+    // set empty content & loader
+    table.setEmptyTableWidget(loaderImage);
 
-		// checkbox column column
-		if (checkable) {
-			// table selection
-			table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager(0));
-			table.addCheckBoxColumn();
-		}
+    // checkbox column column
+    if (checkable) {
+      // table selection
+      table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute>createCheckboxManager(0));
+      table.addCheckBoxColumn();
+    }
 
-		// Create ID column.
-		table.addIdColumn("Attr ID", null, 90);
+    // Create ID column.
+    table.addIdColumn("Attr ID", null, 90);
 
-		// Name column
-		Column<Attribute, Attribute> nameColumn = JsonUtils.addColumn(new PerunAttributeNameCell());
+    // Name column
+    Column<Attribute, Attribute> nameColumn = JsonUtils.addColumn(new PerunAttributeNameCell());
 
-		// Description column
-		Column<Attribute, Attribute> descriptionColumn = JsonUtils.addColumn(new PerunAttributeDescriptionCell());
+    // Description column
+    Column<Attribute, Attribute> descriptionColumn = JsonUtils.addColumn(new PerunAttributeDescriptionCell());
 
-		// Value column
-		Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(new PerunAttributeValueCell());
-		valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
-			public void update(int index, Attribute object, Attribute value) {
-				object = value;
-				selectionModel.setSelected(object, object.isAttributeValid());
-			}
-		});
+    // Value column
+    Column<Attribute, Attribute> valueColumn = JsonUtils.addColumn(new PerunAttributeValueCell());
+    valueColumn.setFieldUpdater(new FieldUpdater<Attribute, Attribute>() {
+      public void update(int index, Attribute object, Attribute value) {
+        object = value;
+        selectionModel.setSelected(object, object.isAttributeValid());
+      }
+    });
 
-		// updates the columns size
-		this.table.setColumnWidth(nameColumn, 200.0, Unit.PX);
+    // updates the columns size
+    this.table.setColumnWidth(nameColumn, 200.0, Unit.PX);
 
-		// Sorting name column
-		nameColumn.setSortable(true);
-		columnSortHandler.setComparator(nameColumn, new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_NAME));
+    // Sorting name column
+    nameColumn.setSortable(true);
+    columnSortHandler.setComparator(nameColumn,
+        new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_NAME));
 
-		// Sorting description column
-		descriptionColumn.setSortable(true);
-		columnSortHandler.setComparator(descriptionColumn, new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_DESCRIPTION));
+    // Sorting description column
+    descriptionColumn.setSortable(true);
+    columnSortHandler.setComparator(descriptionColumn,
+        new AttributeComparator<Attribute>(AttributeComparator.Column.TRANSLATED_DESCRIPTION));
 
-		// Add sorting
-		this.table.addColumnSortHandler(columnSortHandler);
+    // Add sorting
+    this.table.addColumnSortHandler(columnSortHandler);
 
-		// Add the columns.
-		this.table.addColumn(nameColumn, "Name");
-		this.table.addColumn(valueColumn, "Value");
-		this.table.addColumn(descriptionColumn, "Description");
+    // Add the columns.
+    this.table.addColumn(nameColumn, "Name");
+    this.table.addColumn(valueColumn, "Value");
+    this.table.addColumn(descriptionColumn, "Description");
 
-		return table;
+    return table;
 
-	}
+  }
 
-	/**
-	 * Retrieves data from RPC
-	 */
-	public void retrieveData(){
-		loaderImage.loadingStart();
-		JsonClient js = new JsonClient();
-		String params = "";
-		// serialize parameters
-		for (Map.Entry<String, Integer> attr : this.ids.entrySet()) {
-			params += attr.getKey() + "=" + attr.getValue() + "&";
-		}
-		if (params.endsWith("&")) {
-			params = params.substring(0, params.length()-1);
-		}
-		js.retrieveData(JSON_URL, params, this);
-	}
+  /**
+   * Retrieves data from RPC
+   */
+  public void retrieveData() {
+    loaderImage.loadingStart();
+    JsonClient js = new JsonClient();
+    String params = "";
+    // serialize parameters
+    for (Map.Entry<String, Integer> attr : this.ids.entrySet()) {
+      params += attr.getKey() + "=" + attr.getValue() + "&";
+    }
+    if (params.endsWith("&")) {
+      params = params.substring(0, params.length() - 1);
+    }
+    js.retrieveData(JSON_URL, params, this);
+  }
 
-	/**
-	 * Sorts table by objects Name
-	 */
-	public void sortTable() {
-		list = new TableSorter<Attribute>().sortByAttrNameTranslation(getList());
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Sorts table by objects Name
+   */
+  public void sortTable() {
+    list = new TableSorter<Attribute>().sortByAttrNameTranslation(getList());
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Add object as new row to table
-	 *
-	 * @param object Attribute to be added as new row
-	 */
-	public void addToTable(Attribute object) {
-		list.add(object);
-		oracle.add(object.getFriendlyName());
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Add object as new row to table
+   *
+   * @param object Attribute to be added as new row
+   */
+  public void addToTable(Attribute object) {
+    list.add(object);
+    oracle.add(object.getFriendlyName());
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Removes object as row from table
-	 *
-	 * @param object Attribute to be removed as row
-	 */
-	public void removeFromTable(Attribute object) {
-		selectionModel.getSelectedSet().remove(object);
-		Iterator<Attribute> it = list.iterator();
-		while(it.hasNext()) {
-			Attribute a = it.next();
-			if (a.getId() == object.getId()){
-				it.remove();
-			}
-		}
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Removes object as row from table
+   *
+   * @param object Attribute to be removed as row
+   */
+  public void removeFromTable(Attribute object) {
+    selectionModel.getSelectedSet().remove(object);
+    Iterator<Attribute> it = list.iterator();
+    while (it.hasNext()) {
+      Attribute a = it.next();
+      if (a.getId() == object.getId()) {
+        it.remove();
+      }
+    }
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Clear all table content
-	 */
-	public void clearTable(){
-		loaderImage.loadingStart();
-		list.clear();
-		fullBackup.clear();
-		oracle.clear();
-		selectionModel.clear();
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  /**
+   * Clear all table content
+   */
+  public void clearTable() {
+    loaderImage.loadingStart();
+    list.clear();
+    fullBackup.clear();
+    oracle.clear();
+    selectionModel.clear();
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Clears list of selected items
-	 */
-	public void clearTableSelectedSet(){
-		selectionModel.clear();
-	}
+  /**
+   * Clears list of selected items
+   */
+  public void clearTableSelectedSet() {
+    selectionModel.clear();
+  }
 
-	/**
-	 * Return selected items from list
-	 *
-	 * @return return list of checked items
-	 */
-	public ArrayList<Attribute> getTableSelectedList(){
-		return JsonUtils.setToList(selectionModel.getSelectedSet());
-	}
+  /**
+   * Return selected items from list
+   *
+   * @return return list of checked items
+   */
+  public ArrayList<Attribute> getTableSelectedList() {
+    return JsonUtils.setToList(selectionModel.getSelectedSet());
+  }
 
-	/**
-	 * Called, when an error occurs
-	 */
-	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Error while loading attribute definitions.");
-		loaderImage.loadingError(error);
-		events.onError(error);
-	}
+  /**
+   * Called, when an error occurs
+   */
+  public void onError(PerunError error) {
+    session.getUiElements().setLogErrorText("Error while loading attribute definitions.");
+    loaderImage.loadingError(error);
+    events.onError(error);
+  }
 
-	/**
-	 * Called, when loading starts
-	 */
-	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading attribute definitions started.");
-		events.onLoadingStart();
-	}
+  /**
+   * Called, when loading starts
+   */
+  public void onLoadingStart() {
+    session.getUiElements().setLogText("Loading attribute definitions started.");
+    events.onLoadingStart();
+  }
 
-	/**
-	 * Called, when operation finishes successfully.
-	 */
-	public void onFinished(JavaScriptObject jso) {
-		clearTable();
-		for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
-			// check namespace for core
-			if (noCore && a.getDefinition().equals("core")) {
-				// do not add anything
-			} else {
-				// check namespace for entity
-				// if not empty, proceed to check
-				if (!entities.isEmpty()) {
-					if (entities.contains(a.getEntity())) {
-						// add
-						addToTable(a);
-					}
-				} else {
-					addToTable(a);
-				}
-			}
-		}
-		sortTable();
-		loaderImage.loadingFinished();
-		session.getUiElements().setLogText("Attribute definitions loaded: " + list.size());
-		events.onFinished(jso);
-	}
+  /**
+   * Called, when operation finishes successfully.
+   */
+  public void onFinished(JavaScriptObject jso) {
+    clearTable();
+    for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
+      // check namespace for core
+      if (noCore && a.getDefinition().equals("core")) {
+        // do not add anything
+      } else {
+        // check namespace for entity
+        // if not empty, proceed to check
+        if (!entities.isEmpty()) {
+          if (entities.contains(a.getEntity())) {
+            // add
+            addToTable(a);
+          }
+        } else {
+          addToTable(a);
+        }
+      }
+    }
+    sortTable();
+    loaderImage.loadingFinished();
+    session.getUiElements().setLogText("Attribute definitions loaded: " + list.size());
+    events.onFinished(jso);
+  }
 
-	public void insertToTable(int index, Attribute object) {
-		list.add(index, object);
-		oracle.add(object.getFriendlyName());
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  public void insertToTable(int index, Attribute object) {
+    list.add(index, object);
+    oracle.add(object.getFriendlyName());
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	public void setEditable(boolean editable) {
-		//this.editable = editable;
-	}
+  public void setEditable(boolean editable) {
+    //this.editable = editable;
+  }
 
-	public void setCheckable(boolean checkable) {
-		this.checkable = checkable;
-	}
+  public void setCheckable(boolean checkable) {
+    this.checkable = checkable;
+  }
 
-	public void setList(ArrayList<Attribute> list) {
-		clearTable();
-		this.list.addAll(list);
-		for (Attribute a : list) {
-			oracle.add(a.getFriendlyName());
-		}
-		dataProvider.flush();
-		dataProvider.refresh();
-	}
+  public ArrayList<Attribute> getList() {
+    return this.list;
+  }
 
-	public ArrayList<Attribute> getList() {
-		return this.list;
-	}
+  public void setList(ArrayList<Attribute> list) {
+    clearTable();
+    this.list.addAll(list);
+    for (Attribute a : list) {
+      oracle.add(a.getFriendlyName());
+    }
+    dataProvider.flush();
+    dataProvider.refresh();
+  }
 
-	/**
-	 * Helper method for switching show/do not show core attributes
-	 */
-	public void switchCore() {
-		noCore = !(noCore);
-	}
-
-
-	/**
-	 * Set entity filter on returned Attributes
-	 *
-	 * @param entity name of entity (member,resource,facility,user,....)
-	 */
-	public void setEntity(String entity) {
-		this.setEntity(entity, false);
-	}
+  /**
+   * Helper method for switching show/do not show core attributes
+   */
+  public void switchCore() {
+    noCore = !(noCore);
+  }
 
 
-	/**
-	 * Set entity filter on returned Attributes
-	 *
-	 * @param entity name of entity (member,resource,facility,user,....)
-	 * @param add true if adding
-	 */
-	public void setEntity(String entity, boolean add) {
-		if(!add)
-		{
-			this.entities.clear();
-		}
-		this.entities.add(entity);
-	}
+  /**
+   * Set entity filter on returned Attributes
+   *
+   * @param entity name of entity (member,resource,facility,user,....)
+   */
+  public void setEntity(String entity) {
+    this.setEntity(entity, false);
+  }
 
-	/**
-	 * Set entity filter on returned Attributes
-	 *
-	 * @param entities set of the entities
-	 */
-	public void setEntities(Set<String> entities) {
-		this.entities = entities;
-	}
 
-	/**
-	 * Sets external events to callback after it's creation
-	 *
-	 * @param externalEvents external events
-	 */
-	public void setEvents(JsonCallbackEvents externalEvents) {
-		events = externalEvents;
-	}
+  /**
+   * Set entity filter on returned Attributes
+   *
+   * @param entity name of entity (member,resource,facility,user,....)
+   * @param add    true if adding
+   */
+  public void setEntity(String entity, boolean add) {
+    if (!add) {
+      this.entities.clear();
+    }
+    this.entities.add(entity);
+  }
 
-	/**
-	 * Returns table selection model
-	 *
-	 * @return selection model
-	 */
-	public SelectionModel<Attribute> getSelectionModel(){
-		return this.selectionModel;
-	}
+  /**
+   * Set entity filter on returned Attributes
+   *
+   * @param entities set of the entities
+   */
+  public void setEntities(Set<String> entities) {
+    this.entities = entities;
+  }
 
-	public void filterTable(String filter) {
+  /**
+   * Sets external events to callback after it's creation
+   *
+   * @param externalEvents external events
+   */
+  public void setEvents(JsonCallbackEvents externalEvents) {
+    events = externalEvents;
+  }
 
-		// store list only for first time
-		if (fullBackup.isEmpty() || fullBackup == null) {
-			fullBackup.addAll(list);
-		}
+  /**
+   * Returns table selection model
+   *
+   * @return selection model
+   */
+  public SelectionModel<Attribute> getSelectionModel() {
+    return this.selectionModel;
+  }
 
-		// always clear selected items
-		selectionModel.clear();
-		list.clear();
+  public void filterTable(String filter) {
 
-		if (filter.equalsIgnoreCase("")) {
-			list.addAll(fullBackup);
-		} else {
-			for (Attribute attr : fullBackup){
-				// store facility by filter
-				if (attr.getFriendlyName().toLowerCase().startsWith(filter.toLowerCase())) {
-					list.add(attr);
-				}
-			}
-		}
+    // store list only for first time
+    if (fullBackup.isEmpty() || fullBackup == null) {
+      fullBackup.addAll(list);
+    }
 
-		dataProvider.flush();
-		dataProvider.refresh();
-		loaderImage.loadingFinished();
+    // always clear selected items
+    selectionModel.clear();
+    list.clear();
 
-	}
+    if (filter.equalsIgnoreCase("")) {
+      list.addAll(fullBackup);
+    } else {
+      for (Attribute attr : fullBackup) {
+        // store facility by filter
+        if (attr.getFriendlyName().toLowerCase().startsWith(filter.toLowerCase())) {
+          list.add(attr);
+        }
+      }
+    }
 
-	public UnaccentMultiWordSuggestOracle getOracle() {
-		return oracle;
-	}
+    dataProvider.flush();
+    dataProvider.refresh();
+    loaderImage.loadingFinished();
 
-	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-		this.oracle = oracle;
-	}
+  }
+
+  public UnaccentMultiWordSuggestOracle getOracle() {
+    return oracle;
+  }
+
+  public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+    this.oracle = oracle;
+  }
 }

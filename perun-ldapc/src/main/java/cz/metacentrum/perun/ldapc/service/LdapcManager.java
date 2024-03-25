@@ -7,40 +7,40 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 public interface LdapcManager {
 
-	/**
-	 * Start processing incommming events from Perun Auditer.
-	 */
-	void startProcessingEvents();
+  public Perun getPerunBl();
 
-	/**
-	 * Stop processing incommming events from Perun Auditer.
-	 */
-	void stopProcessingEvents();
+  public PerunPrincipal getPerunPrincipal();
 
-	/**
-	 * Synchronize Perun into LDAP using consistent data (SERIALIZABLE transaction)
-	 *
-	 * @throws InternalErrorException When implementation fails
-	 */
-	void synchronize();
+  public PerunSession getPerunSession();
 
-	/**
-	 * Synchronize Perun in LDAP (replica) using possibly inconsistent data (REPEATABLE_READ transaction).
-	 *
-	 * @throws InternalErrorException When implementation fails
-	 */
-	void synchronizeReplica();
+  public void setLastProcessedId(int lastProcessedId);
 
-	public Perun getPerunBl();
+  public void setPerunBl(Perun perunBl);
 
-	public void setPerunBl(Perun perunBl);
+  public void setPerunPrincipal(PerunPrincipal perunPrincipal);
 
-	public PerunSession getPerunSession();
+  /**
+   * Start processing incommming events from Perun Auditer.
+   */
+  void startProcessingEvents();
 
-	public PerunPrincipal getPerunPrincipal();
+  /**
+   * Stop processing incommming events from Perun Auditer.
+   */
+  void stopProcessingEvents();
 
-	public void setPerunPrincipal(PerunPrincipal perunPrincipal);
+  /**
+   * Synchronize Perun into LDAP using consistent data (SERIALIZABLE transaction)
+   *
+   * @throws InternalErrorException When implementation fails
+   */
+  void synchronize();
 
-	public void setLastProcessedId(int lastProcessedId);
+  /**
+   * Synchronize Perun in LDAP (replica) using possibly inconsistent data (REPEATABLE_READ transaction).
+   *
+   * @throws InternalErrorException When implementation fails
+   */
+  void synchronizeReplica();
 
 }

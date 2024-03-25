@@ -7,12 +7,13 @@ package cz.metacentrum.perun.core.api.exceptions;
  */
 public class UserNotInRoleException extends PerunException {
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public UserNotInRoleException(String message) {
-		super(message);
-	}
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public UserNotInRoleException(String message) {
+    super(message);
+  }
 
 }

@@ -7,12 +7,20 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -28,7 +36,6 @@ import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -40,259 +47,258 @@ import java.util.Map;
  */
 public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Add VO ext source");
-
-	//data
-	private int voId;
-
-	private VirtualOrganization vo;
-
-	private ArrayList<ExtSource> alreadyAddedList = new ArrayList<ExtSource>();
-	private SimplePanel alreadyAdded = new SimplePanel();
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param voId ID of Vo to have ext source added
-	 */
-	public AddVoExtSourceTabItem(int voId){
-		this.voId = voId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				vo = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-	}
+  public static final String URL = "add-ext-src";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Add VO ext source");
+  //data
+  private int voId;
+  private VirtualOrganization vo;
+  private ArrayList<ExtSource> alreadyAddedList = new ArrayList<ExtSource>();
+  private SimplePanel alreadyAdded = new SimplePanel();
 
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param vo VO to have ext source added
-	 */
-	public AddVoExtSourceTabItem(VirtualOrganization vo){
-		this.voId = vo.getId();
-		this.vo = vo;
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param voId ID of Vo to have ext source added
+   */
+  public AddVoExtSourceTabItem(int voId) {
+    this.voId = voId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        vo = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+  }
 
 
-	public boolean isPrepared(){
-		return !(vo == null);
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param vo VO to have ext source added
+   */
+  public AddVoExtSourceTabItem(VirtualOrganization vo) {
+    this.voId = vo.getId();
+    this.vo = vo;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return !alreadyAddedList.isEmpty();
-	}
+  static public AddVoExtSourceTabItem load(Map<String, String> parameters) {
+    int voId = Integer.parseInt(parameters.get("id"));
+    return new AddVoExtSourceTabItem(voId);
+  }
 
-	@Override
-	public void onClose() {
+  public boolean isPrepared() {
+    return !(vo == null);
+  }
 
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return !alreadyAddedList.isEmpty();
+  }
 
-	public Widget draw() {
+  @Override
+  public void onClose() {
 
-		titleWidget.setText("Add external source");
+  }
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+  public Widget draw() {
 
-		// menu
-		TabMenu menu = new TabMenu();
+    titleWidget.setText("Add external source");
 
-		final GetExtSources extSources = new GetExtSources();
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		// remove already assigned ext sources from offering
-		JsonCallbackEvents localEvents = new JsonCallbackEvents() {
-			@Override
-			public void onFinished(JavaScriptObject jso){
-				// second callback
-				final GetVoExtSources alreadyAssigned = new GetVoExtSources(voId, new JsonCallbackEvents() {
-					public void onFinished(JavaScriptObject jso){
-						JsArray<ExtSource> esToRemove = JsonUtils.jsoAsArray(jso);
-						for (int i=0; i<esToRemove.length(); i++) {
-							extSources.removeFromTable(esToRemove.get(i));
-						}
-					}
-				});
-				alreadyAssigned.retrieveData();
-			}
-		};
-		extSources.setEvents(localEvents);
-		extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceX509");
-		extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceKerberos");
-		extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceIdp");
+    // menu
+    TabMenu menu = new TabMenu();
 
-		final ExtendedSuggestBox box = new ExtendedSuggestBox(extSources.getOracle());
+    final GetExtSources extSources = new GetExtSources();
 
-		// button
-		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedExtSource());
-		final TabItem tab = this;
+    // remove already assigned ext sources from offering
+    JsonCallbackEvents localEvents = new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        // second callback
+        final GetVoExtSources alreadyAssigned = new GetVoExtSources(voId, new JsonCallbackEvents() {
+          public void onFinished(JavaScriptObject jso) {
+            JsArray<ExtSource> esToRemove = JsonUtils.jsoAsArray(jso);
+            for (int i = 0; i < esToRemove.length(); i++) {
+              extSources.removeFromTable(esToRemove.get(i));
+            }
+          }
+        });
+        alreadyAssigned.retrieveData();
+      }
+    };
+    extSources.setEvents(localEvents);
+    extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceX509");
+    extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceKerberos");
+    extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceIdp");
 
-		assignButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				final ArrayList<ExtSource> extSourcesToAdd = extSources.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(extSourcesToAdd)) {
-					// FIXME - Should have only one callback to core
-					for (int i=0; i<extSourcesToAdd.size(); i++ ) {
-						final int n = i;
-						AddExtSource request = new AddExtSource(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents(){
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								// unselect added person
-								extSources.getSelectionModel().setSelected(extSourcesToAdd.get(n), false);
-								alreadyAddedList.add(extSourcesToAdd.get(n));
-								rebuildAlreadyAddedWidget();
-								// clear search
-								box.getSuggestBox().setText("");
-							}
-						}));
-						request.addExtSource(voId, extSourcesToAdd.get(i).getId());
-					}
-				}
-			}
-		});
+    final ExtendedSuggestBox box = new ExtendedSuggestBox(extSources.getOracle());
 
-		menu.addFilterWidget(box, new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				extSources.filterTable(text);
-			}
-		}, "Filter by ext source name or type");
+    // button
+    final CustomButton assignButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedExtSource());
+    final TabItem tab = this;
 
-		menu.addWidget(assignButton);
+    assignButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        final ArrayList<ExtSource> extSourcesToAdd = extSources.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(extSourcesToAdd)) {
+          // FIXME - Should have only one callback to core
+          for (int i = 0; i < extSourcesToAdd.size(); i++) {
+            final int n = i;
+            AddExtSource request =
+                new AddExtSource(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    // unselect added person
+                    extSources.getSelectionModel().setSelected(extSourcesToAdd.get(n), false);
+                    alreadyAddedList.add(extSourcesToAdd.get(n));
+                    rebuildAlreadyAddedWidget();
+                    // clear search
+                    box.getSuggestBox().setText("");
+                  }
+                }));
+            request.addExtSource(voId, extSourcesToAdd.get(i).getId());
+          }
+        }
+      }
+    });
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    menu.addFilterWidget(box, new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        extSources.filterTable(text);
+      }
+    }, "Filter by ext source name or type");
 
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    menu.addWidget(assignButton);
 
-		vp.add(alreadyAdded);
+    menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		CellTable<ExtSource> table = extSources.getTable();
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		assignButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(extSources, table, assignButton);
+    vp.add(alreadyAdded);
 
-		table.addStyleName("perun-table");
-		table.setWidth("100%");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp);
+    CellTable<ExtSource> table = extSources.getTable();
 
-		// do not use resizePerunTable() when tab is in overlay - wrong width is calculated
-		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+    assignButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(extSources, table, assignButton);
 
-		this.contentWidget.setWidget(vp);
+    table.addStyleName("perun-table");
+    table.setWidth("100%");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    vp.add(sp);
 
-		return getWidget();
-	}
+    // do not use resizePerunTable() when tab is in overlay - wrong width is calculated
+    session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-	/**
-	 * Rebuild already added widget based on already added ext sources
-	 */
-	private void rebuildAlreadyAddedWidget() {
+    this.contentWidget.setWidget(vp);
 
-		alreadyAdded.setStyleName("alreadyAdded");
-		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
-		alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
-		for (int i=0; i<alreadyAddedList.size(); i++) {
-			alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + SafeHtmlUtils.fromString(alreadyAddedList.get(i).getName()).asString());
-		}
-	}
+    return getWidget();
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  /**
+   * Rebuild already added widget based on already added ext sources
+   */
+  private void rebuildAlreadyAddedWidget() {
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    alreadyAdded.setStyleName("alreadyAdded");
+    alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+    alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+    for (int i = 0; i < alreadyAddedList.size(); i++) {
+      alreadyAdded.getWidget().getElement().setInnerHTML(
+          alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") +
+              SafeHtmlUtils.fromString(alreadyAddedList.get(i).getName()).asString());
+    }
+  }
 
-	public ImageResource getIcon() {
-		return  SmallIcons.INSTANCE.addIcon();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1289;
-		int result = 1;
-		result = prime * result * 135;
-		return result;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-		AddVoExtSourceTabItem other = (AddVoExtSourceTabItem) obj;
+  @Override
+  public int hashCode() {
+    final int prime = 1289;
+    int result = 1;
+    result = prime * result * 135;
+    return result;
+  }
 
-		return (other.voId == this.voId);
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    AddVoExtSourceTabItem other = (AddVoExtSourceTabItem) obj;
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-		if(vo != null){
-			session.setActiveVo(vo);
-			return;
-		}
-		session.setActiveVoId(voId);
-	}
+    return (other.voId == this.voId);
+  }
 
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public boolean isAuthorized() {
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+    if (vo != null) {
+      session.setActiveVo(vo);
+      return;
+    }
+    session.setActiveVoId(voId);
+  }
 
-		if (session.isVoAdmin(voId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public boolean isAuthorized() {
 
-	}
+    if (session.isVoAdmin(voId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public final static String URL = "add-ext-src";
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrlWithParameters() {
-		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
-	}
-
-	static public AddVoExtSourceTabItem load(Map<String, String> parameters) {
-		int voId = Integer.parseInt(parameters.get("id"));
-		return new AddVoExtSourceTabItem(voId);
-	}
+  public String getUrlWithParameters() {
+    return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
+  }
 
 }

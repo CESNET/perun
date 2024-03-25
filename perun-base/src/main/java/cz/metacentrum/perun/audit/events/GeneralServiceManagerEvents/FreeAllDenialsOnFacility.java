@@ -8,29 +8,29 @@ import cz.metacentrum.perun.core.api.Facility;
  */
 public class FreeAllDenialsOnFacility extends AuditEvent {
 
-	private Facility facility;
-	private String message;
+  private Facility facility;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public FreeAllDenialsOnFacility() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public FreeAllDenialsOnFacility() {
+  }
 
-	public FreeAllDenialsOnFacility(Facility facility) {
-		this.facility = facility;
-		this.message = formatMessage("free all denials: on %s.", facility);
-	}
+  public FreeAllDenialsOnFacility(Facility facility) {
+    this.facility = facility;
+    this.message = formatMessage("free all denials: on %s.", facility);
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

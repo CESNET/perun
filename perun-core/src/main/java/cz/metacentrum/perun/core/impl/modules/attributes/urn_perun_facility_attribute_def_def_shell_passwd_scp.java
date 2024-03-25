@@ -9,46 +9,53 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
-public class urn_perun_facility_attribute_def_def_shell_passwd_scp extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
+public class urn_perun_facility_attribute_def_def_shell_passwd_scp extends FacilityAttributesModuleAbstract
+    implements FacilityAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
+  private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
-		String shell = attribute.valueAsString();
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Value can't be null");
+    }
+  }
 
-		if(shell == null) return;
-		Matcher matcher = pattern.matcher(shell);
-		if(!matcher.matches())  throw new WrongAttributeValueException(attribute, "Wrong format. ^(/[-_.A-z0-9]+)+$ expected");
-	}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongAttributeValueException {
+    String shell = attribute.valueAsString();
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, "Value can't be null");
-	}
+    if (shell == null) {
+      return;
+    }
+    Matcher matcher = pattern.matcher(shell);
+    if (!matcher.matches()) {
+      throw new WrongAttributeValueException(attribute, "Wrong format. ^(/[-_.A-z0-9]+)+$ expected");
+    }
+  }
 
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
-		return new Attribute(attribute);
-	}
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
+    return new Attribute(attribute);
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-		attr.setFriendlyName("shell-passwd-scp");
-		attr.setDisplayName("Shell for passwd_scp");
-		attr.setType(String.class.getName());
-		attr.setDescription("Shell for passwd-scp service");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setFriendlyName("shell-passwd-scp");
+    attr.setDisplayName("Shell for passwd_scp");
+    attr.setType(String.class.getName());
+    attr.setDescription("Shell for passwd-scp service");
+    return attr;
+  }
 
 }

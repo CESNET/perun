@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,70 +20,71 @@ import java.util.List;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtualAttributesModuleAbstract
+    implements UserVirtualAttributesModuleImplApi {
 
-	private static final String A_U_D_phoneDc2 = AttributesManager.NS_USER_ATTR_DEF + ":phoneDc2";
-	private static final String A_U_O_mobilePhone = AttributesManager.NS_USER_ATTR_OPT + ":mobilePhone";
-	private static final String A_U_O_privatePhone = AttributesManager.NS_USER_ATTR_OPT + ":privatePhone";
-	private static final String A_U_O_privatePhoneKos = AttributesManager.NS_USER_ATTR_OPT + ":privatePhoneKos";
+  private static final String A_U_D_phoneDc2 = AttributesManager.NS_USER_ATTR_DEF + ":phoneDc2";
+  private static final String A_U_O_mobilePhone = AttributesManager.NS_USER_ATTR_OPT + ":mobilePhone";
+  private static final String A_U_O_privatePhone = AttributesManager.NS_USER_ATTR_OPT + ":privatePhone";
+  private static final String A_U_O_privatePhoneKos = AttributesManager.NS_USER_ATTR_OPT + ":privatePhoneKos";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("preferredPhone");
+    attr.setDisplayName("Preferred phone");
+    attr.setType(String.class.getName());
+    attr.setDescription("Preferred phone resolved from phone, mobilePhone and privatePhone (both DC2 and KOS).");
+    return attr;
+  }
 
-		Attribute attribute = new Attribute(attributeDefinition);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 
-		try {
+    Attribute attribute = new Attribute(attributeDefinition);
 
-			Attribute sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_phoneDc2);
-			if (sourceAttribute.getValue() != null) {
-				attribute.setValue(sourceAttribute.getValue());
-				return attribute;
-			}
+    try {
 
-			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_mobilePhone);
-			if (sourceAttribute.getValue() != null) {
-				attribute.setValue(sourceAttribute.getValue());
-				return attribute;
-			}
+      Attribute sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_phoneDc2);
+      if (sourceAttribute.getValue() != null) {
+        attribute.setValue(sourceAttribute.getValue());
+        return attribute;
+      }
 
-			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_privatePhone);
-			if (sourceAttribute.getValue() != null) {
-				attribute.setValue(sourceAttribute.getValue());
-				return attribute;
-			}
+      sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_mobilePhone);
+      if (sourceAttribute.getValue() != null) {
+        attribute.setValue(sourceAttribute.getValue());
+        return attribute;
+      }
 
-			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_privatePhoneKos);
-			if (sourceAttribute.getValue() != null) {
-				attribute.setValue(sourceAttribute.getValue());
-				return attribute;
-			}
+      sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_privatePhone);
+      if (sourceAttribute.getValue() != null) {
+        attribute.setValue(sourceAttribute.getValue());
+        return attribute;
+      }
 
-			return attribute;
+      sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_privatePhoneKos);
+      if (sourceAttribute.getValue() != null) {
+        attribute.setValue(sourceAttribute.getValue());
+        return attribute;
+      }
 
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
+      return attribute;
 
-	@Override
-	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<>();
-		strongDependencies.add(A_U_D_phoneDc2);
-		strongDependencies.add(A_U_O_mobilePhone);
-		strongDependencies.add(A_U_O_privatePhone);
-		strongDependencies.add(A_U_O_privatePhoneKos);
-		return strongDependencies;
-	}
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("preferredPhone");
-		attr.setDisplayName("Preferred phone");
-		attr.setType(String.class.getName());
-		attr.setDescription("Preferred phone resolved from phone, mobilePhone and privatePhone (both DC2 and KOS).");
-		return attr;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(A_U_D_phoneDc2);
+    strongDependencies.add(A_U_O_mobilePhone);
+    strongDependencies.add(A_U_O_privatePhone);
+    strongDependencies.add(A_U_O_privatePhoneKos);
+    return strongDependencies;
+  }
 
 }

@@ -7,7 +7,14 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.TextBox;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -31,986 +38,1040 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  */
 public class JsonErrorHandler {
 
-	/**
-	 * Creates and display an error box containing information about error from RPC server.
-	 *
-	 * @param error Error object returned from RPC
-	 */
-	public static void alertBox(final PerunError error) {
-
-		if (PerunWebSession.getInstance().isPerunAdmin()) {
-			// PERUN ADMIN SEE RAW ERROR MESSAGE
-			UiElements.generateError(error, getCaption(error), "<span style=\"color:red\">" + SafeHtmlUtils.fromString(error.getName()).asString() + "</span><p>" + SafeHtmlUtils.fromString(error.getErrorInfo()).asString());
-		} else {
-			// OTHERS SEE TRANSLATED TEXT
-			UiElements.generateError(error, getCaption(error), getText(error.getName(), error));
-		}
-
-	}
-
-	/**
-	 * Creates and display a report box used for reporting errors
-	 *
-	 * @param error Error object returned from RPC
-	 */
-	public static void reportBox(final PerunError error) {
-
-		// clear password fields if present
-		final JSONObject postObject = new JSONObject(JsonUtils.parseJson(error.getPostData()));
-
-		if (postObject.getJavaScriptObject() != null) {
-			clearPasswords(postObject);
-		}
-
-		String s = "unknown";
-		if (PerunWebSession.getInstance().getTabManager() != null) {
-			s = PerunWebSession.getInstance().getTabManager().getCurrentUrl(true);
-		}
-		final String status = s;
-
-		final TextBox boxSubject = new TextBox();
-		boxSubject.setValue("Reported error: " + error.getRequest().getManager() + "/" + error.getRequest().getMethod() + " (" +error.getErrorId() + ")");
-		boxSubject.setWidth("100%");
-
-		final TextArea messageTextBox = new TextArea();
-		messageTextBox.setSize("335px", "100px");
-
-		// ok click - report
-		ClickHandler sendReportHandler = new ClickHandler() {
-
-			public void onClick(ClickEvent event) {
-
-				String text = getErrorFullMessage(messageTextBox, error, postObject, status);
-
-				final String finalText = text;
-
-				// request itself
-				SendMessageToRt msg = new SendMessageToRt(new JsonCallbackEvents() {
-					@Override
-					public void onError(PerunError error) {
-
-						FlexTable layout = new FlexTable();
-
-						TextArea scrollPanel = new TextArea();
-						scrollPanel.setText(finalText);
-
-						layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.errorIcon())));
-						layout.setHTML(0, 1, "<p>Reporting errors is not working at the moment. We are sorry for inconvenience. <p>Please send following text to <strong>perun@cesnet.cz</strong>.");
-
-						layout.getFlexCellFormatter().setColSpan(1, 0, 2);
-						layout.setWidget(1, 0, scrollPanel);
-
-						scrollPanel.setSize("350px", "150px");
-
-						layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
-						layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
-						layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
-
-						Confirm c = new Confirm("Error report is not working", layout, true);
-						c.setNonScrollable(true);
-						c.setAutoHide(false);
-						c.show();
-
-					}
-				});
-
-				if (boxSubject.getValue().isEmpty()) {
-					msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "Reported error: " + error.getRequest().getManager() + "/" + error.getRequest().getMethod() + " (" +error.getErrorId() + ")", text);
-				} else {
-					msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, boxSubject.getValue(), text);
-				}
-
-			}
-		};
-
-		FlexTable baseLayout = new FlexTable();
-		baseLayout.setStyleName("alert-box-table");
-		baseLayout.setWidth("350px");
-		baseLayout.setHTML(0, 0, "<p>You can provide any message for this error report (e.g. describing what you tried to do). When you are done, click on send button.");
-		baseLayout.setHTML(1, 0, "<strong>Subject:</strong>");
-		baseLayout.setWidget(2, 0, boxSubject);
-		baseLayout.setHTML(3, 0, "<strong>Message:</strong>");
-		baseLayout.setWidget(4, 0, messageTextBox);
-		final Anchor showDetails = new Anchor("Show message preview");
-		final TextArea fullMessage = new TextArea();
-		fullMessage.setReadOnly(true);
-		fullMessage.setVisible(false);
-		fullMessage.setSize("335px", "100px");
-		showDetails.addClickHandler(new ClickHandler() {
-			boolean pressed = false;
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				if (pressed) {
-					showDetails.setText("Show message preview");
-					fullMessage.setVisible(false);
-				} else {
-					showDetails.setText("Hide preview");
-					fullMessage.setText(getErrorFullMessage(messageTextBox, error, postObject, status));
-					fullMessage.setVisible(true);
-				}
-				pressed = !pressed;
-			}
-		});
-
-		messageTextBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent changeEvent) {
-				if (fullMessage.isVisible()) {
-					fullMessage.setText(getErrorFullMessage(messageTextBox, error, postObject, status));
-				}
-			}
-		});
-
-		baseLayout.setWidget(5, 0, showDetails);
-		baseLayout.setWidget(6, 0, fullMessage);
-
-		// box definition
-		final Confirm conf = new Confirm(WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), baseLayout, sendReportHandler, WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), true);
-		conf.setOkIcon(SmallIcons.INSTANCE.emailIcon());
-		conf.setNonScrollable(true);
-		conf.setAutoHide(false);
-		conf.setFocusOkButton(true);
-		conf.show();
+  /**
+   * Creates and display an error box containing information about error from RPC server.
+   *
+   * @param error Error object returned from RPC
+   */
+  public static void alertBox(final PerunError error) {
+
+    if (PerunWebSession.getInstance().isPerunAdmin()) {
+      // PERUN ADMIN SEE RAW ERROR MESSAGE
+      UiElements.generateError(error, getCaption(error),
+          "<span style=\"color:red\">" + SafeHtmlUtils.fromString(error.getName()).asString() + "</span><p>" +
+              SafeHtmlUtils.fromString(error.getErrorInfo()).asString());
+    } else {
+      // OTHERS SEE TRANSLATED TEXT
+      UiElements.generateError(error, getCaption(error), getText(error.getName(), error));
+    }
+
+  }
+
+  /**
+   * Creates and display a report box used for reporting errors
+   *
+   * @param error Error object returned from RPC
+   */
+  public static void reportBox(final PerunError error) {
+
+    // clear password fields if present
+    final JSONObject postObject = new JSONObject(JsonUtils.parseJson(error.getPostData()));
+
+    if (postObject.getJavaScriptObject() != null) {
+      clearPasswords(postObject);
+    }
+
+    String s = "unknown";
+    if (PerunWebSession.getInstance().getTabManager() != null) {
+      s = PerunWebSession.getInstance().getTabManager().getCurrentUrl(true);
+    }
+    final String status = s;
+
+    final TextBox boxSubject = new TextBox();
+    boxSubject.setValue(
+        "Reported error: " + error.getRequest().getManager() + "/" + error.getRequest().getMethod() + " (" +
+            error.getErrorId() + ")");
+    boxSubject.setWidth("100%");
+
+    final TextArea messageTextBox = new TextArea();
+    messageTextBox.setSize("335px", "100px");
+
+    // ok click - report
+    ClickHandler sendReportHandler = new ClickHandler() {
+
+      public void onClick(ClickEvent event) {
+
+        String text = getErrorFullMessage(messageTextBox, error, postObject, status);
+
+        final String finalText = text;
+
+        // request itself
+        SendMessageToRt msg = new SendMessageToRt(new JsonCallbackEvents() {
+          @Override
+          public void onError(PerunError error) {
+
+            FlexTable layout = new FlexTable();
+
+            TextArea scrollPanel = new TextArea();
+            scrollPanel.setText(finalText);
+
+            layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.errorIcon())));
+            layout.setHTML(0, 1,
+                "<p>Reporting errors is not working at the moment. We are sorry for inconvenience. <p>Please send following text to <strong>perun@cesnet.cz</strong>.");
+
+            layout.getFlexCellFormatter().setColSpan(1, 0, 2);
+            layout.setWidget(1, 0, scrollPanel);
+
+            scrollPanel.setSize("350px", "150px");
+
+            layout.getFlexCellFormatter()
+                .setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+            layout.getFlexCellFormatter()
+                .setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+            layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+            Confirm c = new Confirm("Error report is not working", layout, true);
+            c.setNonScrollable(true);
+            c.setAutoHide(false);
+            c.show();
+
+          }
+        });
+
+        if (boxSubject.getValue().isEmpty()) {
+          msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE,
+              "Reported error: " + error.getRequest().getManager() + "/" + error.getRequest().getMethod() + " (" +
+                  error.getErrorId() + ")", text);
+        } else {
+          msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, boxSubject.getValue(), text);
+        }
+
+      }
+    };
+
+    FlexTable baseLayout = new FlexTable();
+    baseLayout.setStyleName("alert-box-table");
+    baseLayout.setWidth("350px");
+    baseLayout.setHTML(0, 0,
+        "<p>You can provide any message for this error report (e.g. describing what you tried to do). When you are done, click on send button.");
+    baseLayout.setHTML(1, 0, "<strong>Subject:</strong>");
+    baseLayout.setWidget(2, 0, boxSubject);
+    baseLayout.setHTML(3, 0, "<strong>Message:</strong>");
+    baseLayout.setWidget(4, 0, messageTextBox);
+    final Anchor showDetails = new Anchor("Show message preview");
+    final TextArea fullMessage = new TextArea();
+    fullMessage.setReadOnly(true);
+    fullMessage.setVisible(false);
+    fullMessage.setSize("335px", "100px");
+    showDetails.addClickHandler(new ClickHandler() {
+      boolean pressed = false;
+
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        if (pressed) {
+          showDetails.setText("Show message preview");
+          fullMessage.setVisible(false);
+        } else {
+          showDetails.setText("Hide preview");
+          fullMessage.setText(getErrorFullMessage(messageTextBox, error, postObject, status));
+          fullMessage.setVisible(true);
+        }
+        pressed = !pressed;
+      }
+    });
+
+    messageTextBox.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent changeEvent) {
+        if (fullMessage.isVisible()) {
+          fullMessage.setText(getErrorFullMessage(messageTextBox, error, postObject, status));
+        }
+      }
+    });
+
+    baseLayout.setWidget(5, 0, showDetails);
+    baseLayout.setWidget(6, 0, fullMessage);
+
+    // box definition
+    final Confirm conf =
+        new Confirm(WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), baseLayout, sendReportHandler,
+            WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), true);
+    conf.setOkIcon(SmallIcons.INSTANCE.emailIcon());
+    conf.setNonScrollable(true);
+    conf.setAutoHide(false);
+    conf.setFocusOkButton(true);
+    conf.show();
+
+    messageTextBox.setFocus(true);
+
+  }
+
+  private static String getErrorFullMessage(TextArea messageTextBox, PerunError error, JSONObject postObject,
+                                            String status) {
+    String text = messageTextBox.getText() + "\n\n";
+    text += "-------------------------------------\n";
+    text += "Technical details: \n\n";
+    text += error.getErrorId() + " - " + error.getName() + "\n";
+    text += error.getErrorInfo() + "\n\n";
+    text += "Perun instance: " + Utils.perunInstanceName() + "\n";
+    text += "Request: " + error.getRequestURL() + "\n";
+    if (postObject != null) {
+      text += "Post data: " + postObject.toString() + "\n";
+    }
+    text += "Application state: " + status + "\n\n";
+    text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
+
+    if (PerunWebSession.getInstance().getUser() == null) {
+
+      // post original authz if unknown user
+      text += "Actor/ExtSource: " + PerunWebSession.getInstance().getPerunPrincipal().getActor() + " / " +
+          PerunWebSession.getInstance().getPerunPrincipal().getExtSource() + " (" +
+          PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
 
-		messageTextBox.setFocus(true);
-
-	}
+    }
+    text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion();
+    return text;
+  }
 
-	private static String getErrorFullMessage(TextArea messageTextBox, PerunError error, JSONObject postObject, String status) {
-		String text = messageTextBox.getText() + "\n\n";
-		text += "-------------------------------------\n";
-		text += "Technical details: \n\n";
-		text += error.getErrorId() + " - " + error.getName() + "\n";
-		text += error.getErrorInfo() + "\n\n";
-		text += "Perun instance: " + Utils.perunInstanceName()+ "\n";
-		text += "Request: " + error.getRequestURL() + "\n";
-		if (postObject != null) text += "Post data: " + postObject.toString() + "\n";
-		text += "Application state: " + status + "\n\n";
-		text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
+  /**
+   * Clear all password-like params from posted objects
+   *
+   * @param object object to clear
+   */
+  public static void clearPasswords(JSONObject object) {
 
-		if (PerunWebSession.getInstance().getUser() == null) {
+    for (String key : object.keySet()) {
+      if (key.equals("oldPassword") || key.equals("newPassword") || key.equals("password")) {
+        object.put(key, new JSONString(""));
+      } else {
+        JSONObject obj = object.get(key).isObject();
+        if (obj != null) {
+          clearPasswords(obj);
+        }
+      }
+    }
+  }
+
+  /**
+   * Return caption text for error box
+   *
+   * @param error error object
+   * @return text for caption
+   */
+  private static String getCaption(PerunError error) {
+
+    String errorName = error.getName();
+
+    if ("PrivilegeException".equalsIgnoreCase(errorName)) {
+
+      return WidgetTranslation.INSTANCE.jsonClientNotAuthorizedHeader();
+
+    } else if ("WrongAttributeAssignmentException".equalsIgnoreCase(errorName)) {
+
+      return "Wrong attribute assignment";
+
+    } else if ("WrongAttributeValueException".equalsIgnoreCase(errorName)) {
+
+      return "Wrong attribute value";
+
+    } else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
+
+      return "Wrong value of related attributes";
+
+    } else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
+
+      return "IDP doesn't provide required data";
+
+    } else if ("ApplicationNotCreatedException".equalsIgnoreCase(errorName)) {
+
+      return ApplicationMessages.INSTANCE.errorWhileCreatingApplication();
+
+    } else if ("AlreadyProcessingException".equalsIgnoreCase(errorName)) {
+
+      return "Operation is already running";
+
+    } else if ("ApplicationMailAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+
+      return "Application mail was already removed";
+
+    } else if ("ApplicationMailNotExistsException".equalsIgnoreCase(errorName)) {
+
+      return "Application mail does not exist";
+
+    } else if ("ApplicationMailExistsException".equalsIgnoreCase(errorName)) {
+
+      return "Application mail already exists";
+
+    }
+
+    // default caption
+    return WidgetTranslation.INSTANCE.jsonClientAlertBoxHeader();
+
+  }
+
+  private static String getText(String errorName, PerunError error) {
+
+    String pleaseRefresh =
+        "<p>Try to <strong>refresh the browser</strong> window and retry.<br />If problem persist, please report it.";
+
+    // RPC ERRORS
+    if ("RpcException".equalsIgnoreCase(errorName)) {
+
+      if ("UNCATCHED_EXCEPTION".equalsIgnoreCase(error.getType())) {
+        return "Unknown error occurred. Please report it.";
+      } else {
+        return "Error in communication with server. " + pleaseRefresh;
+      }
+
+    } else if ("PrivilegeException".equalsIgnoreCase(errorName)) {
+
+      return WidgetTranslation.INSTANCE.jsonClientNotAuthorizedMessage();
+
+    } else if ("WrongAttributeAssignmentException".equalsIgnoreCase(errorName)) {
+
+      return "You tried to set wrong attribute for entity. Please report this error.";
+
+    } else if ("WrongAttributeValueException".equalsIgnoreCase(errorName)) {
+
+      Attribute a = error.getAttribute();
+      GeneralObject holder = error.getAttributeHolder();
+      GeneralObject secondHolder = error.getAttributeHolderSecondary();
+
+      String text = "Wrong value of attribute (value or format).<p>";
+
+      if (holder != null) {
+        if (!holder.getName().equalsIgnoreCase("undefined")) {
+          text += "<strong>" + SafeHtmlUtils.fromString(holder.getObjectType()).asString() + ":</strong>&nbsp;" +
+              SafeHtmlUtils.fromString(holder.getName()).asString() + "<br />";
+        }
+      }
+      if (secondHolder != null) {
+        if (!secondHolder.getName().equalsIgnoreCase("undefined")) {
+          text += "<strong>" + SafeHtmlUtils.fromString(secondHolder.getObjectType()).asString() + ":</strong>&nbsp;" +
+              SafeHtmlUtils.fromString(secondHolder.getName()).asString() + "<br />";
+        }
+      }
+      if (a != null) {
+        String attrName = SafeHtmlUtils.fromString(a.getDisplayName()).asString();
+        String attrValue = SafeHtmlUtils.fromString(a.getValue()).asString();
+        text += "<strong>Attribute:&nbsp;</strong>" + attrName + "<br /><strong>Value:&nbsp;</strong>" + attrValue;
+      } else {
+        text += "<i>Attribute is null</i>";
+      }
+
+      return text;
+
+    } else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
+
+      String text = "Value of one of related attributes is incorrect.";
+
+      Attribute a = error.getAttribute();
+      Attribute a2 = error.getReferenceAttribute();
+
+      if (a != null) {
+        String attrName = SafeHtmlUtils.fromString(a.getDisplayName()).asString();
+        String attrValue = SafeHtmlUtils.fromString(a.getValue()).asString();
+        String entity = SafeHtmlUtils.fromString(a.getEntity()).asString();
+        text += "<p><strong>Attribute&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
+        text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
+      } else {
+        text += "<p><i>Attribute 1 is null</i>";
+      }
+
+      if (a2 != null) {
+        String attrName = SafeHtmlUtils.fromString(a2.getDisplayName()).asString();
+        String attrValue = SafeHtmlUtils.fromString(a2.getValue()).asString();
+        String entity = SafeHtmlUtils.fromString(a2.getEntity()).asString();
+        text += "<p><strong>Attribute&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
+        text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
+      } else {
+        text += "<p><i>Attribute 2 is null</i>";
+      }
+
+      return text;
+
+    } else if ("AttributeNotExistsException".equalsIgnoreCase(errorName)) {
+
+      Attribute a = error.getAttribute();
+      if (a != null) {
+        return "Attribute definition for attribute <i>" + SafeHtmlUtils.fromString(a.getName()).asString() +
+            "</i> doesn't exist.";
+      } else {
+        return "Attribute definition for attribute <i>null</i> doesn't exist.";
+      }
+
+    } else if ("AttributeAlreadyMarkedUniqueException".equalsIgnoreCase(errorName)) {
+
+      Attribute a = error.getAttribute();
+      if (a != null) {
+        return "Attribute definition of <i>" + SafeHtmlUtils.fromString(a.getName()).asString() +
+            "</i> is already marked as UNIQUE.";
+      } else {
+        return "Attribute definition of <i>null</i> is already marked as UNIQUE.";
+      }
+
+      // ALL CABINET EXCEPTIONS
+    } else if ("CabinetException".equalsIgnoreCase(errorName)) {
+
+      String text = "";
+      if (error.getType().equalsIgnoreCase("NO_IDENTITY_FOR_PUBLICATION_SYSTEM")) {
+        text =
+            "You don't have registered identity in Perun related to selected publication system.<p>Please visit <a target=\"new\" href=\"" +
+                Utils.getIdentityConsolidatorLink(false) + "\">identity consolidator</a> to add more identities.";
+      } else if (error.getType().equalsIgnoreCase("THANKS_ALREADY_EXISTS")) {
+        text = "Acknowledgement is already added.";
+      }
+
+      return text;
+
+      // STANDARD ERRORS ALPHABETICALLY
+    } else if ("AlreadyAdminException".equalsIgnoreCase(errorName)) {
+
+      String text = "";
+      if (error.getUser() != null) {
+        text = SafeHtmlUtils.fromString(error.getUser().getFullName()).asString();
+      } else {
+        text = "User";
+      }
+      if (error.getVo() != null) {
+        text += " is already manager of VO: " + SafeHtmlUtils.fromString(error.getVo().getName()).asString();
+      } else if (error.getFacility() != null) {
+        text +=
+            " is already manager of Facility: " + SafeHtmlUtils.fromString(error.getFacility().getName()).asString();
+      } else if (error.getGroup() != null) {
+        text += " is already manager of Group: " + SafeHtmlUtils.fromString(error.getGroup().getName()).asString();
+      } else if (error.getSecurityTeam() != null) {
+        text += " is already manager of SecurityTeam: " +
+            SafeHtmlUtils.fromString(error.getSecurityTeam().getName()).asString();
+      }
+      return text;
+
+    } else if ("AlreadyMemberException".equalsIgnoreCase(errorName)) {
+
+      // TODO - this exception must contain user first !!
+      return "User is already member of VO / Group.";
+
+    } else if ("AlreadyProcessingException".equalsIgnoreCase(errorName)) {
+
+      return "<p>" + error.getErrorInfo() +
+          "<p>It was probably started by on of the other administrators. If this problem persist, please contact support.";
+
+    } else if ("AlreadyReservedLoginException".equalsIgnoreCase(errorName)) {
+
+      String text = "";
+      if (error.getLogin() != null) {
+        text += "Login: " + SafeHtmlUtils.fromString(error.getLogin()).asString();
+        if (error.getNamespace() != null) {
+          text +=
+              " in namespace: " + SafeHtmlUtils.fromString(error.getNamespace()).asString() + " is already reserved.";
+        } else {
+          text += " is already reserved.";
+        }
+      } else {
+        text += "Login";
+        if (error.getNamespace() != null) {
+          text +=
+              " in namespace: " + SafeHtmlUtils.fromString(error.getNamespace()).asString() + " is already reserved.";
+        } else {
+          text += " is already reserved in selected namespace.";
+        }
+      }
+      return text;
+
+    } else if ("AttributeAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+
+      if (error.getAttribute() != null) {
+        return "Attribute <i>" + SafeHtmlUtils.fromString(error.getAttribute().getDisplayName()).asString() +
+            "</i> is already set as required by service.";
+      } else {
+        return "Attribute is already set as required by service.";
+      }
+
+    } else if ("AttributeDefinitionExistsException".equalsIgnoreCase(errorName)) {
+
+      return "Same attribute definition already exists in Perun.";
+
+    } else if ("AttributeNotAssignedException".equalsIgnoreCase(errorName)) {
+
+      if (error.getAttribute() != null) {
+        return "Attribute <i>" + SafeHtmlUtils.fromString(error.getAttribute().getDisplayName()).asString() +
+            "</i> is already NOT required by service.";
+      } else {
+        return "Attribute is already NOT required by service.";
+      }
+
+    } else if ("AttributeNotExistsException".equalsIgnoreCase(errorName)) {
+
+      // FIXME - attribute object inside is never used, but has good description
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+
+    } else if ("AttributeValueException".equalsIgnoreCase(errorName)) {
+
+      // FIXME - core always uses extensions of this exception
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+
+    } else if ("ApplicationNotCreatedException".equalsIgnoreCase(errorName)) {
+
+      return ApplicationMessages.INSTANCE.errorWhileCreatingApplicationMessage();
+
+    } else if ("CandidateNotExistsException".equalsIgnoreCase(errorName)) {
+
+      return "Candidate for VO membership doesn't exists in external source.";
+
+    } else if ("ClusterNotExistsException".equalsIgnoreCase(errorName)) {
+
+      return "Facility is not of type <i>cluster</i> or <i>virtual cluster</i>";
+
+    } else if ("ConsistencyErrorException".equalsIgnoreCase(errorName)) {
+
+      return "Your operation can't be completed. There seems to be a problem with DB consistency, please report this error.";
+
+    } else if ("DestinationAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+
+      if (error.getDestination() != null) {
+        return "Destination <i>" + SafeHtmlUtils.fromString(error.getDestination().getDestination()).asString() +
+            "</i> already exists for facility/service.";
+      } else {
+        return "Same destination already exists for facility/service combination.";
+      }
 
-			// post original authz if unknown user
-			text += "Actor/ExtSource: " + PerunWebSession.getInstance().getPerunPrincipal().getActor() + " / " +
-					PerunWebSession.getInstance().getPerunPrincipal().getExtSource() + " (" +
-					PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
+    } else if ("DestinationAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-		}
-		text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion();
-		return text;
-	}
+      if (error.getDestination() != null) {
+        return "Destination <i>" + SafeHtmlUtils.fromString(error.getDestination().getDestination()).asString() +
+            "</i> already removed for facility/service.";
+      } else {
+        return "Destination is already removed from facility/service combination.";
+      }
 
-	/**
-	 * Clear all password-like params from posted objects
-	 *
-	 * @param object object to clear
-	 */
-	public static void clearPasswords(JSONObject object) {
+    } else if ("DestinationExistsException".equalsIgnoreCase(errorName)) {
 
-		for (String key : object.keySet()) {
-			if (key.equals("oldPassword") || key.equals("newPassword") || key.equals("password")) {
-				object.put(key, new JSONString(""));
-			} else {
-				JSONObject obj = object.get(key).isObject();
-				if (obj != null) {
-					clearPasswords(obj);
-				}
-			}
-		}
-	}
+      return "Same destination already exists.";
 
-	/**
-	 * Return caption text for error box
-	 *
-	 * @param error error object
-	 * @return text for caption
-	 */
-	private static String getCaption(PerunError error) {
+    } else if ("DestinationNotExistsException".equalsIgnoreCase(errorName)) {
 
-		String errorName = error.getName();
+      return "Destination of this name/id doesn't exists.";
 
-		if ("PrivilegeException".equalsIgnoreCase(errorName)) {
+    } else if ("DiacriticNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return WidgetTranslation.INSTANCE.jsonClientNotAuthorizedHeader();
+      // has meaningful info
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("WrongAttributeAssignmentException".equalsIgnoreCase(errorName)) {
+      // FIXME - ENTITY exceptions are always extended - we will use specific types
 
-			return "Wrong attribute assignment";
+    } else if ("ExtendMembershipException".equalsIgnoreCase(errorName)) {
 
-		} else if ("WrongAttributeValueException".equalsIgnoreCase(errorName)) {
+      String text = "Membership in VO can't be established or extended. ";
+      if ("NOUSERLOA".equalsIgnoreCase(error.getReason())) {
+        text += " User's IDP does not provide Level of Assurance but VO requires it.";
+      } else if ("INSUFFICIENTLOA".equalsIgnoreCase(error.getReason())) {
+        text += " User's Level of Assurance is not sufficient for VO.";
+      } else if ("INSUFFICIENTLOAFOREXTENSION".equalsIgnoreCase(error.getReason())) {
+        text += " User's Level of Assurance is not sufficient for VO.";
+      } else if ("OUTSIDEEXTENSIONPERIOD".equalsIgnoreCase(error.getReason())) {
+        text += " It can be done usually in short time before and after membership expiration.";
+      }
+      return text;
 
-			return "Wrong attribute value";
+    } else if ("ExtSourceAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
-		} else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
+      if (error.getExtSource() != null) {
+        return "Same external source is already assigned to your VO." +
+            "<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() +
+            "</br>" +
+            "<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
+      } else {
+        return "Same external source is already assigned to your VO.";
+      }
 
-			return "Wrong value of related attributes";
+    } else if ("ExtSourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-		} else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
+      if (error.getExtSource() != null) {
+        return "Same external source was already removed from your VO." +
+            "<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() +
+            "</br>" +
+            "<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
+      } else {
+        return "Same external source was already removed from your VO.";
+      }
 
-			return "IDP doesn't provide required data";
-
-		} else if ("ApplicationNotCreatedException".equalsIgnoreCase(errorName)) {
-
-			return ApplicationMessages.INSTANCE.errorWhileCreatingApplication();
-
-		} else if ("AlreadyProcessingException".equalsIgnoreCase(errorName)) {
+    } else if ("ExtSourceExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Operation is already running";
+      if (error.getExtSource() != null) {
+        return "Same external source already exists." +
+            "<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() +
+            "</br>" +
+            "<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
+      } else {
+        return "Same external source already exists.";
+      }
 
-		} else if ("ApplicationMailAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("ExtSourceInUseException".equalsIgnoreCase(errorName)) {
 
-			return "Application mail was already removed";
-
-		} else if ("ApplicationMailNotExistsException".equalsIgnoreCase(errorName)) {
-
-			return "Application mail does not exist";
-
-		} else if ("ApplicationMailExistsException".equalsIgnoreCase(errorName)) {
+      // TODO - ext source not in exception
+      return "Selected external source is currently in use and can't be removed from VO or deleted.";
 
-			return "Application mail already exists";
-
-		}
-
-		// default caption
-		return WidgetTranslation.INSTANCE.jsonClientAlertBoxHeader();
-
-	}
+    } else if ("ExtSourceNotAssignedException".equalsIgnoreCase(errorName)) {
 
-	private static String getText(String errorName, PerunError error) {
-
-		String pleaseRefresh = "<p>Try to <strong>refresh the browser</strong> window and retry.<br />If problem persist, please report it.";
-
-		// RPC ERRORS
-		if ("RpcException".equalsIgnoreCase(errorName)) {
-
-			if ("UNCATCHED_EXCEPTION".equalsIgnoreCase(error.getType())) {
-				return "Unknown error occurred. Please report it.";
-			} else {
-				return "Error in communication with server. " + pleaseRefresh;
-			}
-
-		} else if ("PrivilegeException".equalsIgnoreCase(errorName)) {
-
-			return WidgetTranslation.INSTANCE.jsonClientNotAuthorizedMessage();
-
-		} else if ("WrongAttributeAssignmentException".equalsIgnoreCase(errorName)) {
-
-			return "You tried to set wrong attribute for entity. Please report this error.";
-
-		} else if ("WrongAttributeValueException".equalsIgnoreCase(errorName)) {
-
-			Attribute a = error.getAttribute();
-			GeneralObject holder = error.getAttributeHolder();
-			GeneralObject secondHolder = error.getAttributeHolderSecondary();
-
-			String text = "Wrong value of attribute (value or format).<p>";
-
-			if (holder != null) {
-				if (!holder.getName().equalsIgnoreCase("undefined")) {
-					text += "<strong>" + SafeHtmlUtils.fromString(holder.getObjectType()).asString() + ":</strong>&nbsp;" + SafeHtmlUtils.fromString(holder.getName()).asString() + "<br />";
-				}
-			}
-			if (secondHolder != null) {
-				if (!secondHolder.getName().equalsIgnoreCase("undefined")) {
-					text += "<strong>" + SafeHtmlUtils.fromString(secondHolder.getObjectType()).asString() + ":</strong>&nbsp;" + SafeHtmlUtils.fromString(secondHolder.getName()).asString() + "<br />";
-				}
-			}
-			if (a != null) {
-				String attrName = SafeHtmlUtils.fromString(a.getDisplayName()).asString();
-				String attrValue = SafeHtmlUtils.fromString(a.getValue()).asString();
-				text += "<strong>Attribute:&nbsp;</strong>" + attrName + "<br /><strong>Value:&nbsp;</strong>" + attrValue;
-			} else {
-				text += "<i>Attribute is null</i>";
-			}
-
-			return text;
-
-		} else if ("WrongReferenceAttributeValueException".equalsIgnoreCase(errorName)) {
-
-			String text = "Value of one of related attributes is incorrect.";
-
-			Attribute a = error.getAttribute();
-			Attribute a2 = error.getReferenceAttribute();
-
-			if (a != null) {
-				String attrName = SafeHtmlUtils.fromString(a.getDisplayName()).asString();
-				String attrValue = SafeHtmlUtils.fromString(a.getValue()).asString();
-				String entity = SafeHtmlUtils.fromString(a.getEntity()).asString();
-				text += "<p><strong>Attribute&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
-				text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
-			} else {
-				text += "<p><i>Attribute 1 is null</i>";
-			}
-
-			if (a2 != null) {
-				String attrName = SafeHtmlUtils.fromString(a2.getDisplayName()).asString();
-				String attrValue = SafeHtmlUtils.fromString(a2.getValue()).asString();
-				String entity = SafeHtmlUtils.fromString(a2.getEntity()).asString();
-				text += "<p><strong>Attribute&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
-				text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
-			} else {
-				text += "<p><i>Attribute 2 is null</i>";
-			}
-
-			return text;
-
-		} else if ("AttributeNotExistsException".equalsIgnoreCase(errorName)) {
-
-			Attribute a = error.getAttribute();
-			if (a != null) {
-				return "Attribute definition for attribute <i>" + SafeHtmlUtils.fromString(a.getName()).asString() + "</i> doesn't exist.";
-			} else {
-				return "Attribute definition for attribute <i>null</i> doesn't exist.";
-			}
-
-		} else if ("AttributeAlreadyMarkedUniqueException".equalsIgnoreCase(errorName)) {
-
-			Attribute a = error.getAttribute();
-			if (a != null) {
-				return "Attribute definition of <i>" + SafeHtmlUtils.fromString(a.getName()).asString() + "</i> is already marked as UNIQUE.";
-			} else {
-				return "Attribute definition of <i>null</i> is already marked as UNIQUE.";
-			}
+      // TODO - ext source not in exception
+      return "Selected external source is not assigned to your VO and can't be removed.";
 
-			// ALL CABINET EXCEPTIONS
-		} else if ("CabinetException".equalsIgnoreCase(errorName)) {
+    } else if ("ExtSourceNotExistsException".equalsIgnoreCase(errorName)) {
 
-			String text = "";
-			if (error.getType().equalsIgnoreCase("NO_IDENTITY_FOR_PUBLICATION_SYSTEM")) {
-				text = "You don't have registered identity in Perun related to selected publication system.<p>Please visit <a target=\"new\" href=\"" + Utils.getIdentityConsolidatorLink(false) + "\">identity consolidator</a> to add more identities.";
-			} else if (error.getType().equalsIgnoreCase("THANKS_ALREADY_EXISTS")) {
-				text = "Acknowledgement is already added.";
-			}
+      // TODO - better text ?? + ext source not in exception
+      return "External source of this ID or name doesn't exists.";
 
-			return text;
+    } else if ("ExtSourceUnsupportedOperationException".equalsIgnoreCase(errorName)) {
 
-			// STANDARD ERRORS ALPHABETICALLY
-		} else if ("AlreadyAdminException".equalsIgnoreCase(errorName)) {
+      // TODO - probably is never thrown to GUI ??
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-			String text = "";
-			if (error.getUser() != null) {
-				text = SafeHtmlUtils.fromString(error.getUser().getFullName()).asString();
-			} else {
-				text = "User";
-			}
-			if (error.getVo() != null) {
-				text += " is already manager of VO: " + SafeHtmlUtils.fromString(error.getVo().getName()).asString();
-			} else if (error.getFacility() != null) {
-				text += " is already manager of Facility: " + SafeHtmlUtils.fromString(error.getFacility().getName()).asString();
-			} else if (error.getGroup() != null) {
-				text += " is already manager of Group: " + SafeHtmlUtils.fromString(error.getGroup().getName()).asString();
-			} else if (error.getSecurityTeam() != null) {
-				text += " is already manager of SecurityTeam: " + SafeHtmlUtils.fromString(error.getSecurityTeam().getName()).asString();
-			}
-			return text;
+    } else if ("FacilityAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-		} else if ("AlreadyMemberException".equalsIgnoreCase(errorName)) {
+      return "Facility of the same name and type was already deleted.";
 
-			// TODO - this exception must contain user first !!
-			return "User is already member of VO / Group.";
+    } else if ("FacilityExistsException".equalsIgnoreCase(errorName)) {
 
-		} else if ("AlreadyProcessingException".equalsIgnoreCase(errorName)) {
+      return "Facility of the same name and type already exists.";
 
-			return "<p>" + error.getErrorInfo() + "<p>It was probably started by on of the other administrators. If this problem persist, please contact support.";
+    } else if ("FacilityNotExistsException".equalsIgnoreCase(errorName)) {
 
-		}else if ("AlreadyReservedLoginException".equalsIgnoreCase(errorName)) {
+      return "Requested Facility (by id or name/type) doesn't exists.";
 
-			String text = "";
-			if (error.getLogin() != null) {
-				text += "Login: " + SafeHtmlUtils.fromString(error.getLogin()).asString();
-				if (error.getNamespace() != null) {
-					text += " in namespace: " + SafeHtmlUtils.fromString(error.getNamespace()).asString() + " is already reserved.";
-				} else {
-					text += " is already reserved.";
-				}
-			} else {
-				text += "Login";
-				if (error.getNamespace() != null) {
-					text += " in namespace: " + SafeHtmlUtils.fromString(error.getNamespace()).asString() + " is already reserved.";
-				} else {
-					text += " is already reserved in selected namespace.";
-				}
-			}
-			return text;
+    } else if ("FacilityNotExistsException".equalsIgnoreCase(errorName)) {
 
-		} else if ("AttributeAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+      return "Requested Facility (by id or name/type) doesn't exists.";
 
-			if (error.getAttribute() != null) {
-				return "Attribute <i>" + SafeHtmlUtils.fromString(error.getAttribute().getDisplayName()).asString() + "</i> is already set as required by service.";
-			} else {
-				return "Attribute is already set as required by service.";
-			}
+    } else if ("GroupAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
-		} else if ("AttributeDefinitionExistsException".equalsIgnoreCase(errorName)) {
+      Group g = error.getGroup();
+      if (g != null) {
+        return "Group: " + SafeHtmlUtils.fromString(g.getName()).asString() + " is already assigned to Resource.";
+      } else {
+        return "Group is already assigned to Resource.";
+      }
 
-			return "Same attribute definition already exists in Perun.";
+    } else if ("GroupExistsException".equalsIgnoreCase(errorName)) {
 
-		} else if ("AttributeNotAssignedException".equalsIgnoreCase(errorName)) {
+      return "Group with same name already exists in your VO. Group names must be unique in VO.";
 
-			if (error.getAttribute() != null) {
-				return "Attribute <i>" + SafeHtmlUtils.fromString(error.getAttribute().getDisplayName()).asString() + "</i> is already NOT required by service.";
-			} else {
-				return "Attribute is already NOT required by service.";
-			}
+    } else if ("GroupAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-		} else if ("AttributeNotExistsException".equalsIgnoreCase(errorName)) {
+      return "Same group was already removed from your VO/Group.";
 
-			// FIXME - attribute object inside is never used, but has good description
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+    } else if ("GroupAlreadyRemovedFromResourceException".equalsIgnoreCase(errorName)) {
 
-		} else if ("AttributeValueException".equalsIgnoreCase(errorName)) {
+      return "Same group was already removed from resource.";
 
-			// FIXME - core always uses extensions of this exception
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+    } else if ("GroupNotDefinedOnResourceException".equalsIgnoreCase(errorName)) {
 
-		} else if ("ApplicationNotCreatedException".equalsIgnoreCase(errorName)) {
+      return "Group is not assigned to Resource and therefore can't be removed from it.";
 
-			return ApplicationMessages.INSTANCE.errorWhileCreatingApplicationMessage();
+    } else if ("GroupNotExistsException".equalsIgnoreCase(errorName)) {
 
-		} else if ("CandidateNotExistsException".equalsIgnoreCase(errorName)) {
+      return "Requested Group (by id or name/vo) doesn't exists.";
 
-			return "Candidate for VO membership doesn't exists in external source.";
+    } else if ("GroupResourceMismatchException".equalsIgnoreCase(errorName)) {
 
-		} else if ("ClusterNotExistsException".equalsIgnoreCase(errorName)) {
+      return "Group and Resource doesn't belong to the same VO.";
 
-			return "Facility is not of type <i>cluster</i> or <i>virtual cluster</i>";
+    } else if ("GroupMoveNotAllowedException".equalsIgnoreCase(errorName)) {
 
-		} else if ("ConsistencyErrorException".equalsIgnoreCase(errorName)) {
+      Group movingGroup = error.getMovingGroup();
+      Group destinationGroup = error.getDestinationGroup();
 
-			return "Your operation can't be completed. There seems to be a problem with DB consistency, please report this error.";
+      String movingGroupName =
+          (movingGroup != null) ? ("<b>" + SafeHtmlUtils.fromString(movingGroup.getName()).asString() + "</b>") :
+              "Group";
+      String destinationGroupName = (destinationGroup != null) ?
+          ("under <b>" + SafeHtmlUtils.fromString(destinationGroup.getName()).asString() + "</b>") : " to top-level";
 
-		} else if ("DestinationAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+      return movingGroupName + " can't be moved " + destinationGroupName + ".<p>Reason: " +
+          SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-			if (error.getDestination() != null) {
-				return "Destination <i>" + SafeHtmlUtils.fromString(error.getDestination().getDestination()).asString() + "</i> already exists for facility/service.";
-			} else {
-				return "Same destination already exists for facility/service combination.";
-			}
+    } else if ("GroupRelationAlreadyExists".equalsIgnoreCase(errorName)) {
 
-		} else if ("DestinationAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+      return "Groups are already in a relation. Please refresh your view/table to see current state.";
 
-			if (error.getDestination() != null) {
-				return "Destination <i>" + SafeHtmlUtils.fromString(error.getDestination().getDestination()).asString() + "</i> already removed for facility/service.";
-			} else {
-				return "Destination is already removed from facility/service combination.";
-			}
+    } else if ("GroupRelationCannotBeRemoved".equalsIgnoreCase(errorName)) {
 
-		} else if ("DestinationExistsException".equalsIgnoreCase(errorName)) {
+      return "Relation can't be removed, since groups are in a direct hierarchy. If necessary, please delete the sub-group.";
 
-			return "Same destination already exists.";
+    } else if ("GroupRelationDoesNotExist".equalsIgnoreCase(errorName)) {
 
-		} else if ("DestinationNotExistsException".equalsIgnoreCase(errorName)) {
+      return "Groups are not in a relation. Please refresh your view/table to see current state.";
 
-			return "Destination of this name/id doesn't exists.";
+    } else if ("GroupRelationNotAllowed".equalsIgnoreCase(errorName)) {
 
-		} else if ("DiacriticNotAllowedException".equalsIgnoreCase(errorName)) {
+      return "You can't add groups to relation. It would create a cycle.";
 
-			// has meaningful info
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+    } else if ("GroupSynchronizationAlreadyRunningException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - ENTITY exceptions are always extended - we will use specific types
+      return "Can't start group synchronization between Perun and external source, because it's already running.";
 
-		} else if ("ExtendMembershipException".equalsIgnoreCase(errorName)) {
+    } else if ("HostAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			String text = "Membership in VO can't be established or extended. ";
-			if ("NOUSERLOA".equalsIgnoreCase(error.getReason())) {
-				text += " User's IDP does not provide Level of Assurance but VO requires it.";
-			} else if ("INSUFFICIENTLOA".equalsIgnoreCase(error.getReason())) {
-				text += " User's Level of Assurance is not sufficient for VO.";
-			} else if ("INSUFFICIENTLOAFOREXTENSION".equalsIgnoreCase(error.getReason())) {
-				text += " User's Level of Assurance is not sufficient for VO.";
-			} else if ("OUTSIDEEXTENSIONPERIOD".equalsIgnoreCase(error.getReason())) {
-				text += " It can be done usually in short time before and after membership expiration.";
-			}
-			return text;
+      return "Same host was already removed from facility.";
 
-		} else if ("ExtSourceAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("HostExistsException".equalsIgnoreCase(errorName)) {
 
-			if (error.getExtSource() != null) {
-				return "Same external source is already assigned to your VO." +
-						"<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() + "</br>" +
-						"<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
-			} else {
-				return "Same external source is already assigned to your VO.";
-			}
+      // TODO - Facility object in this exception would really help
+      return "Either same host already exists on Facility or you are trying to add more than one host to (v)host Facility type (can have only one).";
 
-		} else if ("ExtSourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("HostNotExistsException".equalsIgnoreCase(errorName)) {
 
-			if (error.getExtSource() != null) {
-				return "Same external source was already removed from your VO." +
-						"<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() + "</br>" +
-						"<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
-			} else {
-				return "Same external source was already removed from your VO.";
-			}
+      // TODO - host object is not filled on core side
+      return "Requested Host (by name) doesn't exists.";
 
-		} else if ("ExtSourceExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("IllegalArgumentException".equalsIgnoreCase(errorName)) {
 
-			if (error.getExtSource() != null) {
-				return "Same external source already exists." +
-						"<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() + "</br>" +
-						"<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
-			} else {
-				return "Same external source already exists.";
-			}
+      // FIXME - is this generic error ??
+      return "Your operation can't be completed. " + SafeHtmlUtils.fromString(error.getErrorInfo()).asString() +
+          " Please report this error.";
 
-		} else if ("ExtSourceInUseException".equalsIgnoreCase(errorName)) {
+    } else if ("InternalErrorException".equalsIgnoreCase(errorName)) {
 
-			// TODO - ext source not in exception
-			return "Selected external source is currently in use and can't be removed from VO or deleted.";
+      // FIXME - is this generic error ??
+      return "Your operation can't be completed. Internal error occurred. Please report this error.";
 
-		} else if ("ExtSourceNotAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("LoginNotExistsException".equalsIgnoreCase(errorName)) {
 
-			// TODO - ext source not in exception
-			return "Selected external source is not assigned to your VO and can't be removed.";
+      // TODO - login + namespace should be in exception
+      return "User doesn't have login set for selected namespace.";
 
-		} else if ("ExtSourceNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("MaxSizeExceededException".equalsIgnoreCase(errorName)) {
 
-			// TODO - better text ?? + ext source not in exception
-			return "External source of this ID or name doesn't exists.";
+      // has meaningfull message
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("ExtSourceUnsupportedOperationException".equalsIgnoreCase(errorName)) {
+    } else if ("MemberAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			// TODO - probably is never thrown to GUI ??
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      return "Member was already removed from group/VO.";
 
-		} else if ("FacilityAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("MemberNotAdminException".equalsIgnoreCase(errorName)) {
 
-			return "Facility of the same name and type was already deleted.";
+      // FIXME - will be removed in favor of UserNotAdminException
+      return "Can't remove user from administrators (user is not an administrator).";
 
-		} else if ("FacilityExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("MemberNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Facility of the same name and type already exists.";
+      return "Requested member (by id or ues) doesn't exists.";
 
-		} else if ("FacilityNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("MemberNotValidYetException".equalsIgnoreCase(errorName)) {
 
-			return "Requested Facility (by id or name/type) doesn't exists.";
+      return "Can't disable membership for VO member if not valid yet.";
 
-		} else if ("FacilityNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("MembershipMismatchException".equalsIgnoreCase(errorName)) {
 
-			return "Requested Facility (by id or name/type) doesn't exists.";
+      return "Can't add member to group. They are from different VOs.";
 
-		} else if ("GroupAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("MessageParsingFailException".equalsIgnoreCase(errorName)) {
 
-			Group g = error.getGroup();
-			if (g != null) {
-				return "Group: " + SafeHtmlUtils.fromString(g.getName()).asString() + " is already assigned to Resource.";
-			} else {
-				return "Group is already assigned to Resource.";
-			}
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("GroupExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("ModuleNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Group with same name already exists in your VO. Group names must be unique in VO.";
+      return "Module for virtual attribute doesn't exists. Please report this error.";
 
-		} else if ("GroupAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("NotGroupMemberException".equalsIgnoreCase(errorName)) {
 
-			return "Same group was already removed from your VO/Group.";
+      return "Can't remove user from group. User already isn't group member.";
 
-		} else if ("GroupAlreadyRemovedFromResourceException".equalsIgnoreCase(errorName)) {
+    } else if ("NotSpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 
-			return "Same group was already removed from resource.";
+      return "Operation can't be done. Expected person type of user, but service type was provided instead.";
 
-		} else if ("GroupNotDefinedOnResourceException".equalsIgnoreCase(errorName)) {
+    } else if ("NumberNotInRangeException".equalsIgnoreCase(errorName)) {
 
-			return "Group is not assigned to Resource and therefore can't be removed from it.";
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("GroupNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("NumbersNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return "Requested Group (by id or name/vo) doesn't exists.";
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("GroupResourceMismatchException".equalsIgnoreCase(errorName)) {
+    } else if ("OwnerAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
-			return "Group and Resource doesn't belong to the same VO.";
+      return "Can't add owner to Facility. Owner is already assigned.";
 
-		} else if ("GroupMoveNotAllowedException".equalsIgnoreCase(errorName)) {
+    } else if ("OwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			Group movingGroup = error.getMovingGroup();
-			Group destinationGroup = error.getDestinationGroup();
+      return "Can't remove owner from Facility. Owner is already removed.";
 
-			String movingGroupName = (movingGroup != null) ? ("<b>" + SafeHtmlUtils.fromString(movingGroup.getName()).asString() + "</b>") : "Group";
-			String destinationGroupName = (destinationGroup != null) ?("under <b>" + SafeHtmlUtils.fromString(destinationGroup.getName()).asString() + "</b>") : " to top-level";
+    } else if ("OwnerNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return movingGroupName + " can't be moved " + destinationGroupName + ".<p>Reason: "+SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      return "Requested Owner (by id) doesn't exists.";
 
-		} else if ("GroupRelationAlreadyExists".equalsIgnoreCase(errorName)) {
+    } else if ("ParentGroupNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Groups are already in a relation. Please refresh your view/table to see current state.";
+      return "Group doesn't have parent group.";
 
-		} else if ("GroupRelationCannotBeRemoved".equalsIgnoreCase(errorName)) {
+    } else if ("PasswordChangeFailedException".equalsIgnoreCase(errorName)) {
 
-			return "Relation can't be removed, since groups are in a direct hierarchy. If necessary, please delete the sub-group.";
+      return "Changing password failed due to an internal error. Please report it.";
 
-		} else if ("GroupRelationDoesNotExist".equalsIgnoreCase(errorName)) {
+    } else if ("PasswordCreationFailedException".equalsIgnoreCase(errorName)) {
 
-			return "Groups are not in a relation. Please refresh your view/table to see current state.";
+      return "Password creation failed due to an internal error. Please report it.";
 
-		} else if ("GroupRelationNotAllowed".equalsIgnoreCase(errorName)) {
+    } else if ("PasswordDeletionFailedException".equalsIgnoreCase(errorName)) {
 
-			return "You can't add groups to relation. It would create a cycle.";
+      return "Password deletion failed due to an internal error. Please report it.";
 
-		} else if ("GroupSynchronizationAlreadyRunningException".equalsIgnoreCase(errorName)) {
+    } else if ("PasswordDoesntMatchException".equalsIgnoreCase(errorName)) {
 
-			return "Can't start group synchronization between Perun and external source, because it's already running.";
+      return "Can't set new password. Old password doesn't match.";
 
-		} else if ("HostAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("PasswordResetMailNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Same host was already removed from facility.";
+      return "User doesn't have the chosen email attribute set. Choose different attribute.";
 
-		} else if ("HostExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("PasswordStrengthFailedException".equalsIgnoreCase(errorName)) {
 
-			// TODO - Facility object in this exception would really help
-			return "Either same host already exists on Facility or you are trying to add more than one host to (v)host Facility type (can have only one).";
+      return "Used password doesn't match required strength constraints.";
 
-		} else if ("HostNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("PasswordOperationTimeoutException".equalsIgnoreCase(errorName)) {
 
-			// TODO - host object is not filled on core side
-			return "Requested Host (by name) doesn't exists.";
+      return "Operation with password exceeded expected time limit.";
 
-		} else if ("IllegalArgumentException".equalsIgnoreCase(errorName)) {
+    } else if ("RelationExistsException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - is this generic error ??
-			return "Your operation can't be completed. " + SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + " Please report this error.";
+      // FIXME - better text on core side
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("InternalErrorException".equalsIgnoreCase(errorName)) {
+    } else if ("RelationNotExistsException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - is this generic error ??
-			return "Your operation can't be completed. Internal error occurred. Please report this error.";
+      // FIXME - better text on core side
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("LoginNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("ResourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			// TODO - login + namespace should be in exception
-			return "User doesn't have login set for selected namespace.";
+      return "Same resource was already removed from facility (deleted).";
 
-		} else if ("MaxSizeExceededException".equalsIgnoreCase(errorName)) {
+    } else if ("ResourceExistsException".equalsIgnoreCase(errorName)) {
 
-			// has meaningfull message
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      return "Resource with same name \"" + SafeHtmlUtils.fromString(error.getResource().getName()).asString() +
+          "\" already exists with id=" + SafeHtmlUtils.fromString(error.getResource().getId() + "").asString() + ".";
 
-		} else if ("MemberAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("ResourceNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Member was already removed from group/VO.";
+      return "Requested resource (by id) doesn't exists.";
 
-		} else if ("MemberNotAdminException".equalsIgnoreCase(errorName)) {
+    } else if ("ResourceTagAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - will be removed in favor of UserNotAdminException
-			return "Can't remove user from administrators (user is not an administrator).";
+      // FIXME - must contain also resource
+      return "Same tag is already assigned to resource.";
 
-		} else if ("MemberNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("ResourceTagNotAssignedException".equalsIgnoreCase(errorName)) {
 
-			return "Requested member (by id or ues) doesn't exists.";
+      // FIXME - must contain also resource
+      return "Tag is not assigned to resource.";
 
-		} else if ("MemberNotValidYetException".equalsIgnoreCase(errorName)) {
+    } else if ("ResourceTagNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Can't disable membership for VO member if not valid yet.";
+      // FIXME - must contain also resource
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("MembershipMismatchException".equalsIgnoreCase(errorName)) {
+    } else if ("SecurityTeamAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
-			return "Can't add member to group. They are from different VOs.";
+      if (error.getSecurityTeam() != null) {
+        return "SecurityTeam <i>" + SafeHtmlUtils.fromString(error.getSecurityTeam().getName()).asString() +
+            "</i> is already assigned to facility.";
+      } else {
+        return "Same SecurityTeam is already assigned to facility.";
+      }
 
-		} else if ("MessageParsingFailException".equalsIgnoreCase(errorName)) {
+    } else if ("ServiceAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      // FIXME - must contain also resource
+      if (error.getService() != null) {
+        return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() +
+            " is already assigned to resource.";
+      } else {
+        return "Same service is already assigned to resource.";
+      }
 
-		} else if ("ModuleNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("ServiceAlreadyBannedException".equalsIgnoreCase(errorName)) {
 
-			return "Module for virtual attribute doesn't exists. Please report this error.";
+      if (error.getService() != null && error.getFacility() != null) {
+        return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() +
+            " is already banned on facility " + SafeHtmlUtils.fromString(error.getFacility().getName()).asString() +
+            ".";
+      } else {
+        return "Same service is already banned on facility.";
+      }
 
-		} else if ("NotGroupMemberException".equalsIgnoreCase(errorName)) {
+    } else if ("ServiceExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Can't remove user from group. User already isn't group member.";
+      if (error.getService() != null) {
+        return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() +
+            " already exists in Perun. Choose different name.";
+      } else {
+        return "Service with same name already exists in Perun.";
+      }
 
-		} else if ("NotSpecificUserExpectedException".equalsIgnoreCase(errorName)) {
+    } else if ("ServiceNotAssignedException".equalsIgnoreCase(errorName)) {
 
-			return "Operation can't be done. Expected person type of user, but service type was provided instead.";
+      // FIXME - must contain also resource
+      if (error.getService() != null) {
+        return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() +
+            " is not assigned to resource.";
+      } else {
+        return "Service is not assigned to resource.";
+      }
 
-		} else if ("NumberNotInRangeException".equalsIgnoreCase(errorName)) {
+    } else if ("ServiceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      return "Same service was already deleted.";
 
-		} else if ("NumbersNotAllowedException".equalsIgnoreCase(errorName)) {
+    } else if ("ServiceNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      return "Requested service (by id or name) doesn't exists.";
 
-		} else if ("OwnerAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("ServicesPackageExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Can't add owner to Facility. Owner is already assigned.";
+      // TODO - we don't support service packages yet
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("OwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("ServiceAlreadyRemovedFromServicePackageException".equalsIgnoreCase(errorName)) {
 
-			return "Can't remove owner from Facility. Owner is already removed.";
+      return "Same service was already removed from service package.";
 
-		} else if ("OwnerNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("ServiceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Requested Owner (by id) doesn't exists.";
+      return "Same service was already deleted.";
 
-		} else if ("ParentGroupNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("SpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 
-			return "Group doesn't have parent group.";
+      return "Operation can't be done. Expected specific type of user, but person type was provided instead.";
 
-		} else if ("PasswordChangeFailedException".equalsIgnoreCase(errorName)) {
+    } else if ("SpecificUserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Changing password failed due to an internal error. Please report it.";
+      return "Same specific user was already removed from user.";
 
-		} else if ("PasswordCreationFailedException".equalsIgnoreCase(errorName)) {
+    } else if ("SpecificUserOwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Password creation failed due to an internal error. Please report it.";
+      return "Same user was already removed from owners of specific user.";
 
-		} else if ("PasswordDeletionFailedException".equalsIgnoreCase(errorName)) {
+    } else if ("SpecificUserMustHaveOwnerException".equalsIgnoreCase(errorName)) {
 
-			return "Password deletion failed due to an internal error. Please report it.";
+      return "Specific type user must have at least 1 person type user assigned, which is responsible for it.";
 
-		} else if ("PasswordDoesntMatchException".equalsIgnoreCase(errorName)) {
+    } else if ("SpaceNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return "Can't set new password. Old password doesn't match.";
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("PasswordResetMailNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("SpecialCharsNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return "User doesn't have the chosen email attribute set. Choose different attribute.";
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString() +
+          " You can use only letters, numbers and spaces.";
 
-		} else if ("PasswordStrengthFailedException".equalsIgnoreCase(errorName)) {
+    } else if ("SpecialCharsNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return "Used password doesn't match required strength constraints.";
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString() +
+          " You can use only letters, numbers and spaces.";
 
-		} else if ("PasswordOperationTimeoutException".equalsIgnoreCase(errorName)) {
+    } else if ("SubGroupCannotBeRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Operation with password exceeded expected time limit.";
+      return "Subgroup can't be removed from resource. Only directly assigned groups can be removed.";
 
-		} else if ("RelationExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("SubjectNotExistsException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - better text on core side
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      // FIXME - probably never thrown to GUI ?? + better exception text.
+      return "Requested user by login in LDAP external source doesn't exists or more than one was found.";
 
-		} else if ("RelationNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("UserExtSourceExistsException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - better text on core side
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      // TODO - user ext source object in exception
+      return "Same user external identity already exists and is used by different user.";
 
-		} else if ("ResourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("UserExtSourceNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Same resource was already removed from facility (deleted).";
+      return "Requested user external identity doesn't exists.";
 
-		} else if ("ResourceExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("UserExtSourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Resource with same name \"" + SafeHtmlUtils.fromString(error.getResource().getName()).asString() + "\" already exists with id="+SafeHtmlUtils.fromString(error.getResource().getId()+"").asString()+".";
+      return "Same user's external identity was already removed from him/her.";
 
-		} else if ("ResourceNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("UserNotAdminException".equalsIgnoreCase(errorName)) {
 
-			return "Requested resource (by id) doesn't exists.";
+      // FIXME - add vo, group or facility !!
+      return "Can't remove user from managers of VO/Group/Facility. User is not manager.";
 
-		} else if ("ResourceTagAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("UserNotExistsException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - must contain also resource
-			return "Same tag is already assigned to resource.";
+      // TODO - get user from exception
+      return "Requested user (by id or external identity) doesn't exists.";
 
-		} else if ("ResourceTagNotAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("UserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - must contain also resource
-			return "Tag is not assigned to resource.";
+      // TODO - shoud contain user objects
+      return "Same user was already deleted.";
 
-		} else if ("ResourceTagNotExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("VoExistsException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - must contain also resource
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      return "VO with same name already exists. Please choose different name.";
 
-		} else if ("SecurityTeamAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("VoNotExistsException".equalsIgnoreCase(errorName)) {
 
-			if (error.getSecurityTeam() != null) {
-				return "SecurityTeam <i>" + SafeHtmlUtils.fromString(error.getSecurityTeam().getName()).asString() + "</i> is already assigned to facility.";
-			} else {
-				return "Same SecurityTeam is already assigned to facility.";
-			}
+      // TODO - get vo from exception
+      return "Requested VO (by id or name) doesn't exists.";
 
-		} else if ("ServiceAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("WrongModuleTypeException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - must contain also resource
-			if (error.getService() != null) {
-				return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() + " is already assigned to resource.";
-			} else {
-				return "Same service is already assigned to resource.";
-			}
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("ServiceAlreadyBannedException".equalsIgnoreCase(errorName)) {
+    } else if ("WrongRangeOfCountException".equalsIgnoreCase(errorName)) {
 
-			if (error.getService() != null && error.getFacility() != null) {
-				return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() + " is already banned on facility "+SafeHtmlUtils.fromString(error.getFacility().getName()).asString()+".";
-			} else {
-				return "Same service is already banned on facility.";
-			}
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("ServiceExistsException".equalsIgnoreCase(errorName)) {
+    } else if ("WrongPatternException".equalsIgnoreCase(errorName)) {
 
-			if (error.getService() != null) {
-				return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() + " already exists in Perun. Choose different name.";
-			} else {
-				return "Service with same name already exists in Perun.";
-			}
+      // meaningful message
+      return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
-		} else if ("ServiceNotAssignedException".equalsIgnoreCase(errorName)) {
+    } else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
 
-			// FIXME - must contain also resource
-			if (error.getService() != null) {
-				return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() + " is not assigned to resource.";
-			} else {
-				return "Service is not assigned to resource.";
-			}
+      String result =
+          "Your IDP doesn't provide all required data for this application form. Please contact your IDP to resolve this issue or log-in using different IDP.";
 
-		} else if ("ServiceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+      String missingItems = "<p>";
+      if (error.getFormItems() != null) {
+        for (int i = 0; i < error.getFormItems().length(); i++) {
+          missingItems += "<strong>Missing attribute: </strong>";
+          missingItems +=
+              SafeHtmlUtils.fromString(error.getFormItems().get(i).getFormItem().getFederationAttribute()).asString();
+          missingItems += "<br />";
+        }
+      }
 
-			return "Same service was already deleted.";
+      result += missingItems;
 
-		} else if ("ServiceNotExistsException".equalsIgnoreCase(errorName)) {
+      return result;
 
-			return "Requested service (by id or name) doesn't exists.";
+    } else if ("RequestTimeout".equalsIgnoreCase(errorName)) {
 
-		} else if ("ServicesPackageExistsException".equalsIgnoreCase(errorName)) {
+      String result =
+          "Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.";
 
-			// TODO - we don't support service packages yet
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
+      return result;
 
-		} else if ("ServiceAlreadyRemovedFromServicePackageException".equalsIgnoreCase(errorName)) {
+    } else if ("ApplicationMailAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Same service was already removed from service package.";
+      return "Application mail was already removed.";
 
-		} else if ("ServiceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    } else if ("ApplicationMailNotExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Same service was already deleted.";
+      ApplicationMail mail = error.getApplicationMail();
+      if (mail != null) {
+        return "Application mail with template " + mail.getMailType() + " and id " + mail.getId() + " does not exist.";
+      }
+      return "Application mail does not exist.";
 
-		} else if ("SpecificUserExpectedException".equalsIgnoreCase(errorName)) {
+    } else if ("ApplicationMailExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Operation can't be done. Expected specific type of user, but person type was provided instead.";
+      ApplicationMail mail = error.getApplicationMail();
+      if (mail != null) {
+        return "Application mail with template " + mail.getMailType() + " and id " + mail.getId() + " already exists.";
+      }
+      return "Application mail already exists.";
 
-		} else if ("SpecificUserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    }
 
-			return "Same specific user was already removed from user.";
 
-		} else if ("SpecificUserOwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+    //default text
+    return error.getErrorInfo();
 
-			return "Same user was already removed from owners of specific user.";
-
-		} else if ("SpecificUserMustHaveOwnerException".equalsIgnoreCase(errorName)) {
-
-			return "Specific type user must have at least 1 person type user assigned, which is responsible for it.";
-
-		} else if ("SpaceNotAllowedException".equalsIgnoreCase(errorName)) {
-
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
-
-		} else if ("SpecialCharsNotAllowedException".equalsIgnoreCase(errorName)) {
-
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + " You can use only letters, numbers and spaces.";
-
-		} else if ("SpecialCharsNotAllowedException".equalsIgnoreCase(errorName)) {
-
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + " You can use only letters, numbers and spaces.";
-
-		} else if ("SubGroupCannotBeRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Subgroup can't be removed from resource. Only directly assigned groups can be removed.";
-
-		} else if ("SubjectNotExistsException".equalsIgnoreCase(errorName)) {
-
-			// FIXME - probably never thrown to GUI ?? + better exception text.
-			return "Requested user by login in LDAP external source doesn't exists or more than one was found.";
-
-		} else if ("UserExtSourceExistsException".equalsIgnoreCase(errorName)) {
-
-			// TODO - user ext source object in exception
-			return "Same user external identity already exists and is used by different user.";
-
-		} else if ("UserExtSourceNotExistsException".equalsIgnoreCase(errorName)) {
-
-			return "Requested user external identity doesn't exists.";
-
-		} else if ("UserExtSourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Same user's external identity was already removed from him/her.";
-
-		} else if ("UserNotAdminException".equalsIgnoreCase(errorName)) {
-
-			// FIXME - add vo, group or facility !!
-			return "Can't remove user from managers of VO/Group/Facility. User is not manager.";
-
-		} else if ("UserNotExistsException".equalsIgnoreCase(errorName)) {
-
-			// TODO - get user from exception
-			return "Requested user (by id or external identity) doesn't exists.";
-
-		} else if ("UserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			// TODO - shoud contain user objects
-			return "Same user was already deleted.";
-
-		} else if ("VoExistsException".equalsIgnoreCase(errorName)) {
-
-			return "VO with same name already exists. Please choose different name.";
-
-		} else if ("VoNotExistsException".equalsIgnoreCase(errorName)) {
-
-			// TODO - get vo from exception
-			return "Requested VO (by id or name) doesn't exists.";
-
-		} else if ("WrongModuleTypeException".equalsIgnoreCase(errorName)) {
-
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
-
-		} else if ("WrongRangeOfCountException".equalsIgnoreCase(errorName)) {
-
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
-
-		} else if ("WrongPatternException".equalsIgnoreCase(errorName)) {
-
-			// meaningful message
-			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
-
-		} else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
-
-			String result = "Your IDP doesn't provide all required data for this application form. Please contact your IDP to resolve this issue or log-in using different IDP.";
-
-			String missingItems = "<p>";
-			if (error.getFormItems() != null) {
-				for (int i = 0; i < error.getFormItems().length(); i++) {
-					missingItems += "<strong>Missing attribute: </strong>";
-					missingItems += SafeHtmlUtils.fromString(error.getFormItems().get(i).getFormItem().getFederationAttribute()).asString();
-					missingItems += "<br />";
-				}
-			}
-
-			result += missingItems;
-
-			return result;
-
-		} else if ("RequestTimeout".equalsIgnoreCase(errorName)) {
-
-			String result = "Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.";
-
-			return result;
-
-		} else if ("ApplicationMailAlreadyRemovedException".equalsIgnoreCase(errorName)) {
-
-			return "Application mail was already removed.";
-
-		} else if ("ApplicationMailNotExistsException".equalsIgnoreCase(errorName)) {
-
-			ApplicationMail mail = error.getApplicationMail();
-			if (mail != null)
-				return "Application mail with template "+ mail.getMailType() + " and id " + mail.getId() + " does not exist.";
-			return "Application mail does not exist.";
-
-		} else if ("ApplicationMailExistsException".equalsIgnoreCase(errorName)) {
-
-			ApplicationMail mail = error.getApplicationMail();
-			if (mail != null)
-				return "Application mail with template "+ mail.getMailType() + " and id " + mail.getId() + " already exists.";
-			return "Application mail already exists.";
-
-		}
-
-
-		//default text
-		return error.getErrorInfo();
-
-	}
+  }
 
 
 }

@@ -12,18 +12,18 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 @SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_eduPersonORCID extends UserVirtualAttributeCollectedFromUserExtSource {
 
-	@Override
-	public String getSourceAttributeFriendlyName() {
-		return "eduPersonOrcid";
-	}
+  @Override
+  public String getDestinationAttributeDescription() {
+    return "All ORCIDs of a user";
+  }
 
-	@Override
-	public String getDestinationAttributeFriendlyName() {
-		return "eduPersonORCID";
-	}
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "eduPersonORCID";
+  }
 
-	@Override
-	public String getDestinationAttributeDescription() {
-		return "All ORCIDs of a user";
-	}
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "eduPersonOrcid";
+  }
 }

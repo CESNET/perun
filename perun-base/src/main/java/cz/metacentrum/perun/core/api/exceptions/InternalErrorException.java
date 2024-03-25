@@ -11,37 +11,40 @@ import org.slf4j.LoggerFactory;
  * @author Martin Kuba
  */
 public class InternalErrorException extends PerunRuntimeException {
-	static final long serialVersionUID = 0;
-	private final static Logger log = LoggerFactory.getLogger(InternalErrorException.class);
+  static final long serialVersionUID = 0;
+  private static final Logger LOG = LoggerFactory.getLogger(InternalErrorException.class);
 
-	/**
-	 * Simple constructor with a message
-	 * @param message message with details about the cause
-	 */
-	public InternalErrorException(String message) {
-		super(message);
+  /**
+   * Simple constructor with a message
+   *
+   * @param message message with details about the cause
+   */
+  public InternalErrorException(String message) {
+    super(message);
 
-		log.error("Internal Error Exception:", this);
-	}
+    LOG.error("Internal Error Exception:", this);
+  }
 
-	/**
-	 * Constructor with a message and Throwable object
-	 * @param message message with details about the cause
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public InternalErrorException(String message, Throwable cause) {
-		super(message, cause);
+  /**
+   * Constructor with a message and Throwable object
+   *
+   * @param message message with details about the cause
+   * @param cause   Throwable that caused throwing of this exception
+   */
+  public InternalErrorException(String message, Throwable cause) {
+    super(message, cause);
 
-		log.error("Internal Error Exception:", this);
-	}
+    LOG.error("Internal Error Exception:", this);
+  }
 
-	/**
-	 * Constructor with a Throwable object
-	 * @param cause Throwable that caused throwing of this exception
-	 */
-	public InternalErrorException(Throwable cause) {
-		super(cause);
+  /**
+   * Constructor with a Throwable object
+   *
+   * @param cause Throwable that caused throwing of this exception
+   */
+  public InternalErrorException(Throwable cause) {
+    super(cause);
 
-		log.error("Internal Error Exception:", this);
-	}
+    LOG.error("Internal Error Exception:", this);
+  }
 }

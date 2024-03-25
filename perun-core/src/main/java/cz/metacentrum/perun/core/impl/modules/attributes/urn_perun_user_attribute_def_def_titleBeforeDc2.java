@@ -16,37 +16,38 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_titleBeforeDc2 extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_titleBeforeDc2 extends UserAttributesModuleAbstract
+    implements UserAttributesModuleImplApi {
 
-	/**
-	 * When title before name from DC2 changes, update User.
-	 *
-	 * @param session
-	 * @param user
-	 * @param attribute
-	 * @throws InternalErrorException
-	 */
-	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
+  /**
+   * When title before name from DC2 changes, update User.
+   *
+   * @param session
+   * @param user
+   * @param attribute
+   * @throws InternalErrorException
+   */
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
 
-		user.setTitleBefore((String)attribute.getValue());
-		try {
-			session.getPerunBl().getUsersManagerBl().updateNameTitles(session, user);
-		} catch (UserNotExistsException e) {
-			throw new ConsistencyErrorException("User we set attributes for doesn't exists!", e);
-		}
+    user.setTitleBefore((String) attribute.getValue());
+    try {
+      session.getPerunBl().getUsersManagerBl().updateNameTitles(session, user);
+    } catch (UserNotExistsException e) {
+      throw new ConsistencyErrorException("User we set attributes for doesn't exists!", e);
+    }
 
-	}
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("titleBeforeDc2");
-		attr.setDisplayName("Title before (DC2)");
-		attr.setType(Integer.class.getName());
-		attr.setDescription("Title before name from DC2.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("titleBeforeDc2");
+    attr.setDisplayName("Title before (DC2)");
+    attr.setType(Integer.class.getName());
+    attr.setDescription("Title before name from DC2.");
+    return attr;
+  }
 
 }

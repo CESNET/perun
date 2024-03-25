@@ -12,58 +12,58 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
 /**
- *
  * Class for access def:bbmriid-persistent-shadow attribute. It generates value if you call it for the first time.
- *
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persistent extends UserVirtualAttributesModuleAbstract {
-    
-        public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:bbmriid-persistent-shadow";
+public class urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persistent
+    extends UserVirtualAttributesModuleAbstract {
 
-        @Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute bbmriidPersistent = new Attribute(attributeDefinition);
+  public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:bbmriid-persistent-shadow";
 
-		try {
-			Attribute bbmriidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:bbmriid-persistent");
+    attr.setDisplayName("BBMRI Computed ID");
+    attr.setType(String.class.getName());
+    attr.setDescription("BBMRI Computed ID used in proxy and BBMRI services. It is set automatically with first call.");
+    return attr;
+  }
 
-			if (bbmriidPersistentShadow.getValue() == null) {
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute bbmriidPersistent = new Attribute(attributeDefinition);
 
-				bbmriidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, bbmriidPersistentShadow);
+    try {
+      Attribute bbmriidPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-				if (bbmriidPersistentShadow.getValue() == null) {
-					throw new InternalErrorException("BBMRI ID couldn't be set automatically");
-				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, bbmriidPersistentShadow);
-			}
+      if (bbmriidPersistentShadow.getValue() == null) {
 
-			bbmriidPersistent.setValue(bbmriidPersistentShadow.getValue());
-			return bbmriidPersistent;
+        bbmriidPersistentShadow =
+            sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, bbmriidPersistentShadow);
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+        if (bbmriidPersistentShadow.getValue() == null) {
+          throw new InternalErrorException("BBMRI ID couldn't be set automatically");
+        }
+        sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, bbmriidPersistentShadow);
+      }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(SHADOW);
-	}
+      bbmriidPersistent.setValue(bbmriidPersistentShadow.getValue());
+      return bbmriidPersistent;
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("login-namespace:bbmriid-persistent");
-		attr.setDisplayName("BBMRI Computed ID");
-		attr.setType(String.class.getName());
-		attr.setDescription("BBMRI Computed ID used in proxy and BBMRI services. It is set automatically with first call.");
-		return attr;
-	}
+    } catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException |
+             AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(SHADOW);
+  }
 }

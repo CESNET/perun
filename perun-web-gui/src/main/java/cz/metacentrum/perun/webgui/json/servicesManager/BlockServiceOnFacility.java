@@ -17,133 +17,139 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 public class BlockServiceOnFacility {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "servicesManager/blockServiceOnFacility";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// ids
-	private int facilityId = 0;
-	private int serviceId = 0;
+  // URL to call
+  final String JSON_URL = "servicesManager/blockServiceOnFacility";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // ids
+  private int facilityId = 0;
+  private int serviceId = 0;
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param facilityId ID of Facility
-	 */
-	public BlockServiceOnFacility(int facilityId) {
-		this.facilityId = facilityId;
-	}
+  /**
+   * Creates a new request
+   *
+   * @param facilityId ID of Facility
+   */
+  public BlockServiceOnFacility(int facilityId) {
+    this.facilityId = facilityId;
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param facilityId ID of Facility
-	 * @param events Custom events
-	 */
-	public BlockServiceOnFacility(int facilityId, JsonCallbackEvents events) {
-		this.facilityId = facilityId;
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param facilityId ID of Facility
+   * @param events     Custom events
+   */
+  public BlockServiceOnFacility(int facilityId, JsonCallbackEvents events) {
+    this.facilityId = facilityId;
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testCreating()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testCreating() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(facilityId == 0){
-			errorMsg += "Wrong parameter Facility ID'.\n";
-			result = false;
-		}
+    if (facilityId == 0) {
+      errorMsg += "Wrong parameter Facility ID'.\n";
+      result = false;
+    }
 
-		if(serviceId == 0){
-			errorMsg += "Wrong parameter Service ID'.\n";
-			result = false;
-		}
+    if (serviceId == 0) {
+      errorMsg += "Wrong parameter Service ID'.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to ban selected service for specified facility
-	 *
-	 * @param serviceId
-	 * @param facilityId
-	 */
-	public void blockService(int serviceId, int facilityId){
-		this.facilityId = facilityId;
-		blockService(serviceId);
-	}
+  /**
+   * Attempts to ban selected service for specified facility
+   *
+   * @param serviceId
+   * @param facilityId
+   */
+  public void blockService(int serviceId, int facilityId) {
+    this.facilityId = facilityId;
+    blockService(serviceId);
+  }
 
-	/**
-	 * Attempts to ban selected service on facility
-	 *
-	 * @param serviceId
-	 */
-	public void blockService(final int serviceId){
+  /**
+   * Attempts to ban selected service on facility
+   *
+   * @param serviceId
+   */
+  public void blockService(final int serviceId) {
 
-		this.serviceId = serviceId;
+    this.serviceId = serviceId;
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Blocking service "+ serviceId +" failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Blocking service " + serviceId + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Service " + serviceId + " blocked on facility.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Service " + serviceId + " blocked on facility.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
+      ;
+    };
 
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("facility", new JSONNumber(facilityId));
-		jsonQuery.put("service", new JSONNumber(serviceId));
-		return jsonQuery;
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}
+  }
 
-	/**
-	 * Sets external events after callback creation
-	 *
-	 * @param events
-	 */
-	public void setEvents(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  ;
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("facility", new JSONNumber(facilityId));
+    jsonQuery.put("service", new JSONNumber(serviceId));
+    return jsonQuery;
+
+  }
+
+  /**
+   * Sets external events after callback creation
+   *
+   * @param events
+   */
+  public void setEvents(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
 }

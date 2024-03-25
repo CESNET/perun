@@ -7,56 +7,57 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class InvitationSentEvent extends AuditEvent {
 
-	private User sender;
-	private String email;
-	private String language;
-	private String message;
-	private Vo vo;
-	private Group group;
+  private User sender;
+  private String email;
+  private String language;
+  private String message;
+  private Vo vo;
+  private Group group;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public InvitationSentEvent() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public InvitationSentEvent() {
+  }
 
-	public InvitationSentEvent(User user, String mail, String language, Group group, Vo vo) {
-		this.sender = user;
-		this.email = mail;
-		this.language = language;
-		this.group = group;
-		this.vo = vo;
+  public InvitationSentEvent(User user, String mail, String language, Group group, Vo vo) {
+    this.sender = user;
+    this.email = mail;
+    this.language = language;
+    this.group = group;
+    this.vo = vo;
 
-		this.message = formatMessage("Invitation to %s, sent by %s, to email: %s, in language: %s.",
-			(group != null) ? group : vo, sender, email, language);
+    this.message =
+        formatMessage("Invitation to %s, sent by %s, to email: %s, in language: %s.", (group != null) ? group : vo,
+            sender, email, language);
 
-	}
+  }
 
-	public User getSender() {
-		return sender;
-	}
+  public String getEmail() {
+    return email;
+  }
 
-	public String getEmail() {
-		return email;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public String getLanguage() {
-		return language;
-	}
+  public String getLanguage() {
+    return language;
+  }
 
-	public Vo getVo() {
-		return vo;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public User getSender() {
+    return sender;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Vo getVo() {
+    return vo;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

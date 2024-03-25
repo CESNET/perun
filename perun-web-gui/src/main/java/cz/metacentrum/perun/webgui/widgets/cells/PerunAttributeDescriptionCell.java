@@ -13,60 +13,56 @@ import cz.metacentrum.perun.webgui.model.Attribute;
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class PerunAttributeDescriptionCell extends AbstractSafeHtmlCell<cz.metacentrum.perun.webgui.model.Attribute>
-{
+public class PerunAttributeDescriptionCell extends AbstractSafeHtmlCell<cz.metacentrum.perun.webgui.model.Attribute> {
 
-	/**
-	 * Creates a new PerunAttributeValueCell with default renderer
-	 */
-	public PerunAttributeDescriptionCell()
-	{
-		// custom renderer, creates a link from the object
-		this(new SafeHtmlRenderer<Attribute>() {
+  /**
+   * Creates a new PerunAttributeValueCell with default renderer
+   */
+  public PerunAttributeDescriptionCell() {
+    // custom renderer, creates a link from the object
+    this(new SafeHtmlRenderer<Attribute>() {
 
-			public SafeHtml render(Attribute object) {
-				if (object != null) {
-					SafeHtmlBuilder sb = new SafeHtmlBuilder();
-					render(object, sb);
-					return sb.toSafeHtml();
-				}
+      public SafeHtml render(Attribute object) {
+        if (object != null) {
+          SafeHtmlBuilder sb = new SafeHtmlBuilder();
+          render(object, sb);
+          return sb.toSafeHtml();
+        }
 
-				return SafeHtmlUtils.EMPTY_SAFE_HTML;
-			}
+        return SafeHtmlUtils.EMPTY_SAFE_HTML;
+      }
 
-			public void render(Attribute object, SafeHtmlBuilder sb) {
-				if (object != null) {
-					generateCode(sb, object);
-				}
-			}
-		});
-	}
+      public void render(Attribute object, SafeHtmlBuilder sb) {
+        if (object != null) {
+          generateCode(sb, object);
+        }
+      }
+    });
+  }
 
 
+  /**
+   * Construct a new HyperlinkCell that will use a given
+   * {@link SafeHtmlRenderer}.
+   *
+   * @param renderer a {@link SafeHtmlRenderer SafeHtmlRenderer<String>} instance
+   */
+  public PerunAttributeDescriptionCell(SafeHtmlRenderer<Attribute> renderer) {
+    super(renderer);
+  }
 
-	protected static void generateCode(SafeHtmlBuilder sb, Attribute attr) {
-		sb.appendHtmlConstant(attr.getDescription());
-	}
+  protected static void generateCode(SafeHtmlBuilder sb, Attribute attr) {
+    sb.appendHtmlConstant(attr.getDescription());
+  }
 
-	/**
-	 * Construct a new HyperlinkCell that will use a given
-	 * {@link SafeHtmlRenderer}.
-	 *
-	 * @param renderer a {@link SafeHtmlRenderer SafeHtmlRenderer<String>} instance
-	 */
-	public PerunAttributeDescriptionCell(SafeHtmlRenderer<Attribute> renderer) {
-		super(renderer);
-	}
-
-
-	/**
-	 * Renders the object
-	 */
-	@Override
-	protected void render(com.google.gwt.cell.client.Cell.Context context,
-			SafeHtml value, SafeHtmlBuilder sb) {
-		if (value != null) {
-			sb.append(value);
-		}
-	}
+  /**
+   * Renders the object
+   */
+  @Override
+  protected void render(com.google.gwt.cell.client.Cell.Context context,
+                        SafeHtml value, SafeHtmlBuilder sb) {
+    if (value != null) {
+      sb.append(value);
+    }
+  }
 }

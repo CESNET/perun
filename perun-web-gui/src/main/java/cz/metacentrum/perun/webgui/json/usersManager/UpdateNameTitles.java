@@ -16,78 +16,84 @@ import cz.metacentrum.perun.webgui.model.User;
  */
 public class UpdateNameTitles {
 
-	// Session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // Json URL
+  static private final String JSON_URL = "usersManager/updateNameTitles";
+  // Session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // External events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// External events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * New instance of CreateGroup
+   */
+  public UpdateNameTitles() {
+  }
 
-	// Json URL
-	static private final String JSON_URL = "usersManager/updateNameTitles";
+  /**
+   * New instance of CreateGroup
+   *
+   * @param events
+   */
+  public UpdateNameTitles(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * New instance of CreateGroup
-	 */
-	public UpdateNameTitles() {}
+  /**
+   * Updates user details
+   *
+   * @param user User with updated details
+   */
+  public void updateUserTitles(User user) {
 
-	/**
-	 * New instance of CreateGroup
-	 *
-	 * @param events
-	 */
-	public UpdateNameTitles(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    if (user == null) {
+      UiElements.generateAlert("Parameter error", "User to update can't be null");
+      return;
+    }
 
-	/**
-	 * Updates user details
-	 * @param user User with updated details
-	 */
-	public void updateUserTitles(User user) {
+    // OBJECT
+    JSONObject oldUser = new JSONObject(user);
+    // RECONSTRUCT OBJECT
+    JSONObject newUser = new JSONObject();
+    newUser.put("id", oldUser.get("id"));
+    newUser.put("firstName", oldUser.get("firstName"));
+    newUser.put("middleName", oldUser.get("middleName"));
+    newUser.put("lastName", oldUser.get("lastName"));
+    newUser.put("titleBefore", oldUser.get("titleBefore"));
+    newUser.put("titleAfter", oldUser.get("titleAfter"));
+    newUser.put("serviceUser", oldUser.get("serviceUser"));
 
-		if (user == null) {
-			UiElements.generateAlert("Parameter error", "User to update can't be null");
-			return;
-		}
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("user", newUser);
 
-		// OBJECT
-		JSONObject oldUser = new JSONObject(user);
-		// RECONSTRUCT OBJECT
-		JSONObject newUser = new JSONObject();
-		newUser.put("id", oldUser.get("id"));
-		newUser.put("firstName", oldUser.get("firstName"));
-		newUser.put("middleName", oldUser.get("middleName"));
-		newUser.put("lastName", oldUser.get("lastName"));
-		newUser.put("titleBefore", oldUser.get("titleBefore"));
-		newUser.put("titleAfter", oldUser.get("titleAfter"));
-		newUser.put("serviceUser", oldUser.get("serviceUser"));
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Updating user failed.");
+        events.onError(error);
+      }
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("user", newUser);
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Updating user failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        User u = jso.cast();
+        session.getUiElements().setLogSuccessText("User " + u.getFullNameWithTitles() + " successfully updated!");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				User u = jso.cast();
-				session.getUiElements().setLogSuccessText("User "+ u.getFullNameWithTitles() +" successfully updated!");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, jsonQuery);
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, jsonQuery);
+
+  }
 
 }

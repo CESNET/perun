@@ -9,14 +9,14 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  */
 public class InvalidTokenException extends PerunException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public InvalidTokenException(String message) {
-		super(message);
-	}
+  public InvalidTokenException(String message) {
+    super(message);
+  }
 
-	public InvalidTokenException(String message, Throwable ex) {
-		super(message, ex);
-	}
+  public InvalidTokenException(String message, Throwable ex) {
+    super(message, ex);
+  }
 
 }

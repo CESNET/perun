@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_SYNC_DEFAULT_DATA;
+
 import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceAddedToGroup;
 import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceAddedToVo;
 import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceCreated;
@@ -28,17 +30,12 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.ExtSourceLdap;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,419 +44,457 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_SYNC_DEFAULT_DATA;
+import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
-	final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerBlImpl.class);
-	// \\p{L} means any unicode char
-	private static final Pattern namePattern = Pattern.compile("^[\\p{L} ,.0-9_'-]+$");
+  static final Logger LOG = LoggerFactory.getLogger(ExtSourcesManagerBlImpl.class);
+  // \\p{L} means any unicode char
+  private static final Pattern NAME_PATTERN = Pattern.compile("^[\\p{L} ,.0-9_'-]+$");
 
-	private final ExtSourcesManagerImplApi extSourcesManagerImpl;
-	private PerunBl perunBl;
-	private final AtomicBoolean initialized = new AtomicBoolean(false);
+  private final ExtSourcesManagerImplApi extSourcesManagerImpl;
+  private final AtomicBoolean initialized = new AtomicBoolean(false);
+  private PerunBl perunBl;
+  private Map<Integer, ExtSource> extSourcesByIdMap = new HashMap<>();
+  private Map<String, ExtSource> extSourcesByNameMap = new HashMap<>();
 
+  public ExtSourcesManagerBlImpl(ExtSourcesManagerImplApi extSourcesManagerImpl) {
+    this.extSourcesManagerImpl = extSourcesManagerImpl;
+  }
 
-	public ExtSourcesManagerBlImpl(ExtSourcesManagerImplApi extSourcesManagerImpl) {
-		this.extSourcesManagerImpl = extSourcesManagerImpl;
-	}
+  @Override
+  public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws ExtSourceAlreadyAssignedException {
+    getExtSourcesManagerImpl().addExtSource(sess, vo, source);
+    getPerunBl().getAuditer().log(sess, new ExtSourceAddedToVo(source, vo));
+  }
 
-	@Override
-	public void initialize(PerunSession sess) {
-		if (!this.initialized.compareAndSet(false, true)) return;
-		this.extSourcesManagerImpl.initialize(sess, perunBl);
-		cacheExtSourcesInMemory(sess);
-	}
+  @Override
+  public void addExtSource(PerunSession sess, Group group, ExtSource source) throws ExtSourceAlreadyAssignedException {
+    getExtSourcesManagerImpl().addExtSource(sess, group, source);
+    getPerunBl().getAuditer().log(sess, new ExtSourceAddedToGroup(source, group));
+  }
 
-	private Map<Integer,ExtSource> extSourcesByIdMap = new HashMap<>();
-	private Map<String,ExtSource> extSourcesByNameMap = new HashMap<>();
+  @Override
+  public void addExtSources(PerunSession perunSession, Vo vo, List<ExtSource> sources)
+      throws ExtSourceAlreadyAssignedException {
+    for (ExtSource src : sources) {
+      addExtSource(perunSession, vo, src);
+    }
+  }
 
-	private void cacheExtSourcesInMemory(PerunSession sess) {
-		Map<Integer,ExtSource> extSourcesByIdMap = new HashMap<>();
-		Map<String,ExtSource> extSourcesByNameMap = new HashMap<>();
-		// read all ExtSources from database
-		List<ExtSource> extSources = getExtSourcesManagerImpl().getExtSources(sess);
-		// cache them in hashmaps
-		for(ExtSource extSource : extSources) {
-			extSourcesByIdMap.put(extSource.getId(), extSource);
-			extSourcesByNameMap.put(extSource.getName(), extSource);
-		}
-		this.extSourcesByIdMap = extSourcesByIdMap;
-		this.extSourcesByNameMap = extSourcesByNameMap;
-	}
+  @Override
+  public void addExtSources(PerunSession perunSession, Group group, List<ExtSource> sources)
+      throws ExtSourceAlreadyAssignedException {
+    for (ExtSource src : sources) {
+      addExtSource(perunSession, group, src);
+    }
+  }
 
-	@Override
-	public void destroy() {
-		this.extSourcesManagerImpl.destroy();
-	}
+  private void cacheExtSourcesInMemory(PerunSession sess) {
+    Map<Integer, ExtSource> extSourcesByIdMap = new HashMap<>();
+    Map<String, ExtSource> extSourcesByNameMap = new HashMap<>();
+    // read all ExtSources from database
+    List<ExtSource> extSources = getExtSourcesManagerImpl().getExtSources(sess);
+    // cache them in hashmaps
+    for (ExtSource extSource : extSources) {
+      extSourcesByIdMap.put(extSource.getId(), extSource);
+      extSourcesByNameMap.put(extSource.getName(), extSource);
+    }
+    this.extSourcesByIdMap = extSourcesByIdMap;
+    this.extSourcesByNameMap = extSourcesByNameMap;
+  }
 
-	@Override
-	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws ExtSourceExistsException {
-		getPerunBl().getAuditer().log(sess, new ExtSourceCreated(extSource));
-		ExtSource extSourceImpl = getExtSourcesManagerImpl().createExtSource(sess, extSource, attributes);
-		extSourcesByIdMap.put(extSourceImpl.getId(), extSource);
-		extSourcesByNameMap.put(extSourceImpl.getName(), extSource);
-		return extSourceImpl;
-	}
+  @Override
+  public void checkExtSourceAssignedToVo(PerunSession sess, ExtSource extSource, int voId)
+      throws ExtSourceNotAssignedException, VoNotExistsException {
+    Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, voId);
+    if (!getExtSourcesManagerImpl().getVoExtSourcesIds(sess, vo).contains(extSource.getId())) {
+      throw new ExtSourceNotAssignedException("ExtSource " + extSource + " is not assigned to vo " + vo);
+    }
+  }
 
-	@Override
-	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws ExtSourceAlreadyRemovedException {
-		getExtSourcesManagerImpl().deleteExtSource(sess, extSource);
-		cacheExtSourcesInMemory(sess);
-		getPerunBl().getAuditer().log(sess, new ExtSourceDeleted(extSource));
-	}
+  @Override
+  public void checkExtSourceExists(PerunSession sess, ExtSource extSource)
+      throws InternalErrorException, ExtSourceNotExistsException {
+    getExtSourceById(sess, extSource.getId());
+  }
 
-	@Override
-	public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException {
-		ExtSource extSource = extSourcesByIdMap.get(id);
-		if (extSource instanceof ExtSourceLdap) {
-			// FIXME - retrieve new instance for LDAP ExtSources !!
-			return getExtSourcesManagerImpl().getExtSourceById(sess, id);
-		}
-		if (extSource == null) throw new ExtSourceNotExistsException("ExtSource with ID=" + id + " not exists");
-		return extSource;
-	}
+  @Override
+  public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) {
+    // Check if the extSource exists
+    try {
+      return getExtSourceByName(sess, extSourceName);
+    } catch (ExtSourceNotExistsException e) {
+      // extSource doesn't exist, so create new one
+      ExtSource extSource = new ExtSource(extSourceName, extSourceType);
+      try {
+        return this.createExtSource(sess, extSource, null);
+      } catch (ExtSourceExistsException e1) {
+        throw new ConsistencyErrorException("Creating existing extSource", e1);
+      }
+    }
+  }
 
-	@Override
-	public ExtSource getExtSourceByName(PerunSession sess, String name) throws InternalErrorException, ExtSourceNotExistsException {
-		ExtSource extSource = extSourcesByNameMap.get(name);
-		if (extSource instanceof ExtSourceLdap) {
-			// FIXME - retrieve new instance for LDAP ExtSources !!
-			return getExtSourcesManagerImpl().getExtSourceByName(sess, name);
-		}
-		if (extSource == null) throw new ExtSourceNotExistsException("ExtSource with name =" + name + " not exists");
-		return extSource;
-	}
+  @Override
+  public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes)
+      throws ExtSourceExistsException {
+    getPerunBl().getAuditer().log(sess, new ExtSourceCreated(extSource));
+    ExtSource extSourceImpl = getExtSourcesManagerImpl().createExtSource(sess, extSource, attributes);
+    extSourcesByIdMap.put(extSourceImpl.getId(), extSource);
+    extSourcesByNameMap.put(extSourceImpl.getName(), extSource);
+    return extSourceImpl;
+  }
 
-	@Override
-	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
-		List<Integer> ids = getExtSourcesManagerImpl().getVoExtSourcesIds(sess, vo);
-		return ids.stream().map(id -> { ExtSource extSource = extSourcesByIdMap.get(id);
-			if (extSource instanceof ExtSourceLdap) {
-				// FIXME - retrieve new instance for LDAP ExtSources !!
-				try {
-					return getExtSourcesManagerImpl().getExtSourceById(sess, id);
-				} catch (ExtSourceNotExistsException e) {
-					log.error("VO ExtSource by its ID doesn't exists!");
-					throw new ConsistencyErrorException("VO ExtSource by its ID doesn't exists!", e);
-				}
-			}
-			return extSource;
-		}).collect(Collectors.toList());
-	}
+  @Override
+  public void deleteExtSource(PerunSession sess, ExtSource extSource) throws ExtSourceAlreadyRemovedException {
+    getExtSourcesManagerImpl().deleteExtSource(sess, extSource);
+    cacheExtSourcesInMemory(sess);
+    getPerunBl().getAuditer().log(sess, new ExtSourceDeleted(extSource));
+  }
 
-	@Override
-	public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws InternalErrorException {
-		List<Integer> ids = getExtSourcesManagerImpl().getGroupExtSourcesIds(sess, group);
-		return ids.stream().map(id -> { ExtSource extSource = extSourcesByIdMap.get(id);
-			if (extSource instanceof ExtSourceLdap) {
-				// FIXME - retrieve new instance for LDAP ExtSources !!
-				try {
-					return getExtSourcesManagerImpl().getExtSourceById(sess, id);
-				} catch (ExtSourceNotExistsException e) {
-					log.error("Group ExtSource by its ID doesn't exists!");
-					throw new ConsistencyErrorException("VO ExtSource by its ID doesn't exists!", e);
-				}
-			}
-			return extSource;
-		}).collect(Collectors.toList());
-	}
+  @Override
+  public void destroy() {
+    this.extSourcesManagerImpl.destroy();
+  }
 
-	@Override
-	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
-		// FIXME - no need to retrieve new instance for LDAP ExtSources since its used only by outer API and tests.
-		return new ArrayList<>(extSourcesByIdMap.values());
-	}
+  @Override
+  public CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String, String> groupSubjectData,
+                                               ExtSource source, String loginPrefix) {
+    if (groupSubjectData == null) {
+      throw new InternalErrorException("Group subject data cannot be null.");
+    }
+    if (groupSubjectData.isEmpty()) {
+      throw new InternalErrorException("Group subject data cannot be empty, at least group name has to exists.");
+    }
+    if (source == null) {
+      throw new InternalErrorException("ExtSource cannot be null while generating CandidateGroup");
+    }
 
-	@Override
-	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws ExtSourceAlreadyAssignedException {
-		getExtSourcesManagerImpl().addExtSource(sess, vo, source);
-		getPerunBl().getAuditer().log(sess, new ExtSourceAddedToVo(source, vo));
-	}
+    CandidateGroup candidateGroup = new CandidateGroup();
 
-	@Override
-	public void addExtSources(PerunSession perunSession, Vo vo, List<ExtSource> sources) throws ExtSourceAlreadyAssignedException {
-		for (ExtSource src: sources) {
-			addExtSource(perunSession, vo, src);
-		}
-	}
+    candidateGroup.setExtSource(source);
+    candidateGroup.asGroup().setName(groupSubjectData.get(GroupsManagerBlImpl.GROUP_NAME));
+    candidateGroup.setLogin(loginPrefix + groupSubjectData.get(GroupsManagerBlImpl.GROUP_LOGIN));
 
+    if (candidateGroup.getLogin() == null || candidateGroup.getLogin().isEmpty()) {
+      throw new InternalErrorException("Group subject data has to contain valid group login!");
+    }
 
-	@Override
-	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws ExtSourceAlreadyAssignedException {
-		getExtSourcesManagerImpl().addExtSource(sess, group, source);
-		getPerunBl().getAuditer().log(sess, new ExtSourceAddedToGroup(source, group));
-	}
+    // Check if the group name is not null and if it is in valid format.
+    if (candidateGroup.asGroup().getName() != null) {
+      try {
+        Utils.validateGroupName(candidateGroup.asGroup().getName());
+      } catch (IllegalArgumentException e) {
+        throw new InternalErrorException("Group subject data has to contain valid group name!", e);
+      }
+    } else {
+      throw new InternalErrorException("group name cannot be null in Group subject data!");
+    }
 
-	@Override
-	public void addExtSources(PerunSession perunSession, Group group, List<ExtSource> sources) throws ExtSourceAlreadyAssignedException {
-		for (ExtSource src: sources) {
-			addExtSource(perunSession, group, src);
-		}
-	}
+    if (groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN) != null) {
+      candidateGroup.setParentGroupLogin(loginPrefix + groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN));
+    }
+    candidateGroup.asGroup().setDescription(groupSubjectData.get(GroupsManagerBlImpl.GROUP_DESCRIPTION));
 
-	@Override
-	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) {
-		// Check if the extSource exists
-		try {
-			return getExtSourceByName(sess, extSourceName);
-		} catch (ExtSourceNotExistsException e) {
-			// extSource doesn't exist, so create new one
-			ExtSource extSource = new ExtSource(extSourceName, extSourceType);
-			try {
-				return this.createExtSource(sess, extSource, null);
-			} catch (ExtSourceExistsException e1) {
-				throw new ConsistencyErrorException("Creating existing extSource", e1);
-			}
-		}
-	}
+    groupSubjectData.entrySet().stream().filter(entry -> !GROUP_SYNC_DEFAULT_DATA.contains(entry.getKey()))
+        .forEach(entry -> candidateGroup.addAdditionalAttribute(entry.getKey(), entry.getValue()));
 
-	@Override
-	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
-		List<Group> groupsWithAssignedExtSource = getPerunBl().getGroupsManagerBl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
-		for(Group group: groupsWithAssignedExtSource) {
-			getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
-		}
-		getExtSourcesManagerImpl().removeExtSource(sess, vo, source);
-		getPerunBl().getAuditer().log(sess,new ExtSourceRemovedFromVo(source, vo));
-	}
+    return candidateGroup;
+  }
 
-	@Override
-	public void removeExtSources(PerunSession sess, Vo vo, List<ExtSource> sources) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
-		for (ExtSource src : sources) {
-			removeExtSource(sess, vo, src);
-		}
-	}
+  @Override
+  public List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String, String>> subjectsData,
+                                                      ExtSource source, String loginPrefix) {
+    List<CandidateGroup> candidateGroups = new ArrayList<>();
 
-	@Override
-	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
-		getExtSourcesManagerImpl().removeExtSource(sess, group, source);
-		getPerunBl().getAuditer().log(sess,new ExtSourceRemovedFromGroup(source, group));
-	}
+    for (Map<String, String> subjectData : subjectsData) {
+      candidateGroups.add(generateCandidateGroup(perunSession, subjectData, source, loginPrefix));
+    }
 
-	@Override
-	public void removeExtSources(PerunSession sess, Group group, List<ExtSource> sources) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
-		for (ExtSource src : sources) {
-			removeExtSource(sess, group, src);
-		}
-	}
+    return candidateGroups;
+  }
 
-	@Override
-	public List<User> getInvalidUsers(PerunSession sess, ExtSource source) {
-		List<Integer> usersIds;
-		List<User> invalidUsers = new ArrayList<>();
+  @Override
+  public Map<String, String> getAttributes(ExtSource extSource) {
+    return getExtSourcesManagerImpl().getAttributes(extSource);
+  }
 
-		// Get all users, who are associated with this extSource
-		usersIds = getExtSourcesManagerImpl().getAssociatedUsersIdsWithExtSource(sess, source);
-		List<User> users = getPerunBl().getUsersManagerBl().getUsersByIds(sess, usersIds);
+  @Override
+  public CandidateSync getCandidate(PerunSession sess, ExtSource source, String login)
+      throws CandidateNotExistsException, ExtSourceUnsupportedOperationException {
+    // Get the subject from the extSource
+    Map<String, String> subject;
+    try {
+      subject = ((ExtSourceSimpleApi) source).getSubjectByLogin(login);
+    } catch (SubjectNotExistsException e) {
+      throw new CandidateNotExistsException("Searched candidate with login [" + login + "] does not exist");
+    }
 
-		for (User user: users) {
-			// From user's userExtSources get the login
-			String userLogin = "";
+    if (subject == null) {
+      throw new CandidateNotExistsException("Candidate with login [" + login + "] not exists");
+    }
 
-			List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
-			for (UserExtSource userExtSource: userExtSources) {
-				if (userExtSource.getExtSource().equals(source)) {
-					// It is enough to have at least one login from the extSource
-					// TODO jak budeme kontrolovat, ze mu zmizel jeden login a zustal jiny, zajima nas to?
-					userLogin = userExtSource.getLogin();
-				}
-			}
+    return this.getCandidate(sess, subject, source, login);
+  }
 
-			// Check if the login is still present in the extSource
-			try {
-				((ExtSourceSimpleApi) source).getSubjectByLogin(userLogin);
-			} catch (SubjectNotExistsException e) {
-				invalidUsers.add(user);
-			} catch (ExtSourceUnsupportedOperationException e) {
-				log.warn("ExtSource {} doesn't support getSubjectByLogin", source.getName());
-			} finally {
-				if (source instanceof ExtSourceSimpleApi) {
-					try {
-						((ExtSourceSimpleApi) source).close();
-					} catch (ExtSourceUnsupportedOperationException e) {
-						// silently skip
-					} catch (Exception e) {
-						log.error("Failed to close connection to extsource", e);
-					}
-				}
-			}
-		}
+  @Override
+  public CandidateSync getCandidate(PerunSession perunSession, Map<String, String> subjectData, ExtSource source,
+                                    String login) {
+    if (login == null || login.isEmpty()) {
+      throw new InternalErrorException("Login can't be empty or null.");
+    }
+    if (subjectData == null || subjectData.isEmpty()) {
+      throw new InternalErrorException("Subject data can't be null or empty, at least login there must exists.");
+    }
 
-		return invalidUsers;
-	}
+    // New Canddate
+    CandidateSync candidateSync = new CandidateSync();
 
-	/**
-	 * Gets the extSourcesManagerImpl for this instance.
-	 *
-	 * @return extSourceManagerImpl
-	 */
-	public ExtSourcesManagerImplApi getExtSourcesManagerImpl() {
-		return this.extSourcesManagerImpl;
-	}
+    // Prepare userExtSource object
+    UserExtSource userExtSource = new UserExtSource();
+    userExtSource.setExtSource(source);
+    userExtSource.setLogin(login);
 
-	public PerunBl getPerunBl() {
-		return this.perunBl;
-	}
+    //If first name of candidate is not in format of name, set null instead
+    candidateSync.setFirstName(subjectData.get("firstName"));
+    if (candidateSync.getFirstName() != null) {
+      Matcher name = NAME_PATTERN.matcher(candidateSync.getFirstName());
+      if (!name.matches()) {
+        candidateSync.setFirstName(null);
+      }
+    }
+    //If last name of candidate is not in format of name, set null instead
+    candidateSync.setLastName(subjectData.get("lastName"));
+    if (candidateSync.getLastName() != null) {
+      Matcher name = NAME_PATTERN.matcher(candidateSync.getLastName());
+      if (!name.matches()) {
+        candidateSync.setLastName(null);
+      }
+    }
+    candidateSync.setMiddleName(subjectData.get("middleName"));
+    candidateSync.setTitleAfter(subjectData.get("titleAfter"));
+    candidateSync.setTitleBefore(subjectData.get("titleBefore"));
+    candidateSync.setExpectedSyncGroupStatus(subjectData.get("status"));
 
-	@Override
-	public void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException {
-		getExtSourceById(sess, extSource.getId());
-	}
+    // Set service user
+    if (subjectData.get("isServiceUser") == null) {
+      candidateSync.setServiceUser(false);
+    } else {
+      String isServiceUser = subjectData.get("isServiceUser");
+      candidateSync.setServiceUser(isServiceUser.equals("true"));
+    }
 
-	public void setPerunBl(PerunBl perunBl) {
-		this.perunBl = perunBl;
-	}
+    //Set sponsored user
+    if (subjectData.get("isSponsoredUser") == null) {
+      candidateSync.setSponsoredUser(false);
+    } else {
+      String isSponsoredUser = subjectData.get("isSponsoredUser");
+      candidateSync.setSponsoredUser(isSponsoredUser.equals("true"));
+    }
 
-	@Override
-	public CandidateSync getCandidate(PerunSession sess, ExtSource source, String login) throws CandidateNotExistsException, ExtSourceUnsupportedOperationException {
-		// Get the subject from the extSource
-		Map<String, String> subject;
-		try {
-			subject = ((ExtSourceSimpleApi) source).getSubjectByLogin(login);
-		} catch (SubjectNotExistsException e) {
-			throw new CandidateNotExistsException("Searched candidate with login [" + login + "] does not exist");
-		}
+    // Filter attributes
+    Map<String, String> attributes = new HashMap<>();
+    for (String attrName : subjectData.keySet()) {
+      // Allow only users and members attributes
+      // FIXME volat metody z attributesManagera nez kontrolovat na zacatek jmena
+      if (attrName.startsWith(AttributesManager.NS_MEMBER_ATTR) ||
+          attrName.startsWith(AttributesManager.NS_USER_ATTR)) {
+        attributes.put(attrName, subjectData.get(attrName));
+      }
+    }
 
-		if (subject == null) {
-			throw new CandidateNotExistsException("Candidate with login [" + login + "] not exists");
-		}
+    candidateSync.setRichUserExtSource(new RichUserExtSource(userExtSource, new ArrayList<>()));
+    candidateSync.setAdditionalRichUserExtSources(Utils.extractAdditionalUserExtSources(perunSession, subjectData));
+    candidateSync.setAttributes(attributes);
 
-		return this.getCandidate(sess, subject, source, login);
-	}
+    return candidateSync;
+  }
 
-	@Override
-	public CandidateSync getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) {
-		if(login == null || login.isEmpty()) throw new InternalErrorException("Login can't be empty or null.");
-		if(subjectData == null || subjectData.isEmpty()) throw new InternalErrorException("Subject data can't be null or empty, at least login there must exists.");
+  @Override
+  public DataSource getDataSource(String poolName) {
+    return getExtSourcesManagerImpl().getDataSource(poolName);
+  }
 
-		// New Canddate
-		CandidateSync candidateSync = new CandidateSync();
+  @Override
+  public ExtSource getExtSourceById(PerunSession sess, int id)
+      throws InternalErrorException, ExtSourceNotExistsException {
+    ExtSource extSource = extSourcesByIdMap.get(id);
+    if (extSource instanceof ExtSourceLdap) {
+      // FIXME - retrieve new instance for LDAP ExtSources !!
+      return getExtSourcesManagerImpl().getExtSourceById(sess, id);
+    }
+    if (extSource == null) {
+      throw new ExtSourceNotExistsException("ExtSource with ID=" + id + " not exists");
+    }
+    return extSource;
+  }
 
-		// Prepare userExtSource object
-		UserExtSource userExtSource = new UserExtSource();
-		userExtSource.setExtSource(source);
-		userExtSource.setLogin(login);
+  @Override
+  public ExtSource getExtSourceByName(PerunSession sess, String name)
+      throws InternalErrorException, ExtSourceNotExistsException {
+    ExtSource extSource = extSourcesByNameMap.get(name);
+    if (extSource instanceof ExtSourceLdap) {
+      // FIXME - retrieve new instance for LDAP ExtSources !!
+      return getExtSourcesManagerImpl().getExtSourceByName(sess, name);
+    }
+    if (extSource == null) {
+      throw new ExtSourceNotExistsException("ExtSource with name =" + name + " not exists");
+    }
+    return extSource;
+  }
 
-		//If first name of candidate is not in format of name, set null instead
-		candidateSync.setFirstName(subjectData.get("firstName"));
-		if(candidateSync.getFirstName() != null) {
-			Matcher name = namePattern.matcher(candidateSync.getFirstName());
-			if(!name.matches()) candidateSync.setFirstName(null);
-		}
-		//If last name of candidate is not in format of name, set null instead
-		candidateSync.setLastName(subjectData.get("lastName"));
-		if(candidateSync.getLastName()!= null) {
-			Matcher name = namePattern.matcher(candidateSync.getLastName());
-			if(!name.matches()) candidateSync.setLastName(null);
-		}
-		candidateSync.setMiddleName(subjectData.get("middleName"));
-		candidateSync.setTitleAfter(subjectData.get("titleAfter"));
-		candidateSync.setTitleBefore(subjectData.get("titleBefore"));
-		candidateSync.setExpectedSyncGroupStatus(subjectData.get("status"));
+  @Override
+  public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
+    // FIXME - no need to retrieve new instance for LDAP ExtSources since its used only by outer API and tests.
+    return new ArrayList<>(extSourcesByIdMap.values());
+  }
 
-		// Set service user
-		if(subjectData.get("isServiceUser") == null) {
-			candidateSync.setServiceUser(false);
-		} else {
-			String isServiceUser = subjectData.get("isServiceUser");
-			candidateSync.setServiceUser(isServiceUser.equals("true"));
-		}
+  /**
+   * Gets the extSourcesManagerImpl for this instance.
+   *
+   * @return extSourceManagerImpl
+   */
+  public ExtSourcesManagerImplApi getExtSourcesManagerImpl() {
+    return this.extSourcesManagerImpl;
+  }
 
-		//Set sponsored user
-		if(subjectData.get("isSponsoredUser") == null) {
-			candidateSync.setSponsoredUser(false);
-		} else {
-			String isSponsoredUser = subjectData.get("isSponsoredUser");
-			candidateSync.setSponsoredUser(isSponsoredUser.equals("true"));
-		}
+  @Override
+  public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws InternalErrorException {
+    List<Integer> ids = getExtSourcesManagerImpl().getGroupExtSourcesIds(sess, group);
+    return ids.stream().map(id -> {
+      ExtSource extSource = extSourcesByIdMap.get(id);
+      if (extSource instanceof ExtSourceLdap) {
+        // FIXME - retrieve new instance for LDAP ExtSources !!
+        try {
+          return getExtSourcesManagerImpl().getExtSourceById(sess, id);
+        } catch (ExtSourceNotExistsException e) {
+          LOG.error("Group ExtSource by its ID doesn't exists!");
+          throw new ConsistencyErrorException("VO ExtSource by its ID doesn't exists!", e);
+        }
+      }
+      return extSource;
+    }).collect(Collectors.toList());
+  }
 
-		// Filter attributes
-		Map<String, String> attributes = new HashMap<>();
-		for (String attrName: subjectData.keySet()) {
-			// Allow only users and members attributes
-			// FIXME volat metody z attributesManagera nez kontrolovat na zacatek jmena
-			if (attrName.startsWith(AttributesManager.NS_MEMBER_ATTR) || attrName.startsWith(AttributesManager.NS_USER_ATTR)) {
-				attributes.put(attrName, subjectData.get(attrName));
-			}
-		}
+  @Override
+  public List<User> getInvalidUsers(PerunSession sess, ExtSource source) {
+    List<Integer> usersIds;
+    List<User> invalidUsers = new ArrayList<>();
 
-		candidateSync.setRichUserExtSource(new RichUserExtSource(userExtSource, new ArrayList<>()));
-		candidateSync.setAdditionalRichUserExtSources(Utils.extractAdditionalUserExtSources(perunSession, subjectData));
-		candidateSync.setAttributes(attributes);
+    // Get all users, who are associated with this extSource
+    usersIds = getExtSourcesManagerImpl().getAssociatedUsersIdsWithExtSource(sess, source);
+    List<User> users = getPerunBl().getUsersManagerBl().getUsersByIds(sess, usersIds);
 
-		return candidateSync;
-	}
+    for (User user : users) {
+      // From user's userExtSources get the login
+      String userLogin = "";
 
-	@Override
-	public CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source, String loginPrefix) {
-		if(groupSubjectData == null) throw new InternalErrorException("Group subject data cannot be null.");
-		if(groupSubjectData.isEmpty()) throw new InternalErrorException("Group subject data cannot be empty, at least group name has to exists.");
-		if(source == null) throw new InternalErrorException("ExtSource cannot be null while generating CandidateGroup");
+      List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+      for (UserExtSource userExtSource : userExtSources) {
+        if (userExtSource.getExtSource().equals(source)) {
+          // It is enough to have at least one login from the extSource
+          // TODO jak budeme kontrolovat, ze mu zmizel jeden login a zustal jiny, zajima nas to?
+          userLogin = userExtSource.getLogin();
+        }
+      }
 
-		CandidateGroup candidateGroup = new CandidateGroup();
+      // Check if the login is still present in the extSource
+      try {
+        ((ExtSourceSimpleApi) source).getSubjectByLogin(userLogin);
+      } catch (SubjectNotExistsException e) {
+        invalidUsers.add(user);
+      } catch (ExtSourceUnsupportedOperationException e) {
+        LOG.warn("ExtSource {} doesn't support getSubjectByLogin", source.getName());
+      } finally {
+        if (source instanceof ExtSourceSimpleApi) {
+          try {
+            ((ExtSourceSimpleApi) source).close();
+          } catch (ExtSourceUnsupportedOperationException e) {
+            // silently skip
+          } catch (Exception e) {
+            LOG.error("Failed to close connection to extsource", e);
+          }
+        }
+      }
+    }
 
-		candidateGroup.setExtSource(source);
-		candidateGroup.asGroup().setName(groupSubjectData.get(GroupsManagerBlImpl.GROUP_NAME));
-		candidateGroup.setLogin(loginPrefix + groupSubjectData.get(GroupsManagerBlImpl.GROUP_LOGIN));
+    return invalidUsers;
+  }
 
-		if(candidateGroup.getLogin() == null || candidateGroup.getLogin().isEmpty()) {
-			throw new InternalErrorException("Group subject data has to contain valid group login!");
-		}
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
 
-		// Check if the group name is not null and if it is in valid format.
-		if(candidateGroup.asGroup().getName() != null) {
-			try {
-				Utils.validateGroupName(candidateGroup.asGroup().getName());
-			} catch (IllegalArgumentException e) {
-				throw new InternalErrorException("Group subject data has to contain valid group name!", e);
-			}
-		} else {
-			throw new InternalErrorException("group name cannot be null in Group subject data!");
-		}
+  @Override
+  public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
+    List<Integer> ids = getExtSourcesManagerImpl().getVoExtSourcesIds(sess, vo);
+    return ids.stream().map(id -> {
+      ExtSource extSource = extSourcesByIdMap.get(id);
+      if (extSource instanceof ExtSourceLdap) {
+        // FIXME - retrieve new instance for LDAP ExtSources !!
+        try {
+          return getExtSourcesManagerImpl().getExtSourceById(sess, id);
+        } catch (ExtSourceNotExistsException e) {
+          LOG.error("VO ExtSource by its ID doesn't exists!");
+          throw new ConsistencyErrorException("VO ExtSource by its ID doesn't exists!", e);
+        }
+      }
+      return extSource;
+    }).collect(Collectors.toList());
+  }
 
-		if(groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN) != null) {
-			candidateGroup.setParentGroupLogin(loginPrefix + groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN));
-		}
-		candidateGroup.asGroup().setDescription(groupSubjectData.get(GroupsManagerBlImpl.GROUP_DESCRIPTION));
+  @Override
+  public void initialize(PerunSession sess) {
+    if (!this.initialized.compareAndSet(false, true)) {
+      return;
+    }
+    this.extSourcesManagerImpl.initialize(sess, perunBl);
+    cacheExtSourcesInMemory(sess);
+  }
 
-		groupSubjectData.entrySet().stream()
-			.filter(entry -> !GROUP_SYNC_DEFAULT_DATA.contains(entry.getKey()))
-			.forEach(entry -> candidateGroup.addAdditionalAttribute(entry.getKey(), entry.getValue()));
+  @Override
+  public void loadExtSourcesDefinitions(PerunSession sess) {
+    getExtSourcesManagerImpl().loadExtSourcesDefinitions(sess);
+    cacheExtSourcesInMemory(sess);
+  }
 
-		return candidateGroup;
-	}
+  @Override
+  public void removeExtSource(PerunSession sess, Vo vo, ExtSource source)
+      throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+    List<Group> groupsWithAssignedExtSource =
+        getPerunBl().getGroupsManagerBl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
+    for (Group group : groupsWithAssignedExtSource) {
+      getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
+    }
+    getExtSourcesManagerImpl().removeExtSource(sess, vo, source);
+    getPerunBl().getAuditer().log(sess, new ExtSourceRemovedFromVo(source, vo));
+  }
 
-	@Override
-	public List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> subjectsData, ExtSource source, String loginPrefix) {
-		List<CandidateGroup> candidateGroups= new ArrayList<>();
+  @Override
+  public void removeExtSource(PerunSession sess, Group group, ExtSource source)
+      throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+    getExtSourcesManagerImpl().removeExtSource(sess, group, source);
+    getPerunBl().getAuditer().log(sess, new ExtSourceRemovedFromGroup(source, group));
+  }
 
-		for (Map<String, String> subjectData : subjectsData) {
-			candidateGroups.add(generateCandidateGroup(perunSession, subjectData, source, loginPrefix));
-		}
+  @Override
+  public void removeExtSources(PerunSession sess, Vo vo, List<ExtSource> sources)
+      throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+    for (ExtSource src : sources) {
+      removeExtSource(sess, vo, src);
+    }
+  }
 
-		return candidateGroups;
-	}
+  @Override
+  public void removeExtSources(PerunSession sess, Group group, List<ExtSource> sources)
+      throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+    for (ExtSource src : sources) {
+      removeExtSource(sess, group, src);
+    }
+  }
 
-	@Override
-	public DataSource getDataSource(String poolName) {
-		return getExtSourcesManagerImpl().getDataSource(poolName);
-	}
-
-	@Override
-	public void checkExtSourceAssignedToVo(PerunSession sess, ExtSource extSource, int voId) throws ExtSourceNotAssignedException, VoNotExistsException {
-		Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, voId);
-		if(!getExtSourcesManagerImpl().getVoExtSourcesIds(sess, vo).contains(extSource.getId())) throw new ExtSourceNotAssignedException("ExtSource " + extSource + " is not assigned to vo " + vo);
-	}
-
-	@Override
-	public void loadExtSourcesDefinitions(PerunSession sess) {
-		getExtSourcesManagerImpl().loadExtSourcesDefinitions(sess);
-		cacheExtSourcesInMemory(sess);
-	}
-
-	@Override
-	public Map<String, String> getAttributes(ExtSource extSource) {
-		return getExtSourcesManagerImpl().getAttributes(extSource);
-	}
+  public void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
+  }
 }

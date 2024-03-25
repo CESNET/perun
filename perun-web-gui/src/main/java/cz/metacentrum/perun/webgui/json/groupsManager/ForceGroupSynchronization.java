@@ -15,59 +15,66 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class ForceGroupSynchronization {
 
-	// Session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// External events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// Json URL
-	static private final String JSON_URL = "groupsManager/forceGroupSynchronization";
+  // Json URL
+  static private final String JSON_URL = "groupsManager/forceGroupSynchronization";
+  // Session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // External events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	/**
-	 * New instance of callback
-	 */
-	public ForceGroupSynchronization() {}
+  /**
+   * New instance of callback
+   */
+  public ForceGroupSynchronization() {
+  }
 
-	/**
-	 * New instance of callback with external events
-	 *
-	 * @param events external events
-	 */
-	public ForceGroupSynchronization(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * New instance of callback with external events
+   *
+   * @param events external events
+   */
+  public ForceGroupSynchronization(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Immediately queues group for synchronization.
-	 *
-	 * @param groupId ID of group to be synchronized
-	 */
-	public void synchronizeGroup(final int groupId) {
+  /**
+   * Immediately queues group for synchronization.
+   *
+   * @param groupId ID of group to be synchronized
+   */
+  public void synchronizeGroup(final int groupId) {
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("group", new JSONNumber(groupId));
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("group", new JSONNumber(groupId));
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Forcing synchronization of group "+ groupId +" failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Forcing synchronization of group " + groupId + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Group "+ groupId +" queued for synchronization!");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Group " + groupId + " queued for synchronization!");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, jsonQuery);
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
+
+      ;
+    };
+
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, jsonQuery);
+
+  }
 
 }

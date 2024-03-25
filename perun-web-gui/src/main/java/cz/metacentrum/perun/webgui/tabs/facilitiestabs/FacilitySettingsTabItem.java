@@ -53,305 +53,317 @@ import java.util.Map;
  */
 public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "settings";
+  final VerticalPanel vp = new VerticalPanel();
+  ScrollPanel sp = new ScrollPanel();
+  ScrollPanel sp2 = new ScrollPanel();
+  // if required table is displayed
+  boolean required = true;
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading facility");
+  // data
+  private Facility facility;
+  private int facilityId;
+  private boolean hide = false;
+  private int lastServiceId = 0;
+  private int indexInList = 1;
+  private boolean lastCheckBoxValue = true;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param facility facility to get services from
+   */
+  public FacilitySettingsTabItem(Facility facility) {
+    this.facility = facility;
+    this.facilityId = facility.getId();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading facility");
+  /**
+   * Creates a tab instance
+   *
+   * @param facilityId
+   */
+  public FacilitySettingsTabItem(int facilityId) {
+    this.facilityId = facilityId;
+    new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        facility = jso.cast();
+      }
+    }).retrieveData();
+  }
 
-	// data
-	private Facility facility;
-	private int facilityId;
-	private boolean hide = false;
+  static public FacilitySettingsTabItem load(Facility facility) {
+    return new FacilitySettingsTabItem(facility);
+  }
 
-	private int lastServiceId = 0;
-	private int indexInList = 1;
-	private boolean lastCheckBoxValue = true;
+  static public FacilitySettingsTabItem load(Map<String, String> parameters) {
+    int fid = Integer.parseInt(parameters.get("id"));
+    return new FacilitySettingsTabItem(fid);
+  }
 
-	final VerticalPanel vp = new VerticalPanel();
-	ScrollPanel sp = new ScrollPanel();
-	ScrollPanel sp2 = new ScrollPanel();
-	// if required table is displayed
-	boolean required = true;
+  public boolean isPrepared() {
+    return !(facility == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param facility facility to get services from
-	 */
-	public FacilitySettingsTabItem(Facility facility) {
-		this.facility = facility;
-		this.facilityId = facility.getId();
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param facilityId
-	 */
-	public FacilitySettingsTabItem(int facilityId) {
-		this.facilityId = facilityId;
-		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
-			public void onFinished(JavaScriptObject jso) {
-				facility = jso.cast();
-			}
-		}).retrieveData();
-	}
+  @Override
+  public void onClose() {
 
-	public boolean isPrepared() {
-		return !(facility == null);
-	}
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public void hideServicesSwitch(boolean hide) {
+    this.hide = hide;
+    lastCheckBoxValue = !hide;
+    indexInList = 0;
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    // set title
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Service settings");
 
-	public void hideServicesSwitch(boolean hide) {
-		this.hide = hide;
-		lastCheckBoxValue = !hide;
-		indexInList = 0;
-	}
+    // content
+    vp.setSize("100%", "100%");
+    vp.clear();
 
-	public Widget draw() {
+    // HORIZONTAL MENU
+    TabMenu menu = new TabMenu();
 
-		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Service settings");
+    // Get Attributes method
+    final GetRequiredAttributesV2 reqAttrs = new GetRequiredAttributesV2();
+    final GetAttributesV2 attrs = new GetAttributesV2();
+    attrs.getFacilityAttributes(facilityId);
 
-		// content
-		vp.setSize("100%", "100%");
-		vp.clear();
+    // get empty table
+    final CellTable<Attribute> table = reqAttrs.getEmptyTable();
+    final CellTable<Attribute> table2 = attrs.getEmptyTable();
+    sp.setWidget(table);
+    sp2.setWidget(table2);
 
-		// HORIZONTAL MENU
-		TabMenu menu = new TabMenu();
+    // ids to retrieve data from rpc
+    final Map<String, Integer> ids = new HashMap<String, Integer>();
+    ids.put("facility", facility.getId());
 
-		// Get Attributes method
-		final GetRequiredAttributesV2 reqAttrs = new GetRequiredAttributesV2();
-		final GetAttributesV2 attrs = new GetAttributesV2();
-		attrs.getFacilityAttributes(facilityId);
+    // service switcher checkbox
+    final CheckBox switchServicesChb = new CheckBox(WidgetTranslation.INSTANCE.offerAvailableServicesOnly(), false);
+    switchServicesChb.setValue(lastCheckBoxValue); // selected by default - unselected if switch hidden
+    switchServicesChb.setTitle(WidgetTranslation.INSTANCE.offerAvailableServicesOnlyTitle());
+    // services listbox
+    final ListBoxWithObjects<Service> servList = new ListBoxWithObjects<Service>();
 
-		// get empty table
-		final CellTable<Attribute> table = reqAttrs.getEmptyTable();
-		final CellTable<Attribute> table2 = attrs.getEmptyTable();
-		sp.setWidget(table);
-		sp2.setWidget(table2);
+    // on change of service update table
+    servList.addChangeHandler(new ChangeHandler() {
+      public void onChange(ChangeEvent event) {
+        if (servList.getSelectedIndex() == 0) {
+          // show all facility attributes
+          attrs.retrieveData();
+          setTable(false);
+          lastServiceId = 0;
+          indexInList = 0;
+          return;
+        }
+        if (switchServicesChb.getValue() == true && servList.getSelectedIndex() == 1) {
+          // show required attrs for all assigned services
+          ids.remove("service");
+          lastServiceId = 0;
+          indexInList = 1;
+        } else if ((switchServicesChb.getValue() == true && servList.getSelectedIndex() > 1)
+            || (switchServicesChb.getValue() == false && servList.getSelectedIndex() > 0)) {
+          // show required attrs for selected service
+          // >0 when listing all services
+          // >1 when listing assigned services
+          ids.put("service", servList.getSelectedObject().getId());
+          lastServiceId = servList.getSelectedObject().getId();
+        }
+        // load req attrs
+        reqAttrs.setIds(ids);
+        reqAttrs.clearTable();
+        reqAttrs.retrieveData();
+        setTable(true);
+      }
+    });
 
-		// ids to retrieve data from rpc
-		final Map<String, Integer> ids = new HashMap<String, Integer>();
-		ids.put("facility", facility.getId());
+    // event which fills the listbox and call getRequiredAttributes
+    final JsonCallbackEvents event = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        servList.clear();
+        ArrayList<Service> srv = JsonUtils.jsoAsList(jso);
+        srv = new TableSorter<Service>().sortByName(srv);
+        for (int i = 0; i < srv.size(); i++) {
+          servList.addItem(srv.get(i));
+        }
+        // no services available - load all facility attrs
+        if (servList.isEmpty()) {
+          servList.addNotSelectedOption();
+          lastServiceId = 0;
+          indexInList = 0;
+          attrs.retrieveData();
+          setTable(false);
+          return;
+        }
+        // offer only available
+        if (switchServicesChb.getValue() == true) {
+          servList.addNotSelectedOption();
+          servList.addAllOption();
+          if (lastServiceId == 0) {
+            if (indexInList == 1) {
+              // all
+              servList.setSelectedIndex(1);
+            } else if (indexInList == 0) {
+              // not selected - load all fac attrs
+              servList.setSelectedIndex(0);
+              attrs.retrieveData();
+              setTable(false);
+              return;
+            }
+          }
+        } else {
+          // offer all services
+          servList.addNotSelectedOption();
+          if (lastServiceId == 0) {
+            // if no service selected, load all fac attrs
+            servList.setSelectedIndex(0);
+            attrs.retrieveData();
+            setTable(false);
+            return;
+          }
+        }
 
-		// service switcher checkbox
-		final CheckBox switchServicesChb = new CheckBox(WidgetTranslation.INSTANCE.offerAvailableServicesOnly(), false);
-		switchServicesChb.setValue(lastCheckBoxValue); // selected by default - unselected if switch hidden
-		switchServicesChb.setTitle(WidgetTranslation.INSTANCE.offerAvailableServicesOnlyTitle());
-		// services listbox
-		final ListBoxWithObjects<Service> servList = new ListBoxWithObjects<Service>();
+        // if some service was selected
+        if (lastServiceId != 0) {
+          ids.remove("service"); // remove service since we can't be sure, it was loaded again
+          servList.setSelectedIndex(1); // either all or first service in a list
+          for (Service s : servList.getAllObjects()) {
+            if (s.getId() == lastServiceId) {
+              // if found, select it
+              servList.setSelected(s, true);
+              ids.put("service", lastServiceId);
+              break;
+            }
+          }
+        }
+        // get required attrs for service
+        reqAttrs.clearTable();
+        reqAttrs.setIds(ids);
+        reqAttrs.retrieveData();
+        setTable(true);
+      }
 
-		// on change of service update table
-		servList.addChangeHandler(new ChangeHandler() {
-			public void onChange(ChangeEvent event) {
-				if (servList.getSelectedIndex() == 0) {
-					// show all facility attributes
-					attrs.retrieveData();
-					setTable(false);
-					lastServiceId = 0;
-					indexInList = 0;
-					return;
-				}
-				if (switchServicesChb.getValue() == true && servList.getSelectedIndex() == 1) {
-					// show required attrs for all assigned services
-					ids.remove("service");
-					lastServiceId = 0;
-					indexInList = 1;
-				} else if ((switchServicesChb.getValue() == true && servList.getSelectedIndex() > 1)
-						|| (switchServicesChb.getValue() == false && servList.getSelectedIndex() > 0)) {
-					// show required attrs for selected service
-					// >0 when listing all services
-					// >1 when listing assigned services
-					ids.put("service", servList.getSelectedObject().getId());
-					lastServiceId = servList.getSelectedObject().getId();
-				}
-				// load req attrs
-				reqAttrs.setIds(ids);
-				reqAttrs.clearTable();
-				reqAttrs.retrieveData();
-				setTable(true);
-			}
-		});
+      @Override
+      public void onError(PerunError error) {
+        servList.clear();
+        if (required) {
+          ((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
+        } else {
+          ((AjaxLoaderImage) table2.getEmptyTableWidget()).loadingError(error);
+        }
+        servList.addItem("Error while loading");
+      }
 
-		// event which fills the listbox and call getRequiredAttributes
-		final JsonCallbackEvents event = new JsonCallbackEvents() {
-			public void onFinished(JavaScriptObject jso) {
-				servList.clear();
-				ArrayList<Service> srv = JsonUtils.jsoAsList(jso);
-				srv = new TableSorter<Service>().sortByName(srv);
-				for (int i = 0; i < srv.size(); i++) {
-					servList.addItem(srv.get(i));
-				}
-				// no services available - load all facility attrs
-				if (servList.isEmpty()) {
-					servList.addNotSelectedOption();
-					lastServiceId = 0;
-					indexInList = 0;
-					attrs.retrieveData();
-					setTable(false);
-					return;
-				}
-				// offer only available
-				if (switchServicesChb.getValue() == true) {
-					servList.addNotSelectedOption();
-					servList.addAllOption();
-					if (lastServiceId == 0) {
-						if (indexInList == 1) {
-							// all
-							servList.setSelectedIndex(1);
-						} else if (indexInList == 0) {
-							// not selected - load all fac attrs
-							servList.setSelectedIndex(0);
-							attrs.retrieveData();
-							setTable(false);
-							return;
-						}
-					}
-				} else {
-					// offer all services
-					servList.addNotSelectedOption();
-					if (lastServiceId == 0) {
-						// if no service selected, load all fac attrs
-						servList.setSelectedIndex(0);
-						attrs.retrieveData();
-						setTable(false);
-						return;
-					}
-				}
+      @Override
+      public void onLoadingStart() {
+        servList.removeAllOption();
+        servList.removeNotSelectedOption();
+        servList.clear();
+        servList.addItem("Loading...");
+      }
+    };
+    final GetServices allServices = new GetServices(event);
+    final GetFacilityAssignedServices assignedServices = new GetFacilityAssignedServices(facility.getId(), event);
 
-				// if some service was selected
-				if (lastServiceId != 0) {
-					ids.remove("service"); // remove service since we can't be sure, it was loaded again
-					servList.setSelectedIndex(1); // either all or first service in a list
-					for (Service s : servList.getAllObjects()) {
-						if (s.getId() == lastServiceId) {
-							// if found, select it
-							servList.setSelected(s, true);
-							ids.put("service", lastServiceId);
-							break;
-						}
-					}
-				}
-				// get required attrs for service
-				reqAttrs.clearTable();
-				reqAttrs.setIds(ids);
-				reqAttrs.retrieveData();
-				setTable(true);
-			}
+    // if hide and unchecked or just unchecked
+    if (!lastCheckBoxValue) {
+      allServices.retrieveData();
+    } else {
+      assignedServices.retrieveData();
+    }
 
-			@Override
-			public void onError(PerunError error) {
-				servList.clear();
-				if (required) {
-					((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
-				} else {
-					((AjaxLoaderImage) table2.getEmptyTableWidget()).loadingError(error);
-				}
-				servList.addItem("Error while loading");
-			}
+    // Save changes button
+    final CustomButton saveChangesButton =
+        TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+    final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(reqAttrs);
+    final JsonCallbackEvents refreshEvents2 = JsonCallbackEvents.refreshTableEvents(attrs);
+    final JsonCallbackEvents saveChangesButtonEvent =
+        JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents);
+    final JsonCallbackEvents saveChangesButtonEvent2 =
+        JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents2);
+    saveChangesButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        ArrayList<Attribute> list = (required) ? reqAttrs.getTableSelectedList() : attrs.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          SetAttributes request = new SetAttributes((required) ? saveChangesButtonEvent : saveChangesButtonEvent2);
+          request.setAttributes(ids, list);
+        }
+      }
+    });
 
-			@Override
-			public void onLoadingStart() {
-				servList.removeAllOption();
-				servList.removeNotSelectedOption();
-				servList.clear();
-				servList.addItem("Loading...");
-			}
-		};
-		final GetServices allServices = new GetServices(event);
-		final GetFacilityAssignedServices assignedServices = new GetFacilityAssignedServices(facility.getId(), event);
+    // Remove attr button
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
+    final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvents);
+    final JsonCallbackEvents removeButtonEvent2 = JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvents2);
+    removeButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        ArrayList<Attribute> list = (required) ? reqAttrs.getTableSelectedList() : attrs.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          Map<String, Integer> ids = new HashMap<String, Integer>();
+          ids.put("facility", facilityId);
+          RemoveAttributes request = new RemoveAttributes((required) ? removeButtonEvent : removeButtonEvent2);
+          request.removeAttributes(ids, list);
+        }
+      }
+    });
 
-		// if hide and unchecked or just unchecked
-		if (!lastCheckBoxValue) {
-			allServices.retrieveData();
-		} else {
-			assignedServices.retrieveData();
-		}
+    // switch serv checkbox
+    switchServicesChb.addClickHandler(new ClickHandler() {
+      // load proper set of services on click
+      public void onClick(ClickEvent event) {
+        lastCheckBoxValue = switchServicesChb.getValue();
+        if (switchServicesChb.getValue() == true) {
+          assignedServices.retrieveData();
+        } else {
+          allServices.retrieveData();
+        }
+      }
+    });
 
-		// Save changes button
-		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-		final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(reqAttrs);
-		final JsonCallbackEvents refreshEvents2 = JsonCallbackEvents.refreshTableEvents(attrs);
-		final JsonCallbackEvents saveChangesButtonEvent = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents);
-		final JsonCallbackEvents saveChangesButtonEvent2 = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents2);
-		saveChangesButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = (required) ? reqAttrs.getTableSelectedList() : attrs.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					SetAttributes request = new SetAttributes((required) ? saveChangesButtonEvent : saveChangesButtonEvent2);
-					request.setAttributes(ids, list);
-				}
-			}
-		});
+    // allow to set new (currently unused facility attribute)
+    CustomButton setNewAttributeButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(),
+            new ClickHandler() {
+              public void onClick(ClickEvent event) {
+                Map<String, Integer> ids = new HashMap<String, Integer>();
+                ids.put("facility", facility.getId());
+                session.getTabManager().addTabToCurrentTab(
+                    new SetNewAttributeTabItem(ids, (required) ? reqAttrs.getList() : attrs.getList()), true);
+              }
+            });
 
-		// Remove attr button
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
-		final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvents);
-		final JsonCallbackEvents removeButtonEvent2 = JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvents2);
-		removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = (required) ? reqAttrs.getTableSelectedList() : attrs.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					Map<String, Integer> ids = new HashMap<String, Integer>();
-					ids.put("facility", facilityId);
-					RemoveAttributes request = new RemoveAttributes((required) ? removeButtonEvent : removeButtonEvent2);
-					request.removeAttributes(ids, list);
-				}
-			}
-		});
+    menu.addWidget(UiElements.getRefreshButton(this));
+    menu.addWidget(saveChangesButton);
+    menu.addWidget(setNewAttributeButton);
+    menu.addWidget(removeButton);
+    menu.addWidget(new HTML("<strong>Service: </strong>"));
+    menu.addWidget(servList);
 
-		// switch serv checkbox
-		switchServicesChb.addClickHandler(new ClickHandler() {
-			// load proper set of services on click
-			public void onClick(ClickEvent event) {
-				lastCheckBoxValue = switchServicesChb.getValue();
-				if (switchServicesChb.getValue() == true) {
-					assignedServices.retrieveData();
-				} else {
-					allServices.retrieveData();
-				}
-			}
-		});
-
-		// allow to set new (currently unused facility attribute)
-		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				Map<String, Integer> ids = new HashMap<String, Integer>();
-				ids.put("facility", facility.getId());
-				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, (required) ? reqAttrs.getList() : attrs.getList()), true);
-			}
-		});
-
-		menu.addWidget(UiElements.getRefreshButton(this));
-		menu.addWidget(saveChangesButton);
-		menu.addWidget(setNewAttributeButton);
-		menu.addWidget(removeButton);
-		menu.addWidget(new HTML("<strong>Service: </strong>"));
-		menu.addWidget(servList);
-
-		if (!hide) {
-			menu.addWidget(switchServicesChb);
-		}
+    if (!hide) {
+      menu.addWidget(switchServicesChb);
+    }
 
 		/* TODO - not yet implemented
 
@@ -373,125 +385,118 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 
 */
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		table.setWidth("100%");
-		table2.addStyleName("perun-table");
-		table2.setWidth("100%");
-		sp.addStyleName("perun-tableScrollPanel");
-		session.getUiElements().resizePerunTable(sp, 350, this);
-		sp2.addStyleName("perun-tableScrollPanel");
-		session.getUiElements().resizePerunTable(sp2, 350, this);
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    table.setWidth("100%");
+    table2.addStyleName("perun-table");
+    table2.setWidth("100%");
+    sp.addStyleName("perun-tableScrollPanel");
+    session.getUiElements().resizePerunTable(sp, 350, this);
+    sp2.addStyleName("perun-tableScrollPanel");
+    session.getUiElements().resizePerunTable(sp2, 350, this);
 
-		// add menu and the table to the main panel
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    // add menu and the table to the main panel
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		// default is required attributes
-		setTable(true);
-		this.contentWidget.setWidget(vp);
+    // default is required attributes
+    setTable(true);
+    this.contentWidget.setWidget(vp);
 
-		return getWidget();
-	}
+    return getWidget();
+  }
 
-	private void setTable(boolean required) {
+  private void setTable(boolean required) {
 
-		if (vp.getWidgetCount() == 2) {
-			vp.remove(1);
-		}
-		if (required) {
-			vp.add(sp);
+    if (vp.getWidgetCount() == 2) {
+      vp.remove(1);
+    }
+    if (required) {
+      vp.add(sp);
 
-		} else {
-			vp.add(sp2);
-		}
+    } else {
+      vp.add(sp2);
+    }
 
-		this.required = required;
+    this.required = required;
 
-		Scheduler.get().scheduleDeferred(new Command() {
-			@Override
-			public void execute() {
-				UiElements.runResizeCommandsForCurrentTab();
-			}
-		});
+    Scheduler.get().scheduleDeferred(new Command() {
+      @Override
+      public void execute() {
+        UiElements.runResizeCommandsForCurrentTab();
+      }
+    });
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.settingToolsIcon();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.settingToolsIcon();
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 769;
-		int result = 1;
-		result = prime * result + facilityId;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 769;
+    int result = 1;
+    result = prime * result + facilityId;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FacilitySettingsTabItem other = (FacilitySettingsTabItem) obj;
-		if (facilityId != other.facilityId)
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    FacilitySettingsTabItem other = (FacilitySettingsTabItem) obj;
+    if (facilityId != other.facilityId) {
+      return false;
+    }
+    return true;
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(facility, "Services settings", getUrlWithParameters());
-		if (facility != null) {
-			session.setActiveFacility(facility);
-		} else {
-			session.setActiveFacilityId(facilityId);
-		}
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(facility, "Services settings", getUrlWithParameters());
+    if (facility != null) {
+      session.setActiveFacility(facility);
+    } else {
+      session.setActiveFacilityId(facilityId);
+    }
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isFacilityAdmin(facility.getId())) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isFacilityAdmin(facility.getId())) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
-	public final static String URL = "settings";
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrl() {
-		return URL;
-	}
+  public String getUrlWithParameters() {
+    return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
+  }
 
-	public String getUrlWithParameters() {
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + facility.getId();
-	}
-
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
-
-	static public FacilitySettingsTabItem load(Facility facility) {
-		return new FacilitySettingsTabItem(facility);
-	}
-
-	static public FacilitySettingsTabItem load(Map<String, String> parameters) {
-		int fid = Integer.parseInt(parameters.get("id"));
-		return new FacilitySettingsTabItem(fid);
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
 }

@@ -6,12 +6,21 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -26,7 +35,6 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -36,267 +44,274 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
-public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
+public class SubgroupsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "subgps";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading subgroups");
+  /**
+   * Group
+   */
+  private Group group;
+  private int groupId;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading subgroups");
-
-	/**
-	 * Group
-	 */
-	private Group group;
-	private int groupId;
-
-
-	/**
-	 * Creates a tab instance
-	 * @param group
-	 */
-	public SubgroupsTabItem(Group group){
-		this.group = group;
-		this.groupId = group.getId();
-	}
-
-	/**
-	 * Creates a tab instance
-	 * @param groupId
-	 */
-	public SubgroupsTabItem(int groupId){
-		this.groupId = groupId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				group = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param group
+   */
+  public SubgroupsTabItem(Group group) {
+    this.group = group;
+    this.groupId = group.getId();
+  }
 
 
-	public boolean isPrepared(){
-		return !(group == null);
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param groupId
+   */
+  public SubgroupsTabItem(int groupId) {
+    this.groupId = groupId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        group = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  static public SubgroupsTabItem load(Map<String, String> parameters) {
+    int gid = Integer.parseInt(parameters.get("id"));
+    return new SubgroupsTabItem(gid);
+  }
 
-	@Override
-	public void onClose() {
+  public boolean isPrepared() {
+    return !(group == null);
+  }
 
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
+  @Override
+  public void onClose() {
 
-	public Widget draw() {
+  }
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()) + ": subgroups");
+  public Widget draw() {
 
-		// main panel
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()) + ": subgroups");
 
-		// if members group, hide
-		if(group.isCoreGroup()){
-			vp.add(new HTML("<h2>Members group cannot have subgroups.</h2>"));
-			this.contentWidget.setWidget(vp);
-			return getWidget();
-		}
+    // main panel
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		// GROUP TABLE with onclick
-		ArrayList<String> attrNames = new ArrayList<>();
-		attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
-		attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
-		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
-		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
-		attrNames.add("urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp");
-		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
-		attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
-		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
-		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
+    // if members group, hide
+    if (group.isCoreGroup()) {
+      vp.add(new HTML("<h2>Members group cannot have subgroups.</h2>"));
+      this.contentWidget.setWidget(vp);
+      return getWidget();
+    }
 
-		final GetAllRichSubGroups subgroups = new GetAllRichSubGroups(groupId, attrNames);
+    // GROUP TABLE with onclick
+    ArrayList<String> attrNames = new ArrayList<>();
+    attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+    attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+    attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+    attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+    attrNames.add("urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp");
+    attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+    attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
+    attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
+    attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
 
-		// Events for reloading when group is created
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(subgroups);
+    final GetAllRichSubGroups subgroups = new GetAllRichSubGroups(groupId, attrNames);
 
-		// menu
-		TabMenu menu = new TabMenu();
+    // Events for reloading when group is created
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(subgroups);
 
-		menu.addWidget(UiElements.getRefreshButton(this));
+    // menu
+    TabMenu menu = new TabMenu();
 
-		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createSubGroup(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				// creates a new form
-				session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(group));
-			}
-		});
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) {
-			createButton.setEnabled(false);
-			subgroups.setCheckable(false);
-		}
-		menu.addWidget(createButton);
+    CustomButton createButton =
+        TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createSubGroup(),
+            new ClickHandler() {
+              public void onClick(ClickEvent event) {
+                // creates a new form
+                session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(group));
+              }
+            });
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSubGroup());
-		removeButton.addClickHandler(new ClickHandler(){
-			@Override
-			public void onClick(ClickEvent event) {
-				final ArrayList<RichGroup> itemsToRemove = subgroups.getTableSelectedList();
-				String text = "Following groups (including all sub-groups) will be deleted.";
-				UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						DeleteGroups request = new DeleteGroups(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-						request.deleteGroups(itemsToRemove);
-					}
-				});
-			}
-		});
-		menu.addWidget(removeButton);
+    if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) {
+      createButton.setEnabled(false);
+      subgroups.setCheckable(false);
+    }
+    menu.addWidget(createButton);
 
-		// move button
-		CustomButton moveButton = TabMenu.getPredefinedButton(ButtonType.MOVE, true, ButtonTranslation.INSTANCE.moveGroup(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				final ArrayList<RichGroup> groupsToMove = subgroups.getTableSelectedList();
-				session.getTabManager().addTabToCurrentTab(new MoveGroupsTabItem(group, groupsToMove));
-			}
-		});
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteSubGroup());
+    removeButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        final ArrayList<RichGroup> itemsToRemove = subgroups.getTableSelectedList();
+        String text = "Following groups (including all sub-groups) will be deleted.";
+        UiElements.showDeleteConfirm(itemsToRemove, text, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            DeleteGroups request = new DeleteGroups(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+            request.deleteGroups(itemsToRemove);
+          }
+        });
+      }
+    });
+    menu.addWidget(removeButton);
 
-		if (session.isPerunAdmin()) {
-			// FIXME - temporary for perun admin
-			if (!session.isVoAdmin(group.getVoId())) moveButton.setEnabled(false);
-			menu.addWidget(moveButton);
-		}
+    // move button
+    CustomButton moveButton =
+        TabMenu.getPredefinedButton(ButtonType.MOVE, true, ButtonTranslation.INSTANCE.moveGroup(), new ClickHandler() {
+          public void onClick(ClickEvent event) {
+            final ArrayList<RichGroup> groupsToMove = subgroups.getTableSelectedList();
+            session.getTabManager().addTabToCurrentTab(new MoveGroupsTabItem(group, groupsToMove));
+          }
+        });
 
-		// filter box
-		menu.addFilterWidget(new ExtendedSuggestBox(subgroups.getOracle()), new PerunSearchEvent() {
-			public void searchFor(String text) {
-				subgroups.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterGroup());
+    if (session.isPerunAdmin()) {
+      // FIXME - temporary for perun admin
+      if (!session.isVoAdmin(group.getVoId())) {
+        moveButton.setEnabled(false);
+      }
+      menu.addWidget(moveButton);
+    }
 
-		// add menu to the main panel
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    // filter box
+    menu.addFilterWidget(new ExtendedSuggestBox(subgroups.getOracle()), new PerunSearchEvent() {
+      public void searchFor(String text) {
+        subgroups.filterTable(text);
+      }
+    }, ButtonTranslation.INSTANCE.filterGroup());
 
-		CellTable<RichGroup> table = subgroups.getTable(new FieldUpdater<RichGroup, String>() {
-			@Override
-			public void update(int arg0, RichGroup group, String arg2) {
-				session.getTabManager().addTab(new GroupDetailTabItem(group.getId()));
-			}
-		});
+    // add menu to the main panel
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		removeButton.setEnabled(false);
-		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, removeButton);
-		// FIXME - temporary for perun admin
-		if (session.isPerunAdmin()) {
-			JsonUtils.addTableManagedButton(subgroups, table, moveButton);
-			moveButton.setEnabled(false);
-		}
-		//if (session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, moveButton);
+    CellTable<RichGroup> table = subgroups.getTable(new FieldUpdater<RichGroup, String>() {
+      @Override
+      public void update(int arg0, RichGroup group, String arg2) {
+        session.getTabManager().addTab(new GroupDetailTabItem(group.getId()));
+      }
+    });
 
-		// adds the table into the panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    removeButton.setEnabled(false);
+    if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) {
+      JsonUtils.addTableManagedButton(subgroups, table, removeButton);
+    }
+    // FIXME - temporary for perun admin
+    if (session.isPerunAdmin()) {
+      JsonUtils.addTableManagedButton(subgroups, table, moveButton);
+      moveButton.setEnabled(false);
+    }
+    //if (session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, moveButton);
 
-		vp.add(sp);
+    // adds the table into the panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    vp.add(sp);
 
-		this.contentWidget.setWidget(vp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		return getWidget();
-	}
+    this.contentWidget.setWidget(vp);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    return getWidget();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupGoIcon();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 857;
-		int result = 1;
-		result = prime * result + groupId + 546;
-		return result;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.groupGoIcon();
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  @Override
+  public int hashCode() {
+    final int prime = 857;
+    int result = 1;
+    result = prime * result + groupId + 546;
+    return result;
+  }
 
-		SubgroupsTabItem create = (SubgroupsTabItem) obj;
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-		if (groupId != create.groupId){
-			return false;
-		}
+    SubgroupsTabItem create = (SubgroupsTabItem) obj;
 
-		return true;
-	}
+    if (groupId != create.groupId) {
+      return false;
+    }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    return true;
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(group, "Subgroups", getUrlWithParameters());
-		if(group != null){
-			session.setActiveGroup(group);
-			return;
-		}
-		session.setActiveGroupId(groupId);
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public boolean isAuthorized() {
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(group, "Subgroups", getUrlWithParameters());
+    if (group != null) {
+      session.setActiveGroup(group);
+      return;
+    }
+    session.setActiveGroupId(groupId);
+  }
 
-		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(group.getId())) {
-			return true;
-		} else {
-			return false;
-		}
+  public boolean isAuthorized() {
 
-	}
+    if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) ||
+        session.isGroupAdmin(group.getId())) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public final static String URL = "subgps";
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrlWithParameters() {
-		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
-	}
-
-	static public SubgroupsTabItem load(Map<String, String> parameters) {
-		int gid = Integer.parseInt(parameters.get("id"));
-		return new SubgroupsTabItem(gid);
-	}
+  public String getUrlWithParameters() {
+    return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
+  }
 
 }

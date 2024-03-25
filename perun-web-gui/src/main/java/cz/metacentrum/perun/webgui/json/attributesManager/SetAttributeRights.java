@@ -8,7 +8,6 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.AttributeRights;
 import cz.metacentrum.perun.webgui.model.PerunError;
-
 import java.util.ArrayList;
 
 /**
@@ -18,111 +17,117 @@ import java.util.ArrayList;
  */
 public class SetAttributeRights {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	// URL to call
-	final String JSON_URL = "attributesManager/setAttributeRights";
-
-	// IDs
-	private ArrayList<AttributeRights> rights = new ArrayList<AttributeRights>();
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // URL to call
+  final String JSON_URL = "attributesManager/setAttributeRights";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // IDs
+  private ArrayList<AttributeRights> rights = new ArrayList<AttributeRights>();
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
 
-	/**
-	 * Creates a new request
-	 */
-	public SetAttributeRights() {}
+  /**
+   * Creates a new request
+   */
+  public SetAttributeRights() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events externalEvents
-	 */
-	public SetAttributeRights(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events externalEvents
+   */
+  public SetAttributeRights(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Attempts to set new value for some attributes
-	 *
-	 * @param rights List of attribute rights to set
-	 */
-	public void setAttributeRights(final ArrayList<AttributeRights> rights) {
+  /**
+   * Attempts to set new value for some attributes
+   *
+   * @param rights List of attribute rights to set
+   */
+  public void setAttributeRights(final ArrayList<AttributeRights> rights) {
 
-		this.rights = rights;
+    this.rights = rights;
 
-		// test arguments
-		if(!this.testSetting()){
-			return;
-		}
+    // test arguments
+    if (!this.testSetting()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Setting attribute rights failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Setting attribute rights failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Attribute rights are successfully updated.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Attribute rights are successfully updated.");
+        events.onFinished(jso);
+      }
 
-		};
+      ;
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	}
+      ;
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testSetting() {
+    };
 
-		if (rights == null || rights.isEmpty()) {
-			// TODO
-			return false;
-		}
-		return true;
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject(){
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testSetting() {
 
-		JSONObject query = new JSONObject();
-		JSONArray array = new JSONArray();
+    if (rights == null || rights.isEmpty()) {
+      // TODO
+      return false;
+    }
+    return true;
 
-		for (int i=0; i<rights.size(); i++) {
-			JSONObject obj = new JSONObject(rights.get(i));
-			array.set(i, obj);
-		}
+  }
 
-		query.put("rights", array);
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-		return query;
+    JSONObject query = new JSONObject();
+    JSONArray array = new JSONArray();
 
-	}
+    for (int i = 0; i < rights.size(); i++) {
+      JSONObject obj = new JSONObject(rights.get(i));
+      array.set(i, obj);
+    }
 
-	/**
-	 * Sets external events after callback creation
-	 *
-	 * @param events
-	 */
-	public void setEvents(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    query.put("rights", array);
+
+    return query;
+
+  }
+
+  /**
+   * Sets external events after callback creation
+   *
+   * @param events
+   */
+  public void setEvents(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
 }

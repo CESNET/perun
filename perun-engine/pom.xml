@@ -1,120 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>perun</artifactId>
-		<groupId>cz.metacentrum</groupId>
-		<version>34.3.0</version>
-	</parent>
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>34.3.0</version>
+    </parent>
 
-	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-engine</artifactId>
-	<packaging>jar</packaging>
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-engine</artifactId>
+    <packaging>jar</packaging>
 
-	<name>perun-engine</name>
-	<description>Execution module for Perun propagation sub-system</description>
-	<url>https://perun.cesnet.cz/web/</url>
+    <name>perun-engine</name>
+    <description>Execution module for Perun propagation sub-system</description>
+    <url>https://perun.cesnet.cz/web/</url>
 
-	<properties>
-		<start-class>cz.metacentrum.perun.engine.main.EngineStarter</start-class>
-		<!-- module properties used by all profiles -->
-		<perun.test.groups>unit-tests</perun.test.groups>
-		<!-- deploy the resulting jar to a Maven repo -->
-		<maven.deploy.skip>false</maven.deploy.skip>
-	</properties>
+    <properties>
+        <start-class>cz.metacentrum.perun.engine.main.EngineStarter</start-class>
+        <!-- module properties used by all profiles -->
+        <perun.test.groups>unit-tests</perun.test.groups>
+        <!-- deploy the resulting jar to a Maven repo -->
+        <maven.deploy.skip>false</maven.deploy.skip>
+    </properties>
 
-	<!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
-	<build>
+    <!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
+    <build>
         <finalName>${project.name}</finalName>
-		<plugins>
+        <plugins>
 
-			<!-- Package JAR with Main class and all libraries -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<!-- Main-Class taken from property ${start-class} -->
-			</plugin>
-		</plugins>
+            <!-- Package JAR with Main class and all libraries -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <!-- Main-Class taken from property ${start-class} -->
+            </plugin>
+        </plugins>
 
-		<resources>
-			<resource>
-				<!-- get common resources -->
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
+        <resources>
+            <resource>
+                <!-- get common resources -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
-		<!-- filter test resources too -->
-		<testResources>
-			<testResource>
-				<directory>src/test/resources</directory>
-				<filtering>true</filtering>
-			</testResource>
-		</testResources>
+        <!-- filter test resources too -->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
 
-	</build>
+    </build>
 
 
-	<dependencies>
+    <dependencies>
 
-		<!-- PERUN -->
+        <!-- PERUN -->
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<!-- TESTS -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <!-- TESTS -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<!-- imports logback-test.xml for test from perun-base -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
+        <!-- imports logback-test.xml for test from perun-base -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>perun-base</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
-		<!-- OTHERS - Hornet Q -->
-		<dependency>
-			<groupId>org.hornetq</groupId>
-			<artifactId>hornetq-core-client</artifactId>
-		</dependency>
+        <!-- OTHERS - Hornet Q -->
+        <dependency>
+            <groupId>org.hornetq</groupId>
+            <artifactId>hornetq-core-client</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.hornetq</groupId>
-			<artifactId>hornetq-jms-client</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.hornetq</groupId>
+            <artifactId>hornetq-jms-client</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.jboss.netty</groupId>
-			<artifactId>netty</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.jboss.netty</groupId>
+            <artifactId>netty</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.jboss.javaee</groupId>
-			<artifactId>jboss-jms-api</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.jboss.javaee</groupId>
+            <artifactId>jboss-jms-api</artifactId>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 </project>

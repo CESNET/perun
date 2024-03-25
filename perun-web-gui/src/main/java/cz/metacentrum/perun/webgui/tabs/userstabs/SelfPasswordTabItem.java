@@ -5,7 +5,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
@@ -30,588 +35,622 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedPasswordBox;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Tab with user's password settings
- *
+ * <p>
  * USE ONLY AS INNER TAB !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
-
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Password actions - CREATE,DELETE,CHANGE
-	 */
-	public enum Actions {
-		CREATE,
-		DELETE,
-		CHANGE
-	};
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading user");
-
-	private User user;
-	private int userId;
-	private String namespace = "Not selected";
-	private String login = "";
-	private Actions action = Actions.CHANGE;
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param namespace namespace for login
-	 * @param login login
-	 * @param action action with password
-	 */
-	public SelfPasswordTabItem(String namespace, String login, Actions action){
-		this.user = session.getActiveUser();
-		this.userId = session.getActiveUser().getId();
-		this.namespace = namespace;
-		this.login = login;
-		this.action = action;
-	}
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param user user to set password for
-	 * @param namespace namespace for login
-	 * @param login login
-	 * @param action action with password
-	 */
-	public SelfPasswordTabItem(User user, String namespace, String login, Actions action){
-		this.user = user;
-		this.userId = user.getId();
-		this.namespace = namespace;
-		this.login = login;
-		this.action = action;
-	}
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param userId ID of user to set password for
-	 * @param namespace namespace for login
-	 * @param login login
-	 * @param action action with password
-	 */
-	public SelfPasswordTabItem(int userId, String namespace, String login, Actions action){
-		this.userId = userId;
-		this.namespace = namespace;
-		this.login = login;
-		this.action = action;
-		new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				user = jso.cast();
-			}
-		}).retrieveData();
-	}
-
-	public boolean isPrepared(){
-		return (user != null);
-	}
-
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
-
-	@Override
-	public void onClose() {
-
-	}
-
-	public Widget draw() {
-
-		String actionText = "Change";
-		if (action.equals(Actions.CREATE)) {
-			actionText = "Create";
-		} else if (action.equals(Actions.DELETE)) {
-			actionText = "Delete";
-		}
-
-		// set tab name
-		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": " + actionText + " password");
-
-		// main panel
-		final VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
-
-		TabMenu menu = new TabMenu();
-
-		// widgets
-		final Label namespaceLabel = new Label();
-		namespaceLabel.setText(namespace);
-		final Label loginLabel = new Label();
-		loginLabel.setText(login);
-		final ExtendedPasswordBox newPass = new ExtendedPasswordBox();
-		final ExtendedPasswordBox confPass = new ExtendedPasswordBox();
-		final ExtendedPasswordBox oldPass = new ExtendedPasswordBox();
-
-		final CustomButton changeButton = new CustomButton("Change password", "Changes your password in selected namespace", SmallIcons.INSTANCE.keyIcon());
-		final CustomButton createButton = new CustomButton("Create password", "Creates your password in selected namespace", SmallIcons.INSTANCE.keyAddIcon());
-		final CustomButton deleteButton = new CustomButton("Delete password", "Deletes your password in selected namespace", SmallIcons.INSTANCE.keyDeleteIcon());
-		final TabItem tab = this;
-
-		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-
-				if (newPass.getTextBox().getValue().trim().equals("")) {
-					newPass.setError("Password can't be empty!");
-					return false;
-				}
-
-				// einfra check
-				if ("einfra".equals(namespace)) {
-
-					RegExp regExp2 = RegExp.compile("^[\\x20-\\x7E]{1,}$");
-					if(regExp2.exec(newPass.getTextBox().getValue()) == null){
-						newPass.setError("Password <b>can`t contain accented characters (diacritics)</b> or non-printing and control characters!");
-						return false;
-					}
-
-					// TODO - check for name/surname too
-					// check on login in password if login is longer than 2 chars
-					if (login.length() > 2) {
-						String pass = newPass.getTextBox().getValue();
-						if (Utils.normalizeString(pass).contains(Utils.normalizeString(login)) ||
-								Utils.normalizeString(pass).contains(Utils.normalizeString(Utils.reverseString((login))))) {
-							newPass.setError("Password <b>can't contain login, name or surname</b>, not even backwards!");
-							return false;
-						}
-					}
-
-					// Check that password contains at least 3 of 4 character groups
-
-					RegExp regExpDigit = RegExp.compile("^.*[0-9].*$");
-					RegExp regExpLower = RegExp.compile("^.*[a-z].*$");
-					RegExp regExpUpper = RegExp.compile("^.*[A-Z].*$");
-					RegExp regExpSpec = RegExp.compile("^.*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*$");
-
-					int matchCounter = 0;
-					if (regExpDigit.exec(newPass.getTextBox().getValue()) != null) matchCounter++;
-					if (regExpLower.exec(newPass.getTextBox().getValue()) != null) matchCounter++;
-					if (regExpUpper.exec(newPass.getTextBox().getValue()) != null) matchCounter++;
-					if (regExpSpec.exec(newPass.getTextBox().getValue()) != null) matchCounter++;
-
-					if(matchCounter < 3){
-						newPass.setError("Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
-						return false;
-					}
-
-					// check length
-					if (newPass.getTextBox().getValue().length() < 10) {
-						newPass.setError("Password must be <b>at least 10 characters</b> long!");
-						return false;
-					}
-
-				} else {
-
-					// check default minimum length for password
-					if (newPass.getTextBox().getValue().length() < 8) {
-						newPass.setError("Password must be <b>at least 8 characters</b> long!");
-						return false;
-					}
-				}
-
-				if (!newPass.getTextBox().getValue().equals(confPass.getTextBox().getValue())) {
-					newPass.setOk();
-					confPass.setError("Password in both textboxes must be the same!");
-					return false;
-				}
-
-				newPass.setOk();
-				return true;
-
-			}
-		};
-
-		final ExtendedTextBox.TextBoxValidator validator2 = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-
-				if (!confPass.getTextBox().getValue().equals(newPass.getTextBox().getValue())) {
-					confPass.setError("Password in both textboxes must be the same!");
-					return false;
-				} else {
-					confPass.setOk();
-					return true;
-				}
-
-			}
-		};
-
-		final ExtendedTextBox.TextBoxValidator oldValidator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-
-				if (oldPass.getTextBox().getValue().trim().equals("")) {
-					oldPass.setError("Password can't be empty!");
-					return false;
-				} else {
-					oldPass.setOk();
-					return true;
-				}
-			}
-		};
-
-		newPass.setValidator(validator);
-		confPass.setValidator(validator2);
-		oldPass.setValidator(oldValidator);
-
-		// save changes
-		changeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-
-				if ("mu".equals(namespace) && !JsonUtils.checkParseInt(login)) {
-					UiElements.generateAlert("Operation not supported",
-							"Password change/reset is not supported for non-numeric logins (UČO).");
-				}
-
-				if (session.isPerunAdmin() || user.isServiceUser()) {
-					if (!validator.validateTextBox() && !validator2.validateTextBox()) return;
-					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, true), false);
-					changepw.changePassword(user, namespace, oldPass.getTextBox().getValue(), newPass.getTextBox().getValue());
-				} else {
-					if (!validator.validateTextBox() && !validator2.validateTextBox() && !oldValidator.validateTextBox()) return;
-					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, true), true);
-					changepw.changePassword(user, namespace, oldPass.getTextBox().getValue(), newPass.getTextBox().getValue());
-				}
-
-			}
-		});
-
-		if (user.isServiceUser()) {
-			// for service users it's reset since they don't provide old password
-			changeButton.setText("Reset password…");
-		}
-
-		createButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent clickEvent) {
-
-				if (validator.validateTextBox() && validator2.validateTextBox()) {
-
-					if ("mu".equals(namespace)) {
-
-						final GenerateAccount generateAccount = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
-
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-
-								BasicOverlayType basic = jso.cast();
-								final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
-
-								SetLogin setLogin = new SetLogin(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
-									@Override
-									public void onFinished(JavaScriptObject jso) {
-
-										UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
-
-										// VALIDATE PASSWORD - SET EXT SOURCES
-										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
-										req.validatePassword(user.getId(), login, namespace);
-
-									}
-								}));
-								setLogin.setLogin(user.getId(), "mu", login);
-
-							}
-
-						}));
-
-						final Map<String, String> params = new HashMap<String, String>();
-						GetEntityById get = new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, user.getId(), JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								User usr = jso.cast();
-
-								params.put("urn:perun:user:attribute-def:core:firstName", usr.getFirstName());
-								params.put("urn:perun:user:attribute-def:core:lastName", usr.getLastName());
-								params.put("urn:perun:member:attribute-def:def:mail", usr.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
-								generateAccount.generateAccount(namespace, newPass.getTextBox().getValue(), params);
-
-							}
-						}));
-						get.retrieveData();
-
-					} else {
-
-						// NORMAL PWD LOGIC
-						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
-						create.createPassword(userId, login, namespace, newPass.getTextBox().getValue());
-
-					}
-				}
-			}
-		});
-
-		deleteButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent clickEvent) {
-				UiElements.generateAlert("Not yet implemented", "Not yet implemented");
-			}
-		});
-
-		FlexTable layout = new FlexTable();
-		layout.setStyleName("inputFormFlexTable");
-
-		// change layout
-		if (action.equals(Actions.CHANGE)) {
-
-			int row = 0;
-
-			layout.setHTML(row, 0, "Namespace:");
-			layout.setWidget(row, 1, namespaceLabel);
-			row++;
-			layout.setHTML(row, 0, "Login:");
-			layout.setWidget(row, 1, loginLabel);
-			row++;
-
-			// perun admin doesn't need to know old password
-			// if service user, we can always change password without knowing old
-			// mu namespace can change without knowing old
-			if (!session.isPerunAdmin()) {
-				if (!user.isServiceUser()) {
-					layout.setHTML(row, 0, "Old password: ");
-					layout.setWidget(row, 1, oldPass);
-					row++;
-				}
-			}
-			layout.setHTML(row, 0, "New password:");
-			layout.setWidget(row, 1, newPass);
-			row++;
-			layout.setHTML(row, 0, "Retype new pass:");
-			layout.setWidget(row, 1, confPass);
-
-			menu.addWidget(changeButton);
-			vp.add(layout);
-
-		} else if (action.equals(Actions.CREATE)) {
-
-			layout.setHTML(0, 0, "Namespace:");
-			layout.setWidget(0, 1, namespaceLabel);
-
-			if ("mu".equals(namespace)) {
-				loginLabel.setText("Will be generated...");
-				loginLabel.addStyleName("inputFormInlineComment");
-			}
-
-			layout.setHTML(1, 0, "Login:");
-			layout.setWidget(1, 1, loginLabel);
-			layout.setHTML(2, 0, "New password:");
-			layout.setWidget(2, 1, newPass);
-			layout.setHTML(3, 0, "Retype new pass:");
-			layout.setWidget(3, 1, confPass);
-
-			final CustomButton skip = new CustomButton("Skip", "Will set random/empty password", SmallIcons.INSTANCE.arrowRightIcon());
-			skip.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-
-					if ("mu".equals(namespace)) {
-
-						final GenerateAccount generateAccount = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
-
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-
-								BasicOverlayType basic = jso.cast();
-								final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
-
-								SetLogin setLogin = new SetLogin(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
-									@Override
-									public void onFinished(JavaScriptObject jso) {
-
-										UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
-
-										// VALIDATE PASSWORD - SET EXT SOURCES
-										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
-										req.validatePassword(user.getId(), login, namespace);
-
-									}
-								}));
-								setLogin.setLogin(user.getId(), "mu", login);
-
-							}
-
-						}));
-
-						final Map<String, String> params = new HashMap<String, String>();
-						GetEntityById get = new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, user.getId(), JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								User usr = jso.cast();
-
-								params.put("urn:perun:user:attribute-def:core:firstName", usr.getFirstName());
-								params.put("urn:perun:user:attribute-def:core:lastName", usr.getLastName());
-								params.put("urn:perun:member:attribute-def:def:mail", usr.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
-								generateAccount.generateAccount(namespace, newPass.getTextBox().getValue(), params);
-
-							}
-						}));
-						get.retrieveData();
-
-					} else {
-
-						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(skip, tab, true));
-						create.createRandomPassword(userId, login, namespace);
-
-					}
-				}
-			});
-			menu.addWidget(skip);
-
-			menu.addWidget(createButton);
-			vp.add(layout);
-
-		} else if (action.equals(Actions.DELETE)) {
-
-			layout.setHTML(0, 0, "Namespace:");
-			layout.setWidget(0, 1, namespaceLabel);
-			layout.setHTML(1, 0, "Login:");
-			layout.setWidget(1, 1, loginLabel);
-
-			menu.addWidget(deleteButton);
-			vp.add(layout);
-
-		}
-
-		for (int i=0; i<layout.getRowCount(); i++) {
-			layout.getFlexCellFormatter().setStyleName(i, 0, "itemName");
-		}
-
-		int row = layout.getRowCount();
-		if ("einfra".equals(namespace)) {
-			layout.setHTML(row, 0, "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 10 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
-		} else {
-			layout.setHTML(row, 0, "Password must be at least 8 characters long. Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
-		}
-		layout.getFlexCellFormatter().setColSpan(row, 0, 2);
-		layout.getCellFormatter().setStyleName(row, 0,"inputFormInlineComment");
-		layout.setWidth("400px");
-
-		if (!action.equals(Actions.CREATE)) {
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-				}
-			}));
-		}
-
-		vp.add(menu);
-		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
-
-		this.contentWidget.setWidget(vp);
-
-		return getWidget();
-
-	}
-
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
-
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
-
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.keyIcon();
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 1237;
-		int result = 432;
-		result = prime * result;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		if (this.userId != ((SelfPasswordTabItem)obj).userId)
-			return false;
-
-		return true;
-	}
-
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
-
-	public void open()
-	{
-		session.getUiElements().getMenu().openMenu(MainMenu.USER);
-	}
-
-	public boolean isAuthorized() {
-
-		if (session.isSelf(userId)) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "pass";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters()
-	{
-		// if same user as in session
-		if(userId == session.getUser().getId()){
-			return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?ns=" + namespace + "&l=" + login + "&a=" + action;
-		}
-
-		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId + "&ns=" + namespace + "&l=" + login+ "&a=" + action;
-	}
-
-
-	static public SelfPasswordTabItem load(Map<String, String> parameters)
-	{
-		int uid;
-		if(parameters.containsKey("id"))
-		{
-			uid = Integer.parseInt(parameters.get("id"));
-		}else{
-			uid = PerunWebSession.getInstance().getUser().getId();
-		}
-		String namespace = String.valueOf(parameters.get("ns"));
-		String login = String.valueOf(parameters.get("l"));
-		String action = String.valueOf(parameters.get("a"));
-		Actions act = Actions.valueOf(action);
-
-		return new SelfPasswordTabItem(uid, namespace, login, act);
-	}
+public class SelfPasswordTabItem implements TabItem, TabItemWithUrl {
+
+  public static final String URL = "pass";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+
+  ;
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading user");
+
+  private User user;
+  private int userId;
+  private String namespace = "Not selected";
+  private String login = "";
+  private Actions action = Actions.CHANGE;
+
+  /**
+   * Creates a tab instance
+   *
+   * @param namespace namespace for login
+   * @param login     login
+   * @param action    action with password
+   */
+  public SelfPasswordTabItem(String namespace, String login, Actions action) {
+    this.user = session.getActiveUser();
+    this.userId = session.getActiveUser().getId();
+    this.namespace = namespace;
+    this.login = login;
+    this.action = action;
+  }
+
+  /**
+   * Creates a tab instance
+   *
+   * @param user      user to set password for
+   * @param namespace namespace for login
+   * @param login     login
+   * @param action    action with password
+   */
+  public SelfPasswordTabItem(User user, String namespace, String login, Actions action) {
+    this.user = user;
+    this.userId = user.getId();
+    this.namespace = namespace;
+    this.login = login;
+    this.action = action;
+  }
+
+  /**
+   * Creates a tab instance
+   *
+   * @param userId    ID of user to set password for
+   * @param namespace namespace for login
+   * @param login     login
+   * @param action    action with password
+   */
+  public SelfPasswordTabItem(int userId, String namespace, String login, Actions action) {
+    this.userId = userId;
+    this.namespace = namespace;
+    this.login = login;
+    this.action = action;
+    new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        user = jso.cast();
+      }
+    }).retrieveData();
+  }
+
+  static public SelfPasswordTabItem load(Map<String, String> parameters) {
+    int uid;
+    if (parameters.containsKey("id")) {
+      uid = Integer.parseInt(parameters.get("id"));
+    } else {
+      uid = PerunWebSession.getInstance().getUser().getId();
+    }
+    String namespace = String.valueOf(parameters.get("ns"));
+    String login = String.valueOf(parameters.get("l"));
+    String action = String.valueOf(parameters.get("a"));
+    Actions act = Actions.valueOf(action);
+
+    return new SelfPasswordTabItem(uid, namespace, login, act);
+  }
+
+  public boolean isPrepared() {
+    return (user != null);
+  }
+
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
+
+  @Override
+  public void onClose() {
+
+  }
+
+  public Widget draw() {
+
+    String actionText = "Change";
+    if (action.equals(Actions.CREATE)) {
+      actionText = "Create";
+    } else if (action.equals(Actions.DELETE)) {
+      actionText = "Delete";
+    }
+
+    // set tab name
+    this.titleWidget.setText(
+        Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim()) + ": " + actionText + " password");
+
+    // main panel
+    final VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
+
+    TabMenu menu = new TabMenu();
+
+    // widgets
+    final Label namespaceLabel = new Label();
+    namespaceLabel.setText(namespace);
+    final Label loginLabel = new Label();
+    loginLabel.setText(login);
+    final ExtendedPasswordBox newPass = new ExtendedPasswordBox();
+    final ExtendedPasswordBox confPass = new ExtendedPasswordBox();
+    final ExtendedPasswordBox oldPass = new ExtendedPasswordBox();
+
+    final CustomButton changeButton = new CustomButton("Change password", "Changes your password in selected namespace",
+        SmallIcons.INSTANCE.keyIcon());
+    final CustomButton createButton = new CustomButton("Create password", "Creates your password in selected namespace",
+        SmallIcons.INSTANCE.keyAddIcon());
+    final CustomButton deleteButton = new CustomButton("Delete password", "Deletes your password in selected namespace",
+        SmallIcons.INSTANCE.keyDeleteIcon());
+    final TabItem tab = this;
+
+    final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+
+        if (newPass.getTextBox().getValue().trim().equals("")) {
+          newPass.setError("Password can't be empty!");
+          return false;
+        }
+
+        // einfra check
+        if ("einfra".equals(namespace)) {
+
+          RegExp regExp2 = RegExp.compile("^[\\x20-\\x7E]{1,}$");
+          if (regExp2.exec(newPass.getTextBox().getValue()) == null) {
+            newPass.setError(
+                "Password <b>can`t contain accented characters (diacritics)</b> or non-printing and control characters!");
+            return false;
+          }
+
+          // TODO - check for name/surname too
+          // check on login in password if login is longer than 2 chars
+          if (login.length() > 2) {
+            String pass = newPass.getTextBox().getValue();
+            if (Utils.normalizeString(pass).contains(Utils.normalizeString(login)) ||
+                Utils.normalizeString(pass).contains(Utils.normalizeString(Utils.reverseString((login))))) {
+              newPass.setError("Password <b>can't contain login, name or surname</b>, not even backwards!");
+              return false;
+            }
+          }
+
+          // Check that password contains at least 3 of 4 character groups
+
+          RegExp regExpDigit = RegExp.compile("^.*[0-9].*$");
+          RegExp regExpLower = RegExp.compile("^.*[a-z].*$");
+          RegExp regExpUpper = RegExp.compile("^.*[A-Z].*$");
+          RegExp regExpSpec = RegExp.compile("^.*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*$");
+
+          int matchCounter = 0;
+          if (regExpDigit.exec(newPass.getTextBox().getValue()) != null) {
+            matchCounter++;
+          }
+          if (regExpLower.exec(newPass.getTextBox().getValue()) != null) {
+            matchCounter++;
+          }
+          if (regExpUpper.exec(newPass.getTextBox().getValue()) != null) {
+            matchCounter++;
+          }
+          if (regExpSpec.exec(newPass.getTextBox().getValue()) != null) {
+            matchCounter++;
+          }
+
+          if (matchCounter < 3) {
+            newPass.setError(
+                "Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
+            return false;
+          }
+
+          // check length
+          if (newPass.getTextBox().getValue().length() < 10) {
+            newPass.setError("Password must be <b>at least 10 characters</b> long!");
+            return false;
+          }
+
+        } else {
+
+          // check default minimum length for password
+          if (newPass.getTextBox().getValue().length() < 8) {
+            newPass.setError("Password must be <b>at least 8 characters</b> long!");
+            return false;
+          }
+        }
+
+        if (!newPass.getTextBox().getValue().equals(confPass.getTextBox().getValue())) {
+          newPass.setOk();
+          confPass.setError("Password in both textboxes must be the same!");
+          return false;
+        }
+
+        newPass.setOk();
+        return true;
+
+      }
+    };
+
+    final ExtendedTextBox.TextBoxValidator validator2 = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+
+        if (!confPass.getTextBox().getValue().equals(newPass.getTextBox().getValue())) {
+          confPass.setError("Password in both textboxes must be the same!");
+          return false;
+        } else {
+          confPass.setOk();
+          return true;
+        }
+
+      }
+    };
+
+    final ExtendedTextBox.TextBoxValidator oldValidator = new ExtendedTextBox.TextBoxValidator() {
+      @Override
+      public boolean validateTextBox() {
+
+        if (oldPass.getTextBox().getValue().trim().equals("")) {
+          oldPass.setError("Password can't be empty!");
+          return false;
+        } else {
+          oldPass.setOk();
+          return true;
+        }
+      }
+    };
+
+    newPass.setValidator(validator);
+    confPass.setValidator(validator2);
+    oldPass.setValidator(oldValidator);
+
+    // save changes
+    changeButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+
+        if ("mu".equals(namespace) && !JsonUtils.checkParseInt(login)) {
+          UiElements.generateAlert("Operation not supported",
+              "Password change/reset is not supported for non-numeric logins (UČO).");
+        }
+
+        if (session.isPerunAdmin() || user.isServiceUser()) {
+          if (!validator.validateTextBox() && !validator2.validateTextBox()) {
+            return;
+          }
+          ChangePassword changepw =
+              new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, true), false);
+          changepw.changePassword(user, namespace, oldPass.getTextBox().getValue(), newPass.getTextBox().getValue());
+        } else {
+          if (!validator.validateTextBox() && !validator2.validateTextBox() && !oldValidator.validateTextBox()) {
+            return;
+          }
+          ChangePassword changepw =
+              new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, true), true);
+          changepw.changePassword(user, namespace, oldPass.getTextBox().getValue(), newPass.getTextBox().getValue());
+        }
+
+      }
+    });
+
+    if (user.isServiceUser()) {
+      // for service users it's reset since they don't provide old password
+      changeButton.setText("Reset password…");
+    }
+
+    createButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent clickEvent) {
+
+        if (validator.validateTextBox() && validator2.validateTextBox()) {
+
+          if ("mu".equals(namespace)) {
+
+            final GenerateAccount generateAccount =
+                new GenerateAccount(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+
+                    BasicOverlayType basic = jso.cast();
+                    final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
+
+                    SetLogin setLogin =
+                        new SetLogin(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+                          @Override
+                          public void onFinished(JavaScriptObject jso) {
+
+                            UiElements.generateInfo("Assigned login",
+                                "You were assigned with login <b>" + login + "</b> in namespace MU.");
+
+                            // VALIDATE PASSWORD - SET EXT SOURCES
+                            CreatePassword req = new CreatePassword(
+                                JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
+                            req.validatePassword(user.getId(), login, namespace);
+
+                          }
+                        }));
+                    setLogin.setLogin(user.getId(), "mu", login);
+
+                  }
+
+                }));
+
+            final Map<String, String> params = new HashMap<String, String>();
+            GetEntityById get = new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, user.getId(),
+                JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    User usr = jso.cast();
+
+                    params.put("urn:perun:user:attribute-def:core:firstName", usr.getFirstName());
+                    params.put("urn:perun:user:attribute-def:core:lastName", usr.getLastName());
+                    params.put("urn:perun:member:attribute-def:def:mail",
+                        usr.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+                    generateAccount.generateAccount(namespace, newPass.getTextBox().getValue(), params);
+
+                  }
+                }));
+            get.retrieveData();
+
+          } else {
+
+            // NORMAL PWD LOGIC
+            CreatePassword create =
+                new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
+            create.createPassword(userId, login, namespace, newPass.getTextBox().getValue());
+
+          }
+        }
+      }
+    });
+
+    deleteButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent clickEvent) {
+        UiElements.generateAlert("Not yet implemented", "Not yet implemented");
+      }
+    });
+
+    FlexTable layout = new FlexTable();
+    layout.setStyleName("inputFormFlexTable");
+
+    // change layout
+    if (action.equals(Actions.CHANGE)) {
+
+      int row = 0;
+
+      layout.setHTML(row, 0, "Namespace:");
+      layout.setWidget(row, 1, namespaceLabel);
+      row++;
+      layout.setHTML(row, 0, "Login:");
+      layout.setWidget(row, 1, loginLabel);
+      row++;
+
+      // perun admin doesn't need to know old password
+      // if service user, we can always change password without knowing old
+      // mu namespace can change without knowing old
+      if (!session.isPerunAdmin()) {
+        if (!user.isServiceUser()) {
+          layout.setHTML(row, 0, "Old password: ");
+          layout.setWidget(row, 1, oldPass);
+          row++;
+        }
+      }
+      layout.setHTML(row, 0, "New password:");
+      layout.setWidget(row, 1, newPass);
+      row++;
+      layout.setHTML(row, 0, "Retype new pass:");
+      layout.setWidget(row, 1, confPass);
+
+      menu.addWidget(changeButton);
+      vp.add(layout);
+
+    } else if (action.equals(Actions.CREATE)) {
+
+      layout.setHTML(0, 0, "Namespace:");
+      layout.setWidget(0, 1, namespaceLabel);
+
+      if ("mu".equals(namespace)) {
+        loginLabel.setText("Will be generated...");
+        loginLabel.addStyleName("inputFormInlineComment");
+      }
+
+      layout.setHTML(1, 0, "Login:");
+      layout.setWidget(1, 1, loginLabel);
+      layout.setHTML(2, 0, "New password:");
+      layout.setWidget(2, 1, newPass);
+      layout.setHTML(3, 0, "Retype new pass:");
+      layout.setWidget(3, 1, confPass);
+
+      final CustomButton skip =
+          new CustomButton("Skip", "Will set random/empty password", SmallIcons.INSTANCE.arrowRightIcon());
+      skip.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+
+          if ("mu".equals(namespace)) {
+
+            final GenerateAccount generateAccount =
+                new GenerateAccount(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+
+                    BasicOverlayType basic = jso.cast();
+                    final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
+
+                    SetLogin setLogin =
+                        new SetLogin(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+                          @Override
+                          public void onFinished(JavaScriptObject jso) {
+
+                            UiElements.generateInfo("Assigned login",
+                                "You were assigned with login <b>" + login + "</b> in namespace MU.");
+
+                            // VALIDATE PASSWORD - SET EXT SOURCES
+                            CreatePassword req = new CreatePassword(
+                                JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
+                            req.validatePassword(user.getId(), login, namespace);
+
+                          }
+                        }));
+                    setLogin.setLogin(user.getId(), "mu", login);
+
+                  }
+
+                }));
+
+            final Map<String, String> params = new HashMap<String, String>();
+            GetEntityById get = new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, user.getId(),
+                JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    User usr = jso.cast();
+
+                    params.put("urn:perun:user:attribute-def:core:firstName", usr.getFirstName());
+                    params.put("urn:perun:user:attribute-def:core:lastName", usr.getLastName());
+                    params.put("urn:perun:member:attribute-def:def:mail",
+                        usr.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+                    generateAccount.generateAccount(namespace, newPass.getTextBox().getValue(), params);
+
+                  }
+                }));
+            get.retrieveData();
+
+          } else {
+
+            CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(skip, tab, true));
+            create.createRandomPassword(userId, login, namespace);
+
+          }
+        }
+      });
+      menu.addWidget(skip);
+
+      menu.addWidget(createButton);
+      vp.add(layout);
+
+    } else if (action.equals(Actions.DELETE)) {
+
+      layout.setHTML(0, 0, "Namespace:");
+      layout.setWidget(0, 1, namespaceLabel);
+      layout.setHTML(1, 0, "Login:");
+      layout.setWidget(1, 1, loginLabel);
+
+      menu.addWidget(deleteButton);
+      vp.add(layout);
+
+    }
+
+    for (int i = 0; i < layout.getRowCount(); i++) {
+      layout.getFlexCellFormatter().setStyleName(i, 0, "itemName");
+    }
+
+    int row = layout.getRowCount();
+    if ("einfra".equals(namespace)) {
+      layout.setHTML(row, 0,
+          "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 10 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
+    } else {
+      layout.setHTML(row, 0,
+          "Password must be at least 8 characters long. Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+    }
+    layout.getFlexCellFormatter().setColSpan(row, 0, 2);
+    layout.getCellFormatter().setStyleName(row, 0, "inputFormInlineComment");
+    layout.setWidth("400px");
+
+    if (!action.equals(Actions.CREATE)) {
+      menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+        }
+      }));
+    }
+
+    vp.add(menu);
+    vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
+
+    this.contentWidget.setWidget(vp);
+
+    return getWidget();
+
+  }
+
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
+
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
+
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.keyIcon();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 1237;
+    int result = 432;
+    result = prime * result;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    if (this.userId != ((SelfPasswordTabItem) obj).userId) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
+
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.USER);
+  }
+
+  public boolean isAuthorized() {
+
+    if (session.isSelf(userId)) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
+  public String getUrl() {
+    return URL;
+  }
+
+  public String getUrlWithParameters() {
+    // if same user as in session
+    if (userId == session.getUser().getId()) {
+      return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?ns=" + namespace + "&l=" + login + "&a=" +
+          action;
+    }
+
+    return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId + "&ns=" + namespace + "&l=" +
+        login + "&a=" + action;
+  }
+
+
+  /**
+   * Password actions - CREATE,DELETE,CHANGE
+   */
+  public enum Actions {
+    CREATE,
+    DELETE,
+    CHANGE
+  }
 
 }

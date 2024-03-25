@@ -7,35 +7,35 @@ import cz.metacentrum.perun.registrar.model.Application;
 
 public class MemberCreatedForApprovedApp extends AuditEvent implements EngineIgnoreEvent {
 
-	private Member member;
-	private Application app;
-	private String message;
+  private Member member;
+  private Application app;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public MemberCreatedForApprovedApp() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public MemberCreatedForApprovedApp() {
+  }
 
-	public MemberCreatedForApprovedApp(Member member, Application app) {
-		this.member = member;
-		this.app = app;
-		this.message = formatMessage("%s created for approved %s.", member, app);
-	}
+  public MemberCreatedForApprovedApp(Member member, Application app) {
+    this.member = member;
+    this.app = app;
+    this.message = formatMessage("%s created for approved %s.", member, app);
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Application getApp() {
+    return app;
+  }
 
-	public Application getApp() {
-		return app;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

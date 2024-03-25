@@ -9,35 +9,35 @@ import cz.metacentrum.perun.core.api.Resource;
  */
 public class AttributeSetForResource extends AuditEvent {
 
-	private Attribute attribute;
-	private Resource resource;
-	private String message;
+  private Attribute attribute;
+  private Resource resource;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeSetForResource() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeSetForResource() {
+  }
 
-	public AttributeSetForResource(Attribute attribute, Resource resource) {
-		this.attribute = attribute;
-		this.resource = resource;
-		this.message = formatMessage("%s set for %s.", attribute, resource);
-	}
+  public AttributeSetForResource(Attribute attribute, Resource resource) {
+    this.attribute = attribute;
+    this.resource = resource;
+    this.message = formatMessage("%s set for %s.", attribute, resource);
+  }
 
-	public Attribute getAttribute() {
-		return attribute;
-	}
+  public Attribute getAttribute() {
+    return attribute;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

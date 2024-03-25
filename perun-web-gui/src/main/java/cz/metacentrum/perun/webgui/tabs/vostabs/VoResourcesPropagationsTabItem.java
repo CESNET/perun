@@ -6,17 +6,32 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.TableSorter;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.tasksManager.GetAllResourcesState;
-import cz.metacentrum.perun.webgui.model.*;
+import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.ResourceState;
+import cz.metacentrum.perun.webgui.model.Task;
+import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
@@ -24,7 +39,6 @@ import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -36,107 +50,112 @@ import java.util.Map;
  */
 public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "propags";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("All VO's resources state");
+  private VirtualOrganization vo;
+  private int voId;
+  private int mainrow = 0;
+  private int okCounter = 0;
+  private int errorCounter = 0;
+  private int notDeterminedCounter = 0;
+  private int procesingCounter = 0;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
-
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("All VO's resources state");
-
-	private VirtualOrganization vo;
-	private int voId;
-	private int mainrow = 0;
-	private int okCounter = 0;
-	private int errorCounter = 0;
-	private int notDeterminedCounter = 0;
-	private int procesingCounter = 0;
-
-	/**
-	 * Creates a tab instance
-	 * @param voId
-	 */
-	public VoResourcesPropagationsTabItem(int voId){
-		this.voId = voId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				vo = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-	}
-
-	/**
-	 * Creates a tab instance
-	 * @param vo
-	 */
-	public VoResourcesPropagationsTabItem(VirtualOrganization vo){
-		this.voId = vo.getId();
-		this.vo = vo;
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param voId
+   */
+  public VoResourcesPropagationsTabItem(int voId) {
+    this.voId = voId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        vo = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+  }
 
 
-	public boolean isPrepared(){
-		return (vo != null);
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param vo
+   */
+  public VoResourcesPropagationsTabItem(VirtualOrganization vo) {
+    this.voId = vo.getId();
+    this.vo = vo;
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  static public VoResourcesPropagationsTabItem load(Map<String, String> parameters) {
+    int voId = Integer.parseInt(parameters.get("vo"));
+    return new VoResourcesPropagationsTabItem(voId);
+  }
 
-	@Override
-	public void onClose() {
+  public boolean isPrepared() {
+    return (vo != null);
+  }
 
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public Widget draw() {
+  @Override
+  public void onClose() {
 
-		mainrow = 0;
-		okCounter = 0;
-		errorCounter = 0;
-		notDeterminedCounter = 0;
-		procesingCounter = 0;
+  }
 
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": resources state");
-		final TabItem tab = this;
+  public Widget draw() {
 
-		VerticalPanel mainTab = new VerticalPanel();
-		mainTab.setWidth("100%");
+    mainrow = 0;
+    okCounter = 0;
+    errorCounter = 0;
+    notDeterminedCounter = 0;
+    procesingCounter = 0;
 
-		// MAIN PANEL
-		final ScrollPanel firstTabPanel = new ScrollPanel();
-		firstTabPanel.setSize("100%", "100%");
-		firstTabPanel.setStyleName("perun-tableScrollPanel");
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()) + ": resources state");
+    final TabItem tab = this;
 
-		final FlexTable help = new FlexTable();
-		help.setCellPadding(4);
-		help.setWidth("100%");
+    VerticalPanel mainTab = new VerticalPanel();
+    mainTab.setWidth("100%");
 
-		final CustomButton cb = UiElements.getRefreshButton(this);
-		help.setWidget(0, 0, cb);
-		help.getFlexCellFormatter().setWidth(0, 0, "80px");
-		help.setHTML(0, 1, "<strong>Color&nbsp;notation:</strong>");
-		help.getFlexCellFormatter().setWidth(0, 1, "100px");
-		help.setHTML(0, 2, "<strong>OK</strong>");
-		help.getFlexCellFormatter().setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_CENTER);
-		help.getFlexCellFormatter().setWidth(0, 2, "50px");
-		help.getFlexCellFormatter().setStyleName(0, 2, "green");
-		help.setHTML(0, 3, "<strong>Error</strong>");
-		help.getFlexCellFormatter().setWidth(0, 3, "50px");
-		help.getFlexCellFormatter().setStyleName(0, 3, "red");
-		help.getFlexCellFormatter().setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_CENTER);
-		help.setHTML(0, 4, "<strong>Not&nbsp;determined</strong>");
-		help.getFlexCellFormatter().setWidth(0, 4, "50px");
-		help.getFlexCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER);
-		help.getFlexCellFormatter().setStyleName(0, 4, "notdetermined");
+    // MAIN PANEL
+    final ScrollPanel firstTabPanel = new ScrollPanel();
+    firstTabPanel.setSize("100%", "100%");
+    firstTabPanel.setStyleName("perun-tableScrollPanel");
+
+    final FlexTable help = new FlexTable();
+    help.setCellPadding(4);
+    help.setWidth("100%");
+
+    final CustomButton cb = UiElements.getRefreshButton(this);
+    help.setWidget(0, 0, cb);
+    help.getFlexCellFormatter().setWidth(0, 0, "80px");
+    help.setHTML(0, 1, "<strong>Color&nbsp;notation:</strong>");
+    help.getFlexCellFormatter().setWidth(0, 1, "100px");
+    help.setHTML(0, 2, "<strong>OK</strong>");
+    help.getFlexCellFormatter().setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_CENTER);
+    help.getFlexCellFormatter().setWidth(0, 2, "50px");
+    help.getFlexCellFormatter().setStyleName(0, 2, "green");
+    help.setHTML(0, 3, "<strong>Error</strong>");
+    help.getFlexCellFormatter().setWidth(0, 3, "50px");
+    help.getFlexCellFormatter().setStyleName(0, 3, "red");
+    help.getFlexCellFormatter().setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_CENTER);
+    help.setHTML(0, 4, "<strong>Not&nbsp;determined</strong>");
+    help.getFlexCellFormatter().setWidth(0, 4, "50px");
+    help.getFlexCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER);
+    help.getFlexCellFormatter().setStyleName(0, 4, "notdetermined");
 		/*
 			 help.setHTML(0, 5, "<strong>Processing</strong>");
 			 help.getFlexCellFormatter().setWidth(0, 5, "50px");
@@ -144,255 +163,258 @@ public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 			 help.getFlexCellFormatter().setHorizontalAlignment(0, 5, HasHorizontalAlignment.ALIGN_CENTER);
 			 */
 
-		help.setHTML(0, 5, "&nbsp;");
-		help.getFlexCellFormatter().setWidth(0, 6, "50%");
+    help.setHTML(0, 5, "&nbsp;");
+    help.getFlexCellFormatter().setWidth(0, 6, "50%");
 
-		mainTab.add(help);
-		mainTab.add(new HTML("<hr size=\"2\" />"));
-		mainTab.add(firstTabPanel);
+    mainTab.add(help);
+    mainTab.add(new HTML("<hr size=\"2\" />"));
+    mainTab.add(firstTabPanel);
 
-		final FlexTable content = new FlexTable();
-		content.setWidth("100%");
-		content.setBorderWidth(0);
-		firstTabPanel.add(content);
-		content.setStyleName("propagationTable", true);
-		final AjaxLoaderImage im = new AjaxLoaderImage();
-		content.setWidget(0, 0, im);
-		content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+    final FlexTable content = new FlexTable();
+    content.setWidth("100%");
+    content.setBorderWidth(0);
+    firstTabPanel.add(content);
+    content.setStyleName("propagationTable", true);
+    final AjaxLoaderImage im = new AjaxLoaderImage();
+    content.setWidget(0, 0, im);
+    content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 
-		final GetAllResourcesState callback = new GetAllResourcesState(voId, new JsonCallbackEvents(){
-			public void onLoadingStart(){
-				im.loadingStart();
-				cb.setProcessing(true);
-			}
-			public void onError(PerunError error){
-				im.loadingError(error);
-				cb.setProcessing(false);
-			}
-			public void onFinished(JavaScriptObject jso) {
-				im.loadingFinished();
-				cb.setProcessing(false);
-				content.clear();
-				content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
-				ArrayList<ResourceState> list = JsonUtils.jsoAsList(jso);
-				if (list != null && !list.isEmpty()){
+    final GetAllResourcesState callback = new GetAllResourcesState(voId, new JsonCallbackEvents() {
+      public void onLoadingStart() {
+        im.loadingStart();
+        cb.setProcessing(true);
+      }
 
-					list = new TableSorter<ResourceState>().sortByResourceName(list);
+      public void onError(PerunError error) {
+        im.loadingError(error);
+        cb.setProcessing(false);
+      }
 
-					// PROCESS CLUSTERS (with more than one destinations)
+      public void onFinished(JavaScriptObject jso) {
+        im.loadingFinished();
+        cb.setProcessing(false);
+        content.clear();
+        content.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
+        ArrayList<ResourceState> list = JsonUtils.jsoAsList(jso);
+        if (list != null && !list.isEmpty()) {
 
-					for (final ResourceState state : list) {
+          list = new TableSorter<ResourceState>().sortByResourceName(list);
 
-						content.setHTML(mainrow, 0, new Image(LargeIcons.INSTANCE.serverGroupIcon())+"<span class=\"now-managing\" style=\"display: inline-block; position: relative; top: -8px;\">" + state.getResource().getName() + "</span>");
+          // PROCESS CLUSTERS (with more than one destinations)
 
-						ArrayList<Task> tasks = new TableSorter<Task>().sortByService(JsonUtils.<Task>jsoAsList(state.getTasks()));
+          for (final ResourceState state : list) {
 
-						if (tasks == null || tasks.isEmpty()) notDeterminedCounter++;
+            content.setHTML(mainrow, 0, new Image(LargeIcons.INSTANCE.serverGroupIcon()) +
+                "<span class=\"now-managing\" style=\"display: inline-block; position: relative; top: -8px;\">" +
+                state.getResource().getName() + "</span>");
 
-						boolean allOk = true;
-						for (Task tsk :tasks) {
-							if (tsk.getStatus().equalsIgnoreCase("ERROR") || tsk.getStatus().equalsIgnoreCase("SENDERROR") || tsk.getStatus().equalsIgnoreCase("GENERROR")) {
-								errorCounter++;
-								allOk = false;
-								break;
-							}
-						}
-						if (allOk && tasks != null && !tasks.isEmpty()) okCounter++;
+            ArrayList<Task> tasks = new TableSorter<Task>().sortByService(JsonUtils.<Task>jsoAsList(state.getTasks()));
 
-						ListDataProvider<Task> dataProvider = new ListDataProvider<Task>();
-						PerunTable<Task> table;
+            if (tasks == null || tasks.isEmpty()) {
+              notDeterminedCounter++;
+            }
 
-						// Table data provider.
-						dataProvider = new ListDataProvider<Task>(tasks);
+            boolean allOk = true;
+            for (Task tsk : tasks) {
+              if (tsk.getStatus().equalsIgnoreCase("ERROR") || tsk.getStatus().equalsIgnoreCase("SENDERROR") ||
+                  tsk.getStatus().equalsIgnoreCase("GENERROR")) {
+                errorCounter++;
+                allOk = false;
+                break;
+              }
+            }
+            if (allOk && tasks != null && !tasks.isEmpty()) {
+              okCounter++;
+            }
 
-						// Cell table
-						table = new PerunTable<Task>(tasks);
-						table.removeRowCountChangeHandler();
+            ListDataProvider<Task> dataProvider = new ListDataProvider<Task>();
+            PerunTable<Task> table;
 
-						// Connect the table to the data provider.
-						dataProvider.addDataDisplay(table);
+            // Table data provider.
+            dataProvider = new ListDataProvider<Task>(tasks);
 
-						// Sorting
-						ColumnSortEvent.ListHandler<Task> columnSortHandler = new ColumnSortEvent.ListHandler<Task>(dataProvider.getList());
-						table.addColumnSortHandler(columnSortHandler);
+            // Cell table
+            table = new PerunTable<Task>(tasks);
+            table.removeRowCountChangeHandler();
 
-						// set empty content & loader
-						AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-						loaderImage.setEmptyResultMessage("No service configuration was propagated to this resource.");
-						table.setEmptyTableWidget(loaderImage);
-						loaderImage.loadingFinished();
+            // Connect the table to the data provider.
+            dataProvider.addDataDisplay(table);
 
-						table.addIdColumn("Task Id");
+            // Sorting
+            ColumnSortEvent.ListHandler<Task> columnSortHandler =
+                new ColumnSortEvent.ListHandler<Task>(dataProvider.getList());
+            table.addColumnSortHandler(columnSortHandler);
 
-						// Service column
-						Column<Task, String> serviceColumn = JsonUtils.addColumn(
-								new JsonUtils.GetValue<Task, String>() {
-									public String getValue(Task task) {
-										return String.valueOf(task.getService().getName());
-									}
-								}, null);
+            // set empty content & loader
+            AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+            loaderImage.setEmptyResultMessage("No service configuration was propagated to this resource.");
+            table.setEmptyTableWidget(loaderImage);
+            loaderImage.loadingFinished();
 
-						// status column
-						Column<Task, String> statusColumn = JsonUtils.addColumn(
-								new JsonUtils.GetValue<Task, String>() {
-									public String getValue(Task task) {
-										return String.valueOf(task.getStatus());
-									}
-								}, null);
+            table.addIdColumn("Task Id");
 
-						// start COLUMN
-						TextColumn<Task> startTimeColumn = new TextColumn<Task>() {
-							public String getValue(Task result) {
-								return result.getStartTime();
-							}
-						};
+            // Service column
+            Column<Task, String> serviceColumn = JsonUtils.addColumn(
+                new JsonUtils.GetValue<Task, String>() {
+                  public String getValue(Task task) {
+                    return String.valueOf(task.getService().getName());
+                  }
+                }, null);
 
-						// end COLUMN
-						TextColumn<Task> endTimeColumn = new TextColumn<Task>() {
-							public String getValue(Task result) {
-								return result.getEndTime();
-							}
-						};
+            // status column
+            Column<Task, String> statusColumn = JsonUtils.addColumn(
+                new JsonUtils.GetValue<Task, String>() {
+                  public String getValue(Task task) {
+                    return String.valueOf(task.getStatus());
+                  }
+                }, null);
 
-						// schedule COLUMN
-						TextColumn<Task> scheduleColumn = new TextColumn<Task>() {
-							public String getValue(Task result) {
-								return result.getSchedule();
-							}
-						};
+            // start COLUMN
+            TextColumn<Task> startTimeColumn = new TextColumn<Task>() {
+              public String getValue(Task result) {
+                return result.getStartTime();
+              }
+            };
 
-						// Add the columns.
-						table.addColumn(serviceColumn, "Service");
-						table.addColumn(statusColumn, "Status");
-						table.addColumn(scheduleColumn, "Scheduled");
-						table.addColumn(startTimeColumn, "Started");
-						table.addColumn(endTimeColumn, "Ended");
+            // end COLUMN
+            TextColumn<Task> endTimeColumn = new TextColumn<Task>() {
+              public String getValue(Task result) {
+                return result.getEndTime();
+              }
+            };
 
-						// set row styles based on task state
-						table.setRowStyles(new RowStyles<Task>(){
-							public String getStyleNames(Task row, int rowIndex) {
+            // schedule COLUMN
+            TextColumn<Task> scheduleColumn = new TextColumn<Task>() {
+              public String getValue(Task result) {
+                return result.getSchedule();
+              }
+            };
 
-								if (row.getStatus().equalsIgnoreCase("NONE")) {
-									return "rowdarkgreen";
-								}
-								else if (row.getStatus().equalsIgnoreCase("DONE")){
-									return "rowgreen";
-								}
-								else if (row.getStatus().equalsIgnoreCase("PROCESSING")){
-									return "rowyellow";
-								}
-								else if (Arrays.asList("GENERROR","SENDERROR","ERROR").contains(row.getStatus())){
-									return "rowred";
-								}
-								else if (row.getStatus().equalsIgnoreCase("WARNING")){
-									return "roworange";
-								}
-								return "";
+            // Add the columns.
+            table.addColumn(serviceColumn, "Service");
+            table.addColumn(statusColumn, "Status");
+            table.addColumn(scheduleColumn, "Scheduled");
+            table.addColumn(startTimeColumn, "Started");
+            table.addColumn(endTimeColumn, "Ended");
 
-							}
-						});
+            // set row styles based on task state
+            table.setRowStyles(new RowStyles<Task>() {
+              public String getStyleNames(Task row, int rowIndex) {
 
-						table.setWidth("100%");
+                if (row.getStatus().equalsIgnoreCase("NONE")) {
+                  return "rowdarkgreen";
+                } else if (row.getStatus().equalsIgnoreCase("DONE")) {
+                  return "rowgreen";
+                } else if (row.getStatus().equalsIgnoreCase("PROCESSING")) {
+                  return "rowyellow";
+                } else if (Arrays.asList("GENERROR", "SENDERROR", "ERROR").contains(row.getStatus())) {
+                  return "rowred";
+                } else if (row.getStatus().equalsIgnoreCase("WARNING")) {
+                  return "roworange";
+                }
+                return "";
 
-						content.setWidget(mainrow+1, 0, table);
-						content.getFlexCellFormatter().setStyleName(mainrow + 1, 0, "propagationTablePadding");
+              }
+            });
 
-						mainrow++;
-						mainrow++;
+            table.setWidth("100%");
 
-					}
+            content.setWidget(mainrow + 1, 0, table);
+            content.getFlexCellFormatter().setStyleName(mainrow + 1, 0, "propagationTablePadding");
 
-				}
+            mainrow++;
+            mainrow++;
 
-				// set counters
-				help.setHTML(0, 2, "<strong>Ok&nbsp;("+okCounter+")</strong>");
-				help.setHTML(0, 3, "<strong>Error&nbsp;("+errorCounter+")</strong>");
-				help.setHTML(0, 4, "<strong>Not&nbsp;determined&nbsp;("+notDeterminedCounter+")</strong>");
-				//help.setHTML(0, 5, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
+          }
 
-			}
-		}); // get for all facilities for VO
-		callback.retrieveData();
+        }
 
-		// resize perun table to correct size on screen
-		session.getUiElements().resizePerunTable(firstTabPanel, 400, this);
+        // set counters
+        help.setHTML(0, 2, "<strong>Ok&nbsp;(" + okCounter + ")</strong>");
+        help.setHTML(0, 3, "<strong>Error&nbsp;(" + errorCounter + ")</strong>");
+        help.setHTML(0, 4, "<strong>Not&nbsp;determined&nbsp;(" + notDeterminedCounter + ")</strong>");
+        //help.setHTML(0, 5, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
 
-		this.contentWidget.setWidget(mainTab);
+      }
+    }); // get for all facilities for VO
+    callback.retrieveData();
 
-		return getWidget();
-	}
+    // resize perun table to correct size on screen
+    session.getUiElements().resizePerunTable(firstTabPanel, 400, this);
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    this.contentWidget.setWidget(mainTab);
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    return getWidget();
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.arrowRightIcon();
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1327;
-		int result = 1;
-		result = prime * result + voId;
-		return result;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		VoResourcesPropagationsTabItem other = (VoResourcesPropagationsTabItem) obj;
-		if (voId != other.voId)
-			return false;
-		return true;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.arrowRightIcon();
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1327;
+    int result = 1;
+    result = prime * result + voId;
+    return result;
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(vo, "Resources state", getUrlWithParameters());
-		if(vo != null){
-			session.setActiveVo(vo);
-			return;
-		}
-		session.setActiveVoId(voId);
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    VoResourcesPropagationsTabItem other = (VoResourcesPropagationsTabItem) obj;
+    if (voId != other.voId) {
+      return false;
+    }
+    return true;
+  }
 
-	public boolean isAuthorized() {
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(vo, "Resources state", getUrlWithParameters());
+    if (vo != null) {
+      session.setActiveVo(vo);
+      return;
+    }
+    session.setActiveVoId(voId);
+  }
 
-	}
+  public boolean isAuthorized() {
 
-	public final static String URL = "propags";
+    if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public String getUrl() {
-		return URL;
-	}
+  }
 
-	public String getUrlWithParameters() {
-		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo="+voId;
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	static public VoResourcesPropagationsTabItem load(Map<String, String> parameters) {
-		int voId = Integer.parseInt(parameters.get("vo"));
-		return new VoResourcesPropagationsTabItem(voId);
-	}
+  public String getUrlWithParameters() {
+    return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?vo=" + voId;
+  }
 
 }

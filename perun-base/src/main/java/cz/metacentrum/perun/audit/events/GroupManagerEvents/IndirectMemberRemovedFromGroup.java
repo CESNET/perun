@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class IndirectMemberRemovedFromGroup extends AuditEvent {
 
-	private Member member;
-	private Group group;
-	private String message;
+  private Member member;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public IndirectMemberRemovedFromGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public IndirectMemberRemovedFromGroup() {
+  }
 
-	public IndirectMemberRemovedFromGroup(Member removedIndirectMember, Group group) {
-		this.member = removedIndirectMember;
-		this.group = group;
-		this.message = formatMessage("%s was removed from %s totally.", member, group);
-	}
+  public IndirectMemberRemovedFromGroup(Member removedIndirectMember, Group group) {
+    this.member = removedIndirectMember;
+    this.group = group;
+    this.message = formatMessage("%s was removed from %s totally.", member, group);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class ServiceUpdated extends AuditEvent implements EngineIgnoreEvent {
 
-	private Service service;
-	private String message;
+  private Service service;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ServiceUpdated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ServiceUpdated() {
+  }
 
-	public ServiceUpdated(Service service) {
-		this.service = service;
-		this.message = formatMessage("%s updated.", service);
-	}
+  public ServiceUpdated(Service service) {
+    this.service = service;
+    this.message = formatMessage("%s updated.", service);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Service getService() {
-		return service;
-	}
+  public Service getService() {
+    return service;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

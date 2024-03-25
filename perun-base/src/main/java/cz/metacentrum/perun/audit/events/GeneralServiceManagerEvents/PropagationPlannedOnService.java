@@ -8,29 +8,29 @@ import cz.metacentrum.perun.core.api.Service;
  */
 public class PropagationPlannedOnService extends AuditEvent {
 
-	private Service service;
-	private String message;
+  private Service service;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public PropagationPlannedOnService() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public PropagationPlannedOnService() {
+  }
 
-	public PropagationPlannedOnService(Service service) {
-		this.service = service;
-		this.message = formatMessage("propagation planned: On %s.", service);
-	}
+  public PropagationPlannedOnService(Service service) {
+    this.service = service;
+    this.message = formatMessage("propagation planned: On %s.", service);
+  }
 
-	public Service getService() {
-		return service;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Service getService() {
+    return service;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

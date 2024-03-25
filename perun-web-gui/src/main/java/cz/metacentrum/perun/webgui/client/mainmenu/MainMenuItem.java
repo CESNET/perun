@@ -19,149 +19,158 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
  */
 public class MainMenuItem {
 
-	/**
-	 * Current PerunWebSession
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Current PerunWebSession
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Widget containing the menu item
-	 */
-	private Widget widget = null;
+  /**
+   * Widget containing the menu item
+   */
+  private Widget widget = null;
 
-	/**
-	 * TabItem for link
-	 */
-	private TabItemWithUrl tabItem;
+  /**
+   * TabItem for link
+   */
+  private TabItemWithUrl tabItem;
 
-	/**
-	 * Image next to the link
-	 */
-	private Image image;
+  /**
+   * Image next to the link
+   */
+  private Image image;
 
-	/**
-	 * Link text
-	 */
-	private String title = "";
+  /**
+   * Link text
+   */
+  private String title = "";
 
-	/**
-	 * Whether is the link active - the user is on the page
-	 */
-	private boolean active = false;
+  /**
+   * Whether is the link active - the user is on the page
+   */
+  private boolean active = false;
 
-	/**
-	 * Creates new menu item
-	 *
-	 * @param title Text shown
-	 * @param tabItem
-	 */
-	public MainMenuItem(String title, TabItemWithUrl tabItem){
-		this.title = title;
-		this.tabItem = tabItem;
-	}
+  /**
+   * Creates new menu item
+   *
+   * @param title   Text shown
+   * @param tabItem
+   */
+  public MainMenuItem(String title, TabItemWithUrl tabItem) {
+    this.title = title;
+    this.tabItem = tabItem;
+  }
 
-	/**
-	 * Creates new menu item with custom image
-	 *
-	 * @param title
-	 * @param tabItem
-	 * @param image
-	 */
-	public MainMenuItem(String title, TabItemWithUrl tabItem, Image image){
-		this(title, tabItem);
-		this.image = image;
-		build();
-	}
+  /**
+   * Creates new menu item with custom image
+   *
+   * @param title
+   * @param tabItem
+   * @param image
+   */
+  public MainMenuItem(String title, TabItemWithUrl tabItem, Image image) {
+    this(title, tabItem);
+    this.image = image;
+    build();
+  }
 
-	/**
-	 * Creates new menu item with custom image
-	 *
-	 * @param title
-	 * @param tabItem
-	 * @param imageResource
-	 */
-	public MainMenuItem(String title, TabItemWithUrl tabItem, ImageResource imageResource){
-		this(title, tabItem, new Image(imageResource));
-	}
+  /**
+   * Creates new menu item with custom image
+   *
+   * @param title
+   * @param tabItem
+   * @param imageResource
+   */
+  public MainMenuItem(String title, TabItemWithUrl tabItem, ImageResource imageResource) {
+    this(title, tabItem, new Image(imageResource));
+  }
 
-	/**
-	 * Returns the link widget
-	 *
-	 * @return
-	 */
-	public Widget getWidget(){
-		return this.widget;
-	}
+  /**
+   * Returns the link widget
+   *
+   * @return
+   */
+  public Widget getWidget() {
+    return this.widget;
+  }
 
-	/**
-	 * Returns the image of link widget
-	 *
-	 * @return
-	 */
-	public Widget getIcon(){
-		return this.image;
-	}
+  /**
+   * Returns the image of link widget
+   *
+   * @return
+   */
+  public Widget getIcon() {
+    return this.image;
+  }
 
-	/**
-	 * Re-build main menu item
-	 * (check if item is selected)
-	 */
-	public void build() {
+  /**
+   * Re-build main menu item
+   * (check if item is selected)
+   */
+  public void build() {
 
-		Widget widget = new Widget();
+    Widget widget = new Widget();
 
-		boolean enabled = (tabItem != null);
+    boolean enabled = (tabItem != null);
 
-		// if menu item enabled - show hyperlink
-		if(enabled){
-			widget = new Hyperlink(title, session.getTabManager().getLinkForTab(tabItem));
-			widget.removeStyleName("mainMenuNotActive");
-			// else show plain text
-		}else {
-			widget  = new HTML(title);
-			widget.addStyleName("mainMenuNotActive");
-		}
+    // if menu item enabled - show hyperlink
+    if (enabled) {
+      widget = new Hyperlink(title, session.getTabManager().getLinkForTab(tabItem));
+      widget.removeStyleName("mainMenuNotActive");
+      // else show plain text
+    } else {
+      widget = new HTML(title);
+      widget.addStyleName("mainMenuNotActive");
+    }
 
-		if (tabItem != null && session.getTabManager().getActiveTab() != null) {
-			this.active = (tabItem.getUrlWithParameters().equals(((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters()));
-			// FIXME - hack for group admin - groups when changing active VO
-			// IF ACTIVE TAB IS GROUP ADMIN - GROUPS
-			if (((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=")) {
-				this.active = ((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=");
-			}
+    if (tabItem != null && session.getTabManager().getActiveTab() != null) {
+      this.active = (tabItem.getUrlWithParameters()
+          .equals(((TabItemWithUrl) session.getTabManager().getActiveTab()).getUrlWithParameters()));
+      // FIXME - hack for group admin - groups when changing active VO
+      // IF ACTIVE TAB IS GROUP ADMIN - GROUPS
+      if (((TabItemWithUrl) session.getTabManager().getActiveTab()).getUrlWithParameters()
+          .startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=")) {
+        this.active = ((TabItemWithUrl) tabItem).getUrlWithParameters()
+            .startsWith(GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + tabItem.getUrl() + "?vo=");
+      }
 
-			// hack for services tabs
-			if (((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "list")) ||
-					((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail")) ||
-					((TabItemWithUrl)session.getTabManager().getActiveTab()).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "exec-view"))
-					) {
+      // hack for services tabs
+      if (((TabItemWithUrl) session.getTabManager().getActiveTab()).getUrlWithParameters()
+          .startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "list")) ||
+          ((TabItemWithUrl) session.getTabManager().getActiveTab()).getUrlWithParameters()
+              .startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail")) ||
+          ((TabItemWithUrl) session.getTabManager().getActiveTab()).getUrlWithParameters()
+              .startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "exec-view"))
+      ) {
 
-				this.active = ((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "list")) ||
-						((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail")) ||
-						((TabItemWithUrl)tabItem).getUrlWithParameters().startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "exec-view"));
+        this.active = ((TabItemWithUrl) tabItem).getUrlWithParameters()
+            .startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "list")) ||
+            ((TabItemWithUrl) tabItem).getUrlWithParameters()
+                .startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail")) ||
+            ((TabItemWithUrl) tabItem).getUrlWithParameters()
+                .startsWith(String.valueOf(ServicesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "exec-view"));
 
-			}
+      }
 
-		} else {
-			this.active = false;
-		}
+    } else {
+      this.active = false;
+    }
 
-		if(active){
-			widget.addStyleName("mainMenuActive");
-		} else {
-			widget.removeStyleName("mainMenuActive");
-		}
+    if (active) {
+      widget.addStyleName("mainMenuActive");
+    } else {
+      widget.removeStyleName("mainMenuActive");
+    }
 
-		this.widget = widget;
+    this.widget = widget;
 
-	}
+  }
 
-	public TabItemWithUrl getTabItem() {
-		return tabItem;
-	}
+  public TabItemWithUrl getTabItem() {
+    return tabItem;
+  }
 
-	public void setTabItem(TabItemWithUrl tabItem) {
-		this.tabItem = tabItem;
-	}
+  public void setTabItem(TabItemWithUrl tabItem) {
+    this.tabItem = tabItem;
+  }
 
 }

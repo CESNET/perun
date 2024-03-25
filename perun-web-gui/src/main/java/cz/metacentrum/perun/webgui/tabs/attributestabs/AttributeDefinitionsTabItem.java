@@ -39,234 +39,243 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
+public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "attr-def";
+  ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Attributes");
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   */
+  public AttributeDefinitionsTabItem() {
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Attributes");
+  static public AttributeDefinitionsTabItem load(Map<String, String> parameters) {
+    return new AttributeDefinitionsTabItem();
+  }
 
-	ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
+  public boolean isPrepared() {
+    return true;
+  }
 
-	/**
-	 * Creates a tab instance
-	 */
-	public AttributeDefinitionsTabItem(){}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    // create main panel for content
+    VerticalPanel mainPage = new VerticalPanel();
+    mainPage.setWidth("100%");
 
-	public Widget draw() {
+    // create new instance for jsonCall
+    final GetAttributesDefinition attrDef = new GetAttributesDefinition();
 
-		// create main panel for content
-		VerticalPanel mainPage = new VerticalPanel();
-		mainPage.setWidth("100%");
+    final ExtendedSuggestBox box = new ExtendedSuggestBox(attrDef.getOracle());
 
-		// create new instance for jsonCall
-		final GetAttributesDefinition attrDef = new GetAttributesDefinition();
+    // custom events for reloading when created or deleted
+    final JsonCallbackEvents refreshTabEvents =
+        JsonCallbackEvents.mergeEvents(JsonCallbackEvents.refreshTableEvents(attrDef), new JsonCallbackEvents() {
+          @Override
+          public void onFinished(JavaScriptObject jso) {
+            if (box.getSuggestBox().getValue() != null) {
+              attrDef.filterTable(box.getSuggestBox().getValue());
+            }
+          }
+        });
 
-		final ExtendedSuggestBox box = new ExtendedSuggestBox(attrDef.getOracle());
+    // TAB MENU
+    TabMenu tabMenu = new TabMenu();
+    tabMenu.addWidget(UiElements.getRefreshButton(this));
 
-		// custom events for reloading when created or deleted
-		final JsonCallbackEvents refreshTabEvents = JsonCallbackEvents.mergeEvents(JsonCallbackEvents.refreshTableEvents(attrDef), new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				if (box.getSuggestBox().getValue() != null)
-				attrDef.filterTable(box.getSuggestBox().getValue());
-			}
-		});
+    // create button
+    if (session.isPerunAdmin()) {
+      tabMenu.addWidget(
+          TabMenu.getPredefinedButton(ButtonType.CREATE, true, buttonTranslation.createAttributeDefinition(),
+              new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                  session.getTabManager().addTabToCurrentTab(new CreateAttributeDefinitionTabItem());
+                }
+              }));
+    }
 
-		// TAB MENU
-		TabMenu tabMenu = new TabMenu();
-		tabMenu.addWidget(UiElements.getRefreshButton(this));
+    // remove button
+    final CustomButton deleteButton =
+        TabMenu.getPredefinedButton(ButtonType.DELETE, buttonTranslation.deleteAttributeDefinition());
+    deleteButton.setEnabled(false);
+    deleteButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        final ArrayList<AttributeDefinition> attrDefToBeDeleted = attrDef.getTableSelectedList();
+        String text =
+            "Following attribute definitions will be deleted.</p><p style=\"color: red;\">All stored values of such attributes will be deleted too!";
+        UiElements.showDeleteConfirm(attrDefToBeDeleted, text, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+            for (int i = 0; i < attrDefToBeDeleted.size(); i++) {
+              final int x = i;
+              DeleteAttribute request =
+                  new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton, new JsonCallbackEvents() {
+                    @Override
+                    public void onFinished(JavaScriptObject jso) {
+                      // remove deleted attrs from table
+                      attrDef.removeFromBackupTable(attrDefToBeDeleted.get(x));
+                    }
+                  }));
+              request.deleteAttributeDefinition(attrDefToBeDeleted.get(i).getId());
+            }
+          }
+        });
+      }
+    });
+    tabMenu.addWidget(deleteButton);
 
-		// create button
-		if(session.isPerunAdmin()){
-			tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, buttonTranslation.createAttributeDefinition(), new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					session.getTabManager().addTabToCurrentTab(new CreateAttributeDefinitionTabItem());
-				}
-			}));
-		}
+    // filter box
+    tabMenu.addFilterWidget(box, new PerunSearchEvent() {
+      public void searchFor(String text) {
+        attrDef.filterTable(text);
+      }
+    }, buttonTranslation.filterAttributeDefinition());
 
-		// remove button
-		final CustomButton deleteButton = TabMenu.getPredefinedButton(ButtonType.DELETE, buttonTranslation.deleteAttributeDefinition());
-		deleteButton.setEnabled(false);
-		deleteButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				final ArrayList<AttributeDefinition> attrDefToBeDeleted = attrDef.getTableSelectedList();
-				String text = "Following attribute definitions will be deleted.</p><p style=\"color: red;\">All stored values of such attributes will be deleted too!";
-				UiElements.showDeleteConfirm(attrDefToBeDeleted, text, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-						for (int i = 0; i < attrDefToBeDeleted.size(); i++) {
-							final int x = i;
-							DeleteAttribute request = new DeleteAttribute(JsonCallbackEvents.disableButtonEvents(deleteButton, new JsonCallbackEvents(){
-								@Override
-								public void onFinished(JavaScriptObject jso) {
-									// remove deleted attrs from table
-									attrDef.removeFromBackupTable(attrDefToBeDeleted.get(x));
-								}
-							}));
-							request.deleteAttributeDefinition(attrDefToBeDeleted.get(i).getId());
-						}
-					}
-				});
-			}
-		});
-		tabMenu.addWidget(deleteButton);
+    final CustomButton saveButton =
+        TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
+    saveButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        final ArrayList<AttributeDefinition> list = attrDef.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+          for (int i = 0; i < list.size(); i++) {
+            final int x = i;
+            UpdateAttribute request =
+                new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton, new JsonCallbackEvents() {
+                  @Override
+                  public void onFinished(JavaScriptObject jso) {
+                    attrDef.getSelectionModel().setSelected(list.get(x), false);
+                  }
+                }));
+            request.updateAttribute(list.get(i));
+          }
+        }
+      }
+    });
+    tabMenu.addWidget(saveButton);
 
-		// filter box
-		tabMenu.addFilterWidget(box, new PerunSearchEvent() {
-			public void searchFor(String text) {
-				attrDef.filterTable(text);
-			}
-		}, buttonTranslation.filterAttributeDefinition());
+    //if checkbox is checked only entityless attributes will be shown
+    CheckBox showEntitylessBox = new CheckBox("Show only Entityless Attributes");
+    showEntitylessBox.setValue(false);
+    showEntitylessBox.addValueChangeHandler(valueChangeEvent -> {
+      if (showEntitylessBox.getValue()) {
+        attrDef.setEntity("entityless");
+      } else {
+        attrDef.setEntities(new HashSet<>());
+      }
+      attrDef.retrieveData();
+    });
+    tabMenu.addWidget(showEntitylessBox);
 
-		final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-		saveButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				final ArrayList<AttributeDefinition> list = attrDef.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-					for (int i = 0; i < list.size(); i++) {
-						final int x = i;
-						UpdateAttribute request = new UpdateAttribute(JsonCallbackEvents.disableButtonEvents(saveButton, new JsonCallbackEvents(){
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								attrDef.getSelectionModel().setSelected(list.get(x), false);
-							}
-						}));
-						request.updateAttribute(list.get(i));
-					}
-				}
-			}
-		});
-		tabMenu.addWidget(saveButton);
+    // add menu to page
+    mainPage.add(tabMenu);
+    mainPage.setCellHeight(tabMenu, "30px");
 
-		//if checkbox is checked only entityless attributes will be shown
-		CheckBox showEntitylessBox = new CheckBox("Show only Entityless Attributes");
-		showEntitylessBox.setValue(false);
-		showEntitylessBox.addValueChangeHandler(valueChangeEvent -> {
-			if (showEntitylessBox.getValue()) {
-				attrDef.setEntity("entityless");
-			} else {
-				attrDef.setEntities(new HashSet<>());
-			}
-			attrDef.retrieveData();
-		});
-		tabMenu.addWidget(showEntitylessBox);
+    CellTable<AttributeDefinition> attrDefTable = attrDef.getTable(new FieldUpdater<AttributeDefinition, String>() {
+      @Override
+      public void update(int index, AttributeDefinition object, String value) {
+        if (object.getEntity().equals("entityless")) {
+          session.getTabManager().addTabToCurrentTab(new EntitylessAttributesDetailTabItem(object), true);
+        } else {
+          session.getTabManager().addTabToCurrentTab(new AttributeDefinitionDetailTabItem(object), true);
+        }
+      }
+    });
+    attrDefTable.setStyleName("perun-table");
+    ScrollPanel scrollTable = new ScrollPanel(attrDefTable);
+    scrollTable.addStyleName("perun-tableScrollPanel");
 
-		// add menu to page
-		mainPage.add(tabMenu);
-		mainPage.setCellHeight(tabMenu, "30px");
+    JsonUtils.addTableManagedButton(attrDef, attrDefTable, deleteButton);
 
-		CellTable<AttributeDefinition> attrDefTable = attrDef.getTable(new FieldUpdater<AttributeDefinition, String>() {
-			@Override
-			public void update(int index, AttributeDefinition object, String value) {
-				if (object.getEntity().equals("entityless")) {
-					session.getTabManager().addTabToCurrentTab(new EntitylessAttributesDetailTabItem(object), true);
-				} else {
-					session.getTabManager().addTabToCurrentTab(new AttributeDefinitionDetailTabItem(object), true);
-				}
-			}
-		});
-		attrDefTable.setStyleName("perun-table");
-		ScrollPanel scrollTable = new ScrollPanel(attrDefTable);
-		scrollTable.addStyleName("perun-tableScrollPanel");
+    // put page into scroll panel
+    mainPage.add(scrollTable);
 
-		JsonUtils.addTableManagedButton(attrDef, attrDefTable, deleteButton);
+    session.getUiElements().resizePerunTable(scrollTable, 350, this);
 
-		// put page into scroll panel
-		mainPage.add(scrollTable);
+    this.contentWidget.setWidget(mainPage);
 
-		session.getUiElements().resizePerunTable(scrollTable, 350, this);
+    return getWidget();
+  }
 
-		this.contentWidget.setWidget(mainPage);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.attributesDisplayIcon();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 563;
+    int result = 1;
+    result = prime * result * 13;
+    return result;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.attributesDisplayIcon();
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 563;
-		int result = 1;
-		result = prime * result * 13;
-		return result;
-	}
+    return true;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-		return true;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Attributes", getUrlWithParameters());
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean isAuthorized() {
+    return session.isPerunAdmin();
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.PERUN_ADMIN, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Attributes", getUrlWithParameters());
-	}
+  public String getUrl() {
+    return URL;
+  }
 
-	public boolean isAuthorized() {
-		return session.isPerunAdmin();
-	}
-
-	public final static String URL = "attr-def";
-
-	public String getUrl() {
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return AttributesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
-
-	static public AttributeDefinitionsTabItem load(Map<String, String> parameters) {
-		return new AttributeDefinitionsTabItem();
-	}
+  public String getUrlWithParameters() {
+    return AttributesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

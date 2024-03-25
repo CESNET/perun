@@ -12,24 +12,24 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 @SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_epuids extends UserVirtualAttributeCollectedFromUserExtSource {
 
-	@Override
-	public String getSourceAttributeFriendlyName() {
-		return "epuid";
-	}
+  @Override
+  public String getDestinationAttributeDescription() {
+    return "All eduPersonUniqueIds of a user";
+  }
 
-	@Override
-	public String getDestinationAttributeFriendlyName() {
-		return "epuids";
-	}
+  @Override
+  public String getDestinationAttributeDisplayName() {
+    return "eduPersonUniqueIds";
+  }
 
-	@Override
-	public String getDestinationAttributeDisplayName() {
-		return "eduPersonUniqueIds";
-	}
+  @Override
+  public String getDestinationAttributeFriendlyName() {
+    return "epuids";
+  }
 
-	@Override
-	public String getDestinationAttributeDescription() {
-		return "All eduPersonUniqueIds of a user";
-	}
+  @Override
+  public String getSourceAttributeFriendlyName() {
+    return "epuid";
+  }
 
 }

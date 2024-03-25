@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class SponsoredMemberSet extends AuditEvent {
 
-	private Member sponsoredMember;
-	private String message;
+  private Member sponsoredMember;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public SponsoredMemberSet() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public SponsoredMemberSet() {
+  }
 
-	public SponsoredMemberSet(Member sponsoredMember) {
-		this.sponsoredMember = sponsoredMember;
-		this.message = formatMessage("%s is now sponsored.", sponsoredMember);
-	}
+  public SponsoredMemberSet(Member sponsoredMember) {
+    this.sponsoredMember = sponsoredMember;
+    this.message = formatMessage("%s is now sponsored.", sponsoredMember);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Member getSponsoredMember() {
-		return sponsoredMember;
-	}
+  public Member getSponsoredMember() {
+    return sponsoredMember;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

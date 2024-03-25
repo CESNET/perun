@@ -7,36 +7,37 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
 public class MailForGroupIdRemoved extends AuditEvent implements EngineIgnoreEvent {
 
-	private ApplicationMail mail;
-	private Group group;
-	private String message;
+  private ApplicationMail mail;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public MailForGroupIdRemoved() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public MailForGroupIdRemoved() {
+  }
 
-	public MailForGroupIdRemoved(ApplicationMail mail, Group group) {
-		this.mail = mail;
-		this.group = group;
-		this.message = formatMessage("Mail ID: %d of Type: %s/%s removed for Group ID: %d.", mail.getId(),
-				mail.getMailType(), mail.getAppType(), group.getId());
-	}
+  public MailForGroupIdRemoved(ApplicationMail mail, Group group) {
+    this.mail = mail;
+    this.group = group;
+    this.message =
+        formatMessage("Mail ID: %d of Type: %s/%s removed for Group ID: %d.", mail.getId(), mail.getMailType(),
+            mail.getAppType(), group.getId());
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public ApplicationMail getMail() {
-		return mail;
-	}
+  public ApplicationMail getMail() {
+    return mail;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

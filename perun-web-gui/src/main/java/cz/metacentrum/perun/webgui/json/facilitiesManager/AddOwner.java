@@ -16,112 +16,117 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class AddOwner {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// IDS
-	private int owner = 0;
-	private int facility = 0;
-	// URL to call
-	final String JSON_URL = "facilitiesManager/addOwner";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // URL to call
+  final String JSON_URL = "facilitiesManager/addOwner";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // IDS
+  private int owner = 0;
+  private int facility = 0;
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	/**
-	 * Creates a new request
-	 */
-	public AddOwner() {}
+  /**
+   * Creates a new request
+   */
+  public AddOwner() {
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param events Custom events
-	 */
-	public AddOwner(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param events Custom events
+   */
+  public AddOwner(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false if process can/can't continue
-	 */
-	private boolean testAdding()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false if process can/can't continue
+   */
+  private boolean testAdding() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(facility == 0){
-			errorMsg += "Wrong parameter 'Facility'.\n";
-			result = false;
-		}
+    if (facility == 0) {
+      errorMsg += "Wrong parameter 'Facility'.\n";
+      result = false;
+    }
 
-		if(owner == 0){
-			errorMsg += "Wrong parameter 'Owner'.\n";
-			result = false;
-		}
+    if (owner == 0) {
+      errorMsg += "Wrong parameter 'Owner'.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to add owner to facility, it first tests the values and then submits them.
-	 *
-	 * @param facility ID of facility which should have owner added
-	 * @param owner ID of owner to be added to facility
-	 */
-	public void addOwner(final int facility,final int owner)
-	{
-		this.facility = facility;
-		this.owner = owner;
+  /**
+   * Attempts to add owner to facility, it first tests the values and then submits them.
+   *
+   * @param facility ID of facility which should have owner added
+   * @param owner    ID of owner to be added to facility
+   */
+  public void addOwner(final int facility, final int owner) {
+    this.facility = facility;
+    this.owner = owner;
 
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
+    // test arguments
+    if (!this.testAdding()) {
+      return;
+    }
 
-		// json object
-		JSONObject jsonQuery = prepareJSONObject();
+    // json object
+    JSONObject jsonQuery = prepareJSONObject();
 
-		// local events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+    // local events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding owner " + owner + " to facility "+facility+" failed.");
-				events.onError(error);
-			};
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Adding owner " + owner + " to facility " + facility + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Owner " + owner + " added to facility "+ facility);
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Owner " + owner + " added to facility " + facility);
+        events.onFinished(jso);
+      }
 
-		};
+      ;
 
-		// create request
-		JsonPostClient request = new JsonPostClient(newEvents);
-		request.sendData(JSON_URL, jsonQuery);
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	}
+      ;
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("facility", new JSONNumber(facility));
-		jsonQuery.put("owner", new JSONNumber(owner));
-		return jsonQuery;
-	}
+    };
+
+    // create request
+    JsonPostClient request = new JsonPostClient(newEvents);
+    request.sendData(JSON_URL, jsonQuery);
+
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("facility", new JSONNumber(facility));
+    jsonQuery.put("owner", new JSONNumber(owner));
+    return jsonQuery;
+  }
 
 }

@@ -19,116 +19,123 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.model.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Registration module for ElixirBonaFideStatus.
- * Contains logic if the user can acquire bonaFideStatus defined by ELIXIR.
+ * Registration module for ElixirBonaFideStatus. Contains logic if the user can acquire bonaFideStatus defined by
+ * ELIXIR.
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
 public class ElixirBonaFideStatus extends DefaultRegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(ElixirBonaFideStatus.class);
+  static final Logger LOG = LoggerFactory.getLogger(ElixirBonaFideStatus.class);
 
-	private static final String USER_BONA_FIDE_STATUS_ATTR_NAME = "bonaFideStatus";
-	private static final String USER_BONA_FIDE_STATUS_REMS_ATTR_NAME = "elixirBonaFideStatusREMS";
-	private static final String USER_AFFILIATIONS_ATTR_NAME = "voPersonExternalAffiliation";
-	private static final String GROUP_ATESTATION_ATTR_NAME = "attestation";
+  private static final String USER_BONA_FIDE_STATUS_ATTR_NAME = "bonaFideStatus";
+  private static final String USER_BONA_FIDE_STATUS_REMS_ATTR_NAME = "elixirBonaFideStatusREMS";
+  private static final String USER_AFFILIATIONS_ATTR_NAME = "voPersonExternalAffiliation";
+  private static final String GROUP_ATESTATION_ATTR_NAME = "attestation";
 
-	private static final String A_U_D_userBonaFideStatus = AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_ATTR_NAME;
-	private static final String A_U_D_userBonaFideStatusRems = AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
-	private static final String A_U_D_userVoPersonExternalAffiliation = AttributesManager.NS_USER_ATTR_VIRT + ':' + USER_AFFILIATIONS_ATTR_NAME;
-	private static final String A_G_D_groupAttestation = AttributesManager.NS_GROUP_ATTR_DEF + ':' + GROUP_ATESTATION_ATTR_NAME;
+  private static final String A_U_D_USER_BONA_FIDE_STATUS =
+      AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_ATTR_NAME;
+  private static final String A_U_D_USER_BONA_FIDE_STATUS_REMS =
+      AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
+  private static final String A_U_D_USER_VO_PERSON_EXTERNAL_AFFILIATION =
+      AttributesManager.NS_USER_ATTR_VIRT + ':' + USER_AFFILIATIONS_ATTR_NAME;
+  private static final String A_G_D_GROUP_ATTESTATION =
+      AttributesManager.NS_GROUP_ATTR_DEF + ':' + GROUP_ATESTATION_ATTR_NAME;
 
-	/**
-	 * Add new bonaFideStatus to the user attribute.
-	 */
-	@Override
-	public Application approveApplication(PerunSession session, Application app) throws GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		User user = app.getUser();
-		Group group = app.getGroup();
+  /**
+   * Add new bonaFideStatus to the user attribute.
+   */
+  @Override
+  public Application approveApplication(PerunSession session, Application app)
+      throws GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException,
+      PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+    User user = app.getUser();
+    Group group = app.getGroup();
 
-		AttributesManager am = session.getPerun().getAttributesManager();
-		Attribute attestation = am.getAttribute(session, group, A_G_D_groupAttestation);
+    AttributesManager am = session.getPerun().getAttributesManager();
+    Attribute attestation = am.getAttribute(session, group, A_G_D_GROUP_ATTESTATION);
 
-		String newValue = attestation.valueAsString();
+    String newValue = attestation.valueAsString();
 
-		Attribute bonaFideStatus = am.getAttribute(session, user, A_U_D_userBonaFideStatus);
+    Attribute bonaFideStatus = am.getAttribute(session, user, A_U_D_USER_BONA_FIDE_STATUS);
 
-		List<String> value = new ArrayList<>();
-		if (bonaFideStatus.getValue() != null && bonaFideStatus.valueAsList() != null) {
-			value = bonaFideStatus.valueAsList();
-		}
+    List<String> value = new ArrayList<>();
+    if (bonaFideStatus.getValue() != null && bonaFideStatus.valueAsList() != null) {
+      value = bonaFideStatus.valueAsList();
+    }
 
-		value.add(newValue);
+    value.add(newValue);
 
-		bonaFideStatus.setValue(value);
-		am.setAttribute(session, user, bonaFideStatus);
+    bonaFideStatus.setValue(value);
+    am.setAttribute(session, user, bonaFideStatus);
 
-		return app;
-	}
+    return app;
+  }
 
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException {
-		Group group = app.getGroup();
-		if (group == null) {
-			throw new CantBeApprovedException("This module can be set only for registration to Group.");
-		}
+  @Override
+  public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException {
+    Group group = app.getGroup();
+    if (group == null) {
+      throw new CantBeApprovedException("This module can be set only for registration to Group.");
+    }
 
-		AttributesManagerBl am = ((PerunBl)session.getPerun()).getAttributesManagerBl();
-		Attribute attestation;
-		try {
-			attestation = am.getAttribute(session, group, A_G_D_groupAttestation);
-		} catch (Exception e) {
-			throw new InternalErrorException(e.getMessage(), e);
-		}
+    AttributesManagerBl am = ((PerunBl) session.getPerun()).getAttributesManagerBl();
+    Attribute attestation;
+    try {
+      attestation = am.getAttribute(session, group, A_G_D_GROUP_ATTESTATION);
+    } catch (Exception e) {
+      throw new InternalErrorException(e.getMessage(), e);
+    }
 
-		if (attestation == null) {
-			throw new CantBeApprovedException("Application cannot be approved: Group does not have attestation attribute set.");
-		}
+    if (attestation == null) {
+      throw new CantBeApprovedException(
+          "Application cannot be approved: Group does not have attestation attribute set.");
+    }
 
-		String newValue = attestation.valueAsString();
-		if (newValue == null || newValue.isEmpty()) {
-			throw new CantBeApprovedException("Application cannot be approved: Group does not have attestation value set.");
-		}
+    String newValue = attestation.valueAsString();
+    if (newValue == null || newValue.isEmpty()) {
+      throw new CantBeApprovedException("Application cannot be approved: Group does not have attestation value set.");
+    }
 
-		return app;
-	}
+    return app;
+  }
 
-	/**
-	 * Validate if the user meets criteria for applying to group.
-	 */
-	@Override
-	public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params) throws PerunException {
-		User user = session.getPerunPrincipal().getUser();
-		if (user == null) {
-			throw new CantBeSubmittedException("This module can be set only for registration to Group.");
-		}
-		AttributesManagerBl am = ((PerunBl)session.getPerun()).getAttributesManagerBl();
+  /**
+   * Validate if the user meets criteria for applying to group.
+   */
+  @Override
+  public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params)
+      throws PerunException {
+    User user = session.getPerunPrincipal().getUser();
+    if (user == null) {
+      throw new CantBeSubmittedException("This module can be set only for registration to Group.");
+    }
+    AttributesManagerBl am = ((PerunBl) session.getPerun()).getAttributesManagerBl();
 
-		Attribute affiliations = am.getAttribute(session, user, A_U_D_userVoPersonExternalAffiliation);
+    Attribute affiliations = am.getAttribute(session, user, A_U_D_USER_VO_PERSON_EXTERNAL_AFFILIATION);
 
-		if (affiliations.getValue() != null) {
-			List<String> val = affiliations.valueAsList();
-			for (String affiliation: val) {
-				if (affiliation.startsWith("faculty@")) {
-					return;
-				}
-			}
-		}
+    if (affiliations.getValue() != null) {
+      List<String> val = affiliations.valueAsList();
+      for (String affiliation : val) {
+        if (affiliation.startsWith("faculty@")) {
+          return;
+        }
+      }
+    }
 
-		Attribute rems = am.getAttribute(session, user, A_U_D_userBonaFideStatusRems);
+    Attribute rems = am.getAttribute(session, user, A_U_D_USER_BONA_FIDE_STATUS_REMS);
 
-		if (rems.getValue() != null) {
-			return;
-		}
+    if (rems.getValue() != null) {
+      return;
+    }
 
-		throw new CantBeSubmittedException("User does not meet the criteria for applying for Bona Fide Status");
-	}
+    throw new CantBeSubmittedException("User does not meet the criteria for applying for Bona Fide Status");
+  }
 }

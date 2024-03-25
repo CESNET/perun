@@ -18,134 +18,137 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 public class RemoveDestination {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "servicesManager/removeDestination";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	private int facilityId = 0;
-	private int serviceId = 0;
-	private String destination = "";
-	private String type = "";
+  // URL to call
+  final String JSON_URL = "servicesManager/removeDestination";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private int facilityId = 0;
+  private int serviceId = 0;
+  private String destination = "";
+  private String type = "";
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param facilityId ID of facility to remove destination from
-	 * @param serviceId ID of service to remove destination for
-	 */
-	public RemoveDestination(int facilityId, int serviceId) {
-		this.facilityId = facilityId;
-		this.serviceId = serviceId;
-	}
+  /**
+   * Creates a new request
+   *
+   * @param facilityId ID of facility to remove destination from
+   * @param serviceId  ID of service to remove destination for
+   */
+  public RemoveDestination(int facilityId, int serviceId) {
+    this.facilityId = facilityId;
+    this.serviceId = serviceId;
+  }
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param facilityId ID of facility to remove destination from
-	 * @param serviceId ID of service to remove destination for
-	 * @param events custom events
-	 */
-	public RemoveDestination(int facilityId, int serviceId, final JsonCallbackEvents events) {
-		this.facilityId = facilityId;
-		this.serviceId = serviceId;
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events
+   *
+   * @param facilityId ID of facility to remove destination from
+   * @param serviceId  ID of service to remove destination for
+   * @param events     custom events
+   */
+  public RemoveDestination(int facilityId, int serviceId, final JsonCallbackEvents events) {
+    this.facilityId = facilityId;
+    this.serviceId = serviceId;
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testRemoving()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testRemoving() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(facilityId == 0){
-			errorMsg += "Wrong parameter 'Facility'.\n";
-			result = false;
-		}
+    if (facilityId == 0) {
+      errorMsg += "Wrong parameter 'Facility'.\n";
+      result = false;
+    }
 
-		if(serviceId == 0){
-			errorMsg += "Wrong parameter 'Service'.\n";
-			result = false;
-		}
+    if (serviceId == 0) {
+      errorMsg += "Wrong parameter 'Service'.\n";
+      result = false;
+    }
 
-		if(destination.length() == 0){
-			errorMsg += "Wrong parameter 'Destination'.\n";
-			result = false;
-		}
+    if (destination.length() == 0) {
+      errorMsg += "Wrong parameter 'Destination'.\n";
+      result = false;
+    }
 
-		if(type.length() == 0){
-			errorMsg += "Wrong parameter 'Type'.\n";
-			result = false;
-		}
+    if (type.length() == 0) {
+      errorMsg += "Wrong parameter 'Type'.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to remove a Destination from service and facility, it first tests the values and then
-	 * submits them.
-	 *
-	 * @param destination destination string
-	 * @param type type of destination
-	 */
-	public void removeDestination(final String destination, final String type)
-	{
+  /**
+   * Attempts to remove a Destination from service and facility, it first tests the values and then
+   * submits them.
+   *
+   * @param destination destination string
+   * @param type        type of destination
+   */
+  public void removeDestination(final String destination, final String type) {
 
-		this.destination = destination;
-		this.type = type;
+    this.destination = destination;
+    this.type = type;
 
-		// test arguments
-		if(!this.testRemoving()){
-			return;
-		}
+    // test arguments
+    if (!this.testRemoving()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Removing destination" + destination + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Removing destination" + destination + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Destination " + destination + " removed.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Destination " + destination + " removed.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("destination", new JSONString(destination));
-		jsonQuery.put("type", new JSONString(type));
-		jsonQuery.put("service", new JSONNumber(serviceId));
-		jsonQuery.put("facility", new JSONNumber(facilityId));
+      ;
+    };
 
-		return jsonQuery;
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
+
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("destination", new JSONString(destination));
+    jsonQuery.put("type", new JSONString(type));
+    jsonQuery.put("service", new JSONNumber(serviceId));
+    jsonQuery.put("facility", new JSONNumber(facilityId));
+
+    return jsonQuery;
+  }
 
 }

@@ -1,290 +1,257 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
-import cz.metacentrum.perun.rpc.*;
+import cz.metacentrum.perun.rpc.ApiCaller;
+import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public enum ExtSourcesManagerMethod implements ManagerMethod {
 
-	/*#
-	 * Creates an external source.
-	 * ExtSource object must contain: name, type. Other parameters are ignored.
-	 * @param extSource ExtSource JSON object
-	 * @return ExtSource Created ExtSource
-	 */
-	/*#
-	 * Creates an external source.
-	 * @param name String name of ExtSource
-	 * @param type String type of ExtSource
-	 * @return ExtSource Created ExtSource
-	 */
-	createExtSource {
+  /*#
+   * Creates an external source.
+   * ExtSource object must contain: name, type. Other parameters are ignored.
+   * @param extSource ExtSource JSON object
+   * @return ExtSource Created ExtSource
+   */
+  /*#
+   * Creates an external source.
+   * @param name String name of ExtSource
+   * @param type String type of ExtSource
+   * @return ExtSource Created ExtSource
+   */
+  createExtSource {
+    @Override
+    public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
 
-		@Override
-		public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
+      if (parms.contains("extSource")) {
+        return ac.getExtSourcesManager()
+            .createExtSource(ac.getSession(), parms.read("extSource", ExtSource.class), null);
+      } else if (parms.contains("name") && parms.contains("type")) {
+        String name = parms.readString("name");
+        String type = parms.readString("type");
+        ExtSource extSource = new ExtSource(name, type);
+        return ac.getExtSourcesManager().createExtSource(ac.getSession(), extSource, null);
+      } else {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+      }
+    }
+  }, /*#
+   * Delete an external source.
+   * @param id int ExtSource <code>id</code>
+   */
+  deleteExtSource {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getExtSourcesManager().deleteExtSource(ac.getSession(), ac.getExtSourceById(parms.readInt("id")));
+      return null;
+    }
+  }, /*#
+   * Returns an external source by its <code>id</code>.
+   *
+   * @param id int ExtSource <code>id</code>
+   * @return ExtSource Found ExtSource
+   */
+  getExtSourceById {
+    @Override
+    public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getExtSourcesManager().getExtSourceById(ac.getSession(), parms.readInt("id"));
+    }
+  },
 
-			if (parms.contains("extSource")) {
-				return ac.getExtSourcesManager().createExtSource(ac.getSession(), parms.read("extSource", ExtSource.class), null);
-			} else if (parms.contains("name") && parms.contains("type")) {
-				String name = parms.readString("name");
-				String type = parms.readString("type");
-				ExtSource extSource = new ExtSource(name, type);
-				return ac.getExtSourcesManager().createExtSource(ac.getSession(), extSource, null);
-			} else {
-				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
-			}
-		}
-	},
-	/*#
-	 * Delete an external source.
-	 * @param id int ExtSource <code>id</code>
-	 */
-	deleteExtSource {
+  /*#
+   * Returns an external source by its name.
+   *
+   * @param name String ExtSource name
+   * @return ExtSource Found ExtSource
+   */
+  getExtSourceByName {
+    @Override
+    public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getExtSourcesManager().getExtSourceByName(ac.getSession(), parms.readString("name"));
+    }
+  }, /*#
+   * Returns the list of external sources associated with a VO.
+   *
+   * @param vo int VO <code>id</code>
+   * @return List<ExtSource> VO external sources
+   */
+  getVoExtSources {
+    @Override
+    public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getExtSourcesManager().getVoExtSources(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+    }
+  },
 
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
-			ac.getExtSourcesManager().deleteExtSource(ac.getSession(), ac.getExtSourceById(parms.readInt("id")));
-			return null;
-		}
-	},
-	/*#
-	 * Returns an external source by its <code>id</code>.
-	 *
-	 * @param id int ExtSource <code>id</code>
-	 * @return ExtSource Found ExtSource
-	 */
-	getExtSourceById {
+  /*#
+   * Returns the list of external sources associated with a GROUP.
+   *
+   * @param group int GROUP <code>id</code>
+   * @return List<ExtSource> GROUP external sources
+   */
+  getGroupExtSources {
+    @Override
+    public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getExtSourcesManager().getGroupExtSources(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+    }
+  },
 
-		@Override
-		public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getExtSourcesManager().getExtSourceById(ac.getSession(), parms.readInt("id"));
-		}
-	},
+  /*#
+   * Returns the list of all external sources.
+   *
+   * @return List<ExtSource> all external sources
+   */
+  getExtSources {
+    @Override
+    public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getExtSourcesManager().getExtSources(ac.getSession());
+    }
+  },
 
-	/*#
-	 * Returns an external source by its name.
-	 *
-	 * @param name String ExtSource name
-	 * @return ExtSource Found ExtSource
-	 */
-	getExtSourceByName {
+  /*#
+   * Associate an external source definition with a VO.
+   *
+   * @param vo int VO <code>id</code>
+   * @param source int ExtSource <code>id</code>
+   */
+  /*#
+   * Associate an external source definition with a GROUP.
+   *
+   * @param group int GROUP <code>id</code>
+   * @param source int ExtSource <code>id</code>
+   */
+  addExtSource {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
 
-		@Override
-		public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getExtSourcesManager().getExtSourceByName(ac.getSession(),
-					parms.readString("name"));
-		}
-	},
-	/*#
-	 * Returns the list of external sources associated with a VO.
-	 *
-	 * @param vo int VO <code>id</code>
-	 * @return List<ExtSource> VO external sources
-	 */
-	getVoExtSources {
+      if (parms.contains("vo")) {
+        ac.getExtSourcesManager().addExtSource(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            ac.getExtSourceById(parms.readInt("source")));
+      } else if (parms.contains("group")) {
+        ac.getExtSourcesManager().addExtSource(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+            ac.getExtSourceById(parms.readInt("source")));
+      } else {
+        throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
+      }
 
-		@Override
-		public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getExtSourcesManager().getVoExtSources(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")));
-		}
-	},
+      return null;
+    }
+  },
 
-	/*#
-	 * Returns the list of external sources associated with a GROUP.
-	 *
-	 * @param group int GROUP <code>id</code>
-	 * @return List<ExtSource> GROUP external sources
-	 */
-	getGroupExtSources {
+  /*#
+   * Associate external source definitions with a VO.
+   *
+   * @param vo int VO <code>id</code>
+   * @param sourceIds List<Integer> ExtSource <code>id</code>
+   */
+  /*#
+   * Associate external source definitions with a GROUP.
+   *
+   * @param group int GROUP <code>id</code>
+   * @param extSources List<Integer> ExtSource <code>id</code>
+   */
+  addExtSources {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
 
-		@Override
-		public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getExtSourcesManager().getGroupExtSources(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")));
-		}
-	},
+      List<ExtSource> sources = new ArrayList<>();
+      for (Integer srcId : parms.readList("extSources", Integer.class)) {
+        sources.add(ac.getExtSourceById(srcId));
+      }
 
-	/*#
-	 * Returns the list of all external sources.
-	 *
-	 * @return List<ExtSource> all external sources
-	 */
-	getExtSources {
+      if (parms.contains("vo")) {
+        ac.getExtSourcesManager().addExtSources(ac.getSession(), ac.getVoById(parms.readInt("vo")), sources);
+      } else if (parms.contains("group")) {
+        ac.getExtSourcesManager().addExtSources(ac.getSession(), ac.getGroupById(parms.readInt("group")), sources);
+      } else {
+        throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
+      }
 
-		@Override
-		public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getExtSourcesManager().getExtSources(ac.getSession());
-		}
-	},
+      return null;
+    }
+  },
 
-	/*#
-	 * Associate an external source definition with a VO.
-	 *
-	 * @param vo int VO <code>id</code>
-	 * @param source int ExtSource <code>id</code>
-	 */
-	/*#
-	 * Associate an external source definition with a GROUP.
-	 *
-	 * @param group int GROUP <code>id</code>
-	 * @param source int ExtSource <code>id</code>
-	 */
-	addExtSource {
+  /*#
+   * Remove an association of an external source from a VO.
+   *
+   * @param vo int VO <code>id</code>
+   * @param source int ExtSource <code>id</code>
+   */
+  /*#
+   * Remove an association of an external source from a GROUP.
+   *
+   * @param group int GROUP <code>id</code>
+   * @param source int ExtSource <code>id</code>
+   */
+  removeExtSource {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
 
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms)
-		throws PerunException {
-		parms.stateChangingCheck();
+      if (parms.contains("vo")) {
+        ac.getExtSourcesManager().removeExtSource(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+            ac.getExtSourceById(parms.readInt("source")));
+      } else if (parms.contains("group")) {
+        ac.getExtSourcesManager().removeExtSource(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+            ac.getExtSourceById(parms.readInt("source")));
+      } else {
+        throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
+      }
 
-		if(parms.contains("vo")) {
-			ac.getExtSourcesManager().addExtSource(ac.getSession(),
-				ac.getVoById(parms.readInt("vo")),
-				ac.getExtSourceById(parms.readInt("source")));
-		} else if(parms.contains("group")) {
-			ac.getExtSourcesManager().addExtSource(ac.getSession(),
-				ac.getGroupById(parms.readInt("group")),
-				ac.getExtSourceById(parms.readInt("source")));
-		} else {
-			throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
-		}
 
-		return null;
-		}
-	},
+      return null;
+    }
+  },
 
-	/*#
-	 * Associate external source definitions with a VO.
-	 *
-	 * @param vo int VO <code>id</code>
-	 * @param sourceIds List<Integer> ExtSource <code>id</code>
-	 */
-	/*#
-	 * Associate external source definitions with a GROUP.
-	 *
-	 * @param group int GROUP <code>id</code>
-	 * @param extSources List<Integer> ExtSource <code>id</code>
-	 */
-	addExtSources {
+  /*#
+   * Remove associations of external sources from a VO.
+   *
+   * @param vo int VO <code>id</code>
+   * @param sourceIds List<Integer> ExtSource <code>id</code>
+   */
+  /*#
+   * Remove associations of external sources from a GROUP.
+   *
+   * @param group int GROUP <code>id</code>
+   * @param extSources List<Integer> ExtSource <code>id</code>
+   */
+  removeExtSources {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
 
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms)
-			throws PerunException {
-			parms.stateChangingCheck();
+      List<ExtSource> sources = new ArrayList<>();
+      for (Integer srcId : parms.readList("extSources", Integer.class)) {
+        sources.add(ac.getExtSourceById(srcId));
+      }
 
-			List<ExtSource> sources = new ArrayList<>();
-			for (Integer srcId : parms.readList("extSources", Integer.class)) {
-				sources.add(ac.getExtSourceById(srcId));
-			}
+      if (parms.contains("vo")) {
+        ac.getExtSourcesManager().removeExtSources(ac.getSession(), ac.getVoById(parms.readInt("vo")), sources);
+      } else if (parms.contains("group")) {
+        ac.getExtSourcesManager().removeExtSources(ac.getSession(), ac.getGroupById(parms.readInt("group")), sources);
+      } else {
+        throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
+      }
 
-			if(parms.contains("vo")) {
-				ac.getExtSourcesManager().addExtSources(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")),
-					sources);
-			} else if(parms.contains("group")) {
-				ac.getExtSourcesManager().addExtSources(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")),
-					sources);
-			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
-			}
+      return null;
+    }
+  },
 
-			return null;
-		}
-	},
-
-	/*#
-	 * Remove an association of an external source from a VO.
-	 *
-	 * @param vo int VO <code>id</code>
-	 * @param source int ExtSource <code>id</code>
-	 */
-	/*#
-	 * Remove an association of an external source from a GROUP.
-	 *
-	 * @param group int GROUP <code>id</code>
-	 * @param source int ExtSource <code>id</code>
-	 */
-	removeExtSource {
-
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms)
-		throws PerunException {
-		parms.stateChangingCheck();
-
-		if(parms.contains("vo")) {
-			ac.getExtSourcesManager().removeExtSource(ac.getSession(),
-				ac.getVoById(parms.readInt("vo")),
-				ac.getExtSourceById(parms.readInt("source")));
-		} else if(parms.contains("group")) {
-			ac.getExtSourcesManager().removeExtSource(ac.getSession(),
-				ac.getGroupById(parms.readInt("group")),
-				ac.getExtSourceById(parms.readInt("source")));
-		} else {
-			throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
-		}
-
-		
-		return null;
-		}
-	},
-
-	/*#
-	 * Remove associations of external sources from a VO.
-	 *
-	 * @param vo int VO <code>id</code>
-	 * @param sourceIds List<Integer> ExtSource <code>id</code>
-	 */
-	/*#
-	 * Remove associations of external sources from a GROUP.
-	 *
-	 * @param group int GROUP <code>id</code>
-	 * @param extSources List<Integer> ExtSource <code>id</code>
-	 */
-	removeExtSources {
-
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms)
-			throws PerunException {
-			parms.stateChangingCheck();
-
-			List<ExtSource> sources = new ArrayList<>();
-			for (Integer srcId : parms.readList("extSources", Integer.class)) {
-				sources.add(ac.getExtSourceById(srcId));
-			}
-
-			if(parms.contains("vo")) {
-				ac.getExtSourcesManager().removeExtSources(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")),
-					sources);
-			} else if(parms.contains("group")) {
-				ac.getExtSourcesManager().removeExtSources(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")),
-					sources);
-			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
-			}
-
-			return null;
-		}
-	},
-
-	/*#
-	 * Loads ext source definitions from the configuration file and updates entries stored in the DB.
-	 */
-	loadExtSourcesDefinitions {
-
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getExtSourcesManager().loadExtSourcesDefinitions(ac.getSession());
-			return null;
-		}
-	};
+  /*#
+   * Loads ext source definitions from the configuration file and updates entries stored in the DB.
+   */
+  loadExtSourcesDefinitions {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      ac.getExtSourcesManager().loadExtSourcesDefinitions(ac.getSession());
+      return null;
+    }
+  };
 }

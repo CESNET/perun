@@ -9,30 +9,30 @@ import cz.metacentrum.perun.core.api.Member;
  */
 public class MemberValidatedInGroup extends AuditEvent {
 
-	private Member member;
-	private Group group;
-	private String message;
+  private Member member;
+  private Group group;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public MemberValidatedInGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public MemberValidatedInGroup() {
+  }
 
-	public MemberValidatedInGroup(Member member, Group group) {
-		this.member = member;
-		this.group = group;
-		this.message = formatMessage("%s in %s validated.", member, group);
-	}
+  public MemberValidatedInGroup(Member member, Group group) {
+    this.member = member;
+    this.group = group;
+    this.message = formatMessage("%s in %s validated.", member, group);
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 }

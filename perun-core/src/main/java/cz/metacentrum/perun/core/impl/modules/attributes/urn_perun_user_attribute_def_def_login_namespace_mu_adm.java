@@ -11,13 +11,16 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  *
  * @author Johana Supikova <xsupikov@fi.muni.cz>
  */
-public class urn_perun_user_attribute_def_def_login_namespace_mu_adm extends urn_perun_user_attribute_def_def_login_namespace {
+public class urn_perun_user_attribute_def_def_login_namespace_mu_adm
+    extends urn_perun_user_attribute_def_def_login_namespace {
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		if (attribute.getValue() == null)
-			return;
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
+      throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		super.checkAttributeSemantics(sess, user, attribute);
-	}
+    super.checkAttributeSemantics(sess, user, attribute);
+  }
 }

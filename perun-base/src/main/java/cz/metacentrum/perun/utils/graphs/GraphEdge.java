@@ -6,68 +6,70 @@ import java.util.Objects;
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public class GraphEdge {
-	private Node sourceNode;
-	private Node targetNode;
-	private Type type;
+  private Node sourceNode;
+  private Node targetNode;
+  private Type type;
 
-	public GraphEdge(Node sourceNode, Node targetNode, Type type) {
-		this.sourceNode = sourceNode;
-		this.targetNode = targetNode;
-		this.type = type;
-	}
+  public GraphEdge(Node sourceNode, Node targetNode, Type type) {
+    this.sourceNode = sourceNode;
+    this.targetNode = targetNode;
+    this.type = type;
+  }
 
-	public Node getSourceNode() {
-		return sourceNode;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GraphEdge edge = (GraphEdge) o;
+    return Objects.equals(sourceNode, edge.sourceNode) && Objects.equals(targetNode, edge.targetNode) &&
+           type == edge.type;
+  }
 
-	public void setSourceNode(Node sourceNode) {
-		this.sourceNode = sourceNode;
-	}
+  public Node getSourceNode() {
+    return sourceNode;
+  }
 
-	public Node getTargetNode() {
-		return targetNode;
-	}
+  public void setSourceNode(Node sourceNode) {
+    this.sourceNode = sourceNode;
+  }
 
-	public void setTargetNode(Node targetNode) {
-		this.targetNode = targetNode;
-	}
+  public Node getTargetNode() {
+    return targetNode;
+  }
 
-	public Type getType() {
-		return type;
-	}
+  public void setTargetNode(Node targetNode) {
+    this.targetNode = targetNode;
+  }
 
-	public void setType(Type type) {
-		this.type = type;
-	}
+  public Type getType() {
+    return type;
+  }
 
-	public enum Type {
-		DASHED("dashed"),
-		BOLD("bold");
+  public void setType(Type type) {
+    this.type = type;
+  }
 
-		private String style;
+  @Override
+  public int hashCode() {
 
-		public String getStyle() {
-			return style;
-		}
+    return Objects.hash(sourceNode, targetNode, type);
+  }
 
-		Type(String style) {
-			this.style = style;
-		}
-	}
+  public enum Type {
+    DASHED("dashed"), BOLD("bold");
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		GraphEdge edge = (GraphEdge) o;
-		return Objects.equals(sourceNode, edge.sourceNode) &&
-				Objects.equals(targetNode, edge.targetNode) &&
-				type == edge.type;
-	}
+    private String style;
 
-	@Override
-	public int hashCode() {
+    Type(String style) {
+      this.style = style;
+    }
 
-		return Objects.hash(sourceNode, targetNode, type);
-	}
+    public String getStyle() {
+      return style;
+    }
+  }
 }

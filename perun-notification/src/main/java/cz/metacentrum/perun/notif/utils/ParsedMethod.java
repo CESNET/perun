@@ -7,66 +7,61 @@ import java.util.List;
  * Used for parsing methods
  *
  * @author tomas.tunkl
- *
  */
 public class ParsedMethod {
 
-	public enum MethodType {
+  private String methodName;
+  private MethodType methodType;
+  private List<ParsedMethod> params = new ArrayList<ParsedMethod>();
+  private ParsedMethod nextMethod;
+  private int lastPosition;
 
-		METHOD, STRING_PARAM, CLASS, INTEGER_PARAM
-	}
+  public void addParam(ParsedMethod method) {
+    params.add(method);
+  }
 
-	private String methodName;
+  public int getLastPosition() {
+    return lastPosition;
+  }
 
-	private MethodType methodType;
+  public String getMethodName() {
+    return methodName;
+  }
 
-	private List<ParsedMethod> params = new ArrayList<ParsedMethod>();
+  public MethodType getMethodType() {
+    return methodType;
+  }
 
-	private ParsedMethod nextMethod;
+  public ParsedMethod getNextMethod() {
+    return nextMethod;
+  }
 
-	private int lastPosition;
+  public List<ParsedMethod> getParams() {
+    return params;
+  }
 
-	public String getMethodName() {
-		return methodName;
-	}
+  public void setLastPosition(int lastPosition) {
+    this.lastPosition = lastPosition;
+  }
 
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
+  public void setMethodName(String methodName) {
+    this.methodName = methodName;
+  }
 
-	public MethodType getMethodType() {
-		return methodType;
-	}
+  public void setMethodType(MethodType methodType) {
+    this.methodType = methodType;
+  }
 
-	public void setMethodType(MethodType methodType) {
-		this.methodType = methodType;
-	}
+  public void setNextMethod(ParsedMethod nextMethod) {
+    this.nextMethod = nextMethod;
+  }
 
-	public ParsedMethod getNextMethod() {
-		return nextMethod;
-	}
+  public void setParams(List<ParsedMethod> params) {
+    this.params = params;
+  }
 
-	public void setNextMethod(ParsedMethod nextMethod) {
-		this.nextMethod = nextMethod;
-	}
+  public enum MethodType {
 
-	public List<ParsedMethod> getParams() {
-		return params;
-	}
-
-	public void setParams(List<ParsedMethod> params) {
-		this.params = params;
-	}
-
-	public void addParam(ParsedMethod method) {
-		params.add(method);
-	}
-
-	public int getLastPosition() {
-		return lastPosition;
-	}
-
-	public void setLastPosition(int lastPosition) {
-		this.lastPosition = lastPosition;
-	}
+    METHOD, STRING_PARAM, CLASS, INTEGER_PARAM
+  }
 }

@@ -10,6 +10,6 @@ import cz.metacentrum.perun.taskslib.model.Task;
  */
 public interface EventParser {
 
-	Task parseEvent(String event) throws InvalidEventMessageException;
+  Task parseEvent(String event) throws InvalidEventMessageException;
 
 }

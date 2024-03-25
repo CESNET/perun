@@ -13,81 +13,80 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class for checking logins uniqueness in the namespace and filling einfraid-persistent id.
- * It is only storage! Use module login elixir_persistent for access the value.
+ * Class for checking logins uniqueness in the namespace and filling einfraid-persistent id. It is only storage! Use
+ * module login elixir_persistent for access the value.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_login_namespace_einfraid_persistent_shadow extends UserPersistentShadowAttribute {
+public class urn_perun_user_attribute_def_def_login_namespace_einfraid_persistent_shadow
+    extends UserPersistentShadowAttribute {
 
-	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_einfraid_persistent_shadow.class);
+  private static final Logger LOG =
+      LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_einfraid_persistent_shadow.class);
 
-	private final static String extSourceNameEinfraid = "https://login.cesnet.cz/idp/";
-	private final static String extSourceNameEinfraCZ = "https://login.e-infra.cz/idp/";
-	private final static String domainNameEinfraid = "einfra.cesnet.cz";
-	private final static String attrNameEinfraid = "login-namespace:einfraid-persistent-shadow";
+  private static final String extSourceNameEinfraid = "https://login.cesnet.cz/idp/";
+  private static final String extSourceNameEinfraCZ = "https://login.e-infra.cz/idp/";
+  private static final String domainNameEinfraid = "einfra.cesnet.cz";
+  private static final String attrNameEinfraid = "login-namespace:einfraid-persistent-shadow";
 
-	@Override
-	public String getFriendlyName() {
-		return attrNameEinfraid;
-	}
+  /**
+   * ChangedAttributeHook() sets UserExtSource with following properties: - extSourceType is IdP - extSourceName is
+   * {getExtSourceName()} - user's extSource login is the same as his persistent attribute
+   */
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
+    try {
 
-	@Override
-	public String getExtSourceName() {
-		return extSourceNameEinfraid;
-	}
+      // create default identity based on module configuration
+      super.changedAttributeHook(session, user, attribute);
 
-	@Override
-	public String getDomainName() {
-		return domainNameEinfraid;
-	}
+      // duplicate logic for e-INFRA CZ proxy identity
+      String userNamespace = attribute.getFriendlyNameParameter();
 
-	@Override
-	public String getDescription() {
-		return "Login to EINFRA ID. Do not use it directly! Use virt:einfraid-persistent attribute instead.";
-	}
+      if (userNamespace.equals(getFriendlyNameParameter()) && attribute.getValue() != null) {
+        ExtSource extSource =
+            session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, extSourceNameEinfraCZ);
+        UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
 
-	@Override
-	public String getDisplayName() {
-		return "EINFRA ID login";
-	}
+        session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
+      }
 
-	@Override
-	public String getFriendlyNameParameter() {
-		return "einfraid-persistent-shadow";
-	}
+    } catch (UserExtSourceExistsException ex) {
+      LOG.warn("Attribute: {}, External source already exists for the user.", getFriendlyNameParameter(), ex);
+    } catch (ExtSourceNotExistsException ex) {
+      throw new InternalErrorException(
+          "Attribute: " + getFriendlyNameParameter() + ", IdP external source doesn't exist.", ex);
+    }
+  }
 
-	/**
-	 * ChangedAttributeHook() sets UserExtSource with following properties:
-	 *  - extSourceType is IdP
-	 *  - extSourceName is {getExtSourceName()}
-	 *  - user's extSource login is the same as his persistent attribute
-	 */
-	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
-		try {
+  @Override
+  public String getDescription() {
+    return "Login to EINFRA ID. Do not use it directly! Use virt:einfraid-persistent attribute instead.";
+  }
 
-			// create default identity based on module configuration
-			super.changedAttributeHook(session, user, attribute);
+  @Override
+  public String getDisplayName() {
+    return "EINFRA ID login";
+  }
 
-			// duplicate logic for e-INFRA CZ proxy identity
-			String userNamespace = attribute.getFriendlyNameParameter();
+  @Override
+  public String getDomainName() {
+    return domainNameEinfraid;
+  }
 
-			if(userNamespace.equals(getFriendlyNameParameter()) && attribute.getValue() != null){
-				ExtSource extSource = session.getPerunBl()
-						.getExtSourcesManagerBl()
-						.getExtSourceByName(session, extSourceNameEinfraCZ);
-				UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
+  @Override
+  public String getExtSourceName() {
+    return extSourceNameEinfraid;
+  }
 
-				session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
-			}
+  @Override
+  public String getFriendlyName() {
+    return attrNameEinfraid;
+  }
 
-		} catch (UserExtSourceExistsException ex) {
-			log.warn("Attribute: {}, External source already exists for the user.", getFriendlyNameParameter(), ex);
-		} catch (ExtSourceNotExistsException ex) {
-			throw new InternalErrorException("Attribute: " + getFriendlyNameParameter() +
-					", IdP external source doesn't exist.", ex);
-		}
-	}
+  @Override
+  public String getFriendlyNameParameter() {
+    return "einfraid-persistent-shadow";
+  }
 
 }

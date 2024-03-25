@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,47 +25,49 @@ import java.util.Map;
  * @author Michal Šťava <stavamichal@gmail.com>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserVirtualAttributesModuleAbstract
+    implements UserVirtualAttributesModuleImplApi {
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute attribute = new Attribute(attributeDefinition);
-		Map<String, String> certsExpiration = new LinkedHashMap<>();
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("userCertExpirations");
+    attr.setDisplayName("Certificates expirations");
+    attr.setType(LinkedHashMap.class.getName());
+    attr.setDescription("Expiration of user certificate.");
+    return attr;
+  }
 
-		Attribute userCertsAttribute = getUserCertsAttribute(sess, user);
-		Map<String, String> certs = userCertsAttribute.valueAsMap();
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute attribute = new Attribute(attributeDefinition);
+    Map<String, String> certsExpiration = new LinkedHashMap<>();
 
-		if (certs != null) {
-			certsExpiration = ModulesUtilsBlImpl.retrieveCertificatesExpiration(certs);
-			Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, attribute);
-		}
-		attribute.setValue(certsExpiration);
-		return attribute;
-	}
+    Attribute userCertsAttribute = getUserCertsAttribute(sess, user);
+    Map<String, String> certs = userCertsAttribute.valueAsMap();
 
-	private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) {
-		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException(e);
-		}
-	}
+    if (certs != null) {
+      certsExpiration = ModulesUtilsBlImpl.retrieveCertificatesExpiration(certs);
+      Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, attribute);
+    }
+    attribute.setValue(certsExpiration);
+    return attribute;
+  }
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("userCertExpirations");
-		attr.setDisplayName("Certificates expirations");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Expiration of user certificate.");
-		return attr;
-	}
+  private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) {
+    try {
+      return sess.getPerunBl().getAttributesManagerBl()
+          .getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    } catch (AttributeNotExistsException e) {
+      throw new ConsistencyErrorException(e);
+    }
+  }
 }

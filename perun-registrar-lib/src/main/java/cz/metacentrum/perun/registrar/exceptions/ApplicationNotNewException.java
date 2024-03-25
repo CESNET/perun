@@ -10,19 +10,18 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 public class ApplicationNotNewException extends PerunException {
 
 
+  private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 1L;
 
+  private final String state;
 
-	private final String state;
+  public ApplicationNotNewException(String mess, String state) {
+    super(mess);
+    this.state = state;
+  }
 
-	public ApplicationNotNewException(String mess, String state) {
-		super(mess);
-		this.state = state;
-	}
-
-	public String getState() {
-		return state;
-	}
+  public String getState() {
+    return state;
+  }
 
 }

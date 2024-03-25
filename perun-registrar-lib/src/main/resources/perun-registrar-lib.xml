@@ -1,74 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 
-	<!-- needs perun-core.xml loaded before this file -->
+    <!-- needs perun-core.xml loaded before this file -->
 
-	<!-- Enable @Transactional support -->
-	<tx:annotation-driven transaction-manager="perunTransactionManager"/>
+    <!-- Enable @Transactional support -->
+    <tx:annotation-driven transaction-manager="perunTransactionManager"/>
 
-	<!-- Enable @AspectJ support -->
-	<aop:aspectj-autoproxy/>
+    <!-- Enable @AspectJ support -->
+    <aop:aspectj-autoproxy/>
 
-	<!-- Scans for @Repository, @Service and @Component -->
-	<context:component-scan base-package="cz.metacentrum.perun.registrar"/>
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="cz.metacentrum.perun.registrar"/>
 
-	<bean id="registrarManager" class="cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl" init-method="initialize">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="registrarManager" ref="registrarManager"/>
-	</bean>
+    <bean id="registrarManager" class="cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl"
+          init-method="initialize">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="registrarManager" ref="registrarManager"/>
+    </bean>
 
-	<bean id="mailManager" class="cz.metacentrum.perun.registrar.impl.MailManagerImpl" init-method="initialize">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <bean id="mailManager" class="cz.metacentrum.perun.registrar.impl.MailManagerImpl" init-method="initialize">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="consolidatorManager" class="cz.metacentrum.perun.registrar.impl.ConsolidatorManagerImpl" init-method="initialize">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="registrarManager" ref="registrarManager"/>
-	</bean>
+    <bean id="consolidatorManager" class="cz.metacentrum.perun.registrar.impl.ConsolidatorManagerImpl"
+          init-method="initialize">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="registrarManager" ref="registrarManager"/>
+    </bean>
 
-	<bean id="expirationNotifScheduler" class="cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler" init-method="initialize">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="perun" ref="perun"/>
-	</bean>
+    <bean id="expirationNotifScheduler" class="cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler"
+          init-method="initialize">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="perun" ref="perun"/>
+    </bean>
 
-	<bean id="appAutoRejectionScheduler" class="cz.metacentrum.perun.registrar.impl.AppAutoRejectionScheduler" init-method="initialize">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="perun" ref="perun"/>
-		<property name="registrarManager" ref="registrarManager"/>
-	</bean>
+    <bean id="appAutoRejectionScheduler" class="cz.metacentrum.perun.registrar.impl.AppAutoRejectionScheduler"
+          init-method="initialize">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="perun" ref="perun"/>
+        <property name="registrarManager" ref="registrarManager"/>
+    </bean>
 
-	<!-- Properties Bean -->
-	<beans profile="production">
-		<bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="locations">
-				<list>
-					<value>file:@perun.conf@perun-registrar-lib.properties</value>
-					<value>file:${perun.conf.custom}perun-registrar-lib.properties</value>
-				</list>
-			</property>
-			<property name="ignoreResourceNotFound" value="true"/>
-		</bean>
-	</beans>
+    <!-- Properties Bean -->
+    <beans profile="production">
+        <bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="locations">
+                <list>
+                    <value>file:@perun.conf@perun-registrar-lib.properties</value>
+                    <value>file:${perun.conf.custom}perun-registrar-lib.properties</value>
+                </list>
+            </property>
+            <property name="ignoreResourceNotFound" value="true"/>
+        </bean>
+    </beans>
 
-	<beans profile="default">
-		<bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties">
-				<props>
-					<prop key="secretKey">mySecretKey</prop>
-					<prop key="backupFrom">perun@localhost</prop>
-					<prop key="backupTo">perun@localhost</prop>
-				</props>
-			</property>
-		</bean>
-	</beans>
+    <beans profile="default">
+        <bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties">
+                <props>
+                    <prop key="secretKey">mySecretKey</prop>
+                    <prop key="backupFrom">perun@localhost</prop>
+                    <prop key="backupTo">perun@localhost</prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
 
 </beans>

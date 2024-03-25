@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Destination;
 
 public class DestinationCreated extends AuditEvent implements EngineIgnoreEvent {
 
-	private Destination destination;
-	private String message;
+  private Destination destination;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public DestinationCreated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public DestinationCreated() {
+  }
 
-	public DestinationCreated(Destination destination) {
-		this.destination = destination;
-		this.message = formatMessage("%s created.", destination);
-	}
+  public DestinationCreated(Destination destination) {
+    this.destination = destination;
+    this.message = formatMessage("%s created.", destination);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Destination getDestination() {
+    return destination;
+  }
 
-	public Destination getDestination() {
-		return destination;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

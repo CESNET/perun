@@ -14,24 +14,27 @@ import java.util.Map;
  */
 public class ResourceState extends JavaScriptObject {
 
-	protected ResourceState(){};
+  protected ResourceState() {
+  }
 
-	public final native Resource getResource() /*-{
+  ;
+
+  public final native Resource getResource() /*-{
 		return this.resource;
 	}-*/;
 
-	public final native JsArray<Task> getTasks() /*-{
+  public final native JsArray<Task> getTasks() /*-{
 		return this.taskList;
 	}-*/;
 
-	/**
-	 * Compares to another object
-	 *
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(ResourceState o) {
-		return o.getResource().equals(getResource());
-	}
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(ResourceState o) {
+    return o.getResource().equals(getResource());
+  }
 
 }

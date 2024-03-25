@@ -10,28 +10,29 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public interface JsonCallback {
 
-	/**
-	 * Called, when the call successfully finishes.
-	 *
-	 * @param jso The object, which is returned.
-	 */
-	void onFinished(JavaScriptObject jso);
+  /**
+   * Called, when the call successfully finishes.
+   *
+   * @param jso The object, which is returned.
+   */
+  void onFinished(JavaScriptObject jso);
 
-	/**
-	 * Called, when an error occurs
-	 * @param error error object returned from RPC
-	 */
-	void onError(PerunError error);
+  /**
+   * Called, when an error occurs
+   *
+   * @param error error object returned from RPC
+   */
+  void onError(PerunError error);
 
-	/**
-	 * Called, when started
-	 */
-	void onLoadingStart();
+  /**
+   * Called, when started
+   */
+  void onLoadingStart();
 
-	/**
-	 * This must be called ONLY IF we want to get the values via custom
-	 * onFinished request
-	 * When getting table, it's called automatically.
-	 */
-	void retrieveData();
+  /**
+   * This must be called ONLY IF we want to get the values via custom
+   * onFinished request
+   * When getting table, it's called automatically.
+   */
+  void retrieveData();
 }

@@ -6,12 +6,20 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -27,7 +35,6 @@ import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -37,216 +44,219 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
+public class VoResourcesTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "resources";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading vo resources");
+  // data
+  private VirtualOrganization vo;
+  private int voId;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param vo
+   */
+  public VoResourcesTabItem(VirtualOrganization vo) {
+    this.vo = vo;
+    this.voId = vo.getId();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading vo resources");
+  /**
+   * Creates a tab instance
+   *
+   * @param voId
+   */
+  public VoResourcesTabItem(int voId) {
+    this.voId = voId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        vo = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+  }
 
-	// data
-	private VirtualOrganization vo;
+  static public VoResourcesTabItem load(Map<String, String> parameters) {
+    int voId = Integer.parseInt(parameters.get("id"));
+    return new VoResourcesTabItem(voId);
+  }
 
-	private int voId;
+  public boolean isPrepared() {
+    return !(vo == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param vo
-	 */
-	public VoResourcesTabItem(VirtualOrganization vo){
-		this.vo = vo;
-		this.voId = vo.getId();
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param voId
-	 */
-	public VoResourcesTabItem(int voId){
-		this.voId = voId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				vo = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-	}
+  @Override
+  public void onClose() {
 
-	public boolean isPrepared(){
-		return !(vo == null);
-	}
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public Widget draw() {
 
-	@Override
-	public void onClose() {
+    // set title
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName()) + ": resources");
 
-	}
+    // main panel
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-	public Widget draw() {
+    // HORIZONTAL MENU
+    TabMenu menu = new TabMenu();
+    // refresh
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": resources");
+    // get VO resources
+    final GetRichResources resources = new GetRichResources(voId);
+    if (!session.isVoAdmin(voId)) {
+      resources.setCheckable(false);
+    }
 
-		// main panel
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    // custom events for viewResource
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resources);
 
-		// HORIZONTAL MENU
-		TabMenu menu = new TabMenu();
-		// refresh
-		menu.addWidget(UiElements.getRefreshButton(this));
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteResource());
+    menu.addWidget(removeButton);
+    removeButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        final ArrayList<RichResource> resourcesForDeleting = resources.getTableSelectedList();
+        String text = "Following resources will be deleted and VO members won't be able to access them anymore.";
+        UiElements.showDeleteConfirm(resourcesForDeleting, text, new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent clickEvent) {
+            // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+            for (int i = 0; i < resourcesForDeleting.size(); i++) {
+              DeleteResource request;
+              if (i == resourcesForDeleting.size() - 1) {
+                request = new DeleteResource(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+              } else {
+                request = new DeleteResource(JsonCallbackEvents.disableButtonEvents(removeButton));
+              }
+              request.deleteResource(resourcesForDeleting.get(i).getId());
+            }
+          }
+        });
+      }
+    });
 
-		// get VO resources
-		final GetRichResources resources = new GetRichResources(voId);
-		if (!session.isVoAdmin(voId)) resources.setCheckable(false);
+    // add menu to the main panel
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		// custom events for viewResource
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resources);
+    // filter box
+    menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
+      public void searchFor(String text) {
+        resources.filterTable(text);
+      }
+    }, ButtonTranslation.INSTANCE.filterResources());
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, ButtonTranslation.INSTANCE.deleteResource());
-		menu.addWidget(removeButton);
-		removeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				final ArrayList<RichResource> resourcesForDeleting = resources.getTableSelectedList();
-				String text = "Following resources will be deleted and VO members won't be able to access them anymore.";
-				UiElements.showDeleteConfirm(resourcesForDeleting, text, new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i=0; i<resourcesForDeleting.size(); i++ ) {
-							DeleteResource request;
-							if (i == resourcesForDeleting.size()-1) {
-								request = new DeleteResource(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-							} else {
-								request = new DeleteResource(JsonCallbackEvents.disableButtonEvents(removeButton));
-							}
-							request.deleteResource(resourcesForDeleting.get(i).getId());
-						}
-					}
-				});
-			}
-		});
+    CellTable<RichResource> table = resources.getTable(new FieldUpdater<RichResource, String>() {
+      public void update(int index, RichResource object, String value) {
+        session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
+      }
+    });
 
-		// add menu to the main panel
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    removeButton.setEnabled(false);
+    if (session.isVoAdmin(voId)) {
+      JsonUtils.addTableManagedButton(resources, table, removeButton);
+    }
 
-		// filter box
-		menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
-			public void searchFor(String text) {
-				resources.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterResources());
+    table.addStyleName("perun-table");
+    table.setWidth("100%");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		CellTable<RichResource> table = resources.getTable(new FieldUpdater<RichResource, String>() {
-			public void update(int index, RichResource object, String value) {
-				session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
-			}
-		});
+    vp.add(sp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
+    this.contentWidget.setWidget(vp);
 
-		removeButton.setEnabled(false);
-		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(resources, table, removeButton);
+    return getWidget();
+  }
 
-		table.addStyleName("perun-table");
-		table.setWidth("100%");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		vp.add(sp);
-		session.getUiElements().resizePerunTable(sp, 350, this);
-		this.contentWidget.setWidget(vp);
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-		return getWidget();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.serverGroupIcon();
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1613;
+    int result = 1;
+    result = prime * result + voId;
+    return result;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    VoResourcesTabItem other = (VoResourcesTabItem) obj;
+    if (voId != other.voId) {
+      return false;
+    }
+    return true;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.serverGroupIcon();
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1613;
-		int result = 1;
-		result = prime * result + voId;
-		return result;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(vo, "Resources", getUrlWithParameters());
+    if (vo != null) {
+      session.setActiveVo(vo);
+      return;
+    }
+    session.setActiveVoId(voId);
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		VoResourcesTabItem other = (VoResourcesTabItem) obj;
-		if (voId != other.voId)
-			return false;
-		return true;
-	}
+  public boolean isAuthorized() {
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+    if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(vo, "Resources", getUrlWithParameters());
-		if(vo != null){
-			session.setActiveVo(vo);
-			return;
-		}
-		session.setActiveVoId(voId);
-	}
+  }
 
-	public boolean isAuthorized() {
+  public String getUrl() {
+    return URL;
+  }
 
-		if (session.isVoAdmin(voId) || session.isVoObserver(voId)) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	public final static String URL = "resources";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
-	}
-
-	static public VoResourcesTabItem load(Map<String, String> parameters) {
-		int voId = Integer.parseInt(parameters.get("id"));
-		return new VoResourcesTabItem(voId);
-	}
+  public String getUrlWithParameters() {
+    return VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + voId;
+  }
 
 }

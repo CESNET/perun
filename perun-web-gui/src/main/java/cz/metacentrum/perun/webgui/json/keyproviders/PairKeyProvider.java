@@ -8,10 +8,10 @@ import cz.metacentrum.perun.webgui.model.Pair;
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
-public class PairKeyProvider<T,E> implements ProvidesKey<Pair<T,E>> {
+public class PairKeyProvider<T, E> implements ProvidesKey<Pair<T, E>> {
 
-	@Override
-	public Object getKey(Pair<T, E> item) {
-		return item.getLeft();
-	}
+  @Override
+  public Object getKey(Pair<T, E> item) {
+    return item.getLeft();
+  }
 }

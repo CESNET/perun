@@ -9,59 +9,69 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author  Peter Balcirak <peter.balcirak@gmail.com>
+ * @author Peter Balcirak <peter.balcirak@gmail.com>
  * @date 15.08.2016
  */
-public class urn_perun_group_attribute_def_def_fromEmail  extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
+public class urn_perun_group_attribute_def_def_fromEmail extends GroupAttributesModuleAbstract
+    implements GroupAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
+  private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
-		// null attribute
-		if (attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, "Group fromEmail cannot be null.");
+    }
+  }
 
-		// wrong type of the attribute
-		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    // null attribute
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-		String fromEmail = attribute.valueAsString();
+    // wrong type of the attribute
+    if (!(attribute.getValue() instanceof String)) {
+      throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
+    }
 
-		if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, fromEmail))){
+    String fromEmail = attribute.valueAsString();
 
-			Matcher match = pattern.matcher(fromEmail);
+    if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, fromEmail))) {
 
-    		if (!match.matches()) {
-				throw new WrongAttributeValueException(attribute, "Group : " + group.getName() + " has fromEmail " + fromEmail + " which is not valid. It has to be in form \"header\" <correct email> or just correct email.");
-			}else{
+      Matcher match = pattern.matcher(fromEmail);
 
-				String[] emailParts = fromEmail.split("[<>]+");
+      if (!match.matches()) {
+        throw new WrongAttributeValueException(attribute, "Group : " + group.getName() + " has fromEmail " + fromEmail +
+                                                          " which is not valid. It has to be in form \"header\" " +
+                                                          "<correct email> or just correct email.");
+      } else {
 
-				if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, emailParts[1]))){
-					throw new WrongAttributeValueException(attribute, "Group : " + group.getName() +" has email in <> " + emailParts[1] +" which is not valid.");
-				}
-			}
-		}
-	}
+        String[] emailParts = fromEmail.split("[<>]+");
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null)
-			throw new WrongReferenceAttributeValueException(attribute, "Group fromEmail cannot be null.");
-	}
+        if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, emailParts[1]))) {
+          throw new WrongAttributeValueException(attribute,
+              "Group : " + group.getName() + " has email in <> " + emailParts[1] + " which is not valid.");
+        }
+      }
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-		attr.setFriendlyName("fromEmail");
-		attr.setDisplayName("\"From\" email address");
-		attr.setType(String.class.getName());
-		attr.setDescription("Email address used as \"from\" in mail notifications");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    attr.setFriendlyName("fromEmail");
+    attr.setDisplayName("\"From\" email address");
+    attr.setType(String.class.getName());
+    attr.setDescription("Email address used as \"from\" in mail notifications");
+    return attr;
+  }
 }

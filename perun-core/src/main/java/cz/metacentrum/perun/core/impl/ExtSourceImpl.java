@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-
 import java.util.Map;
 
 /**
@@ -11,18 +10,17 @@ import java.util.Map;
  */
 public abstract class ExtSourceImpl extends ExtSource {
 
-	protected PerunBl perunBl;
+  protected PerunBl perunBl;
+  private Map<String, String> extSourceAttributes;
 
-	void setPerunBl(PerunBl perunBl) {
-		this.perunBl = perunBl;
-	}
+  protected Map<String, String> getAttributes() throws InternalErrorException {
+    if (extSourceAttributes == null) {
+      extSourceAttributes = perunBl.getExtSourcesManagerBl().getAttributes(this);
+    }
+    return extSourceAttributes;
+  }
 
-	private Map<String,String> extSourceAttributes;
-
-	protected Map<String,String> getAttributes() throws InternalErrorException {
-		if (extSourceAttributes == null) {
-			extSourceAttributes = perunBl.getExtSourcesManagerBl().getAttributes(this);
-		}
-		return extSourceAttributes;
-	}
+  void setPerunBl(PerunBl perunBl) {
+    this.perunBl = perunBl;
+  }
 }

@@ -8,18 +8,18 @@ package cz.metacentrum.perun.webgui.json;
 
 public interface JsonCallbackWithCache {
 
-	/**
-	 * Return true if cache is enabled
-	 *
-	 * @return true = enabled / false = disabled
-	 */
-	boolean isCacheEnabled();
+  /**
+   * Return true if cache is enabled
+   *
+   * @return true = enabled / false = disabled
+   */
+  boolean isCacheEnabled();
 
-	/**
-	 * Enable using of cache
-	 *
-	 * @param cache true = enable / false = disable
-	 */
-	void setCacheEnabled(boolean cache);
+  /**
+   * Enable using of cache
+   *
+   * @param cache true = enable / false = disable
+   */
+  void setCacheEnabled(boolean cache);
 
 }

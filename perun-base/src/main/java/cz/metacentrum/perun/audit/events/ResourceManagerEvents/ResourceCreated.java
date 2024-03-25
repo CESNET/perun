@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class ResourceCreated extends AuditEvent implements EngineIgnoreEvent {
 
-	private Resource resource;
-	private String message;
+  private Resource resource;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ResourceCreated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ResourceCreated() {
+  }
 
-	public ResourceCreated(Resource resource) {
-		this.resource = resource;
-		this.message = formatMessage("%s created.", resource);
-	}
+  public ResourceCreated(Resource resource) {
+    this.resource = resource;
+    this.message = formatMessage("%s created.", resource);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

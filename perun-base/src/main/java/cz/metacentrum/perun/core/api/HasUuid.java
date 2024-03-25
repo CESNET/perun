@@ -7,12 +7,12 @@ import java.util.UUID;
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public interface HasUUID {
+public interface HasUuid {
 
-	/**
-	 * Get UUID.
-	 *
-	 * @return UUID of the object
-	 */
-	UUID getUuid();
+  /**
+   * Get UUID.
+   *
+   * @return UUID of the object
+   */
+  UUID getUuid();
 }

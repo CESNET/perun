@@ -7,35 +7,35 @@ import cz.metacentrum.perun.core.api.ServicesPackage;
 
 public class ServiceAddedToServicePackage extends AuditEvent implements EngineIgnoreEvent {
 
-	private Service service;
-	private ServicesPackage servicesPackage;
-	private String message;
+  private Service service;
+  private ServicesPackage servicesPackage;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ServiceAddedToServicePackage() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ServiceAddedToServicePackage() {
+  }
 
-	public ServiceAddedToServicePackage(Service service, ServicesPackage servicesPackage) {
-		this.service = service;
-		this.servicesPackage = servicesPackage;
-		this.message = formatMessage("%s added to %s.", service, servicesPackage);
-	}
+  public ServiceAddedToServicePackage(Service service, ServicesPackage servicesPackage) {
+    this.service = service;
+    this.servicesPackage = servicesPackage;
+    this.message = formatMessage("%s added to %s.", service, servicesPackage);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Service getService() {
-		return service;
-	}
+  public Service getService() {
+    return service;
+  }
 
-	public ServicesPackage getServicesPackage() {
-		return servicesPackage;
-	}
+  public ServicesPackage getServicesPackage() {
+    return servicesPackage;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

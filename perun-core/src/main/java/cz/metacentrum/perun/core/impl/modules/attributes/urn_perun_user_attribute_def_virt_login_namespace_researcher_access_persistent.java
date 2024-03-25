@@ -12,58 +12,60 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
-
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Class for access def:geant-persistent-shadow attribute. It generates value if you call it for the first time.
- *
  */
 @SkipValueCheckDuringDependencyCheck
 @Deprecated
 public class urn_perun_user_attribute_def_virt_login_namespace_researcher_access_persistent
-	extends UserVirtualAttributesModuleAbstract {
+    extends UserVirtualAttributesModuleAbstract {
 
-	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:researcher-access-persistent-shadow";
+  public static final String SHADOW =
+      "urn:perun:user:attribute-def:def:login-namespace:researcher-access-persistent-shadow";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute geantPersistent = new Attribute(attributeDefinition);
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("login-namespace:researcher-access-persistent");
+    attr.setDisplayName("Researcher Access login");
+    attr.setType(String.class.getName());
+    attr.setDescription("Login for Researcher Access. It is set automatically with first call.");
+    return attr;
+  }
 
-		try {
-			Attribute researcherAccessPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute geantPersistent = new Attribute(attributeDefinition);
 
-			if (researcherAccessPersistentShadow.getValue() == null) {
+    try {
+      Attribute researcherAccessPersistentShadow =
+          sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-				researcherAccessPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, researcherAccessPersistentShadow);
+      if (researcherAccessPersistentShadow.getValue() == null) {
 
-				if (researcherAccessPersistentShadow.getValue() == null) {
-					throw new InternalErrorException("Researcher Access ID couldn't be set automatically");
-				}
-				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, researcherAccessPersistentShadow);
-			}
+        researcherAccessPersistentShadow =
+            sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, researcherAccessPersistentShadow);
 
-			geantPersistent.setValue(researcherAccessPersistentShadow.getValue());
-			return geantPersistent;
+        if (researcherAccessPersistentShadow.getValue() == null) {
+          throw new InternalErrorException("Researcher Access ID couldn't be set automatically");
+        }
+        sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, researcherAccessPersistentShadow);
+      }
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
-	}
+      geantPersistent.setValue(researcherAccessPersistentShadow.getValue());
+      return geantPersistent;
 
-	@Override
-	public List<String> getStrongDependencies() {
-		return Collections.singletonList(SHADOW);
-	}
+    } catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException |
+             AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+  }
 
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("login-namespace:researcher-access-persistent");
-		attr.setDisplayName("Researcher Access login");
-		attr.setType(String.class.getName());
-		attr.setDescription("Login for Researcher Access. It is set automatically with first call.");
-		return attr;
-	}
+  @Override
+  public List<String> getStrongDependencies() {
+    return Collections.singletonList(SHADOW);
+  }
 }

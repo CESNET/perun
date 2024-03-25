@@ -15,52 +15,51 @@ import java.util.Map;
  */
 public class ResourcesTabs {
 
-	private PerunWebSession session = PerunWebSession.getInstance();
+  static public final String URL = "res";
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	static public final String URL = "res";
+  /**
+   * Creates a new instance of pages
+   */
+  public ResourcesTabs() {
+  }
 
-	/**
-	 * Creates a new instance of pages
-	 */
-	public ResourcesTabs(){}
+  /**
+   * Loads the page
+   *
+   * @return true on success / false otherwise
+   */
+  public boolean loadTab(final String tab, final Map<String, String> parameters) {
 
-	/**
-	 * Loads the page
-	 *
-	 * @return true on success / false otherwise
-	 */
-	public boolean loadTab(final String tab, final Map<String, String> parameters) {
+    if (tab == null) {
+      return false;
+    }
+    // if active
+    boolean open = ("1".equals(parameters.get("active")));
 
-		if(tab == null){
-			return false;
-		}
-		// if active
-		boolean open = ("1".equals(parameters.get("active")));
+    if (tab.equals(ResourceAssignedGroupsTabItem.URL)) {
+      session.getTabManager().addTab(ResourceAssignedGroupsTabItem.load(parameters), open);
+      return true;
+    }
 
-		if (tab.equals(ResourceAssignedGroupsTabItem.URL)) {
-			session.getTabManager().addTab(ResourceAssignedGroupsTabItem.load(parameters), open);
-			return true;
-		}
+    if (tab.equals(ResourceAssignedServicesTabItem.URL)) {
+      session.getTabManager().addTab(ResourceAssignedServicesTabItem.load(parameters), open);
+      return true;
+    }
 
-		if (tab.equals(ResourceAssignedServicesTabItem.URL)) {
-			session.getTabManager().addTab(ResourceAssignedServicesTabItem.load(parameters), open);
-			return true;
-		}
+    if (tab.equals(ResourceDetailTabItem.URL)) {
+      session.getTabManager().addTab(ResourceDetailTabItem.load(parameters), open);
+      return true;
+    }
 
-		if (tab.equals(ResourceDetailTabItem.URL)) {
-			session.getTabManager().addTab(ResourceDetailTabItem.load(parameters), open);
-			return true;
-		}
+    if (tab.equals(ResourceSettingsTabItem.URL)) {
+      session.getTabManager().addTab(ResourceSettingsTabItem.load(parameters), open);
+      return true;
+    }
 
-		if (tab.equals(ResourceSettingsTabItem.URL)) {
-			session.getTabManager().addTab(ResourceSettingsTabItem.load(parameters), open);
-			return true;
-		}
-
-		return false;
-
+    return false;
 
 
-	}
+  }
 
 }

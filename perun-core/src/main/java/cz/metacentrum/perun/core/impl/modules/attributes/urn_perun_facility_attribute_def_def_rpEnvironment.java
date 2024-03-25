@@ -15,24 +15,28 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_rpEnvironment extends FacilityAttributesModuleAbstract {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
-		String attrValue = attribute.valueAsString();
-		if (attrValue == null) return;
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute)
+      throws WrongAttributeValueException {
+    String attrValue = attribute.valueAsString();
+    if (attrValue == null) {
+      return;
+    }
 
-		if (!attrValue.equals("TESTING") && !attrValue.equals("STAGING") && !attrValue.equals("PRODUCTION")) {
-			throw new WrongAttributeValueException(attribute, facility, "Possible values for this attribute are 'TESTING', 'STAGING' or 'PRODUCTION'");
-		}
-	}
+    if (!attrValue.equals("TESTING") && !attrValue.equals("STAGING") && !attrValue.equals("PRODUCTION")) {
+      throw new WrongAttributeValueException(attribute, facility,
+          "Possible values for this attribute are 'TESTING', 'STAGING' or 'PRODUCTION'");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-		attr.setFriendlyName("rpEnvironment");
-		attr.setDisplayName("rpEnvironment");
-		attr.setType(String.class.getName());
-		attr.setDescription("Environment of relying party - TESTING, STAGING or PRODUCTION");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setFriendlyName("rpEnvironment");
+    attr.setDisplayName("rpEnvironment");
+    attr.setType(String.class.getName());
+    attr.setDescription("Environment of relying party - TESTING, STAGING or PRODUCTION");
+    return attr;
+  }
 }

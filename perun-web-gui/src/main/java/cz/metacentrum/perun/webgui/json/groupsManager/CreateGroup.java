@@ -19,149 +19,156 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  */
 public class CreateGroup {
 
-	// Session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // Json URL
+  static private final String JSON_URL = "groupsManager/createGroup";
+  // Session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // External events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private String groupName = "";
+  private String groupDescription = "";
 
-	// External events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * New instance of CreateGroup
+   */
+  public CreateGroup() {
+  }
 
-	// Json URL
-	static private final String JSON_URL = "groupsManager/createGroup";
-	private String groupName = "";
-	private String groupDescription = "";
+  /**
+   * New instance of CreateGroup
+   *
+   * @param events
+   */
+  public CreateGroup(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * New instance of CreateGroup
-	 */
-	public CreateGroup() {}
+  /**
+   * Create a new group in a VO
+   *
+   * @param voId        VO ID
+   * @param name        Group name
+   * @param description Group description
+   */
+  public void createGroupInVo(int voId, final String name, String description) {
 
-	/**
-	 * New instance of CreateGroup
-	 *
-	 * @param events
-	 */
-	public CreateGroup(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    this.groupName = name;
+    this.groupDescription = description;
 
-	/**
-	 * Create a new group in a VO
-	 * @param voId VO ID
-	 * @param name Group name
-	 * @param description Group description
-	 */
-	public void createGroupInVo(int voId, final String name, String description) {
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		this.groupName = name;
-		this.groupDescription = description;
+    // GROUP OBJECT
+    JSONObject group = new JSONObject();
+    group.put("name", new JSONString(name));
+    group.put("description", new JSONString(description));
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("vo", new JSONNumber(voId));
+    jsonQuery.put("group", group);
 
-		// GROUP OBJECT
-		JSONObject group = new JSONObject();
-		group.put("name", new JSONString(name));
-		group.put("description", new JSONString(description));
+    this.createGroup(jsonQuery);
+  }
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("vo", new JSONNumber(voId));
-		jsonQuery.put("group", group);
+  /**
+   * Creates a new subgroup in group
+   *
+   * @param groupId     Parent group id
+   * @param name        New group name
+   * @param description New group description
+   */
+  public void createGroupInGroup(final int groupId, final String name, String description) {
 
-		this.createGroup(jsonQuery);
-	}
+    this.groupName = name;
+    this.groupDescription = description;
 
-	/**
-	 * Creates a new subgroup in group
-	 * @param groupId Parent group id
-	 * @param name New group name
-	 * @param description New group description
-	 */
-	public void createGroupInGroup(final int groupId, final String name, String description) {
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		this.groupName = name;
-		this.groupDescription = description;
+    // GROUP OBJECT
+    JSONObject group = new JSONObject();
+    group.put("name", new JSONString(name));
+    group.put("description", new JSONString(description));
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("parentGroup", new JSONNumber(groupId));
+    jsonQuery.put("group", group);
 
-		// GROUP OBJECT
-		JSONObject group = new JSONObject();
-		group.put("name", new JSONString(name));
-		group.put("description", new JSONString(description));
+    this.createGroup(jsonQuery);
+  }
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("parentGroup", new JSONNumber(groupId));
-		jsonQuery.put("group", group);
+  /**
+   * Creates a new GROUP
+   *
+   * @param jsonQuery A JSON object prepared by createGroupInGroup and createGroupInVo methods.
+   */
+  private void createGroup(JSONObject jsonQuery) {
 
-		this.createGroup(jsonQuery);
-	}
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating group failed.");
+        events.onError(error);
+      }
 
-	/**
-	 * Creates a new GROUP
-	 * @param jsonQuery A JSON object prepared by createGroupInGroup and createGroupInVo methods.
-	 */
-	private void createGroup(JSONObject jsonQuery) {
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating group failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        Group gp = jso.cast();
+        // if group admin, grant access in GUI !!
+        if (session.isGroupAdmin() && gp != null) {
+          session.addEditableGroup(gp.getId());
+          session.getUiElements().setLogSuccessText("Group " + gp.getName() + " successfully created!");
+        }
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				Group gp = jso.cast();
-				// if group admin, grant access in GUI !!
-				if (session.isGroupAdmin() && gp != null) {
-					session.addEditableGroup(gp.getId());
-					session.getUiElements().setLogSuccessText("Group "+ gp.getName() +" successfully created!");
-				}
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, jsonQuery);
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, jsonQuery);
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return
-	 */
-	private boolean testCreating()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  }
 
-		if(groupName.length() == 0){
-			errorMsg += "You must fill in the parameter <strong>Name</strong>.<br />";
-			result = false;
-		}
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return
+   */
+  private boolean testCreating() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(groupDescription.length() == 0){
-			errorMsg += "You must fill in the parameter <strong>Description</strong>.<br />";
-			result = false;
-		}
+    if (groupName.length() == 0) {
+      errorMsg += "You must fill in the parameter <strong>Name</strong>.<br />";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Confirm c = new Confirm("Error while creating Group", new HTML(errorMsg), true);
-			c.show();
-		}
+    if (groupDescription.length() == 0) {
+      errorMsg += "You must fill in the parameter <strong>Description</strong>.<br />";
+      result = false;
+    }
 
-		return result;
-	}
+    if (errorMsg.length() > 0) {
+      Confirm c = new Confirm("Error while creating Group", new HTML(errorMsg), true);
+      c.show();
+    }
+
+    return result;
+  }
 
 }

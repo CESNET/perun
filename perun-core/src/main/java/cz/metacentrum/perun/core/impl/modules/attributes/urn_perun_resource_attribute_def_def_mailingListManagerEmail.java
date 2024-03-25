@@ -11,33 +11,37 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 
 /**
- *
  * @author Jakub Peschel <410368@mail.muni.cz>
  */
-public class urn_perun_resource_attribute_def_def_mailingListManagerEmail extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_mailingListManagerEmail extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if (attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value is null.");
+    }
+  }
 
-		perunSession.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(perunSession, attribute.valueAsString());
-	}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) {
-			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value is null.");
-		}
-	}
+    perunSession.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(perunSession, attribute.valueAsString());
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("mailingListManagerEmail");
-		attr.setDisplayName("Mailing list manager email.");
-		attr.setType(String.class.getName());
-		attr.setDescription("Email of owner of mailing list");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("mailingListManagerEmail");
+    attr.setDisplayName("Mailing list manager email.");
+    attr.setType(String.class.getName());
+    attr.setDescription("Email of owner of mailing list");
+    return attr;
+  }
 }

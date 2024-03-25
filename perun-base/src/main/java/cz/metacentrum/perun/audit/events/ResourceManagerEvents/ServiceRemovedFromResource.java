@@ -6,35 +6,35 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class ServiceRemovedFromResource extends AuditEvent {
 
-	private Service service;
-	private Resource resource;
-	private String message;
+  private Service service;
+  private Resource resource;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ServiceRemovedFromResource() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ServiceRemovedFromResource() {
+  }
 
-	public ServiceRemovedFromResource(Service service, Resource resource) {
-		this.service = service;
-		this.resource = resource;
-		this.message = formatMessage("%s removed from %s", service, resource);
-	}
+  public ServiceRemovedFromResource(Service service, Resource resource) {
+    this.service = service;
+    this.resource = resource;
+    this.message = formatMessage("%s removed from %s", service, resource);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Service getService() {
-		return service;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public Service getService() {
+    return service;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

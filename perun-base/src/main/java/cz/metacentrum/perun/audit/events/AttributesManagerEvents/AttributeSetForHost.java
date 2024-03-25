@@ -9,35 +9,35 @@ import cz.metacentrum.perun.core.api.Host;
  */
 public class AttributeSetForHost extends AuditEvent {
 
-	private Attribute attribute;
-	private Host host;
-	private String message;
+  private Attribute attribute;
+  private Host host;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeSetForHost() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeSetForHost() {
+  }
 
-	public AttributeSetForHost(Attribute attribute, Host host) {
-		this.attribute = attribute;
-		this.host = host;
-		this.message = formatMessage("%s set for %s.", attribute, host);
-	}
+  public AttributeSetForHost(Attribute attribute, Host host) {
+    this.attribute = attribute;
+    this.host = host;
+    this.message = formatMessage("%s set for %s.", attribute, host);
+  }
 
-	public Attribute getAttribute() {
-		return attribute;
-	}
+  public Attribute getAttribute() {
+    return attribute;
+  }
 
-	public Host getHost() {
-		return host;
-	}
+  public Host getHost() {
+    return host;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

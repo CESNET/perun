@@ -35,268 +35,280 @@ import java.util.Map;
  */
 public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "dest-result";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading Task");
+  // if accessed pro perun admin section
+  private boolean admin = false;
+  // data
+  private String destination;
+  private int facilityId = 0;
+  private Facility facility;
+  private VirtualOrganization vo;
+  private int voId = 0;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param facilityId  ID of Facility
+   * @param voId        ID of VO
+   * @param destination destination
+   * @param admin       TRUE if accessed from perun admin
+   */
+  public DestinationResultsTabItem(int facilityId, int voId, String destination, boolean admin) {
+    this.facilityId = facilityId;
+    this.voId = voId;
+    this.admin = admin;
+    this.destination = destination;
+    if (facilityId != 0) {
+      new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+        @Override
+        public void onFinished(JavaScriptObject jso) {
+          facility = jso.cast();
+        }
+      }).retrieveData();
+    }
+    if (voId != 0) {
+      new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, facilityId, new JsonCallbackEvents() {
+        @Override
+        public void onFinished(JavaScriptObject jso) {
+          vo = jso.cast();
+        }
+      }).retrieveData();
+    }
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading Task");
-	// if accessed pro perun admin section
-	private boolean admin = false;
+  /**
+   * Creates a tab instance
+   *
+   * @param facility    Facility
+   * @param vo          VO
+   * @param destination destination
+   * @param admin       TRUE if accessed from perun admin section
+   */
+  public DestinationResultsTabItem(Facility facility, VirtualOrganization vo, String destination, boolean admin) {
+    this.admin = admin;
+    this.destination = destination;
+    if (facility != null) {
+      this.facilityId = facility.getId();
+      this.facility = facility;
+    }
+    if (vo != null) {
+      this.voId = vo.getId();
+      this.vo = vo;
+    }
+  }
 
-	// data
-	private String destination;
-	private int facilityId = 0;
-	private Facility facility;
-	private VirtualOrganization vo;
-	private int voId = 0;
+  static public DestinationResultsTabItem load(Map<String, String> parameters) {
+    String dest = parameters.get("dest");
+    int facility = Integer.parseInt(parameters.get("fid"));
+    int vo = Integer.parseInt(parameters.get("vid"));
+    boolean admin = Boolean.parseBoolean(parameters.get("pa"));
+    return new DestinationResultsTabItem(facility, vo, dest, admin);
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param facilityId ID of Facility
-	 * @param voId ID of VO
-	 * @param destination destination
-	 * @param admin TRUE if accessed from perun admin
-	 */
-	public DestinationResultsTabItem(int facilityId, int voId, String destination, boolean admin){
-		this.facilityId = facilityId;
-		this.voId = voId;
-		this.admin = admin;
-		this.destination = destination;
-		if (facilityId != 0) {
-			new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					facility = jso.cast();
-				}
-			}).retrieveData();
-		}
-		if (voId != 0) {
-			new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, facilityId, new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					vo = jso.cast();
-				}
-			}).retrieveData();
-		}
-	}
+  public boolean isPrepared() {
+    if (facilityId != 0 && voId != 0) {
+      return (vo != null && facility != null);
+    }
+    if (facilityId != 0 && voId == 0) {
+      return facility != null;
+    }
+    if (facilityId == 0 && voId != 0) {
+      return vo != null;
+    }
+    return true;
+  }
 
-	/**
-	 * Creates a tab instance
-	 * @param facility Facility
-	 * @param vo VO
-	 * @param destination destination
-	 * @param admin TRUE if accessed from perun admin section
-	 */
-	public DestinationResultsTabItem(Facility facility, VirtualOrganization vo, String destination, boolean admin){
-		this.admin = admin;
-		this.destination = destination;
-		if (facility != null) {
-			this.facilityId = facility.getId();
-			this.facility = facility;
-		}
-		if (vo != null) {
-			this.voId = vo.getId();
-			this.vo = vo;
-		}
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		if (facilityId != 0 && voId != 0) {
-			return (vo != null && facility != null);
-		}
-		if (facilityId != 0 && voId == 0) {
-			return facility != null;
-		}
-		if (facilityId == 0 && voId != 0) {
-			return vo != null;
-		}
-		return true;
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    this.titleWidget.setText("Tasks results: " + destination);
 
-	public Widget draw() {
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		this.titleWidget.setText("Tasks results: "+destination);
+    TabMenu menu = new TabMenu();
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		TabMenu menu = new TabMenu();
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    final ListBoxWithObjects<RichService> listbox = new ListBoxWithObjects<RichService>();
 
-		menu.addWidget(UiElements.getRefreshButton(this));
+    final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.forcePropagationButton(),
+        ButtonTranslation.INSTANCE.forcePropagation(), SmallIcons.INSTANCE.arrowRightIcon());
 
-		final ListBoxWithObjects<RichService> listbox = new ListBoxWithObjects<RichService>();
+    GetFacilityAssignedServicesForGUI servCall = new GetFacilityAssignedServicesForGUI(facilityId);
+    servCall.setEvents(new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        listbox.clear();
+        ArrayList<RichService> list = JsonUtils.jsoAsList(jso);
+        list = new TableSorter<RichService>().sortByName(list);
+        for (RichService s : list) {
+          if (s.getAllowedOnFacility().equalsIgnoreCase("allowed") &&
+              (s.getService() != null && s.getService().isEnabled())) {
+            listbox.addItem(s);
+          }
+        }
+        if (listbox.isEmpty()) {
+          listbox.addItem("No service available");
+          cb.setEnabled(false);
+        }
+      }
 
-		final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.forcePropagationButton(), ButtonTranslation.INSTANCE.forcePropagation(), SmallIcons.INSTANCE.arrowRightIcon());
+      @Override
+      public void onError(PerunError error) {
+        listbox.clear();
+        listbox.addItem("Error while loading");
+        cb.setEnabled(false);
+      }
 
-		GetFacilityAssignedServicesForGUI servCall = new GetFacilityAssignedServicesForGUI(facilityId);
-		servCall.setEvents(new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso){
-				listbox.clear();
-				ArrayList<RichService> list = JsonUtils.jsoAsList(jso);
-				list = new TableSorter<RichService>().sortByName(list);
-				for (RichService s : list){
-					if (s.getAllowedOnFacility().equalsIgnoreCase("allowed") && (s.getService() != null && s.getService().isEnabled())){
-						listbox.addItem(s);
-					}
-				}
-				if (listbox.isEmpty()){
-					listbox.addItem("No service available");
-					cb.setEnabled(false);
-				}
-			}
-		@Override
-		public void onError(PerunError error){
-			listbox.clear();
-			listbox.addItem("Error while loading");
-			cb.setEnabled(false);
-		}
-		@Override
-		public void onLoadingStart() {
-			listbox.clear();
-			listbox.addItem("Loading...");
-		}
-		});
-		if (facilityId != 0) {
-			servCall.retrieveData();
-		}
+      @Override
+      public void onLoadingStart() {
+        listbox.clear();
+        listbox.addItem("Loading...");
+      }
+    });
+    if (facilityId != 0) {
+      servCall.retrieveData();
+    }
 
-		cb.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				ForceServicePropagation force = new ForceServicePropagation(JsonCallbackEvents.disableButtonEvents(cb));
-				force.forcePropagation(facilityId, listbox.getSelectedObject().getId());
-			}
-		});
+    cb.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        ForceServicePropagation force = new ForceServicePropagation(JsonCallbackEvents.disableButtonEvents(cb));
+        force.forcePropagation(facilityId, listbox.getSelectedObject().getId());
+      }
+    });
 
-		menu.addWidget(cb);
-		menu.addWidget(new HTML("<strong>Service: </strong>"));
-		menu.addWidget(listbox);
+    menu.addWidget(cb);
+    menu.addWidget(new HTML("<strong>Service: </strong>"));
+    menu.addWidget(listbox);
 
-		Anchor a = new Anchor("View facility details >>");
-		a.setStyleName("pointer");
-		a.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				session.getTabManager().addTab(new FacilityDetailTabItem(facility));
-			}
-		});
-		menu.addWidget(a);
+    Anchor a = new Anchor("View facility details >>");
+    a.setStyleName("pointer");
+    a.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        session.getTabManager().addTab(new FacilityDetailTabItem(facility));
+      }
+    });
+    menu.addWidget(a);
 
-		ArrayList<String> dest = new ArrayList<String>();
-		dest.add(destination);
+    ArrayList<String> dest = new ArrayList<String>();
+    dest.add(destination);
 
-		final GetTaskResultsByDestinations callback = new GetTaskResultsByDestinations(dest);
-		CellTable<TaskResult> table = callback.getTable();
+    final GetTaskResultsByDestinations callback = new GetTaskResultsByDestinations(dest);
+    CellTable<TaskResult> table = callback.getTable();
 
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
-		vp.add(sp);
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
+    vp.add(sp);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-		this.contentWidget.setWidget(vp);
+    this.contentWidget.setWidget(vp);
 
-		return getWidget();
+    return getWidget();
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.databaseServerIcon();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.databaseServerIcon();
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 683;
-		int result = 1;
-		result = prime * result;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 683;
+    int result = 1;
+    result = prime * result;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DestinationResultsTabItem other = (DestinationResultsTabItem) obj;
-		if (!destination.equals(other.destination))
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    DestinationResultsTabItem other = (DestinationResultsTabItem) obj;
+    if (!destination.equals(other.destination)) {
+      return false;
+    }
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open() {
-		if (vo != null) {
-			session.getUiElements().getBreadcrumbs().setLocation(MainMenu.VO_ADMIN, "Facilities states", VosTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"propags?vo="+voId, "Results: "+destination, getUrlWithParameters());
-		} else if (facility != null) {
-			if (admin && session.isPerunAdmin()) {
-				session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Propagations", PerunAdminTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"propags", "Results: "+destination, getUrlWithParameters());
-			}
-			session.getUiElements().getBreadcrumbs().setLocation(MainMenu.FACILITY_ADMIN, "All facilities states", FacilitiesTabs.URL+UrlMapper.TAB_NAME_SEPARATOR+"propags", "Results: "+destination, getUrlWithParameters());
-		}
-	}
+  public void open() {
+    if (vo != null) {
+      session.getUiElements().getBreadcrumbs().setLocation(MainMenu.VO_ADMIN, "Facilities states",
+          VosTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "propags?vo=" + voId, "Results: " + destination,
+          getUrlWithParameters());
+    } else if (facility != null) {
+      if (admin && session.isPerunAdmin()) {
+        session.getUiElements().getBreadcrumbs().setLocation(MainMenu.PERUN_ADMIN, "Propagations",
+            PerunAdminTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "propags", "Results: " + destination,
+            getUrlWithParameters());
+      }
+      session.getUiElements().getBreadcrumbs().setLocation(MainMenu.FACILITY_ADMIN, "All facilities states",
+          FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "propags", "Results: " + destination,
+          getUrlWithParameters());
+    }
+  }
 
-	public boolean isAuthorized() {
-		if (session.isFacilityAdmin(facilityId) || session.isVoAdmin(voId)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+  public boolean isAuthorized() {
+    if (session.isFacilityAdmin(facilityId) || session.isVoAdmin(voId)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-	public final static String URL = "dest-result";
+  public String getUrl() {
+    return URL;
+  }
 
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl()+"?dest="+destination+"&fid="+facilityId+"&vid="+voId+"&pa="+admin;
-	}
-
-	static public DestinationResultsTabItem load(Map<String, String> parameters) {
-		String dest = parameters.get("dest");
-		int facility = Integer.parseInt(parameters.get("fid"));
-		int vo = Integer.parseInt(parameters.get("vid"));
-		boolean admin = Boolean.parseBoolean(parameters.get("pa"));
-		return new DestinationResultsTabItem(facility, vo, dest, admin);
-	}
+  public String getUrlWithParameters() {
+    return FacilitiesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?dest=" + destination + "&fid=" +
+        facilityId + "&vid=" + voId + "&pa=" + admin;
+  }
 
 }

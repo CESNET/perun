@@ -8,10 +8,10 @@ import cz.metacentrum.perun.core.api.HashedGenData;
  */
 public interface HashedDataGenerator {
 
-	/**
-	 * Generated hashed data structure used for provisioning.
-	 *
-	 * @return hashed data structure
-	 */
-	HashedGenData generateData();
+  /**
+   * Generated hashed data structure used for provisioning.
+   *
+   * @return hashed data structure
+   */
+  HashedGenData generateData();
 }

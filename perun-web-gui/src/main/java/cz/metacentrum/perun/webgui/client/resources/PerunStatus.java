@@ -7,8 +7,8 @@ package cz.metacentrum.perun.webgui.client.resources;
  */
 
 public enum PerunStatus {
-	VALID,
-	INVALID,
-	EXPIRED,
-	DISABLED
+  VALID,
+  INVALID,
+  EXPIRED,
+  DISABLED
 }

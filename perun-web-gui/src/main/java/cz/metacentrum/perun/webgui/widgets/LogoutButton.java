@@ -20,44 +20,45 @@ import cz.metacentrum.perun.webgui.json.authzResolver.Logout;
  */
 public class LogoutButton extends Composite {
 
-	private CustomButton button;
+  private CustomButton button;
 
-	/**
-	 * Creates a new button
-	 */
-	public LogoutButton() {
+  /**
+   * Creates a new button
+   */
+  public LogoutButton() {
 
-		// construct the button with image
-		button = new CustomButton(ButtonTranslation.INSTANCE.logoutButton(), ButtonTranslation.INSTANCE.logout(), SmallIcons.INSTANCE.doorOutIcon(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				logout();
-			}
-		});
+    // construct the button with image
+    button = new CustomButton(ButtonTranslation.INSTANCE.logoutButton(), ButtonTranslation.INSTANCE.logout(),
+        SmallIcons.INSTANCE.doorOutIcon(), new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        logout();
+      }
+    });
 
-		this.initWidget(button);
+    this.initWidget(button);
 
-	}
+  }
 
-	/**
-	 * Logout method, erases the cookies and calls RPC logout to invalidate session.
-	 */
-	private void logout() {
+  /**
+   * Logout method, erases the cookies and calls RPC logout to invalidate session.
+   */
+  private void logout() {
 
-		Logout call = new Logout(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso){
+    Logout call = new Logout(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
 
-				Utils.clearFederationCookies();
+        Utils.clearFederationCookies();
 
-				History.newItem("logout");
+        History.newItem("logout");
 
-				RootLayoutPanel.get().clear();
-				RootLayoutPanel.get().add(new LogoutWidget());
-			}
-		}));
-		// do the logout
-		call.retrieveData();
+        RootLayoutPanel.get().clear();
+        RootLayoutPanel.get().add(new LogoutWidget());
+      }
+    }));
+    // do the logout
+    call.retrieveData();
 
-	}
+  }
 
 }

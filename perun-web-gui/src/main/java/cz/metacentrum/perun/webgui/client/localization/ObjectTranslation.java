@@ -10,63 +10,63 @@ import com.google.gwt.i18n.client.Messages;
  */
 public interface ObjectTranslation extends Messages {
 
-	public static final ObjectTranslation INSTANCE = GWT.create(ObjectTranslation.class);
+  public static final ObjectTranslation INSTANCE = GWT.create(ObjectTranslation.class);
 
-	/* ============ APPLICATION OBJECT ================ */
+  /* ============ APPLICATION OBJECT ================ */
 
-	@DefaultMessage("Waiting for mail verification")
-	String applicationStateNew();
+  @DefaultMessage("Waiting for mail verification")
+  String applicationStateNew();
 
-	@DefaultMessage("Submitted")
-	String applicationStateVerified();
+  @DefaultMessage("Submitted")
+  String applicationStateVerified();
 
-	@DefaultMessage("Approved")
-	String applicationStateApproved();
+  @DefaultMessage("Approved")
+  String applicationStateApproved();
 
-	@DefaultMessage("Rejected")
-	String applicationStateRejected();
+  @DefaultMessage("Rejected")
+  String applicationStateRejected();
 
-	@DefaultMessage("Initial")
-	String applicationTypeInitial();
+  @DefaultMessage("Initial")
+  String applicationTypeInitial();
 
-	@DefaultMessage("Extension")
-	String applicationTypeExtension();
+  @DefaultMessage("Extension")
+  String applicationTypeExtension();
 
-	@DefaultMessage("Embedded")
-	String applicationTypeEmbedded();
+  @DefaultMessage("Embedded")
+  String applicationTypeEmbedded();
 
-	/* ========== APPLICATION MAIL OBJECT ============ */
+  /* ========== APPLICATION MAIL OBJECT ============ */
 
-	@DefaultMessage("Created / user")
-	String applicationMailTypeAppCreatedUser();
+  @DefaultMessage("Created / user")
+  String applicationMailTypeAppCreatedUser();
 
-	@DefaultMessage("Created / manager")
-	String applicationMailTypeAppCreatedVoAdmin();
+  @DefaultMessage("Created / manager")
+  String applicationMailTypeAppCreatedVoAdmin();
 
-	@DefaultMessage("Mail validation / user")
-	String applicationMailTypeMailValidation();
+  @DefaultMessage("Mail validation / user")
+  String applicationMailTypeMailValidation();
 
-	@DefaultMessage("Approved / user")
-	String applicationMailTypeAppApprovedUser();
+  @DefaultMessage("Approved / user")
+  String applicationMailTypeAppApprovedUser();
 
-	@DefaultMessage("Rejected / user")
-	String applicationMailTypeAppRejectedUser();
+  @DefaultMessage("Rejected / user")
+  String applicationMailTypeAppRejectedUser();
 
-	@DefaultMessage("Error / manager")
-	String applicationMailTypeAppErrorVoAdmin();
+  @DefaultMessage("Error / manager")
+  String applicationMailTypeAppErrorVoAdmin();
 
-	@DefaultMessage("Invitation / user")
-	String applicationMailTypeInvitationUser();
+  @DefaultMessage("Invitation / user")
+  String applicationMailTypeInvitationUser();
 
-	@DefaultMessage("Approvable / user")
-	String applicationMailTypeApprovableUser();
+  @DefaultMessage("Approvable / user")
+  String applicationMailTypeApprovableUser();
 
-	/* ========== OWNER OBJECT ============ */
+  /* ========== OWNER OBJECT ============ */
 
-	@DefaultMessage("administrative")
-	String ownerTypeAdministrative();
+  @DefaultMessage("administrative")
+  String ownerTypeAdministrative();
 
-	@DefaultMessage("technical")
-	String ownerTypeTechnical();
+  @DefaultMessage("technical")
+  String ownerTypeTechnical();
 
 }

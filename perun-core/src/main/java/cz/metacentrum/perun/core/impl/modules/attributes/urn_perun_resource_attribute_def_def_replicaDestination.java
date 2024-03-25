@@ -13,34 +13,41 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 /**
  * @author Simona Kruppova, Oliver Mrazik
  */
-public class urn_perun_resource_attribute_def_def_replicaDestination extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_replicaDestination extends ResourceAttributesModuleAbstract
+    implements ResourceAttributesModuleImplApi {
 
-	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) return;
+  @Override
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
+    if (attribute.getValue() == null) {
+      throw new WrongReferenceAttributeValueException(attribute, null, resource, null,
+          "Destination for FS replica can't be empty.");
+    }
+  }
 
-		if (!perunSession.getPerunBl().getModulesUtilsBl().isFQDNValid(perunSession, attribute.valueAsString())) {
-			throw new WrongAttributeValueException(attribute, resource, "Bad replicaDestination attribute format " + attribute.getValue() + ". It should be " +
-					"fully qualified domain name.");
-		}
-	}
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute)
+      throws WrongAttributeValueException {
+    if (attribute.getValue() == null) {
+      return;
+    }
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
-		if (attribute.getValue() == null) {
-			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Destination for FS replica can't be empty.");
-		}
-	}
+    if (!perunSession.getPerunBl().getModulesUtilsBl().isFQDNValid(perunSession, attribute.valueAsString())) {
+      throw new WrongAttributeValueException(attribute, resource,
+          "Bad replicaDestination attribute format " + attribute.getValue() + ". It should be " +
+          "fully qualified domain name.");
+    }
+  }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-		attr.setFriendlyName("replicaDestination");
-		attr.setDisplayName("Replica destination");
-		attr.setType(String.class.getName());
-		attr.setDescription("Fully qualified domain name (FQDN) of the target storage.");
-		return attr;
-	}
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    attr.setFriendlyName("replicaDestination");
+    attr.setDisplayName("Replica destination");
+    attr.setType(String.class.getName());
+    attr.setDescription("Fully qualified domain name (FQDN) of the target storage.");
+    return attr;
+  }
 
 }

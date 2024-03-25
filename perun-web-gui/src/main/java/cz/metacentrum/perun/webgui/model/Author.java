@@ -11,71 +11,73 @@ import com.google.gwt.core.client.JsArray;
 
 public class Author extends JavaScriptObject {
 
-	protected Author() {}
+  protected Author() {
+  }
 
-	/**
-	 * Get ID of user
-	 * @return id of user
-	 */
-	public final native int getId() /*-{
+  /**
+   * Get ID of user
+   *
+   * @return id of user
+   */
+  public final native int getId() /*-{
 		return this.id;
 	}-*/;
 
-	/**
-	 * Get first name of user
-	 *
-	 * @return first name of user
-	 */
-	public final native String getFirstName() /*-{
+  /**
+   * Get first name of user
+   *
+   * @return first name of user
+   */
+  public final native String getFirstName() /*-{
 		if (!this.firstName) { return ""; }
 		return this.firstName;
 	}-*/;
 
-	/**
-	 * Get last name of user
-	 *
-	 * @return last name of user
-	 */
-	public final native String getLastName() /*-{
+  /**
+   * Get last name of user
+   *
+   * @return last name of user
+   */
+  public final native String getLastName() /*-{
 		if (!this.lastName) { return ""; }
 		return this.lastName;
 	}-*/;
 
-	/**
-	 * Get full name of user
-	 *
-	 * @return last+first name of user
-	 */
-	public final native String getFullName() /*-{
+  /**
+   * Get full name of user
+   *
+   * @return last+first name of user
+   */
+  public final native String getFullName() /*-{
 		return this.lastName + " " + this.firstName;
 	}-*/;
 
-	/**
-	 * Get formatted name of user
-	 *
-	 * @return LAST+first name of user
-	 */
-	public final native String getFormattedName() /*-{
+  /**
+   * Get formatted name of user
+   *
+   * @return LAST+first name of user
+   */
+  public final native String getFormattedName() /*-{
 		return this.lastName.toUpperCase() + " " + this.firstName;
 	}-*/;
 
-	/**
-	 * Return count of authors(users) publications
-	 * based on count of his unique authorships.
-	 *
-	 * @return count of publications
-	 */
-	public final native int getPublicationsCount() /*-{
+  /**
+   * Return count of authors(users) publications
+   * based on count of his unique authorships.
+   *
+   * @return count of publications
+   */
+  public final native int getPublicationsCount() /*-{
 		if (!this.authorships) { return 0; }
 		return this.authorships.length;
 	}-*/;
 
-	/**
-	 * Get full name with titles of author
-	 *
-	 * @return full name with titles of author
-	 */
-	public final native String getDisplayName() /*-{
+  /**
+   * Get full name with titles of author
+   *
+   * @return full name with titles of author
+   */
+  public final native String getDisplayName() /*-{
 		var fullName = "";
 		if(this.titleBefore != null){
 			fullName += this.titleBefore + " ";
@@ -95,13 +97,13 @@ public class Author extends JavaScriptObject {
 		return fullName;
 	}-*/;
 
-	/**
-	 * Get specified user attribute stored in Author
-	 *
-	 * @param urn URN of attribute to get
-	 * @return user attribute or null if not present
-	 */
-	public final native Attribute getAttribute(String urn) /*-{
+  /**
+   * Get specified user attribute stored in Author
+   *
+   * @param urn URN of attribute to get
+   * @return user attribute or null if not present
+   */
+  public final native Attribute getAttribute(String urn) /*-{
 		for(var i in this.attributes){
 			if(this.attributes[i].namespace + ":" + this.attributes[i].friendlyName == urn){
 				return this.attributes[i];
@@ -111,73 +113,73 @@ public class Author extends JavaScriptObject {
 	}-*/;
 
 
-	/**
-	 * This property is filled only when author was found by publication ID
-	 * Is used to determine "author" of the record in DB, who made him author of publication.
-	 *
-	 * @return authorship
-	 */
-	public final native JsArray<Authorship> getAuthorships() /*-{
+  /**
+   * This property is filled only when author was found by publication ID
+   * Is used to determine "author" of the record in DB, who made him author of publication.
+   *
+   * @return authorship
+   */
+  public final native JsArray<Authorship> getAuthorships() /*-{
 		return this.authorships;
 	}-*/;
 
-	/**
-	 * Return authorship for specific publication of author
-	 *
-	 * @param publicationId
-	 * @return authorship
-	 */
-	public final Authorship getAuthorship(int publicationId) {
+  /**
+   * Return authorship for specific publication of author
+   *
+   * @param publicationId
+   * @return authorship
+   */
+  public final Authorship getAuthorship(int publicationId) {
 
-		JsArray<Authorship> authorships = this.getAuthorships();
-		for (int i=0; i<authorships.length(); i++) {
-			// return authorship if match
-			if (authorships.get(i).getPublicationId() == publicationId) {
-				return authorships.get(i);
-			}
-		}
-		// null if not found
-		return null;
-	}
+    JsArray<Authorship> authorships = this.getAuthorships();
+    for (int i = 0; i < authorships.length(); i++) {
+      // return authorship if match
+      if (authorships.get(i).getPublicationId() == publicationId) {
+        return authorships.get(i);
+      }
+    }
+    // null if not found
+    return null;
+  }
 
-	/**
-	 * Returns Perun specific type of object
-	 *
-	 * @return type of object
-	 */
-	public final native String getObjectType() /*-{
+  /**
+   * Returns Perun specific type of object
+   *
+   * @return type of object
+   */
+  public final native String getObjectType() /*-{
 		if (!this.beanName) {
 			return "JavaScriptObject"
 		}
 		return this.beanName;
 	}-*/;
 
-	/**
-	 * Sets Perun specific type of object
-	 *
-	 * @param type type of object
-	 */
-	public final native void setObjectType(String type) /*-{
+  /**
+   * Sets Perun specific type of object
+   *
+   * @param type type of object
+   */
+  public final native void setObjectType(String type) /*-{
 		this.beanName = type;
 	}-*/;
 
-	/**
-	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, EXPIRED, DISABLED
-	 *
-	 * @return string which defines item status
-	 */
-	public final native String getStatus() /*-{
+  /**
+   * Returns the status of this item in Perun system as String
+   * VALID, INVALID, EXPIRED, DISABLED
+   *
+   * @return string which defines item status
+   */
+  public final native String getStatus() /*-{
 		return this.status;
 	}-*/;
 
-	/**
-	 * Compares to another object
-	 * @param o Object to compare
-	 * @return true, if they are the same
-	 */
-	public final boolean equals(Author o)
-	{
-		return o.getId() == this.getId();
-	}
+  /**
+   * Compares to another object
+   *
+   * @param o Object to compare
+   * @return true, if they are the same
+   */
+  public final boolean equals(Author o) {
+    return o.getId() == this.getId();
+  }
 }

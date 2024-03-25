@@ -17,113 +17,120 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 public class RemoveRequiredAttribute {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// service id
-	private int serviceId = 0;
-	// attribute id
-	private int attributeId = 0;
-	// URL to call
-	final String JSON_URL = "servicesManager/removeRequiredAttribute";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // URL to call
+  final String JSON_URL = "servicesManager/removeRequiredAttribute";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // service id
+  private int serviceId = 0;
+  // attribute id
+  private int attributeId = 0;
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	/**
-	 * Creates a new request
-	 */
-	public RemoveRequiredAttribute() {}
+  /**
+   * Creates a new request
+   */
+  public RemoveRequiredAttribute() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events custom events
-	 */
-	public RemoveRequiredAttribute(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events custom events
+   */
+  public RemoveRequiredAttribute(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testRemoving()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testRemoving() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(serviceId == 0){
-			errorMsg += "Wrong SERVICE ID parametr.\n";
-			result = false;
-		}
+    if (serviceId == 0) {
+      errorMsg += "Wrong SERVICE ID parametr.\n";
+      result = false;
+    }
 
-		if(attributeId == 0){
-			errorMsg += "Wrong ATTRIBUTE ID parametr.\n";
-			result = false;
-		}
+    if (attributeId == 0) {
+      errorMsg += "Wrong ATTRIBUTE ID parametr.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to remove required attribute from specified service
-	 *
-	 * @param serviceId ID of service to get required attribute removed
-	 * @param attributeId ID of attribute def. which will be removed as required
-	 */
-	public void removeRequiredAttribute(final int serviceId,final int attributeId)
-	{
-		this.serviceId = serviceId;
-		this.attributeId = attributeId;
+  /**
+   * Attempts to remove required attribute from specified service
+   *
+   * @param serviceId   ID of service to get required attribute removed
+   * @param attributeId ID of attribute def. which will be removed as required
+   */
+  public void removeRequiredAttribute(final int serviceId, final int attributeId) {
+    this.serviceId = serviceId;
+    this.attributeId = attributeId;
 
-		// test arguments
-		if(!this.testRemoving()){
-			return;
-		}
+    // test arguments
+    if (!this.testRemoving()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Removing required attribute ID: " + attributeId + " from service ID: "+ serviceId +" failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText(
+            "Removing required attribute ID: " + attributeId + " from service ID: " + serviceId + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Attribute ID: "+ attributeId + " removed as required from service ID: " + serviceId);;
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements()
+            .setLogSuccessText("Attribute ID: " + attributeId + " removed as required from service ID: " + serviceId);
+        ;
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
-		// get values
-		JSONNumber service = new JSONNumber(serviceId);
-		JSONNumber attribute = new JSONNumber(attributeId);
+      ;
+    };
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("service", service);
-		jsonQuery.put("attribute", attribute);
-		return jsonQuery;
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
+
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // get values
+    JSONNumber service = new JSONNumber(serviceId);
+    JSONNumber attribute = new JSONNumber(attributeId);
+
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("service", service);
+    jsonQuery.put("attribute", attribute);
+    return jsonQuery;
+  }
 
 }

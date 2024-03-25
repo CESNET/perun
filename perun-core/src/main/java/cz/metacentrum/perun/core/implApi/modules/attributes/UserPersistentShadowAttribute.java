@@ -21,104 +21,101 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class UserPersistentShadowAttribute extends urn_perun_user_attribute_def_def_login_namespace {
 
-	private final static Logger log = LoggerFactory.getLogger(UserPersistentShadowAttribute.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UserPersistentShadowAttribute.class);
 
-	/**
-	 * Get attribute's friendly name.
-	 *
-	 * @return attribute's friendly name
-	 */
-	public abstract String getFriendlyName();
+  /**
+   * ChangedAttributeHook() sets UserExtSource with following properties: - extSourceType is IdP - extSourceName is
+   * {getExtSourceName()} - user's extSource login is the same as his persistent attribute
+   */
+  @Override
+  public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
+    try {
+      String userNamespace = attribute.getFriendlyNameParameter();
 
-	/**
-	 * Get name of the extSource where the login will be set.
-	 *
-	 * @return extSource name for the login
-	 */
-	public abstract String getExtSourceName();
+      if (userNamespace.equals(getFriendlyNameParameter()) && attribute.getValue() != null) {
+        ExtSource extSource =
+            session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, getExtSourceName());
+        UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
 
-	/**
-	 * Get domain name that is used to fill the attribute value
-	 *
-	 * @return domain name used in fill
-	 */
-	public abstract String getDomainName();
+        session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
+      }
+    } catch (UserExtSourceExistsException ex) {
+      LOG.warn("Attribute: {}, External source already exists for the user.", getFriendlyNameParameter(), ex);
+    } catch (ExtSourceNotExistsException ex) {
+      throw new InternalErrorException(
+          "Attribute: " + getFriendlyNameParameter() + ", IdP external source doesn't exist.", ex);
+    }
+  }
 
-	/**
-	 * Get description of the attribute.
-	 *
-	 * @return attribute's description
-	 */
-	public abstract String getDescription();
+  /**
+   * Format is: "[hash]@{getDomainName()}" where [hash] represents sha1hash counted from user's id and perun instance id
+   * a login-namespace name.
+   */
+  @Override
+  public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
 
-	/**
-	 * Get attribute's display name.
-	 *
-	 * @return attribute's display name
-	 */
-	public abstract String getDisplayName();
+    Attribute filledAttribute = new Attribute(attribute);
 
-	/**
-	 * Get attribute's friendly name parameter.
-	 *
-	 * @return attribute's friendly name parameter.
-	 */
-	public abstract String getFriendlyNameParameter();
+    if (attribute.getFriendlyName().equals(getFriendlyName())) {
+      String domain = "@" + getDomainName();
+      filledAttribute.setValue(sha1HashCount(user, domain).toString() + domain);
+      return filledAttribute;
+    } else {
+      // without value
+      return filledAttribute;
+    }
+  }
 
-	/**
-	 * Format is: "[hash]@{getDomainName()}" where [hash] represents sha1hash counted
-	 * from user's id and perun instance id a login-namespace name.
-	 */
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName(getFriendlyName());
+    attr.setDisplayName(getDisplayName());
+    attr.setType(String.class.getName());
+    attr.setDescription(getDescription());
+    return attr;
+  }
 
-		Attribute filledAttribute = new Attribute(attribute);
+  /**
+   * Get description of the attribute.
+   *
+   * @return attribute's description
+   */
+  public abstract String getDescription();
 
-		if (attribute.getFriendlyName().equals(getFriendlyName())) {
-			String domain = "@" + getDomainName();
-			filledAttribute.setValue(sha1HashCount(user, domain).toString() + domain);
-			return filledAttribute;
-		} else {
-			// without value
-			return filledAttribute;
-		}
-	}
+  /**
+   * Get attribute's display name.
+   *
+   * @return attribute's display name
+   */
+  public abstract String getDisplayName();
 
-	/**
-	 * ChangedAttributeHook() sets UserExtSource with following properties:
-	 *  - extSourceType is IdP
-	 *  - extSourceName is {getExtSourceName()}
-	 *  - user's extSource login is the same as his persistent attribute
-	 */
-	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
-		try {
-			String userNamespace = attribute.getFriendlyNameParameter();
+  /**
+   * Get domain name that is used to fill the attribute value
+   *
+   * @return domain name used in fill
+   */
+  public abstract String getDomainName();
 
-			if(userNamespace.equals(getFriendlyNameParameter()) && attribute.getValue() != null){
-				ExtSource extSource = session.getPerunBl()
-						.getExtSourcesManagerBl()
-						.getExtSourceByName(session, getExtSourceName());
-				UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
+  /**
+   * Get name of the extSource where the login will be set.
+   *
+   * @return extSource name for the login
+   */
+  public abstract String getExtSourceName();
 
-				session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
-			}
-		} catch (UserExtSourceExistsException ex) {
-			log.warn("Attribute: {}, External source already exists for the user.", getFriendlyNameParameter(), ex);
-		} catch (ExtSourceNotExistsException ex) {
-			throw new InternalErrorException("Attribute: " + getFriendlyNameParameter() +
-					", IdP external source doesn't exist.", ex);
-		}
-	}
+  /**
+   * Get attribute's friendly name.
+   *
+   * @return attribute's friendly name
+   */
+  public abstract String getFriendlyName();
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName(getFriendlyName());
-		attr.setDisplayName(getDisplayName());
-		attr.setType(String.class.getName());
-		attr.setDescription(getDescription());
-		return attr;
-	}
+  /**
+   * Get attribute's friendly name parameter.
+   *
+   * @return attribute's friendly name parameter.
+   */
+  public abstract String getFriendlyNameParameter();
 }

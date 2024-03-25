@@ -6,17 +6,17 @@ package cz.metacentrum.perun.core.api.exceptions.rt;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class PasswordOperationTimeoutRuntimeException extends PerunRuntimeException {
-	static final long serialVersionUID = 0;
+  static final long serialVersionUID = 0;
 
-	public PasswordOperationTimeoutRuntimeException(String message) {
-		super(message);
-	}
+  public PasswordOperationTimeoutRuntimeException(String message) {
+    super(message);
+  }
 
-	public PasswordOperationTimeoutRuntimeException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public PasswordOperationTimeoutRuntimeException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public PasswordOperationTimeoutRuntimeException(Throwable cause) {
-		super(cause);
-	}
+  public PasswordOperationTimeoutRuntimeException(Throwable cause) {
+    super(cause);
+  }
 }

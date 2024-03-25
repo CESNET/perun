@@ -11,141 +11,144 @@ import java.util.Set;
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public class Graph {
-	private final Map<Node, Node> nodes = new HashMap<>();
-	private final Map<Node, Set<GraphEdge>> edges = new HashMap<>();
+  private final Map<Node, Node> nodes = new HashMap<>();
+  private final Map<Node, Set<GraphEdge>> edges = new HashMap<>();
 
-	/**
-	 * Find nodes that belong to component for given node.
-	 *
-	 * @param node node
-	 * @return Set of nodes that belong to the same component as given Node.
-	 */
-	public Set<Node> getComponentNodes(Node node) {
-		Node graphDefinitionNode = nodes.get(node);
+  /**
+   * Finds nodes that belong to the same graph component as given node.
+   *
+   * @param node node
+   * @return Nodes that belong to the same graph component as given node.
+   */
+  private static Set<Node> findComponentNodes(Node node) {
+    Set<Node> componentNodes = new HashSet<>();
+    Set<Node> newlyDiscoveredNodes = new HashSet<>();
 
-		if (graphDefinitionNode == null) {
-			return Collections.singleton(node);
-		}
+    newlyDiscoveredNodes.add(node);
+    componentNodes.add(node);
 
-		return findComponentNodes(graphDefinitionNode);
-	}
+    do {
+      newlyDiscoveredNodes = findOutgoingAndIncomingNodes(newlyDiscoveredNodes);
+    } while (componentNodes.addAll(newlyDiscoveredNodes));
 
-	/**
-	 * Finds nodes that belong to the same graph component as given node.
-	 *
-	 * @param node node
-	 * @return Nodes that belong to the same graph component as given node.
-	 */
-	private static Set<Node> findComponentNodes(Node node) {
-		Set<Node> componentNodes = new HashSet<>();
-		Set<Node> newlyDiscoveredNodes = new HashSet<>();
+    return componentNodes;
+  }
 
-		newlyDiscoveredNodes.add(node);
-		componentNodes.add(node);
+  /**
+   * For given nodes finds all of theirs incoming and outgoing nodes.
+   *
+   * @param nodesToBeSearched nodes that will be searched.
+   * @return discovered nodes
+   */
+  private static Set<Node> findOutgoingAndIncomingNodes(Set<Node> nodesToBeSearched) {
+    Set<Node> newNodesToSearch = new HashSet<>();
 
-		do {
-			newlyDiscoveredNodes = findOutgoingAndIncomingNodes(newlyDiscoveredNodes);
-		} while (componentNodes.addAll(newlyDiscoveredNodes));
+    for (Node node : nodesToBeSearched) {
+      for (GraphEdge edge : node.getOutComingEdges()) {
+        newNodesToSearch.add(edge.getTargetNode());
+      }
+      for (GraphEdge edge : node.getInComingEdges()) {
+        newNodesToSearch.add(edge.getSourceNode());
+      }
+    }
 
-		return componentNodes;
-	}
+    return newNodesToSearch;
+  }
 
-	/**
-	 * For given nodes finds all of theirs incoming and outgoing nodes.
-	 *
-	 * @param nodesToBeSearched nodes that will be searched.
-	 * @return discovered nodes
-	 */
-	private static Set<Node> findOutgoingAndIncomingNodes(Set<Node> nodesToBeSearched) {
-		Set<Node> newNodesToSearch = new HashSet<>();
+  public void addNode(Node node) {
+    if (nodes.keySet().contains(node)) {
+      return;
+    }
+    nodes.put(node, node);
+    edges.put(node, new HashSet<>());
+  }
 
-		for (Node node : nodesToBeSearched) {
-			for (GraphEdge edge : node.getOutComingEdges()) {
-				newNodesToSearch.add(edge.getTargetNode());
-			}
-			for (GraphEdge edge : node.getInComingEdges()) {
-				newNodesToSearch.add(edge.getSourceNode());
-			}
-		}
+  public void addNodes(Set<Node> nodes) {
+    nodes.forEach(this::addNode);
+  }
 
-		return newNodesToSearch;
-	}
+  public void createEdge(Node source, Node target, GraphEdge.Type type) {
+    source = nodes.get(source);
+    target = nodes.get(target);
 
-	public void addNodes(Set<Node> nodes) {
-		nodes.forEach(this::addNode);
-	}
+    if (source == null) {
+      throw new IllegalArgumentException("Graph does not contain given source node.");
+    }
+    if (target == null) {
+      throw new IllegalArgumentException("Graph does not contain given target node.");
+    }
 
-	public void addNode(Node node) {
-		if (nodes.keySet().contains(node)) {
-			return;
-		}
-		nodes.put(node, node);
-		edges.put(node, new HashSet<>());
-	}
+    GraphEdge edge = new GraphEdge(source, target, type);
 
-	public void removeNodes(Set<Node> nodes) {
-		nodes.forEach(this::removeNode);
-	}
+    source.addOutComingEdge(edge);
+    target.addInComingEdge(edge);
 
-	public void removeNode(Node node) {
-		node.getAllEdges().forEach(this::removeEdge);
+    edges.get(source).add(edge);
+  }
 
-		nodes.remove(node);
-		edges.remove(node);
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Graph graph = (Graph) o;
+    return Objects.equals(nodes, graph.nodes) && Objects.equals(edges, graph.edges);
+  }
 
-		for (GraphEdge edge : node.getInComingEdges()) {
-			edge.getSourceNode().removeOutComingEdge(edge);
-		}
-		for (GraphEdge edge : node.getOutComingEdges()) {
-			edge.getSourceNode().removeInComingEdge(edge);
-		}
-	}
+  /**
+   * Find nodes that belong to component for given node.
+   *
+   * @param node node
+   * @return Set of nodes that belong to the same component as given Node.
+   */
+  public Set<Node> getComponentNodes(Node node) {
+    Node graphDefinitionNode = nodes.get(node);
 
-	public void removeEdge(GraphEdge edge) {
-		edges.get(edge.getSourceNode()).remove(edge);
-		edge.getSourceNode().removeOutComingEdge(edge);
-		edge.getTargetNode().removeInComingEdge(edge);
-	}
+    if (graphDefinitionNode == null) {
+      return Collections.singleton(node);
+    }
 
-	public void createEdge(Node source, Node target, GraphEdge.Type type) {
-		source = nodes.get(source);
-		target = nodes.get(target);
+    return findComponentNodes(graphDefinitionNode);
+  }
 
-		if (source == null) {
-			throw new IllegalArgumentException("Graph does not contain given source node.");
-		}
-		if (target == null) {
-			throw new IllegalArgumentException("Graph does not contain given target node.");
-		}
+  public Map<Node, Set<GraphEdge>> getEdges() {
+    return Collections.unmodifiableMap(edges);
+  }
 
-		GraphEdge edge = new GraphEdge(source, target, type);
+  public Map<Node, Node> getNodes() {
+    return Collections.unmodifiableMap(nodes);
+  }
 
-		source.addOutComingEdge(edge);
-		target.addInComingEdge(edge);
+  @Override
+  public int hashCode() {
 
-		edges.get(source).add(edge);
-	}
+    return Objects.hash(nodes, edges);
+  }
 
-	public Map<Node, Node> getNodes() {
-		return Collections.unmodifiableMap(nodes);
-	}
+  public void removeEdge(GraphEdge edge) {
+    edges.get(edge.getSourceNode()).remove(edge);
+    edge.getSourceNode().removeOutComingEdge(edge);
+    edge.getTargetNode().removeInComingEdge(edge);
+  }
 
-	public Map<Node, Set<GraphEdge>> getEdges() {
-		return Collections.unmodifiableMap(edges);
-	}
+  public void removeNode(Node node) {
+    node.getAllEdges().forEach(this::removeEdge);
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Graph graph = (Graph) o;
-		return Objects.equals(nodes, graph.nodes) &&
-				Objects.equals(edges, graph.edges);
-	}
+    nodes.remove(node);
+    edges.remove(node);
 
-	@Override
-	public int hashCode() {
+    for (GraphEdge edge : node.getInComingEdges()) {
+      edge.getSourceNode().removeOutComingEdge(edge);
+    }
+    for (GraphEdge edge : node.getOutComingEdges()) {
+      edge.getSourceNode().removeInComingEdge(edge);
+    }
+  }
 
-		return Objects.hash(nodes, edges);
-	}
+  public void removeNodes(Set<Node> nodes) {
+    nodes.forEach(this::removeNode);
+  }
 }

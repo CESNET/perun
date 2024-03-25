@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
@@ -11,89 +11,90 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 ">
 
-	<!-- needs perun-core.xml loaded before this file -->
+    <!-- needs perun-core.xml loaded before this file -->
 
-	<!-- Scans for @Repository, @Service and @Component -->
-	<context:component-scan base-package="cz.metacentrum.perun.dispatcher"/>
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="cz.metacentrum.perun.dispatcher"/>
 
-	<!-- Enable @AspectJ support -->
-	<aop:aspectj-autoproxy/>
+    <!-- Enable @AspectJ support -->
+    <aop:aspectj-autoproxy/>
 
-	<!-- Enable @Transactional support -->
-	<tx:annotation-driven transaction-manager="perunTransactionManager"/>
+    <!-- Enable @Transactional support -->
+    <tx:annotation-driven transaction-manager="perunTransactionManager"/>
 
-	<!-- Transaction management using springTransactionManager -->
-	<tx:advice id="txAdvice" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="get*" read-only="true"/>
-			<tx:method name="*"/>
-		</tx:attributes>
-	</tx:advice>
+    <!-- Transaction management using springTransactionManager -->
+    <tx:advice id="txAdvice" transaction-manager="perunTransactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
 
-	<!-- THIS BEAN STARTS THE WHOLE DISPATCHER COMPONENT -->
-	<bean id="dispatcherManager" class="cz.metacentrum.perun.dispatcher.service.impl.DispatcherManagerImpl" init-method="init" />
+    <!-- THIS BEAN STARTS THE WHOLE DISPATCHER COMPONENT -->
+    <bean id="dispatcherManager" class="cz.metacentrum.perun.dispatcher.service.impl.DispatcherManagerImpl"
+          init-method="init"/>
 
-	<!-- Beans -->
-	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="0" />
-		<property name="maxPoolSize" value="50" />
-		<property name="queueCapacity" value="0" />
-	</bean>
+    <!-- Beans -->
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="0"/>
+        <property name="maxPoolSize" value="50"/>
+        <property name="queueCapacity" value="0"/>
+    </bean>
 
-	<bean id="taskStore" class="cz.metacentrum.perun.taskslib.service.impl.TaskStoreImpl"/>
+    <bean id="taskStore" class="cz.metacentrum.perun.taskslib.service.impl.TaskStoreImpl"/>
 
-	<!-- Task Queues -->
-	<bean id="waitingTasksQueue" class="java.util.concurrent.DelayQueue"/>
-	<bean id="waitingForcedTasksQueue" class="java.util.concurrent.DelayQueue"/>
+    <!-- Task Queues -->
+    <bean id="waitingTasksQueue" class="java.util.concurrent.DelayQueue"/>
+    <bean id="waitingForcedTasksQueue" class="java.util.concurrent.DelayQueue"/>
 
-	<!-- EventQueue -->
-	<bean id="eventQueue" class="java.util.concurrent.LinkedBlockingQueue"/>
+    <!-- EventQueue -->
+    <bean id="eventQueue" class="java.util.concurrent.LinkedBlockingQueue"/>
 
-	<!-- Dispatcher properties -->
+    <!-- Dispatcher properties -->
 
-	<!-- default properties values in all Spring profiles-->
-	<bean id="dispatcherDefaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="perun.principal.name">perunDispatcher</prop>
-				<prop key="perun.principal.extSourceName">INTERNAL</prop>
-				<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-				<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
-				<prop key="dispatcher.cron.maintenance">0 0 0/2 * * ?</prop>
-				<prop key="dispatcher.ip.address">127.0.0.1</prop>
-				<prop key="dispatcher.port">6071</prop>
-				<prop key="dispatcher.task.delay.time">30000</prop>
-				<prop key="dispatcher.task.delay.count">4</prop>
-				<prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
-				<prop key="dispatcher.propagation.timeout">190</prop>
-				<prop key="dispatcher.rescheduleInterval">48</prop>
-			</props>
-		</property>
-	</bean>
+    <!-- default properties values in all Spring profiles-->
+    <bean id="dispatcherDefaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="perun.principal.name">perunDispatcher</prop>
+                <prop key="perun.principal.extSourceName">INTERNAL</prop>
+                <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+                <prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
+                <prop key="dispatcher.cron.maintenance">0 0 0/2 * * ?</prop>
+                <prop key="dispatcher.ip.address">127.0.0.1</prop>
+                <prop key="dispatcher.port">6071</prop>
+                <prop key="dispatcher.task.delay.time">30000</prop>
+                <prop key="dispatcher.task.delay.count">4</prop>
+                <prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
+                <prop key="dispatcher.propagation.timeout">190</prop>
+                <prop key="dispatcher.rescheduleInterval">48</prop>
+            </props>
+        </property>
+    </bean>
 
-	<!-- pass properties values to Spring placeholders i.e. ${dispatcher.cron.cleantaskresults} -->
-	<context:property-placeholder properties-ref="dispatcherPropertiesBean"	ignore-unresolvable="true"/>
+    <!-- pass properties values to Spring placeholders i.e. ${dispatcher.cron.cleantaskresults} -->
+    <context:property-placeholder properties-ref="dispatcherPropertiesBean" ignore-unresolvable="true"/>
 
-	<!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
-	<beans profile="production">
-		<bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="dispatcherDefaultProperties"/>
-			<property name="locations">
-				<list>
-					<value>file:@perun.conf@perun-dispatcher.properties</value>
-					<value>file:${perun.conf.custom}perun-dispatcher.properties</value>
-				</list>
-			</property>
-			<property name="ignoreResourceNotFound" value="true"/>
-		</bean>
-	</beans>
+    <!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
+    <beans profile="production">
+        <bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties" ref="dispatcherDefaultProperties"/>
+            <property name="locations">
+                <list>
+                    <value>file:@perun.conf@perun-dispatcher.properties</value>
+                    <value>file:${perun.conf.custom}perun-dispatcher.properties</value>
+                </list>
+            </property>
+            <property name="ignoreResourceNotFound" value="true"/>
+        </bean>
+    </beans>
 
-	<!-- active in Spring profile "default", packs just default properties as a bean -->
-	<beans profile="default">
-		<bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="dispatcherDefaultProperties"/>
-		</bean>
-	</beans>
+    <!-- active in Spring profile "default", packs just default properties as a bean -->
+    <beans profile="default">
+        <bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties" ref="dispatcherDefaultProperties"/>
+        </bean>
+    </beans>
 
 
 </beans>

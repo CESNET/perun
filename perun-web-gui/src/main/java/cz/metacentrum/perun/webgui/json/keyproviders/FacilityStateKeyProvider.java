@@ -10,9 +10,9 @@ import cz.metacentrum.perun.webgui.model.FacilityState;
  */
 public class FacilityStateKeyProvider implements ProvidesKey<FacilityState> {
 
-	public Object getKey(FacilityState o) {
-		// returns ID
-		return o.getFacility().getId();
-	}
+  public Object getKey(FacilityState o) {
+    // returns ID
+    return o.getFacility().getId();
+  }
 
 }

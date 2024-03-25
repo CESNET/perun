@@ -18,103 +18,110 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 
 public class DeleteFacility {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "facilitiesManager/deleteFacility";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "facilitiesManager/deleteFacility";
+  private int facilityId = 0;
 
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   */
+  public DeleteFacility() {
+  }
 
-	private int facilityId = 0;
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events JsonCallbackaEvents
+   */
+  public DeleteFacility(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Creates a new request
-	 */
-	public DeleteFacility() {}
+  /**
+   * Attempts to delete the facility.
+   *
+   * @param facilityId - ID of the facility which should be deleted
+   */
+  public void deleteFacility(final int facilityId) {
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
+    this.facilityId = facilityId;
 
-	 * @param events JsonCallbackaEvents
-	 */
-	public DeleteFacility(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+    // test arguments
+    if (!this.testDeleting()) {
+      return;
+    }
 
-	/**
-	 * Attempts to delete the facility.
-	 * @param facilityId - ID of the facility which should be deleted
-	 */
-	public void deleteFacility(final int facilityId)
-	{
+    // json object
+    JSONObject jsonQuery = prepareJSONObject();
 
-		this.facilityId = facilityId;
+    // local events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 
-		// test arguments
-		if(!this.testDeleting()){
-			return;
-		}
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Deleting facility: " + facilityId + " failed.");
+        events.onError(error);
+      }
 
-		// json object
-		JSONObject jsonQuery = prepareJSONObject();
+      ;
 
-		// local events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Facility: " + facilityId + " successfully deleted.");
+        events.onFinished(jso);
+      }
 
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting facility: " + facilityId + " failed.");
-				events.onError(error);
-			};
+      ;
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Facility: "+ facilityId +" successfully deleted.");
-				events.onFinished(jso);
-			};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
+      ;
 
-		};
+    };
 
-		// create request
-		JsonPostClient request = new JsonPostClient(newEvents);
-		request.sendData(JSON_URL, jsonQuery);
+    // create request
+    JsonPostClient request = new JsonPostClient(newEvents);
+    request.sendData(JSON_URL, jsonQuery);
 
-	}
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 * @return true/false for continue/stop
-	 */
-	private boolean testDeleting() {
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testDeleting() {
 
-		boolean result = true;
-		String errorMsg = "";
+    boolean result = true;
+    String errorMsg = "";
 
-		if(facilityId == 0){  // facility id not set
-			errorMsg += "Facility ID not set.\n";
-			result = false;
-		}
+    if (facilityId == 0) {  // facility id not set
+      errorMsg += "Facility ID not set.\n";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
-		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("facility", new JSONNumber(facilityId));
-		return jsonQuery;
-	}
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // create whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("facility", new JSONNumber(facilityId));
+    return jsonQuery;
+  }
 
 }

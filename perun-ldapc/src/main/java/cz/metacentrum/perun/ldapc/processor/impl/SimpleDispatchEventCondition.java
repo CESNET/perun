@@ -3,102 +3,103 @@ package cz.metacentrum.perun.ldapc.processor.impl;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.DispatchEventCondition;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
-
 import java.util.List;
 
 public class SimpleDispatchEventCondition implements DispatchEventCondition {
 
-	private int requiredBeans = 0;
-	private String handlerMethodName = null;
+  private int requiredBeans = 0;
+  private String handlerMethodName = null;
 
-	@Override
-	public void setBeansConditionByMask(int presentBeansMask) {
-		requiredBeans = presentBeansMask;
-	}
+  private void addFlagForBeanName(String name) {
+    switch (name) {
+      case "cz.metacentrum.perun.core.api.Attribute":
+        requiredBeans |= MessageBeans.ATTRIBUTE_F;
+        break;
 
-	@Override
-	public void setBeansConditionByClasses(Class... beanClasses) {
-		requiredBeans = 0;
-		for (Class class1 : beanClasses) {
-			addFlagForBeanName(class1.getName());
-		}
-	}
+      case "cz.metacentrum.perun.core.api.AttributeDefinition":
+        requiredBeans |= MessageBeans.ATTRIBUTEDEF_F;
+        break;
 
-	@Override
-	public void setBeansConditionByNames(String... names) {
-		requiredBeans = 0;
-		for (String name : names) {
-			addFlagForBeanName(name);
-		}
-	}
+      case "cz.metacentrum.perun.core.api.Facility":
+        requiredBeans |= MessageBeans.FACILITY_F;
+        break;
 
-	@Override
-	public void setBeansCondition(List<String> names) {
-		requiredBeans = 0;
-		if (names != null && !names.isEmpty())
-			for (String name : names)
-				addFlagForBeanName(name);
-	}
+      case "cz.metacentrum.perun.core.api.Group":
+        requiredBeans |= MessageBeans.GROUP_F;
+        break;
 
-	@Override
-	public void setHandlerMethodName(String name) {
-		this.handlerMethodName = name;
-	}
+      case "cz.metacentrum.perun.core.api.Member":
+        requiredBeans |= MessageBeans.MEMBER_F;
+        break;
 
-	@Override
-	public String getHandlerMethodName() {
-		return handlerMethodName;
-	}
+      case "cz.metacentrum.perun.core.api.Resource":
+        requiredBeans |= MessageBeans.RESOURCE_F;
+        break;
 
-	@Override
-	public boolean isApplicable(MessageBeans beans, String msg) {
-		int presentMask = beans.getPresentBeansMask();
+      case "cz.metacentrum.perun.core.api.User":
+        requiredBeans |= MessageBeans.USER_F;
+        break;
 
-		return requiredBeans == presentMask;
-	}
+      case "cz.metacentrum.perun.core.api.UserExtSource":
+        requiredBeans |= MessageBeans.USEREXTSOURCE_F;
+        break;
 
-	private void addFlagForBeanName(String name) {
-		switch (name) {
-			case "cz.metacentrum.perun.core.api.Attribute":
-				requiredBeans |= MessageBeans.ATTRIBUTE_F;
-				break;
+      case "cz.metacentrum.perun.core.api.Vo":
+        requiredBeans |= MessageBeans.VO_F;
+        break;
 
-			case "cz.metacentrum.perun.core.api.AttributeDefinition":
-				requiredBeans |= MessageBeans.ATTRIBUTEDEF_F;
-				break;
+      default:
+        throw new InternalErrorException("Class " + name + " is not supported PerunBean for condition");
+    }
 
-			case "cz.metacentrum.perun.core.api.Facility":
-				requiredBeans |= MessageBeans.FACILITY_F;
-				break;
+  }
 
-			case "cz.metacentrum.perun.core.api.Group":
-				requiredBeans |= MessageBeans.GROUP_F;
-				break;
+  @Override
+  public String getHandlerMethodName() {
+    return handlerMethodName;
+  }
 
-			case "cz.metacentrum.perun.core.api.Member":
-				requiredBeans |= MessageBeans.MEMBER_F;
-				break;
+  @Override
+  public boolean isApplicable(MessageBeans beans, String msg) {
+    int presentMask = beans.getPresentBeansMask();
 
-			case "cz.metacentrum.perun.core.api.Resource":
-				requiredBeans |= MessageBeans.RESOURCE_F;
-				break;
+    return requiredBeans == presentMask;
+  }
 
-			case "cz.metacentrum.perun.core.api.User":
-				requiredBeans |= MessageBeans.USER_F;
-				break;
+  @Override
+  public void setBeansCondition(List<String> names) {
+    requiredBeans = 0;
+    if (names != null && !names.isEmpty()) {
+      for (String name : names) {
+        addFlagForBeanName(name);
+      }
+    }
+  }
 
-			case "cz.metacentrum.perun.core.api.UserExtSource":
-				requiredBeans |= MessageBeans.USEREXTSOURCE_F;
-				break;
+  @Override
+  public void setBeansConditionByClasses(Class... beanClasses) {
+    requiredBeans = 0;
+    for (Class class1 : beanClasses) {
+      addFlagForBeanName(class1.getName());
+    }
+  }
 
-			case "cz.metacentrum.perun.core.api.Vo":
-				requiredBeans |= MessageBeans.VO_F;
-				break;
+  @Override
+  public void setBeansConditionByMask(int presentBeansMask) {
+    requiredBeans = presentBeansMask;
+  }
 
-			default:
-				throw new InternalErrorException("Class " + name + " is not supported PerunBean for condition");
-		}
+  @Override
+  public void setBeansConditionByNames(String... names) {
+    requiredBeans = 0;
+    for (String name : names) {
+      addFlagForBeanName(name);
+    }
+  }
 
-	}
+  @Override
+  public void setHandlerMethodName(String name) {
+    this.handlerMethodName = name;
+  }
 
 }

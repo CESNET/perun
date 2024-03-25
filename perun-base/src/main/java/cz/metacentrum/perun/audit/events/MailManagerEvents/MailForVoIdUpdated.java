@@ -7,36 +7,36 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
 public class MailForVoIdUpdated extends AuditEvent implements EngineIgnoreEvent {
 
-	private ApplicationMail mail;
-	private Vo vo;
-	private String message;
+  private ApplicationMail mail;
+  private Vo vo;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public MailForVoIdUpdated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public MailForVoIdUpdated() {
+  }
 
-	public MailForVoIdUpdated(ApplicationMail mail, Vo vo) {
-		this.mail = mail;
-		this.vo = vo;
-		this.message = formatMessage("Mail ID: %d of Type: %s/%s updated for VO ID: %d.", mail.getId(),
-				mail.getMailType(), mail.getAppType(), vo.getId());
-	}
+  public MailForVoIdUpdated(ApplicationMail mail, Vo vo) {
+    this.mail = mail;
+    this.vo = vo;
+    this.message = formatMessage("Mail ID: %d of Type: %s/%s updated for VO ID: %d.", mail.getId(), mail.getMailType(),
+        mail.getAppType(), vo.getId());
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public ApplicationMail getMail() {
+    return mail;
+  }
 
-	public ApplicationMail getMail() {
-		return mail;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Vo getVo() {
-		return vo;
-	}
+  public Vo getVo() {
+    return vo;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

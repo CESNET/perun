@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.Owner;
 
 public class OwnerDeleted extends AuditEvent implements EngineIgnoreEvent {
 
-	private Owner owner;
-	private String message;
+  private Owner owner;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public OwnerDeleted() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public OwnerDeleted() {
+  }
 
-	public OwnerDeleted(Owner owner) {
-		this.owner = owner;
-		this.message = formatMessage("%s deleted.", owner);
-	}
+  public OwnerDeleted(Owner owner) {
+    this.owner = owner;
+    this.message = formatMessage("%s deleted.", owner);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Owner getOwner() {
-		return owner;
-	}
+  public Owner getOwner() {
+    return owner;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

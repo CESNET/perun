@@ -16,146 +16,145 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextArea;
 
 /**
- *  Extended TextArea widget which can validate it's content
- *  and display error message.
+ * Extended TextArea widget which can validate it's content
+ * and display error message.
  *
- *  @author Pavel Zlamal <256627@mail.muni.cz>
+ * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class ExtendedTextArea extends Composite {
 
-	private Label errorText = new Label();
-	private TextAreaValidator validator;
-	private SimplePanel sp = new SimplePanel();
-	private TextArea box = new PasteTextArea();
+  private static int counter = 0;
+  private Label errorText = new Label();
+  private TextAreaValidator validator;
+  private SimplePanel sp = new SimplePanel();
+  private TextArea box = new PasteTextArea();
 
+  /**
+   * Create ExtendedTextBox
+   */
+  public ExtendedTextArea() {
+    this.initWidget(sp);
+    buildWidget();
+  }
 
-	private static int counter = 0;
+  /**
+   * Create ExtendedTextBox with validator
+   */
+  public ExtendedTextArea(TextAreaValidator validator) {
+    this();
+    this.validator = validator;
+  }
 
-	/**
-	 * Create ExtendedTextBox
-	 */
-	public ExtendedTextArea() {
-		this.initWidget(sp);
-		buildWidget();
-	}
+  /**
+   * Build widget itself
+   */
+  private void buildWidget() {
 
-	/**
-	 * Create ExtendedTextBox with validator
-	 */
-	public ExtendedTextArea(TextAreaValidator validator) {
-		this();
-		this.validator = validator;
-	}
+    box.addKeyUpHandler(new KeyUpHandler() {
+      @Override
+      public void onKeyUp(KeyUpEvent event) {
+        if (validator != null) {
+          validator.validateTextArea();
+        }
+      }
+    });
 
-	/**
-	 * Build widget itself
-	 */
-	private void buildWidget() {
+    box.addValueChangeHandler(new ValueChangeHandler<String>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<String> event) {
+        if (validator != null) {
+          validator.validateTextArea();
+        }
+      }
+    });
 
-		box.addKeyUpHandler(new KeyUpHandler() {
-			@Override
-			public void onKeyUp(KeyUpEvent event) {
-				if (validator != null) {
-					validator.validateTextArea();
-				}
-			}
-		});
+    box.addBlurHandler(new BlurHandler() {
+      @Override
+      public void onBlur(BlurEvent event) {
+        if (validator != null) {
+          validator.validateTextArea();
+        }
+      }
+    });
 
-		box.addValueChangeHandler(new ValueChangeHandler<String>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<String> event) {
-				if (validator != null) {
-					validator.validateTextArea();
-				}
-			}
-		});
+    box.getElement().setClassName("textarea" + counter++);
+    setCutCopyPasteHandler("textarea" + counter);
 
-		box.addBlurHandler(new BlurHandler() {
-			@Override
-			public void onBlur(BlurEvent event) {
-				if (validator != null) {
-					validator.validateTextArea();
-				}
-			}
-		});
+    errorText.setVisible(false);
+    errorText.setStyleName("inputFormInlineComment");
+    errorText.addStyleName("serverResponseLabelError");
+    errorText.addStyleName("input-status-error-padding");
 
-		box.getElement().setClassName("textarea"+counter++);
-		setCutCopyPasteHandler("textarea"+counter);
+    sp.setWidget(box);
+    sp.getElement().appendChild(errorText.getElement());
 
-		errorText.setVisible(false);
-		errorText.setStyleName("inputFormInlineComment");
-		errorText.addStyleName("serverResponseLabelError");
-		errorText.addStyleName("input-status-error-padding");
+  }
 
-		sp.setWidget(box);
-		sp.getElement().appendChild(errorText.getElement());
+  /**
+   * Sets TextBox to OK state (hide any error message)
+   */
+  public void setOk() {
 
-	}
+    errorText.setVisible(false);
 
-	/**
-	 * Sets TextBox to OK state (hide any error message)
-	 */
-	public void setOk() {
+    box.removeStyleName("input-text-error-border");
 
-		errorText.setVisible(false);
+    sp.setWidget(box);
+    sp.getElement().appendChild(errorText.getElement());
 
-		box.removeStyleName("input-text-error-border");
+  }
 
-		sp.setWidget(box);
-		sp.getElement().appendChild(errorText.getElement());
+  /**
+   * Set TextBox to error state and display custom message under TextBox.
+   *
+   * @param message message to display
+   */
+  public void setError(String message) {
 
-	}
+    if (message != null && !message.isEmpty()) {
+      errorText.getElement().setInnerHTML(message);
+      errorText.setVisible(true);
+    } else {
+      errorText.getElement().setInnerHTML("");
+      errorText.setVisible(false);
+    }
 
-	/**
-	 * Set TextBox to error state and display custom message under TextBox.
-	 *
-	 * @param message message to display
-	 */
-	public void setError(String message) {
+    // set error message max-width based on size of box
+    int width = box.getOffsetWidth();
+    errorText.getElement()
+        .setAttribute("style", errorText.getElement().getAttribute("style") + " max-width: " + width + "px;");
 
-		if (message != null && !message.isEmpty()) {
-			errorText.getElement().setInnerHTML(message);
-			errorText.setVisible(true);
-		} else {
-			errorText.getElement().setInnerHTML("");
-			errorText.setVisible(false);
-		}
+    box.addStyleName("input-text-error-border");
 
-		// set error message max-width based on size of box
-		int width = box.getOffsetWidth();
-		errorText.getElement().setAttribute("style", errorText.getElement().getAttribute("style")+" max-width: "+width+"px;");
+    sp.setWidget(box);
+    sp.getElement().appendChild(errorText.getElement());
 
-		box.addStyleName("input-text-error-border");
+  }
 
-		sp.setWidget(box);
-		sp.getElement().appendChild(errorText.getElement());
+  /**
+   * Get TextBox associated with ExtendedTextBoxWidgets
+   *
+   * @return TextBox
+   */
+  public TextArea getTextArea() {
+    return this.box;
+  }
 
-	}
+  /**
+   * Set custom content validator for ExtendedTextBox
+   *
+   * @param validator validator to set
+   */
+  public void setValidator(TextAreaValidator validator) {
+    this.validator = validator;
+  }
 
-	/**
-	 * Get TextBox associated with ExtendedTextBoxWidgets
-	 *
-	 * @return TextBox
-	 */
-	public TextArea getTextArea() {
-		return this.box;
-	}
-
-	/**
-	 * Set custom content validator for ExtendedTextBox
-	 *
-	 * @param validator validator to set
-	 */
-	public void setValidator(TextAreaValidator validator) {
-		this.validator = validator;
-	}
-
-	/**
-	 * Set copy & cut & paste javascript handlers to textbox by class
-	 *
-	 * @param id class of textbox to assign handlers to
-	 */
-	private final native void setCutCopyPasteHandler(String id) /*-{
+  /**
+   * Set copy & cut & paste javascript handlers to textbox by class
+   *
+   * @param id class of textbox to assign handlers to
+   */
+  private final native void setCutCopyPasteHandler(String id) /*-{
 				$wnd.jQuery.ready(function() {
 		$wnd.jQuery('#'+id).bind('cut', function(e) {
 		$wnd.jQuery('#'+id).onkeyup()
@@ -170,43 +169,43 @@ public class ExtendedTextArea extends Composite {
 			}-*/;
 
 
-		/**
-		 * Interface defining TextAreaValidator class
-		 */
-		public interface TextAreaValidator {
+  /**
+   * Interface defining TextAreaValidator class
+   */
+  public interface TextAreaValidator {
 
-			/**
-			 * Validate TextArea content and make graphics changes if not valid
-			 *
-			 * @return TRUE - value in text area is valid / FALSE - value is not valid (switch text area display);
-			 */
-			public boolean validateTextArea();
+    /**
+     * Validate TextArea content and make graphics changes if not valid
+     *
+     * @return TRUE - value in text area is valid / FALSE - value is not valid (switch text area display);
+     */
+    public boolean validateTextArea();
 
-		}
+  }
 
-	private class PasteTextArea extends TextArea {
+  private class PasteTextArea extends TextArea {
 
-		public PasteTextArea() {
-			super();
-			sinkEvents(Event.ONPASTE);
-		}
+    public PasteTextArea() {
+      super();
+      sinkEvents(Event.ONPASTE);
+    }
 
-		@Override
-		public void onBrowserEvent(Event event) {
-			super.onBrowserEvent(event);
-			switch (DOM.eventGetType(event)) {
-				case Event.ONPASTE:
-					Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-						@Override
-						public void execute() {
-							ValueChangeEvent.fire(PasteTextArea.this, getText());
-						}
-					});
-					break;
-			}
-		}
+    @Override
+    public void onBrowserEvent(Event event) {
+      super.onBrowserEvent(event);
+      switch (DOM.eventGetType(event)) {
+        case Event.ONPASTE:
+          Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+              ValueChangeEvent.fire(PasteTextArea.this, getText());
+            }
+          });
+          break;
+      }
+    }
 
-	}
+  }
 
 
 }

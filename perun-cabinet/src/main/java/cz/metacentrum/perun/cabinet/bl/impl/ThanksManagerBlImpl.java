@@ -1,21 +1,18 @@
 package cz.metacentrum.perun.cabinet.bl.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.cabinet.dao.ThanksManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,107 +25,106 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ThanksManagerBlImpl implements ThanksManagerBl {
 
-	private ThanksManagerDao thanksManagerDao;
-	private AuthorshipManagerBl authorshipManagerBl;
-	private CabinetManagerBl cabinetManagerBl;
+  private static Logger LOG = LoggerFactory.getLogger(ThanksManagerBlImpl.class);
+  private ThanksManagerDao thanksManagerDao;
+  private AuthorshipManagerBl authorshipManagerBl;
+  private CabinetManagerBl cabinetManagerBl;
 
-	private static Logger log = LoggerFactory.getLogger(ThanksManagerBlImpl.class);
+  // setters -------------------------
 
-	// setters -------------------------
+  public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException {
+    if (t.getCreatedDate() == null) {
+      t.setCreatedDate(new Date());
+    }
+    if (thanksExist(t)) {
+      throw new CabinetException("Can't create duplicate thanks.", ErrorCodes.THANKS_ALREADY_EXISTS);
+    }
 
-	@Autowired
-	public void setThanksManagerDao(ThanksManagerDao thanksManagerDao) {
-		this.thanksManagerDao = thanksManagerDao;
-	}
+    t = getThanksManagerDao().createThanks(sess, t);
+    LOG.debug("{} created.", t);
 
-	@Autowired
-	public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
-		this.authorshipManagerBl = authorshipManagerBl;
-	}
+    // recalculate thanks for all publication's authors
+    List<Author> authors = new ArrayList<Author>();
+    authors = getAuthorshipManagerBl().getAuthorsByPublicationId(t.getPublicationId());
+    // sort to prevent locking
+    synchronized (ThanksManagerBlImpl.class) {
+      for (Author a : authors) {
+        getCabinetManagerBl().setThanksAttribute(a.getId());
+      }
+    }
+    return t;
+  }
 
-	@Autowired
-	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
-		this.cabinetManagerBl = cabinetManagerBl;
-	}
+  @Override
+  public void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException {
 
-	public ThanksManagerDao getThanksManagerDao() {
-		return thanksManagerDao;
-	}
+    getThanksManagerDao().deleteThanks(sess, thanks);
+    LOG.debug("{} deleted.", thanks);
 
-	public AuthorshipManagerBl getAuthorshipManagerBl() {
-		return authorshipManagerBl;
-	}
+    // recalculate thanks for all publication's authors
+    List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
 
-	public CabinetManagerBl getCabinetManagerBl() {
-		return cabinetManagerBl;
-	}
+    synchronized (ThanksManagerBlImpl.class) {
+      for (Author a : authors) {
+        getCabinetManagerBl().setThanksAttribute(a.getId());
+      }
+    }
+
+  }
+
+  public AuthorshipManagerBl getAuthorshipManagerBl() {
+    return authorshipManagerBl;
+  }
+
+  public CabinetManagerBl getCabinetManagerBl() {
+    return cabinetManagerBl;
+  }
+
+  @Override
+  public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) {
+    return getThanksManagerDao().getRichThanksByPublicationId(publicationId);
+  }
+
+  @Override
+  public List<ThanksForGUI> getRichThanksByUserId(int userId) {
+    return getThanksManagerDao().getRichThanksByUserId(userId);
+  }
 
 
-	// methods -------------------------
+  // methods -------------------------
 
-	public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException {
-		if (t.getCreatedDate() == null) {
-			t.setCreatedDate(new Date());
-		}
-		if (thanksExist(t)) {
-			throw new CabinetException("Can't create duplicate thanks.", ErrorCodes.THANKS_ALREADY_EXISTS);
-		}
+  @Override
+  public Thanks getThanksById(int id) throws CabinetException {
+    return getThanksManagerDao().getThanksById(id);
+  }
 
-		t = getThanksManagerDao().createThanks(sess, t);
-		log.debug("{} created.", t);
+  @Override
+  public List<Thanks> getThanksByPublicationId(int publicationId) {
+    return getThanksManagerDao().getThanksByPublicationId(publicationId);
+  }
 
-		// recalculate thanks for all publication's authors
-		List<Author> authors = new ArrayList<Author>();
-		authors = getAuthorshipManagerBl().getAuthorsByPublicationId(t.getPublicationId());
-		// sort to prevent locking
-		synchronized (ThanksManagerBlImpl.class) {
-			for (Author a : authors) {
-				getCabinetManagerBl().setThanksAttribute(a.getId());
-			}
-		}
-		return t;
-	}
+  public ThanksManagerDao getThanksManagerDao() {
+    return thanksManagerDao;
+  }
 
-	@Override
-	public void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException {
+  @Autowired
+  public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
+    this.authorshipManagerBl = authorshipManagerBl;
+  }
 
-		getThanksManagerDao().deleteThanks(sess, thanks);
-		log.debug("{} deleted.", thanks);
+  @Autowired
+  public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+    this.cabinetManagerBl = cabinetManagerBl;
+  }
 
-		// recalculate thanks for all publication's authors
-		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
+  @Autowired
+  public void setThanksManagerDao(ThanksManagerDao thanksManagerDao) {
+    this.thanksManagerDao = thanksManagerDao;
+  }
 
-		synchronized (ThanksManagerBlImpl.class) {
-			for (Author a : authors) {
-				getCabinetManagerBl().setThanksAttribute(a.getId());
-			}
-		}
-
-	}
-
-	@Override
-	public boolean thanksExist(Thanks thanks) {
-		return getThanksManagerDao().thanksExist(thanks);
-	}
-
-	@Override
-	public Thanks getThanksById(int id) throws CabinetException {
-		return getThanksManagerDao().getThanksById(id);
-	}
-
-	@Override
-	public List<Thanks> getThanksByPublicationId(int publicationId) {
-		return getThanksManagerDao().getThanksByPublicationId(publicationId);
-	}
-
-	@Override
-	public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) {
-		return getThanksManagerDao().getRichThanksByPublicationId(publicationId);
-	}
-
-	@Override
-	public List<ThanksForGUI> getRichThanksByUserId(int userId) {
-		return getThanksManagerDao().getRichThanksByUserId(userId);
-	}
+  @Override
+  public boolean thanksExist(Thanks thanks) {
+    return getThanksManagerDao().thanksExist(thanks);
+  }
 
 }

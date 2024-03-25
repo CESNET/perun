@@ -25,21 +25,18 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.AddAdmin;
 import cz.metacentrum.perun.webgui.json.membersManager.FindCompleteRichMembers;
-import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.model.RichMember;
-import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 
 /**
  * !! USE AS INNER TAB ONLY !!
- *
+ * <p>
  * Provides page with add admin to VO form
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -47,260 +44,269 @@ import java.util.ArrayList;
  */
 public class AddVoManagerFromMembersTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Add VO manager");
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Add VO manager");
 
-	/**
-	 * Entity ID to set
-	 */
-	private int voId = 0;
-	private VirtualOrganization vo;
-	private FindCompleteRichMembers users;
-	private ArrayList<RichMember> alreadyAddedList = new ArrayList<RichMember>();
-	private SimplePanel alreadyAdded = new SimplePanel();
+  /**
+   * Entity ID to set
+   */
+  private int voId = 0;
+  private VirtualOrganization vo;
+  private FindCompleteRichMembers users;
+  private ArrayList<RichMember> alreadyAddedList = new ArrayList<RichMember>();
+  private SimplePanel alreadyAdded = new SimplePanel();
 
-	private String searchString = "";
-
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param voId ID of VO to add admin into
-	 */
-	public AddVoManagerFromMembersTabItem(int voId){
-		this.voId = voId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				vo = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
-	}
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param vo VO to add admin into
-	 */
-	public AddVoManagerFromMembersTabItem(VirtualOrganization vo){
-		this.voId = vo.getId();
-		this.vo = vo;
-	}
+  private String searchString = "";
 
 
-	public boolean isPrepared(){
-		return vo != null;
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param voId ID of VO to add admin into
+   */
+  public AddVoManagerFromMembersTabItem(int voId) {
+    this.voId = voId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        vo = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, events).retrieveData();
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return !alreadyAddedList.isEmpty();
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param vo VO to add admin into
+   */
+  public AddVoManagerFromMembersTabItem(VirtualOrganization vo) {
+    this.voId = vo.getId();
+    this.vo = vo;
+  }
 
-	@Override
-	public void onClose() {
 
-	}
+  public boolean isPrepared() {
+    return vo != null;
+  }
 
-	public Widget draw() {
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return !alreadyAddedList.isEmpty();
+  }
 
-		titleWidget.setText("Add manager");
+  @Override
+  public void onClose() {
 
-		final CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
+  }
 
-		this.users = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, voId, "", null, JsonCallbackEvents.disableButtonEvents(searchButton, new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				// if found 1 item, select
-				ArrayList<RichMember> list = JsonUtils.jsoAsList(jso);
-				if (list != null && list.size() == 1) {
-					users.getSelectionModel().setSelected(list.get(0), true);
-				}
-			}
-		}));
+  public Widget draw() {
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    titleWidget.setText("Add manager");
 
-		// HORIZONTAL MENU
-		TabMenu tabMenu = new TabMenu();
+    final CustomButton searchButton =
+        new CustomButton("Search", ButtonTranslation.INSTANCE.searchUsers(), SmallIcons.INSTANCE.findIcon());
 
-		// get the table
-		final CellTable<RichMember> table;
-		if (session.isPerunAdmin()) {
-			table = users.getTable(new FieldUpdater<RichMember, RichMember>() {
-				public void update(int i, RichMember rm, RichMember rm2) {
-					session.getTabManager().addTab(new UserDetailTabItem(rm.getUser()));
-				}
-			});
-		} else {
-			table = users.getTable();
-		}
+    this.users = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, voId, "", null,
+        JsonCallbackEvents.disableButtonEvents(searchButton, new JsonCallbackEvents() {
+          @Override
+          public void onFinished(JavaScriptObject jso) {
+            // if found 1 item, select
+            ArrayList<RichMember> list = JsonUtils.jsoAsList(jso);
+            if (list != null && list.size() == 1) {
+              users.getSelectionModel().setSelected(list.get(0), true);
+            }
+          }
+        }));
 
-		rebuildAlreadyAddedWidget();
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersToVo());
-		final TabItem tab = this;
+    // HORIZONTAL MENU
+    TabMenu tabMenu = new TabMenu();
 
-		// search textbox
-		final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				startSearching(text);
-				searchString = text;
-			}
-		}, searchButton);
+    // get the table
+    final CellTable<RichMember> table;
+    if (session.isPerunAdmin()) {
+      table = users.getTable(new FieldUpdater<RichMember, RichMember>() {
+        public void update(int i, RichMember rm, RichMember rm2) {
+          session.getTabManager().addTab(new UserDetailTabItem(rm.getUser()));
+        }
+      });
+    } else {
+      table = users.getTable();
+    }
 
-		tabMenu.addWidget(addButton);
+    rebuildAlreadyAddedWidget();
 
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    final CustomButton addButton =
+        TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersToVo());
+    final TabItem tab = this;
 
-		addButton.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				final ArrayList<RichMember> list = users.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)){
-					for (int i=0; i<list.size(); i++) {
-						// FIXME - Should have only one callback to core
-						final int n = i;
-						AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								// put names to already added
-								alreadyAddedList.add(list.get(n));
-								rebuildAlreadyAddedWidget();
-								// unselect added person
-								users.getSelectionModel().setSelected(list.get(n), false);
-								// clear search
-								searchBox.getTextBox().setText("");
-							}
-						}));
-						request.addVoAdmin(vo, list.get(i).getUser());
-					}
-				}
-			}
-		});
+    // search textbox
+    final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        startSearching(text);
+        searchString = text;
+      }
+    }, searchButton);
 
-		// if some text has been searched before
-		if(!searchString.equals("")) {
-			searchBox.getTextBox().setText(searchString);
-			startSearching(searchString);
-		}
+    tabMenu.addWidget(addButton);
 
-		addButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(users, table, addButton);
+    tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    addButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        final ArrayList<RichMember> list = users.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          for (int i = 0; i < list.size(); i++) {
+            // FIXME - Should have only one callback to core
+            final int n = i;
+            AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents() {
+              @Override
+              public void onFinished(JavaScriptObject jso) {
+                // put names to already added
+                alreadyAddedList.add(list.get(n));
+                rebuildAlreadyAddedWidget();
+                // unselect added person
+                users.getSelectionModel().setSelected(list.get(n), false);
+                // clear search
+                searchBox.getTextBox().setText("");
+              }
+            }));
+            request.addVoAdmin(vo, list.get(i).getUser());
+          }
+        }
+      }
+    });
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(tabMenu);
-		firstTabPanel.setCellHeight(tabMenu, "30px");
-		firstTabPanel.add(alreadyAdded);
-		firstTabPanel.add(sp);
+    // if some text has been searched before
+    if (!searchString.equals("")) {
+      searchBox.getTextBox().setText(searchString);
+      startSearching(searchString);
+    }
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
+    addButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(users, table, addButton);
 
-		this.contentWidget.setWidget(firstTabPanel);
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		return getWidget();
+    // add menu and the table to the main panel
+    firstTabPanel.add(tabMenu);
+    firstTabPanel.setCellHeight(tabMenu, "30px");
+    firstTabPanel.add(alreadyAdded);
+    firstTabPanel.add(sp);
 
-	}
+    session.getUiElements().resizePerunTable(sp, 350, this);
 
-	/**
-	 * Starts the search for users
-	 */
-	protected void startSearching(String text){
+    this.contentWidget.setWidget(firstTabPanel);
 
-		users.clearTable();
-		users.searchFor(text);
+    return getWidget();
 
-	}
+  }
 
-	/**
-	 * Rebuild already added widget based on already added admins
-	 */
-	private void rebuildAlreadyAddedWidget() {
+  /**
+   * Starts the search for users
+   */
+  protected void startSearching(String text) {
 
-		alreadyAdded.setStyleName("alreadyAdded");
-		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
-		alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
-		for (int i=0; i<alreadyAddedList.size(); i++) {
-			alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + SafeHtmlUtils.fromString(alreadyAddedList.get(i).getUser().getFullName()).asString());
-		}
+    users.clearTable();
+    users.searchFor(text);
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  /**
+   * Rebuild already added widget based on already added admins
+   */
+  private void rebuildAlreadyAddedWidget() {
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    alreadyAdded.setStyleName("alreadyAdded");
+    alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
+    alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
+    for (int i = 0; i < alreadyAddedList.size(); i++) {
+      alreadyAdded.getWidget().getElement().setInnerHTML(
+          alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") +
+              SafeHtmlUtils.fromString(alreadyAddedList.get(i).getUser().getFullName()).asString());
+    }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1297;
-		int result = 1;
-		result = prime * result + 6786786;
-		return result;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-		AddVoManagerFromMembersTabItem create = (AddVoManagerFromMembersTabItem) obj;
-		if (voId != create.voId){
-			return false;
-		}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-		return true;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1297;
+    int result = 1;
+    result = prime * result + 6786786;
+    return result;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	public void open() { }
+    AddVoManagerFromMembersTabItem create = (AddVoManagerFromMembersTabItem) obj;
+    if (voId != create.voId) {
+      return false;
+    }
 
-	public boolean isAuthorized() {
+    return true;
+  }
 
-		if (session.isVoAdmin(voId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	}
+  public void open() {
+  }
+
+  public boolean isAuthorized() {
+
+    if (session.isVoAdmin(voId)) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
 
 }

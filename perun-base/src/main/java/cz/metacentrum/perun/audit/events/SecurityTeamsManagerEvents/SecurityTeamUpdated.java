@@ -6,29 +6,29 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 
 public class SecurityTeamUpdated extends AuditEvent implements EngineIgnoreEvent {
 
-	private SecurityTeam securityTeam;
-	private String message;
+  private SecurityTeam securityTeam;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public SecurityTeamUpdated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public SecurityTeamUpdated() {
+  }
 
-	public SecurityTeamUpdated(SecurityTeam securityTeam) {
-		this.securityTeam = securityTeam;
-		this.message = formatMessage("%s was updated.", securityTeam);
-	}
+  public SecurityTeamUpdated(SecurityTeam securityTeam) {
+    this.securityTeam = securityTeam;
+    this.message = formatMessage("%s was updated.", securityTeam);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public SecurityTeam getSecurityTeam() {
-		return securityTeam;
-	}
+  public SecurityTeam getSecurityTeam() {
+    return securityTeam;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

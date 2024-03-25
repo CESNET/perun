@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:task="http://www.springframework.org/schema/task"
+<beans xmlns:task="http://www.springframework.org/schema/task"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-	<task:scheduler id="scheduler" pool-size="4" />
+    <task:scheduler id="scheduler" pool-size="4"/>
 
-       <task:scheduled-tasks scheduler="scheduler">
-              <!-- 30 seconds: 0/30 * * * * ? -->
-              <!--  3 minutes: 0 0/3 * * * ?  -->
-              <task:scheduled ref="propagationMaintainerJob" method="doTheJob" cron="${engine.cron.propagation}" />
-       </task:scheduled-tasks>
+    <task:scheduled-tasks scheduler="scheduler">
+        <!-- 30 seconds: 0/30 * * * * ? -->
+        <!--  3 minutes: 0 0/3 * * * ?  -->
+        <task:scheduled ref="propagationMaintainerJob" method="doTheJob" cron="${engine.cron.propagation}"/>
+    </task:scheduled-tasks>
 
 </beans>

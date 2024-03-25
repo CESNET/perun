@@ -7,30 +7,30 @@ package cz.metacentrum.perun.utils.graphs;
  */
 public class GraphDTO {
 
-	private String graph;
-	private String format;
+  private String graph;
+  private String format;
 
-	public GraphDTO() {
-	}
+  public GraphDTO() {
+  }
 
-	public GraphDTO(String graph, String format) {
-		this.graph = graph;
-		this.format = format;
-	}
+  public GraphDTO(String graph, String format) {
+    this.graph = graph;
+    this.format = format;
+  }
 
-	public String getGraph() {
-		return graph;
-	}
+  public String getFormat() {
+    return format;
+  }
 
-	public void setGraph(String graph) {
-		this.graph = graph;
-	}
+  public void setFormat(String format) {
+    this.format = format;
+  }
 
-	public String getFormat() {
-		return format;
-	}
+  public String getGraph() {
+    return graph;
+  }
 
-	public void setFormat(String format) {
-		this.format = format;
-	}
+  public void setGraph(String graph) {
+    this.graph = graph;
+  }
 }

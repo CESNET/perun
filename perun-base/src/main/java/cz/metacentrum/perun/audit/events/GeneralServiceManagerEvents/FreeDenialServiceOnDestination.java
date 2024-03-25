@@ -8,35 +8,35 @@ import cz.metacentrum.perun.core.api.Service;
  */
 public class FreeDenialServiceOnDestination extends AuditEvent {
 
-	private Service service;
-	private int destinationId;
-	private String message;
+  private Service service;
+  private int destinationId;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public FreeDenialServiceOnDestination() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public FreeDenialServiceOnDestination() {
+  }
 
-	public FreeDenialServiceOnDestination(Service service, int destinationId) {
-		this.service = service;
-		this.destinationId = destinationId;
-		this.message = formatMessage("free denial: %s on %s.", service, destinationId);
-	}
+  public FreeDenialServiceOnDestination(Service service, int destinationId) {
+    this.service = service;
+    this.destinationId = destinationId;
+    this.message = formatMessage("free denial: %s on %s.", service, destinationId);
+  }
 
-	public Service getService() {
-		return service;
-	}
+  public int getDestinationId() {
+    return destinationId;
+  }
 
-	public int getDestinationId() {
-		return destinationId;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Service getService() {
+    return service;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

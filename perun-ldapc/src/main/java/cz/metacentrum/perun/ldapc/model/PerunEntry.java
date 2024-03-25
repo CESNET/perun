@@ -5,10 +5,9 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import org.springframework.ldap.core.DirContextOperations;
-
-import javax.naming.Name;
 import java.util.List;
+import javax.naming.Name;
+import org.springframework.ldap.core.DirContextOperations;
 
 /**
  * @param <T>
@@ -16,176 +15,174 @@ import java.util.List;
  */
 public interface PerunEntry<T extends PerunBean> {
 
-	public interface SyncOperation {
-		public boolean isNew();
+  /**
+   * @param bean
+   * @throws InternalErrorException
+   */
+  void addEntry(T bean);
 
-		public DirContextOperations getEntry();
-	}
 
-	;
+  /**
+   * @param bean
+   * @throws InternalErrorException
+   */
+  SyncOperation beginSynchronizeEntry(T bean);
 
-	/**
-	 * @param bean
-	 * @throws InternalErrorException
-	 */
-	void addEntry(T bean);
+  /**
+   * @param bean
+   * @param attrs
+   * @throws InternalErrorException
+   */
+  SyncOperation beginSynchronizeEntry(T bean, Iterable<Attribute> attrs);
 
-	/**
-	 * @param bean
-	 * @throws InternalErrorException
-	 */
-	void modifyEntry(T bean);
+  /**
+   * @param op
+   * @throws InternalErrorException
+   */
+  void commitSyncOperation(SyncOperation op);
 
-	/**
-	 * @param bean
-	 * @param attrNames
-	 * @throws InternalErrorException
-	 */
-	void modifyEntry(T bean, String... attrNames);
+  /**
+   * @param bean
+   * @throws InternalErrorException
+   */
+  void deleteEntry(T bean);
 
-	/**
-	 * @param bean
-	 * @param attrs
-	 * @param attrNames
-	 * @throws InternalErrorException
-	 */
-	void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames);
+  /**
+   *
+   */
+  void deleteEntry(Name dn);
 
-	/**
-	 * @param bean
-	 * @param attrName
-	 * @param attr
-	 * @throws InternalErrorException
-	 */
-	void modifyEntry(T bean, AttributeDefinition attr);
+  /**
+   * Return true if entry attribute with ldapAttributeName in ldap exists.
+   *
+   * @param bean              bean of entry in perun
+   * @param ldapAttributeName name of user ldap attribute
+   * @return true if attribute in ldap exists, false if not
+   * @throws InternalErrorException if ldapAttributeName is null
+   */
+  Boolean entryAttributeExists(T bean, String ldapAttributeName);
 
-	/**
-	 * @param bean
-	 * @param attrDef
-	 * @param attr
-	 * @throws InternalErrorException
-	 */
-	void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr);
-	
-	/**
-	 * 
-	 * @param bean
-	 * @param attrs
-	 */
-	void modifyEntry(T bean, Iterable<Pair<PerunAttribute<T>, AttributeDefinition>> attrs);
-	
-	/**
-	 * @param bean
-	 * @throws InternalErrorException
-	 */
-	void deleteEntry(T bean);
+  /**
+   * @param bean
+   * @return
+   */
+  Boolean entryExists(T bean);
 
-	/**
-	 *
-	 */
-	void deleteEntry(Name dn);
+  /**
+   * @param dn
+   * @return
+   */
+  DirContextOperations findByDN(Name dn);
 
-	/**
-	 * @return
-	 * @throws InternalErrorException
-	 */
-	List<Name> listEntries();
+  /**
+   * @param id
+   * @return
+   */
+  DirContextOperations findById(String... id);
 
-	/**
-	 * @param bean
-	 * @throws InternalErrorException
-	 */
-	SyncOperation beginSynchronizeEntry(T bean);
+  /**
+   * @return
+   */
+  List<PerunAttribute<T>> getAttributeDescriptions();
 
-	/**
-	 * @param bean
-	 * @param attrs
-	 * @throws InternalErrorException
-	 */
-	SyncOperation beginSynchronizeEntry(T bean, Iterable<Attribute> attrs);
+  /**
+   * @param id
+   * @return
+   */
+  Name getEntryDN(String... id);
 
-	/**
-	 * @param op
-	 * @throws InternalErrorException
-	 */
-	void commitSyncOperation(SyncOperation op);
+  /**
+   * @return
+   */
+  List<String> getPerunAttributeNames();
 
-	/**
-	 * @param bean
-	 * @throws InternalErrorException
-	 */
-	void synchronizeEntry(T bean);
+  /**
+   * @return
+   */
+  List<String> getUpdatableAttributeNames();
 
-	/**
-	 * @param bean
-	 * @param attrs
-	 * @throws InternalErrorException
-	 */
-	void synchronizeEntry(T bean, Iterable<Attribute> attrs);
+  /**
+   * @return
+   * @throws InternalErrorException
+   */
+  List<Name> listEntries();
 
-	/**
-	 * @param dn
-	 * @return
-	 */
-	DirContextOperations findByDN(Name dn);
+  /**
+   * @param bean
+   * @throws InternalErrorException
+   */
+  void modifyEntry(T bean);
 
-	/**
-	 * @param id
-	 * @return
-	 */
-	DirContextOperations findById(String... id);
+  /**
+   * @param bean
+   * @param attrNames
+   * @throws InternalErrorException
+   */
+  void modifyEntry(T bean, String... attrNames);
 
-	/**
-	 * @param id
-	 * @return
-	 */
-	Name getEntryDN(String... id);
+  /**
+   * @param bean
+   * @param attrs
+   * @param attrNames
+   * @throws InternalErrorException
+   */
+  void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames);
 
-	/**
-	 * @param bean
-	 * @return
-	 */
-	Boolean entryExists(T bean);
+  /**
+   * @param bean
+   * @param attrName
+   * @param attr
+   * @throws InternalErrorException
+   */
+  void modifyEntry(T bean, AttributeDefinition attr);
 
-	/**
-	 * Return true if entry attribute with ldapAttributeName in ldap exists.
-	 *
-	 * @param bean              bean of entry in perun
-	 * @param ldapAttributeName name of user ldap attribute
-	 * @return true if attribute in ldap exists, false if not
-	 * @throws InternalErrorException if ldapAttributeName is null
-	 */
-	Boolean entryAttributeExists(T bean, String ldapAttributeName);
+  /**
+   * @param bean
+   * @param attrDef
+   * @param attr
+   * @throws InternalErrorException
+   */
+  void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr);
 
-	/**
-	 * Remove all attributes that were set using the Attribute bean.
-	 *
-	 * @param bean
-	 */
-	void removeAllAttributes(T bean);
+  /**
+   * @param bean
+   * @param attrs
+   */
+  void modifyEntry(T bean, Iterable<Pair<PerunAttribute<T>, AttributeDefinition>> attrs);
 
-	/**
-	 * @return
-	 */
-	List<PerunAttribute<T>> getAttributeDescriptions();
+  /**
+   * Remove all attributes that were set using the Attribute bean.
+   *
+   * @param bean
+   */
+  void removeAllAttributes(T bean);
 
-	/**
-	 * @param attributeDescriptions
-	 */
-	void setAttributeDescriptions(List<PerunAttribute<T>> attributeDescriptions);
+  /**
+   * @param attributeDescriptions
+   */
+  void setAttributeDescriptions(List<PerunAttribute<T>> attributeDescriptions);
 
-	/**
-	 * @return
-	 */
-	List<String> getUpdatableAttributeNames();
+  /**
+   * @param updatableAttributeNames
+   */
+  void setUpdatableAttributeNames(List<String> updatableAttributeNames);
 
-	/**
-	 * @param updatableAttributeNames
-	 */
-	void setUpdatableAttributeNames(List<String> updatableAttributeNames);
+  /**
+   * @param bean
+   * @throws InternalErrorException
+   */
+  void synchronizeEntry(T bean);
 
-	/**
-	 * @return
-	 */
-	List<String> getPerunAttributeNames();
+  /**
+   * @param bean
+   * @param attrs
+   * @throws InternalErrorException
+   */
+  void synchronizeEntry(T bean, Iterable<Attribute> attrs);
+
+  public interface SyncOperation {
+    public DirContextOperations getEntry();
+
+    public boolean isNew();
+  }
 }

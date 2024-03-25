@@ -16,114 +16,118 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class CreateServicePackage {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// services package name
-	private String packageName = "";
-	// services package description
-	private String packageDescription = "";
-	// URL to call
-	final String JSON_URL = "servicesManager/createServicesPackage";
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  // URL to call
+  final String JSON_URL = "servicesManager/createServicesPackage";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // services package name
+  private String packageName = "";
+  // services package description
+  private String packageDescription = "";
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	/**
-	 * Creates a new request
-	 */
-	public CreateServicePackage() {
-	}
+  /**
+   * Creates a new request
+   */
+  public CreateServicePackage() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events external events
-	 */
-	public CreateServicePackage(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events external events
+   */
+  public CreateServicePackage(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testCreating()
-	{
-		boolean result = true;
-		String errorMsg = "";
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testCreating() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if(packageName.length() == 0){
-			errorMsg += "You must fill in the parameter 'Name'.<br>";
-			result = false;
-		}
+    if (packageName.length() == 0) {
+      errorMsg += "You must fill in the parameter 'Name'.<br>";
+      result = false;
+    }
 
-		if(packageDescription.length() == 0){
-			errorMsg += "You must fill in the parameter 'Description'.";
-			result = false;
-		}
+    if (packageDescription.length() == 0) {
+      errorMsg += "You must fill in the parameter 'Description'.";
+      result = false;
+    }
 
-		if(errorMsg.length()>0){
-			UiElements.generateAlert("Parameter error", errorMsg);
-		}
+    if (errorMsg.length() > 0) {
+      UiElements.generateAlert("Parameter error", errorMsg);
+    }
 
-		return result;
-	}
+    return result;
+  }
 
-	/**
-	 * Attempts to create a new ServicesPackage, it first tests the values and then submits them.
-	 *
-	 * @param name service package name
-	 * @param description service package description
-	 */
-	public void createServicePackage(final String name, final String description)
-	{
-		this.packageName = name;
-		this.packageDescription = description;
+  /**
+   * Attempts to create a new ServicesPackage, it first tests the values and then submits them.
+   *
+   * @param name        service package name
+   * @param description service package description
+   */
+  public void createServicePackage(final String name, final String description) {
+    this.packageName = name;
+    this.packageDescription = description;
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating service package " + packageName + " failed.");
-				events.onError(error); // custom events
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating service package " + packageName + " failed.");
+        events.onError(error); // custom events
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Service package " + packageName + " created.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Service package " + packageName + " created.");
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject()
-	{
-		// service
-		JSONObject service = new JSONObject();
-		service.put("name", new JSONString(packageName));
-		service.put("description", new JSONString(packageDescription));
-		service.put("id", null);
+      ;
+    };
 
-		// whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("servicesPackage", service);
-		return jsonQuery;
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
+
+  }
+
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+    // service
+    JSONObject service = new JSONObject();
+    service.put("name", new JSONString(packageName));
+    service.put("description", new JSONString(packageDescription));
+    service.put("id", null);
+
+    // whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("servicesPackage", service);
+    return jsonQuery;
+  }
 
 }

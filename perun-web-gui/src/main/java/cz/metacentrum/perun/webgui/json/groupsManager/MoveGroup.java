@@ -18,111 +18,117 @@ import cz.metacentrum.perun.webgui.widgets.Confirm;
  */
 public class MoveGroup {
 
-	// Session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // Json URL
+  static private final String JSON_URL = "groupsManager/moveGroup";
+  // Session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // External events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  private Group movingGroup;
+  private Group destinationGroup;
 
-	// External events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * New instance of CreateGroup
+   */
+  public MoveGroup() {
+  }
 
-	// Json URL
-	static private final String JSON_URL = "groupsManager/moveGroup";
-	private Group movingGroup;
-	private Group destinationGroup;
+  /**
+   * New instance of CreateGroup
+   *
+   * @param events
+   */
+  public MoveGroup(JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * New instance of CreateGroup
-	 */
-	public MoveGroup() {}
+  /**
+   * Move group to top-level
+   *
+   * @param movingGroup group to be moved
+   */
+  public void moveGroup(Group movingGroup) {
+    moveGroup(movingGroup, null);
+  }
 
-	/**
-	 * New instance of CreateGroup
-	 *
-	 * @param events
-	 */
-	public MoveGroup(JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Move group under new parent (under different group or as top-level)
+   *
+   * @param movingGroup      Group to be moved
+   * @param destinationGroup New parent group or NULL if should be top-level
+   */
+  public void moveGroup(final Group movingGroup, final Group destinationGroup) {
 
-	/**
-	 * Move group to top-level
-	 *
-	 * @param movingGroup group to be moved
-	 */
-	public void moveGroup(Group movingGroup) {
-		moveGroup(movingGroup, null);
-	}
+    this.movingGroup = movingGroup;
+    this.destinationGroup = destinationGroup;
 
-	/**
-	 * Move group under new parent (under different group or as top-level)
-	 *
-	 * @param movingGroup Group to be moved
-	 * @param destinationGroup New parent group or NULL if should be top-level
-	 */
-	public void moveGroup(final Group movingGroup, final Group destinationGroup) {
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		this.movingGroup = movingGroup;
-		this.destinationGroup = destinationGroup;
+    // GROUP OBJECT
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("movingGroup", new JSONNumber(this.movingGroup.getId()));
+    if (this.destinationGroup != null) {
+      jsonQuery.put("destinationGroup", new JSONNumber(this.destinationGroup.getId()));
+    }
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      private Group movedGroup = movingGroup;
 
-		// GROUP OBJECT
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("movingGroup", new JSONNumber(this.movingGroup.getId()));
-		if (this.destinationGroup != null) {
-			jsonQuery.put("destinationGroup", new JSONNumber(this.destinationGroup.getId()));
-		}
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Moving group failed.");
+        events.onError(error);
+      }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			private Group movedGroup = movingGroup;
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Moving group failed.");
-				events.onError(error);
-			};
+      ;
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Group "+ movedGroup.getName() +" was successfully moved!");
-				events.onFinished(jso);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Group " + movedGroup.getName() + " was successfully moved!");
+        events.onFinished(jso);
+      }
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      ;
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, jsonQuery);
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	}
+      ;
+    };
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return
-	 */
-	private boolean testCreating() {
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, jsonQuery);
 
-		boolean result = true;
-		String errorMsg = "";
+  }
 
-		if(movingGroup == null){
-			errorMsg += "Moving group can't be NULL.<br />";
-			result = false;
-		}
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return
+   */
+  private boolean testCreating() {
 
-		if(errorMsg.length()>0){
-			Confirm c = new Confirm("Error while moving Group", new HTML(errorMsg), true);
-			c.show();
-		}
+    boolean result = true;
+    String errorMsg = "";
 
-		return result;
-	}
+    if (movingGroup == null) {
+      errorMsg += "Moving group can't be NULL.<br />";
+      result = false;
+    }
 
-	public void setEvents(JsonCallbackEvents events) {
-		this.events = events;
-	}
+    if (errorMsg.length() > 0) {
+      Confirm c = new Confirm("Error while moving Group", new HTML(errorMsg), true);
+      c.show();
+    }
+
+    return result;
+  }
+
+  public void setEvents(JsonCallbackEvents events) {
+    this.events = events;
+  }
 }

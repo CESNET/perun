@@ -9,9 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,10 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Ext source for CSV files. It expects them to have 1st row as a header.
- *
+ * <p>
  * Docs: https://wiki.metacentrum.cz/wiki/Perun_external_sources#CSV
  *
  * @author Sona Mastrakova
@@ -30,294 +29,298 @@ import java.util.Objects;
  */
 public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
 
-    private final static Logger log = LoggerFactory.getLogger(ExtSourceCSV.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ExtSourceCSV.class);
 
-    private String file = null;
-    private String query = null;
+  private String file = null;
+  private String query = null;
 
-    @Override
-    public List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
-        throw new ExtSourceUnsupportedOperationException("For CSV using this method is not optimized, use findSubjects instead.");
+  @Override
+  public void close() throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
+  }
+
+  /**
+   * Comparison of one row in CSV file with the query. - if the row would be result of the query, then this method
+   * returns true - if not, then this method returns false
+   * <p>
+   * Basically it has two modes, exact match when query contains mapping "column=value" and contains (substring) when
+   * query contains mapping "column contains ?".
+   *
+   * @param rowAsMap one row from CSV file
+   * @param query    query we want to 'execute' on the row, e.g. nameOfColumn=valueInRow
+   * @return TRUE if row matches query and should be processed / FALSE when row should be skipped
+   * @throws InternalErrorException When implementation fails
+   */
+  private boolean compareRowToQuery(Map<String, String> rowAsMap, String query) {
+
+    // symbol '=' indicates getSubjectByLogin() or getGroupSubjects() method
+    int index = query.indexOf("=");
+    // word 'contains' indicates findSubjects() method
+    int indexContains = query.indexOf("contains");
+
+    if (index != -1) {
+
+      String queryType = query.substring(0, index);
+      String value = query.substring(index + 1);
+
+      // whether value in requested "column" in CSV equals expected value
+      return Objects.equals(value, rowAsMap.get(queryType));
+
+    } else if (indexContains != -1) {
+
+      String queryType = query.substring(0, indexContains);
+      String value = query.substring(indexContains + "contains".trim().length());
+
+      value = value.trim();
+      queryType = queryType.trim();
+
+      // whether value in requested "column" in CSV contains (substring) expected value
+      return (rowAsMap.get(queryType) != null && rowAsMap.get(queryType).contains(value));
+
+    } else {
+
+      // If there's no symbol '=' or word 'contains' in the query
+      throw new InternalErrorException("Wrong query!");
+
     }
 
-    @Override
-    public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
-        throw new ExtSourceUnsupportedOperationException("For CSV using this method is not optimized, use findSubjects instead.");
-    }
+  }
 
-    @Override
-    public List<Map<String, String>> findSubjects(String searchString) {
-        return findSubjects(searchString, 0);
-    }
+  /**
+   * Parse CSV file into list of our standard "subject" (aka candidates)
+   *
+   * @param query      query to check CSV file content against
+   * @param maxResults limit results to X row or 0 for unlimited
+   * @return List of Maps representing subjects for synchronization (perun_attr/constant = value).
+   * @throws InternalErrorException When implementation fails
+   * @throws IOException            When reading CSV file fails
+   */
+  private List<Map<String, String>> csvParsing(String query, int maxResults) throws IOException {
 
-    @Override
-    public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
-        try {
-            query = getAttributes().get("query");
+    List<Map<String, String>> subjects = new ArrayList<>();
 
-            if (query == null || query.isEmpty()) {
-                throw new InternalErrorException("query attribute is required");
-            }
+    Map<String, String> attributeMapping = getCsvMapping();
 
-            if (searchString == null) {
-                throw new InternalErrorException("search string can't be null");
-            }
+    File csvFile = new File(file);
+    CsvMapper mapper = new CsvMapper();
+    // use first row as header; otherwise defaults are fine
+    CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
-            //Replace '?' by searchString
-            query = query.replaceAll("\\?", searchString);
+    MappingIterator<Map<String, String>> it = mapper.readerFor(Map.class).with(schema).readValues(csvFile);
+    while (it.hasNext()) {
 
-            //Get CSV file
-            prepareFile();
+      Map<String, String> rowAsMap = it.next();
 
-            return csvParsing(query, maxResults);
+      if (compareRowToQuery(rowAsMap, query)) {
 
-        } catch (IOException ex) {
-            log.error("IOException in findSubjects() method while parsing csv file", ex);
+        Map<String, String> singleSubject = new HashMap<>();
+
+        // translate CSV column names to perun attribute URNs
+        for (String key : rowAsMap.keySet()) {
+          singleSubject.put(attributeMapping.get(key), rowAsMap.get(key));
         }
 
-        return null;
-    }
+        subjects.add(singleSubject);
 
-    @Override
-    public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
-        try {
-            query = getAttributes().get("loginQuery");
-
-            if (query == null || query.isEmpty()) {
-                throw new InternalErrorException("loginQuery attribute is required");
-            }
-
-            if (login == null || login.isEmpty()) {
-                throw new InternalErrorException("login string can't be null or empty");
-            }
-
-            //Replace '?' by searchString
-            query = query.replaceAll("\\?", login);
-
-            //Get CSV file
-            prepareFile();
-
-            List<Map<String, String>> subjects = this.csvParsing(query, 0);
-
-            if (subjects.isEmpty()) {
-                throw new SubjectNotExistsException("Login: " + login);
-            }
-            if (subjects.size() > 1) {
-                throw new InternalErrorException("External source must return exactly one result, search string: " + login);
-            }
-
-            return subjects.get(0);
-
-        } catch (IOException ex) {
-            log.error("IOException in getSubjectByLogin() method while parsing csv file", ex);
+        // break if we required limited response
+        if (maxResults > 0) {
+          if (subjects.size() >= maxResults) {
+            break;
+          }
         }
 
-        return null;
-    }
-
-    @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
-        try {
-            // Get the query for the group subjects
-            String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-
-            // If there is no query for group, throw exception
-            if (queryForGroup == null) {
-                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
-            }
-
-            // Get CSV file
-            prepareFile();
-
-            return csvParsing(queryForGroup, 0);
-
-        } catch (IOException ex) {
-            log.error("IOException in getGroupSubjects() method while parsing csv file", ex);
-        }
-        return null;
-    }
-
-	@Override
-	public List<Map<String, String>> getUsersSubjects() {
-		try {
-			// Get the query for the user subjects
-			String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
-
-			// If there is no query for users, throw exception
-			if (queryForUsers == null) {
-				throw new InternalErrorException("usersQuery can't be null");
-			}
-
-			// Get CSV file
-			prepareFile();
-
-			return csvParsing(queryForUsers, 0);
-
-		} catch (IOException ex) {
-			log.error("IOException in getUsersSubjects() method while parsing csv file", ex);
-		}
-		return null;
-	}
-
-    @Override
-    public void close() throws ExtSourceUnsupportedOperationException {
-        throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
-    }
-
-    @Override
-    public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
-        throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
-    }
-
-    /**
-     * Initialize CSV file.
-     *
-     * @throws InternalErrorException When fail not exists or is empty
-     */
-    private void prepareFile() {
-        //Get CSV file
-        file = getAttributes().get("file");
-        if (file == null || file.isEmpty()) {
-            throw new InternalErrorException("File cannot be empty!");
-        }
-    }
-
-    /**
-     * Parse CSV file into list of our standard "subject" (aka candidates)
-     *
-     * @param query query to check CSV file content against
-     * @param maxResults limit results to X row or 0 for unlimited
-     * @return List of Maps representing subjects for synchronization (perun_attr/constant = value).
-     * @throws InternalErrorException When implementation fails
-     * @throws IOException When reading CSV file fails
-     */
-    private List<Map<String, String>> csvParsing(String query, int maxResults) throws IOException {
-
-        List<Map<String, String>> subjects = new ArrayList<>();
-
-        Map<String,String> attributeMapping = getCsvMapping();
-
-        File csvFile = new File(file);
-        CsvMapper mapper = new CsvMapper();
-        // use first row as header; otherwise defaults are fine
-        CsvSchema schema = CsvSchema.emptySchema().withHeader();
-
-        MappingIterator<Map<String,String>> it = mapper.readerFor(Map.class).with(schema).readValues(csvFile);
-        while (it.hasNext()) {
-
-            Map<String,String> rowAsMap = it.next();
-
-            if (compareRowToQuery(rowAsMap, query)) {
-
-                Map<String,String> singleSubject = new HashMap<>();
-
-                // translate CSV column names to perun attribute URNs
-                for (String key : rowAsMap.keySet()) {
-                    singleSubject.put(attributeMapping.get(key), rowAsMap.get(key));
-                }
-
-                subjects.add(singleSubject);
-
-                // break if we required limited response
-                if (maxResults > 0) {
-                    if (subjects.size() >= maxResults) {
-                        break;
-                    }
-                }
-
-            }
-
-        }
-
-        return subjects;
+      }
 
     }
 
-    /**
-     * Comparison of one row in CSV file with the query.
-     * - if the row would be result of the query, then this method returns true
-     * - if not, then this method returns false
-     *
-     * Basically it has two modes, exact match when query contains mapping "column=value"
-     * and contains (substring) when query contains mapping "column contains ?".
-     *
-     * @param rowAsMap one row from CSV file
-     * @param query query we want to 'execute' on the row, e.g. nameOfColumn=valueInRow
-     * @return TRUE if row matches query and should be processed / FALSE when row should be skipped
-     * @throws InternalErrorException When implementation fails
-     */
-    private boolean compareRowToQuery(Map<String,String> rowAsMap, String query) {
+    return subjects;
 
-        // symbol '=' indicates getSubjectByLogin() or getGroupSubjects() method
-        int index = query.indexOf("=");
-        // word 'contains' indicates findSubjects() method
-        int indexContains = query.indexOf("contains");
+  }
 
-        if (index != -1) {
+  @Override
+  public List<Map<String, String>> findSubjects(String searchString) {
+    return findSubjects(searchString, 0);
+  }
 
-            String queryType = query.substring(0, index);
-            String value = query.substring(index + 1);
+  @Override
+  public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
+    try {
+      query = getAttributes().get("query");
 
-            // whether value in requested "column" in CSV equals expected value
-            return Objects.equals(value, rowAsMap.get(queryType));
+      if (query == null || query.isEmpty()) {
+        throw new InternalErrorException("query attribute is required");
+      }
 
-        } else if (indexContains != -1) {
+      if (searchString == null) {
+        throw new InternalErrorException("search string can't be null");
+      }
 
-            String queryType = query.substring(0, indexContains);
-            String value = query.substring(indexContains + "contains".trim().length());
+      //Replace '?' by searchString
+      query = query.replaceAll("\\?", searchString);
 
-            value = value.trim();
-            queryType = queryType.trim();
+      //Get CSV file
+      prepareFile();
 
-            // whether value in requested "column" in CSV contains (substring) expected value
-            return (rowAsMap.get(queryType) != null && rowAsMap.get(queryType).contains(value));
+      return csvParsing(query, maxResults);
 
-        } else {
+    } catch (IOException ex) {
+      LOG.error("IOException in findSubjects() method while parsing csv file", ex);
+    }
 
-            // If there's no symbol '=' or word 'contains' in the query
-            throw new InternalErrorException("Wrong query!");
+    return null;
+  }
 
-        }
+  @Override
+  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException(
+        "For CSV using this method is not optimized, use findSubjects instead.");
+  }
+
+  @Override
+  public List<Map<String, String>> findSubjectsLogins(String searchString)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException(
+        "For CSV using this method is not optimized, use findSubjects instead.");
+  }
+
+  /**
+   * Returns Map<String,String> with mapping of "CSV column name" to "Perun attribute URN".
+   *
+   * @return Map<String, String>, like <CSV column name,Perun attribute URN>
+   * @throws InternalErrorException When implementation fails
+   */
+  private Map<String, String> getCsvMapping() {
+
+    Map<String, String> attributeMapping = new HashMap<>();
+
+    String mapping = getAttributes().get("csvMapping");
+
+    String[] mappingArray = mapping.split(",\n");
+
+    for (String s : mappingArray) {
+
+      String attr = s.trim();
+
+      int index = attr.indexOf("=");
+
+      if (index <= 0) {
+        throw new InternalErrorException("There is no text in csvMapping attribute or there is no '=' character.");
+      }
+
+      String name = attr.substring(0, index);
+      String value = attr.substring(index + 1);
+
+      if (value.startsWith("{")) {
+        // exclude curly brackets from value
+        value = value.substring(1, value.length() - 1);
+      }
+
+      attributeMapping.put(name.trim(), value.trim());
 
     }
 
-    /**
-     * Returns Map<String,String> with mapping of "CSV column name" to "Perun attribute URN".
-     *
-     * @return Map<String, String>, like <CSV column name,Perun attribute URN>
-     * @throws InternalErrorException When implementation fails
-     */
-    private Map<String, String> getCsvMapping() {
+    return attributeMapping;
 
-        Map<String, String> attributeMapping = new HashMap<>();
+  }
 
-        String mapping = getAttributes().get("csvMapping");
+  @Override
+  public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
+    try {
+      // Get the query for the group subjects
+      String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
-        String[] mappingArray = mapping.split(",\n");
+      // If there is no query for group, throw exception
+      if (queryForGroup == null) {
+        throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
+      }
 
-        for (String s : mappingArray) {
+      // Get CSV file
+      prepareFile();
 
-            String attr = s.trim();
+      return csvParsing(queryForGroup, 0);
 
-            int index = attr.indexOf("=");
-
-            if (index <= 0) {
-                throw new InternalErrorException("There is no text in csvMapping attribute or there is no '=' character.");
-            }
-
-            String name = attr.substring(0, index);
-            String value = attr.substring(index + 1);
-
-            if (value.startsWith("{")) {
-                // exclude curly brackets from value
-                value = value.substring(1, value.length() - 1);
-            }
-
-            attributeMapping.put(name.trim(), value.trim());
-
-        }
-
-        return attributeMapping;
-
+    } catch (IOException ex) {
+      LOG.error("IOException in getGroupSubjects() method while parsing csv file", ex);
     }
+    return null;
+  }
+
+  @Override
+  public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
+    try {
+      query = getAttributes().get("loginQuery");
+
+      if (query == null || query.isEmpty()) {
+        throw new InternalErrorException("loginQuery attribute is required");
+      }
+
+      if (login == null || login.isEmpty()) {
+        throw new InternalErrorException("login string can't be null or empty");
+      }
+
+      //Replace '?' by searchString
+      query = query.replaceAll("\\?", login);
+
+      //Get CSV file
+      prepareFile();
+
+      List<Map<String, String>> subjects = this.csvParsing(query, 0);
+
+      if (subjects.isEmpty()) {
+        throw new SubjectNotExistsException("Login: " + login);
+      }
+      if (subjects.size() > 1) {
+        throw new InternalErrorException("External source must return exactly one result, search string: " + login);
+      }
+
+      return subjects.get(0);
+
+    } catch (IOException ex) {
+      LOG.error("IOException in getSubjectByLogin() method while parsing csv file", ex);
+    }
+
+    return null;
+  }
+
+  @Override
+  public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
+  }
+
+  @Override
+  public List<Map<String, String>> getUsersSubjects() {
+    try {
+      // Get the query for the user subjects
+      String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
+
+      // If there is no query for users, throw exception
+      if (queryForUsers == null) {
+        throw new InternalErrorException("usersQuery can't be null");
+      }
+
+      // Get CSV file
+      prepareFile();
+
+      return csvParsing(queryForUsers, 0);
+
+    } catch (IOException ex) {
+      LOG.error("IOException in getUsersSubjects() method while parsing csv file", ex);
+    }
+    return null;
+  }
+
+  /**
+   * Initialize CSV file.
+   *
+   * @throws InternalErrorException When fail not exists or is empty
+   */
+  private void prepareFile() {
+    //Get CSV file
+    file = getAttributes().get("file");
+    if (file == null || file.isEmpty()) {
+      throw new InternalErrorException("File cannot be empty!");
+    }
+  }
 }

@@ -14,274 +14,270 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
  */
 public class JsonCallbackEvents {
 
-	private static PerunWebSession session = PerunWebSession.getInstance();
+  private static PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Called when request finishes with success.
-	 * @param jso
-	 */
-	public void onFinished(JavaScriptObject jso){
-		// do nothing
-	}
+  /**
+   * Creates a new instance of JsonCallbackEvent.
+   * When a callback finishes successfully, the tab is closed
+   *
+   * @param session Perun Web Session
+   * @param tab     Tab to be closed
+   * @return JsonCallbackEvents object
+   */
+  static public JsonCallbackEvents closeTabEvents(final PerunWebSession session, final TabItem tab) {
 
-	/**
-	 * Called, when an error occurs/
-	 * @param error
-	 */
-	public void onError(PerunError error){
-		// do nothing
-	}
+    JsonCallbackEvents closeTabEvents = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        session.getTabManager().closeTab(tab);
+      }
+    };
 
-	/**
-	 * Called, when started
-	 */
-	public void onLoadingStart(){
-		// do nothing
-	}
+    return closeTabEvents;
+  }
 
-	/**
-	 * Creates a new instance of JsonCallbackEvent.
-	 * When a callback finishes successfully, the tab is closed
-	 *
-	 * @param session Perun Web Session
-	 * @param tab Tab to be closed
-	 * @return JsonCallbackEvents object
-	 */
-	static public JsonCallbackEvents closeTabEvents(final PerunWebSession session, final TabItem tab)	{
+  /**
+   * Creates a new instance of JsonCallbackEvent.
+   * <p>
+   * When a callbacks starts, the button is disabled
+   * When a callback finishes with error or successfully, the button is enabled
+   *
+   * @param button Button to be enabled / disabled
+   * @return JsonCallbackEvents object
+   */
+  static public JsonCallbackEvents disableButtonEvents(final CustomButton button) {
+    return disableButtonEvents(button, null);
+  }
 
-		JsonCallbackEvents closeTabEvents = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso)
-			{
-				session.getTabManager().closeTab(tab);
-			}
-		};
+  /**
+   * Creates a new instance of JsonCallbackEvent.
+   * <p>
+   * When a callbacks starts, the button is disabled
+   * When a callback finishes with error or successfully, the button is enabled
+   *
+   * @param button Button to be enabled / disabled
+   * @param events Events passed to this events
+   * @return JsonCallbackEvents object
+   */
+  static public JsonCallbackEvents disableButtonEvents(final CustomButton button, final JsonCallbackEvents events) {
 
-		return closeTabEvents;
-	}
+    JsonCallbackEvents closeTabEvents = new JsonCallbackEvents() {
 
-	/**
-	 * Creates a new instance of JsonCallbackEvent.
-	 *
-	 * When a callbacks starts, the button is disabled
-	 * When a callback finishes with error or successfully, the button is enabled
-	 *
-	 *
-	 *
-	 * @param button Button to be enabled / disabled
-	 * @return JsonCallbackEvents object
-	 */
-	static public JsonCallbackEvents disableButtonEvents(final CustomButton button)	{
-		return disableButtonEvents(button, null);
-	}
+      public void onLoadingStart() {
+        button.setProcessing(true);
+        if (events != null) {
+          events.onLoadingStart();
+        }
+      }
 
-	/**
-	 * Creates a new instance of JsonCallbackEvent.
-	 *
-	 * When a callbacks starts, the button is disabled
-	 * When a callback finishes with error or successfully, the button is enabled
-	 *
-	 *
-	 *
-	 *
-	 * @param button Button to be enabled / disabled
-	 * @param events Events passed to this events
-	 * @return JsonCallbackEvents object
-	 */
-	static public JsonCallbackEvents disableButtonEvents(final CustomButton button, final JsonCallbackEvents events)	{
+      public void onError(PerunError err) {
+        button.setProcessing(false);
+        if (events != null) {
+          events.onError(err);
+        }
+      }
 
-		JsonCallbackEvents closeTabEvents = new JsonCallbackEvents(){
+      public void onFinished(JavaScriptObject jso) {
+        button.setProcessing(false);
+        if (events != null) {
+          events.onFinished(jso);
+        }
+      }
+    };
 
-			public void onLoadingStart(){
-				button.setProcessing(true);
-				if(events != null){
-					events.onLoadingStart();
-				}
-			}
+    return closeTabEvents;
+  }
 
-			public void onError(PerunError err){
-				button.setProcessing(false);
-				if(events != null){
-					events.onError(err);
-				}
-			}
+  /**
+   * Creates a new instance of JsonCallbackEvent.
+   * <p>
+   * When a callbacks starts, the button is disabled
+   * When a callback finishes with error, the button is enabled
+   * When a callback finishes successfully, the tab is closed
+   *
+   * @param button        Button to be enabled / disabled
+   * @param tab           Tab to be closed
+   * @param mayRefreshTab
+   * @return JsonCallbackEvents object
+   */
+  static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab,
+                                                               boolean mayRefreshTab) {
+    return closeTabDisableButtonEvents(button, tab, mayRefreshTab, null);
+  }
 
-			public void onFinished(JavaScriptObject jso) {
-				button.setProcessing(false);
-				if(events != null){
-					events.onFinished(jso);
-				}
-			}
-		};
+  /**
+   * Creates a new instance of JsonCallbackEvent.
+   * <p>
+   * When a callbacks starts, the button is disabled
+   * When a callback finishes with error, the button is enabled
+   * When a callback finishes successfully, the tab is closed
+   *
+   * @param button        Button to be enabled / disabled
+   * @param tab           Tab to be closed
+   * @param mayRefreshTab
+   * @param events        Events inside this event
+   * @return JsonCallbackEvents object
+   */
+  static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab,
+                                                               boolean mayRefreshTab, final JsonCallbackEvents events) {
 
-		return closeTabEvents;
-	}
+    JsonCallbackEvents closeTabEvents = new JsonCallbackEvents() {
 
+      public void onLoadingStart() {
+        button.setProcessing(true);
+        if (events != null) {
+          events.onLoadingStart();
+        }
+      }
 
-	/**
-	 * Creates a new instance of JsonCallbackEvent.
-	 *
-	 * When a callbacks starts, the button is disabled
-	 * When a callback finishes with error, the button is enabled
-	 * When a callback finishes successfully, the tab is closed
-	 *
-	 *
-	 * @param button Button to be enabled / disabled
-	 * @param tab Tab to be closed
-	 * @param mayRefreshTab
-	 * @return JsonCallbackEvents object
-	 */
-	static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab, boolean mayRefreshTab)	{
-		return closeTabDisableButtonEvents(button, tab, mayRefreshTab, null);
-	}
+      public void onError(PerunError err) {
+        button.setProcessing(false);
+        if (events != null) {
+          events.onError(err);
+        }
+      }
 
+      public void onFinished(JavaScriptObject jso) {
+        button.setProcessing(false);
+        session.getTabManager().closeTab(tab, tab.isRefreshParentOnClose() || mayRefreshTab);
+        if (events != null) {
+          events.onFinished(jso);
+        }
+      }
+    };
 
-	/**
-	 * Creates a new instance of JsonCallbackEvent.
-	 *
-	 * When a callbacks starts, the button is disabled
-	 * When a callback finishes with error, the button is enabled
-	 * When a callback finishes successfully, the tab is closed
-	 *
-	 *
-	 * @param button Button to be enabled / disabled
-	 * @param tab Tab to be closed
-	 * @param mayRefreshTab
-	 * @param events Events inside this event
-	 * @return JsonCallbackEvents object
-	 */
-	static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab, boolean mayRefreshTab, final JsonCallbackEvents events)	{
+    return closeTabEvents;
+  }
 
-		JsonCallbackEvents closeTabEvents = new JsonCallbackEvents(){
+  /**
+   * Creates a new instance of JsonCallbackEvent.
+   * When a callback finishes successfully, the table is reloaded.
+   *
+   * @param request Request to be reloaded
+   * @return refresh table event
+   */
+  static public <T extends JavaScriptObject> JsonCallbackEvents refreshTableEvents(final JsonCallbackTable<T> request) {
 
-			public void onLoadingStart(){
-				button.setProcessing(true);
-				if(events != null){
-					events.onLoadingStart();
-				}
-			}
+    JsonCallbackEvents refreshTableEvents = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        request.clearTable();
+        request.retrieveData();
+      }
+    };
+    return refreshTableEvents;
+  }
 
-			public void onError(PerunError err){
-				button.setProcessing(false);
-				if(events != null){
-					events.onError(err);
-				}
-			}
+  /**
+   * Merges two JsonCallbackEvents
+   *
+   * @param events1 Events passed to this events
+   * @param events2 Events passed to this events
+   * @return JsonCallbackEvents object
+   */
+  static public JsonCallbackEvents mergeEvents(final JsonCallbackEvents events1, final JsonCallbackEvents events2) {
 
-			public void onFinished(JavaScriptObject jso)
-			{
-				button.setProcessing(false);
-				session.getTabManager().closeTab(tab, tab.isRefreshParentOnClose() || mayRefreshTab);
-				if(events != null){
-					events.onFinished(jso);
-				}
-			}
-		};
+    return new JsonCallbackEvents() {
 
-		return closeTabEvents;
-	}
+      public void onLoadingStart() {
+        events1.onLoadingStart();
+        events2.onLoadingStart();
+      }
 
-	/**
-	 * Creates a new instance of JsonCallbackEvent.
-	 * When a callback finishes successfully, the table is reloaded.
-	 *
-	 * @param request Request to be reloaded
-	 * @return refresh table event
-	 */
-	static public <T extends JavaScriptObject> JsonCallbackEvents refreshTableEvents(final JsonCallbackTable<T> request)	{
+      public void onError(PerunError err) {
+        events1.onError(err);
+        events2.onError(err);
+      }
 
-		JsonCallbackEvents refreshTableEvents = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				request.clearTable();
-				request.retrieveData();
-			}
-		};
-		return refreshTableEvents;
-	}
+      public void onFinished(JavaScriptObject jso) {
+        events1.onFinished(jso);
+        events2.onFinished(jso);
+      }
+    };
+  }
 
-	/**
-	 * Merges two JsonCallbackEvents
-	 *
-	 * @param events1 Events passed to this events
-	 * @param events2 Events passed to this events
-	 * @return JsonCallbackEvents object
-	 */
-	static public JsonCallbackEvents mergeEvents(final JsonCallbackEvents events1, final JsonCallbackEvents events2)	{
+  /**
+   * Return event which:
+   * disable checkbox on events start
+   * enable checkbox on event finish (or error)
+   *
+   * @param checkbox checkbox to handle
+   * @return checkbox disabling event
+   */
+  static public JsonCallbackEvents disableCheckboxEvents(final CheckBox checkbox) {
 
-		return new JsonCallbackEvents(){
+    return new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        checkbox.setEnabled(true);
+      }
 
-			public void onLoadingStart(){
-				events1.onLoadingStart();
-				events2.onLoadingStart();
-			}
+      @Override
+      public void onError(PerunError error) {
+        checkbox.setEnabled(true);
+      }
 
-			public void onError(PerunError err){
-				events1.onError(err);
-				events2.onError(err);
-			}
+      @Override
+      public void onLoadingStart() {
+        checkbox.setEnabled(false);
+      }
+    };
 
-			public void onFinished(JavaScriptObject jso)
-			{
-				events1.onFinished(jso);
-				events2.onFinished(jso);
-			}
-		};
-	}
+  }
 
-	/**
-	 * Return event which:
-	 * disable checkbox on events start
-	 * enable checkbox on event finish (or error)
-	 *
-	 * @param checkbox checkbox to handle
-	 * @return checkbox disabling event
-	 */
-	static public JsonCallbackEvents disableCheckboxEvents(final CheckBox checkbox) {
+  /**
+   * Return event, which will pass all of its content
+   * to another callback's event.
+   * <p>
+   * Used for filling tables with data from different callbacks
+   * than table origins.
+   *
+   * @param callback Callback to pass event results too.
+   * @return content passing events
+   */
+  static public JsonCallbackEvents passDataToAnotherCallback(final JsonCallback callback) {
 
-		return new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				checkbox.setEnabled(true);
-			}
-			@Override
-			public void onError(PerunError error) {
-				checkbox.setEnabled(true);
-			}
-			@Override
-			public void onLoadingStart() {
-				checkbox.setEnabled(false);
-			}
-		};
+    return new JsonCallbackEvents() {
+      @Override
+      public void onFinished(JavaScriptObject jso) {
+        callback.onFinished(jso);
+      }
 
-	}
+      @Override
+      public void onError(PerunError error) {
+        callback.onError(error);
+      }
 
-	/**
-	 * Return event, which will pass all of its content
-	 * to another callback's event.
-	 *
-	 * Used for filling tables with data from different callbacks
-	 * than table origins.
-	 *
-	 * @param callback Callback to pass event results too.
-	 * @return content passing events
-	 */
-	static public JsonCallbackEvents passDataToAnotherCallback(final JsonCallback callback) {
+      @Override
+      public void onLoadingStart() {
+        callback.onLoadingStart();
+      }
+    };
 
-		return new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				callback.onFinished(jso);
-			}
-			@Override
-			public void onError(PerunError error) {
-				callback.onError(error);
-			}
-			@Override
-			public void onLoadingStart() {
-				callback.onLoadingStart();
-			}
-		};
+  }
 
-	}
+  /**
+   * Called when request finishes with success.
+   *
+   * @param jso
+   */
+  public void onFinished(JavaScriptObject jso) {
+    // do nothing
+  }
+
+  /**
+   * Called, when an error occurs/
+   *
+   * @param error
+   */
+  public void onError(PerunError error) {
+    // do nothing
+  }
+
+  /**
+   * Called, when started
+   */
+  public void onLoadingStart() {
+    // do nothing
+  }
 
 
 }

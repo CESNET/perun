@@ -12,35 +12,35 @@ import cz.metacentrum.perun.core.api.Resource;
  */
 public class ResourceSelfServiceAddedForGroup extends AuditEvent implements EngineIgnoreEvent {
 
-	private Group group;
-	private Resource resource;
-	private String message;
+  private Group group;
+  private Resource resource;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ResourceSelfServiceAddedForGroup() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ResourceSelfServiceAddedForGroup() {
+  }
 
-	public ResourceSelfServiceAddedForGroup(Resource resource, Group group) {
-		this.group = group;
-		this.resource = resource;
-		this.message = formatMessage("%s was added as ResourceSelfService for %s.", group, resource);
-	}
+  public ResourceSelfServiceAddedForGroup(Resource resource, Group group) {
+    this.group = group;
+    this.resource = resource;
+    this.message = formatMessage("%s was added as ResourceSelfService for %s.", group, resource);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Group getGroup() {
+    return group;
+  }
 
-	public Group getGroup() {
-		return group;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

@@ -10,75 +10,73 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-
 import java.util.Collection;
 import java.util.List;
 
 public interface EventDispatcher extends Runnable {
 
-	public interface MessageBeans {
-		public static final int GROUP_F = 1 << 0;
-		public static final int MEMBER_F = 1 << 1;
-		public static final int VO_F = 1 << 2;
-		public static final int USER_F = 1 << 3;
-		public static final int ATTRIBUTE_F = 1 << 4;
-		public static final int ATTRIBUTEDEF_F = 1 << 5;
-		public static final int USEREXTSOURCE_F = 1 << 6;
-		public static final int RESOURCE_F = 1 << 7;
-		public static final int FACILITY_F = 1 << 8;
+  public void dispatchEvent(String msg, MessageBeans beans);
 
-		public int getPresentBeansMask();
+  public void registerProcessor(EventProcessor processor, DispatchEventCondition condition);
 
-		public Collection<Integer> getPresentBeansFlags();
+  public void setLastProcessedIdNumber(int lastProcessedId);
 
-		public int getBeansCount();
+  public interface MessageBeans {
+    public static final int GROUP_F = 1 << 0;
+    public static final int MEMBER_F = 1 << 1;
+    public static final int VO_F = 1 << 2;
+    public static final int USER_F = 1 << 3;
+    public static final int ATTRIBUTE_F = 1 << 4;
+    public static final int ATTRIBUTEDEF_F = 1 << 5;
+    public static final int USEREXTSOURCE_F = 1 << 6;
+    public static final int RESOURCE_F = 1 << 7;
+    public static final int FACILITY_F = 1 << 8;
 
-		public void addBean(PerunBean p);
+    public void addBean(PerunBean p);
 
-		public Group getGroup();
+    public Attribute getAttribute();
 
-		public Group getParentGroup();
+    public AttributeDefinition getAttributeDef();
 
-		public Member getMember();
+    public int getBeansCount();
 
-		public Vo getVo();
+    public Facility getFacility();
 
-		public User getUser();
+    public Group getGroup();
 
-		public User getSpecificUser();
+    public Member getMember();
 
-		public Attribute getAttribute();
+    public Group getParentGroup();
 
-		public AttributeDefinition getAttributeDef();
+    public Collection<Integer> getPresentBeansFlags();
 
-		public UserExtSource getUserExtSource();
+    public int getPresentBeansMask();
 
-		public Resource getResource();
+    public Resource getResource();
 
-		public Facility getFacility();
-	}
+    public User getSpecificUser();
 
-	public interface DispatchEventCondition {
+    public User getUser();
 
-		public void setBeansConditionByMask(int presentBeansMask);
+    public UserExtSource getUserExtSource();
 
-		public void setBeansConditionByClasses(Class... beanClasses);
+    public Vo getVo();
+  }
 
-		public void setBeansConditionByNames(String... names);
+  public interface DispatchEventCondition {
 
-		public void setBeansCondition(List<String> names);
+    public String getHandlerMethodName();
 
-		public void setHandlerMethodName(String name);
+    public boolean isApplicable(MessageBeans beans, String msg);
 
-		public String getHandlerMethodName();
+    public void setBeansCondition(List<String> names);
 
-		public boolean isApplicable(MessageBeans beans, String msg);
-	}
+    public void setBeansConditionByClasses(Class... beanClasses);
 
-	public void registerProcessor(EventProcessor processor, DispatchEventCondition condition);
+    public void setBeansConditionByMask(int presentBeansMask);
 
-	public void dispatchEvent(String msg, MessageBeans beans);
+    public void setBeansConditionByNames(String... names);
 
-	public void setLastProcessedIdNumber(int lastProcessedId);
+    public void setHandlerMethodName(String name);
+  }
 }

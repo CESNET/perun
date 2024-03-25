@@ -284,7 +284,7 @@ components:
     BlockedLogin:
       description: represent a login block for namespace (or globally)
       properties:
-        id: {type: integer }
+        id: { type: integer }
         login: { type: string }
         namespace: { type: string }
 
@@ -350,7 +350,7 @@ components:
     EnrichedExtSource:
       properties:
         extSource: { $ref: '#/components/schemas/ExtSource' }
-        attributes:  { type: object, additionalProperties: { type: string } }
+        attributes: { type: object, additionalProperties: { type: string } }
 
     AttributeDefinition:
       allOf:
@@ -547,7 +547,7 @@ components:
       type: object
       properties:
         facility: { $ref: '#/components/schemas/Facility' }
-        attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
+        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
       required:
         - facility
         - attributes
@@ -748,7 +748,7 @@ components:
       properties:
         name: { type: string }
         contact: { type: string }
-        type: { $ref: '#/components/schemas/OwnerType'}
+        type: { $ref: '#/components/schemas/OwnerType' }
       discriminator:
         propertyName: beanName
 
@@ -1177,7 +1177,7 @@ components:
         searchString: { type: string }
         includeGroupApplications: { type: boolean }
         getDetails: { type: boolean }
-        states: { type: array, items: { $ref: '#/components/schemas/AppState'  } }
+        states: { type: array, items: { $ref: '#/components/schemas/AppState' } }
         dateFrom: { type: string, format: date }
         dateTo: { type: string, format: date }
         userId: { type: integer }
@@ -2504,7 +2504,7 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnFacility"
-              
+
     ListOfEnrichedBansOnFacilitiesResponse:
       description: "return List<EnrichedBanOnFacility>"
       content:
@@ -3939,7 +3939,7 @@ paths:
               properties:
                 role: { type: string, nullable: false }
                 user: { type: integer, nullable: false }
-                
+
   /json/authzResolver/unsetRole/u:
     post:
       tags:
@@ -4321,7 +4321,7 @@ paths:
       tags:
         - AuthzResolver
       operationId: getRoleComplementaryObjectsWithAuthorizedGroups
-      summary: Returns map of role names with map of corresponding complementary objects (perun beans) 
+      summary: Returns map of role names with map of corresponding complementary objects (perun beans)
         together with list of authorized groups where user is member.
       parameters:
         - $ref: '#/components/parameters/userIdLiterally'
@@ -7762,9 +7762,9 @@ paths:
       summary: Marks the action on attribute as critical, which may require additional authentication of user performing that action on attribute.
       parameters:
         - $ref: '#/components/parameters/attributeDefinitionId'
-        - {name: action, in: query, schema: { $ref: '#/components/schemas/AttributeAction' }, required: true}
-        - {name: critical, description: "if action should be marked as critical", schema: { type: boolean }, in: query, required: true}
-        - {name: global, description: "if action should be globally critical (for all objects)", schema: { type: boolean }, in: query, required: false}
+        - { name: action, in: query, schema: { $ref: '#/components/schemas/AttributeAction' }, required: true }
+        - { name: critical, description: "if action should be marked as critical", schema: { type: boolean }, in: query, required: true }
+        - { name: global, description: "if action should be globally critical (for all objects)", schema: { type: boolean }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7883,7 +7883,7 @@ paths:
         - AuditMessagesManager
       operationId: getMessages
       summary: |
-        Returns 100 newest audit messages from audit log. If there is a less messages than 100,
+        Returns 100 newest audit messages from auditLOG. If there is a less messages than 100,
         then all of them are returned OR Returns exact number of newest audit messages defined by
         'count' param (disregarding message IDs). If there is less messages present, then all of them are returned..
       parameters:
@@ -8050,7 +8050,7 @@ paths:
         - AuditMessagesManager
       operationId: auditMessagesManagerLog
       summary: |
-        Log arbitrary auditer message/event to the audit log.
+        Log arbitrary auditer message/event to the auditLOG.
       parameters:
         - { name: msg, in: query, schema: { type: string }, description: "Message to be logged", required: true }
       responses:
@@ -10007,7 +10007,7 @@ paths:
           $ref: '#/components/responses/BooleanResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-    
+
   /urlinjsonout/usersManager/setLogin:
     post:
       tags:
@@ -10305,7 +10305,7 @@ paths:
         - MembersManager
       operationId: getRichMembersNoUserAttributes
       summary: Returns list of all RichMembers for specified VO. User attributes aren't included in the returned
-          objects
+        objects
       description: Get richMembers for VO with member attributes (without user attributes).
       parameters:
         - $ref: '#/components/parameters/voId'
@@ -11446,8 +11446,8 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getFacilitiesByAttributeWithAttributes
-      summary: Searches (partially!) for facilities with the attribute 'attributeName' and its value 'attributeValue'. 
-                  Found Facilities are returned along with attributes listed in 'attrNames'.
+      summary: Searches (partially!) for facilities with the attribute 'attributeName' and its value 'attributeValue'.
+        Found Facilities are returned along with attributes listed in 'attrNames'.
       parameters:
         - $ref: '#/components/parameters/attributeName'
         - $ref: '#/components/parameters/attributeValue'
@@ -12920,7 +12920,7 @@ paths:
           $ref: '#/components/responses/ListOfBanOnFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-          
+
   /json/facilitiesManager/getEnrichedBansForFacility:
     get:
       tags:
@@ -12935,7 +12935,7 @@ paths:
           $ref: '#/components/responses/ListOfEnrichedBansOnFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-          
+
   /json/facilitiesManager/getEnrichedBansForUser:
     get:
       tags:
@@ -13391,8 +13391,8 @@ paths:
                 - groups
                 - forceDelete
               properties:
-                groups: { type: array, items: {type: integer} }
-                forceDelete: { type: boolean, description: "boolean for force delete"}
+                groups: { type: array, items: { type: integer } }
+                forceDelete: { type: boolean, description: "boolean for force delete" }
 
   /urlinjsonout/groupsManager/moveGroup/dg-mg:
     post:
@@ -16279,11 +16279,11 @@ paths:
         - RegistrarManager
       operationId: sendInvitationsFromCsv
       summary: Send invitations with link to VO / Group application form from provided csv data
-          If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
-          content is used as link to application form. Otherwise link is automatically generated based on
-          required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
-
-          General errors result in exception being thrown, single failures are skipped and added to result
+        If VO or Group have non-empty attribute urn:perun:[vo/group]:attribute-def:def:applicationURL
+        content is used as link to application form. Otherwise link is automatically generated based on
+        required AUTHZ in template and registrar url set in /etc/perun/perun-registrar.properties.
+        
+        General errors result in exception being thrown, single failures are skipped and added to result
       responses:
         '200':
           $ref: '#/components/responses/MapStringStringResponse'
@@ -19294,7 +19294,7 @@ paths:
       tags:
         - Searcher
       operationId: getAttributesMatchResources
-      summary: Get list of resources that have attributes with partially matched values 
+      summary: Get list of resources that have attributes with partially matched values
         if allowPartialMatchForString is set to true, else with exactly matched values.
       responses:
         '200':

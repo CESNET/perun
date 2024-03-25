@@ -6,12 +6,20 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -27,7 +35,6 @@ import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -36,224 +43,232 @@ import java.util.Map;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
+public class GroupResourcesTabItem implements TabItem, TabItemWithUrl {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  public static final String URL = "resources";
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading group resources");
+  // data
+  private Group group;
+  private int groupId;
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Creates a tab instance
+   *
+   * @param group
+   */
+  public GroupResourcesTabItem(Group group) {
+    this.group = group;
+    this.groupId = group.getId();
+  }
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading group resources");
+  /**
+   * Creates a tab instance
+   *
+   * @param groupId
+   */
+  public GroupResourcesTabItem(int groupId) {
+    this.groupId = groupId;
+    JsonCallbackEvents events = new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        group = jso.cast();
+      }
+    };
+    new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
+  }
 
-	// data
-	private Group group;
-	private int groupId;
+  static public GroupResourcesTabItem load(Map<String, String> parameters) {
+    int groupId = Integer.parseInt(parameters.get("id"));
+    return new GroupResourcesTabItem(groupId);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param group
-	 */
-	public GroupResourcesTabItem(Group group){
-		this.group = group;
-		this.groupId = group.getId();
-	}
+  public boolean isPrepared() {
+    return !(group == null);
+  }
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param groupId
-	 */
-	public GroupResourcesTabItem(int groupId){
-		this.groupId = groupId;
-		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso) {
-				group = jso.cast();
-			}
-		};
-		new GetEntityById(PerunEntity.GROUP, groupId, events).retrieveData();
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	public boolean isPrepared(){
-		return !(group == null);
-	}
+  @Override
+  public void onClose() {
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  }
 
-	@Override
-	public void onClose() {
+  public Widget draw() {
 
-	}
+    // set title
+    titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()) + ": " + "resources");
 
-	public Widget draw() {
+    // main panel
+    VerticalPanel vp = new VerticalPanel();
+    vp.setSize("100%", "100%");
 
-		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName())+": "+"resources");
+    // HORIZONTAL MENU
+    TabMenu menu = new TabMenu();
+    menu.addWidget(UiElements.getRefreshButton(this));
 
-		// main panel
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%", "100%");
+    // get VO resources
+    final GetAssignedRichResources resources = new GetAssignedRichResources(groupId, PerunEntity.GROUP);
+    if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) {
+      resources.setCheckable(false);
+    }
 
-		// HORIZONTAL MENU
-		TabMenu menu = new TabMenu();
-		menu.addWidget(UiElements.getRefreshButton(this));
+    // custom events for viewResource
+    final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resources);
 
-		// get VO resources
-		final GetAssignedRichResources resources = new GetAssignedRichResources(groupId, PerunEntity.GROUP);
-		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) resources.setCheckable(false);
+    final CustomButton removeButton =
+        TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeGroupFromSelectedResources());
 
-		// custom events for viewResource
-		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resources);
+    // add / remove resource from group can be done by vo / perun admin only.
+    if (session.isVoAdmin(group.getVoId())) {
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeGroupFromSelectedResources());
+      menu.addWidget(
+          TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.assignGroupToResources(),
+              new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                  session.getTabManager().addTabToCurrentTab(new AssignGroupTabItem(group, resources.getList()), true);
+                }
+              }));
 
-		// add / remove resource from group can be done by vo / perun admin only.
-		if (session.isVoAdmin(group.getVoId())) {
+      removeButton.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          final ArrayList<RichResource> toRemove = resources.getTableSelectedList();
+          String text =
+              "Following resources will be removed from group and it's members won't have access to them anymore.";
+          UiElements.showDeleteConfirm(toRemove, text, new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+              RemoveGroupFromResources request =
+                  new RemoveGroupFromResources(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+              request.removeGroupFromResources(group, toRemove);
+            }
+          });
+        }
+      });
+      menu.addWidget(removeButton);
+    }
 
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.assignGroupToResources(), new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					session.getTabManager().addTabToCurrentTab(new AssignGroupTabItem(group, resources.getList()), true);
-				}
-			}));
+    // filter box
+    menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
+      public void searchFor(String text) {
+        resources.filterTable(text);
+      }
+    }, ButtonTranslation.INSTANCE.filterResources());
 
-			removeButton.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					final ArrayList<RichResource> toRemove = resources.getTableSelectedList();
-					String text = "Following resources will be removed from group and it's members won't have access to them anymore.";
-					UiElements.showDeleteConfirm(toRemove, text, new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent clickEvent) {
-							RemoveGroupFromResources request = new RemoveGroupFromResources(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-							request.removeGroupFromResources(group, toRemove);
-						}
-					});
-				}
-			});
-			menu.addWidget(removeButton);
-		}
+    // add menu to the main panel
+    vp.add(menu);
+    vp.setCellHeight(menu, "30px");
 
-		// filter box
-		menu.addFilterWidget(new ExtendedSuggestBox(resources.getOracle()), new PerunSearchEvent() {
-			public void searchFor(String text) {
-				resources.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterResources());
+    CellTable<RichResource> table;
 
-		// add menu to the main panel
-		vp.add(menu);
-		vp.setCellHeight(menu, "30px");
+    // perun / vo admin can set attributes
+    if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId())) {
+      table = resources.getTable(new FieldUpdater<RichResource, String>() {
+        public void update(int index, RichResource object, String value) {
+          session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
+        }
+      });
+    } else {
+      table = resources.getTable();
+    }
 
-		CellTable<RichResource> table;
+    removeButton.setEnabled(false);
+    if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) {
+      JsonUtils.addTableManagedButton(resources, table, removeButton);
+    }
 
-		// perun / vo admin can set attributes
-		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId())) {
-			table = resources.getTable(new FieldUpdater<RichResource, String>() {
-				public void update(int index, RichResource object, String value) {
-					session.getTabManager().addTab(new ResourceDetailTabItem(object, 0));
-				}
-			});
-		} else {
-			table = resources.getTable();
-		}
+    table.addStyleName("perun-table");
+    table.setWidth("100%");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		removeButton.setEnabled(false);
-		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(resources, table, removeButton);
+    vp.add(sp);
+    session.getUiElements().resizePerunTable(sp, 350, this);
+    this.contentWidget.setWidget(vp);
 
-		table.addStyleName("perun-table");
-		table.setWidth("100%");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    return getWidget();
+  }
 
-		vp.add(sp);
-		session.getUiElements().resizePerunTable(sp, 350, this);
-		this.contentWidget.setWidget(vp);
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-		return getWidget();
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.serverGroupIcon();
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1423;
+    int result = 1;
+    result = prime * result + groupId;
+    return result;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.serverGroupIcon();
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    GroupResourcesTabItem other = (GroupResourcesTabItem) obj;
+    if (groupId != other.groupId) {
+      return false;
+    }
+    return true;
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1423;
-		int result = 1;
-		result = prime * result + groupId;
-		return result;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		GroupResourcesTabItem other = (GroupResourcesTabItem) obj;
-		if (groupId != other.groupId)
-			return false;
-		return true;
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
+    session.getUiElements().getBreadcrumbs().setLocation(group, "Resources", getUrlWithParameters());
+    if (group != null) {
+      session.setActiveGroup(group);
+    } else {
+      session.setActiveGroupId(groupId);
+    }
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean isAuthorized() {
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(group, "Resources", getUrlWithParameters());
-		if(group != null){
-			session.setActiveGroup(group);
-		} else {
-			session.setActiveGroupId(groupId);
-		}
-	}
+    if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public boolean isAuthorized() {
+  }
 
-		if (session.isVoAdmin(group.getVoId()) || session.isVoObserver(group.getVoId()) || session.isGroupAdmin(groupId)) {
-			return true;
-		} else {
-			return false;
-		}
+  public String getUrl() {
+    return URL;
+  }
 
-	}
-
-	public final static String URL = "resources";
-
-	public String getUrl()
-	{
-		return URL;
-	}
-
-	public String getUrlWithParameters() {
-		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
-	}
-
-	static public GroupResourcesTabItem load(Map<String, String> parameters) {
-		int groupId = Integer.parseInt(parameters.get("id"));
-		return new GroupResourcesTabItem(groupId);
-	}
+  public String getUrlWithParameters() {
+    return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
+  }
 
 }

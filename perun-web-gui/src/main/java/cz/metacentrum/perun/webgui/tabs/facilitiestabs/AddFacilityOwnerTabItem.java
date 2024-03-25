@@ -32,175 +32,178 @@ import java.util.ArrayList;
  */
 public class AddFacilityOwnerTabItem implements TabItem {
 
-	/**
-	 * Perun web session
-	 */
-	private PerunWebSession session = PerunWebSession.getInstance();
+  /**
+   * Perun web session
+   */
+  private PerunWebSession session = PerunWebSession.getInstance();
 
-	/**
-	 * Content widget - should be simple panel
-	 */
-	private SimplePanel contentWidget = new SimplePanel();
+  /**
+   * Content widget - should be simple panel
+   */
+  private SimplePanel contentWidget = new SimplePanel();
 
-	/**
-	 * Title widget
-	 */
-	private Label titleWidget = new Label("Loading facility");
+  /**
+   * Title widget
+   */
+  private Label titleWidget = new Label("Loading facility");
 
-	// data
-	private int facilityId;
-	private Facility facility;
+  // data
+  private int facilityId;
+  private Facility facility;
 
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param facility Facility
-	 */
-	public AddFacilityOwnerTabItem(Facility facility){
-		this.facility = facility;
-		this.facilityId = facility.getId();
-	}
+  /**
+   * Creates a tab instance
+   *
+   * @param facility Facility
+   */
+  public AddFacilityOwnerTabItem(Facility facility) {
+    this.facility = facility;
+    this.facilityId = facility.getId();
+  }
 
-	public boolean isPrepared(){
-		return !(facility == null);
-	}
+  public boolean isPrepared() {
+    return !(facility == null);
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public void onClose() {
 
-	}
+  }
 
-	public Widget draw() {
+  public Widget draw() {
 
-		// TITLE
-		titleWidget.setText("Add owner");
+    // TITLE
+    titleWidget.setText("Add owner");
 
-		// MAIN TAB PANEL
-		VerticalPanel firstTabPanel = new VerticalPanel();
-		firstTabPanel.setSize("100%", "100%");
+    // MAIN TAB PANEL
+    VerticalPanel firstTabPanel = new VerticalPanel();
+    firstTabPanel.setSize("100%", "100%");
 
-		// HORIZONTAL MENU
-		TabMenu tabMenu = new TabMenu();
+    // HORIZONTAL MENU
+    TabMenu tabMenu = new TabMenu();
 
-		// CALLBACK
-		final  GetOwners owners = new GetOwners();
-		CellTable<Owner> table = owners.getTable();
+    // CALLBACK
+    final GetOwners owners = new GetOwners();
+    CellTable<Owner> table = owners.getTable();
 
-		// ADD BUTTON
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addOwners());
+    // ADD BUTTON
+    final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addOwners());
 
-		final TabItem tab = this; // tab to be closed
+    final TabItem tab = this; // tab to be closed
 
-		addButton.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				// get
-				ArrayList<Owner> list = owners.getTableSelectedList();
-				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-					for (int i=0; i<list.size(); i++) {
-						if (i == list.size()-1) {
-							AddOwner request = new AddOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
-							request.addOwner(facilityId, list.get(i).getId());
-						} else {
-							AddOwner request = new AddOwner(JsonCallbackEvents.disableButtonEvents(addButton));
-							request.addOwner(facilityId, list.get(i).getId());
-						}
-					}
-				}
-			}
-		});
+    addButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        // get
+        ArrayList<Owner> list = owners.getTableSelectedList();
+        if (UiElements.cantSaveEmptyListDialogBox(list)) {
+          // TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+          for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1) {
+              AddOwner request = new AddOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
+              request.addOwner(facilityId, list.get(i).getId());
+            } else {
+              AddOwner request = new AddOwner(JsonCallbackEvents.disableButtonEvents(addButton));
+              request.addOwner(facilityId, list.get(i).getId());
+            }
+          }
+        }
+      }
+    });
 
-		tabMenu.addWidget(addButton);
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		}));
+    tabMenu.addWidget(addButton);
+    tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    }));
 
-		tabMenu.addFilterWidget(new ExtendedSuggestBox(owners.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				owners.filterTable(text);
-			}
-		}, ButtonTranslation.INSTANCE.filterOwners());
+    tabMenu.addFilterWidget(new ExtendedSuggestBox(owners.getOracle()), new PerunSearchEvent() {
+      @Override
+      public void searchFor(String text) {
+        owners.filterTable(text);
+      }
+    }, ButtonTranslation.INSTANCE.filterOwners());
 
-		addButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(owners, table, addButton);
+    addButton.setEnabled(false);
+    JsonUtils.addTableManagedButton(owners, table, addButton);
 
-		// add a class to the table and wrap it into scroll panel
-		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
-		sp.addStyleName("perun-tableScrollPanel");
+    // add a class to the table and wrap it into scroll panel
+    table.addStyleName("perun-table");
+    ScrollPanel sp = new ScrollPanel(table);
+    sp.addStyleName("perun-tableScrollPanel");
 
-		// add menu and the table to the main panel
-		firstTabPanel.add(tabMenu);
-		firstTabPanel.setCellHeight(tabMenu, "30px");
-		firstTabPanel.add(sp);
+    // add menu and the table to the main panel
+    firstTabPanel.add(tabMenu);
+    firstTabPanel.setCellHeight(tabMenu, "30px");
+    firstTabPanel.add(sp);
 
-		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+    session.getUiElements().resizeSmallTabPanel(sp, 350, this);
 
-		this.contentWidget.setWidget(firstTabPanel);
+    this.contentWidget.setWidget(firstTabPanel);
 
-		return getWidget();
+    return getWidget();
 
-	}
+  }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.addIcon();
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.addIcon();
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 653;
-		int result = 1;
-		result = prime * result + facilityId;
-		return result;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 653;
+    int result = 1;
+    result = prime * result + facilityId;
+    return result;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AddFacilityOwnerTabItem other = (AddFacilityOwnerTabItem) obj;
-		if (facilityId != other.facilityId)
-			return false;
-		return true;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    AddFacilityOwnerTabItem other = (AddFacilityOwnerTabItem) obj;
+    if (facilityId != other.facilityId) {
+      return false;
+    }
+    return true;
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	public void open()
-	{
-	}
+  public void open() {
+  }
 
-	public boolean isAuthorized() {
+  public boolean isAuthorized() {
 
-		if (session.isFacilityAdmin(facilityId)) {
-			return true;
-		} else {
-			return false;
-		}
+    if (session.isFacilityAdmin(facilityId)) {
+      return true;
+    } else {
+      return false;
+    }
 
-	}
+  }
 
 }

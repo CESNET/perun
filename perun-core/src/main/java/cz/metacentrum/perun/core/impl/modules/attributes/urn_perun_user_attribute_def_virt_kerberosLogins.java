@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,88 +28,96 @@ import java.util.List;
  * @author Michal Šťava <stavamichal@gmail.com>
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtualAttributesModuleAbstract
+    implements UserVirtualAttributesModuleImplApi {
 
-	private final static String A_U_V_KERBEROS_LOGINS = AttributesManager.NS_USER_ATTR_VIRT + ":kerberosLogins";
+  private static final String A_U_V_KERBEROS_LOGINS = AttributesManager.NS_USER_ATTR_VIRT + ":kerberosLogins";
 
-	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute attribute = new Attribute(attributeDefinition);
-		List<String> krbPrincipalName = new ArrayList<>();
-		Attribute krbLogins;
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setFriendlyName("krbPrincipalName");
+    attr.setDisplayName("KERBEROS principals (full)");
+    attr.setType(ArrayList.class.getName());
+    attr.setDescription("Logins in kerberos (including realm and kerberos UserExtSources)");
+    return attr;
+  }
 
-		try {
-			krbLogins = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":kerberosLogins");
-		} catch(AttributeNotExistsException ex) {
-			throw new InternalErrorException("kerberosLogins attribute for " + user + " not exist.", ex);
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException("kerberos Logins attribute bad assignment.", ex);
-		}
+  @Override
+  public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
+    Attribute attribute = new Attribute(attributeDefinition);
+    List<String> krbPrincipalName = new ArrayList<>();
+    Attribute krbLogins;
 
-		if(krbLogins.getValue() != null) {
-			krbPrincipalName.addAll((List<String>) krbLogins.getValue());
-		}
+    try {
+      krbLogins = sess.getPerunBl().getAttributesManagerBl()
+          .getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":kerberosLogins");
+    } catch (AttributeNotExistsException ex) {
+      throw new InternalErrorException("kerberosLogins attribute for " + user + " not exist.", ex);
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException("kerberos Logins attribute bad assignment.", ex);
+    }
 
-		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+    if (krbLogins.getValue() != null) {
+      krbPrincipalName.addAll((List<String>) krbLogins.getValue());
+    }
 
-		for(UserExtSource uES: userExtSources) {
-			if(uES.getExtSource() != null) {
-				String login = uES.getLogin();
-				String type = uES.getExtSource().getType();
+    List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
-				if(type != null && login != null) {
-					if(type.equals(ExtSourcesManager.EXTSOURCE_KERBEROS)) {
-						if(!krbPrincipalName.contains(login)) krbPrincipalName.add(login);
-					}
-				}
-			}
-		}
+    for (UserExtSource ues : userExtSources) {
+      if (ues.getExtSource() != null) {
+        String login = ues.getLogin();
+        String type = ues.getExtSource().getType();
 
-		Utils.copyAttributeToViAttributeWithoutValue(krbLogins, attribute);
-		attribute.setValue(krbPrincipalName);
-		return attribute;
-	}
+        if (type != null && login != null) {
+          if (type.equals(ExtSourcesManager.EXTSOURCE_KERBEROS)) {
+            if (!krbPrincipalName.contains(login)) {
+              krbPrincipalName.add(login);
+            }
+          }
+        }
+      }
+    }
 
-	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
-		List<AuditEvent> resolvingMessages = new ArrayList<>();
-		if (message == null) return resolvingMessages;
+    Utils.copyAttributeToViAttributeWithoutValue(krbLogins, attribute);
+    attribute.setValue(krbPrincipalName);
+    return attribute;
+  }
 
-		if (message instanceof UserExtSourceAddedToUser
-			&& ((UserExtSourceAddedToUser) message).getUserExtSource().getExtSource() instanceof ExtSourceKerberos) {
+  @Override
+  public List<String> getStrongDependencies() {
+    List<String> strongDependencies = new ArrayList<>();
+    strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":kerberosLogins");
+    return strongDependencies;
+  }
 
-			resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceAddedToUser) message).getUser()));
-		}
+  private AuditEvent resolveEvent(PerunSessionImpl perunSession, User user) throws AttributeNotExistsException {
+    AttributeDefinition attrVirtKerberosLoginsDefinition =
+        perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, A_U_V_KERBEROS_LOGINS);
+    return new AttributeChangedForUser(new Attribute(attrVirtKerberosLoginsDefinition), user);
+  }
 
-		if (message instanceof UserExtSourceRemovedFromUser
-			&& ((UserExtSourceRemovedFromUser) message).getUserExtSource().getExtSource() instanceof ExtSourceKerberos) {
+  @Override
+  public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message)
+      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+    List<AuditEvent> resolvingMessages = new ArrayList<>();
+    if (message == null) {
+      return resolvingMessages;
+    }
 
-			resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceRemovedFromUser) message).getUser()));
-		}
+    if (message instanceof UserExtSourceAddedToUser &&
+        ((UserExtSourceAddedToUser) message).getUserExtSource().getExtSource() instanceof ExtSourceKerberos) {
 
-		return resolvingMessages;
-	}
+      resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceAddedToUser) message).getUser()));
+    }
 
-	private AuditEvent resolveEvent(PerunSessionImpl perunSession, User user) throws AttributeNotExistsException {
-		AttributeDefinition attrVirtKerberosLoginsDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, A_U_V_KERBEROS_LOGINS);
-		return new AttributeChangedForUser(new Attribute(attrVirtKerberosLoginsDefinition), user);
-	}
+    if (message instanceof UserExtSourceRemovedFromUser &&
+        ((UserExtSourceRemovedFromUser) message).getUserExtSource().getExtSource() instanceof ExtSourceKerberos) {
 
-	@Override
-	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<>();
-		strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":kerberosLogins");
-		return strongDependencies;
-	}
+      resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceRemovedFromUser) message).getUser()));
+    }
 
-	@Override
-	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("krbPrincipalName");
-		attr.setDisplayName("KERBEROS principals (full)");
-		attr.setType(ArrayList.class.getName());
-		attr.setDescription("Logins in kerberos (including realm and kerberos UserExtSources)");
-		return attr;
-	}
+    return resolvingMessages;
+  }
 }

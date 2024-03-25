@@ -7,41 +7,41 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class MembershipExpirationInDays extends AuditEvent implements EngineIgnoreEvent {
 
-	private Member member;
-	private int daysToExpiration;
-	private Vo vo;
-	private String message;
+  private Member member;
+  private int daysToExpiration;
+  private Vo vo;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public MembershipExpirationInDays() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public MembershipExpirationInDays() {
+  }
 
-	public MembershipExpirationInDays(Member member, int daysToExpiration, Vo vo) {
-		this.member = member;
-		this.daysToExpiration = daysToExpiration;
-		this.vo = vo;
-		this.message = formatMessage("%s will expire in %d days in %s.", member, daysToExpiration, vo);
-	}
+  public MembershipExpirationInDays(Member member, int daysToExpiration, Vo vo) {
+    this.member = member;
+    this.daysToExpiration = daysToExpiration;
+    this.vo = vo;
+    this.message = formatMessage("%s will expire in %d days in %s.", member, daysToExpiration, vo);
+  }
 
-	public Member getMember() {
-		return member;
-	}
+  public int getDaysToExpiration() {
+    return daysToExpiration;
+  }
 
-	public int getDaysToExpiration() {
-		return daysToExpiration;
-	}
+  public Member getMember() {
+    return member;
+  }
 
-	public Vo getVo() {
-		return vo;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public Vo getVo() {
+    return vo;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

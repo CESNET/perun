@@ -5,29 +5,29 @@ import cz.metacentrum.perun.core.api.Facility;
 
 public class FacilityUpdated extends AuditEvent {
 
-	private Facility facility;
-	private String message;
+  private Facility facility;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public FacilityUpdated() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public FacilityUpdated() {
+  }
 
-	public FacilityUpdated(Facility facility) {
-		this.facility = facility;
-		this.message = formatMessage("%s updated.", facility);
-	}
+  public FacilityUpdated(Facility facility) {
+    this.facility = facility;
+    this.message = formatMessage("%s updated.", facility);
+  }
 
-	public Facility getFacility() {
-		return facility;
-	}
+  public Facility getFacility() {
+    return facility;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

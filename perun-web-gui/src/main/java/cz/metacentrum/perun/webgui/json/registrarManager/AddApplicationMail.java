@@ -17,99 +17,104 @@ import cz.metacentrum.perun.webgui.model.PerunError;
  */
 public class AddApplicationMail {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
+  // URL to call
+  final String JSON_URL = "registrarManager/addApplicationMail";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // custom events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	// URL to call
-	final String JSON_URL = "registrarManager/addApplicationMail";
+  // data
+  private ApplicationMail appMail;
+  private int id;
+  private PerunEntity entity;
 
-	// custom events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
+  /**
+   * Creates a new request
+   *
+   * @param entity VO or Group
+   */
+  public AddApplicationMail(PerunEntity entity) {
+    this.entity = entity;
+  }
 
-	// data
-	private ApplicationMail appMail;
-	private int id;
-	private PerunEntity entity;
+  /**
+   * Creates a new request with custom events
+   *
+   * @param entity VO or Group
+   * @param events Custom events
+   */
+  public AddApplicationMail(PerunEntity entity, JsonCallbackEvents events) {
+    this.events = events;
+    this.entity = entity;
+  }
 
-	/**
-	 * Creates a new request
-	 *
-	 * @param entity VO or Group
-	 */
-	public AddApplicationMail(PerunEntity entity) {
-		this.entity = entity;
-	}
+  /**
+   * Adds new ApplicationMail
+   *
+   * @param appMail
+   * @param id
+   */
+  public void addMail(ApplicationMail appMail, int id) {
 
-	/**
-	 * Creates a new request with custom events
-	 *
-	 * @param entity VO or Group
-	 * @param events Custom events
-	 */
-	public AddApplicationMail(PerunEntity entity, JsonCallbackEvents events) {
-		this.events = events;
-		this.entity = entity;
-	}
+    this.appMail = appMail;
+    this.id = id;
 
-	/**
-	 * Adds new ApplicationMail
-	 *
-	 * @param appMail
-	 * @param id
-	 */
-	public void addMail(ApplicationMail appMail, int id) {
+    // test arguments
+    if (!this.testCreating()) {
+      return;
+    }
 
-		this.appMail = appMail;
-		this.id = id;
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Adding email failed.");
+        events.onError(error);
+      }
 
-		// test arguments
-		if(!this.testCreating()){
-			return;
-		}
+      ;
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding email failed.");
-				events.onError(error);
-			};
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Email added.");
+        events.onFinished(jso);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Email added.");
-				events.onFinished(jso);
-			};
+      ;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
+    };
 
-	}
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-	private boolean testCreating() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+  }
 
-	/**
-	 * Prepares a JSON object.
-	 * @return JSONObject - the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+  private boolean testCreating() {
+    // TODO Auto-generated method stub
+    return true;
+  }
 
-		JSONObject request = new JSONObject();
-		request.put("mail", new JSONObject(appMail));
-		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
-			request.put("vo", new JSONNumber(id));
-		} else if (PerunEntity.GROUP.equals(entity)) {
-			request.put("group", new JSONNumber(id));
-		}
-		return request;
+  /**
+   * Prepares a JSON object.
+   *
+   * @return JSONObject - the whole query
+   */
+  private JSONObject prepareJSONObject() {
 
-	}
+    JSONObject request = new JSONObject();
+    request.put("mail", new JSONObject(appMail));
+    if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+      request.put("vo", new JSONNumber(id));
+    } else if (PerunEntity.GROUP.equals(entity)) {
+      request.put("group", new JSONNumber(id));
+    }
+    return request;
+
+  }
 
 }

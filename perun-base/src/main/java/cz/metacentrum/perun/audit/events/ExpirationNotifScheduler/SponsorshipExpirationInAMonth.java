@@ -9,30 +9,30 @@ import cz.metacentrum.perun.core.api.EnrichedSponsorship;
  */
 public class SponsorshipExpirationInAMonth extends AuditEvent implements EngineIgnoreEvent {
 
-	private EnrichedSponsorship sponsorship;
-	private String message;
+  private EnrichedSponsorship sponsorship;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public SponsorshipExpirationInAMonth() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public SponsorshipExpirationInAMonth() {
+  }
 
-	public SponsorshipExpirationInAMonth(EnrichedSponsorship sponsorship) {
-		this.sponsorship = sponsorship;
-		this.message = formatMessage("Sponsorship of member %s by sponsor %s will expire in a month.",
-				sponsorship.getSponsoredMember(), sponsorship.getSponsor());
-	}
+  public SponsorshipExpirationInAMonth(EnrichedSponsorship sponsorship) {
+    this.sponsorship = sponsorship;
+    this.message = formatMessage("Sponsorship of member %s by sponsor %s will expire in a month.",
+        sponsorship.getSponsoredMember(), sponsorship.getSponsor());
+  }
 
-	public EnrichedSponsorship getSponsorship() {
-		return sponsorship;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public EnrichedSponsorship getSponsorship() {
+    return sponsorship;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

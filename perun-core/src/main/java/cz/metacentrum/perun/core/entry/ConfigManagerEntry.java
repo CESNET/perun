@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
@@ -19,44 +19,47 @@ import cz.metacentrum.perun.core.impl.Utils;
  */
 
 public class ConfigManagerEntry implements ConfigManager {
-	private ConfigManagerBl configManagerBl;
-	private PerunBl perunBl;
+  private ConfigManagerBl configManagerBl;
+  private PerunBl perunBl;
 
-	public ConfigManagerEntry(PerunBl perunBl) {
-		this.perunBl = perunBl;
-		this.configManagerBl = perunBl.getConfigManagerBl();
-	}
-	
-	public ConfigManagerEntry() {}
-	
-	public PerunBl getPerunBl() {
-		return this.perunBl;
-	}
+  public ConfigManagerEntry(PerunBl perunBl) {
+    this.perunBl = perunBl;
+    this.configManagerBl = perunBl.getConfigManagerBl();
+  }
 
-	public void setPerunBl(PerunBlImpl perunBl) {
-		this.perunBl = perunBl;
-	}
+  public ConfigManagerEntry() {
+  }
 
-	public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
-		this.configManagerBl = configManagerBl;
-	}
+  public PerunBl getPerunBl() {
+    return this.perunBl;
+  }
 
-	@Override
-	public void reloadAppsConfig(PerunSession sess) throws PrivilegeException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "reloadAppsConfig_policy"))
-			throw new PrivilegeException(sess, "reloadAppsConfig");
-
-		configManagerBl.reloadAppsConfig();
-	}
-
-	@Override
-	public OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
-		Utils.checkPerunSession(sess);
+  @Override
+  public OidcConfig getPerunOidcConfig(PerunSession sess, String requestUrl)
+      throws OidcConfigNotExistsException, OidcConfigFileNotExistsException {
+    Utils.checkPerunSession(sess);
 
 
-		return configManagerBl.getPerunOidcConfig(requestUrl);
-	}
+    return configManagerBl.getPerunOidcConfig(requestUrl);
+  }
+
+  @Override
+  public void reloadAppsConfig(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "reloadAppsConfig_policy")) {
+      throw new PrivilegeException(sess, "reloadAppsConfig");
+    }
+
+    configManagerBl.reloadAppsConfig();
+  }
+
+  public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
+    this.configManagerBl = configManagerBl;
+  }
+
+  public void setPerunBl(PerunBlImpl perunBl) {
+    this.perunBl = perunBl;
+  }
 }

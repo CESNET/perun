@@ -3,80 +3,80 @@ package cz.metacentrum.perun.core.api;
 import java.util.Objects;
 
 /**
- * Represents a policy of an attribute.
- * It specifies the role, that users need to have, and the object, upon which the role is set.
+ * Represents a policy of an attribute. It specifies the role, that users need to have, and the object, upon which the
+ * role is set.
  *
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
 public class AttributePolicy {
-	private int id;
-	private String role;
-	private RoleObject object;
-	private int policyCollectionId;
+  private int id;
+  private String role;
+  private RoleObject object;
+  private int policyCollectionId;
 
-	public AttributePolicy() {
-	}
+  public AttributePolicy() {
+  }
 
-	public AttributePolicy(int id, String role, RoleObject object, int policyCollectionId) {
-		this.id = id;
-		this.role = role;
-		this.object = object;
-		this.policyCollectionId = policyCollectionId;
-	}
+  public AttributePolicy(int id, String role, RoleObject object, int policyCollectionId) {
+    this.id = id;
+    this.role = role;
+    this.object = object;
+    this.policyCollectionId = policyCollectionId;
+  }
 
-	public int getId() {
-		return id;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AttributePolicy that = (AttributePolicy) o;
+    return getId() == that.getId() && getPolicyCollectionId() == that.getPolicyCollectionId() &&
+           Objects.equals(getRole(), that.getRole()) && getObject() == that.getObject();
+  }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+  public int getId() {
+    return id;
+  }
 
-	public String getRole() {
-		return role;
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
-	public void setRole(String role) {
-		this.role = role;
-	}
+  public RoleObject getObject() {
+    return object;
+  }
 
-	public RoleObject getObject() {
-		return object;
-	}
+  public void setObject(RoleObject object) {
+    this.object = object;
+  }
 
-	public void setObject(RoleObject object) {
-		this.object = object;
-	}
+  public int getPolicyCollectionId() {
+    return policyCollectionId;
+  }
 
-	public int getPolicyCollectionId() {
-		return policyCollectionId;
-	}
+  public void setPolicyCollectionId(int policyCollectionId) {
+    this.policyCollectionId = policyCollectionId;
+  }
 
-	public void setPolicyCollectionId(int policyCollectionId) {
-		this.policyCollectionId = policyCollectionId;
-	}
+  public String getRole() {
+    return role;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		AttributePolicy that = (AttributePolicy) o;
-		return getId() == that.getId() && getPolicyCollectionId() == that.getPolicyCollectionId()
-					&& Objects.equals(getRole(), that.getRole()) && getObject() == that.getObject();
-	}
+  public void setRole(String role) {
+    this.role = role;
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getId(), getRole(), getObject(), getPolicyCollectionId());
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(getId(), getRole(), getObject(), getPolicyCollectionId());
+  }
 
-	@Override
-	public String toString() {
-		return "AttributePolicy{" +
-			"id=" + id +
-			", role='" + role + '\'' +
-			", object=" + object +
-			", policyCollectionId=" + policyCollectionId +
-			'}';
-	}
+  @Override
+  public String toString() {
+    return "AttributePolicy{" + "id=" + id + ", role='" + role + '\'' + ", object=" + object + ", policyCollectionId=" +
+           policyCollectionId + '}';
+  }
 }

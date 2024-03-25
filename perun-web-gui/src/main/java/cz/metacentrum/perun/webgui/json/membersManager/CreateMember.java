@@ -1,12 +1,21 @@
 package cz.metacentrum.perun.webgui.json.membersManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
-import cz.metacentrum.perun.webgui.model.*;
+import cz.metacentrum.perun.webgui.model.Candidate;
+import cz.metacentrum.perun.webgui.model.ExtSource;
+import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.Member;
+import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.User;
 
 /**
  * Ajax query to create member in VO from candidate or User
@@ -16,330 +25,344 @@ import cz.metacentrum.perun.webgui.model.*;
 
 public class CreateMember {
 
-	// web session
-	private PerunWebSession session = PerunWebSession.getInstance();
-	// URL to call
-	final String JSON_URL = "membersManager/createMember";
-	// external events
-	private JsonCallbackEvents events = new JsonCallbackEvents();
-	// params
-	private Candidate candidate = null;
-	private int voId = 0;
-	private Group group;
+  // URL to call
+  final String JSON_URL = "membersManager/createMember";
+  // web session
+  private PerunWebSession session = PerunWebSession.getInstance();
+  // external events
+  private JsonCallbackEvents events = new JsonCallbackEvents();
+  // params
+  private Candidate candidate = null;
+  private int voId = 0;
+  private Group group;
 
-	/**
-	 * Creates a new request
-	 */
-	public CreateMember() {}
+  /**
+   * Creates a new request
+   */
+  public CreateMember() {
+  }
 
-	/**
-	 * Creates a new request with custom events passed from tab or page
-	 *
-	 * @param events external events
-	 */
-	public CreateMember(final JsonCallbackEvents events) {
-		this.events = events;
-	}
+  /**
+   * Creates a new request with custom events passed from tab or page
+   *
+   * @param events external events
+   */
+  public CreateMember(final JsonCallbackEvents events) {
+    this.events = events;
+  }
 
-	/**
-	 * Attempts to create member in VO from candidate
-	 *
-	 * @param voId vo where member should be created
-	 * @param candidate candidate to be member
-	 *
-	 */
-	public void createMember(final int voId,final Candidate candidate) {
-		createMember(voId, null, candidate);
-	}
+  /**
+   * Attempts to create member in VO from candidate
+   *
+   * @param voId      vo where member should be created
+   * @param candidate candidate to be member
+   */
+  public void createMember(final int voId, final Candidate candidate) {
+    createMember(voId, null, candidate);
+  }
 
-	/**
-	 * Attempts to create member in VO from candidate
-	 *
-	 * @param voId vo where member should be created
-	 * @param group where member should be created
-	 * @param candidate candidate to be member
-	 *
-	 */
-	public void createMember(final int voId, Group group, final Candidate candidate) {
+  /**
+   * Attempts to create member in VO from candidate
+   *
+   * @param voId      vo where member should be created
+   * @param group     where member should be created
+   * @param candidate candidate to be member
+   */
+  public void createMember(final int voId, Group group, final Candidate candidate) {
 
-		this.voId = voId;
-		this.group = group;
-		this.candidate = candidate;
+    this.voId = voId;
+    this.group = group;
+    this.candidate = candidate;
 
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
+    // test arguments
+    if (!this.testAdding()) {
+      return;
+    }
 
-		if (!session.isVoAdmin(voId)) {
-			// GROUP ADMIN HAVE OWN PROCESSING
-			createMemberAsGroupAdmin(voId, group, candidate);
-			return;
-		}
+    if (!session.isVoAdmin(voId)) {
+      // GROUP ADMIN HAVE OWN PROCESSING
+      createMemberAsGroupAdmin(voId, group, candidate);
+      return;
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating member: " + candidate.getDisplayName() + " failed.");
-				events.onError(error);
-			};
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating member: " + candidate.getDisplayName() + " failed.");
+        events.onError(error);
+      }
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Member "+ candidate.getDisplayName() +" created !");
+      ;
 
-				// call validation asynchronously
-				Member mem = jso.cast();
-				ValidateMemberAsync request = new ValidateMemberAsync();
-				request.validateMemberAsync(mem);
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Member " + candidate.getDisplayName() + " created !");
 
-				events.onFinished(jso);
-			};
+        // call validation asynchronously
+        Member mem = jso.cast();
+        ValidateMemberAsync request = new ValidateMemberAsync();
+        request.validateMemberAsync(mem);
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+        events.onFinished(jso);
+      }
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, prepareJSONObject());
+      ;
 
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Attempts to create member in VO from candidate for Group admin
-	 *
-	 * @param voId vo where member should be created
-	 * @param group where member should be created
-	 * @param candidate candidate to be member
-	 *
-	 */
-	public void createMemberAsGroupAdmin(final int voId, Group group, final Candidate candidate) {
+      ;
+    };
 
-		this.voId = voId;
-		this.group = group;
-		this.candidate = candidate;
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, prepareJSONObject());
 
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
+  }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating member: " + candidate.getDisplayName() + " failed.");
-				events.onError(error);
-			};
+  /**
+   * Attempts to create member in VO from candidate for Group admin
+   *
+   * @param voId      vo where member should be created
+   * @param group     where member should be created
+   * @param candidate candidate to be member
+   */
+  public void createMemberAsGroupAdmin(final int voId, Group group, final Candidate candidate) {
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Member "+ candidate.getDisplayName() +" created !");
-				events.onFinished(jso);
-			};
+    this.voId = voId;
+    this.group = group;
+    this.candidate = candidate;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+    // test arguments
+    if (!this.testAdding()) {
+      return;
+    }
 
-		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("vo", new JSONNumber(voId));
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating member: " + candidate.getDisplayName() + " failed.");
+        events.onError(error);
+      }
 
-		if (group != null) {
-			// GROUP OBJECT
-			JSONObject oldGroup = new JSONObject(group);
-			// RECONSTRUCT OBJECT
-			JSONObject newGroup = new JSONObject();
-			newGroup.put("id", oldGroup.get("id"));
-			// fake new group short name as name in order to update
-			newGroup.put("name", oldGroup.get("name"));
-			newGroup.put("shortName", oldGroup.get("shortName"));
-			newGroup.put("description", oldGroup.get("description"));
-			newGroup.put("voId", oldGroup.get("voId"));
-			newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
-			newGroup.put("beanName", oldGroup.get("beanName"));
+      ;
 
-			JSONArray arr = new JSONArray();
-			arr.set(0, newGroup);
-			jsonQuery.put("groups", arr);
-		}
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Member " + candidate.getDisplayName() + " created !");
+        events.onFinished(jso);
+      }
 
-		if (candidate != null) {
-			ExtSource source = candidate.getUserExtSource().getExtSource();
-			jsonQuery.put("extSource", new JSONNumber(source.getId()));
-			jsonQuery.put("login", new JSONString(candidate.getUserExtSource().getLogin()));
-		}
+      ;
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, jsonQuery);
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	}
+      ;
+    };
 
-	/**
-	 * Attempts to create member in VO from existing perun user
-	 *
-	 * @param voId vo where member should be created
-	 * @param user user to be member
-	 */
-	public void createMember(final int voId, final User user) {
-		createMember(voId, null, user);
-	}
+    // create whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("vo", new JSONNumber(voId));
 
-	/**
-	 * Attempts to create member in VO from existing perun user
-	 *
-	 * @param voId vo where member should be created
-	 * @param group where member should be created
-	 * @param user user to be member
-	 *
-	 */
-	public void createMember(final int voId, final Group group, final User user) {
+    if (group != null) {
+      // GROUP OBJECT
+      JSONObject oldGroup = new JSONObject(group);
+      // RECONSTRUCT OBJECT
+      JSONObject newGroup = new JSONObject();
+      newGroup.put("id", oldGroup.get("id"));
+      // fake new group short name as name in order to update
+      newGroup.put("name", oldGroup.get("name"));
+      newGroup.put("shortName", oldGroup.get("shortName"));
+      newGroup.put("description", oldGroup.get("description"));
+      newGroup.put("voId", oldGroup.get("voId"));
+      newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
+      newGroup.put("beanName", oldGroup.get("beanName"));
 
-		this.voId = voId;
-		this.group = group;
+      JSONArray arr = new JSONArray();
+      arr.set(0, newGroup);
+      jsonQuery.put("groups", arr);
+    }
 
-		// test arguments
-		if(!this.testAdding()){
-			return;
-		}
+    if (candidate != null) {
+      ExtSource source = candidate.getUserExtSource().getExtSource();
+      jsonQuery.put("extSource", new JSONNumber(source.getId()));
+      jsonQuery.put("login", new JSONString(candidate.getUserExtSource().getLogin()));
+    }
 
-		// new events
-		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating member: " + user.getFullName() + " failed.");
-				events.onError(error);
-			};
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, jsonQuery);
 
-			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Member "+ user.getFullName() +" created !");
+  }
 
-				// call validation asynchronously
-				Member mem = jso.cast();
-				ValidateMemberAsync request = new ValidateMemberAsync();
-				request.validateMemberAsync(mem);
+  /**
+   * Attempts to create member in VO from existing perun user
+   *
+   * @param voId vo where member should be created
+   * @param user user to be member
+   */
+  public void createMember(final int voId, final User user) {
+    createMember(voId, null, user);
+  }
 
-				events.onFinished(jso);
+  /**
+   * Attempts to create member in VO from existing perun user
+   *
+   * @param voId  vo where member should be created
+   * @param group where member should be created
+   * @param user  user to be member
+   */
+  public void createMember(final int voId, final Group group, final User user) {
 
-			};
+    this.voId = voId;
+    this.group = group;
 
-			public void onLoadingStart() {
-				events.onLoadingStart();
-			};
-		};
+    // test arguments
+    if (!this.testAdding()) {
+      return;
+    }
 
-		JSONObject query = new JSONObject();
-		query.put("vo", new JSONNumber(voId));
-		query.put("user", new JSONNumber(user.getId()));
-		if (group != null) {
-			// GROUP OBJECT
-			JSONObject oldGroup = new JSONObject(group);
-			// RECONSTRUCT OBJECT
-			JSONObject newGroup = new JSONObject();
-			newGroup.put("id", oldGroup.get("id"));
-			// fake new group short name as name in order to update
-			newGroup.put("name", oldGroup.get("name"));
-			newGroup.put("shortName", oldGroup.get("shortName"));
-			newGroup.put("description", oldGroup.get("description"));
-			newGroup.put("voId", oldGroup.get("voId"));
-			newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
-			newGroup.put("beanName", oldGroup.get("beanName"));
+    // new events
+    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
+      public void onError(PerunError error) {
+        session.getUiElements().setLogErrorText("Creating member: " + user.getFullName() + " failed.");
+        events.onError(error);
+      }
 
-			JSONArray arr = new JSONArray();
-			arr.set(0, newGroup);
-			query.put("groups", arr);
-		}
+      ;
 
-		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
-		jspc.sendData(JSON_URL, query);
+      public void onFinished(JavaScriptObject jso) {
+        session.getUiElements().setLogSuccessText("Member " + user.getFullName() + " created !");
 
-	}
+        // call validation asynchronously
+        Member mem = jso.cast();
+        ValidateMemberAsync request = new ValidateMemberAsync();
+        request.validateMemberAsync(mem);
 
-	/**
-	 * Tests the values, if the process can continue
-	 *
-	 * @return true/false for continue/stop
-	 */
-	private boolean testAdding()
-	{
-		boolean result = true;
-		String errorMsg = "";
+        events.onFinished(jso);
 
-		if(voId == 0){
-			errorMsg += "Wrong 'Vo' parameter.\n";
-			result = false;
-		}
+      }
 
-		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
-		}
+      ;
 
-		return result;
-	}
+      public void onLoadingStart() {
+        events.onLoadingStart();
+      }
 
-	/**
-	 * Prepares a JSON object
-	 *
-	 * @return JSONObject the whole query
-	 */
-	private JSONObject prepareJSONObject() {
+      ;
+    };
 
-		JSONNumber selectedVoId = new JSONNumber(voId);
+    JSONObject query = new JSONObject();
+    query.put("vo", new JSONNumber(voId));
+    query.put("user", new JSONNumber(user.getId()));
+    if (group != null) {
+      // GROUP OBJECT
+      JSONObject oldGroup = new JSONObject(group);
+      // RECONSTRUCT OBJECT
+      JSONObject newGroup = new JSONObject();
+      newGroup.put("id", oldGroup.get("id"));
+      // fake new group short name as name in order to update
+      newGroup.put("name", oldGroup.get("name"));
+      newGroup.put("shortName", oldGroup.get("shortName"));
+      newGroup.put("description", oldGroup.get("description"));
+      newGroup.put("voId", oldGroup.get("voId"));
+      newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
+      newGroup.put("beanName", oldGroup.get("beanName"));
 
-		// create Json object from webgui candidate
-		JSONObject toBeCandidate = new JSONObject(candidate);
+      JSONArray arr = new JSONArray();
+      arr.set(0, newGroup);
+      query.put("groups", arr);
+    }
 
-		// get only interested in items (lost unknown $H property added by gwt)
-		JSONValue attributes = toBeCandidate.get("attributes");
-		JSONValue additionalUserExtSources = toBeCandidate.get("additionalUserExtSources");
-		JSONValue userExtSource = toBeCandidate.get("userExtSource");
-		JSONValue id = toBeCandidate.get("id");
-		JSONValue firstName = toBeCandidate.get("firstName");
-		JSONValue lastName = toBeCandidate.get("lastName");
-		JSONValue middleName = toBeCandidate.get("middleName");
-		JSONValue titleAfter = toBeCandidate.get("titleAfter");
-		JSONValue titleBefore = toBeCandidate.get("titleBefore");
+    // sending data
+    JsonPostClient jspc = new JsonPostClient(newEvents);
+    jspc.sendData(JSON_URL, query);
 
-		// create new form of candidate
-		JSONObject newCandidate = new JSONObject();
-		newCandidate.put("attributes", attributes);
-		newCandidate.put("additionalUserExtSources", additionalUserExtSources);
-		newCandidate.put("userExtSource", userExtSource);
-		newCandidate.put("id", id);
-		newCandidate.put("firstName", firstName);
-		newCandidate.put("lastName", lastName);
-		newCandidate.put("middleName", middleName);
-		newCandidate.put("titleAfter", titleAfter);
-		newCandidate.put("titleBefore", titleBefore);
+  }
 
-		// create whole JSON query
-		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("vo", selectedVoId);
-		jsonQuery.put("candidate", newCandidate);
+  /**
+   * Tests the values, if the process can continue
+   *
+   * @return true/false for continue/stop
+   */
+  private boolean testAdding() {
+    boolean result = true;
+    String errorMsg = "";
 
-		if (group != null) {
-			// GROUP OBJECT
-			JSONObject oldGroup = new JSONObject(group);
-			// RECONSTRUCT OBJECT
-			JSONObject newGroup = new JSONObject();
-			newGroup.put("id", oldGroup.get("id"));
-			// fake new group short name as name in order to update
-			newGroup.put("name", oldGroup.get("name"));
-			newGroup.put("shortName", oldGroup.get("shortName"));
-			newGroup.put("description", oldGroup.get("description"));
-			newGroup.put("voId", oldGroup.get("voId"));
-			newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
-			newGroup.put("beanName", oldGroup.get("beanName"));
+    if (voId == 0) {
+      errorMsg += "Wrong 'Vo' parameter.\n";
+      result = false;
+    }
 
-			JSONArray arr = new JSONArray();
-			arr.set(0, newGroup);
-			jsonQuery.put("groups", arr);
-		}
+    if (errorMsg.length() > 0) {
+      Window.alert(errorMsg);
+    }
 
-		return jsonQuery;
+    return result;
+  }
 
-	}
+  /**
+   * Prepares a JSON object
+   *
+   * @return JSONObject the whole query
+   */
+  private JSONObject prepareJSONObject() {
+
+    JSONNumber selectedVoId = new JSONNumber(voId);
+
+    // create Json object from webgui candidate
+    JSONObject toBeCandidate = new JSONObject(candidate);
+
+    // get only interested in items (lost unknown $H property added by gwt)
+    JSONValue attributes = toBeCandidate.get("attributes");
+    JSONValue additionalUserExtSources = toBeCandidate.get("additionalUserExtSources");
+    JSONValue userExtSource = toBeCandidate.get("userExtSource");
+    JSONValue id = toBeCandidate.get("id");
+    JSONValue firstName = toBeCandidate.get("firstName");
+    JSONValue lastName = toBeCandidate.get("lastName");
+    JSONValue middleName = toBeCandidate.get("middleName");
+    JSONValue titleAfter = toBeCandidate.get("titleAfter");
+    JSONValue titleBefore = toBeCandidate.get("titleBefore");
+
+    // create new form of candidate
+    JSONObject newCandidate = new JSONObject();
+    newCandidate.put("attributes", attributes);
+    newCandidate.put("additionalUserExtSources", additionalUserExtSources);
+    newCandidate.put("userExtSource", userExtSource);
+    newCandidate.put("id", id);
+    newCandidate.put("firstName", firstName);
+    newCandidate.put("lastName", lastName);
+    newCandidate.put("middleName", middleName);
+    newCandidate.put("titleAfter", titleAfter);
+    newCandidate.put("titleBefore", titleBefore);
+
+    // create whole JSON query
+    JSONObject jsonQuery = new JSONObject();
+    jsonQuery.put("vo", selectedVoId);
+    jsonQuery.put("candidate", newCandidate);
+
+    if (group != null) {
+      // GROUP OBJECT
+      JSONObject oldGroup = new JSONObject(group);
+      // RECONSTRUCT OBJECT
+      JSONObject newGroup = new JSONObject();
+      newGroup.put("id", oldGroup.get("id"));
+      // fake new group short name as name in order to update
+      newGroup.put("name", oldGroup.get("name"));
+      newGroup.put("shortName", oldGroup.get("shortName"));
+      newGroup.put("description", oldGroup.get("description"));
+      newGroup.put("voId", oldGroup.get("voId"));
+      newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
+      newGroup.put("beanName", oldGroup.get("beanName"));
+
+      JSONArray arr = new JSONArray();
+      arr.set(0, newGroup);
+      jsonQuery.put("groups", arr);
+    }
+
+    return jsonQuery;
+
+  }
 
 }

@@ -12,35 +12,35 @@ import cz.metacentrum.perun.core.api.User;
  */
 public class ResourceSelfServiceRemovedForUser extends AuditEvent implements EngineIgnoreEvent {
 
-	private Resource resource;
-	private User user;
-	private String message;
+  private Resource resource;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public ResourceSelfServiceRemovedForUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public ResourceSelfServiceRemovedForUser() {
+  }
 
-	public ResourceSelfServiceRemovedForUser(Resource resource, User user) {
-		this.resource = resource;
-		this.user = user;
-		this.message = formatMessage("%s was removed as ResourceSelfService for %s.", user, resource);
-	}
+  public ResourceSelfServiceRemovedForUser(Resource resource, User user) {
+    this.resource = resource;
+    this.user = user;
+    this.message = formatMessage("%s was removed as ResourceSelfService for %s.", user, resource);
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

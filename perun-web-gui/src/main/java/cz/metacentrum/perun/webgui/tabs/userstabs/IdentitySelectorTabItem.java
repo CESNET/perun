@@ -4,7 +4,17 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.DecoratorPanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
@@ -18,8 +28,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.UsersTabs;
-import cz.metacentrum.perun.webgui.widgets.*;
-
+import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -30,206 +39,212 @@ import java.util.Map;
  */
 public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
-	private PerunWebSession session = PerunWebSession.getInstance();
-	private SimplePanel contentWidget = new SimplePanel();
-	private Label titleWidget = new Label("Select identity");
+  public static final String URL = "self-users";
+  private PerunWebSession session = PerunWebSession.getInstance();
+  private SimplePanel contentWidget = new SimplePanel();
+  private Label titleWidget = new Label("Select identity");
 
-	/**
-	 * Creates a tab instance
-	 */
-	public IdentitySelectorTabItem(){}
+  /**
+   * Creates a tab instance
+   */
+  public IdentitySelectorTabItem() {
+  }
 
-	public boolean isPrepared(){
-		return true;
-	}
+  static public IdentitySelectorTabItem load(Map<String, String> parameters) {
+    return new IdentitySelectorTabItem();
+  }
 
-	@Override
-	public boolean isRefreshParentOnClose() {
-		return false;
-	}
+  public boolean isPrepared() {
+    return true;
+  }
 
-	@Override
-	public void onClose() {
+  @Override
+  public boolean isRefreshParentOnClose() {
+    return false;
+  }
 
-	}
+  @Override
+  public void onClose() {
 
-	public Widget draw() {
+  }
 
-		final TabItem tab = this;
+  public Widget draw() {
 
-		HorizontalPanel horizontalSplitter = new HorizontalPanel();
-		horizontalSplitter.setHeight("500px");
-		horizontalSplitter.setWidth("100%");
+    final TabItem tab = this;
 
-		// BASE LAYOUT
-		DecoratorPanel dp = new DecoratorPanel();
-		FlexTable baseLayout = new FlexTable();
-		baseLayout.setCellSpacing(10);
-		dp.add(baseLayout);
-		baseLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select base identity</p>");
-		baseLayout.setHTML(1, 0, "Your base identity you are currently logged in.");
-		baseLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+    HorizontalPanel horizontalSplitter = new HorizontalPanel();
+    horizontalSplitter.setHeight("500px");
+    horizontalSplitter.setWidth("100%");
 
-		Anchor userName = new Anchor();
-		userName.setText(session.getUser().getFullNameWithTitles());
-		userName.addStyleName("now-managing");
-		userName.addStyleName("pointer");
-		userName.setTitle(session.getUser().getFullNameWithTitles());
-		userName.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()));
-				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-			}
-		});
-		baseLayout.setWidget(2, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
-		baseLayout.setWidget(2, 1, userName);
+    // BASE LAYOUT
+    DecoratorPanel dp = new DecoratorPanel();
+    FlexTable baseLayout = new FlexTable();
+    baseLayout.setCellSpacing(10);
+    dp.add(baseLayout);
+    baseLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select base identity</p>");
+    baseLayout.setHTML(1, 0, "Your base identity you are currently logged in.");
+    baseLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
-		baseLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
-		baseLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
+    Anchor userName = new Anchor();
+    userName.setText(session.getUser().getFullNameWithTitles());
+    userName.addStyleName("now-managing");
+    userName.addStyleName("pointer");
+    userName.setTitle(session.getUser().getFullNameWithTitles());
+    userName.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()));
+        session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+      }
+    });
+    baseLayout.setWidget(2, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
+    baseLayout.setWidget(2, 1, userName);
 
-		// SERVICE IDENTITIES LAYOUT
-		DecoratorPanel dp2 = new DecoratorPanel();
-		final FlexTable serviceLayout = new FlexTable();
-		serviceLayout.setCellSpacing(10);
-		dp2.add(serviceLayout);
+    baseLayout.getFlexCellFormatter().setColSpan(0, 0, 2);
+    baseLayout.getFlexCellFormatter().setColSpan(1, 0, 2);
 
-		serviceLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select service identity</p>");
-		serviceLayout.setHTML(1, 0, "Service identities you have access to.");
-		serviceLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
+    // SERVICE IDENTITIES LAYOUT
+    DecoratorPanel dp2 = new DecoratorPanel();
+    final FlexTable serviceLayout = new FlexTable();
+    serviceLayout.setCellSpacing(10);
+    dp2.add(serviceLayout);
 
-		horizontalSplitter.add(dp);
-		horizontalSplitter.setCellWidth(dp, "50%");
-		horizontalSplitter.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
-		horizontalSplitter.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
+    serviceLayout.setHTML(0, 0, "<p class=\"subsection-heading\">Select service identity</p>");
+    serviceLayout.setHTML(1, 0, "Service identities you have access to.");
+    serviceLayout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
 
-		ScrollPanel sp = new ScrollPanel();
-		final FlexTable innerTable = new FlexTable();
-		sp.setWidget(innerTable);
-		sp.setStyleName("scroll-max-height");
-		serviceLayout.setWidget(2, 0, sp);
+    horizontalSplitter.add(dp);
+    horizontalSplitter.setCellWidth(dp, "50%");
+    horizontalSplitter.setCellVerticalAlignment(dp, HasVerticalAlignment.ALIGN_MIDDLE);
+    horizontalSplitter.setCellHorizontalAlignment(dp, HasHorizontalAlignment.ALIGN_CENTER);
 
-		if (session.getEditableUsers().size() > 1) {
-			// user has service identities
-			GetSpecificUsersByUser call = new GetSpecificUsersByUser(session.getUser().getId(), new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					ArrayList<User> list = JsonUtils.jsoAsList(jso);
-					if (list != null && !list.isEmpty()) {
+    ScrollPanel sp = new ScrollPanel();
+    final FlexTable innerTable = new FlexTable();
+    sp.setWidget(innerTable);
+    sp.setStyleName("scroll-max-height");
+    serviceLayout.setWidget(2, 0, sp);
 
-						int row = 0;
-						for (User u : list) {
-							if (u.isSponsoredUser()) continue;
-							final User u2 = u;
-							innerTable.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
-							Anchor userName = new Anchor();
-							userName.setText(u2.getFullNameWithTitles());
-							userName.addStyleName("now-managing");
-							userName.addStyleName("pointer");
-							userName.setTitle(u2.getFullNameWithTitles());
-							userName.addClickHandler(new ClickHandler() {
-								@Override
-								public void onClick(ClickEvent event) {
-									session.getTabManager().addTab(new SelfDetailTabItem(u2));
-									session.getTabManager().closeTab(tab, isRefreshParentOnClose());
-								}
-							});
-							innerTable.setWidget(row, 1, userName);
-							row++;
-						}
+    if (session.getEditableUsers().size() > 1) {
+      // user has service identities
+      GetSpecificUsersByUser call = new GetSpecificUsersByUser(session.getUser().getId(), new JsonCallbackEvents() {
+        @Override
+        public void onFinished(JavaScriptObject jso) {
+          ArrayList<User> list = JsonUtils.jsoAsList(jso);
+          if (list != null && !list.isEmpty()) {
 
-					} else {
-						innerTable.setHTML(0, 0, "You have no service identities");
-					}
-				}
-			@Override
-			public void onLoadingStart() {
-				innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingStart());
-			}
-			@Override
-			public void onError(PerunError error) {
-				innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
-			}
-			});
-			call.retrieveData();
+            int row = 0;
+            for (User u : list) {
+              if (u.isSponsoredUser()) {
+                continue;
+              }
+              final User u2 = u;
+              innerTable.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
+              Anchor userName = new Anchor();
+              userName.setText(u2.getFullNameWithTitles());
+              userName.addStyleName("now-managing");
+              userName.addStyleName("pointer");
+              userName.setTitle(u2.getFullNameWithTitles());
+              userName.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                  session.getTabManager().addTab(new SelfDetailTabItem(u2));
+                  session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+                }
+              });
+              innerTable.setWidget(row, 1, userName);
+              row++;
+            }
 
-			horizontalSplitter.add(dp2);
-			horizontalSplitter.setCellWidth(dp2, "50%");
-			horizontalSplitter.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
-			horizontalSplitter.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
+          } else {
+            innerTable.setHTML(0, 0, "You have no service identities");
+          }
+        }
 
-		}
+        @Override
+        public void onLoadingStart() {
+          innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingStart());
+        }
 
-		this.contentWidget.setWidget(horizontalSplitter);
+        @Override
+        public void onError(PerunError error) {
+          innerTable.setWidget(0, 0, new AjaxLoaderImage().loadingError(error));
+        }
+      });
+      call.retrieveData();
 
-		return getWidget();
+      horizontalSplitter.add(dp2);
+      horizontalSplitter.setCellWidth(dp2, "50%");
+      horizontalSplitter.setCellHorizontalAlignment(dp2, HasHorizontalAlignment.ALIGN_CENTER);
+      horizontalSplitter.setCellVerticalAlignment(dp2, HasVerticalAlignment.ALIGN_MIDDLE);
 
-	}
+    }
 
-	public Widget getWidget() {
-		return this.contentWidget;
-	}
+    this.contentWidget.setWidget(horizontalSplitter);
 
-	public Widget getTitle() {
-		return this.titleWidget;
-	}
+    return getWidget();
 
-	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.userGrayIcon();
-	}
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 1201;
-		int result = 432;
-		result = prime * result;
-		return result;
-	}
+  public Widget getWidget() {
+    return this.contentWidget;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+  public Widget getTitle() {
+    return this.titleWidget;
+  }
 
-		return true;
-	}
+  public ImageResource getIcon() {
+    return SmallIcons.INSTANCE.userGrayIcon();
+  }
 
-	public boolean multipleInstancesEnabled() {
-		return false;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 1201;
+    int result = 432;
+    result = prime * result;
+    return result;
+  }
 
-	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.USER, true);
-		session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Select identity", getUrlWithParameters());
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
 
-	public boolean isAuthorized() {
+    return true;
+  }
 
-		if (session.isSelf()) {
-			return true;
-		} else {
-			return false;
-		}
+  public boolean multipleInstancesEnabled() {
+    return false;
+  }
 
-	}
+  public void open() {
+    session.getUiElements().getMenu().openMenu(MainMenu.USER, true);
+    session.getUiElements().getBreadcrumbs().setLocation(MainMenu.USER, "Select identity", getUrlWithParameters());
+  }
 
-	public final static String URL = "self-users";
+  public boolean isAuthorized() {
 
-	public String getUrl()
-	{
-		return URL;
-	}
+    if (session.isSelf()) {
+      return true;
+    } else {
+      return false;
+    }
 
-	public String getUrlWithParameters() {
-		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
-	}
+  }
 
-	static public IdentitySelectorTabItem load(Map<String, String> parameters) {
-		return new IdentitySelectorTabItem();
-	}
+  public String getUrl() {
+    return URL;
+  }
+
+  public String getUrlWithParameters() {
+    return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+  }
 
 }

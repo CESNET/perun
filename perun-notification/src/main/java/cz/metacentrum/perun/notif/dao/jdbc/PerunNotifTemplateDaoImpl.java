@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.notif.dao.jdbc;
 
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.dao.PerunNotifRegexDao;
 import cz.metacentrum.perun.notif.dao.PerunNotifTemplateDao;
@@ -8,187 +7,220 @@ import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
 import cz.metacentrum.perun.notif.entities.PerunNotifRegex;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
+import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Repository;
 
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-import java.util.Set;
-
 @Repository("perunNotifTemplateDao")
 public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNotifTemplateDao {
 
-	@Autowired
-	private PerunNotifRegexDao perunNotifRegexDao;
+  public static final String DELIMITER = ";";
+  @Autowired
+  private PerunNotifRegexDao perunNotifRegexDao;
 
-	public static final String DELIMITER = ";";
+  @Override
+  public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) {
 
-	public List<PerunNotifTemplate> getAllPerunNotifTemplates() {
+    int newPerunNotifReceiverId = Utils.getNewId(this.getJdbcTemplate(), "pn_receiver_id_seq");
 
-		List<PerunNotifTemplate> result = this.getJdbcTemplate().query("SELECT * from pn_template", PerunNotifTemplate.PERUN_NOTIF_TEMPLATE);
-		for (PerunNotifTemplate template : result) {
+    this.getJdbcTemplate()
+        .update("insert into pn_receiver (id, target, type_of_receiver, template_id, locale) values (?, ?, ?, ?, ?)",
+            newPerunNotifReceiverId, receiver.getTarget(), receiver.getTypeOfReceiver().getKey(),
+            receiver.getTemplateId(), receiver.getLocale());
+    receiver.setId(newPerunNotifReceiverId);
 
-			// Gets all template ids which are connected to given regexIds
-			Set<PerunNotifRegex> perunNotifRegexs = perunNotifRegexDao.getPerunNotifRegexForTemplateId(template.getId());
-			template.setMatchingRegexs(perunNotifRegexs);
+    return receiver;
+  }
 
-			List<PerunNotifReceiver> perunNotifReceiver = this.getJdbcTemplate().query("SELECT * from pn_receiver where template_id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER, template.getId());
-			template.setReceivers(perunNotifReceiver);
+  @Override
+  public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessages) {
 
-			List<PerunNotifTemplateMessage> perunNotifTemplateMessages = this.getJdbcTemplate().query("SELECT * from pn_template_message where template_id = ?", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, template.getId());
-			template.setPerunNotifTemplateMessages(perunNotifTemplateMessages);
-		}
+    int newPerunNotifTemplateMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_message_id_seq");
+    this.getJdbcTemplate()
+        .update("INSERT INTO pn_template_message(id, template_id, message, locale, subject) values(?,?,?,?,?)",
+            newPerunNotifTemplateMessageId, templateMessages.getTemplateId(), templateMessages.getMessage(),
+            templateMessages.getLocale().getLanguage(), templateMessages.getSubject());
+    templateMessages.setId(newPerunNotifTemplateMessageId);
 
-		return result;
-	}
+    return templateMessages;
+  }
 
-	@Override
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessages) {
+  @Override
+  public List<PerunNotifReceiver> getAllPerunNotifReceivers() {
 
-		int newPerunNotifTemplateMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_message_id_seq");
-		this.getJdbcTemplate().update("INSERT INTO pn_template_message(id, template_id, message, locale, subject) values(?,?,?,?,?)", newPerunNotifTemplateMessageId, templateMessages.getTemplateId(), templateMessages.getMessage(), templateMessages.getLocale().getLanguage(), templateMessages.getSubject());
-		templateMessages.setId(newPerunNotifTemplateMessageId);
+    List<PerunNotifReceiver> list =
+        this.getJdbcTemplate().query("select * from pn_receiver", PerunNotifReceiver.PERUN_NOTIF_RECEIVER);
+    return list;
+  }
 
-		return templateMessages;
-	}
+  @Override
+  public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages() {
+    return this.getJdbcTemplate()
+        .query("select * from pn_template_message", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER);
+  }
 
-	@Override
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessage) {
+  public List<PerunNotifTemplate> getAllPerunNotifTemplates() {
 
-		this.getJdbcTemplate().update("update pn_template_message set template_id = ?, message = ?, locale = ?, subject = ? where id = ?", templateMessage.getTemplateId(), templateMessage.getMessage(), templateMessage.getLocale().getLanguage(), templateMessage.getSubject(), templateMessage.getId());
+    List<PerunNotifTemplate> result =
+        this.getJdbcTemplate().query("SELECT * from pn_template", PerunNotifTemplate.PERUN_NOTIF_TEMPLATE);
+    for (PerunNotifTemplate template : result) {
 
-		return getPerunNotifTemplateMessageById(templateMessage.getId());
-	}
+      // Gets all template ids which are connected to given regexIds
+      Set<PerunNotifRegex> perunNotifRegexs = perunNotifRegexDao.getPerunNotifRegexForTemplateId(template.getId());
+      template.setMatchingRegexs(perunNotifRegexs);
 
-	@Override
-	public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) {
+      List<PerunNotifReceiver> perunNotifReceiver = this.getJdbcTemplate()
+          .query("SELECT * from pn_receiver where template_id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER,
+              template.getId());
+      template.setReceivers(perunNotifReceiver);
 
-		this.getJdbcTemplate().update("update pn_template set name = ?, notify_trigger = ?, oldest_message_time = ?, youngest_message_time=?, primary_properties=?, sender = ? where id = ?", template.getName(), template.getNotifyTrigger().getKey(), template.getOldestMessageTime(), template.getYoungestMessageTime(), template.getSerializedPrimaryProperties(), template.getSender(), template.getId());
+      List<PerunNotifTemplateMessage> perunNotifTemplateMessages = this.getJdbcTemplate()
+          .query("SELECT * from pn_template_message where template_id = ?",
+              PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, template.getId());
+      template.setPerunNotifTemplateMessages(perunNotifTemplateMessages);
+    }
 
-		return getPerunNotifTemplateById(template.getId());
-	}
+    return result;
+  }
 
-	@Override
-	public PerunNotifReceiver getPerunNotifReceiverById(int id) {
+  @Override
+  public PerunNotifReceiver getPerunNotifReceiverById(int id) {
 
-		try {
-			PerunNotifReceiver object = this.getJdbcTemplate().queryForObject("select * from pn_receiver where id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER, id);
-			return object;
-		} catch (EmptyResultDataAccessException ex) {
-			return null;
-		}
-	}
+    try {
+      PerunNotifReceiver object = this.getJdbcTemplate()
+          .queryForObject("select * from pn_receiver where id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER, id);
+      return object;
+    } catch (EmptyResultDataAccessException ex) {
+      return null;
+    }
+  }
 
-	@Override
-	public List<PerunNotifReceiver> getAllPerunNotifReceivers() {
+  @Override
+  public PerunNotifTemplate getPerunNotifTemplateById(int id) {
 
-		List<PerunNotifReceiver> list = this.getJdbcTemplate().query("select * from pn_receiver", PerunNotifReceiver.PERUN_NOTIF_RECEIVER);
-		return list;
-	}
+    PerunNotifTemplate template = null;
+    try {
+      template = this.getJdbcTemplate()
+          .queryForObject("SELECT * from pn_template where id = ?", PerunNotifTemplate.PERUN_NOTIF_TEMPLATE, id);
+    } catch (EmptyResultDataAccessException ex) {
+      //This exception is thrown when object is not found
+      return null;
+    }
 
-	@Override
-	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) {
+    Set<PerunNotifRegex> regexes = perunNotifRegexDao.getPerunNotifRegexForTemplateId(template.getId());
+    template.setMatchingRegexs(regexes);
 
-		int newPerunNotifReceiverId = Utils.getNewId(this.getJdbcTemplate(), "pn_receiver_id_seq");
+    List<PerunNotifReceiver> perunNotifReceiver = this.getJdbcTemplate()
+        .query("SELECT * from pn_receiver where template_id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER,
+            template.getId());
+    template.setReceivers(perunNotifReceiver);
 
-		this.getJdbcTemplate().update("insert into pn_receiver (id, target, type_of_receiver, template_id, locale) values (?, ?, ?, ?, ?)", newPerunNotifReceiverId, receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale());
-		receiver.setId(newPerunNotifReceiverId);
+    List<PerunNotifTemplateMessage> perunNotifTemplateMessages = this.getJdbcTemplate()
+        .query("SELECT * from pn_template_message where template_id = ?",
+            PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, template.getId());
+    template.setPerunNotifTemplateMessages(perunNotifTemplateMessages);
 
-		return receiver;
-	}
+    return template;
+  }
 
-	@Override
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) {
+  @Override
+  public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) {
 
-		this.getJdbcTemplate().update("update pn_receiver set target = ?, type_of_receiver = ?, template_id = ?, locale = ? where id = ?", receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale(), receiver.getId());
+    try {
+      return this.getJdbcTemplate().queryForObject("select * from pn_template_message where id = ?",
+          PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, id);
+    } catch (EmptyResultDataAccessException ex) {
+      return null;
+    }
+  }
 
-		return getPerunNotifReceiverById(receiver.getId());
-	}
+  @Override
+  public void removePerunNotifReceiverById(int id) {
 
-	@Override
-	public PerunNotifTemplate getPerunNotifTemplateById(int id) {
+    this.getJdbcTemplate().update("delete from pn_receiver where id = ?", id);
+  }
 
-		PerunNotifTemplate template = null;
-		try {
-			template = this.getJdbcTemplate().queryForObject("SELECT * from pn_template where id = ?", PerunNotifTemplate.PERUN_NOTIF_TEMPLATE, id);
-		} catch (EmptyResultDataAccessException ex) {
-			//This exception is thrown when object is not found
-			return null;
-		}
+  @Override
+  public void removePerunNotifTemplateById(int id) {
 
-		Set<PerunNotifRegex> regexes = perunNotifRegexDao.getPerunNotifRegexForTemplateId(template.getId());
-		template.setMatchingRegexs(regexes);
+    this.getJdbcTemplate().update("delete from pn_template_message where template_id = ?", id);
 
-		List<PerunNotifReceiver> perunNotifReceiver = this.getJdbcTemplate().query("SELECT * from pn_receiver where template_id = ?", PerunNotifReceiver.PERUN_NOTIF_RECEIVER, template.getId());
-		template.setReceivers(perunNotifReceiver);
+    this.getJdbcTemplate().update("delete from pn_template_regex where template_id = ?", id);
 
-		List<PerunNotifTemplateMessage> perunNotifTemplateMessages = this.getJdbcTemplate().query("SELECT * from pn_template_message where template_id = ?", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, template.getId());
-		template.setPerunNotifTemplateMessages(perunNotifTemplateMessages);
+    this.getJdbcTemplate().update("delete from pn_pool_message where template_id = ?", id);
 
-		return template;
-	}
+    this.getJdbcTemplate().update("delete from pn_template where id = ?", id);
+  }
 
-	@Override
-	public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) {
+  @Override
+  public void removePerunNotifTemplateMessage(int id) {
 
-		int newPerunNotifTemplateId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_id_seq");
+    this.getJdbcTemplate().update("delete from pn_template_message where id = ?", id);
+  }
 
-		this.getJdbcTemplate().update("insert into pn_template(id, name, primary_properties, notify_trigger, youngest_message_time, oldest_message_time, sender) values (?, ?, ?, ?, ?, ?, ?)", newPerunNotifTemplateId, template.getName(), template.getSerializedPrimaryProperties(), template.getNotifyTrigger().getKey(), template.getYoungestMessageTime(), template.getOldestMessageTime(), template.getSender());
-		template.setId(newPerunNotifTemplateId);
+  @Override
+  public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) {
 
-		return template;
-	}
+    int newPerunNotifTemplateId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_id_seq");
 
-	@Override
-	public void removePerunNotifReceiverById(int id) {
+    this.getJdbcTemplate().update(
+        "insert into pn_template(id, name, primary_properties, notify_trigger, youngest_message_time, " +
+        "oldest_message_time, sender) values (?, ?, ?, ?, ?, ?, ?)",
+        newPerunNotifTemplateId, template.getName(), template.getSerializedPrimaryProperties(),
+        template.getNotifyTrigger().getKey(), template.getYoungestMessageTime(), template.getOldestMessageTime(),
+        template.getSender());
+    template.setId(newPerunNotifTemplateId);
 
-		this.getJdbcTemplate().update("delete from pn_receiver where id = ?", id);
-	}
+    return template;
+  }
 
-	@Override
-	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) {
+  @Override
+  public void saveTemplateRegexRelation(int templateId, Integer regexId) {
+    if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
+      //Relation exists
+      return;
+    } else {
+      perunNotifRegexDao.saveTemplateRegexRelation(templateId, regexId);
+      PerunNotifTemplate template = getPerunNotifTemplateById(templateId);
+      template.addPerunNotifRegex(perunNotifRegexDao.getPerunNotifRegexById(regexId));
+    }
+  }
 
-		try {
-			return this.getJdbcTemplate().queryForObject("select * from pn_template_message where id = ?", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER, id);
-		} catch (EmptyResultDataAccessException ex) {
-			return null;
-		}
-	}
+  @Override
+  public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) {
 
-	@Override
-	public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages() {
-		return this.getJdbcTemplate().query("select * from pn_template_message", PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER);
-	}
+    this.getJdbcTemplate()
+        .update("update pn_receiver set target = ?, type_of_receiver = ?, template_id = ?, locale = ? where id = ?",
+            receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale(),
+            receiver.getId());
 
-	@Override
-	public void removePerunNotifTemplateMessage(int id) {
+    return getPerunNotifReceiverById(receiver.getId());
+  }
 
-		this.getJdbcTemplate().update("delete from pn_template_message where id = ?", id);
-	}
+  @Override
+  public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) {
 
-	@Override
-	public void removePerunNotifTemplateById(int id) {
+    this.getJdbcTemplate().update(
+        "update pn_template set name = ?, notify_trigger = ?, oldest_message_time = ?, youngest_message_time=?, " +
+        "primary_properties=?, sender = ? where id = ?",
+        template.getName(), template.getNotifyTrigger().getKey(), template.getOldestMessageTime(),
+        template.getYoungestMessageTime(), template.getSerializedPrimaryProperties(), template.getSender(),
+        template.getId());
 
-		this.getJdbcTemplate().update("delete from pn_template_message where template_id = ?", id);
+    return getPerunNotifTemplateById(template.getId());
+  }
 
-		this.getJdbcTemplate().update("delete from pn_template_regex where template_id = ?", id);
+  @Override
+  public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessage) {
 
-		this.getJdbcTemplate().update("delete from pn_pool_message where template_id = ?", id);
+    this.getJdbcTemplate()
+        .update("update pn_template_message set template_id = ?, message = ?, locale = ?, subject = ? where id = ?",
+            templateMessage.getTemplateId(), templateMessage.getMessage(), templateMessage.getLocale().getLanguage(),
+            templateMessage.getSubject(), templateMessage.getId());
 
-		this.getJdbcTemplate().update("delete from pn_template where id = ?", id);
-	}
-
-	@Override
-	public void saveTemplateRegexRelation(int templateId, Integer regexId) {
-		if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
-			//Relation exists
-			return;
-		} else {
-			perunNotifRegexDao.saveTemplateRegexRelation(templateId, regexId);
-			PerunNotifTemplate template = getPerunNotifTemplateById(templateId);
-			template.addPerunNotifRegex(perunNotifRegexDao.getPerunNotifRegexById(regexId));
-		}
-	}
+    return getPerunNotifTemplateMessageById(templateMessage.getId());
+  }
 }

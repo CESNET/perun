@@ -9,35 +9,35 @@ import cz.metacentrum.perun.core.api.User;
  */
 public class AttributeRemovedForUser extends AuditEvent {
 
-	private AttributeDefinition attribute;
-	private User user;
-	private String message;
+  private AttributeDefinition attribute;
+  private User user;
+  private String message;
 
-	@SuppressWarnings("unused") // used by jackson mapper
-	public AttributeRemovedForUser() {
-	}
+  @SuppressWarnings("unused") // used by jackson mapper
+  public AttributeRemovedForUser() {
+  }
 
-	public AttributeRemovedForUser(AttributeDefinition attribute, User user) {
-		this.attribute = attribute;
-		this.user = user;
-		this.message = formatMessage("%s removed for %s.", attribute, user);
-	}
+  public AttributeRemovedForUser(AttributeDefinition attribute, User user) {
+    this.attribute = attribute;
+    this.user = user;
+    this.message = formatMessage("%s removed for %s.", attribute, user);
+  }
 
-	public AttributeDefinition getAttribute() {
-		return attribute;
-	}
+  public AttributeDefinition getAttribute() {
+    return attribute;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	@Override
-	public String toString() {
-		return message;
-	}
+  @Override
+  public String toString() {
+    return message;
+  }
 }

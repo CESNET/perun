@@ -14,33 +14,32 @@ import cz.metacentrum.perun.core.impl.PerunOidcConfigLoader;
  */
 public interface ConfigManagerImplApi {
 
-	/**
-	 * Sets the PerunAppsConfigLoader
-	 *
-	 * @param perunAppsConfigLoader loader to set
-	 */
-	void setPerunAppsConfigLoader(PerunAppsConfigLoader perunAppsConfigLoader);
+  /**
+   * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
+   *
+   * @param name name of desired configuration
+   * @return oidcConfig
+   * @throws OidcConfigNotExistsException     when configuration under such name doesn't exist
+   * @throws OidcConfigFileNotExistsException when configuration file for oidc configs doesn't exist.
+   */
+  OidcConfig getPerunOidcConfig(String name) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException;
 
-	/**
-	 * Sets the PerunOidcConfigLoader
-	 *
-	 * @param perunOidcConfigLoader loader to set
-	 */
-	void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader);
+  /**
+   * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
+   */
+  void reloadAppsConfig();
 
-	/**
-	 * Reloads the configuration of brandings and their respective apps (see perun-apps-config.yml)
-	 *
-	 */
-	void reloadAppsConfig();
+  /**
+   * Sets the PerunAppsConfigLoader
+   *
+   * @param perunAppsConfigLoader loader to set
+   */
+  void setPerunAppsConfigLoader(PerunAppsConfigLoader perunAppsConfigLoader);
 
-	/**
-	 * Returns Oidc Configuration for this Perun instance (to be used for CLI communication).
-	 *
-	 * @param name name of desired configuration
-	 * @throws OidcConfigNotExistsException when configuration under such name doesn't exist
-	 * @throws OidcConfigFileNotExistsException when configuration file for oidc configs doesn't exist.
-	 * @return oidcConfig
-	 */
-	OidcConfig getPerunOidcConfig(String name) throws OidcConfigNotExistsException, OidcConfigFileNotExistsException;
+  /**
+   * Sets the PerunOidcConfigLoader
+   *
+   * @param perunOidcConfigLoader loader to set
+   */
+  void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader);
 }

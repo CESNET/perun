@@ -1,142 +1,140 @@
 package cz.metacentrum.perun.notif.entities;
 
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.springframework.jdbc.core.RowMapper;
 
 /**
  * Holds every regex which can be used to recognize type of message
  *
  * @author tomas.tunkl
- *
+ * <p>
  * Table pn_regex
  */
 public class PerunNotifRegex {
 
-	/**
-	 * Unique identifier
-	 *
-	 * Column id Sequence pn_regex_id_seq
-	 */
-	private int id;
+  public static final RowMapper<PerunNotifRegex> PERUN_NOTIF_REGEX = new RowMapper<PerunNotifRegex>() {
 
-	/**
-	 * Regex used to match against auditer message
-	 *
-	 * Column regex
-	 */
-	private String regex;
+    public PerunNotifRegex mapRow(ResultSet rs, int i) throws SQLException {
 
-	/**
-	 * Note to describe regex
-	 *
-	 * Column note
-	 */
-	private String note;
+      PerunNotifRegex result = new PerunNotifRegex();
+      result.setId(rs.getInt("id"));
+      result.setNote(rs.getString("note"));
+      result.setRegex(rs.getString("regex"));
 
-	/**
-	 * Objects which can be recognized from auditer message if passes regex
-	 */
-	private Set<PerunNotifObject> objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
+      return result;
+    }
+  };
+  /**
+   * Unique identifier
+   * <p>
+   * Column id Sequence pn_regex_id_seq
+   */
+  private int id;
+  /**
+   * Regex used to match against auditer message
+   * <p>
+   * Column regex
+   */
+  private String regex;
+  /**
+   * Note to describe regex
+   * <p>
+   * Column note
+   */
+  private String note;
+  /**
+   * Objects which can be recognized from auditer message if passes regex
+   */
+  private Set<PerunNotifObject> objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
 
-	public Integer getId() {
-		return id;
-	}
+  public void addObject(PerunNotifObject object) {
+    if (objects == null) {
+      this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    this.objects.add(object);
+  }
 
-	public String getRegex() {
-		return regex;
-	}
+  public void addObjects(List<PerunNotifObject> objects) {
+    if (objects == null) {
+      this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
+    }
 
-	public void setRegex(String regex) {
-		this.regex = regex;
-	}
+    this.objects.addAll(objects);
+  }
 
-	public String getNote() {
-		return note;
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof PerunNotifRegex)) {
+      return false;
+    }
 
-	public void setNote(String note) {
-		this.note = note;
-	}
+    PerunNotifRegex regex1 = (PerunNotifRegex) o;
 
-	public Set<PerunNotifObject> getObjects() {
-		return objects;
-	}
+    if (id != regex1.id) {
+      return false;
+    }
 
-	public void setObjects(Set<PerunNotifObject> objects) {
-		this.objects = objects;
-	}
+    return true;
+  }
 
-	public void addObjects(List<PerunNotifObject> objects) {
-		if (objects == null) {
-			this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
-		}
+  public Integer getId() {
+    return id;
+  }
 
-		this.objects.addAll(objects);
-	}
+  public String getNote() {
+    return note;
+  }
 
-	public void addObject(PerunNotifObject object) {
-		if (objects == null) {
-			this.objects = Collections.synchronizedSet(new HashSet<PerunNotifObject>());
-		}
+  public Set<PerunNotifObject> getObjects() {
+    return objects;
+  }
 
-		this.objects.add(object);
-	}
+  public String getRegex() {
+    return regex;
+  }
 
-	public static final RowMapper<PerunNotifRegex> PERUN_NOTIF_REGEX = new RowMapper<PerunNotifRegex>() {
+  @Override
+  public int hashCode() {
+    int result = id;
+    result = 31 * result + (regex != null ? regex.hashCode() : 0);
+    result = 31 * result + (note != null ? note.hashCode() : 0);
+    result = 31 * result + (objects != null ? objects.hashCode() : 0);
+    return result;
+  }
 
-		public PerunNotifRegex mapRow(ResultSet rs, int i) throws SQLException {
+  public void setId(int id) {
+    this.id = id;
+  }
 
-			PerunNotifRegex result = new PerunNotifRegex();
-			result.setId(rs.getInt("id"));
-			result.setNote(rs.getString("note"));
-			result.setRegex(rs.getString("regex"));
+  public void setNote(String note) {
+    this.note = note;
+  }
 
-			return result;
-		}
-	};
+  public void setObjects(Set<PerunNotifObject> objects) {
+    this.objects = objects;
+  }
 
-	public void update(PerunNotifRegex updatedRegex) {
-		this.setNote(updatedRegex.getNote());
-		this.setRegex(updatedRegex.getRegex());
-		this.setObjects(updatedRegex.getObjects());
-	}
+  public void setRegex(String regex) {
+    this.regex = regex;
+  }
 
-	@Override
-	public String toString() {
-		return "id: " + getId() + " regex: " + getRegex() + " note: " + getNote();
-	}
+  @Override
+  public String toString() {
+    return "id: " + getId() + " regex: " + getRegex() + " note: " + getNote();
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (!(o instanceof PerunNotifRegex)) {
-			return false;
-		}
-
-		PerunNotifRegex regex1 = (PerunNotifRegex) o;
-
-		if (id != regex1.id) {
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = id;
-		result = 31 * result + (regex != null ? regex.hashCode() : 0);
-		result = 31 * result + (note != null ? note.hashCode() : 0);
-		result = 31 * result + (objects != null ? objects.hashCode() : 0);
-		return result;
-	}
+  public void update(PerunNotifRegex updatedRegex) {
+    this.setNote(updatedRegex.getNote());
+    this.setRegex(updatedRegex.getRegex());
+    this.setObjects(updatedRegex.getObjects());
+  }
 }
