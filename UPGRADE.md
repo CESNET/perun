@@ -1,5 +1,27 @@
 Upgrade notes
 
+## [34.3.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.3.0...v34.3.1) (2024-03-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** Remove unused perun-cabinet.properties files and config.
+
+### Bug Fixes
+
+* **core:** mfa skippable roles ([5d10c84](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5d10c8447a750face5f75b0dbbba7b51ad35acff))
+* **deps:** update dependency google-api-services-admin-directory ([796d3e1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/796d3e137448e99684a669215c53f62721ff9fc9))
+* **deps:** update dependency io.swagger:swagger-annotations to v1.6.13 ([9cdf042](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9cdf042b53075facc6c8a05184f8520004005bb5))
+* **deps:** update dependency io.swagger:swagger-annotations to v1.6.14 ([fafa0b1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fafa0b1f36d57ea321ca693905fd02ebb549803c))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.6.1 ([783de60](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/783de6085f3abf4739e631c6d0888834b3bc40a8))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.7.0 ([ca50d9e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ca50d9ed20aced737f2142529b89d754700fc832))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.7.1 ([4e2af7e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4e2af7ed24a3ca19c19d3abe9c72538325180cd1))
+
+
+### Refactoring
+
+* **core:** removed usage of perun-cabinet.properties ([3acddd4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3acddd4a2f940c870333e8738fdd7cc092ed8704))
+
 ## [34.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.2.0...v34.3.0) (2024-03-11)
 
 

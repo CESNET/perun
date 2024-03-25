@@ -7,7 +7,7 @@
 	<!-- PERUN -->
 	<groupId>cz.metacentrum</groupId>
 	<artifactId>perun</artifactId>
-	<version>34.3.0</version>
+	<version>34.3.1</version>
 	<packaging>pom</packaging>
 
 	<!-- Spring Boot Starter Parent as parent project - this project inherits versions of dependencies and plugins -->
