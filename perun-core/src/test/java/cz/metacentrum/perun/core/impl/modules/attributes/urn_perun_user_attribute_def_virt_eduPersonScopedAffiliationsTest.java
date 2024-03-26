@@ -4,6 +4,9 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.matchers.Any;
 
 /**
  * Test module for urn:perun:user:attribute-def:virt:eduPersonScopedAffiliations
@@ -134,6 +138,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, secondarySourceAttrName)).thenReturn(
         userAtt1);
 
+    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(new ArrayList<>());
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(eq(session), any())).thenReturn(new ArrayList<>());
+
     Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
     assertTrue(receivedAttr.getValue() instanceof List);
     assertEquals("destination attribute name wrong", classInstance.getDestinationAttributeFriendlyName(),
@@ -188,6 +195,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
     when(
         session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
         groupAtt1);
+
+    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(new ArrayList<>());
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(eq(session), any())).thenReturn(new ArrayList<>());
 
     Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
     assertTrue(receivedAttr.getValue() instanceof List);

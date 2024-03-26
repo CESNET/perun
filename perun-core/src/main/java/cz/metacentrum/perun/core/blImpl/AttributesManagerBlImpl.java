@@ -118,6 +118,7 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_unixGID_namespace;
@@ -9812,6 +9813,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    // urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig
+    attr = new urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig().getAttributeDefinition();
+
+    policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     // create namespaced attributes for each namespace
