@@ -79,38 +79,6 @@ public class Author extends PerunBean {
     this.authorships = authorships;
   }
 
-  public String getDisplayName() {
-    String name = "";
-    if (titleBefore != null) {
-      name = titleBefore;
-    }
-    if (firstName != null) {
-      if (name.length() != 0) {
-        name += " ";
-      }
-      name += firstName;
-    }
-    if (middleName != null) {
-      if (name.length() != 0) {
-        name += " ";
-      }
-      name += middleName;
-    }
-    if (lastName != null) {
-      if (name.length() != 0) {
-        name += " ";
-      }
-      name += lastName;
-    }
-    if (titleAfter != null) {
-      if (name.length() != 0) {
-        name += " ";
-      }
-      name += titleAfter;
-    }
-    return name;
-  }
-
   public String getFirstName() {
     return firstName;
   }
@@ -160,7 +128,7 @@ public class Author extends PerunBean {
   public String toString() {
     StringBuilder str = new StringBuilder();
     return str.append(getClass().getSimpleName()).append(":[id=").append(getId()).append(", firstName=")
-        .append(firstName).append(", lastName=").append(lastName).append(", displayName=").append(this.getDisplayName())
+        .append(firstName).append(", lastName=").append(lastName).append(", displayName=")
         .append(", attributes=").append(attributes).append(", authorships=").append(authorships).append("]").toString();
   }
 

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.cabinet.bl.impl;
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
+import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
@@ -10,6 +11,7 @@ import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.cabinet.dao.PublicationManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
+import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
@@ -36,6 +38,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
   private AuthorshipManagerBl authorshipManagerBl;
   private PublicationSystemManagerBl publicationSystemManagerBl;
   private CabinetManagerBl cabinetManagerBl;
+  private CategoryManagerBl categoryManagerBl;
   private ThanksManagerBl thanksManagerBl;
 
   // setters ----------------------------------------
@@ -60,6 +63,22 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
       // There is only one internal system so, get(0) is safe
       p.setPublicationSystemId(ps.getId());
     }
+
+    // if category not present => publication is being imported, set default category id
+    if (p.getCategoryId() == 0) {
+      int defaultCategoryId = 0;
+      List<Category> categories = getCategoryManagerBl().getCategories();
+      for (Category c : categories) {
+        if (c.getName().equalsIgnoreCase("Ke kontrole")) {
+          defaultCategoryId = c.getId();
+        }
+      }
+      if (defaultCategoryId == 0) {
+        defaultCategoryId = categories.get(0).getId();
+      }
+      p.setCategoryId(defaultCategoryId);
+    }
+
     stripLongParams(p);
     createdPublication = getPublicationManagerDao().createPublication(sess, p);
 
@@ -104,6 +123,10 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 
   public CabinetManagerBl getCabinetManagerBl() {
     return cabinetManagerBl;
+  }
+
+  public CategoryManagerBl getCategoryManagerBl() {
+    return categoryManagerBl;
   }
 
   @Override
@@ -203,6 +226,11 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
   @Autowired
   public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
     this.cabinetManagerBl = cabinetManagerBl;
+  }
+
+  @Autowired
+  public void setCategoryManagerBl(CategoryManagerBl categoryManagerBl) {
+    this.categoryManagerBl = categoryManagerBl;
   }
 
   @Autowired
