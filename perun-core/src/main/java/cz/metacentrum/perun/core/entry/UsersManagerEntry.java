@@ -139,7 +139,7 @@ public class UsersManagerEntry implements UsersManager {
     Utils.notNull(user, "user");
     Utils.notNull(userExtSource.getExtSource(), "ExtSource in UserExtSource");
     Utils.notNull(userExtSource.getLogin(), "Login in UserExtSource");
-    Utils.notNull(userExtSource.getExtSource().getType(), "Type of ExpSource in UserExtSource");
+    Utils.notNull(userExtSource.getExtSource().getType(), "Type of ExtSource in UserExtSource");
 
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "addUserExtSource_User_UserExtSource_policy",
