@@ -183,12 +183,12 @@ public enum CabinetManagerMethod implements ManagerMethod {
   /*#
    * Get ThanksForGUI of Publication specified by its ID or empty list.
    *
-   * @param id int Publication <code>id</code>
+   * @param publicationId int Publication <code>id</code>
    * @return List<ThanksForGUI> Found thanks
    */
   getRichThanksByPublicationId {
     public List<ThanksForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getCabinetManager().getRichThanksByPublicationId(parms.readInt("id"));
+      return ac.getCabinetManager().getRichThanksByPublicationId(parms.readInt("publicationId"));
     }
   },
 
@@ -246,12 +246,12 @@ public enum CabinetManagerMethod implements ManagerMethod {
   /*#
    * Return all Authors of Publication specified by its ID. Empty list of none found.
    *
-   * @param id int ID of Publication to look by
+   * @param publicationId int ID of Publication to look by
    * @return List<Author> List of Authors of Publication specified its ID. Empty list of none found.
    */
   findAuthorsByPublicationId {
     public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getCabinetManager().getAuthorsByPublicationId(ac.getSession(), parms.readInt("id"));
+      return ac.getCabinetManager().getAuthorsByPublicationId(ac.getSession(), parms.readInt("publicationId"));
     }
   },
 

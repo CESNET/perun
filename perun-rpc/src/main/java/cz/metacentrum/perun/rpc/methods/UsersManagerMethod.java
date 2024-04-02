@@ -1573,7 +1573,7 @@ public enum UsersManagerMethod implements ManagerMethod {
    * by requestPreferredEmailChange() method.
    *
    * @param token String token for the email change request to validate
-   * @param u int <code>id</code> of user you want to validate preferred email request
+   * @param user int <code>id</code> of user you want to validate preferred email request
    *
    * @return String new validated email address
    */
@@ -1583,7 +1583,7 @@ public enum UsersManagerMethod implements ManagerMethod {
       parms.stateChangingCheck();
 
       if (parms.contains("token")) {
-        return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(), ac.getUserById(parms.readInt("u")),
+        return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(), ac.getUserById(parms.readInt("user")),
             parms.readString("token"));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "token");

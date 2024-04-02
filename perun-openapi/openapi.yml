@@ -825,7 +825,6 @@ components:
             type: string
       required:
         - namespaceName
-        - attributesRules
 
     Group:
       allOf:
@@ -1342,14 +1341,14 @@ components:
     GenDataNode:
       type: object
       properties:
-        h: { type: array, items: { type: string } }
-        c: { type: array, items: { $ref: '#/components/schemas/HashedGenData' } }
-        m: { type: array, items: { $ref: '#/components/schemas/GenMemberDataNode' } }
-
-    GenMemberDataNode:
-      type: object
-      properties:
-        h: { type: array, items: { type: string } }
+        children:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/GenDataNode'
+        members:
+          type: object
+          additionalProperties:
+            type: integer
 
     HashedGenData:
       type: object
@@ -1360,7 +1359,9 @@ components:
             type: array
             items: { $ref: '#/components/schemas/Attribute' }
         hierarchy:
-          $ref: '#/components/schemas/GenDataNode'
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/GenDataNode'
 
     ServicesPackage:
       allOf:
@@ -1552,14 +1553,6 @@ components:
       properties:
         brands: { type: array, items: { $ref: '#/components/schemas/Brand' } }
 
-    SimpleAttribute:
-      description: Attribute returned using the JsonSimple serializator
-      properties:
-        friendlyName: { type: string }
-        namespace: { type: string }
-        unique: { type: boolean }
-        value: { type: object }
-
     GroupMemberRelation:
       type: object
       properties:
@@ -1697,17 +1690,6 @@ components:
             additionalProperties:
               type: integer
 
-    MapStringMapStringStringResponse:
-      description: "returns Map<String,Map<String,String>>"
-      content:
-        application/json:
-          schema:
-            type: object
-            additionalProperties:
-              type: object
-              additionalProperties:
-                type: string
-
     ListOfMapStringStringResponse:
       description: "returns List<Map<String,String>>"
       content:
@@ -1798,13 +1780,6 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/RichMember"
-
-    AssignedMemberResponse:
-      description: returns AssignedMember
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/AssignedMember"
 
     ListOfAssignedMembersResponse:
       description: "returns List<AssignedMember>"
@@ -2463,14 +2438,6 @@ components:
             items:
               $ref: "#/components/schemas/ServiceForGUI"
 
-
-    SecurityTeamResponse:
-      description: "returns SecurityTeam"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/SecurityTeam"
-
     ListOfSecurityTeamsResponse:
       description: "returns List<SecurityTeam>"
       content:
@@ -2561,13 +2528,6 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Task"
-
-    ApplicationMailResponse:
-      description: "ApplicationMail"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ApplicationMail"
 
     ListOfApplicationMailsResponse:
       description: "List<ApplicationMail> Application mails"
@@ -2964,7 +2924,7 @@ components:
       required: true
 
     publicationId:
-      name: publication
+      name: publicationId
       description: "id of publication"
       schema:
         type: integer
@@ -3400,6 +3360,7 @@ components:
 
     role:
       name: role
+      description: "User role"
       schema:
         type: string
       in: query
@@ -3417,6 +3378,7 @@ components:
 
     consumerName:
       name: consumerName
+      description: "name of the audit message consumer"
       schema:
         type: string
       in: query
@@ -3435,24 +3397,6 @@ components:
       description: 'Group id'
       schema:
         type: integer
-      in: query
-      required: true
-
-    listOfApplicationFormItems:
-      name: "ApplicationFormItem[]"
-      description: "list of ApplicationFormItem List<ApplicationFormItem>"
-      in: query
-      required: true
-      schema:
-        type: array
-        items:
-          $ref: "#/components/schemas/ApplicationFormItem"
-
-    applicationForm:
-      name: applicationForm
-      description: application form
-      schema:
-        $ref: "#/components/schemas/ApplicationForm"
       in: query
       required: true
 
@@ -3514,14 +3458,6 @@ components:
       in: query
       required: true
 
-    password:
-      name: password
-      description: password
-      schema:
-        type: string
-      in: query
-      required: true
-
     login:
       name: login
       description: "login"
@@ -3578,16 +3514,6 @@ components:
         type: boolean
       in: query
       required: false
-
-    memberCandidates:
-      name: candidates[]
-      description: list of member candidates
-      schema:
-        type: array
-        items:
-          $ref: "#/components/schemas/MemberCandidate"
-      in: query
-      required: true
 
     formItemId:
       name: formItem
@@ -4019,7 +3945,7 @@ paths:
               type: object
               required:
                 - role
-                - users
+                - user
               properties:
                 role: { type: string, nullable: false }
                 user: { type: integer, description: "user id", nullable: false }
@@ -4083,7 +4009,7 @@ paths:
               type: object
               required:
                 - role
-                - users
+                - user
               properties:
                 role: { type: string, nullable: false }
                 user: { type: integer, description: "user id", nullable: false }
@@ -4199,7 +4125,7 @@ paths:
               type: object
               required:
                 - role
-                - authorizedGroups
+                - authorizedGroup
               properties:
                 role: { type: string, nullable: false }
                 authorizedGroup: { type: integer, nullable: false }
@@ -4263,7 +4189,7 @@ paths:
               type: object
               required:
                 - role
-                - authorizedGroups
+                - authorizedGroup
               properties:
                 role: { type: string, nullable: false }
                 authorizedGroup: { type: integer, nullable: false }
@@ -7762,7 +7688,7 @@ paths:
       summary: Marks the action on attribute as critical, which may require additional authentication of user performing that action on attribute.
       parameters:
         - $ref: '#/components/parameters/attributeDefinitionId'
-        - { name: action, in: query, schema: { $ref: '#/components/schemas/AttributeAction' }, required: true }
+        - { name: action, description: "type of action to mark as critical", in: query, schema: { $ref: '#/components/schemas/AttributeAction' }, required: true }
         - { name: critical, description: "if action should be marked as critical", schema: { type: boolean }, in: query, required: true }
         - { name: global, description: "if action should be globally critical (for all objects)", schema: { type: boolean }, in: query, required: false }
       responses:
@@ -7812,6 +7738,7 @@ paths:
         has no dependency relations are omitted.
       parameters:
         - name: format
+          description: "format of the generated graph (DOT or TGF)"
           in: query
           schema: { $ref: '#/components/schemas/GraphFileFormat' }
           required: true
@@ -7832,6 +7759,7 @@ paths:
         has no dependency relations are omitted.
       parameters:
         - name: format
+          description: "format of the generated graph (DOT or TGF)"
           in: query
           schema: { $ref: '#/components/schemas/GraphFileFormat' }
           required: true
@@ -8277,7 +8205,7 @@ paths:
               description: 'input to createThanks'
               type: object
               required:
-                - category
+                - thanks
               properties:
                 thanks: { $ref: '#/components/schemas/Thanks' }
 
@@ -8302,7 +8230,7 @@ paths:
       operationId: getRichThanksByPublicationId
       summary: Get ThanksForGUI of Publication specified by its ID or empty list.
       parameters:
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/publicationId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfThanksForGUIResponse'
@@ -8343,7 +8271,7 @@ paths:
       operationId: deleteAuthorship
       summary: Delete Authorship by its userId and publicationId.
       parameters:
-        - { name: publicationId, schema: { type: integer }, in: query, required: true, description: 'id of publication' }
+        - $ref: '#/components/parameters/publicationId'
         - { name: userId, schema: { type: integer }, in: query, required: true, description: 'id of user' }
       responses:
         '200':
@@ -8372,7 +8300,7 @@ paths:
       operationId: findAuthorsByPublicationId
       summary: Return all Authors of Publication specified by its ID. Empty list of none found.
       parameters:
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/publicationId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfAuthorResponse'
@@ -9366,21 +9294,34 @@ paths:
                 loginNamespace: { type: string }
                 password: { type: string }
 
-  /urlinjsonout/usersManager/deleteAlternativePassword:
+  /json/usersManager/deleteAlternativePassword:
     post:
       tags:
         - UsersManager
       operationId: deleteAlternativePassword
       summary: Deletes alternative password in external system.
-      parameters:
-        - $ref: '#/components/parameters/userId'
-        - { name: loginNamespace, schema: { type: string }, in: query, required: true }
-        - { name: passwordId, schema: { type: string }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputDeleteAlternativePassword
+              description: "input for deleteAlternativePassword"
+              type: object
+              required:
+                - user
+                - passwordId
+                - loginNamespace
+              properties:
+                user: { type: string }
+                passwordId: { type: string }
+                loginNamespace: { type: string }
+
 
   /urlinjsonout/usersManager/updateUserExtSourceLastAccess:
     post:
@@ -9581,20 +9522,31 @@ paths:
                 userExtSource: { $ref: '#/components/schemas/UserExtSource' }
                 attributes: { type: array, items: { $ref: "#/components/schemas/Attribute" } }
 
-  /urlinjsonout/usersManager/validatePreferredEmailChange:
+  /json/usersManager/validatePreferredEmailChange:
     post:
       tags:
         - UsersManager
       operationId: validatePreferredEmailChangeWithToken
       summary: Validate new preferred email address. Request to validate is determined based on token parameter sent in email notice by requestPreferredEmailChange() method.
-      parameters:
-        - { name: token, description: "token for the email change request", schema: { type: string }, in: query, required: true }
-        - { name: u, description: "id of user you want to validate preferred email request", schema: { type: integer }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputValidatePreferredEmailChange
+              description: "input for validatePreferredEmailChange"
+              type: object
+              required:
+                - token
+                - user
+              properties:
+                token: { type: string }
+                user: { type: integer }
 
   /json/usersManager/getPendingPreferredEmailChanges:
     get:
@@ -9766,7 +9718,7 @@ paths:
                 specificUserOwners: { type: array, items: { $ref: "#/components/schemas/User" } }
 
   /json/usersManager/checkPasswordResetRequestIsValid/token:
-    get:
+    post:
       tags:
         - UsersManager
       operationId: checkPasswordResetRequestByTokenIsValid
@@ -9775,13 +9727,23 @@ paths:
         This method throws PasswordResetLinkExpiredException when the password reset request expired.
         This method throws PasswordResetLinkNotValidException when the password reset request was already
         used or has never existed.
-      parameters:
-        - { name: token, description: "token for the password reset request", schema: { type: string }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCheckPasswordResetRequestByTokenIsValid
+              description: "input to checkPasswordResetRequestByTokenIsValid"
+              type: object
+              required:
+                - token
+              properties:
+                token: { type: string, description: "token for the password reset request"}
 
   /json/usersManager/changeNonAuthzPassword/token:
     post:
@@ -10061,7 +10023,7 @@ paths:
       operationId: isLoginAvailable
       summary: Checks if the login is available in the namespace. Return 1 if yes, 0 if no.
       parameters:
-        - { name: loginNamespace, schema: { type: string }, in: query, required: true }
+        - { name: loginNamespace, description: "login namespace", schema: { type: string }, in: query, required: true }
         - $ref: '#/components/parameters/login'
       responses:
         '200':
@@ -10077,7 +10039,7 @@ paths:
       summary: Block logins for given namespace or block logins globally (if no namespace is selected)
       parameters:
         - { name: "logins[]", schema: { type: array, items: { type: string } }, in: query, required: false, description: "list of logins to be blocked" }
-        - { name: namespace, schema: { type: string }, in: query, required: false }
+        - { name: namespace, description: "login namespace", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10092,7 +10054,7 @@ paths:
       summary: Unblock logins for given namespace or unblock logins globally (if no namespace is selected)
       parameters:
         - { name: "logins[]", schema: { type: array, items: { type: string } }, in: query, required: false, description: "list of logins to be blocked" }
-        - { name: namespace, schema: { type: string }, in: query, required: false }
+        - { name: namespace, description: "login namespace", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10211,7 +10173,7 @@ paths:
       summary: Generates user account in a backend system associated with login-namespace in Perun. Parameters are implementation-dependent for each login-namespace. Returns map with 1) key=login-namespace attribute urn, value=generated login 2) rest of opt response attributes.
       parameters:
         - $ref: '#/components/parameters/namespace'
-        - { name: name, schema: { type: string }, in: query, required: false }
+        - { name: name, description: "name of the account to generate", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/MapStringStringResponse'
@@ -10351,7 +10313,7 @@ paths:
       operationId: getAllMembers
       summary: Get all members from all vos.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -10366,7 +10328,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - { name: status, in: query, required: false, schema: { $ref: '#/components/schemas/VoMemberStatuses' }, description: 'optional status' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -16243,18 +16205,28 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
 
   /json/registrarManager/consolidateIdentityUsingToken:
-    get:
+    post:
       tags:
         - RegistrarManager
       operationId: consolidateIdentityUsingToken
       summary: Joins current user identity with the one previously provided and referenced by the token.
-      parameters:
-        - { name: token, schema: { type: string }, in: query, required: true, description: "token to be used for joining identities" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfUserExtSourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputConsolidateIdentityUsingToken
+              description: "input to consolidateIdentityUsingToken"
+              type: object
+              required:
+                - token
+              properties:
+                token: { type: string, description: "token to be used for joining identities" }
 
   /urlinjsonout/registrarManager/sendInvitation:
     post:
@@ -16454,7 +16426,7 @@ paths:
       operationId: getApplicationById
       summary: Returns application object by its id.
       parameters:
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/applicationId'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationResponse'
@@ -16763,10 +16735,8 @@ paths:
               type: object
               properties:
                 vo: { type: integer, description: "vo id" }
-                items:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/ApplicationFormItem'
+                items: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItem' } }
+
 
   /json/registrarManager/updateFormItems/group:
     post:
@@ -16789,10 +16759,7 @@ paths:
               type: object
               properties:
                 group: { type: integer, description: "group id" }
-                items:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/ApplicationFormItem'
+                items: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItem' } }
 
   /json/registrarManager/updateForm:
     post:
