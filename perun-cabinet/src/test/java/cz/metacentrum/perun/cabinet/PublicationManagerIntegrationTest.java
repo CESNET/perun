@@ -80,6 +80,29 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
   }
 
   @Test
+  public void createPublicationImportTest() throws Exception {
+    System.out.println("PublicationManagerIntegrationTest.createPublicationImportTest");
+
+    Publication p = new Publication();
+    p.setCreatedBy(sess.getPerunPrincipal().getActor()); // Pepa id 10, userId 1
+    p.setCreatedDate(new Date());
+    p.setExternalId(999);
+    p.setIsbn("isbn 123-4556-899");
+    p.setMain("KERBEROS main zaznam.");
+    p.setPublicationSystemId(publicationOne.getPublicationSystemId()); //MU
+    p.setTitle("Kerberos");
+    p.setYear(2010);
+    p.setRank(0.0);
+    p.setLocked(false);
+    p.setDoi("DOI");
+    p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
+
+
+    p = getCabinetManager().createPublication(sess, p);
+    assertTrue("Returned ID shouldn't be < 0.", p.getId() > 0);
+  }
+
+  @Test
   public void deletePublicationTest() throws Exception {
     System.out.println("PublicationManagerIntegrationTest.deletePublicationTest");
 
