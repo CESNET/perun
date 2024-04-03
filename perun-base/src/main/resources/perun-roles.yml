@@ -3841,6 +3841,19 @@ perun_policies:
     include_policies:
       - default_policy
 
+  someAvailableSponsorExistsForMember_Member_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - SPONSOR: VO
+    include_policies:
+      - default_policy
+
   #OwnersManagerEntry
   createOwner_Owner_policy:
     policy_roles: [ ]

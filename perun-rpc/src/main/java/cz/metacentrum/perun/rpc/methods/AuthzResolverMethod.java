@@ -198,6 +198,89 @@ public enum AuthzResolverMethod implements ManagerMethod {
   },
 
   /*#
+   * Get all valid user administrators (for group-based rights, status must be VALID for both Vo and group) for
+   complementary object and role.
+   *
+   * @param role String Expected Role to filter managers by
+   * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
+   * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
+    (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with
+   specific attributes
+   * @return List<User> Administrators for complementary object and role
+   */
+  getAdmins {
+    @Override
+    public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      //get role by name
+      String roleName = parms.readString("role");
+      if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(roleName)) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + roleName + " does not exist.");
+      }
+      roleName = roleName.toUpperCase();
+      int complementaryObjectId = parms.readInt("complementaryObjectId");
+      String complementaryObjectName = parms.readString("complementaryObjectName");
+
+      PerunBean bean = null;
+      try {
+        bean = (PerunBean) Class.forName("cz.metacentrum.perun.core.api." + complementaryObjectName).getConstructor()
+                               .newInstance();
+        bean.setId(complementaryObjectId);
+        bean = ac.fetchPerunBean(bean);
+      } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        throw new InternalErrorException(e);
+      } catch (ClassNotFoundException e) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER,
+            "Object with name " + complementaryObjectName + " does not exist.");
+      }
+
+      return cz.metacentrum.perun.core.api.AuthzResolver.getAdmins(ac.getSession(), bean, roleName,
+          parms.readBoolean("onlyDirectAdmins"));
+    }
+  },
+
+  /*#
+   * Check if some valid user with specific role exists for given complementary object (for group-based rights, status
+   * must be VALID for both Vo and group).
+   *
+   * @param role String Expected Role to filter managers by
+   * @param complementaryObjectId int Property <code>id</code> of complementaryObject to search managers for
+   * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
+    (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   * @param onlyDirectAdmins boolean When true, search only direct users of the complementary object for role
+   * @return true, if some user with required role exists, false otherwise
+   */
+  someAdminExists {
+    @Override
+    public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+      //get role by name
+      String roleName = parms.readString("role");
+      if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(roleName)) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + roleName + " does not exist.");
+      }
+      roleName = roleName.toUpperCase();
+      int complementaryObjectId = parms.readInt("complementaryObjectId");
+      String complementaryObjectName = parms.readString("complementaryObjectName");
+
+      PerunBean bean = null;
+      try {
+        bean = (PerunBean) Class.forName("cz.metacentrum.perun.core.api." + complementaryObjectName).getConstructor()
+                               .newInstance();
+        bean.setId(complementaryObjectId);
+        bean = ac.fetchPerunBean(bean);
+      } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        throw new InternalErrorException(e);
+      } catch (ClassNotFoundException e) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER,
+            "Object with name " + complementaryObjectName + " does not exist.");
+      }
+
+      return cz.metacentrum.perun.core.api.AuthzResolver.someAdminExists(ac.getSession(), bean, roleName,
+          parms.readBoolean("onlyDirectAdmins"));
+    }
+  },
+
+  /*#
    * Get all groups of managers (authorizedGroups) for complementaryObject and role.
    *
    * @param role String Expected Role to filter authorizedGroups by

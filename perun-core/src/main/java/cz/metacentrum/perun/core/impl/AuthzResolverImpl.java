@@ -45,6 +45,7 @@ import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -528,6 +529,35 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
       }
 
       return new ArrayList<>(admins);
+
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public boolean someAdminExists(Map<String, Integer> mappingOfValues, boolean onlyDirectAdmins) {
+    try {
+      String mappingAsString = prepareSelectQueryString(mappingOfValues);
+      boolean adminExists = !jdbc.query(
+          "select " + USER_MAPPING_SELECT_QUERY + " from authz join users on authz.user_id=users.id" + " where  " +
+              mappingAsString + " limit 1", USER_MAPPER).isEmpty();
+
+      if (!adminExists && !onlyDirectAdmins) {
+        // Admins through a group
+        List<Group> listOfAdminGroups = getAdminGroups(mappingOfValues);
+        for (Group authorizedGroup : listOfAdminGroups) {
+          adminExists = adminExists || !jdbc.query("select " + UsersManagerImpl.USER_MAPPING_SELECT_QUERY +
+                                                       " from users join members on users.id=members.user_id " +
+                                                       "join groups_members on groups_members.member_id=members.id " +
+                                                       "where groups_members.group_id=? and members.status=? and " +
+                                                       "groups_members.source_group_status=? limit 1",
+              UsersManagerImpl.USER_MAPPER, authorizedGroup.getId(), Status.VALID.getCode(),
+              MemberGroupStatus.VALID.getCode()).isEmpty();
+        }
+      }
+
+      return adminExists;
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }

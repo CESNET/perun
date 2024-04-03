@@ -2160,5 +2160,41 @@ public enum MembersManagerMethod implements ManagerMethod {
       }
       return null;
     }
+  },
+
+  /*#
+   * Checks if some vo sponsor who does not already sponsor given member exists.
+   *
+   * @param member int Member <code>id</code>
+   *
+   * @throw PrivilegeException insufficient permissions
+   * @throw MemberNotExistsException when member does not exist
+   *
+   * @return true if available sponsor exists, false otherwise
+   */
+  someAvailableSponsorExistsForMember {
+    @Override
+    public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getMembersManager()
+                 .someAvailableSponsorExistsForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
+    }
+  },
+
+  /*#
+   * Returns all available sponsors for given member.
+   *
+   * @param member int Member <code>id</code>
+   *
+   * @throw PrivilegeException insufficient permissions
+   * @throw MemberNotExistsException when member does not exist
+   *
+   * @return list of available sponsors
+   */
+  getAvailableSponsorsForMember {
+    @Override
+    public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getMembersManager()
+                 .getAvailableSponsorsForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
+    }
   }
 }

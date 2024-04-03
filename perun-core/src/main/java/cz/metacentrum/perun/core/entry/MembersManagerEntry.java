@@ -57,6 +57,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -2069,6 +2070,41 @@ public class MembersManagerEntry implements MembersManager {
         }
       }
     }
+  }
+
+  @Override
+  public boolean someAvailableSponsorExistsForMember(PerunSession sess, Member member)
+      throws MemberNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+    getMembersManagerBl().checkMemberExists(sess, member);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "someAvailableSponsorExistsForMember_Member_policy", member)) {
+      throw new PrivilegeException(sess, "someAvailableSponsorExists");
+    }
+
+    return membersManagerBl.someAvailableSponsorExistsForMember(sess, member);
+  }
+
+  @Override
+  public List<User> getAvailableSponsorsForMember(PerunSession sess, Member member)
+      throws MemberNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+    getMembersManagerBl().checkMemberExists(sess, member);
+
+    // Authorization
+    try {
+      if (!AuthzResolver.authorizedToReadRole(sess, perunBl.getVosManagerBl().getVoById(sess, member.getVoId()),
+          Role.SPONSOR)) {
+        throw new PrivilegeException("You are not privileged to use the method getAvailableSponsorsForMember.");
+      }
+    } catch (RoleManagementRulesNotExistsException ex) {
+      throw new InternalErrorException("Management rules not exist for the role " + Role.SPONSOR, ex);
+    } catch (VoNotExistsException ex) {
+      throw new InternalErrorException("VO with ID " + member.getVoId() + " does not exist", ex);
+    }
+
+    return membersManagerBl.getAvailableSponsorsForMember(sess, member);
   }
 
   @Override

@@ -3898,6 +3898,58 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/authzResolver/getAdmins:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getAuthzAdmins
+      summary: Gets all valid admins
+      description: Get all valid user administrators (for group-based rights, status must be VALID for both Vo and group) for complementary object and role.
+      parameters:
+        - $ref: '#/components/parameters/role'
+        - $ref: '#/components/parameters/complementaryObjectId'
+        - $ref: '#/components/parameters/complementaryObjectName'
+        - { name: onlyDirectAdmins,
+            description: "When true, return only direct users of the complementary object for role",
+            schema: {
+              type: boolean,
+              default: true
+            },
+            in: query,
+            required: false
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/someAdminExists:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: someAdminExists
+      summary: Checks if some valid admin exists.
+      description: Checks if valid user administrators (for group-based rights, status must be VALID for both Vo and group) for complementary object and role exists.
+      parameters:
+        - $ref: '#/components/parameters/role'
+        - $ref: '#/components/parameters/complementaryObjectId'
+        - $ref: '#/components/parameters/complementaryObjectName'
+        - { name: onlyDirectAdmins,
+            description: "When true, check only direct users of the complementary object for role",
+            schema: {
+              type: boolean,
+              default: true
+            },
+            in: query,
+            required: false
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/authzResolver/getAdminGroups:
     get:
       tags:
@@ -11308,6 +11360,34 @@ paths:
                 vo: { type: integer }
                 candidates: { type: array, items: { $ref: '#/components/schemas/MemberCandidate' } }
                 group: { type: integer }
+
+  /json/membersManager/someAvailableSponsorExistsForMember:
+    get:
+      tags:
+        - MembersManager
+      operationId: someAvailableSponsorExistsForMember
+      summary: Returns true if some vo sponsor who does not already sponsor given member exists, false otherwise.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getAvailableSponsorsForMember:
+    get:
+      tags:
+        - MembersManager
+      operationId: getAvailableSponsorsForMember
+      summary: Returns all available sponsors for given member.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
