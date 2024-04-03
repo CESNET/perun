@@ -8353,7 +8353,7 @@ perun_policies:
 #             Example entry: key: Resource; value: resource_id
 #  assignment_check is a list of maps defining which of the assigned objects should be checked for being critical (requiring MFA) when setting the role.
 #             Example entry: key: MFA; value: Resource <- If resource is critical, MFA is required
-#             Example entry: {} <- No MFA is required to set this role
+#             Example entry: [ ] <- No MFA is required to set this role
 #             Example entry: Key: MFA; value: <- No value means MFA is always required to set this role
 #  entities_to_manage is a map of entities which can be set to the role. Key is a entity name and value is mapping to the database.
 #             Example entry: key: User; value: user_id
