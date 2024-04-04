@@ -432,9 +432,13 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
   static class AccessToken {
     @JsonIgnore
     private final Instant createdIn;
+    @JsonProperty(value = "access_token")
     private String accessToken;
+    @JsonProperty(value = "expires_in")
     private long expiresIn;
+    @JsonProperty(value = "refresh_expires_in")
     private long refreshExpiresIn;
+    @JsonProperty(value = "token_type")
     private String tokenType;
     @JsonProperty(value = "not-before-policy")
     private long notBeforePolicy;
