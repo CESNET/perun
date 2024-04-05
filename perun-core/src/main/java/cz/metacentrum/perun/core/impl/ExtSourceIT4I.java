@@ -373,7 +373,9 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
   static class IT4IGroup implements Comparable<IT4IGroup> {
 
     private String login;
+    @JsonProperty(value = "parent_group_login")
     private String parentGroupLogin;
+    @JsonProperty(value = "group_name")
     private String groupName;
     private String description;
     private List<String> members;
