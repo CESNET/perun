@@ -8230,7 +8230,7 @@ paths:
       operationId: getRichThanksByPublicationId
       summary: Get ThanksForGUI of Publication specified by its ID or empty list.
       parameters:
-        - $ref: '#/components/parameters/publicationId'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           $ref: '#/components/responses/ListOfThanksForGUIResponse'
@@ -8300,7 +8300,7 @@ paths:
       operationId: findAuthorsByPublicationId
       summary: Return all Authors of Publication specified by its ID. Empty list of none found.
       parameters:
-        - $ref: '#/components/parameters/publicationId'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           $ref: '#/components/responses/ListOfAuthorResponse'
@@ -9543,10 +9543,10 @@ paths:
               type: object
               required:
                 - token
-                - user
+                - u
               properties:
                 token: { type: string }
-                user: { type: integer }
+                u: { type: integer }
 
   /json/usersManager/getPendingPreferredEmailChanges:
     get:
@@ -16426,7 +16426,7 @@ paths:
       operationId: getApplicationById
       summary: Returns application object by its id.
       parameters:
-        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationResponse'
