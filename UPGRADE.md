@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [34.3.3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.3.2...v34.3.3) (2024-04-05)
+
+
+### Bug Fixes
+
+* **core:** json mapping for groups in ExtSourceIT4I ([33a396b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/33a396b7b868cd46329de193f0271c7a67375d4d))
+
 ## [34.3.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.3.1...v34.3.2) (2024-04-04)
 
 
