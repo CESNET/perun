@@ -826,13 +826,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   /*#
    * Returns application object by its <code>id</code>.
    *
-   * @param appId int Application <code>id</code>
+   * @param id int Application <code>id</code>
    * @return Application Found application
    */
   getApplicationById {
     @Override
     public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getRegistrarManager().getApplicationById(ac.getSession(), parms.readInt("appId"));
+      return ac.getRegistrarManager().getApplicationById(ac.getSession(), parms.readInt("id"));
     }
   },
 
