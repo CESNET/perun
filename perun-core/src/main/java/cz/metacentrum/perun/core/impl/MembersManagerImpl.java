@@ -617,7 +617,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
     MapSqlParameterSource namedParams =
         Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
 
-    String select = getSQLSelectForMembersPage(query);
+    String select = getSQLSelectForMembersPage(query, false);
+    String selectTotalCount = getSQLSelectForMembersPage(query, true);
     String searchQuery = getSQLWhereForMembersPage(query, namedParams);
 
     namedParams.addValue("voId", vo.getId());
@@ -637,9 +638,25 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       groupByQuery += ", users.last_name, users.first_name, groups_members.group_id, groups_members.source_group_id, " +
                       "groups_members.membership_type, groups_members.source_group_status";
     }
+    String extractedQuery =
+        whereBasedOnThePolicy + statusesQueryString + groupStatusesQueryString + searchQuery + groupByQuery;
 
-    return namedParameterJdbcTemplate.query(
-        select + whereBasedOnThePolicy + statusesQueryString + groupStatusesQueryString + searchQuery + groupByQuery +
+    Integer filteredCount;
+    try {
+      filteredCount =
+          namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount(selectTotalCount + extractedQuery),
+          namedParams, Integer.class);
+    } catch (EmptyResultDataAccessException ex) {
+      filteredCount = 0;
+    }
+
+    Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
+    if (newOffset != null) {
+      namedParams.addValue("offset", newOffset);
+      query.setOffset(newOffset);
+    }
+
+    return namedParameterJdbcTemplate.query(select + extractedQuery +
         " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit)",
         namedParams, getPaginatedMembersExtractor(query));
   }
@@ -663,13 +680,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
            " AS members_group ON members.id = members_group.member_id AND members.vo_id = members_group.vo_id";
   }
 
-  private String getSQLSelectForMembersPage(MembersPageQuery query) {
-    String voSelect = "SELECT " + MEMBER_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" +
+  private String getSQLSelectForMembersPage(MembersPageQuery query, boolean selectJustTotalCount) {
+    String voSelect = "SELECT " + (selectJustTotalCount ? "" : MEMBER_MAPPING_SELECT_QUERY + " ,") +
+                      "count(*) OVER() AS total_count" +
                       query.getSortColumn().getSqlSelect() + " FROM members JOIN users ON members.user_id = users.id " +
                       getSQLBasedOnPolicy() + query.getSortColumn().getSqlJoin();
 
-    String groupSelect = "SELECT " + GROUPS_MEMBERS_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" +
-                         query.getSortColumn().getSqlSelect() + "       FROM" +
+    String groupSelect = "SELECT " + (selectJustTotalCount ? "" : GROUPS_MEMBERS_MAPPING_SELECT_QUERY + " ,") +
+                         "count(*) OVER () AS total_count" + query.getSortColumn().getSqlSelect() + " FROM" +
                          "            (SELECT group_id, member_id, min(source_group_status) as source_group_status," +
                          "    min(membership_type) as membership_type, null as source_group_id" +
                          "    FROM groups_members" + "    WHERE group_id = (:groupId)" +

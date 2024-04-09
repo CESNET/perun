@@ -114,6 +114,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.mail.MailException;
@@ -2497,6 +2498,41 @@ public class Utils {
     namedParams.addValue("uesAttributes", attributesToSearchBy.get("uesAttributes"));
 
     return namedParams;
+  }
+
+  /**
+   * Return SQL query with limit for total_count
+   *
+   * @param sql query
+   * @return sql with limit for total_count
+   */
+  public static String limitTotalCount(String sql) {
+    return "select total_count from (" + sql + ") LIMIT 1";
+  }
+
+  /**
+   * This method calculates the correct offset if the offset requested from the client is bigger than the total count
+   * of the found entities. In this case we will want to change the offset to display the last page (considering the
+   * given page size).
+   *
+   * @param filteredCount total count of filtered entities
+   * @param offset requested offset
+   * @param pageSize requested page size
+   *
+   * @return the new value of offset, if it should be changed; null otherwise
+   */
+  public static Integer calculateCorrectSqlOffset(
+      Integer filteredCount,
+      int offset,
+      int pageSize) {
+    if (filteredCount == null || filteredCount == 0) {
+      return 0;
+    } else if (filteredCount <= offset) {
+      int totalPages = (int) Math.ceil((double) filteredCount / pageSize);
+      return (totalPages - 1) * pageSize;
+    } else {
+      return null;
+    }
   }
 
   /**
