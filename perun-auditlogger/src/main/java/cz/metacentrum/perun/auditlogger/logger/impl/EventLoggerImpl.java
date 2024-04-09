@@ -69,10 +69,10 @@ public class EventLoggerImpl implements EventLogger, Runnable {
         int lastId = idString.isEmpty() ? 0 : Integer.parseInt(idString.get(0));
         if (lastId >= 0) {
           this.lastProcessedIdNumber = lastId;
+          LOG.info("Loaded last processed message id={}", lastId);
         } else {
           LOG.error("Wrong number for last processed message id {}, exiting.", idString);
           System.exit(-1);
-
         }
       } catch (IOException exception) {
         LOG.error("Error reading last processed message id from {}", auditLoggerManager.getStateFile(), exception);
@@ -192,7 +192,8 @@ public class EventLoggerImpl implements EventLogger, Runnable {
     try {
       Files.write(file, String.valueOf(lastProcessedIdNumber).getBytes());
     } catch (IOException e) {
-      LOG.error("Error writing last processed message id to file {}", auditLoggerManager.getStateFile(), e);
+      LOG.error("Error writing last processed message id={} to file {}", lastProcessedIdNumber,
+              auditLoggerManager.getStateFile(), e);
     }
   }
 
