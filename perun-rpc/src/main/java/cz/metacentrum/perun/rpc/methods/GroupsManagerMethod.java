@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.ObjectIDMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -26,6 +27,7 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public enum GroupsManagerMethod implements ManagerMethod {
@@ -259,6 +261,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
    *
    * @throw GroupNotExistsException When the group doesn't exist
    * @throw GroupExistsException when the group with the same name already exists in the same vo
+   * @throw ObjectIDMismatchException when IDs in passed group object doesn't match their actual value in Perun
    *
    * @param group Group JSON Group class
    * @return Group Updated group
@@ -268,7 +271,19 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getGroupsManager().updateGroup(ac.getSession(), parms.read("group", Group.class));
+      Group newGroup = parms.read("group", Group.class);
+      Group realGroup = ac.getGroupById(newGroup.getId());
+      // Check IDs
+      if (realGroup.getVoId() != newGroup.getVoId()) {
+        throw new ObjectIDMismatchException("VO ID in passed group object doesn't match the actual value.");
+      }
+      if (!Objects.equals(realGroup.getParentGroupId(), newGroup.getParentGroupId())) {
+        throw new ObjectIDMismatchException("Parent group ID in passed group object doesn't match the actual value.");
+      }
+      // pass group name and description to internal object to safely resolve authorization
+      realGroup.setName(newGroup.getName());
+      realGroup.setDescription(newGroup.getDescription());
+      return ac.getGroupsManager().updateGroup(ac.getSession(), realGroup);
     }
   },
 
