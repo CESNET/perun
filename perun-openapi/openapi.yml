@@ -1071,7 +1071,7 @@ components:
       properties:
         locale: { type: string }
         label: { type: string }
-        options: { type: string }
+        options: { type: string, nullable: true }
         help: { type: string }
         errorMessage: { type: string }
 
@@ -1083,9 +1083,9 @@ components:
         required: { type: boolean }
         updatable: { type: boolean }
         type: { $ref: '#/components/schemas/Type' }
-        federationAttribute: { type: string }
-        perunSourceAttribute: { type: string }
-        perunDestinationAttribute: { type: string }
+        federationAttribute: { type: string, nullable: true }
+        perunSourceAttribute: { type: string, nullable: true }
+        perunDestinationAttribute: { type: string, nullable: true }
         regex: { type: string }
         applicationTypes:
           type: array
@@ -1095,8 +1095,8 @@ components:
         i18n:
           type: object
           additionalProperties: { $ref: '#/components/schemas/ItemTexts' }
-        hiddenDependencyItemId: { type: integer }
-        disabledDependencyItemId: { type: integer }
+        hiddenDependencyItemId: { type: integer, nullable: true }
+        disabledDependencyItemId: { type: integer, nullable: true }
         hidden: { type: string, enum: [ 'NEVER', 'ALWAYS', 'IF_PREFILLED', 'IF_EMPTY' ] }
         disabled: { type: string, enum: [ 'NEVER', 'ALWAYS', 'IF_PREFILLED', 'IF_EMPTY' ] }
         forDelete: { type: boolean }
@@ -2271,6 +2271,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ApplicationForm"
+
+    ApplicationFormItemResponse:
+      description: "returns ApplicationFormItem"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApplicationFormItem"
 
     ListOfApplicationFormItemsResponse:
       description: "returns List<ApplicationFormItem>"
@@ -16655,6 +16662,43 @@ paths:
           $ref: '#/components/responses/ApplicationFormResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/getFormItemById:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getFormItemById
+      summary: Gets a form item by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationFormItemResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/updateFormItemTexts:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: updateFormItemTexts
+      summary: Update label, options, help and error message for specified form item.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateFormItemTexts
+              description: "input to updateFormItemTexts"
+              type: object
+              properties:
+                formItem: { $ref: '#/components/schemas/ApplicationFormItem' }
+                locale: { type: string, nullable: true }
 
   /json/registrarManager/getFormItems/vo:
     get:
