@@ -389,7 +389,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     try {
       int numberOfRequests = jdbc.queryForInt("select count(1) from pwdreset where uu_id=?", uuid);
       if (numberOfRequests == 0) {
-        throw new PasswordResetLinkNotValidException("Password request " + uuid + " doesn't exist.");
+        throw new PasswordResetLinkNotValidException("Password reset request " + uuid + " doesn't exist.");
       } else if (numberOfRequests > 1) {
         throw new ConsistencyErrorException("Password reset request " + uuid + " exists more than once.");
       }
