@@ -17,6 +17,7 @@ import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuditMessage;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Group;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +68,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
   private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
   private static final String AUDIT_MESSAGE_MAPPING_SELECT_QUERY = "id, msg, actor, created_at, created_by_uid";
 
+  private static final int AUDITLOG_READ_LIMIT = BeansUtils.getCoreConfig().getAuditlogReadLimit();
   private static final int PAGE_COUNT_PRECISION = 1000;
   private static final RowMapper<AuditEvent> AUDIT_EVENT_MAPPER = new RowMapper<AuditEvent>() {
     @Override
@@ -321,34 +324,6 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
   }
 
   @Override
-  public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) {
-
-    checkAuditerConsumerExists(perunSession, consumerName);
-
-    try {
-
-      List<AuditEvent> eventList = new ArrayList<>();
-
-      int lastProcessedId = getLastProcessedId(consumerName);
-      int maxId = getLastMessageId(perunSession);
-      if (maxId > lastProcessedId) {
-        // get events
-        eventList = jdbc.query(
-            "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY + " from auditer_log where id > ? and id <= ? order by id",
-            AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
-        // update counter
-        setLastProcessedId(perunSession, consumerName, maxId);
-      }
-
-      return eventList;
-
-    } catch (Exception ex) {
-      throw new InternalErrorException(ex);
-    }
-
-  }
-
-  @Override
   public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) {
 
     checkAuditerConsumerExists(perunSession, consumerName);
@@ -361,8 +336,8 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
       if (maxId > lastProcessedId) {
         // get events
         eventList = jdbc.query(
-            "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY + " from auditer_log where id > ? and id <= ? order by id",
-            AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
+            "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY + " from auditer_log where id > ? order by id limit ?",
+            AUDIT_EVENT_MAPPER, lastProcessedId, AUDITLOG_READ_LIMIT);
       }
 
       return eventList;
@@ -387,10 +362,11 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
       if (maxId > lastProcessedId) {
         // get messages
         messages = jdbc.query(
-            "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY + " from auditer_log where id > ? and id <= ? order by id",
-            AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
+            "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY + " from auditer_log where id > ? order by id limit ?",
+            AUDIT_MESSAGE_MAPPER, lastProcessedId, AUDITLOG_READ_LIMIT);
         // update counter
-        setLastProcessedId(perunSession, consumerName, maxId);
+        int currentLastId = messages.stream().max(Comparator.comparingInt(AuditMessage::getId)).orElseThrow().getId();
+        setLastProcessedId(perunSession, consumerName, currentLastId);
       }
       return messages;
     } catch (Exception ex) {
@@ -411,8 +387,8 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
       if (maxId > lastProcessedId) {
         // get messages
         messages = jdbc.query(
-            "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY + " from auditer_log where id > ? and id <= ? order by id",
-            AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
+            "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY + " from auditer_log where id > ? order by id limit ?",
+            AUDIT_MESSAGE_MAPPER, lastProcessedId, AUDITLOG_READ_LIMIT);
       }
       return messages;
     } catch (Exception ex) {

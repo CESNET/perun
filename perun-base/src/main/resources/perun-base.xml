@@ -98,6 +98,7 @@
         <property name="idpLoginValidity" value="${perun.idpLoginValidity}"/>
         <property name="idpLoginValidityExceptions" value="#{'${perun.idpLoginValidityExceptions}'.split('\s*,\s*')}"/>
         <property name="forceHtmlSanitization" value="${perun.forceHtmlSanitization}"/>
+        <property name="auditlogReadLimit" value="${perun.auditlogReadLimit}"/>
     </bean>
 
 
@@ -210,6 +211,7 @@
                 <prop key="perun.introspectionEndpoint.mfaAcrValue">https://refeds.org/profile/mfa</prop>
                 <prop key="perun.enforceMfa">false</prop>
                 <prop key="perun.forceHtmlSanitization">false</prop>
+                <prop key="perun.auditlogReadLimit">10000</prop>
             </props>
         </property>
     </bean>

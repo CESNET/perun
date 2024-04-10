@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -16,6 +15,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher;
 import cz.metacentrum.perun.ldapc.processor.EventProcessor;
@@ -151,7 +151,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 
     try {
       PerunSession perunSession = ldapcManager.getPerunSession();
-      Perun perun = ldapcManager.getPerunBl();
+      PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 
       if (lastProcessedIdNumber == 0) {
         loadLastProcessedId();
@@ -167,10 +167,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
         do {
           try {
             //IMPORTANT STEP1: Get new bulk of messages
-            messages = perun.getAuditMessagesManager()
+            messages = perun.getAuditMessagesManagerBl()
                 .pollConsumerMessages(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedIdNumber);
-            // Rpc.AuditMessagesManager.pollConsumerMessages(ldapcManager.getRpcCaller(), ldapProperties
-            // .getLdapConsumerName());
           } catch (InternalErrorException ex) {
             LOG.error("Consumer failed due to {}. Sleeping for {} ms.", ex, sleepTime);
             Thread.sleep(sleepTime);
