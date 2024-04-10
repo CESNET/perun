@@ -227,7 +227,7 @@ public class JsonClient {
 
               }
 
-            } else if (resp.getStatusCode() == 503) {
+            } else if (resp.getStatusCode() == 503 || resp.getStatusCode() == 502) {
 
               error.setName("Server Temporarily Unavailable");
               error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
