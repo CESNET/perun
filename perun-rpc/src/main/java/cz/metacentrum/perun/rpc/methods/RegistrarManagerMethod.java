@@ -595,6 +595,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * Return form item by its ID, you must be authorized to manipulate the form.
    *
    * @param id int ID of application form item
+   * @return ApplicationFormItem item of application form
    */
   getFormItemById {
     @Override
