@@ -1,17 +1,13 @@
 package cz.metacentrum.perun.core.impl;
 
-import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_SYNC_DEFAULT_DATA;
-
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.sql.DataSource;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -169,97 +164,58 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
         try (ResultSet rs = st.executeQuery()) {
           List<Map<String, String>> subjects = new ArrayList<>();
           LOG.trace("Query {}", query);
+          ResultSetMetaData metaData = rs.getMetaData();
+          List<ColumnMapping> columnMappings = new ArrayList<>(metaData.getColumnCount());
+          for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            String columnName = metaData.getColumnLabel(i);
+            String baseName = matchingGroupColumnName(columnName);
+            if (baseName != null) {
+              columnMappings.add(new ColumnMapping(i, baseName, false));
+            } else if (columnName.contains(":")) {
+              // Decode the attribute name (column name has limited size, so we need to code the attribute names)
+              // Coded attribute name: x:y:z
+              // x - m: member, u: user, f: facility, r: resource, mr: member-resource,
+              //     uf: user-facility, h: host, v: vo, g: group, gr: group-resource
+              // y - d: def, o: opt
+              String[] attributeRaw = columnName.split(":", 3);
+              if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[0])) {
+                LOG.warn("Unknown attribute type '{}', column {}", attributeRaw[0], columnName);
+              } else if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[1])) {
+                LOG.warn("Unknown attribute type '{}', column {}", attributeRaw[1], columnName);
+              } else {
+                String attributeName = ATTRIBUTE_NAME_MAPPING.get(attributeRaw[0]) +
+                        ATTRIBUTE_NAME_MAPPING.get(attributeRaw[1]) + attributeRaw[2];
+                boolean blob = "BLOB".equals(metaData.getColumnTypeName(i));
+                columnMappings.add(new ColumnMapping(i, attributeName, blob));
+              }
+            }
+          }
           while (rs.next()) {
             Map<String, String> map = new HashMap<>();
-            GROUP_SYNC_DEFAULT_DATA.forEach(column -> map.put(column, readGroupSyncRequiredData(rs, column)));
-            map.putAll(parseAdditionalAttributeData(rs));
+            for (ColumnMapping columnMapping : columnMappings) {
+              if (columnMapping.blob) {
+                try (InputStream in = rs.getBinaryStream(columnMapping.columnIndex)) {
+                  map.put(columnMapping.attributeName, Base64.encodeBase64String(StreamUtils.copyToByteArray(in)));
+                } catch (IOException ex) {
+                  throw new InternalErrorException("Unable to read BLOB data for column: " +
+                          columnMapping.attributeName, ex);
+                }
+              } else {
+                map.put(columnMapping.attributeName, rs.getString(columnMapping.columnIndex));
+              }
+            }
             subjects.add(map);
           }
-
           LOG.debug("Returning {} subjects from external source {}", subjects.size(), this);
           return subjects;
-        } catch (SQLException e) {
-          LOG.error("SQL exception during searching for subject '{}'", query);
-          throw new InternalErrorException(e);
         }
       } catch (SQLException e) {
-        LOG.error("SQL exception during the preparation of query statement '{}'", query);
+        LOG.error("SQL exception during search for subject '{}'", query);
         throw new InternalErrorException(e);
       }
     } catch (SQLException e) {
       LOG.error("Cannot get connection from pool", e);
       throw new InternalErrorException(e);
-    }
-  }
-
-  /**
-   * Decodes a full attribute name from the given value. For used mappings, see attributeNameMapping.
-   *
-   * @param value which will be mapped
-   * @return attribute full name
-   */
-  private String mapAttributeNames(String value) {
-    String[] attributeRaw = value.split(":", 3);
-    String attributeName = null;
-    if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[0])) {
-      LOG.warn("Unknown attribute type '{}', attributeRaw {}", attributeRaw[0], attributeRaw);
-    } else if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[1])) {
-      LOG.warn("Unknown attribute type '{}', attributeRaw {}", attributeRaw[1], attributeRaw);
-    } else {
-      attributeName =
-          ATTRIBUTE_NAME_MAPPING.get(attributeRaw[0]) + ATTRIBUTE_NAME_MAPPING.get(attributeRaw[1]) + attributeRaw[2];
-    }
-    return attributeName;
-  }
-
-  /**
-   * Parse additional data from the given result set.
-   *
-   * @param rs result set with attribute data
-   * @throws SQLException SQLException
-   */
-  private Map<String, String> parseAdditionalAttributeData(ResultSet rs) throws SQLException {
-    Map<String, String> additionalAttributes = new HashMap<>();
-    for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-      String columnName = rs.getMetaData().getColumnLabel(i);
-      if (columnName.contains(":")) {
-        String attrName = mapAttributeNames(columnName);
-        String attributeValue;
-        if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
-          attributeValue = parseBlobValue(rs.getBinaryStream(i), columnName);
-        } else {
-          // let driver convert the type to string
-          attributeValue = rs.getString(i);
-        }
-        additionalAttributes.put(attrName, attributeValue);
-      }
-    }
-    return additionalAttributes;
-  }
-
-  /**
-   * Parse blob value from given input stream.
-   *
-   * @param inputStream input stream with a blob value
-   * @param columnName  name of the column to which the blob belongs
-   * @return parsed value
-   */
-  private String parseBlobValue(InputStream inputStream, String columnName) {
-    if (inputStream == null) {
-      return null;
-    }
-    try {
-      ByteArrayOutputStream result = new ByteArrayOutputStream();
-      byte[] buffer = new byte[1024];
-      int length;
-      while ((length = inputStream.read(buffer)) != -1) {
-        result.write(buffer, 0, length);
-      }
-      byte[] bytes = Base64.encodeBase64(result.toByteArray());
-      return new String(bytes, StandardCharsets.UTF_8);
-    } catch (IOException ex) {
-      LOG.error("Unable to read BLOB for column {}", columnName);
-      throw new InternalErrorException("Unable to read BLOB data for column: " + columnName, ex);
     }
   }
 
@@ -341,22 +297,6 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
     } catch (SQLException e) {
       LOG.error("Cannot get connection from pool", e);
       throw new InternalErrorException(e);
-    }
-  }
-
-  /**
-   * Read data from rs from specified column. If the column doesn't exist, a null is returned.
-   *
-   * @param rs     result rest
-   * @param column column
-   * @return column data or null if column doesn't exist
-   */
-  private String readGroupSyncRequiredData(ResultSet rs, String column) {
-    try {
-      return rs.getString(column);
-    } catch (SQLException e) {
-      // If the column doesn't exist, ignore it
-      return null;
     }
   }
 
