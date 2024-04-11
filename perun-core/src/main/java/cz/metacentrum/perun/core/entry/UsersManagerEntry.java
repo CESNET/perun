@@ -143,7 +143,7 @@ public class UsersManagerEntry implements UsersManager {
 
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "addUserExtSource_User_UserExtSource_policy",
-        Arrays.asList(user, userExtSource))) {
+        List.of(user))) {
       throw new PrivilegeException(sess, "addUserExtSource");
     }
 
