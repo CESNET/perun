@@ -1173,8 +1173,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     String selectWithMembers = "SELECT " + USER_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" +
                                    " FROM users LEFT JOIN members on members.user_id = users.id";
 
-
-    return !query.isWithoutVo() && isEmpty(query.getSearchString()) ? select : selectWithMembers;
+    if (!isEmpty(query.getSearchString())) {
+      return selectWithMembers;
+    }
+    return select;
   }
 
   private String getSQLWhereForFacility(UsersPageQuery query, MapSqlParameterSource namedParams) {
@@ -1658,7 +1660,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   private String getWithoutVoSQLConditionForUsersPage(UsersPageQuery query) {
     String withoutVoQueryString = "";
     if (query.isWithoutVo()) {
-      withoutVoQueryString = " WHERE users.id not in (select user_id from members) ";
+      withoutVoQueryString = " WHERE NOT EXISTS (SELECT user_id FROM members WHERE members.user_id = users.id)";
     }
     return withoutVoQueryString;
   }
