@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource
    * @return short name of user attribute which is destination for collected values
    */
   public abstract String getDestinationAttributeFriendlyName();
+
 
   /**
    * Specifies friendly (short) name of attribute from namespace urn:perun:ues:attribute-def:def whose values are to be
@@ -87,6 +90,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource
 
     String sourceAttributeFriendlyName = getSourceAttributeFriendlyName();
     List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+    userExtSources = userExtSources.stream().filter(this.getExtSourceFilter(sess)).collect(Collectors.toList());
     AttributesManagerBl am = sess.getPerunBl().getAttributesManagerBl();
 
     for (UserExtSource userExtSource : userExtSources) {
@@ -96,16 +100,27 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource
       try {
         String sourceAttributeName = getSourceAttributeName();
         Attribute a = am.getAttribute(sess, userExtSource, sourceAttributeName);
-        Object value = a.getValue();
-        if (value != null && value instanceof String) {
+        String extLogin = null;
+        if (getAlsoExtLogin(sess)) {
+          extLogin = userExtSource.getLogin();
+        }
+        Object value = a.getValue() != null ? a.getValue() : new ArrayList<>();
+        a.setValue(value);
+        if (value instanceof String) {
+          value = extLogin != null && !extLogin.isEmpty() ? value + ";" + extLogin : value;
           //Apache mod_shib joins multiple values with ';', split them again
           String[] rawValues = ((String) value).split(";");
           //add non-null values returned by modifyValue()
-          Arrays.stream(rawValues).map(v -> modifyValue(sess, ctx, userExtSource, v)).filter(Objects::nonNull)
+          Arrays.stream(rawValues).map(v -> modifyValue(sess, ctx, userExtSource, v)).filter(getValueFilter(sess))
               .forEachOrdered(valuesWithoutDuplicities::add);
-        } else if (value != null && value instanceof ArrayList) {
+        } else if (value instanceof ArrayList) {
+          if (extLogin != null && !extLogin.isEmpty()) {
+            List<String> listValue = a.valueAsList();
+            listValue.add(extLogin);
+            a.setValue(listValue);
+          }
           //If values are already separated to list of strings
-          a.valueAsList().stream().map(v -> modifyValue(sess, ctx, userExtSource, v)).filter(Objects::nonNull)
+          a.valueAsList().stream().map(v -> modifyValue(sess, ctx, userExtSource, v)).filter(getValueFilter(sess))
               .forEachOrdered(valuesWithoutDuplicities::add);
         }
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
@@ -174,6 +189,33 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource
     return AttributesManager.NS_UES_ATTR_DEF + ":" + getSourceAttributeFriendlyName();
   }
 
+  /**
+   * Override this method to return true to also collect logins from the user ext sources.
+   *
+   * @return boolean value indicating whether to also collect logins
+   */
+  protected boolean getAlsoExtLogin(PerunSessionImpl sess) {
+    return false;
+  }
+
+  /**
+   * Override this method to filter the collected values.
+   *
+   * @return regex by which the collected values will be filtered.
+   */
+  protected Predicate<String> getValueFilter(PerunSessionImpl sess) {
+    return Objects::nonNull;
+  }
+
+  /**
+   * Override this method to filter the user ext sources (collect the value from the UES only if it passes the filter).
+   *
+   * @return UES predicate serving as a filter
+   */
+  protected Predicate<UserExtSource> getExtSourceFilter(PerunSessionImpl sess) {
+    return ues -> true;
+  }
+
   protected T initModifyValueContext(PerunSessionImpl sess, User user,
                                      AttributeDefinition destinationAttributeDefinition) {
     //noinspection unchecked
@@ -186,7 +228,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource
    * @param ues user extsource to be checked
    * @return true if ues is of type IdP and its last access is not outdated, false otherwise
    */
-  private boolean isLastAccessValid(UserExtSource ues) {
+  protected boolean isLastAccessValid(UserExtSource ues) {
     if (!ExtSourcesManager.EXTSOURCE_IDP.equals(ues.getExtSource().getType())) {
       return true;
     }
