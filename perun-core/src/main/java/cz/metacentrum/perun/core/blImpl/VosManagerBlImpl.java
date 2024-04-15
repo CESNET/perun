@@ -516,7 +516,7 @@ public class VosManagerBlImpl implements VosManagerBl {
       // Delete all Vo tags (for resources in Vo)
       getPerunBl().getResourcesManagerBl().deleteAllResourcesTagsForVo(sess, vo);
 
-    } catch (Exception ex) {
+    } catch (PerunException ex) {
       throw new InternalErrorException(ex);
     }
 
