@@ -97,6 +97,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
       int lastId = idString.isEmpty() ? 0 : Integer.parseInt(idString.get(0));
       if (lastId >= 0) {
         this.lastProcessedIdNumber = lastId;
+        LOG.info("Loaded last processed message id={}", lastId);
       } else {
         LOG.error("Wrong number for last processed message id {}, exiting.", idString);
         System.exit(-1);
@@ -231,7 +232,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     try {
       Files.write(file, String.valueOf(lastProcessedIdNumber).getBytes());
     } catch (IOException e) {
-      LOG.error("Error writing last processed message id to file {}", ldapProperties.getLdapStateFile(), e);
+      LOG.error("Error writing last processed message id={} to file {}", lastProcessedIdNumber,
+              ldapProperties.getLdapStateFile(), e);
     }
   }
 

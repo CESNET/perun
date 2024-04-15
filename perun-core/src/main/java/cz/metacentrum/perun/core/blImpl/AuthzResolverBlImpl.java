@@ -89,6 +89,7 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import cz.metacentrum.perun.registrar.model.Application;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -683,7 +684,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    */
   public static List<User> getAdmins(PerunSession sess, PerunBean complementaryObject, String role,
                                      boolean onlyDirectAdmins) throws RoleCannotBeManagedException {
-
     if (!objectAndRoleManageableByEntity(USER_OBJECT_TYPE, complementaryObject, role)) {
       throw new RoleCannotBeManagedException(role, complementaryObject);
     }
@@ -1039,7 +1039,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   public static List<RichUser> getRichAdmins(PerunSession sess, PerunBean complementaryObject,
                                              List<String> specificAttributes, String role, boolean onlyDirectAdmins,
                                              boolean allUserAttributes) throws RoleCannotBeManagedException {
-
     if (!objectAndRoleManageableByEntity(USER_OBJECT_TYPE, complementaryObject, role)) {
       throw new RoleCannotBeManagedException(role, complementaryObject);
     }
@@ -1068,6 +1067,28 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
 
     return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, richAdminsWithAttributes);
+  }
+
+  /**
+   * Check if some valid user with specific role exists for given complementary object (for group-based rights, status
+   * must be VALID for both Vo and group).
+   *
+   * @param sess                perun session
+   * @param complementaryObject for which we will find administrator
+   * @param role                expected role to filter managers by
+   * @param onlyDirectAdmins    if true, search only direct user admins (if false, search both direct and indirect)
+   * @return true, if some user with required role exists, false otherwise.
+   */
+  public static boolean someAdminExists(PerunSession sess, PerunBean complementaryObject, String role,
+                                        boolean onlyDirectAdmins) throws RoleCannotBeManagedException {
+
+    if (!objectAndRoleManageableByEntity(USER_OBJECT_TYPE, complementaryObject, role)) {
+      throw new RoleCannotBeManagedException(role, complementaryObject);
+    }
+
+    Map<String, Integer> mappingOfValues = createMappingToReadRoleOnObject(complementaryObject, role);
+
+    return authzResolverImpl.someAdminExists(mappingOfValues, onlyDirectAdmins);
   }
 
   /**

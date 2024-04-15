@@ -1,0 +1,10 @@
+extends: [[spectral:oas, recommended], [vacuum:owasp, all]]
+rules:
+    owasp-array-limit: false
+    owasp-integer-format: false
+    owasp-integer-limit: false
+    owasp-no-http-basic: "warn"
+    owasp-no-numeric-ids: false
+    owasp-rate-limit: false
+    owasp-string-limit: false
+    owasp-string-restricted: false

@@ -15,9 +15,11 @@ import perun.cli.listOfMyVos
 import perun.cli.listOfUserRoles
 import perun.cli.listOfVos
 import perun.cli.testAttributeValues
+import perun.cli.updateApplicationFormItem
 
 # see https://typer.tiangolo.com/tutorial/
 app = typer.Typer(add_completion=False)
+app.command(name="updateApplicationFormItem")(perun.cli.updateApplicationFormItem.main)
 app.command(name="getFacilitiesByAttribute")(perun.cli.getFacilitiesByAttribute.main)
 app.command(name="getFacilitiesByAttributeWA")(
     perun.cli.getFacilitiesByAttributeWA.main

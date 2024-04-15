@@ -188,6 +188,16 @@ public interface AuthzResolverImplApi {
   List<User> getAdmins(Map<String, Integer> mappingOfValues, boolean onlyDirectAdmins);
 
   /**
+   * Check if some valid user with specific role exists for given complementary object (for group-based rights, status
+   * must be VALID for both Vo and group).
+   *
+   * @param mappingOfValues  from which will be the query created (keys are column names and values are their ids)
+   * @param onlyDirectAdmins if true, search only direct user administrators (if false, search both direct and indirect)
+   * @return true, if some user with required role exists, false otherwise.
+   */
+  boolean someAdminExists(Map<String, Integer> mappingOfValues, boolean onlyDirectAdmins);
+
+  /**
    * Get all Facilities where the given user has set one of the given roles or the given user is a member of an
    * authorized group with such roles.
    *

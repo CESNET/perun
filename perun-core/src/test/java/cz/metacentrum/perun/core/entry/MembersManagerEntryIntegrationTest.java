@@ -4574,4 +4574,42 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     membersManagerEntry.setStatus(sess, disabledMember, Status.VALID);
     assertThat(perun.getGroupsManagerBl().getGroupMembers(sess, resultGroup).size()).isEqualTo(4);
   }
+
+  @Test
+  public void getAvailableSponsorsForMember() throws Exception {
+    System.out.println(CLASS_NAME + "getAvailableSponsorsForMember");
+
+    Vo vo = setUpVo("TestVo");
+    Member member = setUpMember(vo, "Test", "Member");
+
+    User sponsor1 = perun.getUsersManagerBl().createUser(sess, new User(-1, "User1", "Test1", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor1, vo, Role.SPONSOR);
+
+    User sponsor2 = perun.getUsersManagerBl().createUser(sess, new User(-2, "User2", "Test2", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor2, vo, Role.SPONSOR);
+
+    member.setSponsored(true);
+    membersManagerEntry.sponsorMember(sess, member, sponsor2, null);
+
+    assertThat(membersManagerEntry.getAvailableSponsorsForMember(sess, member)).containsExactly(sponsor1);
+  }
+
+  @Test
+  public void someAvailableSponsorExistsForMember() throws Exception {
+    System.out.println(CLASS_NAME + "someAvailableSponsorExistsForMember");
+
+    Vo vo = setUpVo("TestVo");
+    Member member = setUpMember(vo, "Test", "Member");
+
+    User sponsor1 = perun.getUsersManagerBl().createUser(sess, new User(-1, "User1", "Test1", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor1, vo, Role.SPONSOR);
+
+    User sponsor2 = perun.getUsersManagerBl().createUser(sess, new User(-2, "User2", "Test2", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor2, vo, Role.SPONSOR);
+
+    member.setSponsored(true);
+    membersManagerEntry.sponsorMember(sess, member, sponsor2, null);
+
+    assertTrue(membersManagerEntry.someAvailableSponsorExistsForMember(sess, member));
+  }
 }
