@@ -1,5 +1,26 @@
 Upgrade notes
 
+## [34.4.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.3.3...v34.4.0) (2024-04-15)
+
+
+### Features
+
+* **core:** extend eduPersonORCID attribute ([259c617](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/259c6173af8d42c7075cbaa0682a4c167f5893ff))
+* **core:** sponsor optimization ([a444fb7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a444fb7951c8812bdc8983a86491dc64a94e6d1b))
+* **openapi:** described methods for getting and updating a form item ([48cbaf4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/48cbaf46474ca82d221815ca70919fdcd5dcd073))
+
+
+### Bug Fixes
+
+* **core:** assign category for publications with categoryId=0 ([8abcf3b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8abcf3bb1e2bb2fdbc0c1f493e81108567dfd5bd))
+* **core:** do not check mfa for not yet created ues ([16d55a3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/16d55a32640c17a7a194de126bce622eb1806193))
+* **core:** json mapping for groups in ExtSourceIT4I ([6befecb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6befecb3b6643b0f306b44d877597f0bba641904))
+* **core:** json mapping in ExtSourceIT4I ([9a7c4a7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9a7c4a70a48dbe4225085024d769412b9bfeef8f))
+* **core:** log last processed message ID in LDAPc and Auditlogger ([1739194](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1739194d496513829497d1b3bd2384d777ea913b))
+* **core:** proper authorization when updating group ([0ea8092](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0ea809246ebbcef1406e928595b849b88ce61c8a))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.7.2 ([e486e06](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e486e069dce1db1f87be5fbe2133afcee1c0e2c0))
+* **gui:** handle both 503 a 502 http codes the same ([418f408](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/418f408d2dfcf0a6038764d18c4a9af06a3a3d79))
+
 ## [34.3.3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.3.2...v34.3.3) (2024-04-05)
 
 
