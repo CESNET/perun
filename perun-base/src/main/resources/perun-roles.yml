@@ -115,6 +115,8 @@
 #
 # PROXY role is dedicated to service account updating user extsources and working with facilities.
 #
+# SERVICEACCOUNTCREATOR user or group with this role can create service accounts in the given VO.
+#
 # UNKNOWN exists, but it is not used in Perun.
 #
 
@@ -150,6 +152,7 @@ perun_roles:
   - PASSWORDRESETMANAGER
   - MEMBERSHIP
   - PROXY
+  - SERVICEACCOUNTCREATOR
   - UNKNOWN
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
@@ -2826,6 +2829,7 @@ perun_policies:
   createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy:
     policy_roles:
       - VOADMIN: Vo
+      - SERVICEACCOUNTCREATOR: Vo
     include_policies:
       - default_policy
     mfa_rules:
@@ -3044,6 +3048,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SERVICEACCOUNTCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -3108,6 +3113,7 @@ perun_policies:
       - VOADMIN: Vo
       - SPONSOR: Vo
       - SPONSORNOCREATERIGHTS: Vo
+      - SERVICEACCOUNTCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -3121,6 +3127,7 @@ perun_policies:
       - VOADMIN: Vo
       - SPONSOR: Vo
       - SPONSORNOCREATERIGHTS: Vo
+      - SERVICEACCOUNTCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -3416,6 +3423,7 @@ perun_policies:
     policy_roles:
       - SELF: User
       - VOADMIN: Vo
+      - SERVICEACCOUNTCREATOR: Vo
     include_policies:
       - default_policy
     mfa_rules:
@@ -6632,6 +6640,8 @@ perun_policies:
   service_user-reserveRandomPassword_User_String_policy:
     policy_roles:
       - VOADMIN:
+      - SERVICEACCOUNTCREATOR:
+      - SELF: User
     include_policies:
       - default_policy
     mfa_rules:
@@ -6656,6 +6666,8 @@ perun_policies:
   service_user-reservePassword_User_String_String_policy:
     policy_roles:
       - VOADMIN:
+      - SERVICEACCOUNTCREATOR:
+      - SELF: User
     include_policies:
       - default_policy
     mfa_rules:
@@ -6681,6 +6693,8 @@ perun_policies:
   service_user-validatePassword_User_String_policy:
     policy_roles:
       - VOADMIN:
+      - SERVICEACCOUNTCREATOR:
+      - SELF: User
     include_policies:
       - default_policy
     mfa_rules:
@@ -6853,6 +6867,7 @@ perun_policies:
     policy_roles:
       - REGISTRAR:
       - VOADMIN:
+      - SERVICEACCOUNTCREATOR:
     include_policies:
       - default_policy
 
@@ -6921,7 +6936,7 @@ perun_policies:
       - default_policy
 
   createServiceUser_policy:
-    policy_roles: [ ]
+    policy_roles: []
     include_policies:
       - default_policy
 
@@ -7000,6 +7015,7 @@ perun_policies:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
+      - SERVICEACCOUNTCREATOR:
       - SPONSORNOCREATERIGHTS:
     include_policies:
       - default_policy
@@ -7019,6 +7035,7 @@ perun_policies:
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
       - SPONSORNOCREATERIGHTS: Vo
+      - SERVICEACCOUNTCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -9109,6 +9126,29 @@ perun_roles_management:
     assignable_to_attributes: true
     skip_mfa: true
     display_name: "Proxy"
+
+  SERVICEACCOUNTCREATOR:
+    primary_object: Vo
+    assign_to_objects:
+      Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    associated_read_roles: [ ]
+    assignable_to_attributes: true
+    display_name: "Service account creator"
 
   UNKNOWN:
     primary_object:

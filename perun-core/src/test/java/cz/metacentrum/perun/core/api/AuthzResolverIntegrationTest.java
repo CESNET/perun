@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
@@ -2170,6 +2171,21 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
     assertTrue(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.READ, attrDef, createdGroup, false));
     assertFalse(AuthzResolver.isAuthorizedForAttribute(session, AttributeAction.WRITE, attrDef, createdGroup, false));
+  }
+
+  @Test
+  public void testServiceAccountCreatorRole() throws Exception {
+    System.out.println(CLASS_NAME + "createServiceAccountIsServiceAccountCreator");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    PerunSession session = getHisSession(createdMember);
+    AuthzResolver.setRole(sess, createdUser, createdVo, Role.SERVICEACCOUNTCREATOR);
+
+    AuthzResolver.refreshAuthz(session);
+    assertTrue(
+        AuthzResolver.authorizedInternal(session, "test_service_account_creator_role", Arrays.asList(createdVo)));
   }
 
 }

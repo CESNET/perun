@@ -3685,7 +3685,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    * @param user                the user for setting role
    * @param role                role of user in a session ( PERUNADMIN | PERUNADMINBA | VOADMIN | GROUPADMIN | SELF |
    *                            FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | SECURITYADMIN | RESOURCESELFSERVICE |
-   *                            RESOURCEADMIN )
+   *                            RESOURCEADMIN | SERVICEACCOUNTCREATOR )
    * @param complementaryObject object for which role will be set
    */
   public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, String role)
@@ -3780,7 +3780,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    * @param sess                perun session
    * @param user                the user for unsetting role
    * @param role                role of user in a session ( PERUNADMIN | PERUNADMINBA | VOADMIN | GROUPADMIN | SELF |
-   *                            FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
+   *                            FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN |
+   *                            SERVICEACCOUNTCREATOR)
    * @param complementaryObject object for which role will be unset
    */
   public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, String role)
