@@ -4159,4 +4159,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       LOG.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
     }
   }
+
+  @Override
+  public boolean someAvailableSponsorExistsForMember(PerunSession sess, Member member) {
+    return membersManagerImpl.someAvailableSponsorExistsForMember(sess, member);
+  }
+
+  @Override
+  public List<User> getAvailableSponsorsForMember(PerunSession sess, Member member) {
+    return membersManagerImpl.getAvailableSponsorsForMember(sess, member);
+  }
 }

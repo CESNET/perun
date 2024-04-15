@@ -1727,6 +1727,30 @@ public interface MembersManager {
       throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
   /**
+   * Checks if some vo sponsor who does not already sponsor given member exists.
+   *
+   * @param sess   perun session
+   * @param member member
+   * @return true if available sponsor exists, false otherwise
+   * @throws MemberNotExistsException when member does not exist
+   * @throws PrivilegeException       insufficient permissions
+   */
+  boolean someAvailableSponsorExistsForMember(PerunSession sess, Member member)
+      throws MemberNotExistsException, PrivilegeException;
+
+  /**
+   * Returns all available sponsors for given member.
+   *
+   * @param sess   perun session
+   * @param member member
+   * @return list of available sponsors
+   * @throws MemberNotExistsException when member does not exist
+   * @throws PrivilegeException       insufficient permissions
+   */
+  List<User> getAvailableSponsorsForMember(PerunSession sess, Member member)
+      throws MemberNotExistsException, PrivilegeException;
+
+  /**
    * Set date to which will be member suspended in his VO.
    * <p>
    * For almost unlimited time please use time in the far future.

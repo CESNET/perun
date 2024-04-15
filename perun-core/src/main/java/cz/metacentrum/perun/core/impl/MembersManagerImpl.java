@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
+import static cz.metacentrum.perun.core.impl.GroupsManagerImpl.GROUP_MAPPER;
+import static cz.metacentrum.perun.core.impl.GroupsManagerImpl.GROUP_MAPPING_SELECT_QUERY;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USEREXTSOURCE_MAPPER;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_EXT_SOURCE_MAPPING_SELECT_QUERY;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_MAPPER;
@@ -10,6 +12,7 @@ import cz.metacentrum.perun.core.api.AssignedMember;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupResourceStatus;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
@@ -23,6 +26,7 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -40,6 +44,7 @@ import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -1030,6 +1035,73 @@ public class MembersManagerImpl implements MembersManagerImplApi {
         sponsor.getId());
     if (rows == 0) {
       throw new SponsorshipDoesNotExistException(sponsoredMember, sponsor);
+    }
+  }
+
+  @Override
+  public boolean someAvailableSponsorExistsForMember(PerunSession sess, Member member) {
+    try {
+      int sponsorRoleId = jdbc.queryForInt("select id from roles where name=?", Role.SPONSOR.toLowerCase());
+
+      boolean availableSponsorExists = !jdbc.query(
+          "select " + USER_MAPPING_SELECT_QUERY +
+              " from authz join users on authz.user_id=users.id where authz.role_id=? and authz.vo_id=? and" +
+              " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id) limit 1",
+          USER_MAPPER, sponsorRoleId, member.getVoId(), member.getId()).isEmpty();
+
+      if (!availableSponsorExists) {
+        List<Group> sponsorGroups =
+            AuthzResolverBlImpl.getAdminGroups(new Vo(member.getVoId(), "DummyVo", "DummyVo"), Role.SPONSOR);
+
+        for (Group group : sponsorGroups) {
+          availableSponsorExists = availableSponsorExists ||
+                                       !jdbc.query("select " + USER_MAPPING_SELECT_QUERY +
+                                                       " from users join members on users.id=members.user_id " +
+                                                       "join groups_members on groups_members.member_id=members.id " +
+                                                       "where groups_members.group_id=? and members.status=? and " +
+                                                       "groups_members.source_group_status=? and not exists(select 1 " +
+                                                       "from members_sponsored where sponsored_id=? " +
+                                                       "and sponsor_id=users.id) limit 1",
+                                           UsersManagerImpl.USER_MAPPER, group.getId(), Status.VALID.getCode(),
+                                           MemberGroupStatus.VALID.getCode(),
+                                           member.getId()).isEmpty();
+        }
+      }
+
+      return availableSponsorExists;
+    } catch (RuntimeException | RoleCannotBeManagedException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<User> getAvailableSponsorsForMember(PerunSession sess, Member member) {
+    try {
+      int sponsorId = jdbc.queryForInt("select id from roles where name=?", Role.SPONSOR.toLowerCase());
+
+      Set<User> sponsors = new HashSet<>(jdbc.query(
+          "select " + USER_MAPPING_SELECT_QUERY +
+              " from authz join users on authz.user_id=users.id where authz.role_id=? and authz.vo_id=? and" +
+              " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id)",
+          USER_MAPPER, sponsorId, member.getVoId(), member.getId()));
+
+      List<Group> sponsorGroups =
+          AuthzResolverBlImpl.getAdminGroups(new Vo(member.getVoId(), "DummyVo", "DummyVo"), Role.SPONSOR);
+
+      for (Group group : sponsorGroups) {
+        sponsors.addAll(jdbc.query("select " + USER_MAPPING_SELECT_QUERY +
+                                       " from users join members on users.id=members.user_id " +
+                                       "join groups_members on groups_members.member_id=members.id " +
+                                       "where groups_members" + ".group_id=? and " + "members.status=? and " +
+                                       "groups_members.source_group_status=? and not exists(select 1 from " +
+                                       "members_sponsored where sponsored_id=? and sponsor_id=users.id)",
+            UsersManagerImpl.USER_MAPPER, group.getId(), Status.VALID.getCode(), MemberGroupStatus.VALID.getCode(),
+            member.getId()));
+      }
+
+      return new ArrayList<>(sponsors);
+    } catch (RuntimeException | RoleCannotBeManagedException e) {
+      throw new InternalErrorException(e);
     }
   }
 }

@@ -480,6 +480,39 @@ public class AuthzResolver {
   }
 
   /**
+   * Check if some valid user with specific role exists for given complementary object (for group-based rights, status
+   * must be VALID for both Vo and group).
+   *
+   * @param sess                perun session
+   * @param complementaryObject for which we will find administrator
+   * @param role                expected role to filter managers by
+   * @param onlyDirectAdmins    if true, search only direct user admins (if false, search both direct and indirect)
+   * @return true, if some user with required role exists, false otherwise.
+   */
+  public static boolean someAdminExists(PerunSession sess, PerunBean complementaryObject, String role,
+                                        boolean onlyDirectAdmins)
+      throws PrivilegeException, RoleCannotBeManagedException {
+    Utils.checkPerunSession(sess);
+    Utils.notNull(role, "role");
+    Utils.notNull(complementaryObject, "complementaryObject");
+
+    if (!roleExists(role)) {
+      throw new InternalErrorException("Role: " + role + " does not exists.");
+    }
+
+    // Authorization
+    try {
+      if (!authorizedToReadRole(sess, complementaryObject, role)) {
+        throw new PrivilegeException("You are not privileged to use the method someAdminExists.");
+      }
+    } catch (RoleManagementRulesNotExistsException e) {
+      throw new InternalErrorException("Management rules not exist for the role " + role, e);
+    }
+
+    return AuthzResolverBlImpl.someAdminExists(sess, complementaryObject, role, onlyDirectAdmins);
+  }
+
+  /**
    * Returns map of role name and map of corresponding role complementary objects (perun beans) distinguished by type. *
    * together with list of authorized groups where user is member: *     Map< RoleName, Map< BeanName, Map< BeanID,
    * List<AuthzGroup> >>>

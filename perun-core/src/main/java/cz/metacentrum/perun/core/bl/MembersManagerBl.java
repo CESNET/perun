@@ -2077,4 +2077,22 @@ public interface MembersManagerBl {
    */
   @Async
   void validateMemberAsync(PerunSession sess, Member member);
+
+  /**
+   * Checks if some vo sponsor who does not already sponsor given member exists.
+   *
+   * @param sess   perun session
+   * @param member member
+   * @return true if available sponsor exists, false otherwise
+   */
+  boolean someAvailableSponsorExistsForMember(PerunSession sess, Member member);
+
+  /**
+   * Returns all available sponsors for given member.
+   *
+   * @param sess   perun session
+   * @param member member
+   * @return list of available sponsors
+   */
+  List<User> getAvailableSponsorsForMember(PerunSession sess, Member member);
 }

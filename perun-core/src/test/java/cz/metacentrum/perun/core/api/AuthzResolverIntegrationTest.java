@@ -436,6 +436,33 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
+  public void someAdminExists() throws Exception {
+    System.out.println(CLASS_NAME + "someAdminExists");
+
+    Vo vo = perun.getVosManagerBl().createVo(sess, new Vo(0, "test", "test"));
+    Group admins = perun.getGroupsManagerBl().createGroup(sess, vo, new Group("admins", "groups of admins"));
+    AuthzResolver.setRole(sess, admins, vo, Role.VOADMIN);
+    Group sponsors = perun.getGroupsManagerBl().createGroup(sess, vo, new Group("sponsors", "groups of sponsors"));
+    AuthzResolver.setRole(sess, sponsors, vo, Role.SPONSOR);
+
+    Member indirectVoAdmin = createSomeMember(vo);
+    perun.getGroupsManagerBl().addMember(sess, admins, indirectVoAdmin);
+
+    User directVoObserver = perun.getUsersManagerBl().createUser(sess, new User(0, "User", "Test", "", "", ""));
+    AuthzResolver.setRole(sess, directVoObserver, vo, Role.VOOBSERVER);
+
+    Member expiredSponsor = createSomeMember(vo);
+    perun.getGroupsManagerBl().addMember(sess, sponsors, expiredSponsor);
+    perun.getMembersManagerBl().setStatus(sess, expiredSponsor, Status.EXPIRED);
+
+    assertFalse(AuthzResolver.someAdminExists(sess, vo, Role.VOADMIN, true));
+    assertTrue(AuthzResolver.someAdminExists(sess, vo, Role.VOADMIN, false));
+    assertTrue(AuthzResolver.someAdminExists(sess, vo, Role.VOOBSERVER, false));
+    assertFalse(AuthzResolver.someAdminExists(sess, vo, Role.SPONSOR, false));
+    assertFalse(AuthzResolver.someAdminExists(sess, vo, Role.TOPGROUPCREATOR, false));
+  }
+
+  @Test
   public void getFacilitiesWherePrincipalIsInRoles() throws Exception {
     System.out.println(CLASS_NAME + "getFacilitiesWherePrincipalIsInRoles");
 
