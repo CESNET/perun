@@ -622,7 +622,6 @@ public class MembersManagerImpl implements MembersManagerImplApi {
     String searchQuery = getSQLWhereForMembersPage(query, namedParams);
 
     namedParams.addValue("voId", vo.getId());
-    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
     namedParams.addValue("userId", sess.getPerunPrincipal().getUserId());
 
@@ -650,11 +649,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       filteredCount = 0;
     }
 
-    Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
-    if (newOffset != null) {
-      namedParams.addValue("offset", newOffset);
-      query.setOffset(newOffset);
-    }
+    query.recalculateOffset(filteredCount);
+    namedParams.addValue("offset", query.getOffset());
 
     return namedParameterJdbcTemplate.query(select + extractedQuery +
         " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit)",

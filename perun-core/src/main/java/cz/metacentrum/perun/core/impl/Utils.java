@@ -2511,31 +2511,6 @@ public class Utils {
   }
 
   /**
-   * This method calculates the correct offset if the offset requested from the client is bigger than the total count
-   * of the found entities. In this case we will want to change the offset to display the last page (considering the
-   * given page size).
-   *
-   * @param filteredCount total count of filtered entities
-   * @param offset requested offset
-   * @param pageSize requested page size
-   *
-   * @return the new value of offset, if it should be changed; null otherwise
-   */
-  public static Integer calculateCorrectSqlOffset(
-      Integer filteredCount,
-      int offset,
-      int pageSize) {
-    if (filteredCount == null || filteredCount == 0) {
-      return 0;
-    } else if (filteredCount <= offset) {
-      int totalPages = (int) Math.ceil((double) filteredCount / pageSize);
-      return (totalPages - 1) * pageSize;
-    } else {
-      return null;
-    }
-  }
-
-  /**
    * Sends all alerts about an identity being added. Sends an email to the preferred email of the user. Also, if the
    * identity has an email and it is different that the preferred email, another different email is send to this email.
    *

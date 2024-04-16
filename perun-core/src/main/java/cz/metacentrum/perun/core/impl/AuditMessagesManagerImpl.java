@@ -309,11 +309,8 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
       filteredCount = 0;
     }
 
-    Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
-    if (newOffset != null) {
-      parameters.addValue("offset", newOffset);
-      query.setOffset(newOffset);
-    }
+    query.recalculateOffset(filteredCount);
+    parameters.addValue("offset", query.getOffset());
 
     // take exact total count up to PAGE_COUNT_PRECISION entries, estimate it otherwise
     return namedParameterJdbcTemplate.query(

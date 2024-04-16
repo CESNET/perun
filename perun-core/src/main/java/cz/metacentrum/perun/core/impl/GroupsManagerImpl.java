@@ -923,7 +923,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
     namedParams.addValue("voId", vo.getId());
     namedParams.addValue("groupsIds", authorizedGroupsIds);
-    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
     namedParams.addValue("uid",
         sess.getPerunPrincipal().getUser() != null ? sess.getPerunPrincipal().getUser().getId() : null);
@@ -949,11 +948,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
         filteredCount = 0;
       }
 
-      Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
-      if (newOffset != null) {
-        namedParams.addValue("offset", newOffset);
-        query.setOffset(newOffset);
-      }
+      query.recalculateOffset(filteredCount);
+      namedParams.addValue("offset", query.getOffset());
 
       return namedParameterJdbcTemplate.query(selectQuery + extractedQuery +
               " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET " + "(:offset)" + " LIMIT (:limit);",
@@ -989,11 +985,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
       filteredCount = 0;
     }
 
-    Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
-    if (newOffset != null) {
-      namedParams.addValue("offset", newOffset);
-      query.setOffset(newOffset);
-    }
+    query.recalculateOffset(filteredCount);
+    namedParams.addValue("offset", query.getOffset());
 
     return namedParameterJdbcTemplate.query(
         "WITH cte as (SELECT DISTINCT " + GROUP_MAPPING_SELECT_QUERY + extractedQuery +
@@ -1245,7 +1238,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
     MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
     namedParams.addValue("parentGroupId", group.getId());
-    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
 
     String searchQuery = getSQLWhereForGroupsPageParentGroup(query, namedParams);
@@ -1259,11 +1251,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
       filteredCount = 0;
     }
 
-    Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
-    if (newOffset != null) {
-      namedParams.addValue("offset", newOffset);
-      query.setOffset(newOffset);
-    }
+    query.recalculateOffset(filteredCount);
+    namedParams.addValue("offset", query.getOffset());
 
     return namedParameterJdbcTemplate.query(
         getSubgroupsPageQuery(GROUP_MAPPING_SELECT_QUERY, searchQuery) +

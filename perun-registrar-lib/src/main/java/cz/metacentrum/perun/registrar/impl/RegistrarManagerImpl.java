@@ -2557,7 +2557,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
     namedParams.addValue("dateFrom", query.getDateFrom());
     namedParams.addValue("dateTo", query.getDateTo());
-    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
     namedParams.addValue("userId", query.getUserId());
     namedParams.addValue("groupId", query.getGroupId());
@@ -2589,11 +2588,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
       filteredCount = 0;
     }
 
-    Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
-    if (newOffset != null) {
-      namedParams.addValue("offset", newOffset);
-      query.setOffset(newOffset);
-    }
+    query.recalculateOffset(filteredCount);
+    namedParams.addValue("offset", query.getOffset());
 
     Paginated<RichApplication> applications = namedJdbc.query(APP_SELECT_PAGE + extractedQuery +
             " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit)",

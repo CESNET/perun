@@ -890,7 +890,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       MapSqlParameterSource namedParams = new MapSqlParameterSource();
       namedParams.addValue("login", query.getSearchString().toLowerCase());
       namedParams.addValue("namespaces", query.getNamespaces());
-      namedParams.addValue("offset", query.getOffset());
       namedParams.addValue("limit", query.getPageSize());
 
       String sqlSelect = "SELECT id, login, namespace, count(*) OVER() AS total_count FROM blocked_logins";
@@ -931,11 +930,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
         filteredCount = 0;
       }
 
-      Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
-      if (newOffset != null) {
-        namedParams.addValue("offset", newOffset);
-        query.setOffset(newOffset);
-      }
+      query.recalculateOffset(filteredCount);
+      namedParams.addValue("offset", query.getOffset());
 
       return namedParameterJdbcTemplate.query(sqlQuery, namedParams, getPaginatedBlockedLoginsExtractor(query));
     } catch (RuntimeException ex) {
@@ -1607,7 +1603,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     String whereForFacility = getSQLWhereForFacility(query, namedParams);
     String filterOnlyAllowed = getOnlyAllowed(query, namedParams);
 
-    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
 
     String withoutVoString = getWithoutVoSQLConditionForUsersPage(query);
@@ -1624,11 +1619,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       filteredCount = 0;
     }
 
-    Integer newOffset = Utils.calculateCorrectSqlOffset(filteredCount, query.getOffset(), query.getPageSize());
-    if (newOffset != null) {
-      namedParams.addValue("offset", newOffset);
-      query.setOffset(newOffset);
-    }
+    query.recalculateOffset(filteredCount);
+    namedParams.addValue("offset", query.getOffset());
 
     return namedParameterJdbcTemplate.query(
         select + extractedQuery + " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" +
