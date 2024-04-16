@@ -1434,6 +1434,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, groupWithInvitation);
     ApplicationForm form = registrarManager.getFormForGroup(groupWithInvitation);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+
     mailManager.addMail(session, form, mail);
 
     assertTrue(mailManager.invitationFormExists(session, vo, groupWithInvitation));
@@ -1448,6 +1450,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationForm form = registrarManager.getFormForVo(vo);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
     mailManager.addMail(session, form, mail);
 
     assertTrue(mailManager.invitationFormExists(session, vo, null));
@@ -1464,11 +1467,15 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, groupWithInvitation);
     ApplicationForm form = registrarManager.getFormForGroup(groupWithInvitation);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+
     mailManager.addMail(session, form, mail);
 
     registrarManager.createApplicationFormInGroup(session, groupWithoutInvitation);
     ApplicationForm form2 = registrarManager.getFormForGroup(groupWithoutInvitation);
     ApplicationMail mail2 = new ApplicationMail(0, INITIAL, form2.getId(), MailType.USER_INVITE, true);
+    mail2.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+
     mailManager.addMail(session, form2, mail2);
 
     ApplicationFormItem submitButton = new ApplicationFormItem();
@@ -1486,10 +1493,14 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationForm form = registrarManager.getFormForVo(vo);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+
     mailManager.addMail(session, form, mail);
 
     ApplicationForm form2 = registrarManager.getFormForVo(voWithoutInvitation);
     ApplicationMail mail2 = new ApplicationMail(0, INITIAL, form2.getId(), MailType.USER_INVITE, true);
+    mail2.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+
     mailManager.addMail(session, form2, mail2);
 
     ApplicationFormItem submitButton = new ApplicationFormItem();

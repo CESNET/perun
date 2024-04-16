@@ -1449,6 +1449,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * @throw FormNotExistsException When application form related to the mail template not exists
    * @throw PrivilegeException When caller is not authorized
    * @throw ApplicationMailNotExistsException When application mail does not exist
+   * @throw ApplicationMailTextMissingException When trying to update application mail with text not filled for any
+   * locale
    */
   setSendingEnabled {
     @Override

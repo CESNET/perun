@@ -70,6 +70,7 @@ import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailTextMissingException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationNotNewException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
@@ -232,7 +233,8 @@ public class MailManagerImpl implements MailManager {
   @Override
   @Transactional(rollbackFor = Exception.class)
   public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail)
-      throws ApplicationMailExistsException, PrivilegeException, InvalidHtmlInputException {
+      throws ApplicationMailExistsException, PrivilegeException, InvalidHtmlInputException,
+                 ApplicationMailTextMissingException {
 
     //Authorization
     if (form.getGroup() != null) {
@@ -245,6 +247,10 @@ public class MailManagerImpl implements MailManager {
           Collections.singletonList(form.getVo()))) {
         throw new PrivilegeException(sess, "addMail");
       }
+    }
+
+    if (mail.getSend() && !existsAnyLocaleText(mail)) {
+      throw new ApplicationMailTextMissingException("Mail text is not filled for any locale.", mail);
     }
 
     int id = Utils.getNewId(jdbc, "APPLICATION_MAILS_ID_SEQ");
@@ -528,6 +534,8 @@ public class MailManagerImpl implements MailManager {
     language = getLanguageFromVoAndGroupAttrs(app.getVo(), app.getGroup(), language);
     Locale lang = new Locale(language);
 
+    lang = checkLocaleAndFallback(mail, lang);
+
     // get localized subject and text
     String mailText = getMailText(mail, lang, app, data, reason, exceptions);
     if (containsHtmlMessage(mail, lang)) {
@@ -564,6 +572,56 @@ public class MailManagerImpl implements MailManager {
     }
 
     return mails;
+  }
+
+  /**
+   * Check whether message (either HTML or plain text) exists for the chosen locale
+   *
+   * @param mail ApplicationMail object
+   * @param locale locale
+   * @return true if exists, false otherwise
+   */
+  private boolean checkLocaleMessageExists(ApplicationMail mail, Locale locale) {
+    MailText plainMt = mail.getMessage(locale);
+    MailText htmlMt = mail.getHtmlMessage(locale);
+    return (htmlMt.getText() != null && !htmlMt.getText().isBlank()) ||
+           (plainMt.getText() != null && !plainMt.getText().isBlank());
+  }
+
+  /**
+   * Checks whether a message exists for the set locale, if not tries to fallback to first existing locale. If none
+   * exist, log error and return english locale.
+   * @param mail application mail
+   * @param locale locale
+   * @return locale
+   */
+  private Locale checkLocaleAndFallback(ApplicationMail mail, Locale locale) {
+    if (checkLocaleMessageExists(mail, locale)) {
+      return locale;
+    }
+    for (Locale loc : mail.getHtmlMessage().keySet()) {
+      // locales should be identical for html\plain messages, one loop is enough
+      if (checkLocaleMessageExists(mail, loc)) {
+        return loc;
+      }
+    }
+    LOG.error("Application mail: " + mail + " does not include message in any locale. Sending blank email.");
+    return new Locale(LANG_EN);
+  }
+
+  /**
+   * Checks whether at least one locale text exists, hence it makes sense to send notification
+   * @param mail mail to check
+   * @return true if exists, false otherwise
+   */
+  private boolean existsAnyLocaleText(ApplicationMail mail) {
+    for (Locale loc : mail.getHtmlMessage().keySet()) {
+      // locales should be identical for html\plain messages, one loop is enough
+      if (checkLocaleMessageExists(mail, loc)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -635,9 +693,10 @@ public class MailManagerImpl implements MailManager {
 
     setFromMailAddress(message, app);
     setRecipient(message, to);
-
     // get language
     Locale lang = new Locale(language);
+
+    lang = checkLocaleAndFallback(mail, lang);
     // get localized subject and text
     String mailText = getMailTextInvitation(mail, lang, vo, group, user, name);
     if (containsHtmlMessage(mail, lang)) {
@@ -1297,6 +1356,7 @@ public class MailManagerImpl implements MailManager {
     // get language
     Locale lang = new Locale(getLanguageFromAppData(app, data));
 
+    lang = checkLocaleAndFallback(mail, lang);
     // get localized subject and text
     String mailText = getMailText(mail, lang, app, data, reason, exceptions);
     if (containsHtmlMessage(mail, lang)) {
@@ -1473,6 +1533,8 @@ public class MailManagerImpl implements MailManager {
 
     // get language
     Locale lang = new Locale(getLanguageFromAppData(app, data));
+
+    lang = checkLocaleAndFallback(mail, lang);
     // get localized subject and text
     String mailText = getMailText(mail, lang, app, data, reason, exceptions);
     if (containsHtmlMessage(mail, lang)) {
@@ -2551,7 +2613,8 @@ public class MailManagerImpl implements MailManager {
 
   @Override
   public void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled)
-      throws ApplicationMailNotExistsException, PrivilegeException, FormNotExistsException {
+      throws ApplicationMailNotExistsException, PrivilegeException, FormNotExistsException,
+                 ApplicationMailTextMissingException {
     if (mails == null) {
       throw new InternalErrorException("Mails definitions to update can't be null");
     }
@@ -2570,6 +2633,9 @@ public class MailManagerImpl implements MailManager {
             Collections.singletonList(form.getVo()))) {
           throw new PrivilegeException(sess, "setSendingEnabled");
         }
+      }
+      if (enabled && !existsAnyLocaleText(mail)) {
+        throw new ApplicationMailTextMissingException("Mail text is not filled for any locale.", mail);
       }
 
       // update sending (enabled / disabled)
@@ -2802,7 +2868,8 @@ public class MailManagerImpl implements MailManager {
   @Override
   @Transactional(rollbackFor = Exception.class)
   public void updateMailById(PerunSession sess, ApplicationMail mail)
-      throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException, InvalidHtmlInputException {
+      throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException, InvalidHtmlInputException,
+                 ApplicationMailTextMissingException {
     ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
 
     //Authorization
@@ -2824,6 +2891,10 @@ public class MailManagerImpl implements MailManager {
     }
     if (numberOfExistences > 1) {
       throw new ConsistencyErrorException("There is more than one mail with id = " + mail.getId());
+    }
+
+    if (mail.getSend() && !existsAnyLocaleText(mail)) {
+      throw new ApplicationMailTextMissingException("Mail text is not filled for any locale.", mail);
     }
 
     // update sending (enabled / disabled)
