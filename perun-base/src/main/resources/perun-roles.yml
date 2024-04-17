@@ -115,6 +115,8 @@
 #
 # PROXY role is dedicated to service account updating user extsources and working with facilities.
 #
+# VO(/FACILITY/RESOURCE)BANMANAGER role is used to manage bans (add/delete) on the entity
+#
 # SERVICEACCOUNTCREATOR user or group with this role can create service accounts in the given VO.
 #
 # UNKNOWN exists, but it is not used in Perun.
@@ -132,9 +134,11 @@ perun_roles:
   - FACILITYADMIN
   - FACILITYOBSERVER
   - TRUSTEDFACILITYADMIN
+  - FACILITYBANMANAGER
   - RESOURCEADMIN
   - RESOURCEOBSERVER
   - RESOURCESELFSERVICE
+  - RESOURCEBANMANAGER
   - REGISTRAR
   - ENGINE
   - RPC
@@ -144,6 +148,7 @@ perun_roles:
   - SPONSOR
   - SPONSORNOCREATERIGHTS
   - VOOBSERVER
+  - VOBANMANAGER
   - TOPGROUPCREATOR
   - SECURITYADMIN
   - CABINETADMIN
@@ -645,6 +650,8 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Facility
       - RESOURCESELFSERVICE: Facility
       - RESOURCEADMIN: Facility
       - RESOURCEOBSERVER: Facility
@@ -669,6 +676,7 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
+      - FACILITYBANMANAGER:
       - PERUNOBSERVER:
       - MEMBERSHIP:
     include_policies:
@@ -680,6 +688,7 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
       - MEMBERSHIP: Facility
       - PERUNOBSERVER:
     include_policies:
@@ -784,6 +793,8 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
+      - FACILITYBANMANAGER:
+      - RESOURCEBANMANAGER:
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -793,6 +804,8 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Facility
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -907,6 +920,19 @@ perun_policies:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Facility
+      - PERUNOBSERVER:
+      - PROXY:
+    include_policies:
+      - default_policy
+
+  filter-getAssignedRichResources_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
       - PERUNOBSERVER:
       - PROXY:
     include_policies:
@@ -916,6 +942,8 @@ perun_policies:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -1248,16 +1276,16 @@ perun_policies:
   getAssignedUsers_Facility_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
     include_policies:
       - default_policy
 
   getAssignedUsers_Facility_Service_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
     include_policies:
       - default_policy
 
@@ -1288,6 +1316,7 @@ perun_policies:
   setBan_BanOnFacility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - FACILITYBANMANAGER: Facility
     include_policies:
       - default_policy
     mfa_rules:
@@ -1298,6 +1327,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
     include_policies:
       - default_policy
 
@@ -1306,6 +1336,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
     include_policies:
       - default_policy
 
@@ -1314,6 +1345,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
     include_policies:
       - default_policy
 
@@ -1322,6 +1354,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
       - ENGINE:
     include_policies:
       - default_policy
@@ -1331,6 +1364,7 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
     include_policies:
       - default_policy
 
@@ -1344,6 +1378,7 @@ perun_policies:
   updateBan_BanOnFacility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - FACILITYBANMANAGER: Facility
     include_policies:
       - default_policy
     mfa_rules:
@@ -1352,6 +1387,7 @@ perun_policies:
   removeBan_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - FACILITYBANMANAGER: Facility
     include_policies:
       - default_policy
     mfa_rules:
@@ -1360,6 +1396,7 @@ perun_policies:
   removeBan_int_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - FACILITYBANMANAGER: Facility
     include_policies:
       - default_policy
     mfa_rules:
@@ -3784,6 +3821,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
 
@@ -3971,9 +4009,11 @@ perun_policies:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
       - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - RESOURCEOBSERVER: Resource
+      - RESOURCEBANMANAGER: Resource
       - RPC:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -4028,8 +4068,10 @@ perun_policies:
       - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - RESOURCEOBSERVER: Resource
+      - RESOURCEBANMANAGER: Resource
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -4041,6 +4083,7 @@ perun_policies:
       - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - RESOURCEOBSERVER:
+      - RESOURCEBANMANAGER:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
       - VOADMIN:
@@ -4056,6 +4099,7 @@ perun_policies:
       - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - RESOURCEOBSERVER: Resource
+      - RESOURCEBANMANAGER: Resource
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - VOADMIN: Vo
@@ -4224,6 +4268,8 @@ perun_policies:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -4519,6 +4565,7 @@ perun_policies:
       - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
+      - RESOURCEBANMANAGER: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -4542,6 +4589,7 @@ perun_policies:
       - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - RESOURCEOBSERVER: Resource
+      - RESOURCEBANMANAGER: Resource
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -4942,6 +4990,8 @@ perun_policies:
   setBan_BanOnResource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
     mfa_rules:
@@ -4954,6 +5004,8 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
 
@@ -4962,6 +5014,8 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
 
@@ -4970,6 +5024,8 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
 
@@ -4978,6 +5034,8 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
 
@@ -4986,6 +5044,8 @@ perun_policies:
       - PERUNOBSERVER:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
 
@@ -4999,6 +5059,8 @@ perun_policies:
   updateBan_BanOnResource_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
     mfa_rules:
@@ -5009,6 +5071,8 @@ perun_policies:
   resource-removeBan_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
     mfa_rules:
@@ -5019,6 +5083,8 @@ perun_policies:
   resource-removeBan_int_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Resource
     include_policies:
       - default_policy
     mfa_rules:
@@ -5770,6 +5836,8 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
+      - RESOURCEBANMANAGER: Facility
     include_policies:
       - default_policy
 
@@ -6960,6 +7028,7 @@ perun_policies:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
+      - FACILITYBANMANAGER: Facility
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -7006,11 +7075,13 @@ perun_policies:
       - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - RESOURCEOBSERVER:
+      - RESOURCEBANMANAGER:
       - GROUPADMIN:
       - GROUPOBSERVER:
       - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
+      - VOBANMANAGER:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
@@ -7025,11 +7096,13 @@ perun_policies:
       - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
+      - RESOURCEBANMANAGER: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
       - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - VOBANMANAGER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -7121,6 +7194,7 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - VOBANMANAGER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -7164,6 +7238,7 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER:
       - VOOBSERVER:
       - VOADMIN:
+      - VOBANMANAGER:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
@@ -7185,6 +7260,7 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - VOBANMANAGER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -7297,6 +7373,7 @@ perun_policies:
   setBan_BanOnVo_policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
     mfa_rules:
@@ -7305,6 +7382,7 @@ perun_policies:
   updateBan_BanOnVo_policy:
     policy_roles:
       - VOADMIN: VO
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
     mfa_rules:
@@ -7313,6 +7391,7 @@ perun_policies:
   vo-removeBan_int_policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
     mfa_rules:
@@ -7321,6 +7400,7 @@ perun_policies:
   vo-removeBanForMember_member_policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
     mfa_rules:
@@ -7334,6 +7414,7 @@ perun_policies:
       - SELF: Member
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
 
@@ -7345,6 +7426,7 @@ perun_policies:
       - SELF: Member
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
 
@@ -7355,6 +7437,7 @@ perun_policies:
       - GROUPOBSERVER: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
 
@@ -7365,6 +7448,7 @@ perun_policies:
       - GROUPOBSERVER: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - VOBANMANAGER: Vo
     include_policies:
       - default_policy
 
@@ -8722,6 +8806,32 @@ perun_roles_management:
     assignable_to_attributes: true
     display_name: "Trusted facility admin"
 
+  FACILITYBANMANAGER:
+    primary_object: Facility
+    assign_to_objects:
+      Facility: facility_id
+    assignment_check:
+      - MFA: Facility
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - FACILITYADMIN: Facility
+      - SPREGAPPLICATION:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - SPREGAPPLICATION:
+      - PROXY:
+    associated_read_roles: [ ]
+    assignable_to_attributes: true
+    display_name: "Facility ban manager"
+
   RESOURCEADMIN:
     primary_object: Resource
     assign_to_objects:
@@ -8831,6 +8941,41 @@ perun_roles_management:
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Resource self service"
+
+  RESOURCEBANMANAGER:
+    primary_object: Resource
+    assign_to_objects:
+      Resource: resource_id
+      Vo: vo_id
+      Facility: facility_id
+    assignment_check:
+      - MFA: Resource
+      - MFA: Vo
+      - MFA: Facility
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - FACILITYADMIN: Facility
+      - SPREGAPPLICATION:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+      - RESOURCEOBSERVER: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYOBSERVER: Facility
+      - VOOBSERVER: Vo
+      - RESOURCESELFSERVICE: Resource
+    associated_read_roles: [ ]
+    assignable_to_attributes: true
+    display_name: "Resource ban manager"
 
   REGISTRAR:
     primary_object:
@@ -8985,6 +9130,30 @@ perun_roles_management:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     display_name: "Organization observer"
+
+  VOBANMANAGER:
+    primary_object: Vo
+    assign_to_objects:
+      Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - ENGINE:
+    associated_read_roles: [ ]
+    assignable_to_attributes: true
+    display_name: "Organization ban manager"
 
   TOPGROUPCREATOR:
     primary_object: Vo

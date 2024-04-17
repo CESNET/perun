@@ -2100,9 +2100,9 @@ values (null, null, 41, 'notifications');
 insert into roles (created_by_uid, modified_by_uid, id, name)
 values (null, null, 61, 'serviceuser');
 insert into roles (created_by_uid, modified_by_uid, id, name)
-values (null, null, 121, 'securityadmin');
+values (null, null, 20, 'securityadmin');
 insert into roles (created_by_uid, modified_by_uid, id, name)
-values (null, null, 141, 'sponsor');
+values (null, null, 19, 'sponsor');
 insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
                         dsc, created_at, created_by, modified_at, modified_by)
 values (3255, 3261, 'Shibboleth external sources', 2380, 'urn:perun:user:attribute-def:virt:shibbolethExtSources',

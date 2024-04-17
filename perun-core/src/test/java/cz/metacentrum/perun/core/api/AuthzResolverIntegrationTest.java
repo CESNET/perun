@@ -1927,6 +1927,62 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
+  public void testVoBanManagerRole() throws Exception {
+        System.out.println(CLASS_NAME + "testVoBanManagerRole");
+    final Vo createdVo =
+        perun.getVosManager().createVo(sess, new Vo(0, "VoBanManagerApplicationTestVo", "VoBanManagerApplicationTestVo"));
+
+    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
+
+    AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOBANMANAGER);
+
+    PerunSession session = getHisSession(createdMember);
+    AuthzResolver.refreshAuthz(session);
+    assertTrue(AuthzResolver.authorizedInternal(session, "test_vobanmanager_role", Arrays.asList(createdVo)));
+  }
+
+  @Test
+  public void testFacilityBanManagerRole() throws Exception {
+        System.out.println(CLASS_NAME + "testFacilityBanManagerRole");
+    final Vo createdVo =
+        perun.getVosManager().createVo(sess, new Vo(0, "FBanManagerApplicationTestVo",
+            "FBanManagerApplicationTestVo"));
+
+    Facility createdFacility = setUpFacility();
+
+    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
+
+    AuthzResolver.setRole(sess, createdUser, createdFacility, Role.FACILITYBANMANAGER);
+
+    PerunSession session = getHisSession(createdMember);
+    AuthzResolver.refreshAuthz(session);
+    assertTrue(AuthzResolver.authorizedInternal(session, "test_facilitybanmanager_role", Arrays.asList(createdFacility)));
+  }
+
+  @Test
+  public void testResourceBanManagerRole() throws Exception {
+        System.out.println(CLASS_NAME + "testResourceBanManagerRole");
+    final Vo createdVo =
+        perun.getVosManager().createVo(sess, new Vo(0, "RBanManagerApplicationTestVo",
+            "RBanManagerApplicationTestVo"));
+
+    Facility createdFacility = setUpFacility();
+    Resource createdResource = setUpResource(createdVo, createdFacility);
+
+    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
+
+    AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEBANMANAGER);
+
+    PerunSession session = getHisSession(createdMember);
+    AuthzResolver.refreshAuthz(session);
+    assertTrue(AuthzResolver.authorizedInternal(session, "test_resourcebanmanager_role",
+        Arrays.asList(createdResource)));
+  }
+
+  @Test
   public void unauthorizedEmptyList() throws Exception {
     System.out.println(CLASS_NAME + "unauthorizedEmptyList");
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
