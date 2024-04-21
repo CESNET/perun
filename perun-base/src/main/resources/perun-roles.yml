@@ -14,7 +14,7 @@
 # It can create, set up and manage groups in the VO, assign groups and services to resources, set up external
 # sources for the VO, define rules for VO membership, and set up registration sheet for the VO.
 # VO administrators are able to set up roles associated with the Vo: other VO administrators, Resource administrators,
-# Group administrators, Top group creators, Resource self-service, and Sponsor roles.
+# Group administrators, Top group creators, Resource self-service, Sponsor and Sponsor without rights to create roles.
 # The VO administrator role may be set to users or groups of users by other VO administrators or Perun administrators.
 #
 # GROUPADMIN role can create subgroups for the group which is associated with this role
@@ -85,6 +85,9 @@
 # The sponsor role may be assigned to users or groups of users by VO administrators or Perun administrators.
 # However, Sponsors are not allowed to delegate this role to other users or groups.
 #
+# SPONSORNOCREATERIGHTS users or groups with similar rights as the Sponsors, with the difference that they don't have
+# the right to create or generate new sponsored accounts. This role can only sponsor already existing members.
+#
 # VOOBSERVER can see everything that VO admin sees, but the observer is not able to perform any changes in the VO.
 # Roles which have a right to set this role are Perun administrator and VO administrator.
 #
@@ -137,6 +140,7 @@ perun_roles:
   - SERVICEUSER
   - SPREGAPPLICATION
   - SPONSOR
+  - SPONSORNOCREATERIGHTS
   - VOOBSERVER
   - TOPGROUPCREATOR
   - SECURITYADMIN
@@ -3109,6 +3113,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3121,6 +3126,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3135,6 +3141,7 @@ perun_policies:
       - VOOBSERVER:
       - VOADMIN:
       - SPONSOR:
+      - SPONSORNOCREATERIGHTS:
     include_policies:
       - default_policy
 
@@ -3149,6 +3156,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3161,6 +3169,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3173,6 +3182,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3524,6 +3534,8 @@ perun_policies:
     policy_roles:
       - SPONSOR: Vo
         SELF: User
+      - SPONSORNOCREATERIGHTS: Vo
+        SELF: User
     include_policies:
       - default_policy
     mfa_rules:
@@ -3569,6 +3581,8 @@ perun_policies:
     policy_roles:
       - SPONSOR: Vo
         SELF: User
+      - SPONSORNOCREATERIGHTS: Vo
+        SELF: User
     include_policies:
       - default_policy
     mfa_rules:
@@ -3595,6 +3609,7 @@ perun_policies:
   sponsored-sponsorMember_Member_User_LocalDate_policy:
     policy_roles:
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
     mfa_rules:
@@ -3618,6 +3633,7 @@ perun_policies:
       - REGISTRAR:
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3644,6 +3660,7 @@ perun_policies:
       - REGISTRAR:
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3670,6 +3687,7 @@ perun_policies:
       - REGISTRAR:
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3696,6 +3714,7 @@ perun_policies:
       - REGISTRAR:
       - VOADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3705,6 +3724,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3723,6 +3743,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -3824,6 +3845,7 @@ perun_policies:
       - VOOBSERVER:
       - VOADMIN:
       - SPONSOR:
+      - SPONSORNOCREATERIGHTS:
     include_policies:
       - default_policy
 
@@ -3850,7 +3872,8 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
-      - SPONSOR: VO
+      - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -5954,6 +5977,7 @@ perun_policies:
   getUsersBySpecificUser_User_policy:
     policy_roles:
       - SPONSOR: User
+      - SPONSORNOCREATERIGHTS: User
       - ENGINE:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
@@ -5968,6 +5992,7 @@ perun_policies:
   removeSpecificUserOwner_User_User_policy:
     policy_roles:
       - SPONSOR: User
+      - SPONSORNOCREATERIGHTS: User
       - SELF: User
     include_policies:
       - default_policy
@@ -5984,6 +6009,7 @@ perun_policies:
   addSpecificUserOwner_User_User_policy:
     policy_roles:
       - SPONSOR: User
+      - SPONSORNOCREATERIGHTS: User
       - SELF: User
     include_policies:
       - default_policy
@@ -6848,6 +6874,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
     include_policies:
@@ -6943,6 +6970,7 @@ perun_policies:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
+      - SPONSORNOCREATERIGHTS:
     include_policies:
       - default_policy
 
@@ -6960,6 +6988,7 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -6977,6 +7006,7 @@ perun_policies:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
+      - SPONSORNOCREATERIGHTS:
     include_policies:
       - default_policy
 
@@ -6994,6 +7024,7 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -7013,6 +7044,7 @@ perun_policies:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
+      - SPONSORNOCREATERIGHTS:
     include_policies:
       - default_policy
 
@@ -7059,6 +7091,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
       - PASSWORDRESETMANAGER:
       - PROXY:
     include_policies:
@@ -7081,6 +7114,7 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
       - PROXY:
     include_policies:
       - default_policy
@@ -7102,6 +7136,7 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -7122,6 +7157,7 @@ perun_policies:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
+      - SPONSORNOCREATERIGHTS:
     include_policies:
       - default_policy
 
@@ -7142,6 +7178,7 @@ perun_policies:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     include_policies:
       - default_policy
 
@@ -8882,10 +8919,37 @@ perun_roles_management:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
       - ENGINE:
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Sponsor"
+
+  SPONSORNOCREATERIGHTS:
+    primary_object: Vo
+    assign_to_objects:
+      Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
+      - ENGINE:
+    associated_read_roles: [ ]
+    assignable_to_attributes: true
+    display_name: "Sponsor without rights to create"
 
   VOOBSERVER:
     primary_object: Vo
