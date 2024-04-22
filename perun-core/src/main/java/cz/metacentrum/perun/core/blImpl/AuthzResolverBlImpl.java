@@ -3267,7 +3267,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     sess.getPerunPrincipal().setAuthzInitialized(true);
   }
 
-  public static void refreshMfa(PerunSession sess) throws ExpiredTokenException, MFAuthenticationException {
+  /**
+   * Checks if MFA is supported and if it was used by the user, then updates MFA flag in the session.
+   *
+   * @param sess PerunSession
+   * @throws MFAuthenticationException when MFA is not supported or can't be verified
+   */
+  public static void refreshMfa(PerunSession sess) throws MFAuthenticationException {
     if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
       throw new MFAuthenticationException("MFA enforcement is turned off");
     }
@@ -3848,7 +3854,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   }
 
   /**
-   * Updates principal MFA role by calling UserInfo Endpoint
+   * Refresh MFA flag in session and return TRUE if principal has MFA role.
    *
    * @param sess perun session
    * @return true if principal has MFA role
@@ -3856,7 +3862,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   private static boolean updatePrincipalMfa(PerunSession sess) {
     try {
       refreshMfa(sess);
-    } catch (ExpiredTokenException | MFAuthenticationException ignored) {
+    } catch (MFAuthenticationException ignored) {
       // couldn't recheck with endpoint, either exception would have been thrown already or principal didn't use OIDC
     }
 
