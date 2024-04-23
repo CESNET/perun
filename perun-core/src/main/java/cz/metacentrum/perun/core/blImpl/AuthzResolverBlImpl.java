@@ -343,6 +343,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   private static boolean checkAuthValidityForMFA(PerunSession sess) {
     String returnedAuthTime = sess.getPerunPrincipal().getAdditionalInformations().get(AUTH_TIME);
     Instant parsedReturnedAuthTime;
+    if (returnedAuthTime == null) {
+      throw new MfaPrivilegeException("Multi-Factor authentication required but MFA timestamp was not found in " +
+                                      "principal. Make sure you are using OAuth authentication.");
+    }
     try {
       parsedReturnedAuthTime = Instant.parse(returnedAuthTime);
     } catch (DateTimeParseException e) {
@@ -3264,6 +3268,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
 
     LOG.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
+
+    sess.getPerunPrincipal().setRolesUpdatedAt(System.currentTimeMillis());
     sess.getPerunPrincipal().setAuthzInitialized(true);
   }
 
