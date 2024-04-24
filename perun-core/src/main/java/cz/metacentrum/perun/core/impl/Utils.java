@@ -2507,7 +2507,7 @@ public class Utils {
    * @return sql with limit for total_count
    */
   public static String limitTotalCount(String sql) {
-    return "select total_count from (" + sql + ") LIMIT 1";
+    return "select total_count from (" + sql + ") as data LIMIT 1";
   }
 
   /**
