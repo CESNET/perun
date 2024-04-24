@@ -8,10 +8,7 @@ import java.util.Objects;
  *
  * @author Adam Bodnar
  */
-public class BlockedLoginsPageQuery {
-  private int pageSize;
-  private int offset;
-  private SortingOrder order;
+public class BlockedLoginsPageQuery extends PageQuery {
   private BlockedLoginsOrderColumn sortColumn;
   private String searchString = "";
   private List<String> namespaces;
@@ -20,35 +17,27 @@ public class BlockedLoginsPageQuery {
   }
 
   public BlockedLoginsPageQuery(int pageSize, int offset, SortingOrder order, BlockedLoginsOrderColumn sortColumn) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
   }
 
   public BlockedLoginsPageQuery(int pageSize, int offset, SortingOrder order, BlockedLoginsOrderColumn sortColumn,
                                 List<String> namespaces) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.namespaces = namespaces;
   }
 
   public BlockedLoginsPageQuery(int pageSize, int offset, SortingOrder order, BlockedLoginsOrderColumn sortColumn,
                                 String searchString) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
   }
 
   public BlockedLoginsPageQuery(int pageSize, int offset, SortingOrder order, BlockedLoginsOrderColumn sortColumn,
                                 String searchString, List<String> namespaces) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.namespaces = namespaces;
@@ -65,13 +54,13 @@ public class BlockedLoginsPageQuery {
 
     BlockedLoginsPageQuery that = (BlockedLoginsPageQuery) o;
 
-    if (pageSize != that.pageSize) {
+    if (getPageSize() != that.getPageSize()) {
       return false;
     }
-    if (offset != that.offset) {
+    if (getOffset() != that.getOffset()) {
       return false;
     }
-    if (order != that.order) {
+    if (getOrder() != that.getOrder()) {
       return false;
     }
     if (sortColumn != that.sortColumn) {
@@ -86,30 +75,6 @@ public class BlockedLoginsPageQuery {
 
   public void setNamespaces(List<String> namespaces) {
     this.namespaces = namespaces;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
   }
 
   public String getSearchString() {
@@ -130,9 +95,9 @@ public class BlockedLoginsPageQuery {
 
   @Override
   public int hashCode() {
-    int result = pageSize;
-    result = 31 * result + offset;
-    result = 31 * result + order.hashCode();
+    int result = getPageSize();
+    result = 31 * result + getOffset();
+    result = 31 * result + getOrder().hashCode();
     result = 31 * result + sortColumn.hashCode();
     result = 31 * result + (searchString != null ? searchString.hashCode() : 0);
     return result;

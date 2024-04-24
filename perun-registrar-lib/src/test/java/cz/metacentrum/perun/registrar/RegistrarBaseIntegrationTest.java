@@ -1402,6 +1402,49 @@ System.out.println("APPS ["+result.size()+"]:" + result);
   }
 
   @Test
+  public void getApplicationsPageAutoChangedOffset() throws Exception {
+    System.out.println("getApplicationsPageAutoChangedOffset");
+
+    // create groups
+    Group group1 = setUpGroup("Group1", "Cool folks");
+    // create users
+    User user1 = setUpUser("Doe", "John");
+    User user2 = setUpUser("Stinson", "John");
+    User user3 = setUpUser("Young", "John");
+    User user4 = setUpUser("Lee", "John");
+    User user5 = setUpUser("Smith", "John");
+    User user6 = setUpUser("Jameson", "John");
+    User user7 = setUpUser("King", "John");
+    User user8 = setUpUser("Doe", "Jane");
+    User user9 = setUpUser("Stinson", "Jane");
+    User user10 = setUpUser("Young", "Jane");
+    User user11 = setUpUser("Lee", "Jane");
+    User user12 = setUpUser("Smith", "Jane");
+
+    Application voApplication1 = setUpApplicationGroup(user1, group1);
+    Application voApplication2 = setUpApplicationGroup(user2, group1);
+    Application voApplication3 = setUpApplicationGroup(user3, group1);
+    Application voApplication4 = setUpApplicationGroup(user4, group1);
+    Application voApplication5 = setUpApplicationGroup(user5, group1);
+    Application voApplication6 = setUpApplicationGroup(user6, group1);
+    Application voApplication7 = setUpApplicationGroup(user7, group1);
+    Application voApplication8 = setUpApplicationGroup(user8, group1);
+    Application voApplication9 = setUpApplicationGroup(user9, group1);
+    Application voApplication10 = setUpApplicationGroup(user10, group1);
+    Application voApplication11 = setUpApplicationGroup(user11, group1);
+    Application voApplication12 = setUpApplicationGroup(user12, group1);
+
+    ApplicationsPageQuery query = new ApplicationsPageQuery(5, 10, SortingOrder.ASCENDING, ApplicationsOrderColumn.ID,
+        "John", List.of(Application.AppState.APPROVED), true);
+
+
+    Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
+
+    assertThat(result.getData()).hasSize(2);
+    assertEquals(5, result.getOffset());
+  }
+
+  @Test
   public void getApplicationsPagePageSizeWorks() throws Exception {
     System.out.println("getApplicationsPagePageSizeWorks");
 

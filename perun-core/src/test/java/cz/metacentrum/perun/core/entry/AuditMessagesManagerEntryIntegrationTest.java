@@ -131,6 +131,32 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
     assertThat(messages.getData().get(0).getEvent().getMessage()).isEqualTo("Test older");
   }
 
+  @Test
+  public void getMessagesPage_autoChangedOffset() throws Exception {
+    System.out.println(CLASS_NAME + "getMessagesPage_autoChangedOffset");
+
+    Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "TestVo", "Test"));
+    Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("GroupTest", "Test"));
+
+    for (int i = 0; i < 5; i++) {
+      perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test num: " + i));
+    }
+
+    perun.getAuditer().logWithoutTransaction(sess, new GroupSyncStarted(group));
+    perun.getAuditer().logWithoutTransaction(sess, new GroupSyncStarted(group));
+    perun.getAuditer().logWithoutTransaction(sess, new GroupSyncStarted(group));
+
+    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Manual test 1"));
+    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Manual test 2"));
+    perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Manual test 3"));
+
+    MessagesPageQuery query = new MessagesPageQuery(10, 10, SortingOrder.DESCENDING, List.of("GroupSyncStarted"));
+    Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
+
+    assertThat(messages.getData().size()).isEqualTo(3);
+    assertEquals(0, messages.getOffset());
+  }
+
   /**
    *
    */
