@@ -492,12 +492,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  refreshMfa_policy:
-    policy_roles:
-      - SELF: User
-    include_policies:
-      - default_policy
-
   #DatabaseManagerEntry
   getCurrentDatabaseVersion_policy:
     policy_roles:
