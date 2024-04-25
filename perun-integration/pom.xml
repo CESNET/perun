@@ -17,6 +17,7 @@
     <description>Tools which will be used to integrate the Perun system with another tool.</description>
 
     <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <!-- common module build setting used by all profile -->

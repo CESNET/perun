@@ -20,6 +20,7 @@
     <properties>
         <!-- custom properties for all profiles -->
         <perun.test.groups>unit-tests</perun.test.groups>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->

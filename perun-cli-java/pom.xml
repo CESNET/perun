@@ -18,10 +18,10 @@
 	<description>
 		Java implementation of command-line tools for Perun using OpenAPI specification of Perun RPC API
 	</description>
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
 
-	<properties>
-		<maven.deploy.skip>false</maven.deploy.skip>
-	</properties>
 
 	<build>
 		<finalName>${project.name}</finalName>
