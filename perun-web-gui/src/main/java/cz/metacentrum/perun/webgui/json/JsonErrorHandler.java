@@ -1065,8 +1065,13 @@ public class JsonErrorHandler {
       }
       return "Application mail already exists.";
 
+    } else if ("MfaPrivilegeException".equalsIgnoreCase(error.getType()) ||
+            "MfaRolePrivilegeException".equalsIgnoreCase(error.getType()) ||
+            "MfaTimeoutException".equalsIgnoreCase(error.getType()) ||
+            "MfaRoleTimeoutException".equalsIgnoreCase(error.getType()) ||
+            "MFAuthenticationException".equalsIgnoreCase(error.getName())) {
+      return "MFA verification required, but not supported in old user interface. Please use the new UI.";
     }
-
 
     //default text
     return error.getErrorInfo();
