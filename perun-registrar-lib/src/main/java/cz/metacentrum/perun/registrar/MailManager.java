@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailTextMissingException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -34,7 +35,8 @@ public interface MailManager {
    * @throws ApplicationMailExistsException when mail definition already exists.
    */
   Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail)
-      throws ApplicationMailExistsException, PrivilegeException, InvalidHtmlInputException;
+      throws ApplicationMailExistsException, PrivilegeException, InvalidHtmlInputException,
+                 ApplicationMailTextMissingException;
 
   /**
    * Creates an invitation link for the given vo/group with the default authType (if defined in the vo/group attribute)
@@ -279,5 +281,6 @@ public interface MailManager {
    * @throws ApplicationMailNotExistsException When application mail does not exist
    */
   void updateMailById(PerunSession sess, ApplicationMail mail)
-      throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException, InvalidHtmlInputException;
+      throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException, InvalidHtmlInputException,
+                 ApplicationMailTextMissingException;
 }
