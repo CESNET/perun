@@ -115,6 +115,8 @@ public interface AuditMessagesManagerBl {
 
   /**
    * Returns list of <b>AuditEvents</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
+   * Number of returned events for one call is limited (by default 10 000). You might need to fetch additional events
+   * by repeating this call.
    *
    * @param perunSession perun session
    * @param consumerName consumer to get messages for
@@ -125,6 +127,8 @@ public interface AuditMessagesManagerBl {
 
   /**
    * Returns list of <b>AuditEvents</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
+   * Number of returned events for one call is limited (by default 10 000). You might need to fetch additional events
+   * by repeating this call.
    *
    * @param perunSession    perun session
    * @param consumerName    consumer to get messages for
@@ -136,6 +140,8 @@ public interface AuditMessagesManagerBl {
 
   /**
    * Returns list of <b>AuditMessages</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
+   * Number of returned messages for one call is limited (by default 10 000). You might need to fetch
+   * additional messages by repeating this call.
    *
    * @param perunSession perun session
    * @param consumerName consumer to get messages for
@@ -146,6 +152,8 @@ public interface AuditMessagesManagerBl {
 
   /**
    * Returns list of <b>AuditMessages</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
+   * Number of returned messages for one call is limited (by default 10 000). You might need to fetch
+   * additional messages by repeating this call.
    *
    * @param perunSession    perun session
    * @param consumerName    consumer to get messages for

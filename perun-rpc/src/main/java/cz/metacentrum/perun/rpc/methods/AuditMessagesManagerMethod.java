@@ -96,7 +96,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 
   /*#
    * Returns list of AuditMessages from audit log with IDs > lastProcessedId for registered auditer consumer
-   * specified by consumerName param.
+   * specified by consumerName param. Number of returned messages for one call is limited (by default 10 000).
+   * You might need to fetch additional messages by repeating this call.
    *
    * @param consumerName String Consumer to get messages for
    * @return List<AuditMessage> List of Audit Messages

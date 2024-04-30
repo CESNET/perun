@@ -101,6 +101,7 @@ public class CoreConfig {
   private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
   private Map<String, String> oidcIssuersExtsourceNames = new HashMap<>();
   private Map<String, String> oidcIssuersExtsourceTypes = new HashMap<>();
+  private int auditlogReadLimit;
 
   private void createAttributeDefinitions(String extSourceType, List<String> attrNames) {
     List<AttributeDefinition> attrs = new ArrayList<>();
@@ -951,4 +952,13 @@ public class CoreConfig {
   public void setProperties(Properties properties) {
     this.properties = properties;
   }
+
+  public int getAuditlogReadLimit() {
+    return auditlogReadLimit;
+  }
+
+  public void setAuditlogReadLimit(int auditlogReadLimit) {
+    this.auditlogReadLimit = auditlogReadLimit;
+  }
+
 }
