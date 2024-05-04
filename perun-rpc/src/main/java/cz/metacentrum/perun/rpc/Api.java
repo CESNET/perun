@@ -117,6 +117,7 @@ public class Api extends HttpServlet {
   private static final String DELEGATED_EXTSOURCE_TYPE = "delegatedExtSourceType";
   private static final String LOA = "loa";
   private static final String PERUN_RPC_POM_FILE = "/META-INF/maven/cz.metacentrum.perun/perun-rpc/pom.properties";
+  private static final String BODY_PARAMS_SUFFIX = "BodyParams";
   private static UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
   private String version = null;
 
@@ -632,7 +633,8 @@ public class Api extends HttpServlet {
           throw new RpcException(RpcException.Type.INVALID_URL, req.getPathInfo());
         }
         manager = fcm[1];
-        method = fcm[2];
+        // if the operation id ends with BodyParams just trim it since it's the same call
+        method = fcm[2].replaceAll(BODY_PARAMS_SUFFIX + "$", "");
 
         ser = selectSerializer(fcm[0], manager, method, out, req, resp);
 
