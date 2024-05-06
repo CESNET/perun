@@ -1,8 +1,10 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.implApi.ConfigManagerImplApi;
 
 /**
@@ -26,6 +28,11 @@ public class ConfigManagerImpl implements ConfigManagerImplApi {
   @Override
   public void reloadAppsConfig() {
     perunAppsConfigLoader.initialize();
+  }
+
+  @Override
+  public boolean isArchiveSpoolEnabled() {
+    return BeansUtils.getCoreConfig().isArchiveSpool();
   }
 
   @Override

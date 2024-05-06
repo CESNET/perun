@@ -55,6 +55,18 @@ public class ConfigManagerEntry implements ConfigManager {
     configManagerBl.reloadAppsConfig();
   }
 
+  @Override
+  public boolean isArchiveSpoolEnabled(PerunSession sess) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "isArchiveSpoolEnabled_policy")) {
+      throw new PrivilegeException(sess, "isArchiveSpoolEnabled");
+    }
+
+    return configManagerBl.isArchiveSpoolEnabled();
+  }
+
   public void setConfigManagerBl(ConfigManagerBl configManagerBl) {
     this.configManagerBl = configManagerBl;
   }

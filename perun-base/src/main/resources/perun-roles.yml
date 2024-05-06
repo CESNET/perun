@@ -8208,6 +8208,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  isArchiveSpoolEnabled_policy:
+    policy_roles:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
   #consentManagerEntry
 
   getAllConsents_policy:
