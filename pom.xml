@@ -49,9 +49,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<!-- "mvn deploy" should not deploy subprojects to a Maven repo by default,
-		     exceptions (perun-rpc, perun-openapi) are marked by the value "false" -->
-		<maven.deploy.skip>true</maven.deploy.skip>
+		<!-- need this to for perun-openapi to work when deployed, set as true for submodules that do not need to be
+		 deployed
+		 -->
+		<maven.deploy.skip>false</maven.deploy.skip>
 
 		<!-- macros @perun.conf@ @perun.jdbc@ etc replaced in all filtered resources in /src/main/resources during maven build-->
 		<perun.conf>/etc/perun/</perun.conf>
@@ -396,6 +397,24 @@
 
 		</dependencies>
 	</dependencyManagement>
+
+    <!-- GitLab package registry setup -->
+    <repositories>
+      <repository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.ics.muni.cz/api/v4/groups/8198/-/packages/maven</url>
+      </repository>
+    </repositories>
+    <distributionManagement>
+      <repository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.ics.muni.cz/api/v4/projects/5975/packages/maven</url>
+      </repository>
+      <snapshotRepository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.ics.muni.cz/api/v4/projects/5975/packages/maven</url>
+      </snapshotRepository>
+    </distributionManagement>
 
 	<!-- Perun project info -->
 	<name>perun</name>

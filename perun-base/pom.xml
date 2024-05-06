@@ -19,7 +19,7 @@
 
     <!-- module properties and versions -->
     <properties>
-
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <!-- Build settings for all profiles -->

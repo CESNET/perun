@@ -23,6 +23,7 @@
 		<gwtVersion>2.10.0</gwtVersion>
 		<webappDirectory>${project.build.directory}/${project.name}</webappDirectory>
 		<gui.url.modifier/>
+        <maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
 	<!-- common build settings used by all profiles -->
