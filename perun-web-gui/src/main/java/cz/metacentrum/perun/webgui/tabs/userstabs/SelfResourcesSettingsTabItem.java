@@ -621,7 +621,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
               }
             }
             for (final Attribute a : attrs) {
-              if (a.getFriendlyName().equalsIgnoreCase("filesQuotas") && !a.getValueAsMap().isEmpty()) {
+              if (a.getFriendlyName().equalsIgnoreCase("fileQuotas") && !a.getValueAsMap().isEmpty()) {
                 layoutx.setHTML(row, 0, "<strong>Files quota: </strong>");
                 final int rowFilesQuota = row;
                 // get default
@@ -654,7 +654,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
                     ArrayList<Attribute> attrs = JsonUtils.jsoAsList(jso);
                     boolean empty = true;
                     for (final Attribute resAttr : attrs) {
-                      if (resAttr.getFriendlyName().equalsIgnoreCase("defaultFilesQuotas")) {
+                      if (resAttr.getFriendlyName().equalsIgnoreCase("defaultFileQuotas")) {
                         if (a.getValueAsMap().isEmpty()) {
                           // null private + default
                           layoutx.setHTML(rowFilesQuota, 1, "Using default (default: " +
