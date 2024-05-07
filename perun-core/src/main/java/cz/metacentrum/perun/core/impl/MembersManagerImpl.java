@@ -1056,18 +1056,22 @@ public class MembersManagerImpl implements MembersManagerImplApi {
   public boolean someAvailableSponsorExistsForMember(PerunSession sess, Member member) {
     try {
       int sponsorRoleId = jdbc.queryForInt("select id from roles where name=?", Role.SPONSOR.toLowerCase());
+      int sponsorNoCreateRightRoleId =
+          jdbc.queryForInt("select id from roles where name=?", Role.SPONSORNOCREATERIGHTS.toLowerCase());
 
       boolean availableSponsorExists = !jdbc.query(
-          "select " + USER_MAPPING_SELECT_QUERY +
-              " from authz join users on authz.user_id=users.id where authz.role_id=? and authz.vo_id=? and" +
+          "select " + USER_MAPPING_SELECT_QUERY + " from authz join users on authz.user_id=users.id" +
+              " where (authz.role_id=? or authz.role_id=?) and authz.vo_id=? and" +
               " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id) limit 1",
-          USER_MAPPER, sponsorRoleId, member.getVoId(), member.getId()).isEmpty();
+          USER_MAPPER, sponsorRoleId, sponsorNoCreateRightRoleId, member.getVoId(), member.getId()).isEmpty();
 
       if (!availableSponsorExists) {
-        List<Group> sponsorGroups =
-            AuthzResolverBlImpl.getAdminGroups(new Vo(member.getVoId(), "DummyVo", "DummyVo"), Role.SPONSOR);
+        Vo vo = new Vo(member.getVoId(), "DummyVo", "DummyVo");
 
-        for (Group group : sponsorGroups) {
+        Set<Group> groups = new HashSet<>(AuthzResolverBlImpl.getAdminGroups(vo, Role.SPONSOR));
+        groups.addAll(AuthzResolverBlImpl.getAdminGroups(vo, Role.SPONSORNOCREATERIGHTS));
+
+        for (Group group : groups.stream().toList()) {
           availableSponsorExists = availableSponsorExists ||
                                        !jdbc.query("select " + USER_MAPPING_SELECT_QUERY +
                                                        " from users join members on users.id=members.user_id " +
@@ -1091,18 +1095,22 @@ public class MembersManagerImpl implements MembersManagerImplApi {
   @Override
   public List<User> getAvailableSponsorsForMember(PerunSession sess, Member member) {
     try {
-      int sponsorId = jdbc.queryForInt("select id from roles where name=?", Role.SPONSOR.toLowerCase());
+      int sponsorRoleId = jdbc.queryForInt("select id from roles where name=?", Role.SPONSOR.toLowerCase());
+      int sponsorNoCreateRightRoleId =
+          jdbc.queryForInt("select id from roles where name=?", Role.SPONSORNOCREATERIGHTS.toLowerCase());
 
       Set<User> sponsors = new HashSet<>(jdbc.query(
-          "select " + USER_MAPPING_SELECT_QUERY +
-              " from authz join users on authz.user_id=users.id where authz.role_id=? and authz.vo_id=? and" +
+          "select " + USER_MAPPING_SELECT_QUERY + " from authz join users on authz.user_id=users.id" +
+              " where (authz.role_id=? or authz.role_id=?) and authz.vo_id=? and" +
               " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id)",
-          USER_MAPPER, sponsorId, member.getVoId(), member.getId()));
+          USER_MAPPER, sponsorRoleId, sponsorNoCreateRightRoleId, member.getVoId(), member.getId()));
 
-      List<Group> sponsorGroups =
-          AuthzResolverBlImpl.getAdminGroups(new Vo(member.getVoId(), "DummyVo", "DummyVo"), Role.SPONSOR);
+      Vo vo = new Vo(member.getVoId(), "DummyVo", "DummyVo");
 
-      for (Group group : sponsorGroups) {
+      Set<Group> groups = new HashSet<>(AuthzResolverBlImpl.getAdminGroups(vo, Role.SPONSOR));
+      groups.addAll(AuthzResolverBlImpl.getAdminGroups(vo, Role.SPONSORNOCREATERIGHTS));
+
+      for (Group group : groups.stream().toList()) {
         sponsors.addAll(jdbc.query("select " + USER_MAPPING_SELECT_QUERY +
                                        " from users join members on users.id=members.user_id " +
                                        "join groups_members on groups_members.member_id=members.id " +

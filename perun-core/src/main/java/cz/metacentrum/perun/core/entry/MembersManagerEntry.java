@@ -1856,9 +1856,11 @@ public class MembersManagerEntry implements MembersManager {
     }
 
     //Check that sponsoring user has a role SPONSOR for the VO
-    if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSOR, vo, true)) {
+    if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSOR, vo, true) &&
+            !getPerunBl().getVosManagerBl()
+                 .isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSORNOCREATERIGHTS, vo, true)) {
       throw new PrivilegeException(sess,
-          "user " + sponsorToRemove.getId() + " is not in role SPONSOR for VO " + vo.getId());
+          "user " + sponsorToRemove.getId() + " is not in role SPONSOR or SPONSORNOCREATERIGHTS for VO " + vo.getId());
     }
     //remove sponsor
     membersManagerBl.removeSponsor(sess, sponsoredMember, sponsorToRemove);
