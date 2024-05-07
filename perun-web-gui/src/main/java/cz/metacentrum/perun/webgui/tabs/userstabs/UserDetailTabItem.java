@@ -891,8 +891,6 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
             table.add(a);
           } else if (a.getFriendlyName().equalsIgnoreCase("kerberosAdminPrincipal")) {
             table.add(a);
-          } else if (a.getFriendlyName().equalsIgnoreCase("sshPublicAdminKey")) {
-            table.add(a);
           }
         }
         // build attr table
@@ -966,7 +964,6 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
     set.add("urn:perun:user:attribute-def:def:userCertificates");
     set.add("urn:perun:user:attribute-def:def:kerberosAdminPrincipal");
     set.add("urn:perun:user:attribute-def:def:sshPublicKey");
-    set.add("urn:perun:user:attribute-def:def:sshPublicAdminKey");
     set.add("urn:perun:user:attribute-def:def:login-namespace:mu");
     set.add("urn:perun:user:attribute-def:def:login-namespace:einfra");
     set.add("urn:perun:user:attribute-def:def:login-namespace:sitola");

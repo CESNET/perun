@@ -348,7 +348,6 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
     });
     ArrayList<String> list2 = new ArrayList<String>();
     list2.add("urn:perun:user:attribute-def:def:kerberosAdminPrincipal");
-    list2.add("urn:perun:user:attribute-def:def:sshPublicAdminKey");
     list2.add("urn:perun:user:attribute-def:def:sshPublicKey");
     attrs2.getListOfAttributes(ids, list2);
 
