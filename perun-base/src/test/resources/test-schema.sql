@@ -3137,13 +3137,6 @@ values (null, 3261, 'Home mount point', 24, 'urn:perun:user_facility:attribute-d
         timestamp '2013-10-24 13:25:02.5', '/C=CZ/O=Masaryk University/CN=Zora Sebestianova/unstructuredName=71378');
 insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
                         dsc, created_at, created_by, modified_at, modified_by)
-values (3255, 3411, 'Public ssh admin key', 2220, 'urn:perun:user:attribute-def:def:sshPublicAdminKey',
-        'sshPublicAdminKey', 'urn:perun:user:attribute-def:def', 'java.util.ArrayList',
-        'User''s SSH public keys used for root access.', timestamp '2013-04-01 23:48:16.2', 'glory@META',
-        timestamp '2014-05-16 09:40:07.6',
-        '/C=CZ/O=Masarykova univerzita/CN=Pavel Zl\xC3\xA1mal/unstructuredName=256627');
-insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
-                        dsc, created_at, created_by, modified_at, modified_by)
 values (null, 3261, 'Files limit', 1244, 'urn:perun:member_resource:attribute-def:def:filesLimit', 'filesLimit',
         'urn:perun:member_resource:attribute-def:def', 'java.lang.Integer',
         'Hard quota for max. number of user''s files. Standard is empty, Default files limit is used. Filled value defines exception from Resource''s default.',
@@ -5527,18 +5520,6 @@ values (2200, 26, 2);
 insert into attributes_authz (attr_id, role_id, action_type_id)
 values (2200, 81, 1);
 insert into attributes_authz (attr_id, role_id, action_type_id)
-values (2220, 22, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (2220, 23, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (2220, 24, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (2220, 24, 2);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (2220, 26, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (2220, 81, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
 values (2221, 22, 1);
 insert into attributes_authz (attr_id, role_id, action_type_id)
 values (2221, 23, 1);
@@ -7074,11 +7055,6 @@ insert into service_required_attrs (created_by_uid, modified_by_uid, service_id,
                                     modified_at, modified_by)
 values (3255, 3255, 541, 49, timestamp '2013-10-14 16:09:05.2',
         '/C=CZ/O=Masaryk University/CN=Slavek Licehammer/unstructuredName=255920', timestamp '2013-10-14 16:09:05.2',
-        '/C=CZ/O=Masaryk University/CN=Slavek Licehammer/unstructuredName=255920');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (3255, 3255, 681, 2220, timestamp '2013-12-10 18:13:13.3',
-        '/C=CZ/O=Masaryk University/CN=Slavek Licehammer/unstructuredName=255920', timestamp '2013-12-10 18:13:13.3',
         '/C=CZ/O=Masaryk University/CN=Slavek Licehammer/unstructuredName=255920');
 insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
                                     modified_at, modified_by)
