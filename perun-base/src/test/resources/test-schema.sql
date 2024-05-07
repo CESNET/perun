@@ -2870,14 +2870,6 @@ values (null, 3261, 'Preferred language', 1365, 'urn:perun:user:attribute-def:de
         timestamp '2013-10-23 14:09:39.4', '/C=CZ/O=Masaryk University/CN=Zora Sebestianova/unstructuredName=71378');
 insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
                         dsc, created_at, created_by, modified_at, modified_by)
-values (null, 3261, 'Level of assurance by organization (EN)', 1921,
-        'urn:perun:user:attribute-def:virt:organizationsWithLoa:en', 'organizationsWithLoa:en',
-        'urn:perun:user:attribute-def:virt', 'java.util.LinkedHashMap',
-        'Level of assurance by organization (english). Value is automatically determined from all user''s external identities.',
-        timestamp '2012-11-30 10:42:02.6', 'glory@META', timestamp '2013-10-24 13:41:05.5',
-        '/C=CZ/O=Masaryk University/CN=Zora Sebestianova/unstructuredName=71378');
-insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
-                        dsc, created_at, created_by, modified_at, modified_by)
 values (null, 3261, 'Unix GID in egi-ui', 1826, 'urn:perun:group:attribute-def:def:unixGID-namespace:egi-ui',
         'unixGID-namespace:egi-ui', 'urn:perun:group:attribute-def:def', 'java.lang.Integer',
         'Unix GID in namespace ''egi-ui''.', timestamp '2012-11-15 22:49:35.5', 'vlasta@META',
@@ -3011,14 +3003,6 @@ values (null, 3261, 'Unix group name in egi-ui', 1825,
         'urn:perun:group:attribute-def:def:unixGroupName-namespace:egi-ui', 'unixGroupName-namespace:egi-ui',
         'urn:perun:group:attribute-def:def', 'java.lang.String', 'Unix group name in namespace ''egi-ui''.',
         timestamp '2012-11-15 22:46:51.5', 'vlasta@META', timestamp '2013-10-25 12:33:13.6',
-        '/C=CZ/O=Masaryk University/CN=Zora Sebestianova/unstructuredName=71378');
-insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
-                        dsc, created_at, created_by, modified_at, modified_by)
-values (null, 3261, 'Level of assurance by organization (CS)', 1920,
-        'urn:perun:user:attribute-def:virt:organizationsWithLoa:cs', 'organizationsWithLoa:cs',
-        'urn:perun:user:attribute-def:virt', 'java.util.LinkedHashMap',
-        'Level of assurance by organization (czech). Value is automatically determined from all user''s external identities.',
-        timestamp '2012-11-30 10:41:46.6', 'glory@META', timestamp '2013-10-24 13:40:16.5',
         '/C=CZ/O=Masaryk University/CN=Zora Sebestianova/unstructuredName=71378');
 insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
                         dsc, created_at, created_by, modified_at, modified_by)
@@ -4908,26 +4892,6 @@ insert into attributes_authz (attr_id, role_id, action_type_id)
 values (1905, 26, 1);
 insert into attributes_authz (attr_id, role_id, action_type_id)
 values (1905, 81, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1920, 22, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1920, 23, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1920, 24, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1920, 26, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1920, 81, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1921, 22, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1921, 23, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1921, 24, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1921, 26, 1);
-insert into attributes_authz (attr_id, role_id, action_type_id)
-values (1921, 81, 1);
 insert into attributes_authz (attr_id, role_id, action_type_id)
 values (1941, 22, 1);
 insert into attributes_authz (attr_id, role_id, action_type_id)
