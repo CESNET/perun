@@ -933,6 +933,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="libraryIDs"/>
 					<property name="required" value="false"/>
+					<property name="deleted" value="true"/>
 					<property name="multipleValuesExtractor">
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
 							<property name="name" value="libraryIDs"/>
