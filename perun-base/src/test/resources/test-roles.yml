@@ -238,5 +238,10 @@ perun_policies:
     include_policies:
       - default_policy
 
+  test_service_account_creator_role:
+    policy_roles:
+      - SERVICEACCOUNTCREATOR:
+    include_policies: [ ]
+
 perun_roles_management: { }
 ...
