@@ -444,8 +444,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
   private void checkOrSetSponsorRole(PerunSession session, User sponsor, Vo vo) throws UserNotInRoleException {
     if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
       try {
-        if (!AuthzResolver.authorizedToManageRole(session, vo, Role.SPONSOR)) {
-          throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+        if (!AuthzResolver.authorizedToManageRole(session, vo, Role.SPONSOR) &&
+                !AuthzResolver.authorizedToManageRole(session, vo, Role.SPONSORNOCREATERIGHTS)) {
+          throw new UserNotInRoleException(
+              "user " + sponsor.getId() + " is not in role SPONSOR or SPONSORNOCREATERIGHTS for VO " + vo.getId());
         }
         // if the principal is Authorized to set the Sponsor role, set it
         AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
@@ -3910,9 +3912,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     } catch (VoNotExistsException ex) {
       throw new ConsistencyErrorException("Vo for " + sponsoredMember + " not exists!");
     }
-    if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, membersVo, true)) {
+    if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, membersVo, true) &&
+            !getPerunBl().getVosManagerBl()
+                 .isUserInRoleForVo(session, sponsor, Role.SPONSORNOCREATERIGHTS, membersVo, true)) {
       throw new UserNotInRoleException(
-          "User " + sponsor.getId() + " is not in role SPONSOR for VO " + membersVo.getId());
+          "User " + sponsor.getId() + " is not in role SPONSOR or SPONSORNOCREATERIGHTS for VO " + membersVo.getId());
     }
 
     //set member to be sponsored
@@ -3986,8 +3990,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       throws MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
     //check that sponsoring user has role SPONSOR for the VO
     Vo vo = getMemberVo(session, sponsoredMember);
-    if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
-      throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+    if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true) &&
+            !getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSORNOCREATERIGHTS, vo, true)) {
+      throw new UserNotInRoleException(
+          "user " + sponsor.getId() + " is not in role SPONSOR or SPONSORNOCREATERIGHTS for VO " + vo.getId());
     }
     if (!sponsoredMember.isSponsored()) {
       throw new MemberNotSponsoredException("member " + sponsoredMember.getId() + " is not marked as sponsored");

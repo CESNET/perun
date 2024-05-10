@@ -49,9 +49,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<!-- "mvn deploy" should not deploy subprojects to a Maven repo by default,
-		     exceptions (perun-rpc, perun-openapi) are marked by the value "false" -->
-		<maven.deploy.skip>true</maven.deploy.skip>
+		<!-- need this to for perun-openapi to work when deployed, set as true for submodules that do not need to be
+		 deployed
+		 -->
+		<maven.deploy.skip>false</maven.deploy.skip>
 
 		<!-- macros @perun.conf@ @perun.jdbc@ etc replaced in all filtered resources in /src/main/resources during maven build-->
 		<perun.conf>/etc/perun/</perun.conf>
@@ -70,8 +71,8 @@
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
 		<flying-saucer-pdf.version>9.7.2</flying-saucer-pdf.version>
-		<bouncycastle.version>1.77</bouncycastle.version>
-		<google-api-services-admin-directory.version>directory_v1-rev20240304-2.0.0</google-api-services-admin-directory.version>
+		<bouncycastle.version>1.78.1</bouncycastle.version>
+		<google-api-services-admin-directory.version>directory_v1-rev20240509-2.0.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
@@ -80,7 +81,7 @@
 		<json.version>20231013</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
 		<reflections.version>0.9.12</reflections.version>
-		<testcontainers.version>1.19.7</testcontainers.version>
+		<testcontainers.version>1.19.8</testcontainers.version>
 
 		<!-- upgraded version of Spring Framework against the Spring Boot dependency to avoid high vulnerability (CVE-2024-22243) -->
 		<spring-framework.version>5.3.32</spring-framework.version>
@@ -224,7 +225,7 @@
 						<dependency>
 						  <groupId>com.puppycrawl.tools</groupId>
 						  <artifactId>checkstyle</artifactId>
-						  <version>10.14.2</version>
+						  <version>10.16.0</version>
 						</dependency>
 					  </dependencies>
 			  	</plugin>
@@ -396,6 +397,24 @@
 
 		</dependencies>
 	</dependencyManagement>
+
+    <!-- GitLab package registry setup -->
+    <repositories>
+      <repository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.ics.muni.cz/api/v4/groups/8198/-/packages/maven</url>
+      </repository>
+    </repositories>
+    <distributionManagement>
+      <repository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.ics.muni.cz/api/v4/projects/5975/packages/maven</url>
+      </repository>
+      <snapshotRepository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.ics.muni.cz/api/v4/projects/5975/packages/maven</url>
+      </snapshotRepository>
+    </distributionManagement>
 
 	<!-- Perun project info -->
 	<name>perun</name>

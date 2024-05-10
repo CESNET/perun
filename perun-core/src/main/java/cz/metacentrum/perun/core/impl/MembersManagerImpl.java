@@ -622,11 +622,11 @@ public class MembersManagerImpl implements MembersManagerImplApi {
     MapSqlParameterSource namedParams =
         Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
 
-    String select = getSQLSelectForMembersPage(query);
+    String select = getSQLSelectForMembersPage(query, false);
+    String selectTotalCount = getSQLSelectForMembersPage(query, true);
     String searchQuery = getSQLWhereForMembersPage(query, namedParams);
 
     namedParams.addValue("voId", vo.getId());
-    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
     namedParams.addValue("userId", sess.getPerunPrincipal().getUserId());
 
@@ -642,9 +642,22 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       groupByQuery += ", users.last_name, users.first_name, groups_members.group_id, groups_members.source_group_id, " +
                       "groups_members.membership_type, groups_members.source_group_status";
     }
+    String extractedQuery =
+        whereBasedOnThePolicy + statusesQueryString + groupStatusesQueryString + searchQuery + groupByQuery;
 
-    return namedParameterJdbcTemplate.query(
-        select + whereBasedOnThePolicy + statusesQueryString + groupStatusesQueryString + searchQuery + groupByQuery +
+    Integer filteredCount;
+    try {
+      filteredCount =
+          namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount(selectTotalCount + extractedQuery),
+          namedParams, Integer.class);
+    } catch (EmptyResultDataAccessException ex) {
+      filteredCount = 0;
+    }
+
+    query.recalculateOffset(filteredCount);
+    namedParams.addValue("offset", query.getOffset());
+
+    return namedParameterJdbcTemplate.query(select + extractedQuery +
         " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit)",
         namedParams, getPaginatedMembersExtractor(query));
   }
@@ -668,13 +681,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
            " AS members_group ON members.id = members_group.member_id AND members.vo_id = members_group.vo_id";
   }
 
-  private String getSQLSelectForMembersPage(MembersPageQuery query) {
-    String voSelect = "SELECT " + MEMBER_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" +
+  private String getSQLSelectForMembersPage(MembersPageQuery query, boolean selectJustTotalCount) {
+    String voSelect = "SELECT " + (selectJustTotalCount ? "" : MEMBER_MAPPING_SELECT_QUERY + " ,") +
+                      "count(*) OVER() AS total_count" +
                       query.getSortColumn().getSqlSelect() + " FROM members JOIN users ON members.user_id = users.id " +
                       getSQLBasedOnPolicy() + query.getSortColumn().getSqlJoin();
 
-    String groupSelect = "SELECT " + GROUPS_MEMBERS_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" +
-                         query.getSortColumn().getSqlSelect() + "       FROM" +
+    String groupSelect = "SELECT " + (selectJustTotalCount ? "" : GROUPS_MEMBERS_MAPPING_SELECT_QUERY + " ,") +
+                         "count(*) OVER () AS total_count" + query.getSortColumn().getSqlSelect() + " FROM" +
                          "            (SELECT group_id, member_id, min(source_group_status) as source_group_status," +
                          "    min(membership_type) as membership_type, null as source_group_id" +
                          "    FROM groups_members" + "    WHERE group_id = (:groupId)" +
@@ -1042,18 +1056,22 @@ public class MembersManagerImpl implements MembersManagerImplApi {
   public boolean someAvailableSponsorExistsForMember(PerunSession sess, Member member) {
     try {
       int sponsorRoleId = jdbc.queryForInt("select id from roles where name=?", Role.SPONSOR.toLowerCase());
+      int sponsorNoCreateRightRoleId =
+          jdbc.queryForInt("select id from roles where name=?", Role.SPONSORNOCREATERIGHTS.toLowerCase());
 
       boolean availableSponsorExists = !jdbc.query(
-          "select " + USER_MAPPING_SELECT_QUERY +
-              " from authz join users on authz.user_id=users.id where authz.role_id=? and authz.vo_id=? and" +
+          "select " + USER_MAPPING_SELECT_QUERY + " from authz join users on authz.user_id=users.id" +
+              " where (authz.role_id=? or authz.role_id=?) and authz.vo_id=? and" +
               " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id) limit 1",
-          USER_MAPPER, sponsorRoleId, member.getVoId(), member.getId()).isEmpty();
+          USER_MAPPER, sponsorRoleId, sponsorNoCreateRightRoleId, member.getVoId(), member.getId()).isEmpty();
 
       if (!availableSponsorExists) {
-        List<Group> sponsorGroups =
-            AuthzResolverBlImpl.getAdminGroups(new Vo(member.getVoId(), "DummyVo", "DummyVo"), Role.SPONSOR);
+        Vo vo = new Vo(member.getVoId(), "DummyVo", "DummyVo");
 
-        for (Group group : sponsorGroups) {
+        Set<Group> groups = new HashSet<>(AuthzResolverBlImpl.getAdminGroups(vo, Role.SPONSOR));
+        groups.addAll(AuthzResolverBlImpl.getAdminGroups(vo, Role.SPONSORNOCREATERIGHTS));
+
+        for (Group group : groups.stream().toList()) {
           availableSponsorExists = availableSponsorExists ||
                                        !jdbc.query("select " + USER_MAPPING_SELECT_QUERY +
                                                        " from users join members on users.id=members.user_id " +
@@ -1077,18 +1095,22 @@ public class MembersManagerImpl implements MembersManagerImplApi {
   @Override
   public List<User> getAvailableSponsorsForMember(PerunSession sess, Member member) {
     try {
-      int sponsorId = jdbc.queryForInt("select id from roles where name=?", Role.SPONSOR.toLowerCase());
+      int sponsorRoleId = jdbc.queryForInt("select id from roles where name=?", Role.SPONSOR.toLowerCase());
+      int sponsorNoCreateRightRoleId =
+          jdbc.queryForInt("select id from roles where name=?", Role.SPONSORNOCREATERIGHTS.toLowerCase());
 
       Set<User> sponsors = new HashSet<>(jdbc.query(
-          "select " + USER_MAPPING_SELECT_QUERY +
-              " from authz join users on authz.user_id=users.id where authz.role_id=? and authz.vo_id=? and" +
+          "select " + USER_MAPPING_SELECT_QUERY + " from authz join users on authz.user_id=users.id" +
+              " where (authz.role_id=? or authz.role_id=?) and authz.vo_id=? and" +
               " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id)",
-          USER_MAPPER, sponsorId, member.getVoId(), member.getId()));
+          USER_MAPPER, sponsorRoleId, sponsorNoCreateRightRoleId, member.getVoId(), member.getId()));
 
-      List<Group> sponsorGroups =
-          AuthzResolverBlImpl.getAdminGroups(new Vo(member.getVoId(), "DummyVo", "DummyVo"), Role.SPONSOR);
+      Vo vo = new Vo(member.getVoId(), "DummyVo", "DummyVo");
 
-      for (Group group : sponsorGroups) {
+      Set<Group> groups = new HashSet<>(AuthzResolverBlImpl.getAdminGroups(vo, Role.SPONSOR));
+      groups.addAll(AuthzResolverBlImpl.getAdminGroups(vo, Role.SPONSORNOCREATERIGHTS));
+
+      for (Group group : groups.stream().toList()) {
         sponsors.addAll(jdbc.query("select " + USER_MAPPING_SELECT_QUERY +
                                        " from users join members on users.id=members.user_id " +
                                        "join groups_members on groups_members.member_id=members.id " +

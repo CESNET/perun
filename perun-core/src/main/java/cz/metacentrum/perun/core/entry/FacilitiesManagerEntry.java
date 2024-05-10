@@ -93,8 +93,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
   @Override
   public void addAdmin(PerunSession sess, Facility facility, User user)
-          throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException,
-          RoleCannotBeManagedException, RoleCannotBeSetException {
+      throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException,
+                 RoleCannotBeManagedException, RoleCannotBeSetException {
     Utils.checkPerunSession(sess);
 
     getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -700,8 +700,13 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
       throw new PrivilegeException(sess, "getAssignedRichResources");
     }
 
-    return getFacilitiesManagerBl().getAssignedRichResources(sess, facility);
+    List<RichResource> resources = getFacilitiesManagerBl().getAssignedRichResources(sess, facility);
 
+    resources.removeIf(
+        resource -> !AuthzResolver.authorizedInternal(sess, "filter-getAssignedRichResources_Facility_policy",
+            facility, resource));
+
+    return resources;
   }
 
   @Override

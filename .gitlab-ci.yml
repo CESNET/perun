@@ -38,6 +38,15 @@ maven-build:
         POSTGRESQL_DATABASE: perun
         HEALTHCHECK_TCP_PORT: "5432"
 
+deploy:
+  stage: deploy
+  image: registry.gitlab.ics.muni.cz:443/perun/ci/pipeline-components/maven:3-eclipse-temurin-21
+  script:
+    - 'mvn deploy -s ci_settings.xml -DskipTests'
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != 'schedule' && $CI_PIPELINE_SOURCE != 'trigger'"
+
+
 openapi-lint:
   stage: test
   image: registry.gitlab.ics.muni.cz:443/perun/ci/pipeline-components/expo:latest

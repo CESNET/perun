@@ -1,0 +1,170 @@
+<!doctype html>
+
+<html>
+<head>
+
+	<!-- Charset -->
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+	<!-- Default GWT locale -->
+	<meta name="gwt:property" content="locale=en">
+
+	<!-- FavIcons -->
+	<link rel="icon" href="img/perun.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="img/perun.ico" type="image/x-icon">
+
+	<!-- Styles -->
+	<link type="text/css" rel="stylesheet" href="./PerunWeb.css">
+
+	<!-- Title -->
+	<title>Perun web gui</title>
+
+	<!--  jQuery -->
+	<script src="./js/jquery-1.12.4.min.js" integrity="sha256-MKB4WITrsJ8OEd48EEDX9gACKDW46Cn8JwKDmOOJ10w= sha384-bN167nQpWV+x9UDEX1Oj2BC9zIa0N/V/PJpIisKhFJ8k3HRu8ubzxhdQ8MtD+IQV sha512-9v6tE12MEojtH4otJO8zjtz3CI4CXiJK5cTJFyLHBrRQY0g14mqmfmQ2vpoLnl1aZ3robY5BdrOB2CIiweZR9Q=="></script>
+
+	<!--  RPC definition -->
+	<script type="text/javascript" language="javascript" >
+		RPC_SERVER = window.location.pathname.split("/")[1];
+
+		RPC_VERSION = undefined;
+
+		<!-- Fix Windows+Chrome+Kerberos authz - chrome doesn't trust whole domain, we must call most top-level path -->
+		$.ajax({
+			url: "/" + window.location.pathname.split("/")[1] + "/rpc/",
+			type: "get",
+			success:
+				function(result){
+					var startIndex = result.indexOf(":");
+					var endIndex = result.indexOf(",");
+					if (startIndex > -1 && endIndex > -1) {
+						RPC_VERSION = result.substring(startIndex+2,endIndex);
+					}
+				}
+		});
+
+	</script>
+
+	<!--  Set language -->
+	<script type="text/javascript" language="javascript" >
+
+		// get URL param function
+		function getURLParameter(name) {
+			return decodeURI(
+				(RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,'default'])[1]
+			);
+		}
+
+		// determine version of IE
+		function getIEVersion() {
+			var sAgent = window.navigator.userAgent;
+			var Idx = sAgent.indexOf("MSIE");
+
+			// If IE, return version number.
+			if (Idx > 0)
+				return parseInt(sAgent.substring(Idx+ 5, sAgent.indexOf(".", Idx)));
+
+			// If IE 11 then look for Updated user agent string.
+			else if (!!navigator.userAgent.match(/Trident\/7\./))
+				return 11;
+
+			else
+				return 0; //It is not IE
+		}
+
+		// determine lang from browser itself
+		function getLang() {
+			if (navigator.languages !== undefined)
+				return navigator.languages[0];
+			else
+				return navigator.language;
+		}
+
+		var l_lang;
+		l_lang = getURLParameter('locale');
+
+
+		if (l_lang === 'default') {
+			l_lang = getLang();
+			//l_lang = 'en';
+		}
+
+		$("meta[name='gwt:property']").attr('content', 'locale='+l_lang);
+
+		// Skip on Chrome 1+, Firefox 3.5+, IE 8+, Opera 15+, Safari 3.2
+		if (getIEVersion() !== 0 && getIEVersion() < 10) {
+			// Is IE < 10
+			alert("Unsupported browser. Please use either: Internet Explorer 10+ or Edge, Firefox, Chrome, Opera 15+ or Safari");
+		}
+		var isOperaBefore15 = (window.opera && navigator.userAgent.indexOf(' OPR/') === -1);
+		if (isOperaBefore15) {
+			alert("Unsupported browser. Please use either: Internet Explorer 10+ or Edge, Firefox, Chrome, Opera 15+ or Safari");
+		}
+
+	</script>
+
+	<!--  GDPR APPROVAL TEXT -->
+	<!-- Version respective to the linked document (CESNET 3/2018 Guidline) -->
+	<script type="text/javascript" language="javascript" >
+
+		GDPR_VERSION = "2.0";
+		if (l_lang === "cs") {
+			GDPR_TEXT = "<p>Chystáte se stát (nebo již jste) <b>správcem v systému Perun</b> (správcem VO, skupiny nebo facility). Systém Perun slouží pro správu uživatelů a řízení přístupu ke službám e‑infrastruktury CESNET.<p>V roli <b>správce VO, skupiny nebo facility</b> budete zpracovávat osobní údaje subjektů údajů (uživatelů služby), které jsou chráněny GDPR <i>[nařízení Evropského parlamentu a Rady (EU) č. 2016/679 o ochraně fyzických osob v souvislosti se zpracováním osobních údajů a o volném pohybu těchto údajů a o zrušení směrnice 95/46/ES (obecné nařízení o ochraně osobních údajů)]</i>.<p>Postup při zpracování osobních údajů, odpovědnost osob zajišťujících ochranu osobních údajů a vymezení práv a povinností osob účastnících se činností souvisejících se zpracováním těchto údajů v rámci sdružení CESNET a v rámci služeb e-infrastruktury CESNET, stanovuje směrnice <a href=\"https://"+window.location.hostname+"/"+RPC_SERVER+"/gdpr/OOU_3-2018_CS.pdf\" target=\"_blank\">CESNET č. 3/2018 - OCHRANA OSOBNÍCH ÚDAJŮ</a>.<p><b>Správce VO, skupiny nebo facility</b> je touto směrnicí definován jakožto <b>další oprávněná osoba</b> (viz čl. 5). Role, práva a povinnosti těchto osob jsou uvedeny zejména v článcích 5, 9 a 15.</p><p>Souhlasím, že budu roli správce vykonávat v souladu s výše uvedenou směrnicí.<hr/><p><i>V případě potíží nebo dotazů prosím kontaktujte uživatelskou podporu na <a href='mailto:perun@cesnet.cz'>perun@cesnet.cz</a>.</i>";
+			GDPR_AGREE = "Souhlasím";
+			GDPR_DISAGREE = "Nesouhlasím";
+			GDPR_DISAGREE_RESULT="<p>Abyste mohli používat systém Perun jako správce, musíte souhlasit s poslední verzí směrnice CESNET č. 3/2018 - OCHRANA OSOBNÍCH ÚDAJŮ. <p>V případě potíží nebo dotazů prosím kontaktujte uživatelskou podporu na <a href='mailto:perun@cesnet.cz'>perun@cesnet.cz</a>.";
+			GDPR_DISAGREE_RESULT_BACK="Zpět k souhlasu";
+			GDPR_TITLE="Souhlas se směrnicí o ochraně osobních údajů";
+			GDPR_FAILED="Nepodařilo se ověřit váš souhlas se směrnicí o ochraně osobních údajů."
+		} else {
+			GDPR_TEXT = "<p>You are about to become (or are already) <b>an administrator in Perun</b> (a VO, group, or facility manager). Perun system is used to manage users and control access to the services of CESNET e-infrastructure.<p><b>As an administrator of VO, group or facility</b> you are about to process personal data of users (data subjects), which are protected by GDPR <i>[Regulation (EU) 2016/679 of the European parliament and of the council on the protection of natural persons with regard to the processing of personal data and on the free movement of such data, and repealing Directive 95/46/EC (General Data Protection Regulation)]</i><p>Procedure for processing personal data, the responsibilities of persons ensuring the protection of personal data and defining the rights and obligations of persons participating in activities related to the processing of such data within the CESNET association and within the framework of the CESNET e-infrastructure services are set by <a href=\"https://"+window.location.hostname+"/"+RPC_SERVER+"/gdpr/OOU_3-2018_EN.pdf\" target=\"_blank\">CESNET Guideline 3/2018 - PERSONAL DATA PROTECTION</a> (see also <a href=\"https://"+window.location.hostname+"/"+RPC_SERVER+"/gdpr/OOU_3-2018_CS.pdf\" target=\"_blank\">Czech version</a>).<p><b>VO manager, group manager or facility manager</b> is defined by this Guideline as <b>Other authorised entity</b> (see Article 5). The roles, rights and obligations of these entities are set out in particular in Articles 5, 9 and 15.<p>I agree to perform the role of administrator in accordance with the above Guideline.<hr/><p><i>In case of problems or questions, please contact user support at <a href='mailto:perun@cesnet.cz'>perun@cesnet.cz</a>.</i>";
+			GDPR_AGREE = "I agree";
+			GDPR_DISAGREE = "I disagree";
+			GDPR_DISAGREE_RESULT="<p>To use Perun as an administrator, you must agree to the latest version of CESNET Guidline 3/2018 - PERSONAL DATA PROTECTION. <p>In case of problems or questions, please contact user support at <a href='mailto:perun@cesnet.cz'>perun@cesnet.cz</a>.";
+			GDPR_DISAGREE_RESULT_BACK="Back to agreement";
+			GDPR_TITLE="Agreement to guideline on personal data protection";
+			GDPR_FAILED="We were unable to verify your agreement with the Personal Data Protection guideline."
+		}
+
+	</script>
+
+	<!-- Matomo -->
+	<script>
+		var _paq = window._paq = window._paq || [];
+		/* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+		_paq.push(["disableCookies"]);
+		_paq.push(['trackPageView']);
+		_paq.push(['enableLinkTracking']);
+		_paq.push(['enableHeartBeatTimer']);
+		(function() {
+			var u="//analytics.ics.muni.cz/";
+			_paq.push(['setTrackerUrl', u+'matomo.php']);
+			_paq.push(['setSiteId', '708']);
+			var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+			g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+		})();
+	</script>
+	<!-- End Matomo Code -->
+
+	<!-- Load GWT GUI -->
+	<script type="text/javascript" language="javascript" src="./PerunWeb/PerunWeb.nocache.js"></script>
+
+</head>
+
+<body>
+
+<div id="perun-new-gui-alert"></div>
+
+<!-- OPTIONAL: include this if you want history support -->
+<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
+        style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+
+<!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+<noscript>
+	<div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+		Your web browser must have JavaScript enabled in order for this
+		application to display correctly.</div>
+</noscript>
+
+</body>
+
+</html>

@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
@@ -1340,6 +1341,51 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertEquals(blockedLogins.getData().get(1), new BlockedLogin(login, namespace));
 	}
 
+	@Test
+	public void getBlockedLoginPage_autoChangedOffset() throws Exception {
+		System.out.println(CLASS_NAME + "getBlockedLoginPage_autoChangedOffset");
+
+		String login = "login";
+		String login2 = "login2";
+		String login3 = "login3";
+		String login4 = "login3_4";
+		String login5 = "login3_5";
+		String login6 = "login3_6";
+		String login7 = "login3_7";
+		String namespace = "one";
+		String namespace2 = "two";
+		String namespace3 = "three";
+		String namespace4 = "three";
+		String namespace7 = "three";
+
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login), namespace);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login2), namespace2);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login3), namespace3);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login4), namespace4);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login5), null);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login6), null);
+		perun.getUsersManager().blockLogins(sess, Collections.singletonList(login7), namespace7);
+
+		BlockedLoginsPageQuery query = new BlockedLoginsPageQuery(5, 5, SortingOrder.ASCENDING,
+				BlockedLoginsOrderColumn.LOGIN, "login3_");
+		Paginated<BlockedLogin> blockedLogins = usersManager.getBlockedLoginsPage(sess, query);
+		List<String> returnedLogins = blockedLogins.getData().stream().map(BlockedLogin::getLogin).toList();
+
+		assertNotNull(blockedLogins);
+		assertEquals(4, blockedLogins.getData().size());
+		assertEquals(0, blockedLogins.getOffset());
+		assertThat(returnedLogins).containsExactlyInAnyOrder(login4, login5, login6, login7);
+
+		query = new BlockedLoginsPageQuery(5, 5, SortingOrder.ASCENDING,
+				BlockedLoginsOrderColumn.LOGIN, "", Collections.singletonList("three"));
+		blockedLogins = usersManager.getBlockedLoginsPage(sess, query);
+		returnedLogins = blockedLogins.getData().stream().map(BlockedLogin::getLogin).toList();
+
+		assertEquals(3, blockedLogins.getData().size());
+		assertEquals(0, blockedLogins.getOffset());
+		assertThat(returnedLogins).containsExactlyInAnyOrder(login3, login4, login7);
+	}
+
 	@Test (expected=UserExtSourceNotExistsException.class)
 	public void getUserExtSourceByExtLoginWhenExtLoginNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getUserExtSourceByExtLoginWhenExtLoginNotExists");
@@ -2550,6 +2596,53 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertEquals(2, users.getData().size());
 		assertEquals(users.getData().get(0), usersManager.getRichUser(sess, user2));
 		assertEquals(users.getData().get(1), usersManager.getRichUser(sess, user));
+	}
+
+	@Test
+	public void getUsersPage_autoChangedOffset() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersPage_autoChangedOffset");
+
+		Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+		User user1 = setUpUser("John", "Doe");
+		User user2 = setUpUser("John", "Stinson");
+		User user3 = setUpUser("John", "Young");
+		User user4 = setUpUser("John", "Lee");
+		User user5 = setUpUser("John", "Smith");
+		User user6 = setUpUser("John", "Jameson");
+		User user7 = setUpUser("John", "King");
+		User user8 = setUpUser("Jane", "Doe");
+		User user9 = setUpUser("Jane", "Stinson");
+		User user10 = setUpUser("Jane", "Young");
+		User user11 = setUpUser("Jane", "Lee");
+		User user12 = setUpUser("Jane", "Smith");
+
+		UsersPageQuery query = new UsersPageQuery(10, 0, SortingOrder.ASCENDING, UsersOrderColumn.NAME, "Lee");
+		Paginated<RichUser> users = usersManager.getUsersPage(sess, query, List.of());
+		List<Integer> returnedUserIds = users.getData().stream().map(PerunBean::getId).toList();
+
+		// Check returned users, offset changed from 10 to 0
+		assertEquals(2, users.getData().size());
+		assertEquals(0, users.getOffset());
+		assertThat(returnedUserIds).containsExactlyInAnyOrder(user4.getId(), user11.getId());
+
+		query = new UsersPageQuery(3, 9, SortingOrder.ASCENDING, UsersOrderColumn.NAME, "John");
+		users = usersManager.getUsersPage(sess, query, List.of());
+		returnedUserIds = users.getData().stream().map(PerunBean::getId).toList();
+
+		// Check returned users, offset changed from 9 to 6
+		assertEquals(2, users.getData().size());
+		assertEquals(6, users.getOffset());
+		assertThat(returnedUserIds).containsExactlyInAnyOrder(user2.getId(), user3.getId());
+
+		query = new UsersPageQuery(4, 12, SortingOrder.DESCENDING, UsersOrderColumn.NAME, "Jane");
+		users =	usersManager.getUsersPage(sess, query, List.of());
+		returnedUserIds = users.getData().stream().map(PerunBean::getId).toList();
+
+		// Check returned users, offset changed from 12 to 4
+		assertEquals(1, users.getData().size());
+		assertEquals(4, users.getOffset());
+		assertThat(returnedUserIds).containsExactlyInAnyOrder(user8.getId());
 	}
 
 	@Test

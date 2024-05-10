@@ -25,6 +25,7 @@ class PerunInstance(str, Enum):
     """enumeration of Perun instances supporting OIDC Device Code grant"""
 
     einfra = ("e-infra.cz",)
+    einfra_acc = ("acc.aai.e-infra.cz",)
     cesnet = ("cesnet",)
     idm = ("idm",)
     idm_test = ("idm-test",)
@@ -62,6 +63,13 @@ class DeviceCodeOAuth:
                 "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
                 "scopes": "openid perun_api perun_admin offline_access",
                 "perun_api_url": "https://perun-api.e-infra.cz/oauth/rpc",
+                "mfa": True,
+            },
+            PerunInstance.einfra_acc: {
+                "metadata_url": "https://login.e-infra.cz/oidc/.well-known/openid-configuration",
+                "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
+                "scopes": "openid perun_api perun_admin offline_access",
+                "perun_api_url": "https://perun-api.acc.aai.e-infra.cz/oauth/rpc/",
                 "mfa": True,
             },
             PerunInstance.cesnet: {

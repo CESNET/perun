@@ -225,6 +225,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
       " a" +
       " left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u" +
        " on a.user_id = u.id left outer join application_data d on a.id = d.app_id";
+  static final String APP_SELECT_PAGE_TOTAL_COUNT = "select count(*) OVER() AS total_count from application a " +
+      "left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u" +
+      " on a.user_id = u.id left outer join application_data d on a.id = d.app_id";
   static final String APP_PAGE_GROUP_BY =
       " GROUP BY a.id, a.vo_id, a.group_id, a.apptype, a.fed_info, a.state, a.user_id, a.extsourcename, a" +
        ".extsourcetype, a.extsourceloa, a.user_id, a.created_at, a.created_by, a.modified_at, a.modified_by," +
@@ -2554,33 +2557,43 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
     namedParams.addValue("dateFrom", query.getDateFrom());
     namedParams.addValue("dateTo", query.getDateTo());
-    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
     namedParams.addValue("userId", query.getUserId());
     namedParams.addValue("groupId", query.getGroupId());
 
     String searchQuery = getSQLWhereForApplicationsPage(query, namedParams);
 
-    Paginated<RichApplication> applications = namedJdbc.query(APP_SELECT_PAGE + " WHERE a.vo_id=(:voId)" +
-                                                              (query.getStates() == null ||
-                                                               query.getStates().isEmpty() ? "" :
-                                                                  " AND a.state IN (:states) ") +
-                                                              (query.getIncludeGroupApplications() != null &&
-                                                               query.getIncludeGroupApplications() ? "" :
-                                                                  " AND a.group_id is null") +
-                                                              (query.getUserId() == null ? "" :
-                                                                  "  AND a.user_id=(:userId)") +
-                                                              (query.getGroupId() == null ? "" :
-                                                                  "  AND a.group_id=(:groupId)") +
-                                                              " AND (:dateFrom) <= a.created_at::date AND a" +
-                                                               ".created_at::date <= (:dateTo)" +
-                                                              searchQuery +
-                                                              // group by to remove duplicates from application_data
-                                                              // join
-                                                              APP_PAGE_GROUP_BY + " ORDER BY " +
-                                                              query.getSortColumn().getSqlOrderBy(query) +
-                                                              " OFFSET (:offset)" + " LIMIT (:limit)", namedParams,
-        getPaginatedApplicationsExtractor(query));
+    String extractedQuery = " WHERE a.vo_id=(:voId)" +
+        (query.getStates() == null ||
+            query.getStates().isEmpty() ? "" :
+            " AND a.state IN (:states) ") +
+        (query.getIncludeGroupApplications() != null &&
+            query.getIncludeGroupApplications() ? "" :
+            " AND a.group_id is null") +
+        (query.getUserId() == null ? "" :
+            "  AND a.user_id=(:userId)") +
+        (query.getGroupId() == null ? "" :
+            "  AND a.group_id=(:groupId)") +
+        " AND (:dateFrom) <= a.created_at::date AND a" +
+        ".created_at::date <= (:dateTo)" +
+        searchQuery +
+        // group by to remove duplicates from application_data
+        APP_PAGE_GROUP_BY;
+
+    Integer filteredCount;
+    try {
+      filteredCount = namedJdbc.queryForObject(Utils.limitTotalCount(APP_SELECT_PAGE_TOTAL_COUNT + extractedQuery),
+          namedParams, Integer.class);
+    } catch (EmptyResultDataAccessException ex) {
+      filteredCount = 0;
+    }
+
+    query.recalculateOffset(filteredCount);
+    namedParams.addValue("offset", query.getOffset());
+
+    Paginated<RichApplication> applications = namedJdbc.query(APP_SELECT_PAGE + extractedQuery +
+            " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit)",
+        namedParams, getPaginatedApplicationsExtractor(query));
 
     if (applications == null) {
       return new Paginated<>(new ArrayList<>(), query.getOffset(), query.getPageSize(), 0);

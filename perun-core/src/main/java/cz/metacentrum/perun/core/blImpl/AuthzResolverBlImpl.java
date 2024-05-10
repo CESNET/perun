@@ -343,6 +343,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   private static boolean checkAuthValidityForMFA(PerunSession sess) {
     String returnedAuthTime = sess.getPerunPrincipal().getAdditionalInformations().get(AUTH_TIME);
     Instant parsedReturnedAuthTime;
+    if (returnedAuthTime == null) {
+      throw new MfaPrivilegeException("Multi-Factor authentication required but MFA timestamp was not found in " +
+                                      "principal. Make sure you are using OAuth authentication.");
+    }
     try {
       parsedReturnedAuthTime = Instant.parse(returnedAuthTime);
     } catch (DateTimeParseException e) {
@@ -3264,10 +3268,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
 
     LOG.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
+
+    sess.getPerunPrincipal().setRolesUpdatedAt(System.currentTimeMillis());
     sess.getPerunPrincipal().setAuthzInitialized(true);
   }
 
-  public static void refreshMfa(PerunSession sess) throws ExpiredTokenException, MFAuthenticationException {
+  /**
+   * Checks if MFA is supported and if it was used by the user, then updates MFA flag in the session.
+   *
+   * @param sess PerunSession
+   * @throws MFAuthenticationException when MFA is not supported or can't be verified
+   */
+  public static void refreshMfa(PerunSession sess) throws MFAuthenticationException {
     if (!BeansUtils.getCoreConfig().isEnforceMfa()) {
       throw new MFAuthenticationException("MFA enforcement is turned off");
     }
@@ -3673,7 +3685,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    * @param user                the user for setting role
    * @param role                role of user in a session ( PERUNADMIN | PERUNADMINBA | VOADMIN | GROUPADMIN | SELF |
    *                            FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | SECURITYADMIN | RESOURCESELFSERVICE |
-   *                            RESOURCEADMIN )
+   *                            RESOURCEADMIN | SERVICEACCOUNTCREATOR )
    * @param complementaryObject object for which role will be set
    */
   public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, String role)
@@ -3768,7 +3780,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    * @param sess                perun session
    * @param user                the user for unsetting role
    * @param role                role of user in a session ( PERUNADMIN | PERUNADMINBA | VOADMIN | GROUPADMIN | SELF |
-   *                            FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
+   *                            FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN |
+   *                            SERVICEACCOUNTCREATOR)
    * @param complementaryObject object for which role will be unset
    */
   public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, String role)
@@ -3848,7 +3861,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   }
 
   /**
-   * Updates principal MFA role by calling UserInfo Endpoint
+   * Refresh MFA flag in session and return TRUE if principal has MFA role.
    *
    * @param sess perun session
    * @return true if principal has MFA role
@@ -3856,7 +3869,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   private static boolean updatePrincipalMfa(PerunSession sess) {
     try {
       refreshMfa(sess);
-    } catch (ExpiredTokenException | MFAuthenticationException ignored) {
+    } catch (MFAuthenticationException ignored) {
       // couldn't recheck with endpoint, either exception would have been thrown already or principal didn't use OIDC
     }
 

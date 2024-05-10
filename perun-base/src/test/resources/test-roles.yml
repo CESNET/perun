@@ -238,5 +238,26 @@ perun_policies:
     include_policies:
       - default_policy
 
+  test_vobanmanager_role:
+    policy_roles:
+      - VOBANMANAGER:
+    include_policies: [ ]
+
+  test_facilitybanmanager_role:
+    policy_roles:
+      - FACILITYBANMANAGER:
+    include_policies: [ ]
+
+  test_resourcebanmanager_role:
+    policy_roles:
+      - RESOURCEBANMANAGER:
+    include_policies: [ ]
+
+
+  test_service_account_creator_role:
+    policy_roles:
+      - SERVICEACCOUNTCREATOR:
+    include_policies: [ ]
+
 perun_roles_management: { }
 ...

@@ -389,7 +389,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     try {
       int numberOfRequests = jdbc.queryForInt("select count(1) from pwdreset where uu_id=?", uuid);
       if (numberOfRequests == 0) {
-        throw new PasswordResetLinkNotValidException("Password request " + uuid + " doesn't exist.");
+        throw new PasswordResetLinkNotValidException("Password reset request " + uuid + " doesn't exist.");
       } else if (numberOfRequests > 1) {
         throw new ConsistencyErrorException("Password reset request " + uuid + " exists more than once.");
       }
@@ -890,10 +890,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       MapSqlParameterSource namedParams = new MapSqlParameterSource();
       namedParams.addValue("login", query.getSearchString().toLowerCase());
       namedParams.addValue("namespaces", query.getNamespaces());
-      namedParams.addValue("offset", query.getOffset());
       namedParams.addValue("limit", query.getPageSize());
 
-      String sqlQuery = "SELECT id, login, namespace, count(*) OVER() AS total_count FROM blocked_logins";
+      String sqlSelect = "SELECT id, login, namespace, count(*) OVER() AS total_count FROM blocked_logins";
+      String sqlTotalCountQuery = "SELECT count(*) OVER() AS total_count FROM blocked_logins";
+      String sqlQuery = "";
 
       boolean hasSearchString = query.getSearchString() != null && !query.getSearchString().isEmpty();
       boolean hasNamespaces = query.getNamespaces() != null && !query.getNamespaces().isEmpty();
@@ -917,7 +918,20 @@ public class UsersManagerImpl implements UsersManagerImplApi {
         }
       }
 
+      sqlTotalCountQuery += sqlQuery;
+      sqlQuery = sqlSelect + sqlQuery;
       sqlQuery += " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset) LIMIT (:limit);";
+
+      Integer filteredCount;
+      try {
+        filteredCount = namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount(sqlTotalCountQuery),
+            namedParams, Integer.class);
+      } catch (EmptyResultDataAccessException ex) {
+        filteredCount = 0;
+      }
+
+      query.recalculateOffset(filteredCount);
+      namedParams.addValue("offset", query.getOffset());
 
       return namedParameterJdbcTemplate.query(sqlQuery, namedParams, getPaginatedBlockedLoginsExtractor(query));
     } catch (RuntimeException ex) {
@@ -1167,14 +1181,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     return joinString;
   }
 
-  private String getSQLSelectForUsersPage(UsersPageQuery query) {
-    String select = "SELECT " + USER_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" + " FROM users";
+  private String getSQLSelectForUsersPage(UsersPageQuery query, boolean selectTotalCount) {
+    String select = "SELECT " + (selectTotalCount ? "" : USER_MAPPING_SELECT_QUERY + " ,") + "count(*) OVER() AS " +
+        "total_count" + " FROM users";
 
-    String selectWithMembers = "SELECT " + USER_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" +
-                                   " FROM users LEFT JOIN members on members.user_id = users.id";
+    String selectWithMembers = "SELECT " + (selectTotalCount ? "" : USER_MAPPING_SELECT_QUERY + " ,") +
+        "count(*) OVER() AS total_count" + " FROM users LEFT JOIN members on members.user_id = users.id";
 
-
-    return !query.isWithoutVo() && isEmpty(query.getSearchString()) ? select : selectWithMembers;
+    if (!isEmpty(query.getSearchString())) {
+      return selectWithMembers;
+    }
+    return select;
   }
 
   private String getSQLWhereForFacility(UsersPageQuery query, MapSqlParameterSource namedParams) {
@@ -1581,20 +1598,34 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     MapSqlParameterSource namedParams =
         Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
 
-    String select = getSQLSelectForUsersPage(query);
+    String select = getSQLSelectForUsersPage(query, false);
+    String selectTotalCount = getSQLSelectForUsersPage(query, true);
     String searchQuery = getSQLWhereForUsersPage(query, namedParams);
     String joinFacility = getSQLJoinFacility(query, namedParams);
     String whereForFacility = getSQLWhereForFacility(query, namedParams);
     String filterOnlyAllowed = getOnlyAllowed(query, namedParams);
 
-    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
 
     String withoutVoString = getWithoutVoSQLConditionForUsersPage(query);
 
+    String extractedQuery = joinFacility + withoutVoString + searchQuery + whereForFacility + filterOnlyAllowed +
+        " GROUP BY users.id";
+
+    Integer filteredCount;
+    try {
+      filteredCount =
+          namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount(selectTotalCount + extractedQuery),
+          namedParams, Integer.class);
+    } catch (EmptyResultDataAccessException ex) {
+      filteredCount = 0;
+    }
+
+    query.recalculateOffset(filteredCount);
+    namedParams.addValue("offset", query.getOffset());
+
     return namedParameterJdbcTemplate.query(
-        select + joinFacility + withoutVoString + searchQuery + whereForFacility + filterOnlyAllowed +
-            " GROUP BY users_id" + " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" +
+        select + extractedQuery + " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" +
             " LIMIT (:limit)", namedParams, getPaginatedUsersExtractor(query));
   }
 
@@ -1658,7 +1689,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   private String getWithoutVoSQLConditionForUsersPage(UsersPageQuery query) {
     String withoutVoQueryString = "";
     if (query.isWithoutVo()) {
-      withoutVoQueryString = " WHERE users.id not in (select user_id from members) ";
+      withoutVoQueryString = " WHERE NOT EXISTS (SELECT user_id FROM members WHERE members.user_id = users.id)";
     }
     return withoutVoQueryString;
   }

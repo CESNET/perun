@@ -1196,19 +1196,5 @@ public enum AuthzResolverMethod implements ManagerMethod {
             roles);
       }
     }
-  },
-
-  /*#
-   * Refreshes MFA-related data for principal.
-   *
-   * @throws ExpiredTokenException expired access token
-   * @throws MFAuthenticationException wrong configuration or missing required information
-   */
-  refreshMfa {
-    @Override
-    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      AuthzResolver.refreshMfa(ac.getSession());
-      return null;
-    }
   };
 }

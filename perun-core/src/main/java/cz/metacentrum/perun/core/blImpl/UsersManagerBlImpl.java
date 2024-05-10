@@ -173,6 +173,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     }
   }
 
+  /**
+   * Safely converts string token for pwd-reset to UUID object
+   *
+   * @param token String version of pwd-reset token
+   * @return UUID object
+   * @throws PasswordResetLinkNotValidException when token is not in UUID format
+   */
+  private UUID pwdTokenToUUID(String token) throws PasswordResetLinkNotValidException {
+    try {
+      return UUID.fromString(token);
+    } catch (java.lang.IllegalArgumentException e) {
+      throw new PasswordResetLinkNotValidException("Password reset request " + token + " doesn't exist.");
+    }
+  }
+
   @Override
   public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationExistsException {
     if (specificUser.isServiceUser() && specificUser.isSponsoredUser()) {
@@ -508,7 +523,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   @Override
   public void checkPasswordResetRequestIsValid(PerunSession sess, String token)
       throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
-    getUsersManagerImpl().checkPasswordResetRequestIsValid(sess, UUID.fromString(token));
+    getUsersManagerImpl().checkPasswordResetRequestIsValid(sess, pwdTokenToUUID(token));
   }
 
   @Override

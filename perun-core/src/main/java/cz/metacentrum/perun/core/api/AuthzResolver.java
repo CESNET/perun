@@ -1556,29 +1556,7 @@ public class AuthzResolver {
   }
 
   /**
-   * Calls UserInfo endpoint to obtain the newest information on performed MFA. Requires access token and issuer to be
-   * stored in the additionalInformations. If user used MFA to log in (MFA acr is returned from the endpoint), endpoint
-   * returns MFA timestamp. This method stores the timestamp into principal's additionalInformations.
-   *
-   * @param sess perun session with required additionalInformation in Principal
-   * @throws ExpiredTokenException     expired access token
-   * @throws MFAuthenticationException wrong configuration or missing required information
-   * @throws PrivilegeException        unauthorized
-   */
-  public static void refreshMfa(PerunSession sess)
-      throws ExpiredTokenException, MFAuthenticationException, PrivilegeException {
-    Utils.checkPerunSession(sess);
-
-    //Authorization
-    if (!authorizedInternal(sess, "refreshMfa_policy", sess.getPerunPrincipal().getUser())) {
-      throw new PrivilegeException(sess, "refreshMfa");
-    }
-
-    AuthzResolverBlImpl.refreshMfa(sess);
-  }
-
-  /**
-   * Check if the given role exists in the database. Check is case insensitive.
+   * Check if the given role exists in the database. Check is case-insensitive.
    *
    * @param role which will be checked
    * @return true if role exists, false otherwise.

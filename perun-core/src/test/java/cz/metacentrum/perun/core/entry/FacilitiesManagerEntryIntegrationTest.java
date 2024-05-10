@@ -801,6 +801,28 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+    @Test
+	public void getAssignedRichResourcesFilter() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedRichResourcesFilter");
+
+		Vo vo = setUpVo();
+		Resource resource = setUpResource(vo);
+        Resource resource2 = setUpResource2(vo);
+		RichResource rresource = new RichResource(resource);
+		rresource.setVo(perun.getResourcesManager().getVo(sess, resource));
+
+        sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.RESOURCEBANMANAGER, List.of(resource, facility, vo)));
+
+
+		List<RichResource> assignedResources = perun.getFacilitiesManager().getAssignedRichResources(sess, facility);
+        assertEquals(assignedResources.size(), 1);
+
+        sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.FACILITYADMIN, List.of(facility)));
+
+        assignedResources = perun.getFacilitiesManager().getAssignedRichResources(sess, facility);
+        assertEquals(assignedResources.size(), 2);
+	}
+
 	@Test (expected=FacilityNotExistsException.class)
 	public void getAssignedRichResourcesWhenFacilityNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getAssignedRichResourcesWhenFacilityNotExists");

@@ -22,8 +22,7 @@
         <start-class>cz.metacentrum.perun.engine.main.EngineStarter</start-class>
         <!-- module properties used by all profiles -->
         <perun.test.groups>unit-tests</perun.test.groups>
-        <!-- deploy the resulting jar to a Maven repo -->
-        <maven.deploy.skip>false</maven.deploy.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->

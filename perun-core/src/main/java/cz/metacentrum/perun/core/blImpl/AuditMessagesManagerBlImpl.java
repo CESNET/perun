@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.implApi.AuditMessagesManagerImplApi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 /**
@@ -106,7 +107,9 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
   @Override
   public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) {
-    return getAuditMessagesManagerImpl().pollConsumerEvents(perunSession, consumerName);
+    // Get messages in order to correctly set last processed id and convert result to AuditEvents
+    return getAuditMessagesManagerImpl().pollConsumerMessages(perunSession, consumerName)
+            .stream().map(AuditMessage::getEvent).collect(Collectors.toList());
   }
 
   @Override

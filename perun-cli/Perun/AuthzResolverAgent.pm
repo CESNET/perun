@@ -63,11 +63,6 @@ sub getGroupRoleNames
 	return Perun::Common::callManagerMethod('getGroupRoleNames', '', @_);
 }
 
-sub refreshMfa
-{
-	return Perun::Common::callManagerMethod('refreshMfa', '', @_);
-}
-
 sub getAllRolesManagementRules
 {
 	return Perun::Common::callManagerMethod('getAllRolesManagementRules', '[]RoleManagementRules', @_);

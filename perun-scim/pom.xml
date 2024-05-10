@@ -17,6 +17,7 @@
 
     <properties>
         <!-- common properties used by this module and all profiles -->
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
