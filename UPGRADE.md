@@ -1,5 +1,51 @@
 Upgrade notes
 
+## [35.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.4.0...v35.0.0) (2024-05-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** new role 'SERVICEACCOUNTCREATOR'
+* **core:** All values of libraryIDs attribute will be deleted in LDAP.
+* Methods returning new audit messages/events for auditer
+consumers now limit maximum number of returned messages in one call
+to 10000. Limit is configurable and can be set by
+`perun.auditlogReadLimit` property in `perun.properties`.
+* **core:** authzResolver/refreshMfa() removed from the API
+
+### Features
+
+* ban manager roles ([19f28ea](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/19f28ea1676d0761d0df111ff98b8205121acda5))
+* **cli:** added config for perun-api.acc.aai.e-infra.cz ([4129351](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/41293518e40e55193aad7b35f20858ee3f43f201))
+* **core:** new MU eduPersonUniqueId module ([9b9b75a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9b9b75a189a5a2e8742e7408dc952f6fbe5f6221))
+* **core:** new role SERVICEACCOUNTCREATOR for creating service accounts ([a1a69ce](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a1a69cebadcc00bee05c73eef7db79e651574647))
+* **core:** new sponsor role ([d72640d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d72640dbb27afbb92ccde0629bcc015835ec6f8b))
+* **gui:** support custom analytics in MU template ([85b562d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/85b562d5ecb48a22be0a4d2a3b3aae2113e019c9))
+* limit max. number of returned audit events/messages in API ([77842fc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/77842fc827fe9820534dd48f29e7d886b9653f87))
+* **registrar:** added module for generating admin-meta login ([226d996](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/226d996ab90a3b1e09255c1848207db1c78ad579))
+* **registrar:** mail notification language fallback ([56b9e2a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/56b9e2a7cf3ab00741e7f60dd18cffd0a8cc02ca))
+
+
+### Bug Fixes
+
+* **core:** deleteVo correctly throws MFA exception ([b527272](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b527272b0d634a4ca90a6d6dab8cf0b3ae0c01de))
+* **core:** fixed `auth_time` null pointer ([7ad36fe](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7ad36fe49d6a86ed13c572be6d996aef44359505))
+* **core:** optimised DB calls for Users Page ([5add975](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5add97575cb6bb7924257fa85f149bb060124cd9))
+* **core:** the offset for paginated data now adjusts according to the total count of filtered data ([6ed50fc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6ed50fc5e849f682ef76b2775a9f36ef2610caf3))
+* **core:** throw exception when pwdreset token is not UUID ([a5b53cf](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a5b53cf5846a19771488abf36f906f9acdf7ca75))
+* **deps:** update dependency google-api-services-admin-directory ([74a63dd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/74a63dd86561309b61e7e01eb9d142c76e894fe3))
+* **deps:** update dependency google-api-services-admin-directory ([5a9fc48](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5a9fc484525b0c665c9741f4a8f72a336e359d98))
+* **deps:** update dependency google-api-services-admin-directory ([f7b966c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f7b966c6fcb17e36137084ccfb12a11110f2d675))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.78.1 ([f223f42](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f223f427588206d56b62f358935a307d1cd6785b))
+* **gui:** allow setting files quota ([0c3593d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0c3593d737126b91119a151b897e083f3ca9f365))
+* **gui:** handle MFA exceptions in GUI ([101a3cd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/101a3cdd2075de266798e30680e3a706362c638d))
+
+
+### Refactoring
+
+* **core:** mark LDAP attribute libraryIDs as deleted ([361186d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/361186dfe416af4f789299d570737f2879452023))
+* **core:** remove unused refreshMfa() ([d38829f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d38829f775f4cbe4703ac7c1df53121ef54acec0))
+
 ## [34.4.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.3.3...v34.4.0) (2024-04-15)
 
 
