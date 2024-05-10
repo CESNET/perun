@@ -12,7 +12,6 @@
 
     <groupId>cz.metacentrum.perun</groupId>
     <artifactId>perun-openapi</artifactId>
-    <version>0.0.0-development</version>
     <packaging>jar</packaging>
 
     <name>perun-openapi</name>
