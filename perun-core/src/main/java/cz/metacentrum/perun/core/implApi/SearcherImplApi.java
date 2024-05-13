@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +40,10 @@ public interface SearcherImplApi {
    * @return list of facilities that have attributes with specific values (behavior above) if no such facility exists,
    * return empty list if attributeWithSearchingValues is empty, return all facilities
    * @throws InternalErrorException internal error
+   * @throws WrongAttributeValueException wrong attribute value
    */
-  List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues);
+  List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws
+      WrongAttributeValueException;
 
   /**
    * This method get Map of Attributes with searching values and try to find all groups, which have specific attributes
@@ -61,8 +64,11 @@ public interface SearcherImplApi {
    *                                      in key. First char '=' is delimiter in MAP item key=value!!!
    * @return list of groups who have attributes with specific values (behavior above) if no group exist, return empty
    * list of groups if attributeWithSearchingValues is empty, return all groups
+   *
+   * @throws WrongAttributeValueException wrong attribute value
    */
-  List<Group> getGroups(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues);
+  List<Group> getGroups(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues)
+      throws WrongAttributeValueException;
 
   /**
    * Return all groups assigned to any resource with following conditions: 1] resource has set "resourceAttribute"
@@ -143,9 +149,10 @@ public interface SearcherImplApi {
    * @return list of resources that have attributes with specific values (behavior above) if no such resource exists,
    * return empty list if attributeWithSearchingValues is empty, return all resources
    * @throws InternalErrorException internal error
+   * @throws WrongAttributeValueException wrong attribute value
    */
   List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues,
-                              boolean allowPartialMatchForString);
+                              boolean allowPartialMatchForString) throws WrongAttributeValueException;
 
   /**
    * This method get Map of Attributes with searching values and try to find all users, which have specific attributes
@@ -167,8 +174,10 @@ public interface SearcherImplApi {
    * @return list of users who have attributes with specific values (behavior above) if no user exist, return empty list
    * of users if attributeWithSearchingValues is empty, return allUsers
    * @throws InternalErrorException
+   * @throws WrongAttributeValueException wrong attribute value
    */
-  List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues);
+  List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues)
+      throws WrongAttributeValueException;
 
   /**
    * Gets VOs ids for potential application auto rejection.

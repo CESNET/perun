@@ -522,11 +522,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
    * @param loginAttributeDefinition attribute definition for login of group
    * @param skippedGroups            groups to be skipped because of any expected problem
    * @throws InternalErrorException if some internal error occurs
+   * @throws WrongAttributeValueException wrong attribute value
    */
   private void addMissingGroupsWhileSynchronization(PerunSession sess, Group baseGroup,
                                                     List<CandidateGroup> candidateGroupsToAdd,
                                                     AttributeDefinition loginAttributeDefinition,
-                                                    List<String> skippedGroups, List<String> mergeAttributes) {
+                                                    List<String> skippedGroups, List<String> mergeAttributes)
+      throws WrongAttributeValueException {
     Map<CandidateGroup, Group> groupsToUpdate = new HashMap<>();
 
     //create all groups under base group first
@@ -3476,9 +3478,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
    * @param baseGroup          base group in structure
    * @param loginAttributeName attribute name of login in the structure
    * @return parent group of candidate group, if there is none, return base group
+   * @throws WrongAttributeValueException wrong attribute value
    */
   private Group getNewParentGroup(PerunSession sess, CandidateGroup candidateGroup, Group baseGroup,
-                                  String loginAttributeName) {
+                                  String loginAttributeName) throws WrongAttributeValueException {
     Group newParentGroup = baseGroup;
 
     //if parent group login is not null, we need to find this new parent group (otherwise it is base group)
@@ -5549,9 +5552,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
    * @param loginAttributeName attribute name for login of group
    * @return updated parent group (if null, parent group hasn't changed)
    * @throws InternalErrorException
+   * @throws WrongAttributeValueException wrong attribute value
    */
   private Group specifyParentForUpdatedGroup(PerunSession sess, Group groupToUpdate, Group baseGroup,
-                                             CandidateGroup candidateGroup, String loginAttributeName) {
+                                             CandidateGroup candidateGroup, String loginAttributeName)
+      throws WrongAttributeValueException {
     //get current parent of updated group, if there is no group (null), it means the group is under the base group
     String oldParentGroupLogin = getOldParentGroupLogin(sess, groupToUpdate, baseGroup, loginAttributeName);
 
@@ -6063,12 +6068,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
    * @param loginAttributeDefinition attribute definition for login of group
    * @param skippedGroups            groups to be skipped because of any expected problem
    * @throws InternalErrorException if some internal error occurs
+   * @throws WrongAttributeValueException wrong attribute value
    */
   private void updateExistingGroupsWhileSynchronization(PerunSession sess, Group baseGroup,
                                                         Map<CandidateGroup, Group> groupsToUpdate,
                                                         List<Integer> removedGroupsIds,
                                                         AttributeDefinition loginAttributeDefinition,
-                                                        List<String> skippedGroups, List<String> mergeAttributes) {
+                                                        List<String> skippedGroups, List<String> mergeAttributes)
+      throws WrongAttributeValueException {
 
     for (CandidateGroup candidateGroup : groupsToUpdate.keySet()) {
       Group groupToUpdate = groupsToUpdate.get(candidateGroup);
