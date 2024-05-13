@@ -13,7 +13,7 @@
 		"commitizen": "4.3.0",
 		"conventional-changelog-conventionalcommits": "7.0.2",
 		"inquirer": "9.2.20",
-		"semantic-release": "23.0.8"
+		"semantic-release": "23.1.1"
 	},
 	"config": {
 		"commitizen": {
