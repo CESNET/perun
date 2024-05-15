@@ -7474,7 +7474,14 @@ perun_policies:
       - MFA: Vo
       - MFA: User
 
-  addMemberVo_Vo_Vo_policy:
+  operand-addMemberVo_Vo_Vo_policy:
+    policy_roles: [ ]
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  result-addMemberVo_Vo_Vo_policy:
     policy_roles: [ ]
     include_policies:
       - default_policy
