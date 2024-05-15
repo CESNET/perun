@@ -16,8 +16,6 @@ import os
 import sys
 import subprocess
 
-
-# TODO keep tokens for all instances
 # TODO revoke valid token when dropping
 
 
@@ -53,6 +51,7 @@ class DeviceCodeOAuth:
         :param mfa: flag for requiring Multi-Factor Authentication
         :param debug: flag for debugging output
         """
+        self.perun_instance = perun_instance
         self.password_bytes = bytes(encryption_password, "utf-8")
         self.mfa = mfa
         self.mfa_valid_seconds = mfa_valid_minutes * 60
@@ -87,10 +86,10 @@ class DeviceCodeOAuth:
                 "mfa": False,
             },
             PerunInstance.idm_test: {
-                "metadata_url": "https://oidc.muni.cz/oidc/.well-known/openid-configuration",
+                "metadata_url": "https://id.muni.cz/oidc/.well-known/openid-configuration",
                 "client_id": "5a730abc-6553-4fc4-af9a-21c75c46e0c2",
                 "scopes": "openid perun_api perun_admin offline_access profile",
-                "perun_api_url": "https://idm-test.ics.muni.cz/oauth/rpc",
+                "perun_api_url": "https://perun-api-test.aai.muni.cz/oauth/rpc",
                 "mfa": True,
             },
             PerunInstance.idm: {
@@ -166,10 +165,10 @@ class DeviceCodeOAuth:
 
     def __cache_dir(self) -> Path:
         """
-        Creates directory ~/.cache/perun if it does not exist yet
+        Creates directory ~/.cache/perun/<instance> if it does not exist yet
         :return:
         """
-        token_cache_dir = Path.home() / ".cache" / "perun"
+        token_cache_dir = Path.home() / ".cache" / "perun" / self.perun_instance.name
         if not token_cache_dir.exists():
             if self.debug:
                 print("creating directory ", token_cache_dir)
