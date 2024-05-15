@@ -22,7 +22,8 @@ public interface SchedulingPool extends TaskStore {
    */
   Integer addSendTaskCount(Task task, int count);
 
-  TaskResult createTaskResult(int taskId, int destinationId, String stderr, String stdout, int returnCode,
+  TaskResult createTaskResult(int taskId, int taskRunId, int destinationId, String stderr, String stdout,
+                              int returnCode,
                               Service service);
 
   /**

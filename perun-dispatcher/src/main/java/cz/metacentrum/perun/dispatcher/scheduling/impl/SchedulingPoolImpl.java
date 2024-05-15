@@ -152,7 +152,8 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
     // switch all processing tasks to error, remove the engine queue association
     LOG.debug("Switching processing tasks on engine to ERROR, the engine went down...");
     for (Task task : tasks) {
-      LOG.info("[{}] Switching Task to ERROR, the engine it was running on went down.", task.getId());
+      LOG.info("[{}, {}] Switching Task to ERROR, the engine it was running on went down.", task.getId(),
+          task.getRunId());
       task.setStatus(TaskStatus.ERROR);
     }
 
@@ -253,7 +254,8 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
       List<PerunBean> listOfBeans = AuditParser.parseLog(string);
       if (!listOfBeans.isEmpty()) {
         TaskResult taskResult = (TaskResult) listOfBeans.get(0);
-        LOG.debug("[{}] Received TaskResult for Task from Engine.", taskResult.getTaskId());
+        LOG.debug("[{}, {}] Received TaskResult for Task from Engine.", taskResult.getTaskId(),
+            taskResult.getTaskRunId());
         onTaskDestinationComplete(taskResult);
       } else {
         LOG.error("No TaskResult found in message from Engine: {}.", string);
@@ -288,7 +290,8 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
     try {
       ms = Long.valueOf(milliseconds);
     } catch (NumberFormatException e) {
-      LOG.warn("[{}] Timestamp of change '{}' could not be parsed, current time will be used instead.", task.getId(),
+      LOG.warn("[{}, {}] Timestamp of change '{}' could not be parsed, current time will be used instead.",
+          task.getId(), task.getRunId(),
           milliseconds);
       ms = System.currentTimeMillis();
     }
@@ -297,8 +300,8 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
     switch (task.getStatus()) {
       case WAITING:
       case PLANNED:
-        LOG.error("[{}] Received status change to {} from Engine, this should not happen.", task.getId(),
-            task.getStatus());
+        LOG.error("[{}, {}] Received status change to {} from Engine, this should not happen.", task.getId(),
+            task.getRunId(), task.getStatus());
         return;
       case GENERATING:
         task.setStartTime(changeDate);
@@ -328,7 +331,8 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 
     tasksManagerBl.updateTask(sess, task);
 
-    LOG.debug("[{}] Task status changed from {} to {} as reported by Engine: {}.", task.getId(), oldStatus,
+    LOG.debug("[{}, {}] Task status changed from {} to {} as reported by Engine: {}.", task.getId(),
+        task.getRunId(), oldStatus,
         task.getStatus(), task);
 
   }
@@ -375,8 +379,8 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
   }
 
   @Override
-  public Task removeTask(int id) throws TaskStoreException {
-    return taskStore.removeTask(id);
+  public Task removeTask(int id, int runId) throws TaskStoreException {
+    return taskStore.removeTask(id, runId);
   }
 
   @Override
@@ -498,8 +502,15 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
         delayCount = 4;
       }
     }
-
+    // set propagation specific run id to correlate logs. Log if the task was in an ongoing propagation and was
+    // rescheduled with different run id.
+    int prevRunId = task.getRunId();
+    task = tasksManagerBl.retrieveRunIdForTask(sess, task);
     TaskSchedule schedule = new TaskSchedule(newTaskDelay, task);
+    if (prevRunId != 0) {
+      LOG.debug("[{}] Task with previous run id: {} rescheduled with run id: {}", task.getId(),
+          prevRunId, task.getRunId());
+    }
     schedule.setBase(System.currentTimeMillis());
     schedule.setDelayCount(delayCount);
 
@@ -531,10 +542,11 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 
     if (!added) {
       LOG.error(
-          "[{}] Task could not be added to waiting queue. Shouldn't ever happen. Look to javadoc of DelayQueue. {}",
-          task.getId(), schedule);
+          "[{}, {}] Task could not be added to waiting queue. Shouldn't ever happen. Look to javadoc of DelayQueue. {}",
+          task.getId(), task.getRunId(), schedule);
     } else {
-      LOG.debug("[{}] Task was added to waiting queue: {}", task.getId(), schedule);
+      LOG.debug("[{}, {}] Task was added to waiting queue: {}", task.getId(),
+          task.getRunId(), schedule);
     }
 
   }

@@ -60,7 +60,8 @@ public class SendPlanner extends AbstractRunner {
   }
 
   private void jmsLogError(Task task) {
-    LOG.warn("[{}] Could not send SEND status update to {} to Dispatcher.", task.getId(), task.getStatus());
+    LOG.warn("[{}, {}] Could not send SEND status update to {} to Dispatcher.", task.getId(), task.getRunId(),
+        task.getStatus());
   }
 
   @Override
@@ -75,15 +76,15 @@ public class SendPlanner extends AbstractRunner {
         if (task.getDestinations().isEmpty()) {
           task.setStatus(Task.TaskStatus.ERROR);
           try {
-            jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
+            jmsQueueManager.reportTaskStatus(task, task.getStatus(), System.currentTimeMillis());
           } catch (JMSException e) {
             jmsLogError(task);
           }
           try {
             schedulingPool.removeTask(task);
           } catch (TaskStoreException e) {
-            LOG.error("[{}] Generated Task without destinations could not be removed from SchedulingPool: {}",
-                task.getId(), e);
+            LOG.error("[{}, {}] Generated Task without destinations could not be removed from SchedulingPool: {}",
+                task.getId(), task.getRunId(), e);
           }
           // skip to next generated Task
           continue;
@@ -96,7 +97,7 @@ public class SendPlanner extends AbstractRunner {
 
         schedulingPool.addSendTaskCount(task, task.getDestinations().size());
         try {
-          jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(),
+          jmsQueueManager.reportTaskStatus(task, task.getStatus(),
               task.getSendStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
         } catch (JMSException e) {
           jmsLogError(task);

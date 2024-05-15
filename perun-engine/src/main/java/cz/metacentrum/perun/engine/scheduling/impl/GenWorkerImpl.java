@@ -43,15 +43,18 @@ public class GenWorkerImpl extends AbstractWorker<Task> implements GenWorker {
     getTask().setGenStartTime(LocalDateTime.now());
     Service service = getTask().getService();
 
-    LOG.info("[{}] Executing GEN worker for Task with Service ID: {} and Facility ID: {}.", getTask().getId(),
+    LOG.info("[{}, {}] Executing GEN worker for Task with Service ID: {} and Facility ID: {}",
+        getTask().getId(),
+        getTask().getRunId(),
         getTask().getServiceId(), getTask().getFacilityId());
     ProcessBuilder pb;
     if (service.getScript().equals("./" + service.getName())) {
-      pb = new ProcessBuilder(service.getScript(), "-c", "-f", String.valueOf(getTask().getFacilityId()));
+      pb = new ProcessBuilder(service.getScript(), "-c", "-f", String.valueOf(getTask().getFacilityId()), "-r",
+          String.valueOf(getTask().getRunId()));
     } else {
       // if calling some generic script, also pass name of the service to avoid gen folder collision
       pb = new ProcessBuilder(service.getScript(), "-c", "-f", String.valueOf(getTask().getFacilityId()), "-s",
-          service.getName());
+          service.getName(), "-r", String.valueOf(getTask().getRunId()));
     }
 
     try {
@@ -64,14 +67,16 @@ public class GenWorkerImpl extends AbstractWorker<Task> implements GenWorker {
 
       if (getReturnCode() != 0) {
 
-        LOG.error("[{}] GEN worker failed for Task. Ret code {}, STDOUT: {}, STDERR: {}", getTask().getId(),
+        LOG.error("[{}, {}] GEN worker failed for Task. Ret code {}, STDOUT: {}, STDERR: {}", getTask().getId(),
+            getTask().getRunId(),
             getReturnCode(), getStdout(), getStderr());
 
         throw new TaskExecutionException(task, getReturnCode(), getStdout(), getStderr());
 
       } else {
 
-        LOG.info("[{}] GEN worker finished for Task. Ret code {}, STDOUT: {}, STDERR: {}", getTask().getId(),
+        LOG.info("[{}, {}] GEN worker finished for Task. Ret code {}, STDOUT: {}, STDERR: {}", getTask().getId(),
+            getTask().getRunId(),
             getReturnCode(), getStdout(), getStderr());
 
         return getTask();
@@ -79,10 +84,10 @@ public class GenWorkerImpl extends AbstractWorker<Task> implements GenWorker {
       }
 
     } catch (IOException e) {
-      LOG.error("[{}] GEN worker failed for Task. IOException: {}.", task.getId(), e);
+      LOG.error("[{}, {}] GEN worker failed for Task. IOException: {}.", task.getId(), task.getRunId(), e);
       throw new TaskExecutionException(task, 2, "", e.getMessage());
     } catch (InterruptedException e) {
-      LOG.warn("[{}] GEN worker failed for Task. Execution was interrupted {}.", task.getId(), e);
+      LOG.warn("[{}, {}] GEN worker failed for Task. Execution was interrupted {}.", task.getId(), task.getRunId(), e);
       throw new TaskExecutionException(task, 1, "", e.getMessage());
     }
 

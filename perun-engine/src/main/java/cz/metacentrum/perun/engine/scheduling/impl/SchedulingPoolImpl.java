@@ -66,7 +66,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
       throw new IllegalArgumentException("Only Tasks with PLANNED status can be added to SchedulingPool.");
     }
 
-    LOG.debug("[{}] Adding Task to scheduling pool: {}", task.getId(), task);
+    LOG.debug("[{}, {}] Adding Task to scheduling pool: {}", task.getId(), task.getRunId(), task);
     Task addedTask = taskStore.addTask(task);
 
     if (task.isPropagationForced()) {
@@ -95,10 +95,12 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
   // TODO this does not belong here, move it somewhere else
   @Override
-  public TaskResult createTaskResult(int taskId, int destinationId, String stderr, String stdout, int returnCode,
+  public TaskResult createTaskResult(int taskId, int taskRunId, int destinationId, String stderr, String stdout,
+                                     int returnCode,
                                      Service service) {
     TaskResult taskResult = new TaskResult();
     taskResult.setTaskId(taskId);
+    taskResult.setTaskRunId(taskRunId);
     taskResult.setDestinationId(destinationId);
     taskResult.setErrorMessage(stderr);
     taskResult.setStandardMessage(stdout);
@@ -114,7 +116,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
   public Integer decreaseSendTaskCount(Task task, int decrease) throws TaskStoreException {
 
     Integer count = sendTaskCount.get(task.getId());
-    LOG.debug("[{}] Task SendTasks count is {}, state {}", task.getId(), count, task.getStatus());
+    LOG.debug("[{}, {}] Task SendTasks count is {}, state {}", task.getId(), task.getRunId(), count, task.getStatus());
 
     if (count == null) {
       return null;
@@ -128,15 +130,17 @@ public class SchedulingPoolImpl implements SchedulingPool {
         task.setSendEndTime(LocalDateTime.now());
       }
       try {
-        jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
+        jmsQueueManager.reportTaskStatus(task, task.getStatus(), System.currentTimeMillis());
       } catch (JMSException | InterruptedException e) {
-        LOG.error("[{}] Error while sending final status update for Task to Dispatcher", task.getId());
+        LOG.error("[{}, {}] Error while sending final status update for Task to Dispatcher", task.getId(),
+            task.getRunId());
       }
-      LOG.debug("[{}] Trying to remove Task from allTasks since its done ({})", task.getId(), task.getStatus());
+      LOG.debug("[{}, {}] Trying to remove Task from allTasks since its done ({})", task.getId(),
+          task.getRunId(), task.getStatus());
       removeTask(task);
       return 1;
     } else {
-      LOG.debug("[{}] Task SendTasks count lowered by {}", task.getId(), decrease);
+      LOG.debug("[{}, {}] Task SendTasks count lowered by {}", task.getId(), task.getRunId(), decrease);
       return sendTaskCount.replace(task.getId(), count - decrease);
     }
   }
@@ -208,17 +212,17 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
   @Override
   public Task removeTask(Task task) throws TaskStoreException {
-    return removeTask(task.getId());
+    return removeTask(task.getId(), task.getRunId());
   }
 
   @Override
-  public Task removeTask(int id) throws TaskStoreException {
-    LOG.debug("[{}] Removing Task from scheduling pool.", id);
-    Task removed = taskStore.removeTask(id);
+  public Task removeTask(int id, int runId) throws TaskStoreException {
+    LOG.debug("[{}, {}] Removing Task from scheduling pool.", id, runId);
+    Task removed = taskStore.removeTask(id, runId);
     if (removed != null) {
       sendTaskCount.remove(id);
     } else {
-      LOG.debug("[{}] Task was not in TaskStore (all tasks)", id);
+      LOG.debug("[{}, {}] Task was not in TaskStore (all tasks)", id, runId);
     }
     return removed;
   }

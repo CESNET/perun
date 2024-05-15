@@ -68,7 +68,7 @@ public class GenCollector extends AbstractRunner {
         task.setStatus(Task.TaskStatus.GENERATED);
         // report to Dispatcher
         try {
-          jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(),
+          jmsQueueManager.reportTaskStatus(task, task.getStatus(),
               task.getGenEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
         } catch (JMSException e) {
           jmsErrorLog(task.getId(), task.getStatus());
@@ -103,23 +103,26 @@ public class GenCollector extends AbstractRunner {
           for (Destination dest : task.getDestinations()) {
             try {
               jmsQueueManager.reportTaskResult(
-                  schedulingPool.createTaskResult(task.getId(), dest.getId(), e.getStderr(), e.getStdout(),
+                  schedulingPool.createTaskResult(task.getId(), task.getRunId(), dest.getId(), e.getStderr(),
+                      e.getStdout(),
                       e.getReturnCode(), task.getService()));
             } catch (JMSException | InterruptedException ex) {
-              LOG.error("[{}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(),
+              LOG.error("[{}, {}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}",
+                  task.getId(), task.getRunId(),
                   dest, ex);
             }
           }
 
           try {
-            jmsQueueManager.reportTaskStatus(task.getId(), GENERROR, System.currentTimeMillis());
+            jmsQueueManager.reportTaskStatus(task, GENERROR, System.currentTimeMillis());
           } catch (JMSException | InterruptedException e1) {
             jmsErrorLog(task.getId(), task.getStatus());
           }
           try {
-            schedulingPool.removeTask(task.getId());
+            schedulingPool.removeTask(task.getId(), task.getRunId());
           } catch (TaskStoreException e1) {
-            LOG.error("[{}] Could not remove error GEN Task from SchedulingPool: {}", task.getId(), e1);
+            LOG.error("[{}, {}] Could not remove error GEN Task from SchedulingPool: {}", task.getId(),
+                task.getRunId(), e1);
           }
 
         }

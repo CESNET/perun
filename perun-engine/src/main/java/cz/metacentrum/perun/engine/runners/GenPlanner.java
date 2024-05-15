@@ -69,10 +69,10 @@ public class GenPlanner extends AbstractRunner {
         GenWorker worker = new GenWorkerImpl(task, directory);
         genCompletionService.blockingSubmit(worker);
         try {
-          jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(),
+          jmsQueueManager.reportTaskStatus(task, task.getStatus(),
               task.getGenStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
         } catch (JMSException e) {
-          LOG.warn("[{}] Could not send Tasks {} GEN status update: {}", task.getId(), task, e);
+          LOG.warn("[{}, {}] Could not send Tasks {} GEN status update: {}", task.getId(), task.getRunId(), task, e);
         }
       } catch (InterruptedException e) {
 

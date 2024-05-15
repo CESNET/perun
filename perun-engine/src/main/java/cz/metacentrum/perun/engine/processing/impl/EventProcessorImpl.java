@@ -53,10 +53,10 @@ public class EventProcessorImpl implements EventProcessor {
     LOG.debug("\t Resolved Facility[{}]", task.getFacility());
     LOG.debug("\t Resolved Service[{}]", task.getService());
     if (task.getFacility() != null && task.getService() != null) {
-      LOG.debug("[{}] Check if Task exist in SchedulingPool: {}", task.getId(), task);
+      LOG.debug("[{}, {}] Check if Task exist in SchedulingPool: {}", task.getId(), task.getRunId(), task);
       Task currentTask = schedulingPool.getTask(task.getId());
       if (currentTask == null) {
-        LOG.debug("[{}] Task not found in SchedulingPool.", task.getId());
+        LOG.debug("[{}, {}] Task not found in SchedulingPool.", task.getId(), task.getRunId());
         try {
           schedulingPool.addTask(task);
         } catch (TaskStoreException e) {
@@ -66,11 +66,12 @@ public class EventProcessorImpl implements EventProcessor {
       } else {
         // since we always remove Task from pool at the end and Dispatcher doesn't send partial Destinations,
         // we don't need to update existing Task object !! Let engine finish the processing.
-        LOG.debug("[{}] Task found in SchedulingPool, message skipped.", task.getId(), currentTask);
+        LOG.debug("[{}, {}] Task found in SchedulingPool, message skipped.", task.getId(), task.getRunId());
       }
     }
-    LOG.debug("[{}] POOL SIZE: {}", task.getId(), schedulingPool.getSize());
-    LOG.info("[{}] Current pool size AFTER event processing: {}", task.getId(), schedulingPool.getSize());
+    LOG.debug("[{}, {}] POOL SIZE: {}", task.getId(), task.getRunId(), schedulingPool.getSize());
+    LOG.info("[{}, {}] Current pool size AFTER event processing: {}", task.getId(), task.getRunId(),
+        schedulingPool.getSize());
   }
 
   public void setEventParser(EventParser eventParser) {

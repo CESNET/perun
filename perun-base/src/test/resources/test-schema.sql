@@ -1,4 +1,4 @@
--- database version 3.2.19 (don't forget to update insert statement at the end of file)
+-- database version 3.2.20 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -1291,6 +1291,7 @@ create table tasks_results
 (
     id              integer                                 not null,
     task_id         integer                                 not null, --identifier of task (tasks.id)
+    task_run_id     integer  default 0                      not null, --identifier of specific task propagation for logging
     destination_id  integer                                 not null, --identifier of destination (destinations.id)
     status          varchar                                 not null, --status of task
     err_message     varchar,                                          --return message in case of error
@@ -1861,6 +1862,7 @@ create sequence "facilities_bans_id_seq";
 create sequence "vos_bans_id_seq";
 create sequence "consents_id_seq";
 create sequence "blocked_logins_id_seq";
+create sequence "tasks_run_id_seq";
 
 
 create unique index idx_grp_nam_vo_parentg_u on groups (name, vo_id, coalesce(parent_group_id,'0'));
@@ -2037,7 +2039,7 @@ create index app_state_idx ON application (state);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.19');
+values ('DATABASE VERSION', '3.2.20');
 -- insert membership types
 insert into membership_types (id, membership_type, description)
 values (1, 'DIRECT', 'Member is directly added into group');
