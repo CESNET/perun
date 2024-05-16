@@ -2,6 +2,8 @@ package cz.metacentrum.perun.auditlogger.logger.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.auditlogger.logger.EventLogger;
 import cz.metacentrum.perun.auditlogger.service.AuditLoggerManager;
 import cz.metacentrum.perun.core.api.AuditMessage;
@@ -40,6 +42,11 @@ public class EventLoggerImpl implements EventLogger, Runnable {
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   static {
+    JavaTimeModule module = new JavaTimeModule();
+    MAPPER.registerModule(module);
+    // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
+    MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
     MAPPER.enableDefaultTyping();
     // TODO - skip any problematic properties using interfaces for mixins
     MAPPER.setMixIns(MIXIN_MAP);
@@ -86,6 +93,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
     try {
       JOURNAL.info(MAPPER.writeValueAsString(message));
     } catch (JsonProcessingException e) {
+      LOG.error("Unable to write audit message: {}", message, e);
       return -1;
     }
     return 0;
