@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [35.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v35.0.0...v35.0.1) (2024-05-16)
+
+
+### Bug Fixes
+
+* serialization of audit messages ([eb9c414](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/eb9c414c57716da4d85cfb42083c301af876b62c))
+
 ## [35.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v34.4.0...v35.0.0) (2024-05-10)
 
 
