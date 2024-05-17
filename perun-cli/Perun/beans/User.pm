@@ -257,7 +257,7 @@ sub setSponsoredUser
 sub getCommonName
 {
 	my $self = shift;
-	my $commonName = $self->{_firstName}.' '.(defined $self->{_middleName} ? $self->{_middleName}.' ' : '').$self->{_lastName};
+	my $commonName = ($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : "").($self->{_lastName} ? $self->{_lastName}.' ' : "");
 	$commonName=~ s/^\s+|\s+$//g;
 	return $commonName;
 }
