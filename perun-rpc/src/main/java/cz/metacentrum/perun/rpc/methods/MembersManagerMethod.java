@@ -1320,8 +1320,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Get RichMembers from a VO who are service users.
    *
-   * @param sess
-   * @param vo
+   * @param vo int VO <code>id</code>
    * @return List of RichMembers from the VO, who are service users
    */
   getServiceUserRichMembers {

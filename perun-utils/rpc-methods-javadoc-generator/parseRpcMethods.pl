@@ -339,6 +339,7 @@ sub processFile {
 	# 1 - looking for parts of one javadoc or end of this javadoc (if end found -> 2)
 	# 2 - looking for another javadoc (if found -> 1) or name of method (if found -> 0)
 	my $phase=0; #phase of looking in file
+	my $lastToken=0; # last processed docs token for multiline
 	my @methods = ();
 	my $method = {};
 	my @params = ();
@@ -364,17 +365,24 @@ sub processFile {
 			case 1 {
 				if($line =~ m/^\s*[*]\s*\@param\s*(.*)/) {
 					push @params, $1;
+					$lastToken=1;
 				} elsif($line =~ m/^\s*\*\s*[@]return\s*(.*)/) {
 					$return="$1";
+					$lastToken=2;
 				} elsif($line =~ m/^\s*\*\s*[@]exampleResponse\s*(.*)/) {
 					$exampleResponse="$1";
+					$lastToken=3;
 				} elsif($line =~ m/^\s*\*\s*[@]exampleParam\s*(.*)/) {
 					push @exampleParams, $1;
+					$lastToken=4;
 				} elsif($line =~ m/^\s*\*\s*[@]deprecated\s*(.*)/) {
 					$deprecated="$1";
+					$lastToken=5;
 				} elsif($line =~ m/^\s*\*\s*[@]throw\s*(.*)/) {
 					push @throws, $1;
+					$lastToken=6;
 				} elsif($line =~ m/^\s*\*\//) {
+					$lastToken=0;
 					$phase=2;
 					# local variables for purpose of saving information
 					my $javadoc={};
@@ -403,7 +411,21 @@ sub processFile {
 					$deprecated=undef;
 					$javadoc=();
 				} elsif($line =~ m/^\s*\*\s*(.*)/) {
-					push @textLines, $1;
+					if ($lastToken == 0) {
+						push @textLines, $1;
+					} elsif ($lastToken == 1) {
+						$params[-1] = $params[-1] . " " . $1
+					} elsif ($lastToken == 2) {
+						$return = $return . " " . $1;
+					} elsif ($lastToken == 3) {
+						$exampleResponse = $exampleResponse . " " . $1;
+					} elsif ($lastToken == 4) {
+						$exampleParams[-1] = $exampleParams[-1] . " " . $1
+					} elsif ($lastToken == 5) {
+						$deprecated = $deprecated . " " . $1;
+					} elsif ($lastToken == 6) {
+						$throws[-1] = $throws[-1] . " " . $1
+					}
 				} else {
 					#skip this line, it is probably space or something nasty, we dont need it
 				}
@@ -444,7 +466,7 @@ sub buildVersion {
 	my $ver = $_[0];
 	my $latest = $_[1];
 	`git -C ./perun/ checkout $ver`;
-	my $idx = index($ver, "v3.");
+	my $idx = index($ver, "v");
 	my $printVer = $ver;
 	if ($idx > 0) {
 		$printVer = substr($ver,1);
@@ -532,7 +554,7 @@ sub buildVersion {
 	my $counter = 1;
 	for my $v (@allVersions) {
 
-		my $idx = index $v, "v3.";
+		my $idx = index $v, "v";
 		my $pv = $v;
 		if ($idx > 0) {
 			$pv = substr($v, 1);
@@ -745,7 +767,7 @@ API: perun-api.&ltdomain&gt.cz
 
 		my $counter = 1;
 		for my $v (@allVersions) {
-			my $idx = index $v, "v3.";
+			my $idx = index $v, "v";
 			my $pv = $v;
 			if ($idx > 0) {
 				$pv = substr($v, 1);
@@ -861,10 +883,9 @@ API: perun-api.&ltdomain&gt.cz
 							my $par1 = (split(/ /, $par))[1];
 							$par1 =~ s/\Q<\E/&lt;/g;
 							$par1 =~ s/\Q>\E/&gt;/g;
-							unless($par1) {
+							unless(defined $par1) {
 								print $sortedMethod . "\n";
 							}
-
 							$methodAnnotation .= $par1;
 							$methodAnnotation .= " ";
 							$methodAnnotation .= (split(/ /, $par))[0];
@@ -1091,7 +1112,7 @@ unless (-d $SOURCE_DIR) {
 	print "Checking out latest perun...\n";
 	`git clone https://gitlab.ics.muni.cz/perun/perun-idm/perun.git perun`;
 } else {
-	print "Wiping-out previously checkouted perun sources...\n";
+	print "Wiping-out previously checked-out perun sources...\n";
 	`rm -rf ./perun/`;
 	print "Checking out latest perun...\n";
 	`git clone https://gitlab.ics.muni.cz/perun/perun-idm/perun.git perun`;
