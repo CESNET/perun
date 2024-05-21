@@ -56,7 +56,6 @@ public class Metacentrum extends DefaultRegistrarModule {
 
   protected static final String A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN =
       AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen";
-  protected static final String METACENTRUM_IDP = "https://login.ics.muni.cz/idp/shibboleth";
   protected static final String EINFRA_IDP = "https://idp.e-infra.cz/idp/";
   private static final Logger LOG = LoggerFactory.getLogger(Metacentrum.class);
   private static final String A_USER_RESEARCH_GROUP_STATISTICS =
@@ -211,13 +210,6 @@ public class Metacentrum extends DefaultRegistrarModule {
   @Override
   public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params)
       throws PerunException {
-
-    if (METACENTRUM_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
-      throw new CantBeSubmittedException("You are currently logged-in using Metacentrum IdP." +
-                                         "It can't be used to register or extend membership in Metacentrum. Please " +
-                                         "close browser and log-in using different identity provider.",
-          "NOT_ELIGIBLE_METAIDP", null, null);
-    }
 
     if (EINFRA_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
       throw new CantBeSubmittedException("You are currently logged-in using e-INFRA CZ IdP." +

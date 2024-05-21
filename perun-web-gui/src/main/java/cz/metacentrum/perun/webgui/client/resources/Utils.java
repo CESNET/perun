@@ -1370,7 +1370,6 @@ public class Utils {
     orgs.put("https://id.vse.cz/idp/shibboleth", "University of Economics, Prague");
     orgs.put("https://shib.zcu.cz/idp/shibboleth", "University of West Bohemia");
     orgs.put("https://idptoo.osu.cz/simplesaml/saml2/idp/metadata.php", "University of Ostrava");
-    orgs.put("https://login.ics.muni.cz/idp/shibboleth", "MetaCentrum");
     orgs.put("https://idp.hostel.eduid.cz/idp/shibboleth", "eduID.cz Hostel");
     orgs.put("https://shibboleth.techlib.cz/idp/shibboleth", "National Library of Technology");
     orgs.put("https://eduid.jamu.cz/idp/shibboleth", "Janacek Academy of Music and Performing Arts in Brno");
