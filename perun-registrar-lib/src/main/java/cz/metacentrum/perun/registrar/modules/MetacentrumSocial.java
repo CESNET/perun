@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.registrar.modules;
 
 import static cz.metacentrum.perun.registrar.modules.Metacentrum.EINFRA_IDP;
-import static cz.metacentrum.perun.registrar.modules.Metacentrum.METACENTRUM_IDP;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -72,13 +71,6 @@ public class MetacentrumSocial extends DefaultRegistrarModule {
   @Override
   public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params)
       throws PerunException {
-
-    if (METACENTRUM_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
-      throw new CantBeSubmittedException("You are currently logged-in using Metacentrum IdP." +
-                                         "It can't be used to register or extend membership in Metacentrum. Please " +
-                                         "close browser and log-in using different identity provider.",
-          "NOT_ELIGIBLE_METAIDP", null, null);
-    }
 
     if (EINFRA_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
       throw new CantBeSubmittedException("You are currently logged-in using e-INFRA CZ IdP." +
