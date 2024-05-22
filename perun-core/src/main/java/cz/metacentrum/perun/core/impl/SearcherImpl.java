@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,7 +44,8 @@ public class SearcherImpl implements SearcherImplApi {
   }
 
   @Override
-  public List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) {
+  public List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues)
+      throws WrongAttributeValueException {
     StringBuilder query = new StringBuilder();
     query.append("select distinct " + FacilitiesManagerImpl.FACILITY_MAPPING_SELECT_QUERY + " from facilities ");
 
@@ -62,7 +64,8 @@ public class SearcherImpl implements SearcherImplApi {
   }
 
   @Override
-  public List<Group> getGroups(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) {
+  public List<Group> getGroups(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues)
+      throws WrongAttributeValueException {
     StringBuilder query = new StringBuilder();
     query.append("select distinct " + GroupsManagerImpl.GROUP_MAPPING_SELECT_QUERY + " from groups ");
 
@@ -186,7 +189,7 @@ public class SearcherImpl implements SearcherImplApi {
 
   @Override
   public List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues,
-                                     boolean allowPartialMatchForString) {
+                                     boolean allowPartialMatchForString) throws WrongAttributeValueException {
     StringBuilder query = new StringBuilder();
     query.append("select distinct " + ResourcesManagerImpl.RESOURCE_MAPPING_SELECT_QUERY + " from resources ");
 
@@ -205,7 +208,8 @@ public class SearcherImpl implements SearcherImplApi {
   }
 
   @Override
-  public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) {
+  public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues)
+      throws WrongAttributeValueException {
     StringBuilder query = new StringBuilder();
     query.append("select distinct " + UsersManagerImpl.USER_MAPPING_SELECT_QUERY + " from users ");
 
@@ -243,13 +247,15 @@ public class SearcherImpl implements SearcherImplApi {
    * @param allowPartialMatchForString    if false, search only by exact match, if true, search also by partial match
    *                                      (for String values only!)
    * @throws InternalErrorException internal error
+   * @throws WrongAttributeValueException wrong attribute value
    */
   @SuppressWarnings("ConstantConditions")
   private void insertWhereClausesAndQueryParametersFromAttributes(StringBuilder query, MapSqlParameterSource parameters,
                                                                   String attrValueTableName, String entityName,
                                                                   String entityTableName,
                                                                   Map<Attribute, String> attributesWithSearchingValues,
-                                                                  boolean allowPartialMatchForString) {
+                                                                  boolean allowPartialMatchForString)
+      throws WrongAttributeValueException {
     List<String> whereClauses = new ArrayList<>();
     int counter = 0;
     for (Attribute key : attributesWithSearchingValues.keySet()) {
@@ -265,11 +271,16 @@ public class SearcherImpl implements SearcherImplApi {
         whereClauses.add("val" + counter + ".attr_value IS NULL ");
       } else {
         if (key.getType().equals(Integer.class.getName())) {
-          key.setValue(Integer.valueOf(value));
-          whereClauses.add("val" + counter + ".attr_value=:v" + counter + " ");
-          whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
-          parameters.addValue("n" + counter, Integer.class.getName());
-          parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
+          try {
+            key.setValue(Integer.valueOf(value));
+            whereClauses.add("val" + counter + ".attr_value=:v" + counter + " ");
+            whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+            parameters.addValue("n" + counter, Integer.class.getName());
+            parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
+          } catch (NumberFormatException ex) {
+            throw new WrongAttributeValueException(
+                "Searched value for attribute: " + key + " should be type of Integer");
+          }
         } else if (key.getType().equals(String.class.getName())) {
           key.setValue(value);
           if (allowPartialMatchForString) {
@@ -284,7 +295,11 @@ public class SearcherImpl implements SearcherImplApi {
           parameters.addValue("n" + counter, key.getType());
           parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
         } else if (key.getType().equals(Boolean.class.getName())) {
-          key.setValue(value);
+          if (!value.equals("false") && !value.equals("true")) {
+            throw new WrongAttributeValueException(
+                "Searched value for attribute: " + key + " should be 'true' or 'false'");
+          }
+          key.setValue(Boolean.valueOf(value));
           whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ")=lower(" +
                            Compatibility.convertToAscii(":v" + counter) + ") ");
           whereClauses.add("nam" + counter + ".type=:n" + counter + " ");

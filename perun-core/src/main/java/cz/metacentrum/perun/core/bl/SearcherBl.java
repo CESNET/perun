@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +42,10 @@ public interface SearcherBl {
    * @throws InternalErrorException            internal error
    * @throws AttributeNotExistsException       when specified attribute does not exist
    * @throws WrongAttributeAssignmentException wrong attribute assignment
+   * @throws WrongAttributeValueException      wrong attribute value
    */
   List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException;
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
   /**
    * Filter output from getGroups by vo_id.
@@ -51,7 +53,7 @@ public interface SearcherBl {
    * @see #getGroups(PerunSession, Map)
    */
   List<Group> getGroups(PerunSession sess, Vo vo, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException;
+      throws AttributeNotExistsException, WrongAttributeValueException;
 
   /**
    * This method get Map of Attributes with searching values and try to find all groups, which have specific attributes
@@ -73,9 +75,10 @@ public interface SearcherBl {
    * @return list of groups who have attributes with specific values (behavior above) if no group exist, return empty
    * list of groups if empty map, return all groups
    * @throws AttributeNotExistsException
+   * @throws WrongAttributeValueException wrong attribute value
    */
   List<Group> getGroups(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException;
+      throws AttributeNotExistsException, WrongAttributeValueException;
 
   /**
    * Return all groups assigned to any resource with following conditions: 1] resource has set "resourceAttribute"
@@ -171,10 +174,11 @@ public interface SearcherBl {
    * @throws InternalErrorException            internal error
    * @throws AttributeNotExistsException       when specified attribute does not exist
    * @throws WrongAttributeAssignmentException wrong attribute assignment
+   * @throws WrongAttributeValueException      wrong attribute value
    */
   List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues,
                               boolean allowPartialMatchForString)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException;
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
   /**
    * This method get Map of Attributes with searching values and try to find all users, which have specific attributes
@@ -196,9 +200,10 @@ public interface SearcherBl {
    * @throws AttributeNotExistsException
    * @throws InternalErrorException
    * @throws WrongAttributeAssignmentException
+   * @throws WrongAttributeValueException
    */
   List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException;
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
   /**
    * This method take map of coreAttributes with search values and return all users who have the specific match for all
@@ -210,9 +215,10 @@ public interface SearcherBl {
    * @throws InternalErrorException
    * @throws AttributeNotExistsException
    * @throws WrongAttributeAssignmentException
+   * @throws WrongAttributeValueException
    */
   List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException;
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
   /**
    * Gets VOs ids for potential application auto rejection.
