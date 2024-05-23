@@ -6151,48 +6151,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
-	public void getGroupsPage_Vo_autoChangedOffset () throws Exception {
-		System.out.println(CLASS_NAME + "getGroupsPage_Vo_autoChangedOffset");
-
-		vo = setUpVo();
-
-		perun.getGroupsManager().createGroup(sess, vo, group);
-		perun.getGroupsManager().createGroup(sess, vo, group2);
-		perun.getGroupsManager().createGroup(sess, group2, group21);
-		perun.getGroupsManager().createGroup(sess, group21, group3);
-		perun.getGroupsManager().createGroup(sess, vo, group4);
-		perun.getGroupsManager().createGroup(sess, vo, group5);
-		perun.getGroupsManager().createGroup(sess, vo, group6);
-		perun.getGroupsManager().createGroup(sess, vo, group7);
-		perun.getGroupsManager().createGroup(sess, vo, group8);
-
-		GroupsPageQuery query = new GroupsPageQuery(5, 10, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "testovaci");
-		Paginated<RichGroup> groups = groupsManager.getGroupsPage(sess, vo, query, List.of());
-
-		assertNotNull(groups);
-		assertEquals(groups.getData().size(), 4);
-		assertEquals(5, groups.getOffset());
-		assertTrue(groups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group5
-				, List.of())));
-		assertTrue(groups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group6
-				, List.of())));
-		assertTrue(groups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group7
-				, List.of())));
-		assertTrue(groups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group8
-				, List.of())));
-
-
-		query = new GroupsPageQuery(3, 6, SortingOrder.ASCENDING, GroupsOrderColumn.NAME, "testovaci2");
-		groups = groupsManager.getGroupsPage(sess, vo, query, List.of());
-
-		assertNotNull(groups);
-		assertEquals(groups.getData().size(), 2);
-		assertEquals(0, groups.getOffset());
-		assertTrue(groups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group2, List.of())));
-		assertTrue(groups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group21, List.of())));
-	}
-
-	@Test
 	public void getGroupsPage_Vo_ReturnsAttributes () throws Exception {
 		System.out.println(CLASS_NAME + "getGroupsPage_Vo_ReturnsAttributes");
 
@@ -6389,45 +6347,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(subgroups.getData().size(), 2);
 
 		assertEquals(subgroups2.getData().size(), 0);
-	}
-
-	@Test
-	public void getGroupsPage_ParentGroup_autoChangedOffset () throws Exception {
-		System.out.println(CLASS_NAME + "getGroupsPage_ParentGroup_autoChangedOffset");
-
-		vo = setUpVo();
-
-		perun.getGroupsManager().createGroup(sess, vo, group);
-		perun.getGroupsManager().createGroup(sess, group, group2);
-		perun.getGroupsManager().createGroup(sess, group2, group21);
-		perun.getGroupsManager().createGroup(sess, group2, group3);
-		perun.getGroupsManager().createGroup(sess, group2, group4);
-		perun.getGroupsManager().createGroup(sess, group2, group5);
-		perun.getGroupsManager().createGroup(sess, group2, group6);
-		perun.getGroupsManager().createGroup(sess, group2, group7);
-		perun.getGroupsManager().createGroup(sess, group2, group8);
-
-		GroupsPageQuery query = new GroupsPageQuery(5, 10, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "testovaci");
-		Paginated<RichGroup> subgroups = groupsManager.getSubgroupsPage(sess, group, query, List.of());
-
-		assertNotNull(subgroups);
-		assertEquals(subgroups.getData().size(), 3);
-		assertEquals(5, subgroups.getOffset());
-		assertTrue(subgroups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group6
-				, List.of())));
-		assertTrue(subgroups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group7
-				, List.of())));
-		assertTrue(subgroups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group8
-				, List.of())));
-
-		query = new GroupsPageQuery(5, 5, SortingOrder.ASCENDING, GroupsOrderColumn.ID, "testovaci2");
-		subgroups = groupsManager.getSubgroupsPage(sess, group2, query, List.of());
-
-		assertNotNull(subgroups);
-		assertEquals(subgroups.getData().size(), 1);
-		assertEquals(0, subgroups.getOffset());
-		assertTrue(subgroups.getData().contains(groupsManagerBl.convertGroupToRichGroupWithAttributesByName(sess, group21
-				, List.of())));
 	}
 
 	@Test

@@ -8,7 +8,10 @@ import java.util.Objects;
  *
  * @author Metodej Klang
  */
-public class UsersPageQuery extends PageQuery {
+public class UsersPageQuery {
+  private int pageSize;
+  private int offset;
+  private SortingOrder order;
   private UsersOrderColumn sortColumn;
   private String searchString = "";
   private boolean withoutVo = false;
@@ -23,26 +26,34 @@ public class UsersPageQuery extends PageQuery {
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn,
                         String searchString) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, boolean withoutVo) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.withoutVo = withoutVo;
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         boolean withoutVo) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.withoutVo = withoutVo;
@@ -50,7 +61,9 @@ public class UsersPageQuery extends PageQuery {
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -58,7 +71,9 @@ public class UsersPageQuery extends PageQuery {
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId, boolean onlyAllowed) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -67,7 +82,9 @@ public class UsersPageQuery extends PageQuery {
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId, Integer voId, Integer serviceId, Integer resourceId) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -78,7 +95,9 @@ public class UsersPageQuery extends PageQuery {
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId, Integer voId, Integer serviceId, Integer resourceId, boolean onlyAllowed) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -91,7 +110,9 @@ public class UsersPageQuery extends PageQuery {
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId, Integer voId, Integer serviceId, Integer resourceId, boolean onlyAllowed,
                         List<ConsentStatus> consentStatuses) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -113,10 +134,10 @@ public class UsersPageQuery extends PageQuery {
 
     UsersPageQuery that = (UsersPageQuery) o;
 
-    if (getPageSize() != that.getPageSize()) {
+    if (pageSize != that.pageSize) {
       return false;
     }
-    if (getOffset() != that.getOffset()) {
+    if (offset != that.offset) {
       return false;
     }
     if (withoutVo != that.withoutVo) {
@@ -125,7 +146,7 @@ public class UsersPageQuery extends PageQuery {
     if (onlyAllowed != that.onlyAllowed) {
       return false;
     }
-    if (getOrder() != that.getOrder()) {
+    if (order != that.order) {
       return false;
     }
     if (sortColumn != that.sortColumn) {
@@ -163,6 +184,30 @@ public class UsersPageQuery extends PageQuery {
 
   public void setFacilityId(Integer facilityId) {
     this.facilityId = facilityId;
+  }
+
+  public int getOffset() {
+    return offset;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public SortingOrder getOrder() {
+    return order;
+  }
+
+  public void setOrder(SortingOrder order) {
+    this.order = order;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
   }
 
   public Integer getResourceId() {
@@ -207,9 +252,9 @@ public class UsersPageQuery extends PageQuery {
 
   @Override
   public int hashCode() {
-    int result = getPageSize();
-    result = 31 * result + getOffset();
-    result = 31 * result + getOrder().hashCode();
+    int result = pageSize;
+    result = 31 * result + offset;
+    result = 31 * result + order.hashCode();
     result = 31 * result + sortColumn.hashCode();
     result = 31 * result + (searchString != null ? searchString.hashCode() : 0);
     result = 31 * result + (withoutVo ? 1 : 0);

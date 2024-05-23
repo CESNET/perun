@@ -114,7 +114,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.mail.MailException;
@@ -2498,16 +2497,6 @@ public class Utils {
     namedParams.addValue("uesAttributes", attributesToSearchBy.get("uesAttributes"));
 
     return namedParams;
-  }
-
-  /**
-   * Return SQL query with limit for total_count
-   *
-   * @param sql query
-   * @return sql with limit for total_count
-   */
-  public static String limitTotalCount(String sql) {
-    return "select total_count from (" + sql + ") as data LIMIT 1";
   }
 
   /**
