@@ -1,5 +1,33 @@
 Upgrade notes
 
+## [36.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v35.0.1...v36.0.0) (2024-05-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **engine:** new configuration option `perun.archiveSpool` which enables gen file logging
+* **core:** Removed module for "user:virt:organizationsWithLoa", delete attr before deploy.
+
+### Features
+
+* **cli:** changed metadata_url for idm_test instance in Python CLI ([5318e3b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5318e3b41e2174fbf9bf220eb7ba131ca3cb51b2))
+* **core:** allow sending parameters in req body for bulk operations ([96848aa](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/96848aa2a94984a0f9ece87314138ec2d5a079b2))
+* **engine:** configurable gen file archival ([cca9914](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cca991420577ec7d73255668ee4072784ff1f5e0))
+
+
+### Bug Fixes
+
+* **cli:** printing users common name ([c4d2f4b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c4d2f4b9d6035e4c1a8a0814257e0b6c806414dc))
+* **core:** addMemberVo mfa check ([24ea162](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/24ea1629f8e93cc847407c4bb9f40f7a03f933c1))
+* **core:** cast to Integer exception ([a5cbbee](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a5cbbeec72394e474d28c8376c8bbccbf6102019))
+* **core:** revert offset changes ([8fee705](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8fee705e7a3a67e956dfd60d51d5c95b779f322a))
+* serialization of audit messages ([ebeeccb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ebeeccbd2eaddd0d06000aa94e974fd415bac381))
+
+
+### Refactoring
+
+* **core:** removed user:virt:organizationsWithLoa attribute ([233b1a4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/233b1a4e2fc22e149344ca082e6b8f484bdb6f62))
+
 ## [35.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v35.0.0...v35.0.1) (2024-05-16)
 
 
