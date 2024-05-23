@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,11 @@ public interface Searcher {
    * @throws InternalErrorException            internal error
    * @throws AttributeNotExistsException       when specified attribute does not exist
    * @throws WrongAttributeAssignmentException wrong attribute assignment
+   * @throws WrongAttributeValueException      wrong attribute value
    */
   List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
+      throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException,
+                 WrongAttributeValueException;
 
   /**
    * Return members with expiration date set, which will expire on specified date. You can specify operator for
@@ -120,10 +123,12 @@ public interface Searcher {
    * @throws PrivilegeException
    * @throws WrongAttributeAssignmentException
    * @throws VoNotExistsException
+   * @throws WrongAttributeValueException
    */
   List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,
                                           Map<String, String> userAttributesWithSearchingValues)
-      throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException;
+      throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException,
+                 WrongAttributeValueException;
 
   /**
    * This method get Map of Attributes with searching values and try to find all resources, which have specific
@@ -148,10 +153,12 @@ public interface Searcher {
    * @throws InternalErrorException            internal error
    * @throws AttributeNotExistsException       when specified attribute does not exist
    * @throws WrongAttributeAssignmentException wrong attribute assignment
+   * @throws WrongAttributeValueException      wrong attribute value
    */
   List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues,
                               boolean allowPartialMatchForString)
-      throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
+      throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException,
+                 WrongAttributeValueException;
 
   /**
    * This method get Map of Attributes with searching values and try to find all users, which have specific attributes
@@ -174,9 +181,11 @@ public interface Searcher {
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws WrongAttributeAssignmentException
+   * @throws WrongAttributeValueException
    */
   List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException;
+      throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException,
+                 WrongAttributeValueException;
 
   /**
    * This method take map of coreAttributes with search values and return all users who have the specific match for all
@@ -189,7 +198,9 @@ public interface Searcher {
    * @throws AttributeNotExistsException
    * @throws WrongAttributeAssignmentException
    * @throws PrivilegeException
+   * @throws WrongAttributeValueException
    */
   List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException;
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException,
+                 WrongAttributeValueException;
 }

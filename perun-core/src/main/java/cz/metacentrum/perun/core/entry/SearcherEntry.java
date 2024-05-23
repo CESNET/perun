@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import java.time.LocalDate;
@@ -50,7 +51,8 @@ public class SearcherEntry implements Searcher {
 
   @Override
   public List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException,
+                 WrongAttributeValueException {
 
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "getFacilities_Map<String_String>_policy")) {
@@ -101,7 +103,8 @@ public class SearcherEntry implements Searcher {
   @Override
   public List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,
                                                  Map<String, String> userAttributesWithSearchingValues)
-      throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException {
+      throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException,
+                 WrongAttributeValueException {
     perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
     //Authorization
@@ -168,7 +171,8 @@ public class SearcherEntry implements Searcher {
   @Override
   public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues,
                                      boolean allowPartialMatchForString)
-      throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException,
+                 WrongAttributeValueException {
 
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "getResources_Map<String_String>_policy")) {
@@ -184,7 +188,8 @@ public class SearcherEntry implements Searcher {
 
   @Override
   public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException {
+      throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException,
+                 WrongAttributeValueException {
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "getUsers_Map<String_String>_policy")) {
       throw new PrivilegeException(sess, "getUsers");
@@ -195,7 +200,8 @@ public class SearcherEntry implements Searcher {
 
   @Override
   public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException,
+                 WrongAttributeValueException {
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "getUsersForCoreAttributes_Map<String_String>_policy")) {
       throw new PrivilegeException(sess, "getUsersForCoreAttributes");

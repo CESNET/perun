@@ -101,7 +101,8 @@ public class VosManagerEntry implements VosManager {
     vosManagerBl.checkVoExists(sess, memberVo);
 
     // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "addMemberVo_Vo_Vo_policy", vo)) {
+    if (!AuthzResolver.authorizedInternal(sess, "result-addMemberVo_Vo_Vo_policy", vo) ||
+            !AuthzResolver.authorizedInternal(sess, "operand-addMemberVo_Vo_Vo_policy", memberVo)) {
       throw new PrivilegeException("addMemberVo");
     }
 

@@ -44,7 +44,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
       roles.replaceAll(String::toLowerCase);
       return roles;
     }
-  }, /*#
+  },
+
+  /*#
    * Returns list of user's role names.
    *
    * Perun system uses role names in the upper case format.
@@ -62,42 +64,48 @@ public enum AuthzResolverMethod implements ManagerMethod {
       roles.replaceAll(String::toLowerCase);
       return roles;
     }
-  }, /*#
+  },
+
+  /*#
    * Returns all roles as an AuthzRoles object for a given user.
    * Returns also sponsorship and membership roles.
    *
    * @param userId int Id of a user
    * @return AuthzRoles Object which contains all roles with perunbeans
    * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},
-   "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
+   * "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
    */
   getUserRoles {
     @Override
     public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
       return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), parms.readInt("userId"), true);
     }
-  }, /*#
+  },
+
+  /*#
    * Returns all roles assigned to user except for those obtained from membership in authorized groups as an
-   AuthzRoles object.
+   * AuthzRoles object.
    * Returns also sponsorship and membership roles.
    *
    * @param userId int Id of a user
    * @return AuthzRoles Object which contains all roles with perunbeans
    * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},
-   "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
+   * "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
    */
   getUserDirectRoles {
     @Override
     public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
       return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), parms.readInt("userId"), false);
     }
-  }, /*#
+  },
+
+  /*#
    * Returns roles resulting from membership in authorized groups as an AuthzRoles object for a given user.
    *
    * @param userId int Id of a user
    * @return AuthzRoles Object which contains roles with perunbeans
    * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},
-   "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
+   * "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
    */
   getUserRolesObtainedFromAuthorizedGroupMemberships {
     @Override
@@ -105,14 +113,16 @@ public enum AuthzResolverMethod implements ManagerMethod {
       return cz.metacentrum.perun.core.api.AuthzResolver.getRolesObtainedFromAuthorizedGroupMemberships(ac.getSession(),
           parms.readInt("userId"));
     }
-  }, /*#
+  },
+
+  /*#
    * Returns map of role name and map of corresponding role complementary objects (perun beans) distinguished by type.
    * together with list of authorized groups where user is member:
-   *     Map< RoleName, Map< BeanName, Map< BeanID, List<AuthzGroup> >>>
+   * Map< RoleName, Map< BeanName, Map< BeanID, List<AuthzGroup> >>>
    *
    * @param userId int Id of a user
    * @return Map<String, Map<String, Map<Integer, List<Group>>>> roles with map of complementary objects with
-   associated authorized groups
+   * associated authorized groups
    */
   getRoleComplementaryObjectsWithAuthorizedGroups {
     @Override
@@ -121,7 +131,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
       return cz.metacentrum.perun.core.api.AuthzResolver.getRoleComplementaryObjectsWithAuthorizedGroups(
           ac.getSession(), parms.readInt("userId"));
     }
-  }, /*#
+  },
+
+  /*#
    * Returns list of group's role names.
    *
    * Perun system uses role names in the upper case format.
@@ -138,32 +150,36 @@ public enum AuthzResolverMethod implements ManagerMethod {
       roles.replaceAll(String::toLowerCase);
       return roles;
     }
-  }, /*#
+  },
+
+  /*#
    * Returns all roles as an AuthzRoles object for a given group.
    *
    * @param groupId int Id of a group
    * @return AuthzRoles Object which contains all roles with perunbeans
    * @exampleResponse {"FACILITYADMIN":{"Facility":[3682,3826]},"GROUPADMIN":{"Group":[9082,12093],"Vo":[3794,201]},
-   "VOADMIN":{"Vo":[2561,1541,2061,1041,3601]}}
+   *  "VOADMIN":{"Vo":[2561,1541,2061,1041,3601]}}
    */
   getGroupRoles {
     @Override
     public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
       return cz.metacentrum.perun.core.api.AuthzResolver.getGroupRoles(ac.getSession(), parms.readInt("groupId"));
     }
-  }, /*#
+  },
+
+  /*#
    * Get all valid richUser administrators (for group-based rights, status must be VALID for both Vo and group) for
-   complementary object and role with specified attributes.
+   *  complementary object and role with specified attributes.
    *
    * @param role String Expected Role to filter managers by
    * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
    * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
-    (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
    * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
    * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with
-   specific attributes
+   *  specific attributes
    * @param allUserAttributes boolean When true, do not specify attributes through list and return them all in
-   objects richUser. Ignoring list of specific attributes
+   *  objects richUser. Ignoring list of specific attributes
    * @return List<RichUser> Administrators for complementary object and role with specify attributes
    */
   getRichAdmins {
@@ -199,14 +215,14 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
   /*#
    * Get all valid user administrators (for group-based rights, status must be VALID for both Vo and group) for
-   complementary object and role.
+   *  complementary object and role.
    *
    * @param role String Expected Role to filter managers by
    * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
    * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
-    (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
    * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with
-   specific attributes
+   *  specific attributes
    * @return List<User> Administrators for complementary object and role
    */
   getAdmins {
@@ -246,7 +262,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * @param role String Expected Role to filter managers by
    * @param complementaryObjectId int Property <code>id</code> of complementaryObject to search managers for
    * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
-    (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
    * @param onlyDirectAdmins boolean When true, search only direct users of the complementary object for role
    * @return true, if some user with required role exists, false otherwise
    */

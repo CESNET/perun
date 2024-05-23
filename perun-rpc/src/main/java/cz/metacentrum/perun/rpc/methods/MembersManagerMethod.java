@@ -59,7 +59,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Delete members with given ids. It is possible to delete members from multiple vos.
    *
-   * @param member int Member <code>id</code>
+   * @param member int[] ids of the members to be deleted
    * @throw MemberLifecycleAlteringForbiddenException if member comes from hierarchical member vo and cannot be
    * altered in parent vo
    */
@@ -582,11 +582,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 
   /*#
-   * For an existing member, assigns a new sponsor.
+   * Assigns a new sponsor for given existing members.
    *
    * Can be called only by VO admin.
    *
-   * @param members List<Integer> ids of sponsored members
+   * @param members List<Integer> ids of members to be sponsored
    * @param sponsor int id of sponsoring user
    * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
    */
@@ -615,7 +615,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Assign new sponsor to the selected sponsored members of another sponsor with the original sponsors validity
    *
-   * @param sponsored List<MemberWithSponsors>
+   * @param sponsored List<Integer> ids of sponsored members
    * @param copyFrom int id of the existing sponsor user
    * @param copyTo int id of the new user to be sponsor
    * @param copyValidity boolean whether to copy validity
@@ -623,7 +623,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Assign new sponsor to the selected sponsored members of another sponsor and set new validity
    *
-   * @param sponsored List<MemberWithSponsors>
+   * @param members List<Integer> ids of sponsored members
    * @param copyFrom int id of the existing sponsor user
    * @param copyTo int id of the new user to be sponsor
    * @param copyValidity boolean whether to copy validity
@@ -1320,8 +1320,7 @@ public enum MembersManagerMethod implements ManagerMethod {
   /*#
    * Get RichMembers from a VO who are service users.
    *
-   * @param sess
-   * @param vo
+   * @param vo int VO <code>id</code>
    * @return List of RichMembers from the VO, who are service users
    */
   getServiceUserRichMembers {

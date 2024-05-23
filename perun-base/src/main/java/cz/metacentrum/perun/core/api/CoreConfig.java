@@ -46,6 +46,7 @@ public class CoreConfig {
   private boolean lookupUserByIdentifiersAndExtSourceLogin;
   private boolean userDeletionForced;
   private boolean forceConsents;
+  private boolean archiveSpool;
   private boolean requestUserInfoEndpoint;
   private String alternativePasswordManagerProgram;
   private String instanceId;
@@ -398,6 +399,14 @@ public class CoreConfig {
 
   public void setForceConsents(boolean forceConsents) {
     this.forceConsents = forceConsents;
+  }
+
+  public boolean isArchiveSpool() {
+    return archiveSpool;
+  }
+
+  public void setArchiveSpool(boolean archiveSpool) {
+    this.archiveSpool = archiveSpool;
   }
 
   public boolean getForceHtmlSanitization() {

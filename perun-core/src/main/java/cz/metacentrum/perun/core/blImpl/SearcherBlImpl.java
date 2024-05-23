@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
@@ -43,7 +44,7 @@ public class SearcherBlImpl implements SearcherBl {
 
   @Override
   public List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
     if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
       return perunBl.getFacilitiesManagerBl().getFacilities(sess);
     }
@@ -74,7 +75,7 @@ public class SearcherBlImpl implements SearcherBl {
 
   private List<Facility> getFacilitiesForCoreAttributesByMapOfAttributes(PerunSession sess,
                                                Map<AttributeDefinition, String> coreAttributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
     List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
     if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
       return facilities;
@@ -104,14 +105,14 @@ public class SearcherBlImpl implements SearcherBl {
 
   @Override
   public List<Group> getGroups(PerunSession sess, Vo vo, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException {
+      throws AttributeNotExistsException, WrongAttributeValueException {
     return this.getGroups(sess, attributesWithSearchingValues).stream().filter(group -> group.getVoId() == vo.getId())
         .collect(Collectors.toList());
   }
 
   @Override
   public List<Group> getGroups(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException {
+      throws AttributeNotExistsException, WrongAttributeValueException {
     //If there is no attribute, so every group match
     if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
       return perunBl.getVosManagerBl().getVos(sess).stream()
@@ -180,7 +181,7 @@ public class SearcherBlImpl implements SearcherBl {
   @Override
   public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues,
                                      boolean allowPartialMatchForString)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
     if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
       return perunBl.getResourcesManagerBl().getResources(sess);
     }
@@ -221,11 +222,12 @@ public class SearcherBlImpl implements SearcherBl {
    * @throws InternalErrorException            internal error
    * @throws AttributeNotExistsException       attribute not exist
    * @throws WrongAttributeAssignmentException wrong attribute assignment
+   * @throws WrongAttributeValueException      wrong attribute value
    */
   private List<Resource> getResourcesForCoreAttributesByMapOfAttributes(PerunSession sess,
                                                 Map<AttributeDefinition, String> coreAttributesWithSearchingValues,
                                                 boolean allowPartialMatchForString)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
     List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess);
     if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
       return resources;
@@ -260,7 +262,7 @@ public class SearcherBlImpl implements SearcherBl {
 
   @Override
   public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
     //If there is no attribute, so every user match
     if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
       return perunBl.getUsersManagerBl().getUsers(sess);
@@ -289,7 +291,7 @@ public class SearcherBlImpl implements SearcherBl {
 
   @Override
   public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
     List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
     if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
       return users;
@@ -322,10 +324,11 @@ public class SearcherBlImpl implements SearcherBl {
    * @throws InternalErrorException
    * @throws AttributeNotExistsException
    * @throws WrongAttributeAssignmentException
+   * @throws WrongAttributeValueException
    */
   private List<User> getUsersForCoreAttributesByMapOfAttributes(PerunSession sess,
                                                   Map<AttributeDefinition, String> coreAttributesWithSearchingValues)
-      throws AttributeNotExistsException, WrongAttributeAssignmentException {
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
     List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
     if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
       return users;
@@ -371,7 +374,7 @@ public class SearcherBlImpl implements SearcherBl {
    * @throws InternalErrorException internal error
    */
   private boolean isAttributeValueMatching(Attribute entityAttribute, String value,
-                                           boolean allowPartialMatchForString) {
+                                           boolean allowPartialMatchForString) throws WrongAttributeValueException {
     boolean shouldBeAccepted = true;
 
     if (entityAttribute.getValue() == null) {
@@ -393,13 +396,29 @@ public class SearcherBlImpl implements SearcherBl {
           }
         }
       } else if (entityAttribute.getValue() instanceof Integer) {
-        Integer attrValue = entityAttribute.valueAsInteger();
-        int valueInInteger = Integer.parseInt(value);
-        if (attrValue != valueInInteger) {
+        try {
+          Integer attrValue = entityAttribute.valueAsInteger();
+          int valueInInteger = Integer.parseInt(value);
+          if (attrValue != valueInInteger) {
+            shouldBeAccepted = false;
+          }
+        } catch (NumberFormatException ex) {
+          throw new WrongAttributeValueException(
+              "Searched value for core attribute: " + entityAttribute + " should be type of Integer");
+        }
+      } else if (entityAttribute.getValue() instanceof Boolean) {
+        if (!value.equals("false") && !value.equals("true")) {
+          throw new WrongAttributeValueException(
+              "Searched value for core attribute: " + entityAttribute + " should be 'true' or 'false'");
+        }
+        Boolean attrValue = entityAttribute.valueAsBoolean();
+        boolean valueInBoolean = Boolean.parseBoolean(value);
+        if (attrValue != valueInBoolean) {
           shouldBeAccepted = false;
         }
       } else {
-        throw new InternalErrorException("Core attribute: " + entityAttribute + " is not type of String or Integer!");
+        throw new InternalErrorException(
+            "Core attribute: " + entityAttribute + " is not type of String, Integer or Boolean!");
       }
     }
 

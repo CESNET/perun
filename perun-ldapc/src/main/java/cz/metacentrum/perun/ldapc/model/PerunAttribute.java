@@ -53,7 +53,6 @@ public interface PerunAttribute<T extends PerunBean> {
     public static final String PERUN_ATTR_VO_PERSON_EXTERNAL_AFFILIATION = "voPersonExternalAffiliation";
     public static final String PERUN_ATTR_FORWARDED_VO_PERSON_EXTERNAL_AFFILIATION =
         "forwardedVoPersonExternalAffiliation";
-    public static final String PERUN_ATTR_LIBRARY_IDS = "libraryIDs";
     public static final String PERUN_ATTR_ENTITY_ID = "entityID";
     public static final String PERUN_ATTR_CLIENT_ID = "OIDCClientID";
     public static final String PERUN_ATTR_GROUP_NAMES = "groupNames";
@@ -79,7 +78,6 @@ public interface PerunAttribute<T extends PerunBean> {
     public static final String LDAP_ATTR_VO_PERSON_EXTERNAL_AFFILIATION = PERUN_ATTR_VO_PERSON_EXTERNAL_AFFILIATION;
     public static final String LDAP_ATTR_FORWARDED_VO_PERSON_EXTERNAL_AFFILIATION =
         PERUN_ATTR_FORWARDED_VO_PERSON_EXTERNAL_AFFILIATION;
-    public static final String LDAP_ATTR_LIBRARY_IDS = PERUN_ATTR_LIBRARY_IDS;
     public static final String LDAP_ATTR_UID_NUMBER = "uidNumber;x-ns-";
     public static final String LDAP_ATTR_LOGIN = "login;x-ns-";
     public static final String LDAP_ATTR_USER_PASSWORD = "userPassword";

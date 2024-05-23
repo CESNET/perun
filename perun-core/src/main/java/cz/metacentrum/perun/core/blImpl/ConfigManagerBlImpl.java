@@ -43,4 +43,8 @@ public class ConfigManagerBlImpl implements ConfigManagerBl {
     configManagerImpl.reloadAppsConfig();
   }
 
+  @Override
+  public boolean isArchiveSpoolEnabled() {
+    return configManagerImpl.isArchiveSpoolEnabled();
+  }
 }

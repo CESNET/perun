@@ -26,3 +26,7 @@ sub reloadAppsConfig {
 sub getPerunOidcConfig {
 	return Perun::Common::callManagerMethod('getPerunOidcConfig', '', @_)
 }
+
+sub isArchiveSpoolEnabled {
+	return Perun::Common::callManagerMethod('isArchiveSpoolEnabled', '', @_)
+}

@@ -10092,6 +10092,32 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/blockLogins:
+    post:
+      tags:
+        - UsersManager
+      operationId: blockLoginsBodyParams
+      summary: Block logins for given namespace or block logins globally (if no namespace is selected).
+        Copy of the blockLogins call with parameters in the request body.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputBlockLogins
+              description: "input to block logins"
+              type: object
+              required:
+                - logins
+              properties:
+                logins: { type: array, items: { type: string } }
+                namespace: { type: string }
+
   /urlinjsonout/usersManager/unblockLogins:
     post:
       tags:
@@ -10106,6 +10132,32 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/unblockLogins:
+    post:
+      tags:
+        - UsersManager
+      operationId: unblockLoginsBodyParams
+      summary: Unblock logins for given namespace or unblock logins globally (if no namespace is selected).
+        Copy of the unblockLogins call with parameters in the request body.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUnblockLogins
+              description: "input to unblock logins"
+              type: object
+              required:
+                - logins
+              properties:
+                logins: { type: array, items: { type: string } }
+                namespace: { type: string }
 
   /urlinjsonout/usersManager/unblockLoginsById:
     post:
@@ -10127,6 +10179,31 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/unblockLoginsById:
+    post:
+      tags:
+        - UsersManager
+      operationId: unblockLoginsByIdBodyParams
+      summary: Unblock logins by id.
+        Copy of the unblockLoginsById call with parameters in the request body.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUnblockLoginsById
+              description: "input to unblock logins by id"
+              type: object
+              required:
+                - logins
+              properties:
+                logins: { type: array, items: { type: integer } }
 
   /json/usersManager/getBlockedLoginsPage:
     post:
@@ -10823,6 +10900,31 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/deleteMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: deleteMembersBodyParams
+      summary: Delete members with given ids. It is possible to delete members from multiple vos.
+        Copy of the deleteMembers call with parameters in the request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputDeleteMembers
+              description: "input to delete members"
+              type: object
+              required:
+                - members
+              properties:
+                members: { type: array, items: { type: integer } }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/findCompleteRichMembers/v:
     get:
       tags:
@@ -11213,6 +11315,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/sponsorMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: sponsorMembersBodyParams
+      summary: Assigns a new sponsor to existing members. If some members are non-sponsored, turn them into sponsored and assign the sponsor.
+        Copy of the sponsorMembers call with parameters in the request body.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSponsorMembers
+              description: "input to sponsor members"
+              type: object
+              required:
+                - members
+                - sponsor
+              properties:
+                members: { type: array, items: { type: integer } }
+                sponsor: { type: integer }
+                validityTo: { type : string }
+
   /urlinjsonout/membersManager/copySponsoredMembers:
     post:
       tags:
@@ -11230,6 +11360,38 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/copySponsoredMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: copySponsoredMembersBodyParams
+      summary: Copy sponsored members from one user to another. If copyValidity tag is present, set validity of new sponsorships to the copied from value.
+        Copy of the copySponsoredmembers call with parameters in the request body.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCopySponsoredMembers
+              description: "input to copy sponsored members"
+              type: object
+              required:
+                - members
+                - copyFrom
+                - copyTo
+                - copyValidity
+              properties:
+                members: { type: array, items: { type: integer } }
+                copyFrom: { type: integer }
+                copyTo: { type: integer }
+                copyValidity: { type: boolean }
+                validityTo: { type: string }
 
   /urlinjsonout/membersManager/moveMembership:
     post:
@@ -13555,6 +13717,33 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/removeMembers:
+    post:
+      tags:
+        - GroupsManager
+      operationId: removeMembersBodyParams
+      summary: Removes members from a group. Non-empty list of members expected. In case of empty list, no member is removed from the group. If member is not in the group or the membership is indirect, it is skipped without a warning but the rest of the members are processed.
+        Copy of the removeMembers call with parameters in the request body.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveMembers
+              description: "input to remove members"
+              type: object
+              required:
+                - group
+                - members
+              properties:
+                group: { type: integer }
+                members: { type: array, items: { type: integer } }
 
   /urlinjsonout/groupsManager/createGroupUnion:
     post:

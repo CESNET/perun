@@ -79,8 +79,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
           "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as " +
           "groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, " +
           "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
-  protected static final String GROUP_TOTAL_COUNT_MAPPING_SELECT_QUERY =
-      "groups.id as groups_id, groups.name as groups_name, groups.dsc as groups_dsc ";
   protected static final String MEMBER_GROUPS_MAPPING_SELECT_QUERY =
       GROUP_MAPPING_SELECT_QUERY + ", groups_members.member_id as group_member_id, " +
           "groups_members.created_at as group_member_created_at, groups_members.created_by as " +
@@ -923,6 +921,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
     namedParams.addValue("voId", vo.getId());
     namedParams.addValue("groupsIds", authorizedGroupsIds);
+    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
     namedParams.addValue("uid",
         sess.getPerunPrincipal().getUser() != null ? sess.getPerunPrincipal().getUser().getId() : null);
@@ -932,66 +931,37 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
       namedParams.addValue("memberId", query.getMemberId());
     }
 
-    String selectQuery = getSQLSelectForGroupsPage(query, false);
-    String selectTotalCount = getSQLSelectForGroupsPage(query, true);
+    String selectQuery = getSQLSelectForGroupsPage(query);
     String searchQuery = getSQLWhereForGroupsPage(query, namedParams);
 
     if ((query.getRoles().isEmpty() && query.getTypes().isEmpty()) || sess.getPerunPrincipal().getUser() == null) {
-      String extractedQuery = " WHERE groups.vo_id=(:voId)" + " AND groups.id IN (:groupsIds)" + searchQuery;
-
-      Integer filteredCount;
-      try {
-        filteredCount = namedParameterJdbcTemplate.queryForObject(
-            Utils.limitTotalCount(selectTotalCount + extractedQuery),
-            namedParams, Integer.class);
-      } catch (EmptyResultDataAccessException ex) {
-        filteredCount = 0;
-      }
-
-      query.recalculateOffset(filteredCount);
-      namedParams.addValue("offset", query.getOffset());
-
-      return namedParameterJdbcTemplate.query(selectQuery + extractedQuery +
-              " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET " + "(:offset)" + " LIMIT (:limit);",
-          namedParams, getPaginatedGroupsExtractor(query));
+      return namedParameterJdbcTemplate.query(
+          selectQuery + " WHERE groups.vo_id=(:voId)" + " AND groups.id IN (:groupsIds)" + searchQuery + " ORDER BY " +
+              query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit);", namedParams,
+          getPaginatedGroupsExtractor(query));
     }
-
-    String extractedQuery = "FROM authz JOIN " +
-        (query.getMemberId() == null ?
-            " groups ON authz.group_id=groups.id " :
-            "(SELECT * FROM groups WHERE groups.name!='members' OR groups.parent_group_id IS NOT NULL) AS groups " +
-                "ON authz.group_id=groups.id JOIN " +
-                "(SELECT * FROM groups_members WHERE member_id = (:memberId)) AS g_m" +
-                " ON groups.id = g_m.group_id ") +
-        (includeIndirectRoles ?
-            " LEFT OUTER JOIN groups_members" +
-                " ON groups_members.group_id=authz.authorized_group_id LEFT OUTER JOIN" +
-                " members ON members.id=groups_members.member_id " : "") +
-        "WHERE groups.vo_id=(:voId) AND groups.id IN (:groupsIds) AND (" +
-        (includeDirectRoles ? "authz.user_id=:uid " : "false ") +
-        (includeIndirectRoles ? "or members.user_id=:uid) " : ") ") +
-        (!query.getRoles().isEmpty() ?
-            " AND (authz.role_id IN (SELECT id FROM roles WHERE name IN (:roles))) " :
-            "") +
-        searchQuery + ")" + "SELECT *" + " FROM (" + "TABLE cte";
-    String extractedQuery2 = " ) sub RIGHT JOIN (SELECT count(*) FROM cte) c(total_count) on true";
-
-    Integer filteredCount;
-    try {
-      filteredCount = namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount(
-          "WITH cte as (SELECT DISTINCT " + GROUP_TOTAL_COUNT_MAPPING_SELECT_QUERY + extractedQuery + extractedQuery2),
-          namedParams, Integer.class);
-    } catch (EmptyResultDataAccessException ex) {
-      filteredCount = 0;
-    }
-
-    query.recalculateOffset(filteredCount);
-    namedParams.addValue("offset", query.getOffset());
-
     return namedParameterJdbcTemplate.query(
-        "WITH cte as (SELECT DISTINCT " + GROUP_MAPPING_SELECT_QUERY + extractedQuery +
-            " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit)" +
-            extractedQuery2, namedParams, getPaginatedGroupsExtractor(query));
+
+        "WITH cte as (SELECT DISTINCT " + GROUP_MAPPING_SELECT_QUERY + "FROM authz JOIN " +
+            (query.getMemberId() == null ? " groups ON authz.group_id=groups.id " :
+                 "(SELECT * FROM groups WHERE groups.name!='members'" +
+                     " OR groups.parent_group_id IS NOT NULL) AS groups " +
+                     "ON authz.group_id=groups.id JOIN " +
+                     "(SELECT * FROM groups_members WHERE member_id = (:memberId)) AS g_m" +
+                     " ON groups.id = g_m.group_id ") +
+            (includeIndirectRoles ?
+                 " LEFT OUTER JOIN groups_members" +
+                     " ON groups_members.group_id=authz.authorized_group_id LEFT OUTER JOIN" +
+                     " members ON members.id=groups_members.member_id " : "") +
+            "WHERE groups.vo_id=(:voId) AND groups.id IN (:groupsIds) AND (" +
+            (includeDirectRoles ? "authz.user_id=:uid " : "false ") +
+            (includeIndirectRoles ? "or members.user_id=:uid) " : ") ") +
+            (!query.getRoles().isEmpty() ? " AND (authz.role_id IN (SELECT id FROM roles WHERE name IN (:roles))) " :
+                 "") +
+            searchQuery + ")" + "SELECT *" + "FROM (" + "TABLE cte" + " ORDER BY " +
+            query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" +
+            " LIMIT (:limit)) sub RIGHT JOIN (SELECT count(*) FROM cte) c(total_count) on true;", namedParams,
+        getPaginatedGroupsExtractor(query));
   }
 
   @Override
@@ -1167,14 +1137,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
     }
   }
 
-  private String getSQLSelectForGroupsPage(GroupsPageQuery query, boolean selectJustTotalCount) {
+  private String getSQLSelectForGroupsPage(GroupsPageQuery query) {
     String voGroupsSelect =
-        "SELECT " + (selectJustTotalCount ? GROUP_TOTAL_COUNT_MAPPING_SELECT_QUERY : GROUP_MAPPING_SELECT_QUERY) +
-            ", count(*) OVER() AS total_count FROM groups";
+        "SELECT " + GROUP_MAPPING_SELECT_QUERY + ", count(*) OVER() AS total_count" + " FROM groups";
 
     String memberGroupsSelect =
-        "SELECT " + (selectJustTotalCount ? GROUP_TOTAL_COUNT_MAPPING_SELECT_QUERY :
-            MEMBER_GROUPS_MAPPING_SELECT_QUERY) + ", count(*) OVER() AS total_count" + " FROM (SELECT * " +
+        "SELECT " + MEMBER_GROUPS_MAPPING_SELECT_QUERY + ", count(*) OVER() AS total_count" + " FROM (SELECT * " +
             " FROM groups" + " WHERE groups.name!='members' OR groups.parent_group_id IS NOT NULL) AS groups" +
             " JOIN (SELECT * " + " FROM groups_members" + " WHERE member_id = (:memberId)) AS groups_members" +
             " ON groups.id = groups_members.group_id";
@@ -1238,41 +1206,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
     MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
     namedParams.addValue("parentGroupId", group.getId());
+    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
 
     String searchQuery = getSQLWhereForGroupsPageParentGroup(query, namedParams);
 
-    Integer filteredCount;
-    try {
-      filteredCount = namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount(
-              getSubgroupsPageQuery(GROUP_TOTAL_COUNT_MAPPING_SELECT_QUERY, searchQuery)),
-          namedParams, Integer.class);
-    } catch (EmptyResultDataAccessException ex) {
-      filteredCount = 0;
-    }
-
-    query.recalculateOffset(filteredCount);
-    namedParams.addValue("offset", query.getOffset());
-
     return namedParameterJdbcTemplate.query(
-        getSubgroupsPageQuery(GROUP_MAPPING_SELECT_QUERY, searchQuery) +
-            " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit);",
-        namedParams, getPaginatedGroupsExtractor(query));
-  }
-
-  private String getSubgroupsPageQuery(String customMapping, String searchQuery) {
-    return
-        "WITH RECURSIVE subgroups AS (" +
-            " SELECT " + customMapping +
-            "   FROM groups " +
-            "   WHERE groups.parent_group_id = (:parentGroupId) " +
-            "   UNION " +
-            "   SELECT " + customMapping +
-            "   FROM groups " +
-            "   INNER JOIN subgroups s ON s.groups_id = groups.parent_group_id" +
-            ") " +
-            "SELECT *, count(*) OVER() AS total_count " +
-            "FROM subgroups " + searchQuery;
+        "WITH RECURSIVE subgroups AS (" + " SELECT " + GROUP_MAPPING_SELECT_QUERY + " FROM groups" +
+            " WHERE groups.parent_group_id=(:parentGroupId)" + " UNION" + " SELECT " + GROUP_MAPPING_SELECT_QUERY +
+            " FROM groups" + " INNER JOIN subgroups s ON s.groups_id = groups.parent_group_id" + ") SELECT *" +
+            ", count(*) OVER() AS total_count" + " FROM subgroups" + searchQuery + " ORDER BY " +
+            query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" + " LIMIT (:limit);", namedParams,
+        getPaginatedGroupsExtractor(query));
   }
 
   @Override
