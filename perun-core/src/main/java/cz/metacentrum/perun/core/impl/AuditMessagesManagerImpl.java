@@ -298,29 +298,15 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
         !query.getSelectedEvents().isEmpty() ? "where split_part(msg::json ->>'name', '.', 7) IN (:selectedEvents)" :
             "";
 
-    String extractedQuery = "case when (select count(*) from (select 1 from auditer_log " +
+    // take exact total count up to PAGE_COUNT_PRECISION entries, estimate it otherwise
+    return namedParameterJdbcTemplate.query(
+        "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY +
+            ", case when (select count(*) from (select 1 from auditer_log " +
         filter + "limit " + PAGE_COUNT_PRECISION + ") as sample) < " + PAGE_COUNT_PRECISION +
         " then (select count(*) from auditer_log " + filter + ")" +
         " else (select 100 * count(*) FROM auditer_log TABLESAMPLE SYSTEM (1) " + filter + ") end as total_count " +
-        "from auditer_log " + filter;
-
-    Integer filteredCount;
-    try {
-      filteredCount = namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount("select " + extractedQuery),
-          parameters, Integer.class);
-    } catch (EmptyResultDataAccessException ex) {
-      filteredCount = 0;
-    }
-
-    query.recalculateOffset(filteredCount);
-    parameters.addValue("offset", query.getOffset());
-
-    // take exact total count up to PAGE_COUNT_PRECISION entries, estimate it otherwise
-    return namedParameterJdbcTemplate.query(
-        "select " + AUDIT_MESSAGE_MAPPING_SELECT_QUERY + ", " + extractedQuery +
-            "order by id " + query.getOrder().getSqlValue() + " offset " + query.getOffset() +
-            " limit " + query.getPageSize(),
-        parameters, getPaginatedMessagesExtractor(query));
+        "from auditer_log " + filter + "order by id " + query.getOrder().getSqlValue() + " offset " +
+        query.getOffset() + " limit " + query.getPageSize(), parameters, getPaginatedMessagesExtractor(query));
   }
 
   @Override

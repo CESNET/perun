@@ -9,7 +9,10 @@ import java.util.Objects;
  *
  * @author Jakub Hejda <Jakub.Hejda@cesnet.cz>
  */
-public class GroupsPageQuery extends PageQuery {
+public class GroupsPageQuery {
+  private int pageSize;
+  private int offset;
+  private SortingOrder order;
   private GroupsOrderColumn sortColumn;
   private String searchString = "";
   private Integer memberId;
@@ -20,13 +23,17 @@ public class GroupsPageQuery extends PageQuery {
   }
 
   public GroupsPageQuery(int pageSize, int offset, SortingOrder order, GroupsOrderColumn sortColumn) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
   }
 
   public GroupsPageQuery(int pageSize, int offset, SortingOrder order, GroupsOrderColumn sortColumn,
                          String searchString) {
-    super(pageSize, offset, order);
+    this.pageSize = pageSize;
+    this.offset = offset;
+    this.order = order;
     this.sortColumn = sortColumn;
     this.searchString = searchString;
   }
@@ -107,6 +114,30 @@ public class GroupsPageQuery extends PageQuery {
 
   public void setMemberId(Integer memberId) {
     this.memberId = memberId;
+  }
+
+  public int getOffset() {
+    return offset;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public SortingOrder getOrder() {
+    return order;
+  }
+
+  public void setOrder(SortingOrder order) {
+    this.order = order;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
+    this.pageSize = pageSize;
   }
 
   public List<String> getRoles() {

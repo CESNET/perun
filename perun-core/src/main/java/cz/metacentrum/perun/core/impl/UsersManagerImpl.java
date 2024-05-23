@@ -890,11 +890,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       MapSqlParameterSource namedParams = new MapSqlParameterSource();
       namedParams.addValue("login", query.getSearchString().toLowerCase());
       namedParams.addValue("namespaces", query.getNamespaces());
+      namedParams.addValue("offset", query.getOffset());
       namedParams.addValue("limit", query.getPageSize());
 
-      String sqlSelect = "SELECT id, login, namespace, count(*) OVER() AS total_count FROM blocked_logins";
-      String sqlTotalCountQuery = "SELECT count(*) OVER() AS total_count FROM blocked_logins";
-      String sqlQuery = "";
+      String sqlQuery = "SELECT id, login, namespace, count(*) OVER() AS total_count FROM blocked_logins";
 
       boolean hasSearchString = query.getSearchString() != null && !query.getSearchString().isEmpty();
       boolean hasNamespaces = query.getNamespaces() != null && !query.getNamespaces().isEmpty();
@@ -918,20 +917,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
         }
       }
 
-      sqlTotalCountQuery += sqlQuery;
-      sqlQuery = sqlSelect + sqlQuery;
       sqlQuery += " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset) LIMIT (:limit);";
-
-      Integer filteredCount;
-      try {
-        filteredCount = namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount(sqlTotalCountQuery),
-            namedParams, Integer.class);
-      } catch (EmptyResultDataAccessException ex) {
-        filteredCount = 0;
-      }
-
-      query.recalculateOffset(filteredCount);
-      namedParams.addValue("offset", query.getOffset());
 
       return namedParameterJdbcTemplate.query(sqlQuery, namedParams, getPaginatedBlockedLoginsExtractor(query));
     } catch (RuntimeException ex) {
@@ -1181,12 +1167,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     return joinString;
   }
 
-  private String getSQLSelectForUsersPage(UsersPageQuery query, boolean selectTotalCount) {
-    String select = "SELECT " + (selectTotalCount ? "" : USER_MAPPING_SELECT_QUERY + " ,") + "count(*) OVER() AS " +
-        "total_count" + " FROM users";
+  private String getSQLSelectForUsersPage(UsersPageQuery query) {
+    String select = "SELECT " + USER_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" + " FROM users";
 
-    String selectWithMembers = "SELECT " + (selectTotalCount ? "" : USER_MAPPING_SELECT_QUERY + " ,") +
-        "count(*) OVER() AS total_count" + " FROM users LEFT JOIN members on members.user_id = users.id";
+    String selectWithMembers = "SELECT " + USER_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" +
+                                   " FROM users LEFT JOIN members on members.user_id = users.id";
 
     if (!isEmpty(query.getSearchString())) {
       return selectWithMembers;
@@ -1598,34 +1583,20 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     MapSqlParameterSource namedParams =
         Utils.getMapSqlParameterSourceToSearchUsersOrMembers(query.getSearchString(), attributesToSearchBy);
 
-    String select = getSQLSelectForUsersPage(query, false);
-    String selectTotalCount = getSQLSelectForUsersPage(query, true);
+    String select = getSQLSelectForUsersPage(query);
     String searchQuery = getSQLWhereForUsersPage(query, namedParams);
     String joinFacility = getSQLJoinFacility(query, namedParams);
     String whereForFacility = getSQLWhereForFacility(query, namedParams);
     String filterOnlyAllowed = getOnlyAllowed(query, namedParams);
 
+    namedParams.addValue("offset", query.getOffset());
     namedParams.addValue("limit", query.getPageSize());
 
     String withoutVoString = getWithoutVoSQLConditionForUsersPage(query);
 
-    String extractedQuery = joinFacility + withoutVoString + searchQuery + whereForFacility + filterOnlyAllowed +
-        " GROUP BY users.id";
-
-    Integer filteredCount;
-    try {
-      filteredCount =
-          namedParameterJdbcTemplate.queryForObject(Utils.limitTotalCount(selectTotalCount + extractedQuery),
-          namedParams, Integer.class);
-    } catch (EmptyResultDataAccessException ex) {
-      filteredCount = 0;
-    }
-
-    query.recalculateOffset(filteredCount);
-    namedParams.addValue("offset", query.getOffset());
-
     return namedParameterJdbcTemplate.query(
-        select + extractedQuery + " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" +
+        select + joinFacility + withoutVoString + searchQuery + whereForFacility + filterOnlyAllowed +
+            " GROUP BY users_id" + " ORDER BY " + query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" +
             " LIMIT (:limit)", namedParams, getPaginatedUsersExtractor(query));
   }
 
