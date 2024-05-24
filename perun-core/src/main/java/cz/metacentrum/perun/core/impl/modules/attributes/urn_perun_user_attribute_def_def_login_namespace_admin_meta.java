@@ -5,12 +5,14 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Module for admin-meta login namespace.
@@ -52,6 +54,26 @@ public class urn_perun_user_attribute_def_def_login_namespace_admin_meta
     } catch (LoginIsAlreadyBlockedException ex) {
       throw new WrongReferenceAttributeValueException(attribute, null, "Login is blocked.", ex);
     }
+
+    try {
+      Attribute einfraAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user,
+              AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:einfra");
+      String einfraLogin = einfraAttribute.valueAsString();
+
+      if (einfraLogin == null) {
+        throw new WrongReferenceAttributeValueException(attribute, einfraAttribute, user, null, user, null,
+                "User must have non-empty einfra login for admin-meta");
+      }
+
+      if (!Objects.equals(userLogin, einfraLogin)) {
+        throw new WrongReferenceAttributeValueException(attribute, einfraAttribute, user, null, user, null,
+                "Login in admin-meta namespace must match login in einfra.");
+      }
+
+    } catch (AttributeNotExistsException e) {
+      throw new ConsistencyErrorException("Attribute check requires existence of login-namespace:einfra attribute.");
+    }
+
   }
 
   @Override
