@@ -4,7 +4,12 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -74,6 +79,43 @@ public enum SearcherMethod implements ManagerMethod {
 
       return ac.getSearcher().getMembersByUserAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")),
           parms.read("userAttributesWithSearchingValues", LinkedHashMap.class));
+    }
+  },
+
+  /*#
+   * This method get Map of user Attributes with searching values and try to find all members, which have specific
+   * attributes in format for specific VO. Better information about format below. When there are more than 1 attribute
+   * in Map, it means all must be true "looking for all of them" (AND)
+   * <p>
+   * if principal has no rights for operation, throw exception if principal has no rights for some attribute on specific
+   * user, do not return this user if attributesWithSearchingValues is null or empty, return all members from vo if
+   * principal has rights for this operation
+   *
+   * @param userAttributesWithSearchingValues map of attributes names when attribute is type String, so value is string
+   *                                          and we are looking for total match (Partial is not supported now, will be
+   *                                          supported later by symbol *) when attribute is type Integer, so value is
+   *                                          integer in String and we are looking for total match when attribute is
+   *                                          type List<String>, so value is String and we are looking for at least one
+   *                                          total or partial matching element when attribute is type Map<String> so
+   *                                          value is String in format "key=value" and we are looking total match of
+   *                                          both or if is it "key" so we are looking for total match of key IMPORTANT:
+   *                                          In map there is not allowed char '=' in key. First char '=' is delimiter
+   *                                          in MAP item key=value!!!
+   * @return list of members who have attributes with specific values (behaviour above) if no member exist, return empty
+   * list of members
+   * @throws AttributeNotExistsException
+   * @throws InternalErrorException
+   * @throws PrivilegeException
+   * @throws WrongAttributeAssignmentException
+   * @throws VoNotExistsException
+   */
+  getMembers {
+    @Override
+    public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      return ac.getSearcher().getMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+          parms.read("attributesWithSearchingValues", LinkedHashMap.class));
     }
   },
 

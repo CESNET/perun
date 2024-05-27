@@ -206,6 +206,28 @@ public interface SearcherBl {
       throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
   /**
+   * This method takes Map of Attributes (both member and user) with searching values and tries to find all users,
+   * with specific values in the given attributes
+   * More information about format below. An AND condition is implicit between the attributes we are searching by.
+   *
+   * @param sess                          perun session
+   * @param attributesWithSearchingValues map of attributes names when attribute is type String, so value is string and
+   *                                      we are looking for total match, when attribute is type Integer, so value is
+   *                                      integer in String and we are looking for total match when attribute is type
+   *                                      List<String>, so value is String and we are looking for at least one total or
+   *                                      partial matching element when attribute is type Map<String> so value is String
+   *                                      in format "key=value" and we are looking total match of both or if is it "key"
+   *                                      so we are looking for total match of key IMPORTANT: In map there is not
+   *                                      allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
+   * @return list of members who have attributes with specific values (behavior above) if no member exist,
+   * return empty list
+   * @throws AttributeNotExistsException
+   * @throws WrongAttributeAssignmentException wrong attribute value
+   */
+  List<Member> getMembers(PerunSession sess, Vo vo, Map<String, String> attributesWithSearchingValues)
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+  /**
    * This method take map of coreAttributes with search values and return all users who have the specific match for all
    * of these core attributes.
    *

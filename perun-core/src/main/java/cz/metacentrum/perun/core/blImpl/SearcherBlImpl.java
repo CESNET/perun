@@ -261,6 +261,97 @@ public class SearcherBlImpl implements SearcherBl {
   }
 
   @Override
+  public List<Member> getMembers(PerunSession sess, Vo vo, Map<String, String> attributesWithSearchingValues)
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
+    if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
+      return perunBl.getMembersManagerBl().getMembers(sess, vo);
+    }
+
+    Map<String, Map<Attribute, String>> mapOfEntityToMapOfAttrsWithValues = Map.of(
+        "member", new HashMap<>(), "user", new HashMap<>());
+    Map<String, Map<AttributeDefinition, String>> mapOfEntityToMapOfCoreAttributesWithValues = Map.of(
+        "member", new HashMap<>(), "user", new HashMap<>());
+
+    for (String name : attributesWithSearchingValues.keySet()) {
+      if (name == null || name.isEmpty()) {
+        throw new AttributeNotExistsException("There is attribute with no specific name!");
+      }
+      AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, name);
+      boolean isMemberAttribute = perunBl.getAttributesManagerBl()
+                                      .isFromNamespace(sess, attrDef, AttributesManager.NS_MEMBER_ATTR);
+      if (!getPerunBl().getAttributesManagerBl().isCoreAttribute(sess, attrDef)) {
+        mapOfEntityToMapOfAttrsWithValues.get(isMemberAttribute ? "member" : "user")
+            .put(new Attribute(attrDef), attributesWithSearchingValues.get(name));
+      } else {
+        mapOfEntityToMapOfCoreAttributesWithValues.get(isMemberAttribute ? "member" : "user")
+            .put(attrDef, attributesWithSearchingValues.get(name));
+      }
+    }
+
+    List<Member> foundMembers = searcherImpl.getMembers(sess, vo, mapOfEntityToMapOfAttrsWithValues);
+    List<Member> filteredFoundMembers = filterMembersForCoreAttributesByMapOfAttributes(sess,
+        mapOfEntityToMapOfCoreAttributesWithValues.get("member"), foundMembers);
+
+    List<User> usersFromFilteredMembers = filteredFoundMembers
+                                              .stream()
+                                              .map(m -> this.perunBl.getUsersManagerBl().getUserByMember(sess, m))
+                                              .collect(Collectors.toList());
+    Set<Integer> filteredUserIds = filterUsersForCoreAttributesByMapOfAttributes(sess,
+        mapOfEntityToMapOfCoreAttributesWithValues.get("user"), usersFromFilteredMembers)
+                                               .stream()
+                                               .map(User::getId)
+                                               .collect(Collectors.toSet());
+
+    return filteredFoundMembers
+               .stream()
+               .filter(member -> filteredUserIds.contains(member.getUserId()))
+               .collect(Collectors.toList());
+  }
+
+  /**
+   * This method take map of coreAttributes with search values and list of members which is then filtered to members
+   * having corresponding values of the given core attributes.
+   *
+   * @param sess
+   * @param coreAttributesWithSearchingValues
+   * @param members
+   * @return the list of filtered members
+   * @throws InternalErrorException
+   * @throws AttributeNotExistsException
+   * @throws WrongAttributeAssignmentException wrong attribute value
+   */
+  private List<Member> filterMembersForCoreAttributesByMapOfAttributes(PerunSession sess,
+                                                                       Map<AttributeDefinition,
+                                                                       String> coreAttributesWithSearchingValues,
+                                                                       List<Member> members)
+      throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
+
+    if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
+      return members;
+    }
+
+    Set<AttributeDefinition> keys = coreAttributesWithSearchingValues.keySet();
+    for (Iterator<Member> memberIter = members.iterator(); memberIter.hasNext(); ) {
+      Member memberFromIterator = memberIter.next();
+
+      // Compare all needed attributes and their value to the attributes of every member. If he does not fit, remove him
+      // from the array of returned users.
+      for (AttributeDefinition attrDef : keys) {
+        String value = coreAttributesWithSearchingValues.get(attrDef);
+        Attribute attrForMember =
+            getPerunBl().getAttributesManagerBl().getAttribute(sess, memberFromIterator, attrDef.getName());
+
+        //One of attributes is not equal so remove him and continue with next user
+        if (!isAttributeValueMatching(attrForMember, value, false)) {
+          memberIter.remove();
+          break;
+        }
+      }
+    }
+    return members;
+  }
+
+  @Override
   public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues)
       throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
     //If there is no attribute, so every user match
@@ -282,8 +373,9 @@ public class SearcherBlImpl implements SearcherBl {
       }
     }
 
+    List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
     List<User> usersFromCoreAttributes =
-        this.getUsersForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues);
+        this.filterUsersForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues, users);
     List<User> usersFromAttributes = getSearcherImpl().getUsers(sess, mapOfAttrsWithValues);
     usersFromAttributes.retainAll(usersFromCoreAttributes);
     return usersFromAttributes;
@@ -311,25 +403,26 @@ public class SearcherBlImpl implements SearcherBl {
             "Attribute: " + attrDef + " is not core attribute! Can't be get for users by this method.");
       }
     }
-    return this.getUsersForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues);
+    return this.filterUsersForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues, users);
   }
 
   /**
-   * This method take map of coreAttributes with search values and return all users who have the specific match for all
-   * of these core attributes.
+   * This method take map of coreAttributes with search values and list of users which is then filtered to users
+   * having corresponding values of the given core attributes.
    *
    * @param sess
    * @param coreAttributesWithSearchingValues
-   * @return
+   * @param users
+   * @return the list of filtered users
    * @throws InternalErrorException
    * @throws AttributeNotExistsException
    * @throws WrongAttributeAssignmentException
    * @throws WrongAttributeValueException
    */
-  private List<User> getUsersForCoreAttributesByMapOfAttributes(PerunSession sess,
-                                                  Map<AttributeDefinition, String> coreAttributesWithSearchingValues)
+  private List<User> filterUsersForCoreAttributesByMapOfAttributes(PerunSession sess,
+                                                 Map<AttributeDefinition, String> coreAttributesWithSearchingValues,
+                                                 List<User> users)
       throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
-    List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
     if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
       return users;
     }
@@ -366,9 +459,8 @@ public class SearcherBlImpl implements SearcherBl {
    * Accepted types of values are Integer and String. If given attribute has any other value type, exception is risen.
    *
    * @param entityAttribute            attribute
-   * @param allowPartialMatchForString if true, we are looking for partial match without case sensitivity, if false, we
-   *                                   are looking only for total matches with case sensitivity (only for STRING type
-   *                                   attributes)
+   * @param allowPartialMatchForString if true, we are looking for partial match, if false, we
+   *                                   are looking only for total matches, but still case-insensitive
    * @param value                      value
    * @return true, if the given value corresponds with value of given attribute
    * @throws InternalErrorException internal error
@@ -391,7 +483,7 @@ public class SearcherBlImpl implements SearcherBl {
             shouldBeAccepted = false;
           }
         } else {
-          if (!attrValue.equals(value)) {
+          if (!attrValue.equalsIgnoreCase(value)) {
             shouldBeAccepted = false;
           }
         }
