@@ -693,6 +693,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    * @param service Integer service
    * @param facility Integer facility
    * @param consentEval Boolean if the generator should enforce evaluation of consents
+   * @param taskRun Integer id of the task run propagation
    * @return HashedGenData generated hashed data structure
    * @throw FacilityNotExistsException if there is no such facility
    * @throw ServiceNotExistsException if there is no such service
@@ -739,10 +740,11 @@ public enum ServicesManagerMethod implements ManagerMethod {
     @Override
     public HashedGenData call(ApiCaller ac, Deserializer parms) throws PerunException {
       boolean consentEval = parms.contains("consentEval") ? parms.readBoolean("consentEval") : false;
+      int taskRunId = parms.contains("taskRun") ? parms.readInt("taskRun") : -1;
       return ac.getServicesManager().getHashedHierarchicalData(ac.getSession(),
           ac.getServiceById(parms.readInt("service")),
           ac.getFacilityById(parms.readInt("facility")),
-          consentEval);
+          consentEval, taskRunId);
     }
   },
 
@@ -786,6 +788,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    * @param service Integer service
    * @param facility Integer facility
    * @param consentEval Boolean if the generator should enforce evaluation of consents
+   * @param taskRun Integer id of the task run propagation
    * @return HashedGenData generated hashed data structure
    * @throw FacilityNotExistsException if there is no such facility
    * @throw ServiceNotExistsException if there is no such service
@@ -839,10 +842,11 @@ public enum ServicesManagerMethod implements ManagerMethod {
     @Override
     public HashedGenData call(ApiCaller ac, Deserializer parms) throws PerunException {
       boolean consentEval = parms.contains("consentEval") ? parms.readBoolean("consentEval") : false;
+      int taskRunId = parms.contains("taskRun") ? parms.readInt("taskRun") : -1;
       return ac.getServicesManager().getHashedDataWithGroups(ac.getSession(),
           ac.getServiceById(parms.readInt("service")),
           ac.getFacilityById(parms.readInt("facility")),
-          consentEval);
+          consentEval, taskRunId);
     }
   },
 

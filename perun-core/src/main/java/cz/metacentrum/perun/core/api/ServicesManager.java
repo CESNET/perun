@@ -539,13 +539,14 @@ public interface ServicesManager {
    * @param service      service
    * @param facility     facility
    * @param consentEval  if the generator should force evaluation of consents
+   * @param taskRunId Integer id of the task run propagation
    * @return generated hashed data structure
    * @throws FacilityNotExistsException if there is no such facility
    * @throws ServiceNotExistsException  if there is no such service
    * @throws PrivilegeException         insufficient permissions
    */
   HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility,
-                                        boolean consentEval)
+                                        boolean consentEval, int taskRunId)
       throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
   /**
@@ -563,13 +564,14 @@ public interface ServicesManager {
    * @param service      service
    * @param facility     facility
    * @param consentEval  if the generator should force evaluation of consents
+   * @param taskRunId Integer id of the task run propagation
    * @return generated hashed data structure
    * @throws FacilityNotExistsException if there is no such facility
    * @throws ServiceNotExistsException  if there is no such service
    * @throws PrivilegeException         insufficient permissions
    */
   HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility,
-                                          boolean consentEval)
+                                          boolean consentEval, int taskRunId)
       throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
   /**

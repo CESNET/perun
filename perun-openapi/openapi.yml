@@ -18334,6 +18334,8 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
         - { name: consentEval, description: "if true the method will run consent eval", schema: { type: boolean },  in: query, required: false }
+        - { name: taskRun, description: "id of the task propagation run", schema: {type: integer}, in: query,
+            required: false}
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
@@ -18350,6 +18352,8 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
         - { name: consentEval, description: "if true the method will run consent eval", schema: { type: boolean },  in: query, required: false }
+        - { name: taskRun, description: "id of the task propagation run", schema: { type: integer }, in: query,
+            required: false }
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
