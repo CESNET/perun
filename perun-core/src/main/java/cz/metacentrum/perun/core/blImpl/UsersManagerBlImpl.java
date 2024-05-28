@@ -1922,6 +1922,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
       if (perunBl.getAttributesManagerBl().isVirtAttribute(sess, attributeDef)) {
         return this.getUsersByVirtualAttribute(sess, attributeDef, attributeValue);
+      } else if (perunBl.getAttributesManagerBl().isCoreAttribute(sess, attributeDef)) {
+        return this.getUsersManagerImpl().getUsersByCoreAttributeValue(sess, attributeDef, attributeValue);
       } else {
         return this.getUsersManagerImpl().getUsersByAttributeValue(sess, attributeDef, attributeValue);
       }
