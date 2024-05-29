@@ -87,6 +87,23 @@ public interface ModulesUtilsBl {
       throws WrongAttributeValueException;
 
   /**
+   * Checks the format of and extracts soft and hard quota from the attribute's value (the expected format is:
+   * `softQuota:hardQuota`). Performs semantics checks - soft quota must be smaller or equal to hard quota, soft
+   * quota cannot be unlimited unless hard quota is unlimited as well.
+   * Finally, returns the extracted quota in a Pair object, where `Left` is soft quota and `Right` is hard quota.
+   *
+   * @param quotasAttribute quota attribute
+   * @param firstPlaceholder placeholder object for throwing exceptions
+   * @param secondPlaceholder placeholder object for throwing exceptions
+   * @return pair with <softQuota, hardQuota> in big decimal
+   * @throws WrongAttributeValueException if something is wrong in format of attribute
+   */
+  Pair<Integer, Integer> checkAndTransferBucketQuota(Attribute quotasAttribute,
+                                                     PerunBean firstPlaceholder,
+                                                     PerunBean secondPlaceholder)
+      throws WrongAttributeValueException;
+
+  /**
    * Check if value of attribute (friendlyName) suits regex in perun-namespaces.properties file. If yes, nothing
    * happens. If no, WrongAttributeValueException is thrown. If there is no property record in the properties file,
    * defaultRegex is used instead (if not null).
