@@ -116,8 +116,8 @@ public interface Searcher {
    *                                          both or if is it "key" so we are looking for total match of key IMPORTANT:
    *                                          In map there is not allowed char '=' in key. First char '=' is delimiter
    *                                          in MAP item key=value!!!
-   * @return list of users who have attributes with specific values (behaviour above) if no user exist, return empty
-   * list of users
+   * @return list of members who have attributes with specific values (behaviour above) if no member exist, return empty
+   * list of members
    * @throws AttributeNotExistsException
    * @throws InternalErrorException
    * @throws PrivilegeException
@@ -128,6 +128,36 @@ public interface Searcher {
   List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,
                                           Map<String, String> userAttributesWithSearchingValues)
       throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException,
+                 WrongAttributeValueException;
+
+  /**
+   * This method finds all members with given values of the queried attributes. The attributes are specified in the
+   * attributesWithSearching values map and can be both member and user attributes. The logical condition is AND meaning
+   * the values of all the queried attributes has to satisfy the search values for a member to be considered a match.
+   * <p>
+   * If principal has no rights for this operation then throw an exception. If principal has no rights for some
+   * attribute on specific member then do not return this member. If attributesWithSearchingValues is null or empty
+   * return all members from the vo.
+   *
+   * @param sess                              perun session
+   * @param attributesWithSearchingValues     map of attributes names to values to search by, with attribute values
+   *                                          of string type a total match is looked for, same as with the integer type,
+   *                                          with List<String> attributes at least one matched item from the list is
+   *                                          needed, A Map<String> value is String in format "key=value" and we are
+   *                                          looking complete match of both or if it is a "key" so we are looking for
+   *                                          total match of key IMPORTANT: In map there is not allowed char '=' in key.
+   *                                          First char '=' is delimiter in MAP item key=value!!!
+   * @return list of users who have attributes with specific values (behaviour above) if no user exist, return empty
+   * list of users
+   * @throws AttributeNotExistsException
+   * @throws InternalErrorException
+   * @throws PrivilegeException
+   * @throws WrongAttributeAssignmentException wrong attribute value
+   * @throws VoNotExistsException
+   */
+  List<Member> getMembers(PerunSession sess, Vo vo, Map<String, String> attributesWithSearchingValues)
+      throws AttributeNotExistsException,
+                 PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException,
                  WrongAttributeValueException;
 
   /**

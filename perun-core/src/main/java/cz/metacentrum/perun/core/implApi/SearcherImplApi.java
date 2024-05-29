@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import java.time.LocalDate;
@@ -177,6 +178,40 @@ public interface SearcherImplApi {
    * @throws WrongAttributeValueException wrong attribute value
    */
   List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues)
+      throws WrongAttributeValueException;
+
+  /**
+   * This method takes a map of entity (member or user) to maps of Attributes with values to
+   * search by, for the members in the given vo.
+   * <pre>
+   * E.g.: member -> Attribute(urn:perun:member:attribute-def:def:memAttr1...) -> val1
+   *                 Attribute(urn:perun:member:attribute-def:def:memAttr2...) -> val2
+   *       user ->   Attribute(urn:perun:user:attribute-def:def:userAttr1...) -> val3
+   *                 Attribute(urn:perun:user:attribute-def:def:userAttr2...) -> val4
+   * </pre>
+   * A member would need to have matching values in both of the member attributes above and its associated user in both
+   * the user attributes above in order to be returned.
+   * <p>
+   * IMPORTANT: can't get CORE and VIRTUAL ATTRIBUTES
+   *
+   * @param sess                              perun session
+   * @param mapOfEntityToMapOfAttrsWithValues map of member and user keys to map of attributes with values to search by
+   *                                      in those namespaces. The matching of the attributes by the values works as
+   *                                      follows: when attribute is type String, so value is string and we are
+   *                                      looking for total match (Partial is not supported now, will be supported later
+   *                                      by symbol *) when attribute is type Integer, so value is integer in String and
+   *                                      we are looking for total match when attribute is type List<String>, so value
+   *                                      is String and we are looking for at least one total or partial matching
+   *                                      element when attribute is type Map<String> so value is String in format
+   *                                      "key=value" and we are looking total match of both or if is it "key" so we are
+   *                                      looking for total match of key IMPORTANT: In map there is not allowed char '='
+   *                                      in key. First char '=' is delimiter in MAP item key=value!!!
+   * @return list of users who have attributes with specific values (behavior above) if no user exist, return empty list
+   * of users if attributeWithSearchingValues is empty, return allUsers
+   * @throws WrongAttributeValueException wrong attribute value
+   */
+  List<Member> getMembers(PerunSession sess,
+                          Vo vo, Map<String, Map<Attribute, String>> mapOfEntityToMapOfAttrsWithValues)
       throws WrongAttributeValueException;
 
   /**

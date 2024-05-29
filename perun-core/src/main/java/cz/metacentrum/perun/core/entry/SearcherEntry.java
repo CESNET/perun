@@ -164,6 +164,42 @@ public class SearcherEntry implements Searcher {
     return members;
   }
 
+  @Override
+  public List<Member> getMembers(PerunSession sess, Vo vo, Map<String, String> attributesWithSearchingValues)
+      throws AttributeNotExistsException,
+                 PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException,
+                 WrongAttributeValueException {
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+    //Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_Map<String_String>_policy", vo)) {
+      throw new PrivilegeException(sess, "getMembersByUserAttributes");
+    }
+
+    //If map is null or empty, return all members from vo
+    if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
+      return perunBl.getMembersManagerBl().getMembers(sess, vo);
+    }
+
+    Set<String> attrNames = attributesWithSearchingValues.keySet();
+    for (String attrName : attrNames) {
+      if (attrName == null || attrName.isEmpty()) {
+        throw new InternalErrorException("One of attributes has empty name.");
+      }
+
+      //throw AttributeNotExistsException if this attr_name not exists in DB
+      AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+
+      //test namespace of attribute
+      if (!getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attrDef, AttributesManager.NS_USER_ATTR) &&
+          !getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attrDef, AttributesManager.NS_MEMBER_ATTR)) {
+        throw new WrongAttributeAssignmentException("Attribute can be only in user or member namespace " + attrDef);
+      }
+    }
+
+    return searcherBl.getMembers(sess, vo, attributesWithSearchingValues);
+  }
+
   public PerunBl getPerunBl() {
     return this.perunBl;
   }
