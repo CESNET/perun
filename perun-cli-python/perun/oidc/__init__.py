@@ -93,7 +93,7 @@ class DeviceCodeOAuth:
                 "mfa": True,
             },
             PerunInstance.idm: {
-                "metadata_url": "https://oidc.muni.cz/oidc/.well-known/openid-configuration",
+                "metadata_url": "https://id.muni.cz/oidc/.well-known/openid-configuration",
                 "client_id": "5a730abc-6553-4fc4-af9a-21c75c46e0c2",
                 "scopes": "openid perun_api perun_admin offline_access profile",
                 "perun_api_url": "https://idm.ics.muni.cz/oauth/rpc",
