@@ -112,6 +112,7 @@ public abstract class AbstractEngineTest {
     task1.setSchedule(LocalDateTime.now());
     task1.setStatus(Task.TaskStatus.PLANNED);
     task1.setId(tasksManagerImpl.insertTask(task1));
+    task1 = tasksManagerImpl.retrieveRunIdForTask(task1);
 
     task2 = new Task();
     task2.setDestinations(destinations);

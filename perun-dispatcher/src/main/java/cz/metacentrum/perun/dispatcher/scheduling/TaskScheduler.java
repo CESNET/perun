@@ -123,7 +123,8 @@ public class TaskScheduler extends AbstractRunner {
         break;
       }
     }
-    LOG.trace("[{}] Returning Task schedule {}.", taskSchedule.getTask().getId(), taskSchedule);
+    LOG.trace("[{}, {}] Returning Task schedule {}.", taskSchedule.getTask().getId(),
+        taskSchedule.getTask().getRunId(), taskSchedule);
     return taskSchedule;
   }
 
@@ -171,30 +172,35 @@ public class TaskScheduler extends AbstractRunner {
       Task task = schedule.getTask();
       if (task.isSourceUpdated() && schedule.getDelayCount() > 0 && !task.isPropagationForced()) {
         // source data changed before sending, wait for more changes to come -> reschedule
-        LOG.warn("[{}] Task was not allowed to be sent to Engine now: {}.", task.getId(), task);
+        LOG.warn("[{}, {}] Task was not allowed to be sent to Engine now: {}.", task.getId(), task.getRunId(), task);
         schedulingPool.scheduleTask(task, schedule.getDelayCount() - 1);
       } else {
         // send it to engine
         TaskScheduled reason = sendToEngine(task);
         switch (reason) {
           case QUEUE_ERROR:
-            LOG.warn("[{}] Task dispatcherQueue could not be set, so it is rescheduled: {}.", task.getId(), task);
+            LOG.warn("[{}, {}] Task dispatcherQueue could not be set, so it is rescheduled: {}.", task.getId(),
+                task.getRunId(), task);
             schedulingPool.scheduleTask(task, -1);
             break;
           case DENIED:
             // Task is lost from waiting queue, since somebody blocked service on facility, all destinations or globally
-            LOG.info("[{}] Execution was denied for Task before sending to Engine: {}.", task.getId(), task);
+            LOG.info("[{}, {}] Execution was denied for Task before sending to Engine: {}.", task.getId(),
+                task.getRunId(), task);
             break;
           case ERROR:
-            LOG.error("[{}] Unexpected error when scheduling Task, so it is rescheduled: {}.", task.getId(), task);
+            LOG.error("[{}, {}] Unexpected error when scheduling Task, so it is rescheduled: {}.", task.getId(),
+                task.getRunId(), task);
             schedulingPool.scheduleTask(task, -1);
             break;
           case SUCCESS:
-            LOG.info("[{}] Task was successfully sent to Engine: {}.", task.getId(), task);
+            LOG.info("[{}, {}] Task was successfully sent to Engine: {}.", task.getId(), task.getRunId(), task);
             break;
           case DB_ERROR:
             // Task is lost from waiting queue, will be cleared from pool by propagation maintainer
-            LOG.warn("[{}] Facility, Service or Destination could not be found in DB for Task {}.", task.getId(), task);
+            LOG.warn("[{}, {}] Facility, Service or Destination could not be found in DB for Task {}.", task.getId(),
+                task.getRunId(),
+                task);
             break;
           default:
             break;
@@ -224,22 +230,22 @@ public class TaskScheduler extends AbstractRunner {
       task.setService(service);
       task.setFacility(facility);
     } catch (ServiceNotExistsException e) {
-      LOG.error("[{}] Service for task does not exist...", task.getId());
+      LOG.error("[{}, {}] Service for task does not exist...", task.getId(), task.getRunId());
       task.setEndTime(LocalDateTime.now());
       task.setStatus(TaskStatus.ERROR);
       return DB_ERROR;
     } catch (FacilityNotExistsException e) {
-      LOG.error("[{}] Facility for task does not exist...", task.getId());
+      LOG.error("[{}, {}] Facility for task does not exist...", task.getId(), task.getRunId());
       task.setEndTime(LocalDateTime.now());
       task.setStatus(TaskStatus.ERROR);
       return DB_ERROR;
     } catch (PrivilegeException e) {
-      LOG.error("[{}] Privilege error accessing the database: {}", task.getId(), e.getMessage());
+      LOG.error("[{}, {}] Privilege error accessing the database: {}", task.getId(), task.getRunId(), e.getMessage());
       task.setEndTime(LocalDateTime.now());
       task.setStatus(TaskStatus.ERROR);
       return DB_ERROR;
     } catch (InternalErrorException e) {
-      LOG.error("[{}] Internal error: {}", task.getId(), e.getMessage());
+      LOG.error("[{}, {}] Internal error: {}", task.getId(), task.getRunId(), e.getMessage());
       task.setEndTime(LocalDateTime.now());
       task.setStatus(TaskStatus.ERROR);
       return DB_ERROR;
@@ -247,67 +253,75 @@ public class TaskScheduler extends AbstractRunner {
 
     EngineMessageProducer engineMessageProducer = engineMessageProducerFactory.getProducer();
 
-    LOG.debug("[{}] Scheduling {}.", task.getId(), task);
+    LOG.debug("[{}, {}] Scheduling {}.", task.getId(), task.getRunId(), task);
 
     if (engineMessageProducer != null) {
-      LOG.debug("[{}] Assigned queue {} to task.", task.getId(), engineMessageProducer.getQueueName());
+      LOG.debug("[{}, {}] Assigned queue {} to task.", task.getId(), task.getRunId(),
+          engineMessageProducer.getQueueName());
     } else {
-      LOG.error("[{}] There are no engines registered.", task.getId());
+      LOG.error("[{}, {}] There are no engines registered.", task.getId(), task.getRunId());
       return QUEUE_ERROR;
     }
 
     if (service.isEnabled()) {
-      LOG.debug("[{}] Service {} is enabled globally.", task.getId(), service.getId());
+      LOG.debug("[{}, {}] Service {} is enabled globally.", task.getId(), task.getRunId(), service.getId());
     } else {
-      LOG.debug("[{}] Service {} is disabled globally.", task.getId(), service.getId());
+      LOG.debug("[{}, {}] Service {} is disabled globally.", task.getId(), task.getRunId(), service.getId());
       return DENIED;
     }
 
     try {
       if (!((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(service, facility)) {
-        LOG.debug("[{}] Service {} is allowed on Facility {}.", task.getId(), service.getId(), facility.getId());
+        LOG.debug("[{}, {}] Service {} is allowed on Facility {}.", task.getId(), task.getRunId(), service.getId(),
+            facility.getId());
       } else {
-        LOG.debug("[{}] Service {} is blocked on Facility {}.", task.getId(), service.getId(), facility.getId());
+        LOG.debug("[{}, {}] Service {} is blocked on Facility {}.", task.getId(), task.getRunId(), service.getId(),
+            facility.getId());
         return DENIED;
       }
     } catch (Exception e) {
-      LOG.error("[{}] Error getting disabled status for Service, task will not run now: {}.", task.getId(), e);
+      LOG.error("[{}, {}] Error getting disabled status for Service, task will not run now: {}.", task.getId(),
+          task.getRunId(), e);
       return ERROR;
     }
 
-    // task|[task_id][is_forced][exec_service_id][facility]|[destination_list]|[dependency_list]
+    // task|[task_id][task_run_id][is_forced][exec_service_id][facility]|[destination_list]|[dependency_list]
     // - the task|[engine_id] part is added by dispatcherQueue
     List<Destination> destinations = task.getDestinations();
     if (task.isSourceUpdated() || destinations == null || destinations.isEmpty()) {
-      LOG.trace("[{}] No destinations for task, trying to query the database.", task.getId());
+      LOG.trace("[{}, {}] No destinations for task, trying to query the database.", task.getId(), task.getRunId());
       try {
         initPerunSession();
         destinations = perun.getServicesManager().getDestinations(perunSession, task.getService(), task.getFacility());
       } catch (ServiceNotExistsException e) {
-        LOG.error("[{}] No destinations found for task. Service not exists...", task.getId());
+        LOG.error("[{}, {}] No destinations found for task. Service not exists...", task.getId(), task.getRunId());
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         return DB_ERROR;
       } catch (FacilityNotExistsException e) {
-        LOG.error("[{}] No destinations found for task. Facility for task does not exist...", task.getId());
+        LOG.error("[{}, {}] No destinations found for task. Facility for task does not exist...", task.getId(),
+            task.getRunId());
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         return DB_ERROR;
       } catch (PrivilegeException e) {
-        LOG.error("[{}] No destinations found for task. Privilege error accessing the database: {}", task.getId(),
+        LOG.error("[{}, {}] No destinations found for task. Privilege error accessing the database: {}", task.getId(),
+            task.getRunId(),
             e.getMessage());
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         return DB_ERROR;
       } catch (InternalErrorException e) {
-        LOG.error("[{}] No destinations found for task. Internal error: {}", task.getId(), e.getMessage());
+        LOG.error("[{}, {}] No destinations found for task. Internal error: {}", task.getId(), task.getRunId(),
+            e.getMessage());
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         return DB_ERROR;
       }
     }
 
-    LOG.debug("[{}] Fetched destinations: {}", task.getId(), (destinations == null) ? "[]" : destinations.toString());
+    LOG.debug("[{}, {}] Fetched destinations: {}", task.getId(), task.getRunId(), (destinations == null) ? "[]" :
+                                                                     destinations.toString());
 
     if (destinations != null && !destinations.isEmpty()) {
       Iterator<Destination> iter = destinations.iterator();
@@ -335,7 +349,7 @@ public class TaskScheduler extends AbstractRunner {
 
           // actually remove from destinations sent to engine
           iter.remove();
-          LOG.debug("[{}] Removed blocked destination: {}", task.getId(), dest.toString());
+          LOG.debug("[{}, {}] Removed blocked destination: {}", task.getId(), task.getRunId(), dest.toString());
 
         }
       }
@@ -345,7 +359,7 @@ public class TaskScheduler extends AbstractRunner {
         return DENIED;
       }
     } else {
-      LOG.debug("[{}] No destination found for task: {}.", task.getId(), task);
+      LOG.debug("[{}, {}] No destination found for task: {}.", task.getId(), task.getRunId(), task);
       return DENIED;
     }
 
@@ -363,7 +377,8 @@ public class TaskScheduler extends AbstractRunner {
 
     // send message async
 
-    engineMessageProducer.sendMessage("[" + task.getId() + "][" + task.isPropagationForced() + "]|[" +
+    engineMessageProducer.sendMessage("[" + task.getId() + "][" + task.getRunId() + "][" +
+                                          task.isPropagationForced() + "]|[" +
                                       fixStringSeparators(task.getService().serializeToString()) + "]|[" +
                                       fixStringSeparators(task.getFacility().serializeToString()) + "]|[" +
                                       fixStringSeparators(destinationsString.toString()) + "]");

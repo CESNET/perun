@@ -51,8 +51,8 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
     // we never actually run DUMMY destinations !!
     if (sendTask.getDestination().getPropagationType().equals(Destination.PROPAGATIONTYPE_DUMMY)) {
 
-      LOG.info("[{}] Executing SEND worker skipped for dummy Destination: {}. Marked as SENT.",
-          sendTask.getTask().getId(), sendTask.getDestination().getDestination());
+      LOG.info("[{}, {}] Executing SEND worker skipped for dummy Destination: {}. Marked as SENT.",
+          sendTask.getTask().getId(), sendTask.getTask().getRunId(), sendTask.getDestination().getDestination());
 
       // set results
       sendTask.setStatus(SENT);
@@ -65,8 +65,9 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
 
     }
 
-    LOG.info("[{}] Executing SEND worker for Task with Service ID: {} and Facility ID: {} and Destination: {}",
-        sendTask.getTask().getId(), sendTask.getTask().getServiceId(), sendTask.getTask().getFacilityId(),
+    LOG.info("[{}, {}] Executing SEND worker for Task with Service ID: {} and Facility ID: {} and Destination: {}",
+        sendTask.getTask().getId(), sendTask.getTask().getRunId(), sendTask.getTask().getServiceId(),
+        sendTask.getTask().getFacilityId(),
         sendTask.getDestination().getDestination());
     ProcessBuilder pb;
     if (service.getScript().equals("./" + service.getName())) {
@@ -75,7 +76,8 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
     } else {
       // if calling some generic script, also pass name of the service to allow correct gen folder selection
       pb = new ProcessBuilder(service.getScript(), task.getFacility().getName(),
-          sendTask.getDestination().getDestination(), sendTask.getDestination().getType(), service.getName());
+          sendTask.getDestination().getDestination(),
+          sendTask.getDestination().getType(), service.getName());
     }
     try {
 
@@ -90,7 +92,8 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
 
       if (getReturnCode() != 0) {
 
-        LOG.error("[{}] SEND worker failed for Task. Ret code {}, STDOUT: {}, STDERR: {}", task.getId(),
+        LOG.error("[{}, {}] SEND worker failed for Task. Ret code {}, STDOUT: {}, STDERR: {}", task.getId(),
+            task.getRunId(),
             getReturnCode(), getStdout(), getStderr());
 
         sendTask.setStatus(ERROR);
@@ -105,20 +108,22 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
           sendTask.setStatus(WARNING);
         }
 
-        LOG.info("[{}] SEND worker finished for Task with status {}. Ret code {}, STDOUT: {}, STDERR: {}",
-            sendTask.getTask().getId(), sendTask.getStatus(), getReturnCode(), getStdout(), getStderr());
+        LOG.info("[{}, {}] SEND worker finished for Task with status {}. Ret code {}, STDOUT: {}, STDERR: {}",
+            sendTask.getTask().getId(), sendTask.getTask().getRunId(), sendTask.getStatus(), getReturnCode(),
+            getStdout(),
+            getStderr());
 
         return sendTask;
 
       }
 
     } catch (IOException e) {
-      LOG.error("[{}] SEND worker failed for Task. IOException: {}.", task.getId(), e);
+      LOG.error("[{}, {}] SEND worker failed for Task. IOException: {}.", task.getId(), task.getRunId(), e);
       sendTask.setStatus(ERROR);
       sendTask.setEndTime(new Date(System.currentTimeMillis()));
       throw new TaskExecutionException(task, sendTask.getDestination(), 2, "", e.getMessage());
     } catch (InterruptedException e) {
-      LOG.warn("[{}] SEND worker failed for Task. Execution was interrupted {}.", task.getId(), e);
+      LOG.warn("[{}, {}] SEND worker failed for Task. Execution was interrupted {}.", task.getId(), task.getRunId(), e);
       sendTask.setStatus(ERROR);
       sendTask.setEndTime(new Date(System.currentTimeMillis()));
       throw new TaskExecutionException(task, sendTask.getDestination(), 1, "", e.getMessage());

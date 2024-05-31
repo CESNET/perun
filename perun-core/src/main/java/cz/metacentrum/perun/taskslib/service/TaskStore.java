@@ -73,10 +73,11 @@ public interface TaskStore {
    * Remove Task from TaskStore by its ID.
    *
    * @param id ID of Task to be removed
+   * @param runId run ID of Task to be removed
    * @return Removed Task
    * @throws TaskStoreException When Task can't be removed because of some kind of inconsistency
    */
-  Task removeTask(int id) throws TaskStoreException;
+  Task removeTask(int id, int runId) throws TaskStoreException;
 
   /**
    * Remove Task from TaskStore

@@ -18,6 +18,7 @@ public class TaskResult extends PerunBean implements Serializable {
    */
   private static final long serialVersionUID = 5656828750714418582L;
   private int taskId;
+  private int taskRunId;
   private int destinationId;
   private String errorMessage;
   private String standardMessage;
@@ -66,6 +67,9 @@ public class TaskResult extends PerunBean implements Serializable {
       return false;
     }
     if (taskId != other.taskId) {
+      return false;
+    }
+    if (taskRunId != other.taskRunId) {
       return false;
     }
     if (!Objects.equals(service, other.service)) {
@@ -138,6 +142,14 @@ public class TaskResult extends PerunBean implements Serializable {
     return taskId;
   }
 
+  public int getTaskRunId() {
+    return taskRunId;
+  }
+
+  public void setTaskRunId(int taskRunId) {
+    this.taskRunId = taskRunId;
+  }
+
   public void setTaskId(int taskId) {
     this.taskId = taskId;
   }
@@ -165,6 +177,7 @@ public class TaskResult extends PerunBean implements Serializable {
     result = prime * result + ((standardMessage == null) ? 0 : standardMessage.hashCode());
     result = prime * result + ((status == null) ? 0 : status.hashCode());
     result = prime * result + taskId;
+    result = prime * result + taskRunId;
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((service == null) ? 0 : service.hashCode());
     return result;
@@ -182,7 +195,8 @@ public class TaskResult extends PerunBean implements Serializable {
     }
 
     return str.append(this.getClass().getSimpleName()).append(":[").append("id=<").append(getId()).append(">")
-        .append(", taskId=<").append(taskId).append(">").append(", destinationId=<").append(destinationId).append(">")
+        .append(", taskId=<").append(taskId).append(">").append(", taskRunId=<").append(taskRunId).append(">")
+        .append(", destinationId=<").append(destinationId).append(">")
         .append(", errorMessage=<")
         .append(errorMessage == null ? "\\0" : BeansUtils.createEscaping(errorMessage.toString())).append(">")
         .append(", standardMessage=<")
@@ -197,6 +211,7 @@ public class TaskResult extends PerunBean implements Serializable {
   public String toString() {
     StringBuilder str = new StringBuilder();
     return str.append(getClass().getSimpleName()).append(":[id='").append(getId()).append("', taskId='").append(taskId)
+        .append("', taskRunId='").append(taskRunId)
         .append("', destinationId='").append(destinationId).append("', errorMessage='").append(errorMessage)
         .append("', standardMessage='").append(standardMessage).append("', returnCode='").append(returnCode)
         .append("', timestamp='").append(BeansUtils.getDateFormatter().format(timestamp)).append("', status='")

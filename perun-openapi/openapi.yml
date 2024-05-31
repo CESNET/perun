@@ -1420,6 +1420,7 @@ components:
         - $ref: '#/components/schemas/PerunBean'
       properties:
         taskId: { type: integer }
+        taskRunId: { type: integer }
         destinationId: { type: integer }
         errorMessage: { type: string }
         standardMessage: { type: string }

@@ -124,7 +124,8 @@ public class SendCollector extends AbstractRunner {
         returnCode = e.getReturnCode();
         service = task.getService();
 
-        LOG.error("[{}] Error occurred while sending Task to destination {}", task.getId(), e.getDestination());
+        LOG.error("[{}, {}] Error occurred while sending Task to destination {}", task.getId(),
+            task.getRunId(), e.getDestination());
 
       } catch (Throwable ex) {
         LOG.error("Unexpected exception in SendCollector thread. Stuck Tasks will be cleaned by " +
@@ -135,19 +136,23 @@ public class SendCollector extends AbstractRunner {
       // this is just interesting cross-check
       if (schedulingPool.getTask(task.getId()) == null) {
         LOG.warn(
-            "[{}] Task retrieved from SendTask is no longer in SchedulingPool. Probably cleaning thread removed it " +
+            "[{}, {}] Task retrieved from SendTask is no longer in SchedulingPool. Probably cleaning thread removed " +
+                "it " +
             "before completion. " + "This might create possibility of running GEN and SEND of same Task together!",
-            task.getId());
+            task.getId(), task.getRunId());
       }
 
       try {
 
         // report TaskResult to Dispatcher for this SendTask (Destination)
         jmsQueueManager.reportTaskResult(
-            schedulingPool.createTaskResult(task.getId(), destination.getId(), stderr, stdout, returnCode, service));
+            schedulingPool.createTaskResult(task.getId(), task.getRunId(), destination.getId(), stderr, stdout,
+                returnCode,
+                service));
 
       } catch (JMSException | InterruptedException e1) {
-        LOG.error("[{}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(),
+        LOG.error("[{}, {}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(),
+            task.getRunId(),
             destination, e1);
       }
 
@@ -159,7 +164,8 @@ public class SendCollector extends AbstractRunner {
         schedulingPool.decreaseSendTaskCount(task, 1);
 
       } catch (TaskStoreException e) {
-        LOG.error("[{}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task, e);
+        LOG.error("[{}, {}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task.getRunId(),
+            task, e);
       }
     }
   }

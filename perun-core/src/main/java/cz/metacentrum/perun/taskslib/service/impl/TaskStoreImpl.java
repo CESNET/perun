@@ -98,7 +98,7 @@ public class TaskStoreImpl implements TaskStore {
   }
 
   @Override
-  public Task removeTask(int id) throws TaskStoreException {
+  public Task removeTask(int id, int runId) throws TaskStoreException {
     Task task = getTask(id);
     if (task != null) {
       task = removeTask(getTask(id));

@@ -1,4 +1,4 @@
--- database version 3.2.19 (don't forget to update insert statement at the end of file)
+-- database version 3.2.20 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1200,6 +1200,7 @@ create table tasks (
 create table tasks_results (
 	id integer not null,
 	task_id integer not null,         --identifier of task (tasks.id)
+	task_run_id integer default 0 not null,         --identifier of specific task propagation for logging
 	destination_id integer not null,  --identifier of destination (destinations.id)
 	status varchar not null,      --status of task
 	err_message varchar,        --return message in case of error
@@ -1702,6 +1703,7 @@ create sequence "services_id_seq";
 create sequence "service_denials_id_seq";
 create sequence "service_packages_id_seq";
 create sequence "tasks_id_seq";
+create sequence "tasks_run_id_seq";
 create sequence "tasks_results_id_seq";
 create sequence "users_id_seq";
 create sequence "user_ext_sources_id_seq";
@@ -2019,7 +2021,7 @@ grant all on blocked_logins to perun;
 grant all on auto_registration_groups to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.19');
+insert into configurations values ('DATABASE VERSION','3.2.20');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
