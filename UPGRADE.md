@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [36.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v36.0.0...v36.0.1) (2024-05-31)
+
+
+### Bug Fixes
+
+* **core:** use correct identity to resolve uco in mu password manager ([6120f76](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6120f76d12838bfc8dc6c2e63ed7fa5ad9caec56))
+
 ## [36.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v35.0.1...v36.0.0) (2024-05-23)
 
 
