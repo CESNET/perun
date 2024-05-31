@@ -454,10 +454,11 @@ public interface ServicesManagerBl {
    * @param service      service
    * @param facility     facility
    * @param consentEval  if the generator should force evaluation of consents
+   * @param taskRunId Integer id of the task run propagation
    * @return generated hashed data structure
    */
   HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility,
-                                        boolean consentEval);
+                                        boolean consentEval, int taskRunId);
 
   /**
    * Generates hashed hierarchical data structure for given service and resource. If enforcing consents is turned on on
@@ -474,10 +475,11 @@ public interface ServicesManagerBl {
    * @param service      service
    * @param facility     facility
    * @param consentEval  if the generator should force evaluation of consents
+   * @param taskRunId Integer id of the task run propagation
    * @return generated hashed data structure
    */
   HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility,
-                                          boolean consentEval);
+                                          boolean consentEval, int taskRunId);
 
   /*
        getRequiredAttributes(PerunSession perunSession, Service service);

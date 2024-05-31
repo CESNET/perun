@@ -120,13 +120,13 @@ sub getServices
 	return Perun::Common::callManagerMethod('getServices', '[]Service', @_);
 }
 
-#(service => $serviceId, facility => $facilityId, consentEval => true|false)
+#(service => $serviceId, facility => $facilityId, consentEval => true|false, taskRun => $taskRunId)
 sub getHashedHierarchicalData
 {
 	return Perun::Common::callManagerMethod('getHashedHierarchicalData', 'HashedGenData', @_);
 }
 
-#(service => $serviceId, facility => $facilityId, consentEval => true|false)
+#(service => $serviceId, facility => $facilityId, consentEval => true|false, taskRun => $taskRunId)
 sub getHashedDataWithGroups
 {
 	return Perun::Common::callManagerMethod('getHashedDataWithGroups', 'HashedGenData', @_);

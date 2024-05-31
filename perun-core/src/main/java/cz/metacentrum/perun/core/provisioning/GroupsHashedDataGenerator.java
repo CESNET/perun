@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generates data in format:
@@ -39,14 +41,17 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
   private final boolean filterExpiredMembers;
   private final Set<Member> membersWithConsent = new HashSet<>();
   private final boolean consentEval;
+  private final int taskRunId;
+  private static final Logger LOG = LoggerFactory.getLogger(GroupsHashedDataGenerator.class);
 
   private GroupsHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
-                                    boolean filterExpiredMembers, boolean consentEval) {
+                                    boolean filterExpiredMembers, boolean consentEval, int taskRunId) {
     this.sess = sess;
     this.service = service;
     this.facility = facility;
     this.filterExpiredMembers = filterExpiredMembers;
     this.consentEval = consentEval;
+    this.taskRunId = taskRunId;
     dataProvider = new GenDataProviderImpl(sess, service, facility);
   }
 
@@ -78,6 +83,9 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
         membersWithConsent.stream().collect(toMap(Member::getId, Member::getUserId));
 
     GenDataNode root = new GenDataNode.Builder().children(childNodes).members(memberIdsToUserIds).build();
+
+    LOG.info("Task run {} provisioning to {} by service {} includes the following users: {}", taskRunId,
+        facility.getName(), service.getName(), new HashSet<>(memberIdsToUserIds.values()));
 
     return new HashedGenData(attributes, root, facility.getId());
   }
@@ -162,9 +170,11 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
     private Facility facility;
     private boolean filterExpiredMembers = false;
     private boolean consentEval = false;
+    private int taskRunId;
+
 
     public GroupsHashedDataGenerator build() {
-      return new GroupsHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval);
+      return new GroupsHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval, taskRunId);
     }
 
     public Builder consentEval(boolean consentEval) {
@@ -184,6 +194,11 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 
     public Builder service(Service service) {
       this.service = service;
+      return this;
+    }
+
+    public Builder taskRunId(int taskRunId) {
+      this.taskRunId = taskRunId;
       return this;
     }
 
