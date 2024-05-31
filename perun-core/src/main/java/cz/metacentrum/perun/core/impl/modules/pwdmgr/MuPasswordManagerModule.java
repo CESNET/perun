@@ -378,7 +378,8 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
       if (extSource.getExtSource().getName().equals("https://idp2.ics.muni.cz/idp/shibboleth") &&
           extSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
         String login = extSource.getLogin();
-        if (login != null) {
+        // we have multiple identities, we must make sure to use one with UCO
+        if (StringUtils.length(login) < 30 && StringUtils.isNumeric(login)) {
           LOG.debug(" - Action triggered by {}", login.split("@")[0]);
           return "<zmenil>" + login.split("@")[0] + "</zmenil>\n";
         }
