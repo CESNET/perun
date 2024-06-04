@@ -1,11 +1,11 @@
 package cz.metacentrum.perun.rpc.deserializer;
 
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Deserializer for URL data format.

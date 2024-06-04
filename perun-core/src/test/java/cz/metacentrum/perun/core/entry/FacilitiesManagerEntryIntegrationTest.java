@@ -56,7 +56,6 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2162,7 +2161,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// test new way - single select
 		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility);
-		Assert.notNull(members);
+		assertNotNull(members);
 		assertTrue(members.size() == 2);
 		assertTrue(members.contains(member11));
 		assertTrue(members.contains(member21));
@@ -2175,7 +2174,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		for (Resource r : resources) {
 			oldMembers.addAll(perun.getResourcesManager().getAllowedMembers(sess, r));
 		}
-		Assert.notNull(oldMembers);
+		assertNotNull(oldMembers);
 		assertTrue(oldMembers.contains(member11));
 		assertTrue(oldMembers.contains(member21));
 		assertTrue(!oldMembers.contains(member12));
@@ -2331,7 +2330,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// test new way - single select
 		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility);
-		Assert.notNull(members);
+		assertNotNull(members);
 		assertTrue(members.size() == 2);
 		assertTrue(members.contains(member11));
 		assertTrue(members.contains(member21));
@@ -2340,14 +2339,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// check getting all
 		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
-		Assert.notNull(resources);
+		assertNotNull(resources);
 		assertTrue(resources.size() == 2);
 		assertTrue(resources.contains(resource1));
 		assertTrue(resources.contains(resource2));
 
 		// check getting by VO
 		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, vo, null);
-		Assert.notNull(resources);
+		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
 		assertTrue(resources.contains(resource1));
 		assertTrue(!resources.contains(resource2));
@@ -2359,21 +2358,21 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// service should be only on 1 resource
 		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, null, service);
-		Assert.notNull(resources);
+		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
 		assertTrue(resources.contains(resource1));
 		assertTrue(!resources.contains(resource2));
 
 		// vo-service should by only for 1 resource
 		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, vo, service);
-		Assert.notNull(resources);
+		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
 		assertTrue(resources.contains(resource1));
 		assertTrue(!resources.contains(resource2));
 
 		// vo2-service shouldn't be assigned
 		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, vo2, service);
-		Assert.notNull(resources);
+		assertNotNull(resources);
 		assertTrue(resources.isEmpty());
 
 	}

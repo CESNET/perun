@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.scim.api.entities.AuthenticationSchemes;
 import cz.metacentrum.perun.scim.api.entities.ServiceProviderConfiguration;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
 
 /**
  * Service Provider Configuration endpoint, that returns specification compliance, authentication schemas and data

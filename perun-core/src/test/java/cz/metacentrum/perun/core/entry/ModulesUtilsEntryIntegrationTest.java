@@ -493,7 +493,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     }
     perun.getAttributesManagerBl().setAttribute(sess, group, groupGID);
 
-    assertEquals(new Integer(111),
+    assertEquals(Integer.valueOf(111),
         modulesUtilsBl.getCommonGIDOfGroupsWithSameNameInSameNamespace((PerunSessionImpl) sess, groups, namespace,
             null));
   }
@@ -528,7 +528,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     }
     perun.getAttributesManagerBl().setAttribute(sess, resource, resourceGID);
 
-    assertEquals(new Integer(112),
+    assertEquals(Integer.valueOf(112),
         modulesUtilsBl.getCommonGIDOfResourcesWithSameNameInSameNamespace((PerunSessionImpl) sess, resources, namespace,
             null));
   }

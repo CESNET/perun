@@ -14,7 +14,7 @@ import cz.metacentrum.perun.scim.api.endpoints.SchemasEndpointController;
 import cz.metacentrum.perun.scim.api.endpoints.ServiceProviderConfigsEndpointController;
 import cz.metacentrum.perun.scim.api.endpoints.UserResourceEndpointController;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import org.springframework.stereotype.Component;
 
 /**

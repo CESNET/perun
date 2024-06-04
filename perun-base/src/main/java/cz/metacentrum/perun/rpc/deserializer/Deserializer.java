@@ -2,10 +2,10 @@ package cz.metacentrum.perun.rpc.deserializer;
 
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Subclasses of {@code Deserializer} class provide methods to deserialize values supplied as name/value pairs in some

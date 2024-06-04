@@ -16,19 +16,16 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Paginated;
-import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
 import cz.metacentrum.perun.registrar.bl.InvitationsManagerBl;
@@ -43,6 +40,7 @@ import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import cz.metacentrum.perun.registrar.model.InvitationWithSender;
 import cz.metacentrum.perun.registrar.model.InvitationsOrderColumn;
 import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
+import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,31 +49,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Transactional;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-registrar-lib.xml"})
-@Transactional(transactionManager = "perunTransactionManager")
-public class InvitationsManagerIntegrationTest {
-  @Autowired
-  PerunBl perun;
-  @Autowired
-  RegistrarManager registrarManager;
-  @Autowired
-  MailManager mailManager;
-  PerunSession session;
+public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrationTest {
   private static final String CLASS_NAME = "InvitationsManagerIntegrationTest.";
-  private Vo vo;
   private Group group;
   private User sender;
   private PerunSession senderSess;
@@ -88,9 +70,6 @@ public class InvitationsManagerIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-          ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
-    vo = perun.getVosManagerBl().createVo(session, new Vo(0, "Test Vo", "TestVo"));
     group = setUpGroup("TestGroup", "Test group");
     sender = setUpUser("Invitation", "Sender", "preferredMail@mail.com");
     senderSess = setUpSenderSession(sender);

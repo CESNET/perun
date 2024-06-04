@@ -19,8 +19,10 @@
 	<properties>
 		<!-- used GWT version supports only java version up to 11 -->
 		<java.version>11</java.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 		<!-- Convenience property to set the GWT version -->
-		<gwtVersion>2.10.0</gwtVersion>
+		<gwtVersion>2.11.0</gwtVersion>
 		<webappDirectory>${project.build.directory}/${project.name}</webappDirectory>
 		<gui.url.modifier/>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -123,22 +125,32 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- OTHERS -->
-
 		<dependency>
-			<groupId>com.google.gwt</groupId>
+			<groupId>org.gwtproject</groupId>
 			<artifactId>gwt-user</artifactId>
 			<version>${gwtVersion}</version>
-			<scope>provided</scope>
 		</dependency>
 
+		<!-- OTHERS -->
 		<dependency>
-			<groupId>com.google.gwt</groupId>
+			<groupId>org.gwtproject</groupId>
 			<artifactId>gwt-dev</artifactId>
 			<version>${gwtVersion}</version>
 			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.gwtproject</groupId>
+				<artifactId>gwt</artifactId>
+				<version>${gwtVersion}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 </project>
