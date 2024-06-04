@@ -40,7 +40,7 @@
                 <version>1.10.15</version>
                 <configuration>
                     <container>
-                        <containerId>tomcat9x</containerId>
+                        <containerId>tomcat10x</containerId>
                         <artifactInstaller>
                             <groupId>org.apache.tomcat</groupId>
                             <artifactId>tomcat</artifactId>
@@ -55,7 +55,7 @@
                          -->
                     </container>
                     <configuration>
-                        <home>${basedir}/target/cargo/tomcat9x</home>
+                        <home>${basedir}/target/cargo/tomcat10x</home>
                         <files>
                             <copy>
                                 <file>${basedir}/tomcat.xml</file>

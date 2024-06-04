@@ -639,7 +639,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
     Pattern p = Pattern.compile("([0-9]+)([dmy]?)");
     Matcher m = p.matcher(gracePeriod);
     Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareGracePeriodDate(m);
-    assertEquals(new Integer(5), fieldAmount.getLeft());
+    assertEquals(Integer.valueOf(5), fieldAmount.getLeft());
     assertEquals(ChronoUnit.DAYS, fieldAmount.getRight());
   }
 

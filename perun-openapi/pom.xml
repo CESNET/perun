@@ -28,7 +28,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>6.6.0</version>
+                <version>7.2.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -47,9 +47,11 @@
                             <generateApiDocumentation>false</generateApiDocumentation>
                             <generateModelDocumentation>false</generateModelDocumentation>
                             <configOptions>
-                                <dateLibrary>java8</dateLibrary>
+                                <dateLibrary>java17</dateLibrary>
                                 <library>resttemplate</library>
-                                <java8>true</java8>
+                                <!-- Use Jakarta Package -->
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
                                 <!-- options for generating target/generated-sources/openapi/pom.xml which is not used -->
                                 <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
                                 <licenseName>Apache 2.0</licenseName>
@@ -80,8 +82,8 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -110,6 +112,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
         </dependency>
     </dependencies>
 

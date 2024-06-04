@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 
 public abstract class AbstractEventProcessor implements EventProcessor, InitializingBean {
 
@@ -39,7 +38,7 @@ public abstract class AbstractEventProcessor implements EventProcessor, Initiali
     }
   }
 
-  @Required
+  @Autowired
   @Override
   public void setDispatchConditions(Collection<DispatchEventCondition> condition) {
     if (dispatchConditions == null) {
@@ -48,7 +47,6 @@ public abstract class AbstractEventProcessor implements EventProcessor, Initiali
     dispatchConditions.addAll(condition);
   }
 
-  @Required
   @Autowired
   public void setEventDispatcher(EventDispatcher eventDispatcher) {
     this.eventDispatcher = eventDispatcher;
@@ -57,6 +55,4 @@ public abstract class AbstractEventProcessor implements EventProcessor, Initiali
   protected interface PerunAttributeNames {
 
   }
-
-
 }

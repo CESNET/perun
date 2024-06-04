@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.3.4</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -81,11 +81,9 @@
 		<json.version>20231013</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
 		<reflections.version>0.9.12</reflections.version>
-		<testcontainers.version>1.20.2</testcontainers.version>
-
-		<!-- upgraded version of Spring Framework against the Spring Boot dependency to avoid high vulnerability (CVE-2024-22243) -->
-		<spring-framework.version>5.3.32</spring-framework.version>
-		<postgresql.version>42.7.2</postgresql.version>
+		<testcontainers.version>1.20.1</testcontainers.version>
+        <httpmime.version>4.5.14</httpmime.version>
+        <angus-mail.version>2.0.3</angus-mail.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS

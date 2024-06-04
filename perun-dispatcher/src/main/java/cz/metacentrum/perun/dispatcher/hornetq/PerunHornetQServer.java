@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.dispatcher.hornetq;
 
+import jakarta.annotation.Resource;
 import java.util.Properties;
-import javax.annotation.Resource;
 import org.hornetq.core.config.impl.FileConfiguration;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.HornetQServers;

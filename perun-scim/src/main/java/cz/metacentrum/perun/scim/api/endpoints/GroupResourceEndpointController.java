@@ -15,10 +15,10 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.scim.api.entities.GroupSCIM;
 import cz.metacentrum.perun.scim.api.entities.MemberSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public class GroupResourceEndpointController {
     GroupSCIM result = new GroupSCIM();
     result.setSchemas(schemas);
     result.setDisplayName(perunGroup.getName());
-    result.setId(new Long(perunGroup.getId()));
+    result.setId((long) perunGroup.getId());
 
     try {
       List<Member> perunGroupMembers = perunBl.getGroupsManagerBl().getGroupMembers(session, perunGroup);

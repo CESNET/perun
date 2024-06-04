@@ -14,7 +14,7 @@ import cz.metacentrum.perun.taskslib.model.TaskSchedule;
 import java.util.Properties;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.FutureTask;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

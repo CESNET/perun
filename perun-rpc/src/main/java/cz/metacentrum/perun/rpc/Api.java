@@ -38,6 +38,12 @@ import cz.metacentrum.perun.rpc.serializer.JsonSerializerJsonP;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJsonSimple;
 import cz.metacentrum.perun.rpc.serializer.PdfSerializer;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -61,12 +67,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -347,7 +347,7 @@ public class Api extends HttpServlet {
       }
 
       // Get the X.509 certificate object
-      X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
+      X509Certificate[] certs = (X509Certificate[]) req.getAttribute("jakarta.servlet.request.X509Certificate");
 
       // Get the emails
       if (certs != null && certs.length > 0 && certs[0] != null) {

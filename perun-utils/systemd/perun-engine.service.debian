@@ -1,6 +1,6 @@
 [Unit]
 Description=Perun-Engine
-After=tomcat9.service
+After=tomcat10.service
 
 [Service]
 Type=simple

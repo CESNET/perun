@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.scim.api.entities.ListResponseSCIM;
 import cz.metacentrum.perun.scim.api.entities.SchemaSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
 
 /**
  * Endpoint controller, that returns schema of all resources.
@@ -43,7 +43,7 @@ public class SchemasEndpointController {
       result.setResources(getAllSchemas());
       result.setSchemas(URN_SCHEMA);
       int numberOfSchemas = result.getResources().size();
-      result.setTotalResults(new Long(numberOfSchemas));
+      result.setTotalResults((long) numberOfSchemas);
 
       ObjectMapper mapper = new ObjectMapper();
       return Response.ok(mapper.writeValueAsString(result)).build();

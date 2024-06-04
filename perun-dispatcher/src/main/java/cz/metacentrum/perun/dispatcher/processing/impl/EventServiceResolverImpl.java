@@ -267,7 +267,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 
   }
 
-  @javax.annotation.Resource(name = "dispatcherPropertiesBean")
+  @jakarta.annotation.Resource(name = "dispatcherPropertiesBean")
   public void setDispatcherProperties(Properties dispatcherProperties) {
     this.dispatcherProperties = dispatcherProperties;
   }

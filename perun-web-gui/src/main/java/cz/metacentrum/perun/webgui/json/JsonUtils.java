@@ -63,6 +63,7 @@ public class JsonUtils {
    * @param getValue   the value getter for the cell
    * @deprecated Shouldn't be used when returning the same object - use the method without Getter in parameter instead	 *
    */
+  @Deprecated
   static public <R> Column<R, R> addColumn(Cell<R> cell,
                                            String headerText, final GetValue<R, R> getValue,
                                            final FieldUpdater<R, String> tableFieldUpdater, boolean custom) {
@@ -109,6 +110,7 @@ public class JsonUtils {
    * @param getter     the value getter for the cell
    * @deprecated Shouldn't be used when returning string - use the method without Cell in parameter instead or just use method without header
    */
+  @Deprecated
   static public <R, C> Column<R, C> addColumn(Cell<C> cell, String headerText, final GetValue<R, C> getter,
                                               final FieldUpdater<R, C> fieldUpdater) {
     Column<R, C> column = new Column<R, C>(cell) {
