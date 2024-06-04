@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,8 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
   private static final String LS_DOMAIN = "@hostel.aai.lifescience-ri.eu";
   private static final String EXT_SOURCE_NAME = "https://hostel.aai.lifescience-ri.eu/lshostel/";
   private static final String REGISTRAR = "perunRegistrar";
+  private final Pattern passRegex = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#\\^@$!%\\*?&\\.\\" +
+                                           "(\\)\\[\\]{}:]())[A-Za-z\\d#\\^@$!%\\*?&\\.\\(\\)\\[\\]{}:]{8,}$");
 
   public LifescienceidusernamePasswordManagerModule() {
     // set proper namespace
@@ -101,6 +104,22 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
 
     // change password
     super.changePassword(sess, userLogin, newPassword);
+  }
+
+  @Override
+  public void checkPasswordStrength(PerunSession sess, String userLogin, String newPassword)
+      throws PasswordStrengthException {
+    if (!passRegex.matcher(newPassword).matches()) {
+      LOG.warn("Password for {}:{} is too weak. Your password needs to be at least eight characters long." +
+                   " It has to contain at least one uppercase and lowercase letter," +
+                   " one digit, and one special character like #^@$!%*?&.()[]\\{}:.", actualLoginNamespace, userLogin);
+      throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + userLogin + "is too weak. " +
+                                              "Your password needs to be at least eight characters long." +
+                                              " It has to contain at least one uppercase and lowercase letter," +
+                                              " one digit, and one special character like #^@$!%*?&.()[]{}:.");
+    }
+
+    super.checkPasswordStrength(sess, userLogin, newPassword);
   }
 
   @Override
