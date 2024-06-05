@@ -646,6 +646,7 @@ public class AuditParser {
     TaskResult taskResult = new TaskResult();
     taskResult.setId(Integer.valueOf(beanAttr.get("id")));
     taskResult.setTaskId(Integer.valueOf(beanAttr.get("taskId")));
+    taskResult.setTaskRunId(Integer.valueOf(beanAttr.get("taskRunId")));
     taskResult.setDestinationId(Integer.valueOf(beanAttr.get("destinationId")));
     String errorMessage;
     if (beanAttr.get("errorMessage").equals("\\0")) {

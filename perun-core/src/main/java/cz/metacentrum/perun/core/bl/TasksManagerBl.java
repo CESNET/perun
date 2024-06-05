@@ -323,4 +323,13 @@ public interface TasksManagerBl {
    * @param task
    */
   void updateTask(PerunSession sess, Task task);
+
+  /**
+   * Retrieves a new run id for the task propagation.
+   *
+   * @param sess session
+   * @param task task to schedule
+   * @return task with updated run id
+   */
+  Task retrieveRunIdForTask(PerunSession sess, Task task);
 }

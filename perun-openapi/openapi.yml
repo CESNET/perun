@@ -1420,6 +1420,7 @@ components:
         - $ref: '#/components/schemas/PerunBean'
       properties:
         taskId: { type: integer }
+        taskRunId: { type: integer }
         destinationId: { type: integer }
         errorMessage: { type: string }
         standardMessage: { type: string }
@@ -18334,6 +18335,8 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
         - { name: consentEval, description: "if true the method will run consent eval", schema: { type: boolean },  in: query, required: false }
+        - { name: taskRun, description: "id of the task propagation run", schema: {type: integer}, in: query,
+            required: false}
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
@@ -18350,6 +18353,8 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
         - { name: consentEval, description: "if true the method will run consent eval", schema: { type: boolean },  in: query, required: false }
+        - { name: taskRun, description: "id of the task propagation run", schema: { type: integer }, in: query,
+            required: false }
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
@@ -19493,7 +19498,38 @@ paths:
                 vo: { type: integer, description: "vo id", nullable: false }
                 userAttributesWithSearchingValues:
                   type: object
-                  description: "Map of attribute names with searching values Map<sting,string>"
+                  description: "Map of attribute names with searching values Map<string,string>"
+                  nullable: false
+                  additionalProperties:
+                    type: string
+
+  /json/searcher/getMembers:
+    post:
+      tags:
+        - Searcher
+      operationId: getMembersSearcher
+      summary: Get list of members who have attributes with specific values.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetMembersSearcher
+              description: "Input to getMembersSearcher"
+              type: object
+              required:
+                - vo
+                - attributesWithSearchingValues
+              properties:
+                vo: { type: integer, description: "vo id", nullable: false }
+                attributesWithSearchingValues:
+                  type: object
+                  description: "Map of user and member attribute names with searching values Map<string,string>"
                   nullable: false
                   additionalProperties:
                     type: string

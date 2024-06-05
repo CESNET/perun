@@ -38,13 +38,13 @@ public class EventParserImpl implements EventParser {
 
     /*
      * Expected string format:
-     * "task|[task_id][is_forced]|[service]|[facility]|[destination_list]|[dependency_list]"
+     * "task|[task_id][task_runId][is_forced]|[service]|[facility]|[destination_list]|[dependency_list]"
      *
      *  String eventParsingPattern =
      * "^event\\|([0-9]{1,6})\\|\\[([a-zA-Z0-9: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
      */
     String eventParsingPattern =
-        "^task\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\|\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]$";
+        "^task\\|\\[([0-9]+)]\\[([0-9]+)]\\[([^]]+)]\\|\\[([^|]+)]\\|\\[([^|]+)]\\|\\[([^|]+)]$";
     Pattern pattern = Pattern.compile(eventParsingPattern);
     Matcher matcher = pattern.matcher(event);
     boolean matchFound = matcher.find();
@@ -53,10 +53,11 @@ public class EventParserImpl implements EventParser {
       LOG.debug("Message format matched ok...");
       // Data should provide information regarding the target Service (Processing rule).
       String eventTaskId = matcher.group(1);
-      String eventIsForced = matcher.group(2);
-      String eventService = matcher.group(3);
-      String eventFacility = matcher.group(4);
-      String eventDestinationList = matcher.group(5);
+      String eventTaskRunId = matcher.group(2);
+      String eventIsForced = matcher.group(3);
+      String eventService = matcher.group(4);
+      String eventFacility = matcher.group(5);
+      String eventDestinationList = matcher.group(6);
 
       // check possible enconding
       if (!eventService.startsWith("Service")) {
@@ -79,8 +80,10 @@ public class EventParserImpl implements EventParser {
       }
 
 
-      LOG.debug("Event data to be parsed: task id {}, forced {}, facility {}, service {}, destination list {}",
-          eventTaskId, eventIsForced, eventFacility, eventService, eventDestinationList);
+      LOG.debug("Event data to be parsed: task id {}, task run id {}, forced {}, facility {}, service {}, destination" +
+                    " " +
+                    "list {}",
+          eventTaskId, eventTaskRunId, eventIsForced, eventFacility, eventService, eventDestinationList);
 
       // Prepare variables
       Facility facility;
@@ -116,6 +119,7 @@ public class EventParserImpl implements EventParser {
 
       Task task = new Task();
       task.setId(Integer.parseInt(eventTaskId));
+      task.setRunId(Integer.parseInt(eventTaskRunId));
       task.setFacility(facility);
       task.setService(service);
       task.setDestinations(destinationList);

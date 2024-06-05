@@ -54,7 +54,7 @@ public class GenPlannerTest extends AbstractEngineTest {
     spy.run();
 
     verify(genCompletionServiceMock, times(1)).blockingSubmit(any(GenWorker.class));
-    verify(jmsQueueManagerMock, times(1)).reportTaskStatus(eq(task1.getId()), eq(task1.getStatus()),
+    verify(jmsQueueManagerMock, times(1)).reportTaskStatus(eq(task1), eq(task1.getStatus()),
         eq(task1.getGenStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 
     assertEquals(GENERATING, task1.getStatus());

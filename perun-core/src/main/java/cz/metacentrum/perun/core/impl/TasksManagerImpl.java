@@ -31,7 +31,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 public class TasksManagerImpl implements TasksManagerImplApi {
 
   public static final String TASK_RESULT_MAPPING_SELECT_QUERY =
-      " tasks_results.id as tasks_results_id, tasks_results.task_id as tasks_results_task_id," +
+      " tasks_results.id as tasks_results_id, tasks_results.task_id as tasks_results_task_id, tasks_results" +
+          ".task_run_id as tasks_results_task_run_id," +
       " tasks_results.destination_id as tasks_results_destination_id, tasks_results.status as " +
       "tasks_results_status, tasks_results.err_message as tasks_results_err_message," +
       " tasks_results.std_message as tasks_results_std_message, tasks_results.return_code as " +
@@ -44,6 +45,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
     taskResult.setDestinationId(resultSet.getInt("tasks_results_destination_id"));
     taskResult.setErrorMessage(resultSet.getString("tasks_results_err_message"));
     taskResult.setTaskId(resultSet.getInt("tasks_results_task_id"));
+    taskResult.setTaskRunId(resultSet.getInt("tasks_results_task_run_id"));
     taskResult.setReturnCode(resultSet.getInt("tasks_results_return_code"));
     taskResult.setStandardMessage(resultSet.getString("tasks_results_std_message"));
 
@@ -457,10 +459,11 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 
     // jdbc template cannot be null
     jdbc.update(
-        "insert into tasks_results(" + "id, " + "task_id, " + "destination_id, " + "status, " + "err_message, " +
-        "std_message, " + "return_code, " + "timestamp) values (?,?,?,?,?,?,?," +
+        "insert into tasks_results(" + "id, " + "task_id, " + "task_run_id, " + "destination_id, " + "status, " +
+            "err_message, " +
+        "std_message, " + "return_code, " + "timestamp) values (?,?,?,?,?,?,?,?," +
         Compatibility.toDate("?", "'DD-MM-YYYY HH24:MI:SS'") + ")", newTaskResultId, taskResult.getTaskId(),
-        taskResult.getDestinationId(), taskResult.getStatus().toString(),
+        taskResult.getTaskRunId(), taskResult.getDestinationId(), taskResult.getStatus().toString(),
         errorMessage == null ? null : new String(errorMessage, StandardCharsets.UTF_8),
         standardMessage == null ? null : new String(standardMessage, StandardCharsets.UTF_8),
         taskResult.getReturnCode(), getDateFormatter().format(taskResult.getTimestamp()));
@@ -612,4 +615,10 @@ public class TasksManagerImpl implements TasksManagerImplApi {
         task.getStatus().toString(), startTime, endTime, task.getId());
   }
 
+  @Override
+  public Task retrieveRunIdForTask(Task task) {
+    int taskRunId = Utils.getNewId(jdbc, "tasks_run_id_seq");
+    task.setRunId(taskRunId);
+    return task;
+  }
 }

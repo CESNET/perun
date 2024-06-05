@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
@@ -37,6 +38,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_admin_metaTest {
   private static urn_perun_user_attribute_def_def_login_namespace_admin_meta classInstance;
   private static PerunSessionImpl session;
   private static Attribute attributeToCheck;
+  private static Attribute einfraAttribute;
   private static CoreConfig originalCoreConfig;
   private PasswordManagerModule module;
 
@@ -61,10 +63,17 @@ public class urn_perun_user_attribute_def_def_login_namespace_admin_metaTest {
     attributeToCheck.setFriendlyName("login-namespace:admin-meta");
     attributeToCheck.setValue("test");
 
+    einfraAttribute = new Attribute();
+    einfraAttribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    einfraAttribute.setFriendlyName("login-namespace:einfra");
+    einfraAttribute.setValue("test");
+
     PerunBl perunBl = mock(PerunBl.class);
     when(session.getPerunBl()).thenReturn(perunBl);
     UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
     when(session.getPerunBl().getUsersManagerBl()).thenReturn(usersManagerBl);
+    AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
+    when(session.getPerunBl().getAttributesManagerBl()).thenReturn(attributesManagerBl);
     module = mock(AdminmetaPasswordManagerModule.class);
     when(session.getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, "admin-meta")).thenReturn(module);
     ModulesUtilsBl modulesUtilsBl = mock(ModulesUtilsBl.class);
@@ -100,6 +109,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_admin_metaTest {
     List<User> tmp = new ArrayList<>();
     tmp.add(user);
     when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck, true)).thenReturn(tmp);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user,
+            AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:einfra")).thenReturn(einfraAttribute);
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
     verify(session.getPerunBl().getUsersManagerBl()).getUsersByAttribute(session, attributeToCheck, true);

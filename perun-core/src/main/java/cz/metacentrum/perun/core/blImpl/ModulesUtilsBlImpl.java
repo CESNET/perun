@@ -462,6 +462,46 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
   }
 
   @Override
+  public Pair<Integer, Integer> checkAndTransferBucketQuota(Attribute quotasAttribute,
+                                                            PerunBean firstPlaceholder,
+                                                            PerunBean secondPlaceholder)
+      throws WrongAttributeValueException {
+    String quota = quotasAttribute.valueAsString();
+    //quota can't be null, if exists in attribute, must be set in some way
+    if (quota == null) {
+      throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder,
+          "The quota should be set but is null.");
+    }
+    Matcher quotaMatcher;
+    quotaMatcher = ModulesUtilsBlImpl.QUOTA_WITHOUT_METRICS_PATTERN.matcher(quota);
+    if (!quotaMatcher.matches()) {
+      throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder,
+          "Wrong format of bucket quota. Expected format 'softQuota:hardQuota'. Example: '100:200'");
+    }
+    //Parse quotas to variables
+    String softQuota = quotaMatcher.group(1);
+    String hardQuota = quotaMatcher.group(3);
+
+    Integer softQuotaAfterTransfer = Integer.parseInt(softQuota);
+    Integer hardQuotaAfterTransfer = Integer.parseInt(hardQuota);
+
+    //test comparing softQuota and hardQuota (softQuota must be less or equals than hardQuota, 0 means unlimited)
+    //1] if softQuota is unlimited, but hardQuota not = exception
+    if (softQuotaAfterTransfer.compareTo(0) == 0 &&
+        hardQuotaAfterTransfer.compareTo(0) != 0) {
+      throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder,
+          "SoftQuota is set to unlimited (0) but hardQuota is limited to '" + hardQuota + "'.");
+      //2] if hardQuota is not unlimited but still it is less then softQuota = exception
+    } else if (hardQuotaAfterTransfer.compareTo(0) != 0 &&
+               hardQuotaAfterTransfer.compareTo(softQuotaAfterTransfer) < 0) {
+      throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder,
+          "One of quotas is not correct. HardQuota '" + hardQuota + "' is less then softQuota '" + softQuota + "'.");
+    }
+    //other cases are ok
+    return new Pair<>(softQuotaAfterTransfer, hardQuotaAfterTransfer);
+  }
+
+  @Override
   public void checkAttributeRegex(Attribute attribute, Pattern defaultRegex) throws WrongAttributeValueException {
     if (attribute == null || attribute.getValue() == null) {
       throw new InternalErrorException("Attribute or it's value is null.");

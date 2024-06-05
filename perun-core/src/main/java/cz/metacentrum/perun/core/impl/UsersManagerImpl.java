@@ -52,6 +52,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedExcep
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
@@ -68,8 +69,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
@@ -1456,6 +1459,60 @@ public class UsersManagerImpl implements UsersManagerImplApi {
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }
+  }
+
+  @Override
+  public List<User> getUsersByCoreAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition,
+                                                 String attributeValue) {
+
+    String friendlyName = attributeDefinition.getFriendlyName();
+
+    switch (friendlyName) {
+      case "id" -> {
+        try {
+          int valueInInteger = Integer.parseInt(attributeValue);
+          return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users where id=?",
+                  USER_MAPPER, valueInInteger);
+        } catch (NumberFormatException ex) {
+          throw new InternalErrorException(
+                  "Searched value for core attribute: " + attributeDefinition.getFriendlyName() +
+                          " should be type of Integer");
+        }
+      }
+      case "uuid" -> {
+        return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users where uu_id=?",
+                USER_MAPPER, UUID.fromString(attributeValue));
+      }
+      case "firstName" -> {
+        return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users where first_name=?",
+                USER_MAPPER, attributeValue);
+      }
+      case "middleName" -> {
+        return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users where middle_name=?",
+                USER_MAPPER, attributeValue);
+      }
+      case "lastName" -> {
+        return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users where last_name=?",
+                USER_MAPPER, attributeValue);
+      }
+      case "titleBefore" -> {
+        return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users where title_before=?",
+                USER_MAPPER, attributeValue);
+      }
+      case "titleAfter" -> {
+        return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users where title_after=?",
+                USER_MAPPER, attributeValue);
+      }
+      case "serviceUser" -> {
+        boolean valueInBoolean = Boolean.parseBoolean(attributeValue);
+        return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users where service_acc=?",
+                USER_MAPPER, valueInBoolean);
+      }
+      default ->
+              throw new InternalErrorException("Unsupported attribute: " + attributeDefinition.getNamespace() + ":" +
+                      attributeDefinition.getFriendlyName());
+    }
+
   }
 
   @Override

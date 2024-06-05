@@ -661,6 +661,19 @@ public interface UsersManagerImplApi {
   List<User> getUsersByAttribute(PerunSession sess, Attribute attribute, boolean ignoreCase);
 
   /**
+   * Returns all users who have the core attribute with the value. attributeValue is not converted
+   * to the attribute type, it is always type of String.
+   *
+   * @param sess
+   * @param attributeDefintion
+   * @param attributeValue
+   * @return list of users
+   * @throws InternalErrorException
+   */
+  List<User> getUsersByCoreAttributeValue(PerunSession sess, AttributeDefinition attributeDefintion,
+                                          String attributeValue);
+
+  /**
    * Returns all users who have the attribute with the value. attributeValue is not converted to the attribute type, it
    * is always type of String.
    *

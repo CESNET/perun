@@ -608,20 +608,20 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
   @Override
   public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility,
-                                               boolean consentEval) {
+                                               boolean consentEval, int taskRunId) {
     HashedDataGenerator hashedDataGenerator =
         new GroupsHashedDataGenerator.Builder().sess((PerunSessionImpl) sess).service(service).facility(facility)
-            .filterExpiredMembers(!service.isUseExpiredMembers()).consentEval(consentEval).build();
+            .filterExpiredMembers(!service.isUseExpiredMembers()).consentEval(consentEval).taskRunId(taskRunId).build();
 
     return hashedDataGenerator.generateData();
   }
 
   @Override
   public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility,
-                                                 boolean consentEval) {
+                                                 boolean consentEval, int taskRunId) {
     HashedDataGenerator hashedDataGenerator =
         new HierarchicalHashedDataGenerator.Builder().sess((PerunSessionImpl) sess).service(service).facility(facility)
-            .filterExpiredMembers(!service.isUseExpiredMembers()).consentEval(consentEval).build();
+            .filterExpiredMembers(!service.isUseExpiredMembers()).consentEval(consentEval).taskRunId(taskRunId).build();
 
     return hashedDataGenerator.generateData();
   }

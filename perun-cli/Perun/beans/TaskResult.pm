@@ -13,6 +13,7 @@ sub toString {
 
 	my $id = $self->{_id};
 	my $taskId = $self->{_taskId};
+	my $taskRunId = $self->{_taskRunId};
 	my $destinationId = $self->{_destinationId};
 	my $errorMessage = $self->{_errorMessage};
 	my $standardMessage = $self->{_standardMessage};
@@ -25,6 +26,7 @@ sub toString {
 	my $str = 'TaskResult (';
 	$str .= "id: $id, " if ($id);
 	$str .= "taskId: $taskId, " if ($taskId);
+	$str .= "taskRunId: $taskRunId, " if ($taskRunId);
 	$str .= "destinationId: $destinationId, " if ($destinationId);
 	$str .= "errorMessage: $errorMessage, " if ($errorMessage);
 	$str .= "standardMessage: $standardMessage, " if ($standardMessage);
@@ -66,6 +68,13 @@ sub TO_JSON
 		$taskId = 0;
 	}
 
+    my $taskRunId;
+	if (defined($self->{_taskRunId})) {
+		$taskRunId = $self->{_taskRunId} * 1;
+	} else {
+		$taskRunId = 0;
+	}
+
 	my $destinationId;
 	if (defined($self->{_destinationId})) {
 		$destinationId = $self->{_destinationId} * 1;
@@ -105,20 +114,22 @@ sub TO_JSON
 	my $status = $self->{_status};
 	my $destination = $self->{_destination};
 
-	return { id         => $id, taskId => $taskId, destinationId => $destinationId, errorMessage => $errorMessage,
+	return { id         => $id, taskId => $taskId, taskRunId => $taskRunId, destinationId => $destinationId, errorMessage
+                        => $errorMessage,
 		standardMessage => $standardMessage, returnCode => $returnCode, timestamp => $timestamp, status => $status,
 		destination     => $destination, service => $service };
 }
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_taskId}, $self->{_destinationId}, $self->{_errorMessage},
+	return ($self->{_id}, $self->{_taskId}, $self->{_taskRunId}, $self->{_destinationId}, $self->{_errorMessage},
 		$self->{_standardMessage}, $self->{_returnCode}, $self->{_timestamp}, $self->{_status},
 		$self->{_destination}->{destination}, $self->{_service}->{name});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'TaskId', 'DestinationId', 'stderr', 'stdout', 'ReturnCode', 'Timestamp', 'Status', 'Destination',
+	return ('ID', 'TaskId', 'TaskRunId', 'DestinationId', 'stderr', 'stdout', 'ReturnCode', 'Timestamp', 'Status',
+	'Destination',
 		'Service');
 }
 
@@ -149,6 +160,21 @@ sub setTaskId
 {
 	my $self = shift;
 	$self->{_taskId} = shift;
+
+	return;
+}
+
+sub getTaskRunId
+{
+	my $self = shift;
+
+	return $self->{_taskRunId};
+}
+
+sub setTaskRunId
+{
+	my $self = shift;
+	$self->{_taskRunId} = shift;
 
 	return;
 }

@@ -53,7 +53,7 @@ public class GenCollectorTest extends AbstractEngineTest {
 
     spy.run();
 
-    verify(jmsQueueManagerMock, times(1)).reportTaskStatus(eq(task1.getId()), eq(task1.getStatus()),
+    verify(jmsQueueManagerMock, times(1)).reportTaskStatus(eq(task1), eq(task1.getStatus()),
         eq(task1.getGenEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
     assertTrue(generatedTasksQueue.contains(task1));
     assertEquals("There should be only one generated Task", 1, generatedTasksQueue.size());
@@ -68,8 +68,8 @@ public class GenCollectorTest extends AbstractEngineTest {
 
     spy.run();
 
-    verify(jmsQueueManagerMock, times(1)).reportTaskStatus(eq(task1.getId()), eq(GENERROR), anyLong());
-    verify(schedulingPoolMock, times(1)).removeTask(task1.getId());
+    verify(jmsQueueManagerMock, times(1)).reportTaskStatus(eq(task1), eq(GENERROR), anyLong());
+    verify(schedulingPoolMock, times(1)).removeTask(task1.getId(), task1.getRunId());
     assertTrue(generatedTasksQueue.isEmpty());
   }
 }

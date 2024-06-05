@@ -422,4 +422,9 @@ public class TasksManagerBlImpl implements TasksManagerBl {
     getTasksManagerImpl().updateTask(task);
   }
 
+  @Override
+  public Task retrieveRunIdForTask(PerunSession sess, Task task) {
+    return getTasksManagerImpl().retrieveRunIdForTask(task);
+  }
+
 }

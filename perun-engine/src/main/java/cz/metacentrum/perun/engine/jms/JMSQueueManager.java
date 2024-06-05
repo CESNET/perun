@@ -148,16 +148,17 @@ public class JMSQueueManager {
     TextMessage message = session.createTextMessage("taskresult:" + taskResult.serializeToString());
     message.setIntProperty("priority", 2);
     messageReceiver.sendMessage(message);
-    LOG.info("[{}] TaskResult for destination {} sent to dispatcher.", taskResult.getTaskId(),
+    LOG.info("[{}, {}] TaskResult for destination {} sent to dispatcher.", taskResult.getTaskId(),
+        taskResult.getTaskRunId(),
         taskResult.getDestinationId());
   }
 
-  public void reportTaskStatus(int id, Task.TaskStatus status, long miliseconds)
+  public void reportTaskStatus(Task task, Task.TaskStatus status, long miliseconds)
       throws JMSException, InterruptedException {
-    TextMessage message = session.createTextMessage("task:" + id + ":" + status + ":" + miliseconds);
+    TextMessage message = session.createTextMessage("task:" + task.getId() + ":" + status + ":" + miliseconds);
     message.setIntProperty("priority", 6);
     messageReceiver.sendMessage(message);
-    LOG.info("[{}] Task state {} sent to dispatcher.", id, status);
+    LOG.info("[{}, {}] Task state {} sent to dispatcher.", task.getId(), task.getRunId(), status);
   }
 
   public void sendGoodByeAndClose() {

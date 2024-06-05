@@ -32,6 +32,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_bucketQuota;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_dataQuotasOverride;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_fileQuotasOverride;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_defaultDataQuotas;
@@ -249,6 +250,46 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
 
     perun.getModulesUtilsBl().checkAttributeValueIsIncludedOrSubgroupId((PerunSessionImpl) sess, group, sendAsGroups);
+  }
+
+  @Test
+  public void checkAndTranferBucketQuotas() throws Exception {
+    System.out.println(CLASS_NAME + "checkAndTranferBucketQuotas");
+    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    attr.setValue("100:200");
+    assertEquals(new Pair<>(100,200),modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null));
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void checkAndTranferBucketQuotasNull() throws Exception {
+    System.out.println(CLASS_NAME + "checkAndTranferBucketQuotasWrongFormat");
+    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    attr.setValue(null);
+    modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void checkAndTranferBucketQuotasWrongFormat() throws Exception {
+    System.out.println(CLASS_NAME + "checkAndTranferBucketQuotasWrongFormat");
+    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    attr.setValue("100-200");
+    modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void checkAndTranferBucketQuotasSoftUnlimited() throws Exception {
+    System.out.println(CLASS_NAME + "checkAndTranferBucketQuotasSoftUnlimited");
+    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    attr.setValue("0:200");
+    modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null);
+  }
+
+  @Test(expected = WrongAttributeValueException.class)
+  public void checkAndTranferBucketQuotasSoftLarger() throws Exception {
+    System.out.println(CLASS_NAME + "checkAndTranferBucketQuotasSoftLarger");
+    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    attr.setValue("200:100");
+    modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null);
   }
 
   @Test(expected = QuotaNotInAllowedLimitException.class)

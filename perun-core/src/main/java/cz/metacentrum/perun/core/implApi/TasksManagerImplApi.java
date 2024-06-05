@@ -217,4 +217,12 @@ public interface TasksManagerImplApi {
    */
   void updateTask(Task task);
 
+  /**
+   * Retrieves a new run id for the task propagation.
+   *
+   * @param task task to schedule
+   * @return task with updated run id
+   */
+  Task retrieveRunIdForTask(Task task);
+
 }

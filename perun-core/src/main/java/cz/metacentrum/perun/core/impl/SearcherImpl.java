@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
@@ -32,6 +33,13 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 public class SearcherImpl implements SearcherImplApi {
 
   private static final Logger LOG = LoggerFactory.getLogger(SearcherImpl.class);
+  private static final Map<String, Map<String, String>> ENTITY_ATTR_TABLE_NAMES = Map.of(
+      "facility", Map.of("attrValueTableName", "facility_attr_values", "entityTableName", "facilities"),
+      "group", Map.of("attrValueTableName", "group_attr_values", "entityTableName", "groups"),
+      "user", Map.of("attrValueTableName", "user_attr_values", "entityTableName", "users"),
+      "resource", Map.of("attrValueTableName", "resource_attr_values", "entityTableName", "resources"),
+      "member", Map.of("attrValueTableName", "member_attr_values", "entityTableName", "members")
+  );
 
   private static NamedParameterJdbcTemplate jdbc;
   private static JdbcPerunTemplate jdbcTemplate;
@@ -228,6 +236,29 @@ public class SearcherImpl implements SearcherImplApi {
   }
 
   @Override
+  public List<Member> getMembers(PerunSession sess, Vo vo,
+                                 Map<String, Map<Attribute, String>> mapOfEntityToMapOfAttrsWithValues)
+      throws WrongAttributeValueException {
+    StringBuilder query = new StringBuilder();
+    query.append("select distinct " + MembersManagerImpl.MEMBER_MAPPING_SELECT_QUERY + " from " +
+                     "(select * from members where members.vo_id=").append(vo.getId()).append(") members ")
+        .append("join users on users.id=members.user_id ");
+
+    MapSqlParameterSource parameters = new MapSqlParameterSource();
+
+    insertWhereClausesAndQueryParametersFromMixedEntitiesAttributes(query, parameters,
+        mapOfEntityToMapOfAttrsWithValues, false);
+
+    try {
+      return jdbc.query(query.toString(), parameters, MembersManagerImpl.MEMBER_MAPPER);
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
   public List<Integer> getVosIdsForAppAutoRejection() {
     String sql = "select distinct vos.id from vos join application on vos.id=application.vo_id join vo_attr_values " +
                  "on vos.id=vo_attr_values.vo_id join attr_names on attr_names.id=vo_attr_values.attr_id " +
@@ -261,89 +292,8 @@ public class SearcherImpl implements SearcherImplApi {
     for (Attribute key : attributesWithSearchingValues.keySet()) {
       counter++;
       String value = attributesWithSearchingValues.get(key);
-      query.append("left join ").append(attrValueTableName).append(" val").append(counter).append(" ");
-      query.append("on val").append(counter).append(".").append(entityName).append("_id=").append(entityTableName)
-          .append(".id and val").append(counter).append(".attr_id=").append(key.getId()).append(" ");
-      query.append("left join attr_names nam").append(counter).append(" on val").append(counter).append(".attr_id=nam")
-          .append(counter).append(".id ");
-
-      if (value == null || value.isEmpty()) {
-        whereClauses.add("val" + counter + ".attr_value IS NULL ");
-      } else {
-        if (key.getType().equals(Integer.class.getName())) {
-          try {
-            key.setValue(Integer.valueOf(value));
-            whereClauses.add("val" + counter + ".attr_value=:v" + counter + " ");
-            whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
-            parameters.addValue("n" + counter, Integer.class.getName());
-            parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
-          } catch (NumberFormatException ex) {
-            throw new WrongAttributeValueException(
-                "Searched value for attribute: " + key + " should be type of Integer");
-          }
-        } else if (key.getType().equals(String.class.getName())) {
-          key.setValue(value);
-          if (allowPartialMatchForString) {
-            whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") +
-                             ") LIKE CONCAT('%', CONCAT(lower(" + Compatibility.convertToAscii(":v" + counter) +
-                             "), '%')) ");
-          } else {
-            whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ")=lower(" +
-                             Compatibility.convertToAscii(":v" + counter) + ") ");
-          }
-          whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
-          parameters.addValue("n" + counter, key.getType());
-          parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
-        } else if (key.getType().equals(Boolean.class.getName())) {
-          if (!value.equals("false") && !value.equals("true")) {
-            throw new WrongAttributeValueException(
-                "Searched value for attribute: " + key + " should be 'true' or 'false'");
-          }
-          key.setValue(Boolean.valueOf(value));
-          whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ")=lower(" +
-                           Compatibility.convertToAscii(":v" + counter) + ") ");
-          whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
-          parameters.addValue("n" + counter, Boolean.class.getName());
-          parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
-        } else if (key.getType().equals(ArrayList.class.getName())) {
-          List<String> list = new ArrayList<>();
-          list.add(value);
-          key.setValue(list);
-          whereClauses.add("val" + counter + ".attr_value LIKE :v" + counter + " ");
-          whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
-          parameters.addValue("n" + counter, key.getType());
-          // key can not be null because value is not null due to previous check
-          parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key)
-              .substring(0, BeansUtils.attributeValueToString(key).length() - 1) + '%');
-        } else if (key.getType().equals(LinkedHashMap.class.getName())) {
-          String[] splitMapItem = value.split("=");
-          if (splitMapItem.length == 0) {
-            throw new InternalErrorException("Value can't be split by char '='.");
-          }
-          String splitKey = splitMapItem[0];
-          StringBuilder splitValue = new StringBuilder();
-          if (splitMapItem.length > 1) {
-            for (int i = 1; i < splitMapItem.length; i++) {
-              if (i != 1) {
-                splitValue.append('=');
-              }
-              splitValue.append(splitMapItem[i]);
-            }
-          }
-          Map<String, String> map = new LinkedHashMap<>();
-          map.put(splitKey, splitValue.length() == 0 ? null : splitValue.toString());
-          key.setValue(map);
-          whereClauses.add(
-              "val" + counter + ".attr_value LIKE :v" + counter + " or val" + counter + ".attr_value LIKE :vv" +
-              counter + " ");
-          whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
-          parameters.addValue("n" + counter, LinkedHashMap.class.getName());
-          parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key) + '%');
-          parameters.addValue("vv" + counter, "%," + BeansUtils.attributeValueToString(key) + '%');
-        } else {
-          throw new InternalErrorException(key + " is not type of integer, string, boolean, array or hashmap.");
-        }
-      }
+      extendQueryWithAttribute(query, parameters, attrValueTableName, entityName, entityTableName,
+          value, allowPartialMatchForString, key, counter, whereClauses);
     }
 
     //Add Where clauses at end of sql query
@@ -356,6 +306,157 @@ public class SearcherImpl implements SearcherImplApi {
       } else {
         query.append("and ");
         query.append(whereClause);
+      }
+    }
+  }
+
+  /**
+   * Generates 'WHERE' clauses into given query based on values from given Map. Works with a map of entities to
+   * attributes with searching values. The entity name is used to look up the corresponding tables for the attributes
+   * we want to search by.
+   *
+   * @param query                                 output where are the generated clauses appended
+   * @param parameters                            output where are added objects used in where clauses
+   * @param entityToAttributesWithSearchingValues top level keys are entities (namespaces) mapping to attributes with
+   *                                              values in these namespaces
+   * @param allowPartialMatchForString            if false, search only by exact match,
+   *                                              if true, search also by partial match (for String values only!)
+   * @throws InternalErrorException internal error
+   * @throws WrongAttributeValueException wrong attribute value
+   */
+  @SuppressWarnings("ConstantConditions")
+  private void insertWhereClausesAndQueryParametersFromMixedEntitiesAttributes(
+      StringBuilder query, MapSqlParameterSource parameters,
+      Map<String, Map<Attribute, String>> entityToAttributesWithSearchingValues, boolean allowPartialMatchForString)
+      throws WrongAttributeValueException {
+    List<String> whereClauses = new ArrayList<>();
+    int counter = 0;
+    for (String entity : entityToAttributesWithSearchingValues.keySet()) {
+      for (Attribute key : entityToAttributesWithSearchingValues.get(entity).keySet()) {
+        counter++;
+        String value = entityToAttributesWithSearchingValues.get(entity).get(key);
+        String attrValueTableName = ENTITY_ATTR_TABLE_NAMES.get(entity).get("attrValueTableName");
+        String entityTableName = ENTITY_ATTR_TABLE_NAMES.get(entity).get("entityTableName");
+        extendQueryWithAttribute(query, parameters, attrValueTableName, entity, entityTableName,
+            value, allowPartialMatchForString, key, counter, whereClauses);
+      }
+    }
+
+    boolean first = true;
+    for (String whereClause : whereClauses) {
+      if (first) {
+        query.append("where ");
+        query.append(whereClause);
+        first = false;
+      } else {
+        query.append("and ");
+        query.append(whereClause);
+      }
+    }
+  }
+
+
+  /**
+   * Take an existing query searching for entities by values of specific attributes and generate an extension of the
+   * WHERE clause by adding another attribute and value to search by.
+   *
+   * @param query partially built query
+   * @param parameters SQL parameters to extend
+   * @param attrValueTableName corresponding table name of the attribute we are searching by
+   * @param entityName name of the entity we are searching for
+   * @param entityTableName corresponding table name of the entity we are searching for
+   * @param value value of the attribute we are searching by
+   * @param allowPartialMatchForString search also by partial match
+   * @param attr attribute object by which we are searching
+   * @param counter the order of the where clause being generated in this method for the query
+   * @param whereClauses the previously generated where clauses for the query
+   * @throws WrongAttributeValueException wrong attribute value
+   */
+  private void extendQueryWithAttribute(StringBuilder query, MapSqlParameterSource parameters,
+                                String attrValueTableName, String entityName, String entityTableName,
+                                String value, boolean allowPartialMatchForString, Attribute attr, int counter,
+                                List<String> whereClauses) throws WrongAttributeValueException {
+    query.append("left join ").append(attrValueTableName).append(" val").append(counter).append(" ");
+    query.append("on val").append(counter).append(".").append(entityName).append("_id=").append(entityTableName)
+        .append(".id and val").append(counter).append(".attr_id=").append(attr.getId()).append(" ");
+    query.append("left join attr_names nam").append(counter).append(" on val").append(counter).append(".attr_id=nam")
+        .append(counter).append(".id ");
+
+    if (value == null || value.isEmpty()) {
+      whereClauses.add("val" + counter + ".attr_value IS NULL ");
+    } else {
+      if (attr.getType().equals(Integer.class.getName())) {
+        try {
+          attr.setValue(Integer.valueOf(value));
+          whereClauses.add("val" + counter + ".attr_value=:v" + counter + " ");
+          whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+          parameters.addValue("n" + counter, Integer.class.getName());
+          parameters.addValue("v" + counter, BeansUtils.attributeValueToString(attr));
+        } catch (NumberFormatException ex) {
+          throw new WrongAttributeValueException(
+              "Searched value for attribute: " + attr + " should be type of Integer");
+        }
+      } else if (attr.getType().equals(String.class.getName())) {
+        attr.setValue(value);
+        if (allowPartialMatchForString) {
+          whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") +
+                           ") LIKE CONCAT('%', CONCAT(lower(" + Compatibility.convertToAscii(":v" + counter) +
+                           "), '%')) ");
+        } else {
+          whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ")=lower(" +
+                           Compatibility.convertToAscii(":v" + counter) + ") ");
+        }
+        whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+        parameters.addValue("n" + counter, attr.getType());
+        parameters.addValue("v" + counter, BeansUtils.attributeValueToString(attr));
+      } else if (attr.getType().equals(Boolean.class.getName())) {
+        if (!value.equals("false") && !value.equals("true")) {
+          throw new WrongAttributeValueException(
+              "Searched value for attribute: " + attr + " should be 'true' or 'false'");
+        }
+        attr.setValue(Boolean.valueOf(value));
+        whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ")=lower(" +
+                         Compatibility.convertToAscii(":v" + counter) + ") ");
+        whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+        parameters.addValue("n" + counter, Boolean.class.getName());
+        parameters.addValue("v" + counter, BeansUtils.attributeValueToString(attr));
+      } else if (attr.getType().equals(ArrayList.class.getName())) {
+        List<String> list = new ArrayList<>();
+        list.add(value);
+        attr.setValue(list);
+        whereClauses.add("val" + counter + ".attr_value LIKE :v" + counter + " ");
+        whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+        parameters.addValue("n" + counter, attr.getType());
+        // key can not be null because value is not null due to previous check
+        parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(attr)
+            .substring(0, BeansUtils.attributeValueToString(attr).length() - 1) + '%');
+      } else if (attr.getType().equals(LinkedHashMap.class.getName())) {
+        String[] splitMapItem = value.split("=");
+        if (splitMapItem.length == 0) {
+          throw new InternalErrorException("Value can't be split by char '='.");
+        }
+        String splitKey = splitMapItem[0];
+        StringBuilder splitValue = new StringBuilder();
+        if (splitMapItem.length > 1) {
+          for (int i = 1; i < splitMapItem.length; i++) {
+            if (i != 1) {
+              splitValue.append('=');
+            }
+            splitValue.append(splitMapItem[i]);
+          }
+        }
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put(splitKey, splitValue.length() == 0 ? null : splitValue.toString());
+        attr.setValue(map);
+        whereClauses.add(
+            "val" + counter + ".attr_value LIKE :v" + counter + " or val" + counter + ".attr_value LIKE :vv" +
+                counter + " ");
+        whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+        parameters.addValue("n" + counter, LinkedHashMap.class.getName());
+        parameters.addValue("v" + counter, BeansUtils.attributeValueToString(attr) + '%');
+        parameters.addValue("vv" + counter, "%," + BeansUtils.attributeValueToString(attr) + '%');
+      } else {
+        throw new InternalErrorException(attr + " is not type of integer, string, boolean, array or hashmap.");
       }
     }
   }

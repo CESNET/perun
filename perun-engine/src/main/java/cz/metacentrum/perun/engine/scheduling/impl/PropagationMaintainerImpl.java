@@ -41,7 +41,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
   // ----- setters ------------------------------
 
   private void abortTask(Task task, TaskStatus status) {
-    LOG.warn("[{}] Task {} found in unexpected state, switching to {} ", task.getId(), task, status);
+    LOG.warn("[{}, {}] Task {} found in unexpected state, switching to {} ", task.getId(), task.getRunId(), task,
+        status);
     task.setStatus(status);
     Task removed = null;
     try {
@@ -49,18 +50,21 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
       // the removal from pool also cancels all task futures, which in turn
       // makes the completion service collect the task and remove it from its executingTasks map
     } catch (TaskStoreException e) {
-      LOG.error("[{}] Failed during removal of Task {} from SchedulingPool: {}", task.getId(), task, e);
+      LOG.error("[{}, {}] Failed during removal of Task {} from SchedulingPool: {}", task.getId(), task.getRunId(),
+          task, e);
     }
     if (removed != null) {
       // report status only if Task was actually removed from the pool, otherwise its
       // some kind of inconsistency and we don't want to spam dispatcher - it will mark it as error on its own
       try {
-        jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
+        jmsQueueManager.reportTaskStatus(task, task.getStatus(), System.currentTimeMillis());
       } catch (JMSException | InterruptedException e) {
-        LOG.error("[{}] Error trying to reportTaskStatus of {} to Dispatcher: {}", task.getId(), task, e);
+        LOG.error("[{}, {}] Error trying to reportTaskStatus of {} to Dispatcher: {}", task.getId(), task.getRunId(),
+            task, e);
       }
     } else {
-      LOG.error("[{}] Stale Task {} was not removed and not reported to dispatcher.", task.getId(), task);
+      LOG.error("[{} {}] Stale Task {} was not removed and not reported to dispatcher.", task.getId(),
+          task.getRunId(), task);
       LOG.error("  - This is nonsense - why we abort the Task taken from AllTasks but we can remove it from it ??");
     }
 
@@ -82,21 +86,23 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
       if (startTime == null) {
 
         // by implementation can't happen, we set time before adding to the generatingTasksMap
-        LOG.error("[{}] Task in generatingTasks has no start time. Shouldn't happen by implementation.", task.getId());
+        LOG.error("[{}, {}] Task in generatingTasks has no start time. Shouldn't happen by implementation.",
+            task.getId(), task.getRunId());
 
       } else if (howManyMinutesAgo >= rescheduleTime) {
 
         if (!future.isCancelled()) {
           // Cancel running GEN Task - we expect that it will be picked by GenCollector
           // and removed from the Engine.
-          LOG.debug("[{}] Cancelling stuck generating Future<Task>.", task.getId());
+          LOG.debug("[{}, {}] Cancelling stuck generating Future<Task>.", task.getId(), task.getRunId());
           future.cancel(true);
         } else {
           // We cancelled Task in previous run, but it wasn't picked by GenCollector
           // GenCollector probably doesn't run -> abort task manually
           LOG.debug(
-              "[{}] Cancelled stuck generating Future<Task> was not picked by GenCollector, forcefully removing from " +
-              "Engine.", task.getId());
+              "[{}, {}] Cancelled stuck generating Future<Task> was not picked by GenCollector, forcefully removing " +
+                  "from " +
+              "Engine.", task.getId(), task.getRunId());
           generatingTasks.removeStuckTask(future); // to release semaphore
           abortTask(task, TaskStatus.GENERROR);
         }
@@ -120,8 +126,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
       if (startTime == null) {
 
         // by implementation can't happen, we set time before adding to the generatingTasksMap
-        LOG.error("[{}] SendTask in sendingSendTask has no start time for Destination {}. Shouldn't happen by " +
-                  "implementation.", task.getId(), sendTask.getDestination());
+        LOG.error("[{}, {}] SendTask in sendingSendTask has no start time for Destination {}. Shouldn't happen by " +
+                  "implementation.", task.getId(), task.getRunId(), sendTask.getDestination());
 
       } else if (howManyMinutesAgo >= rescheduleTime) {
 
@@ -129,14 +135,16 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
         if (!future.isCancelled()) {
           // Cancel running Send Task - we expect that it will be picked by SendCollector
           // and removed from the Engine if all SendTasks are done
-          LOG.debug("[{}] Cancelling stuck sending Future<SendTask> for Destination: {}.", task.getId(),
+          LOG.debug("[{}, {}] Cancelling stuck sending Future<SendTask> for Destination: {}.", task.getId(),
+              task.getRunId(),
               sendTask.getDestination());
           future.cancel(true);
         } else {
 
           LOG.debug(
-              "[{}] Cancelled stuck sending Future<SendTask> for Destination: {} was not picked by SendCollector, " +
-              "forcefully removing from Engine.", task.getId(), sendTask.getDestination());
+              "[{}, {}] Cancelled stuck sending Future<SendTask> for Destination: {} was not picked by SendCollector," +
+                  " " +
+              "forcefully removing from Engine.", task.getId(), task.getRunId(), sendTask.getDestination());
 
           // We cancelled Task in previous run, but it wasn't picked by SendCollector
           // SendCollector probably doesn't run
@@ -150,11 +158,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
           TaskResult taskResult = null;
           try {
             taskResult =
-                schedulingPool.createTaskResult(task.getId(), sendTask.getDestination().getId(), sendTask.getStderr(),
+                schedulingPool.createTaskResult(task.getId(), task.getRunId(), sendTask.getDestination().getId(),
+                    sendTask.getStderr(),
                     sendTask.getStdout(), sendTask.getReturnCode(), task.getService());
             jmsQueueManager.reportTaskResult(taskResult);
           } catch (JMSException | InterruptedException e) {
-            LOG.error("[{}] Error trying to reportTaskResult {} of {} to Dispatcher: {}", task.getId(), taskResult,
+            LOG.error("[{}, {}] Error trying to reportTaskResult {} of {} to Dispatcher: {}", task.getId(),
+                task.getRunId(), taskResult,
                 task, e);
           }
 
@@ -162,7 +172,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
           try {
             schedulingPool.decreaseSendTaskCount(task, 1);
           } catch (TaskStoreException e) {
-            LOG.error("[{}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task, e);
+            LOG.error("[{}, {}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task.getRunId(),
+                task, e);
           }
 
         }
@@ -189,13 +200,16 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
            */
           try {
             // TODO - can such Task be in any structure like generating/sending/newTasks/generatedTasks ?
-            schedulingPool.removeTask(task.getId());
-            LOG.warn("[{}] Task in WAITING state shouldn't be in Engine at all, silently removing from SchedulingPool.",
-                task.getId());
+            schedulingPool.removeTask(task.getId(), task.getRunId());
+            LOG.warn("[{}, {}] Task in WAITING state shouldn't be in Engine at all, silently removing from " +
+                         "SchedulingPool.",
+                task.getId(), task.getRunId());
           } catch (TaskStoreException ex) {
             LOG.error(
-                "[{}] Failed during removal of WAITING Task from SchedulingPool. Such Task shouldn't be in Engine at " +
-                "all: {}", task.getId(), ex);
+                "[{}, {}] Failed during removal of WAITING Task from SchedulingPool. Such Task shouldn't be in Engine" +
+                    " " +
+                    "at " +
+                "all: {}", task.getId(), task.getRunId(), ex);
           }
           break;
 
@@ -211,11 +225,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
           BlockingDeque<Task> newTasks = schedulingPool.getNewTasksQueue();
           if (!newTasks.contains(task)) {
             try {
-              LOG.debug("[{}] Re-adding PLANNED Task back to pool and newTasks queue. Probably GenPlanner failed.",
-                  task.getId());
+              LOG.debug("[{}, {}] Re-adding PLANNED Task back to pool and newTasks queue. Probably GenPlanner failed.",
+                  task.getId(), task.getRunId());
               schedulingPool.addTask(task);
             } catch (TaskStoreException e) {
-              LOG.error("Could not save Task {} into Engine SchedulingPool because of {}, setting to ERROR", task, e);
+              LOG.error("[{}, {}] Could not save Task {} into Engine SchedulingPool because of {}, setting to ERROR",
+                  task.getId(), task.getRunId(), task, e);
               abortTask(task, TaskStatus.ERROR);
             }
           }
@@ -299,7 +314,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
         default:
           // unknown state
-          LOG.debug("[{}] Failing to default, status was: {}", task.getId(), task.getStatus());
+          LOG.debug("[{}, {}] Failing to default, status was: {}", task.getId(), task.getRunId(), task.getStatus());
           abortTask(task, TaskStatus.ERROR);
       }
     }

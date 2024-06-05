@@ -736,7 +736,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
   @Override
   public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility,
-                                               boolean consentEval)
+                                               boolean consentEval, int taskRunId)
       throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
     Utils.checkPerunSession(sess);
 
@@ -749,12 +749,12 @@ public class ServicesManagerEntry implements ServicesManager {
       throw new PrivilegeException(sess, "getHashedDataWithGroups");
     }
 
-    return getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, consentEval);
+    return getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, consentEval, taskRunId);
   }
 
   @Override
   public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility,
-                                                 boolean consentEval)
+                                                 boolean consentEval, int taskRunId)
       throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
     Utils.checkPerunSession(sess);
 
@@ -767,7 +767,7 @@ public class ServicesManagerEntry implements ServicesManager {
       throw new PrivilegeException(sess, "getHashedHierarchicalData");
     }
 
-    return getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, consentEval);
+    return getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, consentEval, taskRunId);
   }
 
   public PerunBl getPerunBl() {

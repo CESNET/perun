@@ -16,6 +16,7 @@ public class Task implements Serializable {
 
   private static final long serialVersionUID = -1809998673612582742L;
   private int id;
+  private int runId;
   private int delay;
   private int recurrence;
   private LocalDateTime startTime;
@@ -167,6 +168,14 @@ public class Task implements Serializable {
 
   public void setRecurrence(int recurrence) {
     this.recurrence = recurrence;
+  }
+
+  public int getRunId() {
+    return runId;
+  }
+
+  public void setRunId(int runId) {
+    this.runId = runId;
   }
 
   public LocalDateTime getSchedule() {

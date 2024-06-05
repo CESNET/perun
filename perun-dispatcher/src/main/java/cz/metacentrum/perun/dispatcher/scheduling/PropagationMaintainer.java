@@ -71,8 +71,8 @@ public class PropagationMaintainer extends AbstractRunner {
       }
 
       if (soonerTimestamp == null && laterTimestamp == null) {
-        LOG.error("[{}] Task presumably in {} state, but does not have a valid timestamps. Switching to ERROR: {}.",
-            task.getId(), task.getStatus(), task);
+        LOG.error("[{}, {}] Task presumably in {} state, but does not have a valid timestamps. Switching to ERROR: {}.",
+            task.getId(), task.getRunId(), task.getStatus(), task);
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
         ((PerunBl) perun).getTasksManagerBl().updateTask(perunSession, task);
@@ -86,7 +86,8 @@ public class PropagationMaintainer extends AbstractRunner {
 
       // If too much time has passed something is broken
       if (howManyMinutesAgo >= rescheduleTime) {
-        LOG.error("[{}] Task is stuck in {} state for more than {} minutes. Switching it to ERROR: {}.", task.getId(),
+        LOG.error("[{}, {}] Task is stuck in {} state for more than {} minutes. Switching it to ERROR: {}.",
+            task.getId(), task.getRunId(),
             task.getStatus(), rescheduleTime, task);
         task.setEndTime(LocalDateTime.now());
         task.setStatus(TaskStatus.ERROR);
@@ -124,7 +125,8 @@ public class PropagationMaintainer extends AbstractRunner {
 
       if (task.isSourceUpdated()) {
         // source data has changed - re-schedule task
-        LOG.info("[{}] Task in {} state will be rescheduled, source data changed.", task.getId(), task.getStatus());
+        LOG.info("[{}, {}] Task in {} state will be rescheduled, source data changed.", task.getId(),
+            task.getRunId(), task.getStatus());
         schedulingPool.scheduleTask(task, -1);
       } else {
         // data hasn't changed => check if its not too old
@@ -132,12 +134,14 @@ public class PropagationMaintainer extends AbstractRunner {
           // don't re-schedule waiting tasks, since their 'end time' is always NULL
           // they will get re-scheduled if stuck by endStuckTasks()
           if (!TaskStatus.WAITING.equals(task.getStatus())) {
-            LOG.info("[{}] Task in {} state will be rescheduled, hasn't run for {} hours.", task.getId(),
+            LOG.info("[{}, {}] Task in {} state will be rescheduled, hasn't run for {} hours.", task.getId(),
+                task.getRunId(),
                 task.getStatus(), oldRescheduleHours);
             schedulingPool.scheduleTask(task, -1);
           }
         } else {
-          LOG.trace("[{}] Task has finished recently or source data hasn't changed, leaving it for now.", task.getId());
+          LOG.trace("[{}, {}] Task has finished recently or source data hasn't changed, leaving it for now.",
+              task.getId(), task.getRunId());
         }
 
       }
@@ -157,8 +161,8 @@ public class PropagationMaintainer extends AbstractRunner {
 
       // error tasks should have correct end time
       if (task.getEndTime() == null) {
-        LOG.error("[{}] RECOVERY FROM INCONSISTENT STATE: ERROR task does not have end_time! " +
-                  "Setting end_time to task.getDelay + 1.", task.getId());
+        LOG.error("[{}, {}] RECOVERY FROM INCONSISTENT STATE: ERROR task does not have end_time! " +
+                  "Setting end_time to task.getDelay + 1.", task.getId(), task.getRunId());
         // getDelay is in minutes
         LocalDateTime endTime = LocalDateTime.now().minusMinutes(task.getDelay() + 1);
         task.setEndTime(endTime);
@@ -167,13 +171,16 @@ public class PropagationMaintainer extends AbstractRunner {
       long howManyMinutesAgo = ChronoUnit.MINUTES.between(task.getEndTime(), LocalDateTime.now());
 
       if (howManyMinutesAgo < 0) {
-        LOG.error("[{}] RECOVERY FROM INCONSISTENT STATE: ERROR task appears to have ended in future.", task.getId());
+        LOG.error("[{}, {}] RECOVERY FROM INCONSISTENT STATE: ERROR task appears to have ended in future.",
+            task.getId(), task.getRunId());
         LocalDateTime endTime = LocalDateTime.now().minusMinutes(task.getDelay() + 1);
         task.setEndTime(endTime);
         howManyMinutesAgo = task.getDelay() + 1;
       }
 
-      LOG.trace("[{}] Task in ERROR state completed {} minutes ago: {}.", task.getId(), howManyMinutesAgo, task);
+      LOG.trace("[{}, {}] Task in ERROR state completed {} minutes ago: {}.", task.getId(), task.getRunId(),
+          howManyMinutesAgo,
+          task);
 
       // If DELAY time has passed, we reschedule...
       int recurrence = task.getRecurrence() + 1;
@@ -182,7 +189,8 @@ public class PropagationMaintainer extends AbstractRunner {
       if (task.isSourceUpdated()) {
 
         // schedule if possible and reset source updated flag
-        LOG.info("[{}] Task in {} state will be rescheduled, source data changed.", task.getId(), task.getStatus());
+        LOG.info("[{}, {}] Task in {} state will be rescheduled, source data changed.", task.getId(),
+            task.getRunId(), task.getStatus());
         schedulingPool.scheduleTask(task, -1);
 
       } else if (howManyMinutesAgo >= recurrence * task.getDelay() && recurrence <= task.getService().getRecurrence()) {
@@ -192,12 +200,16 @@ public class PropagationMaintainer extends AbstractRunner {
         task.setRecurrence(recurrence);
 
         // schedule if possible and reset source updated flag
-        LOG.info("[{}] Task in {} state will be rescheduled, attempt #{}.", task.getId(), task.getStatus(), recurrence);
+        LOG.info("[{}, {}] Task in {} state will be rescheduled, attempt #{}.", task.getId(), task.getRunId(),
+            task.getStatus(),
+            recurrence);
         schedulingPool.scheduleTask(task, -1);
 
       } else if (task.getEndTime().isBefore(tooManyHoursAgo)) {
 
-        LOG.info("[{}] Task in {} state will be rescheduled, hasn't run for {} hours.", task.getId(), task.getStatus(),
+        LOG.info("[{}, {}] Task in {} state will be rescheduled, hasn't run for {} hours.", task.getId(),
+            task.getRunId(),
+            task.getStatus(),
             oldRescheduleHours);
         // reset recurrence since we must have exceeded it
         task.setRecurrence(0);
