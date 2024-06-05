@@ -1,5 +1,31 @@
 Upgrade notes
 
+## [37.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v36.0.1...v37.0.0) (2024-06-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** all searcher methods now match the strings case-insensitive.
+Previously it would depend on the attribute's type.
+* db update
+
+### Features
+
+* check admin-meta login is same as einfra ([fa93bd0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fa93bd0fd0903fd9aee0e5d7e596ad2b07b0d2ad))
+* **cli:** changed metadata_url for idm instance in Python CLI ([4727a6c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4727a6c39ebf776b34318e9e68d867a29bb809fd))
+* **core:** add logging when provisioning user ids to services ([6616c77](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6616c77b3eb27850968e0355136d626746906114))
+* **core:** bucket quota attribute modules ([579fbf8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/579fbf87e04824b5a8ae7bbb03464d93e9588e96))
+* **core:** getMembers searcher method ([63b4720](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/63b4720753461a135c93abe0b76f6f8a7be51339))
+* **core:** support basic user search by core attributes ([12d6dad](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/12d6dad519a27729e295f64ee572a52b56d296a7))
+* task propagation run logging ([c23dcdb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c23dcdbb3ca3e5c6638e14e6c1502a2212244fd9))
+
+
+### Bug Fixes
+
+* **core:** add missing password strength check in lifescienceid-username ([9bbbd8d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9bbbd8df15557d13c1a1eced71c93bb13d77aebf))
+* **core:** use correct identity to resolve uco in mu password manager ([fd67204](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fd672049345a48fed4989447be61ddd3388c0e1f))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.8.0 ([8dd7a27](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8dd7a27b905a16754ee90c9ac506ee847c909cb6))
+
 ## [36.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v36.0.0...v36.0.1) (2024-05-31)
 
 
