@@ -8199,7 +8199,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Facility id");
     //set attribute rights (with dummy id of attribute - not known yet)
     List<Triple<String, AttributeAction, RoleObject>> policies = new ArrayList<>();
-
     policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Facility));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
@@ -8215,6 +8214,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Facility uuid");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Facility));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+    policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Facility.name
@@ -8242,7 +8247,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
-    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //Resource.uuid
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("uuid");
+    attr.setDisplayName("Resource uuid");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8256,7 +8275,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
-    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8269,7 +8288,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Resource));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
-    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8294,6 +8313,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setType(Integer.class.getName());
     attr.setFriendlyName("id");
     attr.setDisplayName("User id");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
+    policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //User.uuid
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("uuid");
+    attr.setDisplayName("User uuid");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
@@ -8417,6 +8452,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Group id");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //Group.uuid
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("uuid");
+    attr.setDisplayName("Group uuid");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Group));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
@@ -8430,24 +8480,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Group full name");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Group));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
-    attributes.put(attr, createInitialPolicyCollections(policies));
-
-    //Group.trigger
-    //this is a group attribute which contains ids of the groups to which deleted members
-    // are added from the group with the attribute
-    attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    attr.setType(ArrayList.class.getName());
-    attr.setFriendlyName("groupTrigger");
-    attr.setDisplayName("Group Trigger");
-    //set attribute rights (with dummy id of attribute - not known yet)
-    policies = new ArrayList<>();
-    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
-    policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
-    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Group.description
@@ -8458,6 +8494,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Group description");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Group));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
@@ -8471,6 +8508,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Id of group's parent group.");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Vo.id
@@ -8481,6 +8522,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Vo id");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Vo.uuid
@@ -8491,6 +8535,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Vo uuid");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Vo.name
@@ -8501,6 +8548,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Vo full name");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8522,6 +8571,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr.setDisplayName("Vo short name");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
+    policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8850,6 +8901,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:group:attribute-def:def:groupTrigger
+    //this is a group attribute which contains ids of the groups to which deleted members
+    // are added from the group with the attribute
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    attr.setType(ArrayList.class.getName());
+    attr.setFriendlyName("groupTrigger");
+    attr.setDisplayName("Group Trigger");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:member:group:attribute-def:def:groupMembershipExpiration
