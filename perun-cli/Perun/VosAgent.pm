@@ -92,4 +92,21 @@ sub removeSponsorRole
 	return Perun::Common::callManagerMethod('removeSponsorRole', 'null', @_);
 }
 
+sub addMemberVo
+{
+	return Perun::Common::callManagerMethod('addMemberVo', 'null', @_);
+}
+sub removeMemberVo
+{
+	return Perun::Common::callManagerMethod('removeMemberVo', 'null', @_);
+}
+sub getMemberVos
+{
+	return Perun::Common::callManagerMethod('getMemberVos', '[]Vo', @_);
+}
+sub getParentVos
+{
+	return Perun::Common::callManagerMethod('getParentVos', '[]Vo', @_);
+}
+
 1;
