@@ -45,11 +45,18 @@ public class PerunAppsConfig {
   }
 
   /**
+   * Returns default branding. If none found, returns null.
+   * @return default branding or null
+   */
+  public static Brand getDefaultBrand() {
+    return instance.getBrands().stream().filter(brand -> brand.getName().equals("default")).findFirst().orElse(null);
+  }
+
+  /**
    * Iterates brands and searches for such that contains vo's shortname. If none found, returns default branding.
    */
   public static Brand getBrandContainingVo(String voShortname) {
-    Brand defaultBrand =
-        instance.getBrands().stream().filter(brand -> brand.getName().equals("default")).findFirst().orElse(null);
+    Brand defaultBrand = getDefaultBrand();
     return instance.getBrands().stream().filter(brand -> brand.getVoShortnames().contains(voShortname)).findFirst()
         .orElse(defaultBrand);
   }
