@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction printTable);
+
+sub help {
+	return qq{
+	Print all member VOs which are under the specified parent in VO hierarchy.
+	---------------------------------------
+	Available options:
+	--parentVoId          | -p parent vo id
+	--parentVoShortName   | -P parent vo short name
+	--orderByName         | -n order by short name
+	--orderById           | -i order by id
+	--batch               | -b batch
+	--help                | -h prints this help
+
+};
+}
+
+my $sortingFunction;
+our $batch;
+my ($parentVoId, $parentVoShortName);
+GetOptions ("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"parentVoId|p=i"        => \$parentVoId, "parentVoShortName|P=s" => \$parentVoShortName,
+	"batch|b"     => \$batch, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByName|n"  => sub {$sortingFunction = getSortingFunction("getShortName", 1); } ) || die help;
+
+unless (defined($parentVoShortName) or defined($parentVoId)) {die "ERROR: parentVoId or parentVoShortName is required\n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getShortName", 1); }
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+if (!defined($parentVoId)) {
+	my $vo = $vosAgent->getVoByShortName( shortName => $parentVoShortName );
+	$parentVoId = $vo->getId;
+}
+my @vos = $vosAgent->getMemberVos( vo => $parentVoId );
+unless (@vos) {
+	printMessage "No member VOs found", $batch;
+	exit 0;
+}
+
+printTable($sortingFunction, @vos);
