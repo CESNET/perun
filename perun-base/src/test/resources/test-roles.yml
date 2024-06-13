@@ -259,5 +259,10 @@ perun_policies:
       - SERVICEACCOUNTCREATOR:
     include_policies: [ ]
 
+  test_groupadmin_vo_of_resource:
+    policy_roles:
+      - GROUPADMIN: Vo
+    include_policies: [ ]
+
 perun_roles_management: { }
 ...

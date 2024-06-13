@@ -2090,8 +2090,6 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
   }
 
-  // private methods ==============================================================
-
   @Test
   public void unauthorizedResourceAdminAndFacilityAdmin3() throws Exception {
     System.out.println(CLASS_NAME + "unauthorizedResourceAdminAndFacilityAdmin3");
@@ -2242,6 +2240,28 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     AuthzResolver.refreshAuthz(session);
     assertTrue(
         AuthzResolver.authorizedInternal(session, "test_service_account_creator_role", Arrays.asList(createdVo)));
+  }
+
+  @Test
+  public void authorizedGroupAdminInVoOfResource() throws Exception {
+    System.out.println(CLASS_NAME + "authorizedGroupAdminInVoOfResource");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+    Facility createdFacility = setUpFacility();
+    Resource createdResource = setUpResource(createdVo, createdFacility);
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    final Group createdGroup = setUpGroup(createdVo, createdMember);
+
+    PerunSession userSession = getHisSession(createdMember);
+    assertFalse(
+            AuthzResolver.authorizedInternal(userSession, "test_groupadmin_vo_of_resource",Arrays.asList(createdResource))
+    );
+
+    AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+    AuthzResolver.refreshAuthz(userSession);
+    assertTrue(
+            AuthzResolver.authorizedInternal(userSession, "test_groupadmin_vo_of_resource", Arrays.asList(createdResource))
+    );
   }
 
 }
