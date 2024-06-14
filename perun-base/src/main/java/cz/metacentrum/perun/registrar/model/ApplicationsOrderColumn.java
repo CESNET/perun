@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.registrar.model;
 
+import cz.metacentrum.perun.core.api.OrderColumn;
+import cz.metacentrum.perun.core.api.PageQuery;
 import java.util.function.Function;
 
 /**
@@ -10,7 +12,7 @@ import java.util.function.Function;
  *
  * @author David Flor <493294@mail.muni.cz>
  */
-public enum ApplicationsOrderColumn {
+public enum ApplicationsOrderColumn implements OrderColumn  {
   ID("", "", query -> "id " + query.getOrder().getSqlValue()),
   DATE_CREATED("", "", query -> "app_created_at " + query.getOrder().getSqlValue()),
   TYPE("", "", query -> "apptype " + query.getOrder().getSqlValue()),
@@ -38,8 +40,8 @@ public enum ApplicationsOrderColumn {
     return this.joinSql;
   }
 
-  public String getSqlOrderBy(ApplicationsPageQuery query) {
-    return this.orderBySqlFunction.apply(query);
+  public String getSqlOrderBy(PageQuery query) {
+    return this.orderBySqlFunction.apply((ApplicationsPageQuery) query);
   }
 
   public String getSqlSelect() {
