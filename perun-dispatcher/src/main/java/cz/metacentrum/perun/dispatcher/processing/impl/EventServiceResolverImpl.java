@@ -165,7 +165,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
             // try to find MEMBER in event
             if (member != null) {
               try {
-                resourcesResolvedFromEvent = perun.getResourcesManager().getAllowedResources(perunSession, member);
+                resourcesResolvedFromEvent = perun.getResourcesManager().getAssignedResources(perunSession, member);
               } catch (MemberNotExistsException ex) {
                 LOG.warn("Non-existing member found while resolving event. id={}", member.getId());
               }
