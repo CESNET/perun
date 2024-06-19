@@ -1,4 +1,4 @@
--- database version 3.2.20 (don't forget to update insert statement at the end of file)
+-- database version 3.2.21 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -664,6 +664,42 @@ create table application_reserved_logins (
 	modified_by_uid integer,
 	constraint app_logins_pk primary key(login, namespace),
   constraint applogin_userid_fk foreign key(user_id) references users(id)
+);
+
+create type invitations_status as enum (
+    'PENDING',
+    'ACCEPTED',
+    'EXPIRED',
+    'REVOKED',
+    'UNSENT'
+);
+
+-- INVITATIONS - invitations sent out via email to users
+create table invitations (
+    id integer not null,
+    token uuid not null default gen_random_uuid(),
+    vo_id integer,
+    group_id integer,
+    application_id integer,
+    sender_id integer not null,
+    receiver_name varchar not null,
+    receiver_email varchar not null,
+    redirect_url varchar,
+    language varchar not null,
+    expiration timestamp,
+    status invitations_status not null,
+    created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+    constraint invitations_pk primary key(id),
+    constraint invitations_u unique(token),
+    constraint invitations_user_fk foreign key(sender_id) references users(id),
+    constraint invitations_app_fk foreign key(application_id) references application(id) on delete set null,
+    constraint invitations_vo_fk foreign key(vo_id) references vos(id) on delete cascade,
+    constraint invitations_group_fk foreign key(group_id) references groups(id) on delete cascade
 );
 
 -- BLOCKED_LOGINS - logins blocked for reservation or setting
@@ -1738,6 +1774,7 @@ create sequence "facilities_bans_id_seq";
 create sequence "vos_bans_id_seq";
 create sequence "consents_id_seq";
 create sequence "blocked_logins_id_seq";
+create sequence "invitations_id_seq";
 
 create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(parent_group_id,'0'));
 create index idx_namespace on attr_names(namespace);
@@ -1906,6 +1943,9 @@ create index idx_fk_alwd_grps_group ON allowed_groups_to_hierarchical_vo(group_i
 create index idx_fk_alwd_grps_vo ON allowed_groups_to_hierarchical_vo(vo_id);
 create index idx_fk_attr_critops ON attribute_critical_actions(attr_id);
 create index app_state_idx ON application (state);
+create index idx_fk_inv_grps on invitations(group_id);
+create index idx_fk_inv_vos on invitations(vo_id);
+create index idx_fk_inv_usr on invitations(sender_id);
 
 grant all on users to perun;
 grant all on vos to perun;
@@ -2019,9 +2059,10 @@ grant all on attribute_critical_actions to perun;
 grant all on app_notifications_sent to perun;
 grant all on blocked_logins to perun;
 grant all on auto_registration_groups to perun;
+grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.20');
+insert into configurations values ('DATABASE VERSION','3.2.21');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
