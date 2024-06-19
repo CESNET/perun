@@ -560,8 +560,14 @@ public class JsonErrorHandler {
         text += " User's Level of Assurance is not sufficient for VO.";
       } else if ("OUTSIDEEXTENSIONPERIOD".equalsIgnoreCase(error.getReason())) {
         text += " It can be done usually in short time before and after membership expiration.";
+      } else if ("LIFECYCLENOTALTERABLE".equalsIgnoreCase(error.getReason())) {
+        text += " Membership lifecycle is managed by VO hierarchy.";
       }
       return text;
+
+    } else if ("MemberLifecycleAlteringForbiddenException".equalsIgnoreCase(errorName)) {
+
+      return "Users membership is managed by VO hierarchy.<p>You can't remove member from the VO or change his/her status.";
 
     } else if ("ExtSourceAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 

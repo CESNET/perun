@@ -417,7 +417,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     try {
       checkMemberLifecycleIsAlterable(sess, member);
     } catch (MemberLifecycleAlteringForbiddenException e) {
-      throw new ExtendMembershipException(e);
+      throw new ExtendMembershipException(ExtendMembershipException.Reason.LIFECYCLENOTALTERABLE,
+              "Membership can't be extended since its managed by VO hierarchy relations.");
     }
     Pair<Boolean, Date> ret = this.manageMembershipExpiration(sess, member, false, true);
     return ret.getLeft();
