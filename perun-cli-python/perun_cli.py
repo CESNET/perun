@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import sys
+import subprocess
 import typer
+from enum import Enum
 from perun_openapi.configuration import Configuration
-from perun.oidc import DeviceCodeOAuth, PerunInstance
+from perun.oidc import DeviceCodeOAuth
 from perun.rpc import PerunRpc
 import perun.cli.getFacilitiesByAttribute
 import perun.cli.getFacilitiesByAttributeWA
@@ -38,6 +41,76 @@ app.command(name="testAttributeValues")(
 )
 
 
+class PerunInstance(str, Enum):
+    """enumeration of Perun instances"""
+
+    einfra = ("einfra",)
+    einfra_acc = ("einfra_acc",)
+    muni = ("muni",)
+    muni_test = ("muni_test",)
+    perun_dev = ("perun_dev",)
+    elixir = ("elixir",)
+
+
+class PerunInstances:
+    data: dict = {
+        PerunInstance.einfra: {
+            "issuer": "https://login.e-infra.cz/oidc/",
+            "metadata_url": "https://login.e-infra.cz/oidc/.well-known/openid-configuration",
+            "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
+            "scopes": "openid perun_api perun_admin offline_access",
+            "perun_api_url": "https://perun-api.e-infra.cz/oauth/rpc",
+            "perun_api_url_ba": "https://perun-api.e-infra.cz/ba/rpc",
+            "mfa": True,
+        },
+        PerunInstance.einfra_acc: {
+            "issuer": "https://login.e-infra.cz/oidc/",
+            "metadata_url": "https://login.e-infra.cz/oidc/.well-known/openid-configuration",
+            "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
+            "scopes": "openid perun_api perun_admin offline_access",
+            "perun_api_url": "https://perun-api.acc.aai.e-infra.cz/oauth/rpc/",
+            "perun_api_url_ba": "https://perun-api.acc.aai.e-infra.cz/ba/rpc/",
+            "mfa": True,
+        },
+        PerunInstance.perun_dev: {
+            "issuer": "https://login.e-infra.cz/oidc/",
+            "metadata_url": "https://login.e-infra.cz/oidc/.well-known/openid-configuration",
+            "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
+            "scopes": "openid perun_api perun_admin offline_access",
+            "perun_api_url": "https://api-dev.perun-aai.org/oauth/rpc",
+            "perun_api_url_ba": "https://api-dev.perun-aai.org/ba/rpc",
+            "mfa": False,
+        },
+        PerunInstance.muni: {
+            "issuer": "https://id.muni.cz/oidc/",
+            "metadata_url": "https://id.muni.cz/oidc/.well-known/openid-configuration",
+            "client_id": "5a730abc-6553-4fc4-af9a-21c75c46e0c2",
+            "scopes": "openid perun_api perun_admin offline_access",
+            "perun_api_url": "https://perun-api.aai.muni.cz/oauth/rpc",
+            "perun_api_url_ba": "https://perun-api.aai.muni.cz/ba/rpc",
+            "mfa": True,
+        },
+        PerunInstance.muni_test: {
+            "issuer": "https://id.muni.cz/oidc/",
+            "metadata_url": "https://id.muni.cz/oidc/.well-known/openid-configuration",
+            "client_id": "5a730abc-6553-4fc4-af9a-21c75c46e0c2",
+            "scopes": "openid perun_api perun_admin offline_access",
+            "perun_api_url": "https://perun-api-test.aai.muni.cz/oauth/rpc",
+            "perun_api_url_ba": "https://perun-api-test.aai.muni.cz/ba/rpc",
+            "mfa": True,
+        },
+        PerunInstance.elixir: {
+            "issuer": "https://login.elixir-czech.org/oidc/",
+            "metadata_url": "https://login.elixir-czech.org/oidc/.well-known/openid-configuration",
+            "client_id": "da97db9f-b511-4c72-b71f-daab24b86884",
+            "scopes": "openid perun_api perun_admin offline_access",
+            "perun_api_url": "https://elixir-api.aai.lifescience-ri.eu/oauth/rpc",
+            "perun_api_url_ba": "https://elixir-api.aai.lifescience-ri.eu/ba/rpc",
+            "mfa": True,
+        },
+    }
+
+
 @app.callback()
 def main(
     debug: bool = typer.Option(False, "--debug", "-d", help="enable debug output"),
@@ -45,33 +118,24 @@ def main(
         PerunInstance.einfra.value,
         "--instance",
         "-i",
-        help="Perun instance for OIDC auth",
+        help="Perun instance",
         envvar="PERUN_INSTANCE",
     ),
-    encryption_password: str = typer.Option(
-        "s3cr3t",
-        "--encrypt",
-        "-e",
-        help="password for encrypting stored OIDC tokens",
-        envvar="PERUN_ENCRYPT",
+    oidc_agent_auth: bool = typer.Option(
+        True, "--oidc-agent-auth", "-a", help="use oidc-agent for authentication"
     ),
-    mfa: bool = typer.Option(
-        False, "--mfa", "-m", help="request Multi-Factor Authentication"
+    basic_auth: bool = typer.Option(
+        False, "--http-basic-auth", "-b", help="use HTTP basic authentication"
     ),
-    mfa_valid: int = typer.Option(
-        8 * 60, "--mfa-valid", "-v", help="number of minutes MFA is considered valid"
-    ),
-    basic_auth: bool = typer.Option(False, "--ba", "-b", help="use HTTP basic auth"),
-    perun_url: str = typer.Option(
-        "https://cloud1.perun-aai.org/ba/rpc",
-        "--url",
-        "-U",
-        help="Perun RPC API URL for basic auth",
-        envvar="PERUN_URL",
+    device_code_auth: bool = typer.Option(
+        False,
+        "--device-code-auth",
+        "-c",
+        help="use OIDC Device Code flow for authentication",
     ),
     perun_user: str = typer.Option(
         "perun",
-        "--username",
+        "--user",
         "-u",
         help="username for HTTP basic auth",
         envvar="PERUN_USER",
@@ -83,23 +147,82 @@ def main(
         help="password for HTTP basic auth",
         envvar="PERUN_PASSWORD",
     ),
+    encryption_password: str = typer.Option(
+        "s3cr3t",
+        "--encrypt",
+        "-e",
+        help="password for encrypting stored OIDC tokens for device code authentication",
+        envvar="PERUN_ENCRYPT",
+    ),
+    use_mfa: bool = typer.Option(
+        False,
+        "--mfa",
+        "-m",
+        help="request Multi-Factor Authentication during device code authentication",
+    ),
+    mfa_valid: int = typer.Option(
+        8 * 60,
+        "--mfa-valid",
+        "-v",
+        help="number of minutes MFA is considered valid during device code authentication",
+    ),
 ) -> None:
     """
     Perun CLI in Python
     """
+    config_data: dict = PerunInstances.data.get(perun_instance)
     if basic_auth:
         perun.cli.rpc = PerunRpc(
-            Configuration(username=perun_user, password=perun_password, host=perun_url)
+            Configuration(
+                username=perun_user,
+                password=perun_password,
+                host=config_data["perun_api_url_ba"],
+            )
         )
-    else:
+    elif device_code_auth:
         dca = DeviceCodeOAuth(
-            perun_instance, encryption_password, mfa, mfa_valid, debug
+            perun_instance.name,
+            config_data["client_id"],
+            config_data["scopes"],
+            config_data["metadata_url"],
+            encryption_password,
+            use_mfa,
+            config_data["mfa"],
+            mfa_valid,
+            debug,
         )
         perun.cli.rpc = PerunRpc(
             Configuration(
-                access_token=dca.get_access_token(), host=dca.get_perun_api_url()
+                access_token=dca.get_access_token(), host=config_data["perun_api_url"]
             )
         )
+    elif oidc_agent_auth:
+        import liboidcagent
+
+        try:
+            access_token = liboidcagent.get_access_token(perun_instance.name)
+        except liboidcagent.OidcAgentError as e:
+            print("ERROR oidc-agent: {}".format(e))
+            subprocess.run(
+                [
+                    "oidc-gen",
+                    "--manual",
+                    "--client-id=" + config_data["client_id"],
+                    "--client-secret=",
+                    "--issuer=" + config_data["issuer"],
+                    "--scope=openid perun_api perun_admin offline_access",
+                    "--flow=device",
+                    "--redirect-uri=",
+                    perun_instance.name,
+                ]
+            )
+            access_token = liboidcagent.get_access_token(perun_instance.name)
+        perun.cli.rpc = PerunRpc(
+            Configuration(access_token=access_token, host=config_data["perun_api_url"])
+        )
+    else:
+        print("ERROR: no authentication selected", file=sys.stderr)
+        raise typer.Exit(code=1)
     perun.cli.rpc.config.debug = debug
 
 

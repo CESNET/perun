@@ -1,8 +1,6 @@
-from enum import Enum
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
-
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -16,20 +14,6 @@ import os
 import sys
 import subprocess
 
-# TODO revoke valid token when dropping
-
-
-class PerunInstance(str, Enum):
-    """enumeration of Perun instances supporting OIDC Device Code grant"""
-
-    einfra = ("e-infra.cz",)
-    einfra_acc = ("acc.aai.e-infra.cz",)
-    cesnet = ("cesnet",)
-    idm = ("idm",)
-    idm_test = ("idm-test",)
-    perun_dev = ("perun-dev",)
-    elixir = "elixir"
-
 
 class DeviceCodeOAuth:
     """
@@ -38,87 +22,33 @@ class DeviceCodeOAuth:
 
     def __init__(
         self,
-        perun_instance: PerunInstance,
+        perun_instance_name: str,
+        client_id: str,
+        scopes: str,
+        metadata_url: str,
         encryption_password: str,
-        mfa: bool,
+        use_mfa: bool,
+        mfa_supported: bool,
         mfa_valid_minutes,
         debug: bool,
     ):
         """
-
-        :param perun_instance: identifier of Perun instance (used for getting configuration)
         :param encryption_password: password for encrypting file with tokens
-        :param mfa: flag for requiring Multi-Factor Authentication
+        :param use_mfa: flag for requiring Multi-Factor Authentication
         :param debug: flag for debugging output
         """
-        self.perun_instance = perun_instance
+        self.perun_instance_name = perun_instance_name
+        self.client_id = client_id
+        self.scopes = scopes
+        self.metadata_url = metadata_url
         self.password_bytes = bytes(encryption_password, "utf-8")
-        self.mfa = mfa
+        self.use_mfa = use_mfa
+        self.mfa_supported = mfa_supported
         self.mfa_valid_seconds = mfa_valid_minutes * 60
         self.debug = debug
-        self.config_data_all = {
-            PerunInstance.einfra: {
-                "metadata_url": "https://login.e-infra.cz/oidc/.well-known/openid-configuration",
-                "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
-                "scopes": "openid perun_api perun_admin offline_access",
-                "perun_api_url": "https://perun-api.e-infra.cz/oauth/rpc",
-                "mfa": True,
-            },
-            PerunInstance.einfra_acc: {
-                "metadata_url": "https://login.e-infra.cz/oidc/.well-known/openid-configuration",
-                "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
-                "scopes": "openid perun_api perun_admin offline_access",
-                "perun_api_url": "https://perun-api.acc.aai.e-infra.cz/oauth/rpc/",
-                "mfa": True,
-            },
-            PerunInstance.cesnet: {
-                "metadata_url": "https://login.cesnet.cz/oidc/.well-known/openid-configuration",
-                "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
-                "scopes": "openid perun_api perun_admin offline_access",
-                "perun_api_url": "https://perun.cesnet.cz/oauth/rpc",
-                "mfa": False,
-            },
-            PerunInstance.perun_dev: {
-                "metadata_url": "https://login.cesnet.cz/oidc/.well-known/openid-configuration",
-                "client_id": "363b656e-d139-4290-99cd-ee64eeb830d5",
-                "scopes": "openid perun_api perun_admin offline_access",
-                "perun_api_url": "https://perun-dev.cesnet.cz/oauth/rpc",
-                "mfa": False,
-            },
-            PerunInstance.idm_test: {
-                "metadata_url": "https://id.muni.cz/oidc/.well-known/openid-configuration",
-                "client_id": "5a730abc-6553-4fc4-af9a-21c75c46e0c2",
-                "scopes": "openid perun_api perun_admin offline_access profile",
-                "perun_api_url": "https://perun-api-test.aai.muni.cz/oauth/rpc",
-                "mfa": True,
-            },
-            PerunInstance.idm: {
-                "metadata_url": "https://id.muni.cz/oidc/.well-known/openid-configuration",
-                "client_id": "5a730abc-6553-4fc4-af9a-21c75c46e0c2",
-                "scopes": "openid perun_api perun_admin offline_access profile",
-                "perun_api_url": "https://idm.ics.muni.cz/oauth/rpc",
-                "mfa": True,
-            },
-            PerunInstance.elixir: {
-                "metadata_url": "https://login.elixir-czech.org/oidc/.well-known/openid-configuration",
-                "client_id": "da97db9f-b511-4c72-b71f-daab24b86884",
-                "scopes": "openid perun_api perun_admin offline_access profile",
-                "perun_api_url": "https://elixir-api.aai.lifescience-ri.eu/oauth/rpc",
-                "mfa": True,
-            },
-            # PerunInstance.idm_satosa: {
-            #     'metadata_url': 'https://proxy.aai.muni.cz/OIDC/.well-known/openid-configuration',
-            #     'client_id': '5a730abc-6553-4fc4-af9a-21c75c46e0c2',
-            #     'scopes': 'openid perun_api perun_admin offline_access profile',
-            #     'perun_api_url': 'https://perun-api.aai.muni.cz/oauth/rpc',
-            #     'mfa': False,
-            # }
-        }
-        self.config_data = self.config_data_all.get(perun_instance)
-        self.CLIENT_ID = self.__get_oidc_option("client_id")
-        self.SCOPES = self.__get_oidc_option("scopes")
-        self.PERUN_API_URL = self.__get_oidc_option("perun_api_url")
-        metadata = requests.get(self.__get_oidc_option("metadata_url")).json()
+        self.CLIENT_ID = client_id
+        self.SCOPES = scopes
+        metadata = requests.get(metadata_url).json()
         self.ISSUER = metadata["issuer"]
         self.DEVICE_AUTHORIZATION_ENDPOINT_URL = metadata[
             "device_authorization_endpoint"
@@ -131,13 +61,10 @@ class DeviceCodeOAuth:
         self.salt_path = self.__cache_dir() / "salt"
         self.tokens = self.__read_tokens_from_file()
 
-    def get_perun_api_url(self) -> str:
-        return self.PERUN_API_URL
-
     def get_access_token(self) -> str:
         """Provides valid access token with MFA if requested."""
         access_token = self.__get_valid_access_token()
-        while self.mfa and not self.__verify_mfa():
+        while self.use_mfa and not self.__verify_mfa():
             access_token = self.__login()
         return access_token
 
@@ -152,23 +79,12 @@ class DeviceCodeOAuth:
                 return self.__refresh_tokens(refresh_token)
         return self.__login()
 
-    def __get_oidc_option(self, opt_name: str) -> str:
-        opt_env_name = "OIDC_" + opt_name.upper()
-        opt_value = os.getenv(opt_env_name)
-        if opt_value:
-            return opt_value
-        if self.config_data and opt_name in self.config_data:
-            return self.config_data.get(opt_name)
-        else:
-            print("ERROR: value for option", opt_name, " is not known", file=sys.stderr)
-            raise typer.Exit(code=1)
-
     def __cache_dir(self) -> Path:
         """
         Creates directory ~/.cache/perun/<instance> if it does not exist yet
         :return:
         """
-        token_cache_dir = Path.home() / ".cache" / "perun" / self.perun_instance.name
+        token_cache_dir = Path.home() / ".cache" / "perun" / self.perun_instance_name
         if not token_cache_dir.exists():
             if self.debug:
                 print("creating directory ", token_cache_dir)
@@ -268,7 +184,7 @@ class DeviceCodeOAuth:
                         " auth_time:",
                         datetime.fromtimestamp(decoded_token["auth_time"]).astimezone(),
                     )
-            if self.mfa and token_type == "id":
+            if self.use_mfa and token_type == "id":
                 acr = decoded_token.get("acr")
                 if acr is None or acr != "https://refeds.org/profile/mfa":
                     print(
@@ -350,8 +266,8 @@ class DeviceCodeOAuth:
         if self.debug:
             print("doing AuthRequest")
         auth_request_params = {"client_id": self.CLIENT_ID, "scope": self.SCOPES}
-        if self.mfa:
-            if self.config_data["mfa"]:
+        if self.use_mfa:
+            if self.mfa_supported:
                 auth_request_params["acr_values"] = "https://refeds.org/profile/mfa"
                 auth_request_params["prompt"] = "login"
             else:
