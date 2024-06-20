@@ -197,8 +197,7 @@ sub authenticationRequest
 		Content => {
 			"client_id"  => $config->{"client_id"},
 			"acr_values" => $acr_values,
-			"scope"      => $config->{"scopes"},
-			"prompt"     => "login"
+			"scope"      => $config->{"scopes"}
 		}
 	);
 
