@@ -1,5 +1,45 @@
 Upgrade notes
 
+## [37.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.0.0...v37.1.0) (2024-06-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* **registrar:** Add Metacentrum VO as member VO of e-INFRA CZ
+* **registrar:** Add IT4I VO as member VO of e-INFRA CZ.
+* **core:** updated privilages on existing core attributes
+ need to be manually updated on each instance
+* **core:** delete user:def:sshPublicAdminKey attribute
+
+### Features
+
+* **cli:** added support for oidc-agent to Python CLI ([cd27222](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cd27222b8afa4ce353d8f0b27e2d7c1bad5b012e))
+* **cli:** added tools for vo hierarchy ([85e6c06](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/85e6c06339f8a052ce297d02cb31f799c26cafd8))
+* **core:** fsScratchDirs attribute modules ([6eb2c4e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6eb2c4e980cc6753dedb5505cb720ac583c412a5))
+* **core:** initialize Perun with UUID attributes ([f293973](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f293973a5b89d6e3ce31eec6db19e0d52fbda0fa))
+* **core:** virtual attribute allowedMailDomains ([d46ac0f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d46ac0f84a5a68b6d7fe357a89cb7b62bb9032e5))
+
+
+### Bug Fixes
+
+* **core:** advertize lifecycle is not alterable in ExtendMembershipException ([5a7bdd4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5a7bdd482e5a8dda22eff283aea3b7234134bc22))
+* **core:** correctly pass params in WrongReferenceAttributeValueException ([25c954e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/25c954eceffbe9ccbf4ef2c118b1ae57af10c4cf))
+* **core:** hierarchical member status not propagating upwards ([669523b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/669523b0a5ce0636796fe4d458718daa41428d59))
+* **core:** mails_namespace attributes now extend userVirtualAttributeCollectedFromUes ([5517970](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5517970030672f034b857db04cd9fcaac1dbd7d7))
+* **core:** skip logging removing perunadmin when no perunadmin ([29a6957](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/29a69576ba1ee9ef9dc194e1ea257f6a2342ec46))
+* **core:** use correct identity to resolve optional mu login ([79d7388](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/79d73888589929902c71c366d127a98a869387dc))
+* **deps:** update dependency google-api-services-admin-directory ([084ede0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/084ede002aaa5c5611a4494f10ac7f24a14160f3))
+* **deps:** update dependency google-api-services-admin-directory ([a4a9cbd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a4a9cbd3843333cf8dc51cae560ce2935366a59e))
+* **deps:** update dependency google-api-services-admin-directory ([ce080b7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ce080b7ff08812d8a4e05e4183196b4d411b9427))
+* **dispatcher:** trigger provisioning on disabling member event ([2d88c43](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2d88c43d537cc534fcbcf7ddc75719e76bbcbbf8))
+* **registrar:** do not add new members of IT4I to e-INFRA CZ ([347e41d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/347e41dfeffb37cddfea4761c5e2f30bd4c75985))
+* **registrar:** do not add new members of Metacentrum to e-INFRA CZ ([51ba470](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/51ba4705c1fa5ac2a172ec57cb6d4d8d841d189f))
+
+
+### Refactoring
+
+* **core:** remove unused sshPublicAdminKey attribute module ([b5a6fa2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b5a6fa2730f20f4c4b8ddf2744f480b264ee89ff))
+
 ## [37.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v36.0.1...v37.0.0) (2024-06-05)
 
 
