@@ -417,7 +417,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     try {
       checkMemberLifecycleIsAlterable(sess, member);
     } catch (MemberLifecycleAlteringForbiddenException e) {
-      throw new ExtendMembershipException(e);
+      throw new ExtendMembershipException(ExtendMembershipException.Reason.LIFECYCLENOTALTERABLE,
+              "Membership can't be extended since its managed by VO hierarchy relations.");
     }
     Pair<Boolean, Date> ret = this.manageMembershipExpiration(sess, member, false, true);
     return ret.getLeft();
@@ -3578,13 +3579,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       for (Vo vo : parentVos) {
         try {
           Member existingMember = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
-          Attribute attribute =
+          Attribute memberOrganizationsAttribute =
               perunBl.getAttributesManagerBl().getAttribute(sess, existingMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
-          ArrayList<String> currentValue = attribute.valueAsList();
+          ArrayList<String> currentValue = memberOrganizationsAttribute.valueAsList();
           if (currentValue == null || currentValue.isEmpty()) {
             continue;
           }
           currentValue.remove(memberVo.getShortName());
+          memberOrganizationsAttribute.setValue(currentValue);
+          perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, memberOrganizationsAttribute);
           // if user no longer in any memberVos, follow parentVo lifecycle
           if (currentValue.isEmpty() || (currentValue.equals(new ArrayList<>(List.of(vo.getShortName()))))) {
             try {
@@ -3594,8 +3597,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
                        " after being removed from last member vo " + memberVo + " for reason: " + e.getReason());
             }
           }
-          attribute.setValue(currentValue);
-          perunBl.getAttributesManagerBl().setAttribute(sess, existingMember, attribute);
         } catch (WrongAttributeValueException | WrongAttributeAssignmentException | AttributeNotExistsException |
                  WrongReferenceAttributeValueException e) {
           throw new InternalErrorException(e);
@@ -4131,9 +4132,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     getMembersManagerImpl().setStatus(sess, member, Status.VALID);
     member.setStatus(Status.VALID);
     getPerunBl().getAuditer().log(sess, new MemberValidated(member));
-    if (oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
+    if (oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED) || oldStatus.equals(Status.EXPIRED)) {
       try {
-        getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
+        // expired member will have the attributes already filled and set
+        if (!oldStatus.equals(Status.EXPIRED)) {
+          getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
+        }
         addMemberToParentVos(sess, member);
         addMemberToParentVosGroups(sess, member);
       } catch (Exception ex) {

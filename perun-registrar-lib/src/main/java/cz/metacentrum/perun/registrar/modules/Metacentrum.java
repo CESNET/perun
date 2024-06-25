@@ -47,8 +47,7 @@ import org.slf4j.LoggerFactory;
  * the membership. Warn VO manager about it before application approval.
  * <p>
  * On approval of initial application add all members to "storage" group. On approval of any application sort them in
- * statistic groups. On approval of initial application add all new members into einfra VO. On approval of any
- * application add all members into e-infra.cz VO.
+ * statistic groups. On approval of initial application add all new members into einfra VO.
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
@@ -135,21 +134,6 @@ public class Metacentrum extends DefaultRegistrarModule {
         LOG.error("Metacentrum member can't be added to EINFRA VO.", e);
       }
 
-    }
-
-    // Handle e-INFRA CZ (for both initial and extension)
-    try {
-      Vo einfraVo = perun.getVosManagerBl().getVoByShortName(session, "e-infra.cz");
-      Member einfraMember = perun.getMembersManagerBl().createMember(session, einfraVo, user);
-      LOG.debug("{} member added to \"e-INFRA CZ\": {}", vo.getName(), einfraMember);
-      perun.getMembersManagerBl().validateMemberAsync(session, einfraMember);
-    } catch (VoNotExistsException e) {
-      LOG.warn("e-INFRA CZ VO doesn't exists, {} member can't be added into it.", vo.getName());
-    } catch (AlreadyMemberException ignore) {
-      // user is already in e-INFRA CZ
-    } catch (ExtendMembershipException e) {
-      // can't be member of e-INFRA CZ, shouldn't happen
-      LOG.error("{} member can't be added to \"e-INFRA CZ\"", vo.getName(), e);
     }
 
     // Support statistic groups

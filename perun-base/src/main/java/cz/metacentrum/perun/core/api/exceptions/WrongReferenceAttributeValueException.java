@@ -167,9 +167,9 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
           (attributeHolderPrimary == null ? "null" : attributeHolderPrimary) + ", attributeSecondary holder: " +
           (attributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
           ", referenceAttributePrimary holder: " +
-          (refAttributeHolderPrimary == null ? "null" : attributeHolderSecondary) +
+          (refAttributeHolderPrimary == null ? "null" : refAttributeHolderPrimary) +
           ", referenceAttributeSecondary holder: " +
-          (refAttributeHolderSecondary == null ? "null" : attributeHolderSecondary) + ", " + message);
+          (refAttributeHolderSecondary == null ? "null" : refAttributeHolderSecondary) + ", " + message);
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }
@@ -197,9 +197,9 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
           (attributeHolderPrimary == null ? "null" : attributeHolderPrimary) + ", attributeSecondary holder: " +
           (attributeHolderSecondary == null ? "null" : attributeHolderSecondary) +
           ", referenceAttributePrimary holder: " +
-          (refAttributeHolderPrimary == null ? "null" : attributeHolderSecondary) +
+          (refAttributeHolderPrimary == null ? "null" : refAttributeHolderPrimary) +
           ", referenceAttributeSecondary holder: " +
-          (refAttributeHolderSecondary == null ? "null" : attributeHolderSecondary) + ", " + message, cause);
+          (refAttributeHolderSecondary == null ? "null" : refAttributeHolderSecondary) + ", " + message, cause);
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }

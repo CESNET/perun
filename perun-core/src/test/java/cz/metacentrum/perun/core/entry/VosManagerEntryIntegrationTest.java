@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -269,6 +270,56 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
         .getValue());
     assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberWithoutExpiration, membershipExpirationAttrName)
         .getValue());
+  }
+
+  @Test
+  public void changeMemberStatusInMemberVo() throws Exception {
+    System.out.println(CLASS_NAME + "changeMemberStatusInMemberVo");
+
+    Vo parentVo = perun.getVosManagerBl().createVo(sess, myVo);
+    Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
+    Member memberInParentVo = createMemberFromExtSource(parentVo);
+    Member memberInChildVo = perun.getMembersManagerBl()
+                                         .createMember(sess, memberVo, perun.getUsersManagerBl().getUserByMember(sess, memberInParentVo));
+    perun.getMembersManagerBl().validateMember(sess, memberInChildVo);
+
+    String membershipExpirationAttrName = perun.getAttributesManager().NS_MEMBER_ATTR_DEF + ":membershipExpiration";
+    String expirationValue = null;
+
+    AttributeDefinition attrDef =
+        perun.getAttributesManagerBl().getAttributeDefinition(sess, membershipExpirationAttrName);
+    perun.getAttributesManagerBl().setAttribute(sess, memberInParentVo, new Attribute(attrDef, expirationValue));
+
+    String voMembershipExpirationAttrName = perun.getAttributesManager().NS_VO_ATTR_DEF + ":membershipExpirationRules";
+    LinkedHashMap<String, String> expirationRules = new LinkedHashMap<>();
+    expirationRules.put("period", "+10d");
+
+    AttributeDefinition attrExpirationRulesDef =
+        perun.getAttributesManagerBl().getAttributeDefinition(sess, voMembershipExpirationAttrName);
+    perun.getAttributesManagerBl().setAttribute(sess, parentVo, new Attribute(attrExpirationRulesDef, expirationRules));
+
+    AttributeDefinition memberOrgsAttrDef =
+        perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+    perun.getAttributesManagerBl().setAttribute(sess, memberInParentVo,
+        new Attribute(memberOrgsAttrDef, new ArrayList<>(List.of(parentVo.getShortName()))));
+    perun.getAttributesManagerBl().setAttribute(sess, memberInChildVo,
+        new Attribute(memberOrgsAttrDef, new ArrayList<>(List.of(parentVo.getShortName()))));
+
+    AttributeDefinition memberOrgsHistoryAttrDef =
+        perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY);
+    perun.getAttributesManagerBl().setAttribute(sess, memberInParentVo,
+        new Attribute(memberOrgsHistoryAttrDef, new ArrayList<>(List.of(parentVo.getShortName()))));
+    perun.getAttributesManagerBl().setAttribute(sess, memberInChildVo,
+        new Attribute(memberOrgsHistoryAttrDef, new ArrayList<>(List.of(parentVo.getShortName()))));
+
+    vosManagerEntry.addMemberVo(sess, parentVo, memberVo);
+    assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
+
+    perun.getMembersManagerBl().setStatus(sess, memberInChildVo, Status.EXPIRED);
+    assertNotNull(perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
+
+    perun.getMembersManagerBl().setStatus(sess, memberInChildVo, Status.VALID);
+    assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
   }
 
   @Test

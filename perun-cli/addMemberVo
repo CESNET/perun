@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Add member VO (child) to another VO (parent). Creates VO hierarchy between them.
+	------------------------------------
+	Available options:
+	--parentVoId          | -p parent vo id
+	--parentVoShortName   | -P parent vo short name
+	--memberVoId          | -m member vo id
+	--memberVoShortName   | -M member vo short name
+	--batch               | -b batch
+	--help                | -h prints this help
+
+};
+}
+
+my ($parentVoId, $parentVoShortName, $memberVoId, $memberVoShortName, $batch);
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"parentVoId|p=i"        => \$parentVoId, "parentVoShortName|P=s" => \$parentVoShortName,
+	"memberVoId|m=i" => \$memberVoId, "memberVoShortName|M=s" => \$memberVoShortName) || die help();
+
+# Check options
+unless (defined($parentVoShortName) or defined($parentVoId)) {die "ERROR: parentVoId or parentVoShortName is required\n";}
+unless (defined($memberVoShortName) or defined($memberVoId)) {die "ERROR: memberVoId or memberVoShortName is required\n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+
+if (!defined($parentVoId)) {
+	my $vo = $vosAgent->getVoByShortName( shortName => $parentVoShortName );
+	$parentVoId = $vo->getId;
+}
+
+if (!defined($memberVoId)) {
+	my $vo = $vosAgent->getVoByShortName( shortName => $memberVoShortName );
+	$memberVoId = $vo->getId;
+}
+
+$vosAgent->addMemberVo( vo => $parentVoId, memberVo => $memberVoId );
+
+printMessage("VO Id:$memberVoId successfully added as child of Vo Id:$parentVoId", $batch);
