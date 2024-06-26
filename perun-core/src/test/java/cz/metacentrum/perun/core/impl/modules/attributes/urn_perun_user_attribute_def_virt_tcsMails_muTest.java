@@ -23,7 +23,10 @@ import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -107,10 +110,12 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
   public void getAttributeValueWithAllowedMailDomainsNoMatch() throws WrongAttributeAssignmentException, AttributeNotExistsException {
       Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
       allowedMailDomainsAttr.setValue(new ArrayList<>(List.of("/[@|\\.]example\\.com/i")));
+      Map<String, Attribute> map = new HashMap<>();
+      map.put("tcsMails:mu", allowedMailDomainsAttr);
       when(
-          sess.getPerunBl().getAttributesManagerBl().getAttribute(
-              sess, user, allowedMailDomainsAttr.getName())
-      ).thenReturn(allowedMailDomainsAttr);
+          sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(
+              sess, allowedMailDomainsAttr.getName(), Collections.singletonList("tcsMails:mu"))
+      ).thenReturn(map);
       Attribute attr = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef);
       ArrayList<String> attributeValue = attr.valueAsList();
 
@@ -122,10 +127,12 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
   public void getAttributeValueWithAllowedMailDomainsEmpty() throws WrongAttributeAssignmentException, AttributeNotExistsException {
       Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
       allowedMailDomainsAttr.setValue(new ArrayList<>());
+      Map<String, Attribute> map = new HashMap<>();
+      map.put("tcsMails:mu", allowedMailDomainsAttr);
       when(
-          sess.getPerunBl().getAttributesManagerBl().getAttribute(
-              sess, user, allowedMailDomainsAttr.getName())
-      ).thenReturn(allowedMailDomainsAttr);
+          sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(
+              sess, allowedMailDomainsAttr.getName(), Collections.singletonList("tcsMails:mu"))
+      ).thenReturn(map);
       Attribute attr = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef);
       ArrayList<String> attributeValue = attr.valueAsList();
 
@@ -142,10 +149,12 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
   public void getAttributeValueWithAllowedMailDomainsFiltered() throws WrongAttributeAssignmentException, AttributeNotExistsException {
     Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
     allowedMailDomainsAttr.setValue(new ArrayList<>(List.of("/[@|\\.]example\\.com/i")));
+    Map<String, Attribute> map = new HashMap<>();
+    map.put("tcsMails:mu", allowedMailDomainsAttr);
     when(
-        sess.getPerunBl().getAttributesManagerBl().getAttribute(
-            sess, user, allowedMailDomainsAttr.getName())
-    ).thenReturn(allowedMailDomainsAttr);
+        sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(
+            sess, allowedMailDomainsAttr.getName(), Collections.singletonList("tcsMails:mu"))
+    ).thenReturn(map);
     preferredMailAttr.setValue("mail@example.com");
     Attribute attr = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef);
     ArrayList<String> attributeValue = attr.valueAsList();
