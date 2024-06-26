@@ -10,14 +10,15 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -124,22 +125,34 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
       }
     }
 
+    // Load 'allowed mail domains' and filter tcsMails value
+    Attribute attr = null;
     try {
-      // Load 'allowed mail domains' and filter tcsMailsValue
-      Attribute attr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_E_D_allowedMailDomains);
-      if (attr == null || attr.getValue() == null) {
-        // If 'allowedMailDomains' is not set, we return whole set
-        attribute.setValue(new ArrayList<>(tcsMailsValue));
-        return attribute;
-      }
-      List<Pattern> regexes = attr.valueAsList().stream().map(
+      // key should be "tcsMails:mu"
+      String key = attributeDefinition.getFriendlyName();
+      Map<String, Attribute> attrs = sess.getPerunBl().getAttributesManagerBl()
+              .getEntitylessAttributesWithKeys(sess, A_E_D_allowedMailDomains, Collections.singletonList(key));
+      attr = attrs.get(key);
+    } catch (AttributeNotExistsException ex) {
+      // attribute for filter doesn't exist, silently skip and return whole set
+      attribute.setValue(new ArrayList<>(tcsMailsValue));
+      return attribute;
+    } catch (WrongAttributeAssignmentException ex) {
+      // shouldn't happen
+      throw new ConsistencyErrorException(ex);
+    }
+
+    if (attr == null || attr.getValue() == null) {
+      // If 'allowedMailDomains' is not set, return whole set
+      attribute.setValue(new ArrayList<>(tcsMailsValue));
+      return attribute;
+    }
+
+    List<Pattern> regexes = attr.valueAsList().stream().map(
           // Remove trailing and leading slashes/flags
           s -> s.replaceAll(REGEX_MAIL_DOMAIN, "")
-      ).map(Pattern::compile).toList();
-      attribute.setValue(getFilteredTscMails(regexes, tcsMailsValue));
-    } catch (PerunException e) {
-      throw new InternalErrorException("Error while filtering tcsMails:mu", e);
-    }
+    ).map(Pattern::compile).toList();
+    attribute.setValue(getFilteredTscMails(regexes, tcsMailsValue));
 
     return attribute;
   }
