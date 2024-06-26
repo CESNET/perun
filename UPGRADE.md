@@ -1,5 +1,17 @@
 Upgrade notes
 
+## [37.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.1.0...v37.2.0) (2024-06-26)
+
+
+### Features
+
+* **core:** virtual attribute groudDetailUrl ([4ae2dd7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4ae2dd76140a262f4868a9b0c4b366f92413a5d4))
+
+
+### Bug Fixes
+
+* **core:** properly handle filtering of tcsMails:mu attribute ([745d495](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/745d495dab3df9ddc562bd94a3f72ebb0a9bfe0f))
+
 ## [37.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.0.0...v37.1.0) (2024-06-25)
 
 
