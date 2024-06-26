@@ -9,8 +9,11 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles invitations logic.
@@ -79,4 +82,58 @@ public interface InvitationsManager {
    */
   Invitation createInvitation(PerunSession sess, Invitation invitation)
       throws PrivilegeException, GroupNotExistsException, VoNotExistsException;
+
+  // TODO determine whether to add this to all layers + RPC/openapi
+  String createInvitationUrl(PerunSession sess, String authentication, String token)
+      throws PrivilegeException, InvitationNotExistsException;
+
+  /**
+   * Creates invitation based on the passed parameters, generates the UUID token, creates invitation link to the group
+   * application form with the token as parameter and sends it to the receiver's email. Optionally a redirect url can be
+   * passed, which the user will be redirected to after filling out the form.
+   * Should an error occur in the process, the created invitation is set to the UNSENT state.
+   *
+   * @param sess session
+   * @param vo vo of the group
+   * @param group group to be invited to
+   * @param receiverName receiver's name
+   * @param receiverEmail receiver's email
+   * @param language language of the invitation
+   * @param expiration expiration of the invitation link
+   * @param redirectUrl optional redirect url to redirect to upon filling out the form
+   * @return created Invitation object
+   * @throws PrivilegeException insufficient rights
+   * @throws GroupNotExistsException group does not exist
+   * @throws VoNotExistsException vo does not exist
+   * @throws RegistrarException when email address format is incorrect
+   */
+  Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+                           String language, LocalDate expiration, String redirectUrl) throws PrivilegeException,
+                                                                                             GroupNotExistsException,
+                                                                                             VoNotExistsException,
+                                                                                             RegistrarException;
+
+  /**
+   * Creates invitations based on the CSV parameters, for each generates the UUID token, creates invitation link
+   * to the group application form with the token as parameter and sends it to the receiver's email.
+   * Optionally a redirect url can be passed, which the user will be redirected to after filling out the form.
+   * Should an error occur in the process, the created invitation is set to the UNSENT state.
+   * <p>
+   * Expected format: `receiverEmail;receiverName\n`
+   * @param sess session
+   * @param vo vo of the group
+   * @param group group to be invited to
+   * @param data CSV data
+   * @param language language of the invitations
+   * @param expiration expiration of the invitation link
+   * @param redirectUrl optional redirect url to redirect to upon filling out the form
+   * @return Map containing the results. The key is name and email of receiver, value is either 'OK' or 'ERROR' with the
+   *  error message
+   * @throws GroupNotExistsException group does not exist
+   * @throws VoNotExistsException vo does not exist
+   * @throws PrivilegeException insufficient rights
+   */
+  Map<String, String> inviteToGroupFromCsv(PerunSession sess, Vo vo, Group group, List<String> data, String language,
+                                           LocalDate expiration, String redirectUrl) throws GroupNotExistsException,
+                                                                      VoNotExistsException, PrivilegeException;
 }

@@ -19,8 +19,10 @@ import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
+import cz.metacentrum.perun.registrar.model.Invitation;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public interface MailManager {
 
@@ -47,6 +49,18 @@ public interface MailManager {
    * @return the full invitation URL for Vo or Group
    */
   String buildInviteURL(Vo vo, Group group);
+
+  /**
+   * Creates an invitation link for the default registrar instance with the passed authentication method and adds the
+   * invitation token to the parameters.
+   *
+   * @param authentication authentication method to use in the resulting URL
+   * @param group group
+   * @param vo vo
+   * @param token invitation token
+   * @return the full invitation URL for Vo or Group
+   */
+  String buildInviteURLForInvitation(Vo vo, Group group, String authentication, UUID token);
 
   /**
    * Copy all mail definitions from one group into another group.
@@ -193,6 +207,18 @@ public interface MailManager {
    * @throws PerunException
    */
   void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException;
+
+  /**
+   * Sends pre-approved invitation with link to Vo / Group application form.
+   * <p>
+   * Recipient, language, etc are filled based on the passed invitation object.
+   * @param vo vo of the group where user is invited to
+   * @param group group the user is invited to
+   * @param invitation invitation object
+   * @param url url of the form with prefilled token parameter
+   * @throws RegistrarException
+   */
+  void sendInvitationPreApproved(Vo vo, Group group, Invitation invitation, String url) throws RegistrarException;
 
   /**
    * Send invitations with link to VO / Group application form from provided csv data

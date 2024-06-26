@@ -8566,6 +8566,29 @@ perun_policies:
     include_policies:
       - default_policy
 
+  inviteToGroup_Vo_Group_String_String_String_LocalDate_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy
+
+  inviteToGroupFromCsv_Vo_Group_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy
+
+  createInvitationUrl_String_String:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
+
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 #  primary_object serves to determine with which object is the role primarily connected. Other objects are just complementary.
 #  assign_to_objects is a map of objects which can be assigned with the role. Key is a object name and value is mapping to the database.
