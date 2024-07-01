@@ -113,7 +113,7 @@ public class LifescienceidusernamePasswordManagerModule extends GenericPasswordM
       LOG.warn("Password for {}:{} is too weak. Your password needs to be at least eight characters long." +
                    " It has to contain at least one uppercase and lowercase letter," +
                    " one digit, and one special character like #^@$!%*?&.()[]\\{}:.", actualLoginNamespace, userLogin);
-      throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + userLogin + "is too weak. " +
+      throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + userLogin + " is too weak. " +
                                               "Your password needs to be at least eight characters long." +
                                               " It has to contain at least one uppercase and lowercase letter," +
                                               " one digit, and one special character like #^@$!%*?&.()[]{}:.");
