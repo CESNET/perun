@@ -8,12 +8,15 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
+import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Handles invitations logic.
@@ -136,4 +139,17 @@ public interface InvitationsManager {
   Map<String, String> inviteToGroupFromCsv(PerunSession sess, Vo vo, Group group, List<String> data, String language,
                                            LocalDate expiration, String redirectUrl) throws GroupNotExistsException,
                                                                       VoNotExistsException, PrivilegeException;
+
+  /**
+   * Checks if an invitation given by the uuid exists and if it is in a pending state. Throws exception otherwise.
+   *
+   * @param sess session
+   * @param uuid random token assigned to the invitation
+   * @throws InvitationNotExistsException invitation does not exist
+   * @throws InvalidInvitationStatusException status is other than pending
+   * @throws PrivilegeException insufficient rights
+   */
+  void canInvitationBeAccepted(PerunSession sess, UUID uuid)
+      throws PrivilegeException, InvalidInvitationStatusException, InvitationNotExistsException,
+                 InvitationAlreadyAssignedToAnApplicationException;
 }

@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -131,6 +132,22 @@ public class UrlDeserializer extends Deserializer {
     }
 
     return req.getParameter(name);
+  }
+
+  @Override
+  public UUID readUUID(String name) {
+    if (!contains(name)) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
+
+    UUID uuid;
+    try {
+      uuid = UUID.fromString(req.getParameter(name));
+    } catch (IllegalArgumentException e) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, name + " as UUID");
+    }
+
+    return uuid;
   }
 
 }

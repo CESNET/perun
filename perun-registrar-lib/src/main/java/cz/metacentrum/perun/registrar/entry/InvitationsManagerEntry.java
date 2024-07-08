@@ -13,12 +13,15 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
 import cz.metacentrum.perun.registrar.bl.InvitationsManagerBl;
+import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
+import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Invitations entry logic
@@ -150,5 +153,18 @@ public class InvitationsManagerEntry implements InvitationsManager {
     }
 
     return invitationsManagerBl.createInvitationUrl(sess, authentication, token);
+  }
+
+  @Override
+  public void canInvitationBeAccepted(PerunSession sess, UUID uuid)
+      throws PrivilegeException, InvalidInvitationStatusException, InvitationNotExistsException,
+                 InvitationAlreadyAssignedToAnApplicationException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "canInvitationBeAccepted_UUID_policy")) {
+      throw new PrivilegeException("canInvitationBeAccepted");
+    }
+
+    invitationsManagerBl.canInvitationBeAccepted(sess, uuid);
   }
 }

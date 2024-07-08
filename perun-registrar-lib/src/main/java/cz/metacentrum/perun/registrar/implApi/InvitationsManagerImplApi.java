@@ -82,4 +82,14 @@ public interface InvitationsManagerImplApi {
    * @param status new status
    */
   void setInvitationStatus(PerunSession sess, Invitation invitation, InvitationStatus status);
+
+  /**
+   * Updates invitation application_id.
+   *
+   * @param sess session
+   * @param invitation invitation to update
+   * @param applicationId the id of the application corresponding to this invitation
+   */
+  void setInvitationApplicationId(PerunSession sess, Invitation invitation, Integer applicationId);
+
 }

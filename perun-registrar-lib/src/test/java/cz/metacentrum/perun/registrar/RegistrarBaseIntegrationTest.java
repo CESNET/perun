@@ -46,6 +46,7 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.impl.InvitationsManagerImpl;
 import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
@@ -59,7 +60,9 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.model.ApplicationOperationResult;
 import cz.metacentrum.perun.registrar.model.ApplicationsOrderColumn;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
+import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.RichApplication;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -102,6 +105,8 @@ public class RegistrarBaseIntegrationTest {
   RegistrarManager registrarManager;
   @Autowired
   MailManager mailManager;
+  @Autowired
+  InvitationsManagerImpl invitationsManager;
   PerunSession session;
   private Vo vo;
 
@@ -2405,6 +2410,33 @@ System.out.println("APPS ["+result.size()+"]:" + result);
         .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("newone")));
     assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream()
         .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("correctone")));
+  }
+
+  @Test
+  public void submitApplicationWithInvitationTokenTest() throws PerunException {
+    System.out.println("submitApplicationWithInvitationTokenTest");
+
+    User user = new User(1, "User1", "Test1", "", "", "");
+    user = perun.getUsersManagerBl().createUser(session, user);
+    User sender = new User(-1, "Sender", "Sending", "", "", "");
+    sender = perun.getUsersManagerBl().createUser(session, user);
+
+    Group group = new Group("Test", "Test group");
+    perun.getGroupsManagerBl().createGroup(session, vo, group);
+    registrarManager.createApplicationFormInGroup(session, group);
+
+    Application applicationToVo = prepareApplicationToVo(user);
+    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+
+    Invitation invitation = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    invitation = invitationsManager.createInvitation(session, invitation);
+
+    Application applicationToGroup = prepareApplicationToGroup(user, group);
+    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+
+    assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
   }
 
   /*
