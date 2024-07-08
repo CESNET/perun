@@ -4,7 +4,9 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import java.util.List;
@@ -36,6 +38,16 @@ public interface InvitationsManagerImplApi {
    * @throws InvitationNotExistsException when invitation with this id does not exist
    */
   Invitation getInvitationByToken(PerunSession sess, UUID token) throws InvitationNotExistsException;
+
+  /**
+   * Get invitation object assigned to the given application.
+   *
+   * @param sess session
+   * @param Application the application tied to the wanted invitation
+   * @return Invitation object with the specified uuid
+   * @throws InvitationNotExistsException when invitation with this id does not exist
+   */
+  Invitation getInvitationByApplication(PerunSession sess, Application application) throws InvitationNotExistsException;
 
   /**
    * Lists all invitations made by the specified user to the specified group.

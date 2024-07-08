@@ -113,6 +113,7 @@ import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataException;
 import cz.metacentrum.perun.registrar.exceptions.NoPrefilledUneditableRequiredDataException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
@@ -130,6 +131,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationOperationResult;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Identity;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import cz.metacentrum.perun.registrar.model.RichApplication;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -416,6 +418,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
   InvitationsManagerImpl invitationsManager;
   @Autowired
   InvitationsManagerBlImpl invitationsManagerBl;
+  private final Set<UUID> processingInvitation = new HashSet<>();
   private final Set<String> runningCreateApplication = new HashSet<>();
   private final Set<Integer> runningApproveApplication = new HashSet<>();
   private final Set<Integer> runningRejectApplication = new HashSet<>();
@@ -619,6 +622,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   @Override
   public Application approveApplication(PerunSession sess, int appId) throws PerunException {
+    return approveApplication(sess, appId, sess.getPerunPrincipal().getActor());
+  }
+
+  private Application approveApplication(PerunSession sess, int appId, String approver)
+      throws PerunException {
     synchronized (runningApproveApplication) {
       if (runningApproveApplication.contains(appId)) {
         throw new AlreadyProcessingException("Application " + appId + " approval is already processing.");
@@ -629,7 +637,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     Application app;
     try {
-      app = registrarManager.approveApplicationInternal(sess, appId);
+      app = registrarManager.approveApplicationInternal(sess, appId, approver);
     } catch (AlreadyMemberException ex) {
       // case when user joined identity after sending initial application and former user was already member of VO
       throw new RegistrarException("User is already member (with ID: " + ex.getMember().getId() +
@@ -708,7 +716,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
    * @throws PerunException
    */
   @Transactional(rollbackFor = Exception.class)
-  public Application approveApplicationInternal(PerunSession sess, int appId) throws PerunException {
+  public Application approveApplicationInternal(PerunSession sess, int appId, String approver)
+      throws PerunException {
 
     Application app = getApplicationById(appId);
     if (app == null) {
@@ -763,8 +772,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     // mark as APPROVED
-    int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?",
-        AppState.APPROVED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
+    int result = jdbc.update("update application set state=?, modified_by=?, modified_at=?" +
+                                 " where id=?", AppState.APPROVED.toString(), approver, new Date(), appId);
     if (result == 0) {
       throw new RegistrarException("Application with ID=" + appId + " not found.");
     } else if (result > 1) {
@@ -1055,24 +1064,34 @@ public class RegistrarManagerImpl implements RegistrarManager {
       return;
     }
 
+    // check whether the application is tied to a pre-approved invitation
+    Invitation invitation = null;
+    try {
+      invitation = invitationsManager.getInvitationByApplication(sess, application);
+    } catch (InvitationNotExistsException ignored) {
+      // this just means that no invitation is tied to this application
+    }
+
     // approve applications only for auto-approve forms
-    if (!forceAutoApprove(sess, application)) {
+    if (!forceAutoApprove(sess, application) && invitation == null) {
       if (!getFormForGroup(application.getGroup()).isAutomaticApproval() &&
-          AppType.INITIAL.equals(application.getType())) {
+              AppType.INITIAL.equals(application.getType())) {
         return;
       }
       if (!getFormForGroup(application.getGroup()).isAutomaticApprovalExtension() &&
-          AppType.EXTENSION.equals(application.getType())) {
+              AppType.EXTENSION.equals(application.getType())) {
         return;
       }
       if (!getFormForGroup(application.getGroup()).isAutomaticApprovalEmbedded() &&
-          AppType.EMBEDDED.equals(application.getType())) {
+              AppType.EMBEDDED.equals(application.getType())) {
         return;
       }
     }
 
+    String approver = invitation != null ? invitation.getCreatedBy() : sess.getPerunPrincipal().getActor();
+    Application processedApplication;
     try {
-      registrarManager.approveApplicationInternal(sess, application.getId());
+      processedApplication = registrarManager.approveApplicationInternal(sess, application.getId(), approver);
     } catch (RegistrarException ex) {
       // case when user have UNVERIFIED group application
       // will be approved when user verify his email
@@ -1913,6 +1932,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     try {
 
+      // TODO do we update a potentional linked invitation?
       if (AppState.NEW.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) {
 
         deleteApplicationReservedLogins(sess, app);
@@ -4407,6 +4427,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   private int processApplication(PerunSession session, Application application, List<ApplicationFormItemData> data)
       throws PerunException {
+    return processApplication(session, application, data, null);
+  }
+
+  private int processApplication(PerunSession session, Application application,
+                                 List<ApplicationFormItemData> data, Invitation invitation)
+      throws PerunException {
 
     // If user is known in Perun but unknown in GUI (user joined identity by consolidator)
     if (application.getUser() == null && session.getPerunPrincipal().getUser() != null) {
@@ -4438,7 +4464,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
       application.setFedInfo(additionalAttrs);
     }
 
-    Application app;
+    Application processedApplication;
     try {
 
       // throws exception if user already submitted application or is already a member or can't submit it by VO/Group
@@ -4449,7 +4475,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
       // using this to init inner transaction
       // all minor exceptions inside are catched, if not, it's ok to throw them out
-      app = this.registrarManager.createApplicationInternal(session, application, data);
+      processedApplication = this.registrarManager.createApplicationInternal(session, application, data);
     } catch (Exception ex) {
       // clear flag and re-throw exception, since application was processed with exception
       synchronized (runningCreateApplication) {
@@ -4458,21 +4484,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw ex;
     }
 
+    if (invitation != null) {
+      invitationsManager.setInvitationApplicationId(session, invitation, processedApplication.getId());
+      invitationsManager.setInvitationStatus(session, invitation, InvitationStatus.ACCEPTED);
+      tryToVerifyApplicationEmailsFromInvitation(session, processedApplication, invitation);
+
+      LOG.debug("Invitation {} was assigned to application {} and marked as ACCEPTED",
+          invitation.getId(), processedApplication.getId());
+    }
+
     // try to verify (or even auto-approve) application
     try {
-      boolean verified = tryToVerifyApplication(session, app);
+      boolean verified = tryToVerifyApplication(session, processedApplication);
       if (verified) {
         // try to APPROVE if auto approve
-        tryToAutoApproveApplication(session, app);
+        tryToAutoApproveApplication(session, processedApplication);
       } else {
         // send request validation notification
-        getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
+        getMailManager().sendMessage(processedApplication, MailType.MAIL_VALIDATION, null, null);
       }
       // refresh current session, if submission was successful,
       // since user might have been created.
       AuthzResolverBlImpl.refreshSession(session);
     } catch (Exception ex) {
-      LOG.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
+      LOG.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}",
+          processedApplication, ex);
       // clear flag and re-throw exception, since application was processed with exception
       synchronized (runningCreateApplication) {
         runningCreateApplication.remove(key);
@@ -4485,8 +4521,33 @@ public class RegistrarManagerImpl implements RegistrarManager {
       runningCreateApplication.remove(key);
     }
 
-    return app.getId();
+    return processedApplication.getId();
 
+  }
+
+  /**
+   * Checks if any mails from the given application match the email from the linked pre-approved invitation.
+   * If so the email from the application will be marked as verified.
+   *
+   * @param session perun session
+   * @param application the application from which to try and verify the mails
+   * @param invitation the invitation linked with the application
+   */
+  private void tryToVerifyApplicationEmailsFromInvitation(PerunSession session, Application application,
+                                                          Invitation invitation) {
+    try {
+      int rowsAffected = jdbc.update("update application_data AS d SET assurance_level=1" +
+                                         " from application a, application_form_items i" +
+                                         " where d.app_id=a.id and d.item_id=i.id and a.id=? and i.type=?" +
+                                         " and d.value=?",
+          application.getId(), VALIDATED_EMAIL.toString(), invitation.getReceiverEmail());
+      if (rowsAffected > 0) {
+        LOG.debug("Email {} from application {} was verified based on invitation {}.", invitation.getReceiverEmail(),
+            application.getId(), invitation.getId());
+      }
+    } catch (Exception ignored) {
+      // we do not care about this failling, user can verify the mail manually
+    }
   }
 
   /**
@@ -4962,12 +5023,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
   @Override
   public Application submitApplication(PerunSession session, Application application,
                                        List<ApplicationFormItemData> data, UUID invitationToken) throws PerunException {
-    int appId = processApplication(session, application, data);
+    // lock this invitation
+    synchronized (processingInvitation) {
+      if (processingInvitation.contains(invitationToken)) {
+        throw new AlreadyProcessingException("Invitation identified by token " +
+                                                 invitationToken + " is already being processed.");
+      } else {
+        processingInvitation.add(invitationToken);
+      }
+    }
 
-    invitationsManagerBl.canInvitationBeAccepted(session, invitationToken, application.getGroup());
-    Invitation invitation = invitationsManager.getInvitationByToken(session, invitationToken);
-    invitationsManager.setInvitationApplicationId(session, invitation, appId);
-    LOG.debug("Invitation {} was assigned to application {}", invitation.getId(), appId);
+    int appId;
+    try {
+      invitationsManagerBl.canInvitationBeAccepted(session, invitationToken, application.getGroup());
+      Invitation invitation = invitationsManager.getInvitationByToken(session, invitationToken);
+
+      appId = processApplication(session, application, data, invitation);
+    } catch (Exception ex) {
+      synchronized (processingInvitation) {
+        processingInvitation.remove(invitationToken);
+      }
+      throw ex;
+    }
+    synchronized (processingInvitation) {
+      processingInvitation.remove(invitationToken);
+    }
 
     return getApplicationById(appId);
   }
@@ -5073,7 +5153,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     AppType type = app.getType();
 
-    if (!forceAutoApprove(sess, app)) {
+    // check whether the application is tied to a pre-approved invitation
+    Invitation invitation = null;
+    try {
+      invitation = invitationsManager.getInvitationByApplication(sess, app);
+    } catch (InvitationNotExistsException ignored) {
+      // this just means that no invitation is tied to this application
+    }
+
+    if (!forceAutoApprove(sess, app) && invitation == null) {
       if (AppType.INITIAL.equals(type) && !form.isAutomaticApproval()) {
         return;
       }
@@ -5143,8 +5231,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 */
 
         // other types of application doesn't create new user - continue
-        approveApplication(registrarSession, app.getId());
-
+        String approver = invitation != null ? invitation.getCreatedBy() : sess.getPerunPrincipal().getActor();
+        approveApplication(registrarSession, app.getId(), approver);
       }
     } catch (Exception ex) {
       setAutoApproveErrorToApplication(app, ex.getMessage());
@@ -5208,7 +5296,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   /**
    * Set application to VERIFIED state if all it's mails (VALIDATED_EMAIL) have assuranceLevel >= 1 and have non-empty
-   * value (there is anything to validate). Returns TRUE if succeeded, FALSE if some mail still waits for verification.
+   * value (there is anything to validate) or if application includes only one email
+   * associated with an accepted invitation. Returns TRUE if succeeded, FALSE if some mail still waits for verification.
    *
    * @param sess user who try to verify application
    * @param app  application to verify
