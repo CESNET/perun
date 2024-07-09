@@ -89,6 +89,7 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.Invitation;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -3938,6 +3939,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Resource resource = new Resource();
       resource.setId(object.getId());
       return Arrays.asList(vo, facility, resource);
+    }), Invitation((object) -> {
+      Vo vo = new Vo();
+      vo.setId(((cz.metacentrum.perun.registrar.model.Invitation) object).getVoId());
+      Group group = new Group();
+      group.setId(((cz.metacentrum.perun.registrar.model.Invitation) object).getGroupId());
+      return Arrays.asList(vo, group);
     }), Default((object) -> {
       return Collections.singletonList(object);
     });

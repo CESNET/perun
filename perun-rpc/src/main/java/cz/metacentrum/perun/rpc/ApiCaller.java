@@ -59,7 +59,10 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
+import cz.metacentrum.perun.registrar.api.InvitationsManager;
+import cz.metacentrum.perun.registrar.entry.InvitationsManagerEntry;
 import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.scim.SCIM;
 import java.util.ArrayList;
@@ -101,6 +104,7 @@ public class ApiCaller {
   private RegistrarManager registrarManager;
   private PerunNotifNotificationManager notificationManager;
   private IntegrationManagerApi integrationManagerApi;
+  private InvitationsManager invitationsManager;
   private SCIM scimManager = null;
 
   public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal, PerunClient client) {
@@ -117,6 +121,10 @@ public class ApiCaller {
     // Initialize RegistrarManager
     this.registrarManager = WebApplicationContextUtils.getWebApplicationContext(context)
         .getBean("registrarManager", RegistrarManager.class);
+
+    // Initialize InvitationsManager
+    this.invitationsManager = WebApplicationContextUtils.getWebApplicationContext(context)
+        .getBean("invitationsManager", InvitationsManager.class);
 
     // Initialize Notifications
     this.notificationManager = WebApplicationContextUtils.getWebApplicationContext(context)
@@ -387,6 +395,10 @@ public class ApiCaller {
     return groupsManager;
   }
 
+  public Invitation getInvitationById(int id) throws PerunException {
+    return getInvitationsManager().getInvitationById(rpcSession, id);
+  }
+
   public Host getHostById(int id) throws PerunException {
     return getFacilitiesManager().getHostById(rpcSession, id);
   }
@@ -462,6 +474,10 @@ public class ApiCaller {
 
   public RegistrarManager getRegistrarManager() {
     return registrarManager;
+  }
+
+  public InvitationsManager getInvitationsManager() {
+    return invitationsManager;
   }
 
   public Resource getResourceById(int id) throws PerunException {
