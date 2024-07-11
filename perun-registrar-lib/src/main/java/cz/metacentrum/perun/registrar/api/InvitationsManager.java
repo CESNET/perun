@@ -86,6 +86,32 @@ public interface InvitationsManager {
   Invitation createInvitation(PerunSession sess, Invitation invitation)
       throws PrivilegeException, GroupNotExistsException, VoNotExistsException;
 
+  /**
+   * Changes status of invitation with specified id to revoked.
+   *
+   * @param sess session
+   * @param id id of the invitation
+   * @return Invitation object with updated status
+   * @throws InvitationNotExistsException when invitation with this id does not exist
+   * @throws PrivilegeException insufficient rights
+   * @throws InvalidInvitationStatusException transition is not allowed from the current invitation status
+   */
+  Invitation revokeInvitationById(PerunSession sess, int id)
+      throws InvitationNotExistsException, PrivilegeException, InvalidInvitationStatusException;
+
+  /**
+   * Changes status of invitation with specified uuid to revoked.
+   *
+   * @param sess session
+   * @param token uuid of the invitation
+   * @return Invitation object with updated status
+   * @throws InvitationNotExistsException when invitation with this uuid does not exist
+   * @throws PrivilegeException insufficient rights
+   * @throws InvalidInvitationStatusException transition is not allowed from the current invitation status
+   */
+  Invitation revokeInvitationByUuid(PerunSession sess, UUID token)
+      throws InvitationNotExistsException, PrivilegeException, InvalidInvitationStatusException;
+
   // TODO determine whether to add this to all layers + RPC/openapi
   String createInvitationUrl(PerunSession sess, String authentication, String token)
       throws PrivilegeException, InvitationNotExistsException;

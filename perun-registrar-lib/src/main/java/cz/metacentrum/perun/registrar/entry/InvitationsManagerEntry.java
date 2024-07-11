@@ -144,6 +144,34 @@ public class InvitationsManagerEntry implements InvitationsManager {
   }
 
   @Override
+  public Invitation revokeInvitationById(PerunSession sess, int id)
+      throws InvitationNotExistsException, PrivilegeException, InvalidInvitationStatusException {
+    Utils.checkPerunSession(sess);
+
+    Invitation invitation = invitationsManagerBl.getInvitationById(sess, id);
+
+    if (!AuthzResolver.authorizedInternal(sess, "revokeInvitationById_int_policy", invitation)) {
+      throw new PrivilegeException("revokeInvitationById");
+    }
+
+    return invitationsManagerBl.revokeInvitation(sess, invitation);
+  }
+
+  @Override
+  public Invitation revokeInvitationByUuid(PerunSession sess, UUID token)
+      throws InvitationNotExistsException, PrivilegeException, InvalidInvitationStatusException {
+    Utils.checkPerunSession(sess);
+
+    Invitation invitation = invitationsManagerBl.getInvitationByToken(sess, token);
+
+    if (!AuthzResolver.authorizedInternal(sess, "revokeInvitationByUuid_UUID_policy", invitation)) {
+      throw new PrivilegeException("revokeInvitationByUuid");
+    }
+
+    return invitationsManagerBl.revokeInvitation(sess, invitation);
+  }
+
+  @Override
   public String createInvitationUrl(PerunSession sess, String authentication, String token)
       throws PrivilegeException, InvitationNotExistsException {
     Utils.checkPerunSession(sess);

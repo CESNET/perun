@@ -186,8 +186,8 @@ public class InvitationsManagerIntegrationTest {
   }
 
   @Test
-  public void revokeInvitation() throws Exception {
-    System.out.println(CLASS_NAME + "revokeInvitation");
+  public void revokeInvitationById() throws Exception {
+    System.out.println(CLASS_NAME + "revokeInvitationById");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
     "receiver name", "receiver@email.com", Locale.ENGLISH,
@@ -195,10 +195,24 @@ public class InvitationsManagerIntegrationTest {
     invitation1 = invitationsManager.createInvitation(session, invitation1);
     assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
 
-    invitation1 = invitationsManagerBl.revokeInvitation(session, invitation1);
+    invitation1 = invitationsManager.revokeInvitationById(session, invitation1.getId());
     assertEquals(InvitationStatus.REVOKED, invitation1.getStatus());
   }
 
+  @Test
+  public void revokeInvitationByUuid() throws Exception {
+    System.out.println(CLASS_NAME + "revokeInvitationByUuid");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+    "receiver name", "receiver@email.com", Locale.ENGLISH,
+    LocalDate.now().plusDays(1));
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+    assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
+
+    invitation1 = invitationsManager.revokeInvitationByUuid(session, invitation1.getToken());
+    assertEquals(InvitationStatus.REVOKED, invitation1.getStatus());
+  }
+  
   @Test(expected = InvalidInvitationStatusException.class)
   public void revokeRevokedInvitation() throws Exception {
     System.out.println(CLASS_NAME + "revokeRevokedInvitation");
@@ -206,10 +220,11 @@ public class InvitationsManagerIntegrationTest {
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
     "receiver name", "receiver@email.com", Locale.ENGLISH,
     LocalDate.now().plusDays(1));
+    invitation1.setStatus(InvitationStatus.REVOKED);
+    
     invitation1 = invitationsManager.createInvitation(session, invitation1);
-    invitation1.setStatus(InvitationStatus.EXPIRED);
-
-    invitation1 = invitationsManagerBl.revokeInvitation(session, invitation1);
+    
+    invitation1 = invitationsManager.revokeInvitationById(session, invitation1.getId());
   }
 
   @Test

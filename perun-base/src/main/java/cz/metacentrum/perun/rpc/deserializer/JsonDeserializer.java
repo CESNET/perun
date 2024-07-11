@@ -238,7 +238,6 @@ public class JsonDeserializer extends Deserializer {
         }
       }
     }
-
     return node.intValue();
   }
 
