@@ -58,6 +58,17 @@ public class InvitationsManagerEntry implements InvitationsManager {
   }
 
   @Override
+  public Invitation getInvitationByToken(PerunSession sess, UUID token)
+      throws InvitationNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+    if (!AuthzResolver.authorizedInternal(sess, "getInvitationByToken_String_policy")) {
+      throw new PrivilegeException("getInvitationByToken");
+    }
+
+    return invitationsManagerBl.getInvitationByToken(sess, token);
+  }
+
+  @Override
   public List<Invitation> getInvitationsForSender(PerunSession sess, Group group, User user)
       throws GroupNotExistsException, PrivilegeException, UserNotExistsException {
     Utils.checkPerunSession(sess);
@@ -124,6 +135,17 @@ public class InvitationsManagerEntry implements InvitationsManager {
       throw new PrivilegeException("inviteToGroupFromCsv");
     }
     return invitationsManagerBl.inviteToGroupFromCsv(sess, vo, group, data, language, expiration, redirectUrl);
+  }
+
+  @Override
+  public Invitation extendInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate)
+      throws PrivilegeException, InvalidInvitationStatusException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "extendInvitationExpiration_Invitation_LocalDate_policy", invitation)) {
+      throw new PrivilegeException("extendInvitationExpiration");
+    }
+    return invitationsManagerBl.extendInvitationExpiration(sess, invitation, newExpirationDate);
   }
 
   @Override

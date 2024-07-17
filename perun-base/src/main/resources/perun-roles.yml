@@ -8582,6 +8582,14 @@ perun_policies:
     include_policies:
       - default_policy  
 
+  extendInvitationExpiration_Invitation_LocalDate_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy
+
   inviteToGroup_Vo_Group_String_String_String_LocalDate_String_policy:
     policy_roles:
       - VOADMIN: Vo
@@ -8604,6 +8612,11 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getInvitationByToken_String_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
 
   canInvitationBeAccepted_UUID_policy:
     policy_roles:

@@ -480,6 +480,45 @@ public class InvitationsManagerIntegrationTest {
 
     invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken(), wrongGroup);
   }
+  @Test
+  public void extendInvitationExpiration() throws Exception {
+    System.out.println(CLASS_NAME + "extendInvitationExpiration");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+
+    invitation1 = invitationsManagerBl.extendInvitationExpiration(session, invitation1, LocalDate.now().plusMonths(2));
+    assertEquals(LocalDate.now().plusMonths(2), invitation1.getExpiration());
+  }
+
+  @Test
+  public void extendInvitationExpirationNoExpirationDate() throws Exception {
+    System.out.println(CLASS_NAME + "extendInvitationExpirationNoExpirationDate");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusMonths(1));
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+
+    invitation1 = invitationsManagerBl.extendInvitationExpiration(session, invitation1, null);
+    assertEquals(LocalDate.now().plusMonths(2), invitation1.getExpiration());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void extendInvitationExpirationNewExpirationEarlier() throws Exception {
+    System.out.println(CLASS_NAME + "extendInvitationExpirationNewExpirationEarlier");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusMonths(1));
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+
+    invitation1 = invitationsManagerBl.extendInvitationExpiration(session, invitation1, LocalDate.now().plusDays(1));
+    assertEquals(LocalDate.now().plusMonths(1), invitation1.getExpiration());
+  }
+
 
   private Group setUpGroup(String name, String desc) throws Exception {
     GroupsManager groupsManager = perun.getGroupsManager();

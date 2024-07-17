@@ -173,4 +173,14 @@ public interface InvitationsManagerBl {
   Invitation canInvitationBeAccepted(PerunSession sess, UUID uuid, Group group)
       throws InvalidInvitationStatusException, InvitationNotExistsException,
                  InvitationAlreadyAssignedToAnApplicationException;
+
+  /**
+   * Extend the invitation date on the expiration to some later date.
+   *
+   * @param invitation invitation to be extended
+   * @param newExpirationDate of the invitation, +1 month if null
+   * @throws InvalidInvitationStatusException when invitation is not PENDING
+   */
+  Invitation extendInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate)
+      throws InvalidInvitationStatusException;
 }
