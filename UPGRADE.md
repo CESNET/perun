@@ -1,5 +1,19 @@
 Upgrade notes
 
+## [37.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.2.0...v37.3.0) (2024-07-18)
+
+
+### Features
+
+* **registrar:** add new entity Invitation and related manager logic ([70b2d91](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/70b2d91802d71cc4371263f0fd09bb6b6efc0b24))
+
+
+### Bug Fixes
+
+* **core:** password reset error error formatting in lifescienceid-username ([7fc30f3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7fc30f30c2d0f2e6415340386cc15f013a93b1f5))
+* **deps:** update dependency commons-cli:commons-cli to v1.8.0 ([ec8cd8e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ec8cd8e2b2405ad925a61cd7e4b726a1c4daeb71))
+* **deps:** update dependency org.apache.commons:commons-text to v1.12.0 ([6f8af63](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6f8af6311cfe22cc7526ed16b400c2ba68f8c993))
+
 ## [37.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.1.0...v37.2.0) (2024-06-26)
 
 
