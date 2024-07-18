@@ -1252,6 +1252,50 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="userTou;x-ns-"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:userTou:"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def:userTou"/>
+							<property name="name" value=""/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="userPrivacyPolicy;x-ns-"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:userPrivacyPolicy:"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def:userPrivacyPolicy"/>
+							<property name="name" value=""/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="userRegistered;x-ns-"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:userRegistered:"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def:userRegistered"/>
+							<property name="name" value=""/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="userActive;x-ns-"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:userActive:"/>
+							<property name="namespace" value="urn:perun:user:attribute-def:def:userActive"/>
+							<property name="name" value=""/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="earliestActiveLastAccess"/>
 					<property name="required" value="false"/>
 					<property name="singleValueExtractor">
