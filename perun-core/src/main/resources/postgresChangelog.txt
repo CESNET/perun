@@ -6,6 +6,16 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.21
+create type invitations_status as enum ('PENDING', 'ACCEPTED', 'EXPIRED', 'REVOKED', 'UNSENT');
+create table invitations (id integer not null, token uuid not null default gen_random_uuid(), vo_id integer, group_id integer, application_id integer, sender_id integer not null, receiver_name varchar not null, receiver_email varchar not null, redirect_url varchar, language varchar not null, expiration timestamp, status invitations_status not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint invitations_pk primary key(id), constraint invitations_u unique(token), constraint invitations_user_fk foreign key(sender_id) references users(id), constraint invitations_app_fk foreign key(application_id) references application(id) on delete set null, constraint invitations_vo_fk foreign key(vo_id) references vos(id) on delete cascade, constraint invitations_group_fk foreign key(group_id) references groups(id) on delete cascade);
+create sequence "invitations_id_seq";
+create index idx_fk_inv_grps on invitations(group_id);
+create index idx_fk_inv_vos on invitations(vo_id);
+create index idx_fk_inv_usr on invitations(sender_id);
+grant all on invitations to perun;
+UPDATE configurations SET value='3.2.21' WHERE property='DATABASE VERSION';
+
 3.2.20
 create sequence "tasks_run_id_seq";
 ALTER TABLE tasks_results ADD COLUMN task_run_id integer DEFAULT 0 NOT NULL;

@@ -50,6 +50,21 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="registrarManager" ref="registrarManager"/>
     </bean>
 
+    <bean id="invitationsManager" class="cz.metacentrum.perun.registrar.entry.InvitationsManagerEntry">
+        <property name="perun" ref="perun"/>
+        <property name="invitationsManagerBl" ref="invitationsManagerBl"/>
+    </bean>
+
+    <bean id="invitationsManagerBl" class="cz.metacentrum.perun.registrar.blImpl.InvitationsManagerBlImpl">
+        <constructor-arg ref="invitationsManagerImpl"/>
+        <constructor-arg ref="registrarManager"/>
+        <property name="perun" ref="perun"/>
+    </bean>
+
+    <bean id="invitationsManagerImpl" class="cz.metacentrum.perun.registrar.impl.InvitationsManagerImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
     <!-- Properties Bean -->
     <beans profile="production">
         <bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
