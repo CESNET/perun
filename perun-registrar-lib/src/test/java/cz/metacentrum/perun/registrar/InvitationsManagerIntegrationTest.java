@@ -1,30 +1,64 @@
 package cz.metacentrum.perun.registrar;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
 import cz.metacentrum.perun.registrar.bl.InvitationsManagerBl;
 import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSendException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Transactional;
 
-public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationTest {
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-registrar-lib.xml"})
+@Transactional(transactionManager = "perunTransactionManager")
+public class InvitationsManagerIntegrationTest {
+  @Autowired
+  PerunBl perun;
+  @Autowired
+  RegistrarManager registrarManager;
+  @Autowired
+  MailManager mailManager;
+  PerunSession session;
   private static final String CLASS_NAME = "InvitationsManagerIntegrationTest.";
   private Vo vo;
   private Group group;
   private User sender;
+  private PerunSession senderSess;
 
   @Autowired
   private InvitationsManager invitationsManager;
@@ -34,9 +68,12 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
 
   @Before
   public void setUp() throws Exception {
+    session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+          ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
     vo = perun.getVosManagerBl().createVo(session, new Vo(0, "Test Vo", "TestVo"));
     group = setUpGroup("TestGroup", "Test group");
     sender = setUpUser("Invitation", "Sender");
+    senderSess = setUpSenderSession(sender);
   }
 
   @Test
@@ -66,7 +103,7 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
     invitation2 = invitationsManager.createInvitation(session, invitation2);
 
     List<Invitation> result = invitationsManager.getInvitationsForGroup(session, group);
-    assertEquals(result.size(), 2);
+    assertEquals(2, result.size());
   }
 
   @Test
@@ -84,7 +121,7 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
     invitation2 = invitationsManager.createInvitation(session, invitation2);
 
     List<Invitation> result = invitationsManager.getInvitationsForVo(session, vo);
-    assertEquals(result.size(), 2);
+    assertEquals(2, result.size());
   }
 
   @Test
@@ -116,7 +153,7 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
     invitation4 = invitationsManager.createInvitation(session, invitation4);
 
     List<Invitation> result = invitationsManager.getInvitationsForSender(session, group, sender);
-    assertEquals(result.size(), 2);
+    assertEquals(2, result.size());
   }
 
   @Test
@@ -127,10 +164,10 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
     "receiver name", "receiver@email.com", Locale.ENGLISH,
     LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
-    assertEquals(invitation1.getStatus(), InvitationStatus.PENDING);
+    assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
 
     invitation1 = invitationsManagerBl.expireInvitation(session, invitation1);
-    assertEquals(invitation1.getStatus(), InvitationStatus.EXPIRED);
+    assertEquals(InvitationStatus.EXPIRED, invitation1.getStatus());
   }
 
   @Test(expected = InvalidInvitationStatusException.class)
@@ -154,10 +191,10 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
     "receiver name", "receiver@email.com", Locale.ENGLISH,
     LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
-    assertEquals(invitation1.getStatus(), InvitationStatus.PENDING);
+    assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
 
     invitation1 = invitationsManagerBl.revokeInvitation(session, invitation1);
-    assertEquals(invitation1.getStatus(), InvitationStatus.REVOKED);
+    assertEquals(InvitationStatus.REVOKED, invitation1.getStatus());
   }
 
   @Test(expected = InvalidInvitationStatusException.class)
@@ -181,10 +218,10 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
     "receiver name", "receiver@email.com", Locale.ENGLISH,
     LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
-    assertEquals(invitation1.getStatus(), InvitationStatus.PENDING);
+    assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
 
     invitation1 = invitationsManagerBl.markInvitationAccepted(session, invitation1);
-    assertEquals(invitation1.getStatus(), InvitationStatus.ACCEPTED);
+    assertEquals(InvitationStatus.ACCEPTED, invitation1.getStatus());
   }
 
   @Test(expected = InvalidInvitationStatusException.class)
@@ -199,6 +236,171 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
 
     invitation1 = invitationsManagerBl.markInvitationAccepted(session, invitation1);
   }
+
+  @Test
+  public void createInvitationUrl() throws Exception {
+    System.out.println(CLASS_NAME + "createInvitationUrl");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+    "receiver name", "receiver@email.com", Locale.ENGLISH,
+    LocalDate.now().plusDays(1));
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+
+    String url = invitationsManagerBl.createInvitationUrl(session, "krb", invitation1.
+                                                                                         getToken().toString());
+    System.out.println(url);
+  }
+
+  @Test
+  public void inviteToGroup() throws Exception {
+    System.out.println(CLASS_NAME + "inviteToGroup");
+
+    JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+    assert mailSender != null;
+    JavaMailSender spyMailSender = spy(mailSender);
+    try {
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+
+      Invitation invitation = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
+          "test@receiver.com", "en", null, "");
+
+
+      verify(spyMailSender, times(1)).send(any(MimeMessage.class));
+    } finally {
+        ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
+
+  }
+
+  @Test
+  public void inviteToGroupCorrectlySetFields() throws Exception {
+    System.out.println(CLASS_NAME + "inviteToGroupCorrectlySetFields");
+
+    JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+    assert mailSender != null;
+    JavaMailSender spyMailSender = spy(mailSender);
+    try {
+      doNothing().when(spyMailSender).send(any(MimeMessage.class));
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+
+      Invitation invitation = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
+          "test@receiver.com", "en", null, "");
+
+      assertEquals(InvitationStatus.PENDING, invitation.getStatus());
+      assertEquals(sender.getId(), invitation.getSenderId());
+      assertEquals(LocalDate.now().plusMonths(1), invitation.getExpiration());
+    } finally {
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
+
+  }
+
+  @Test(expected = RegistrarException.class)
+  public void inviteToGroupIncorrectEmail() throws Exception {
+    System.out.println(CLASS_NAME + "inviteToGroupIncorrectEmail");
+
+    JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+    assert mailSender != null;
+    JavaMailSender spyMailSender = spy(mailSender);
+    try {
+      doNothing().when(spyMailSender).send(any(MimeMessage.class));
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+
+      Invitation invitation = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
+          "test-receiver.com", "en", null, "");
+    } finally {
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
+
+  }
+
+  @Test
+  public void inviteToGroupSendingFailed() throws Exception {
+    System.out.println(CLASS_NAME + "inviteToGroupSendingFailed");
+
+    JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+    assert mailSender != null;
+    JavaMailSender spyMailSender = spy(mailSender);
+    try {
+      doThrow(new MailSendException("test")).when(spyMailSender).send(any(MimeMessage.class));
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+
+      Invitation invitation = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
+          "test@receiver.com", "en", null, "");
+
+      assertEquals(InvitationStatus.UNSENT, invitation.getStatus());
+    } finally {
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
+
+  }
+
+  @Test
+  public void inviteToGroupFromCsvSendCalled() throws Exception {
+    System.out.println(CLASS_NAME + "inviteToGroupFromCsvSendCalled");
+
+    JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+    assert mailSender != null;
+    JavaMailSender spyMailSender = spy(mailSender);
+    try {
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+
+      List<String> data = Arrays.asList("receiver1@email.com;Receiver Name1", "receiver2@email.com;Receiver Name2");
+      Map<String, String> result = invitationsManagerBl.inviteToGroupFromCsv(senderSess, vo, group, data, "en",
+          null, "");
+
+      verify(spyMailSender, times(2)).send(any(MimeMessage.class));
+    } finally {
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
+
+  }
+
+  @Test
+  public void inviteToGroupFromCsvResultOk() throws Exception {
+    System.out.println(CLASS_NAME + "inviteToGroupFromCsvResultOk");
+    JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+    assert mailSender != null;
+    JavaMailSender spyMailSender = spy(mailSender);
+
+    List<String> data = Arrays.asList("receiver1@email.com;Receiver Name1", "receiver2@email.com;Receiver Name2");
+    try {
+      doNothing().when(spyMailSender).send(any(MimeMessage.class));
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+      Map<String, String> result = invitationsManagerBl.inviteToGroupFromCsv(senderSess, vo, group, data, "en",
+          null, "");
+      Map<String, String> expected = new HashMap<>();
+      expected.put("receiver1@email.com - Receiver Name1", "OK");
+      expected.put("receiver2@email.com - Receiver Name2", "OK");
+      assertEquals(expected, result);
+    } finally {
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
+
+  }
+
+  @Test
+  public void inviteToGroupFromCsvResultError() throws Exception {
+    System.out.println(CLASS_NAME + "inviteToGroupFromCsvResultError");
+
+    JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+    assert mailSender != null;
+    JavaMailSender spyMailSender = spy(mailSender);
+    try {
+      doThrow(new MailSendException("test")).when(spyMailSender).send(any(MimeMessage.class));
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+
+      List<String> data = Arrays.asList("receiver1@email.com;Receiver Name1", "receiver2@email.com;Receiver Name2");
+      Map<String, String> result = invitationsManagerBl.inviteToGroupFromCsv(senderSess, vo, group, data, "en",
+          null, "");
+      List<Boolean> resultVals = result.values().stream().map(val -> (val.contains("ERROR:"))).toList();
+      assertEquals(Arrays.asList(true, true), resultVals);
+    } finally {
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
+
+  }
+
 
   private Group setUpGroup(String name, String desc) throws Exception {
     GroupsManager groupsManager = perun.getGroupsManager();
@@ -221,5 +423,11 @@ public class InvitationsManagerIntegrationTest extends RegistrarBaseIntegrationT
     user.setLastName(lastName);
     perun.getUsersManagerBl().createUser(session, user);
     return user;
+  }
+
+  private PerunSession setUpSenderSession(User sender) {
+    PerunPrincipal senderPrincipal = new PerunPrincipal("sender", "", "",
+        sender);
+    return new PerunSessionImpl(session.getPerun(), senderPrincipal, session.getPerunClient());
   }
 }

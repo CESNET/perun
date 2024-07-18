@@ -14,8 +14,11 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
 import cz.metacentrum.perun.registrar.bl.InvitationsManagerBl;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Invitations entry logic
@@ -89,13 +92,41 @@ public class InvitationsManagerEntry implements InvitationsManager {
   }
 
   @Override
+  public Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+                                  String language, LocalDate expiration, String redirectUrl)
+      throws PrivilegeException, GroupNotExistsException, VoNotExistsException, RegistrarException {
+    Utils.checkPerunSession(sess);
+
+    perun.getGroupsManagerBl().checkGroupExists(sess, group);
+    perun.getVosManagerBl().checkVoExists(sess, vo);
+    if (!AuthzResolver.authorizedInternal(sess,
+        "inviteToGroup_Vo_Group_String_String_String_LocalDate_String_policy", vo, group)) {
+      throw new PrivilegeException("inviteToGroup");
+    }
+
+    return invitationsManagerBl.inviteToGroup(sess, vo, group, receiverName, receiverEmail, language, expiration,
+        redirectUrl);
+  }
+
+  @Override
+  public Map<String, String> inviteToGroupFromCsv(PerunSession sess, Vo vo, Group group, List<String> data,
+                                                  String language, LocalDate expiration, String redirectUrl)
+      throws GroupNotExistsException, VoNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    perun.getGroupsManagerBl().checkGroupExists(sess, group);
+    perun.getVosManagerBl().checkVoExists(sess, vo);
+    if (!AuthzResolver.authorizedInternal(sess,
+        "inviteToGroupFromCsv_Vo_Group_List<String>_policy", vo, group)) {
+      throw new PrivilegeException("inviteToGroupFromCsv");
+    }
+    return invitationsManagerBl.inviteToGroupFromCsv(sess, vo, group, data, language, expiration, redirectUrl);
+  }
+
+  @Override
   public Invitation createInvitation(PerunSession sess, Invitation invitation)
       throws PrivilegeException, GroupNotExistsException, VoNotExistsException {
     Utils.checkPerunSession(sess);
-
-    if (!Utils.EMAIL_PATTERN.matcher(invitation.getReceiverEmail()).matches()) {
-      throw new IllegalArgumentException("Invalid email address: " + invitation.getReceiverEmail());
-    }
 
     perun.getGroupsManagerBl().checkGroupExists(sess, perun.getGroupsManagerBl().getGroupById(sess, invitation
                                                                                                         .getGroupId()));
@@ -107,5 +138,17 @@ public class InvitationsManagerEntry implements InvitationsManager {
     }
 
     return invitationsManagerBl.createInvitation(sess, invitation);
+  }
+
+  @Override
+  public String createInvitationUrl(PerunSession sess, String authentication, String token)
+      throws PrivilegeException, InvitationNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "createInvitationUrl_String_String")) {
+      throw new PrivilegeException("createInvitationUrl");
+    }
+
+    return invitationsManagerBl.createInvitationUrl(sess, authentication, token);
   }
 }

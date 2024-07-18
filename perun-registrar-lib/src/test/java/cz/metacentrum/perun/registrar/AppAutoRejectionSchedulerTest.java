@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest 
   private AppAutoRejectionScheduler scheduler;
   private AppAutoRejectionScheduler spyScheduler;
   private JdbcPerunTemplate jdbc;
+  Object originalMailManager;
 
   @Test
   public void checkApplicationsExpirationForGroup() throws Exception {
@@ -335,6 +337,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest 
   @Autowired
   public void setScheduler(AppAutoRejectionScheduler scheduler) {
     this.scheduler = scheduler;
+    this.originalMailManager = ReflectionTestUtils.getField(this.scheduler.getRegistrarManager(), "mailManager");
     ReflectionTestUtils.setField(this.scheduler.getRegistrarManager(), "mailManager", mockMailManager);
     this.spyScheduler = spy(scheduler);
   }
@@ -348,6 +351,11 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest 
 
 
     ReflectionTestUtils.setField(spyScheduler.getPerun(), "auditer", auditerMock);
+  }
+
+  @After
+  public void tearDown() {
+    ReflectionTestUtils.setField(this.scheduler.getRegistrarManager(), "mailManager", originalMailManager);
   }
 
   /**

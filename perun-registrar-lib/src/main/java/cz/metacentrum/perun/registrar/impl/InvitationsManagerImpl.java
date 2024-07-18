@@ -93,6 +93,18 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
   }
 
   @Override
+  public Invitation getInvitationByToken(PerunSession sess, UUID token) throws InvitationNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + INVITATION_SELECT_QUERY + " from invitations where invitations.token=?",
+          INVITATION_ROW_MAPPER, token);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new InvitationNotExistsException(ex);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
   public List<Invitation> getInvitationsForSender(PerunSession sess, Group group, User user) {
     try {
       return jdbc.query("select " + INVITATION_SELECT_QUERY + " from invitations where invitations.group_id=? and " +
@@ -137,12 +149,13 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
       int newId = Utils.getNewId(jdbc, "invitations_id_seq");
       // set app id as null for now, update later when invitation filled out and application created
       jdbc.update("insert into invitations(id, vo_id, group_id, application_id, sender_id, receiver_name, " +
-                      "receiver_email, language, expiration, status, created_by, modified_by, created_by_uid," +
-                      " modified_by_uid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::invitations_status, ?, " +
-                      "?, ?, ?)", newId, invitation.getVoId(), invitation.getGroupId(), null,
+                      "receiver_email, redirect_url, language, expiration, status, created_by, modified_by," +
+                      " created_by_uid, modified_by_uid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::invitations_status," +
+                      " ?, ?, ?, ?)", newId, invitation.getVoId(), invitation.getGroupId(), null,
                       invitation.getSenderId(), invitation.getReceiverName(), invitation.getReceiverEmail(),
-          invitation.getLanguage().toString(), Timestamp.valueOf(invitation.getExpiration().atStartOfDay()),
-          invitation.getStatus().toString(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
+          invitation.getRedirectUrl(), invitation.getLanguage().toString(),
+          Timestamp.valueOf(invitation.getExpiration().atStartOfDay()), invitation.getStatus().toString(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
           sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 
       // get invitation to retrieve created uuid

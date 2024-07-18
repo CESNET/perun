@@ -1210,6 +1210,32 @@ components:
         - APP_ERROR_VO_ADMIN
         - USER_INVITE
 
+    InvitationStatus:
+      type: string
+      enum:
+        - PENDING
+        - ACCEPTED
+        - EXPIRED
+        - REVOKED
+        - UNSENT
+
+    Invitation:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+      properties:
+        voId: { type: integer }
+        groupId: { type: integer }
+        applicationId: { type: integer, nullable: true }
+        senderId: { type: integer }
+        receiverName: { type: string }
+        receiverEmail: { type: string, format: email }
+        redirectUrl: { type: string, nullable: true }
+        token: { type: string, format: uuid, nullable: true }
+        language: { type: string }
+        expiration: { type: string }
+        status: {$ref: '#/components/schemas/InvitationStatus'}
+
     PerunPrincipal:
       type: object
       required:
@@ -2304,6 +2330,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Application"
+
+    InvitationResponse:
+      description: "returns Invitation"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Invitation'
 
     ListOfApplicationsResponse:
       description: "returns List<Application>"
@@ -3606,6 +3639,10 @@ tags:
     description: ConsentsManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ConsentsManager.html
+  - name: InvitationsManager
+    description: InvitationsManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-InvitationsManager.html
   - name: DatabaseManager
     description: DatabaseManager RPC API in Perun
     externalDocs:
@@ -19907,3 +19944,61 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # InvitationsManager                            #
+  #                                               #
+  #################################################
+  /urlinjsonout/invitationsManager/inviteToGroup:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: inviteToGroup
+      summary: Creates invitation to group and sends the link via email. Link leads to the application form of the group and consequently connects to a pre-approved application.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/groupId'
+        - { name: receiverName, description: "Name of the invited user", schema: { type: string }, in: query, required: true }
+        - { name: receiverEmail, description: "Email of the invited user", schema: { type: string, format: string }, in: query, required: true }
+        - { name: language, description: "Language of the invitation, should match available instance locales", schema: { type: string }, in: query, required: true }
+        - { name: expiration, description: "Expiration date of the invite in format yyyy-MM-dd}", schema: { type: string }, in: query, required: false }
+        - { name: redirectUrl, description: "URL to redirect to after application filled out.", schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/invitationsManager/inviteToGroupFromCsv:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: inviteToGroupFromCsv
+      summary: Creates invitations to group and sends the link via email from CSV. Link leads to the application form of the group and consequently connects to a pre-approved application.
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputInviteToGroupFromCsv
+              description: "input to inviteToGroupFromCsv"
+              type: object
+              required:
+                - vo
+                - group
+                - invitationData
+                - language
+                - expiration
+              properties:
+                vo: { type: integer, description: "vo id", nullable: false }
+                group: { type: integer, description: "group id", nullable: false }
+                invitationData: { type: array, items: { type: string }, description: "values separated with semicolons" }
+                language: { type: string, description: "language", nullable: false }
+                expiration: { type: string, description: "Date in format yyyy-MM-dd ", nullable: true }
+                redirectUrl: { type: string, description: "redirect url", nullable: true }

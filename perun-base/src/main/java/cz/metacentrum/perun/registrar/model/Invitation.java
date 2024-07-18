@@ -26,6 +26,17 @@ public class Invitation extends Auditable {
   private InvitationStatus status = InvitationStatus.PENDING;
 
 
+  public Invitation(int voId, int groupId, String receiverName, String receiverEmail, String redirectUrl,
+                    Locale language, LocalDate expiration) {
+    this.voId = voId;
+    this.groupId = groupId;
+    this.receiverName = receiverName;
+    this.receiverEmail = receiverEmail;
+    this.redirectUrl = redirectUrl;
+    this.language = language;
+    this.expiration = expiration;
+  }
+
   // TODO add constructors based on the required fields from API
   public Invitation(int id, int voId, int groupId, int senderId, String receiverName, String receiverEmail,
                     String redirectUrl, Locale language, LocalDate expiration) {
