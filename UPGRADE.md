@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [37.4.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.3.0...v37.4.0) (2024-07-18)
+
+
+### Features
+
+* **core:** add attributes to LDAP scheme and LDAPc mapping ([2586b16](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2586b16903c63ddcc9d03ada4edc55ea22e70cba))
+
 ## [37.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.2.0...v37.3.0) (2024-07-18)
 
 
