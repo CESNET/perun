@@ -1,24 +1,22 @@
 package cz.metacentrum.perun.registrar;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.SortingOrder;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
@@ -29,14 +27,9 @@ import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import javax.mail.internet.MimeMessage;
+import cz.metacentrum.perun.registrar.model.InvitationWithSender;
+import cz.metacentrum.perun.registrar.model.InvitationsOrderColumn;
+import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +40,24 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.mail.internet.MimeMessage;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-registrar-lib.xml"})
@@ -77,7 +88,7 @@ public class InvitationsManagerIntegrationTest {
           ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
     vo = perun.getVosManagerBl().createVo(session, new Vo(0, "Test Vo", "TestVo"));
     group = setUpGroup("TestGroup", "Test group");
-    sender = setUpUser("Invitation", "Sender");
+    sender = setUpUser("Invitation", "Sender", "preferredMail@mail.com");
     senderSess = setUpSenderSession(sender);
   }
 
@@ -150,7 +161,7 @@ public class InvitationsManagerIntegrationTest {
         LocalDate.now().plusDays(1));
     invitation3 = invitationsManager.createInvitation(session, invitation3);
 
-    User sender2 = setUpUser("Test", "Sender2");
+    User sender2 = setUpUser("Test", "Sender2", "preferredMail2@mail.com");
     // invitation by another sender - should not be in result
     Invitation invitation4 = new Invitation(0, vo.getId(), group.getId(), sender2.getId(),
         "receiver name", "receiver@email.com", Locale.ENGLISH,
@@ -215,7 +226,7 @@ public class InvitationsManagerIntegrationTest {
     invitation1 = invitationsManager.revokeInvitationByUuid(session, invitation1.getToken());
     assertEquals(InvitationStatus.REVOKED, invitation1.getStatus());
   }
-  
+
   @Test(expected = InvalidInvitationStatusException.class)
   public void revokeRevokedInvitation() throws Exception {
     System.out.println(CLASS_NAME + "revokeRevokedInvitation");
@@ -224,9 +235,9 @@ public class InvitationsManagerIntegrationTest {
     "receiver name", "receiver@email.com", Locale.ENGLISH,
     LocalDate.now().plusDays(1));
     invitation1.setStatus(InvitationStatus.REVOKED);
-    
+
     invitation1 = invitationsManager.createInvitation(session, invitation1);
-    
+
     invitation1 = invitationsManager.revokeInvitationById(session, invitation1.getId());
   }
 
@@ -520,6 +531,147 @@ public class InvitationsManagerIntegrationTest {
   }
 
 
+  @Test
+  public void getInvitationsPageBasic() throws Exception {
+    System.out.println(CLASS_NAME + "getInvitationsPageBasic");
+
+    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation3 = invitationsManager.createInvitation(session, new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver3", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+
+    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+
+    Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
+
+    assertEquals(3, result.getData().size());
+    assertEquals(invitation1.getId(), result.getData().get(0).getId());
+  }
+
+  @Test
+  public void getInvitationsPageByStatus() throws Exception {
+    System.out.println(CLASS_NAME + "getInvitationsPageByStatus");
+
+    Invitation invitation1 = new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
+    Invitation invitation2 = new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
+
+    invitation1.setStatus(InvitationStatus.ACCEPTED);
+
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+    invitation2 = invitationsManager.createInvitation(session, invitation2);
+
+    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "", List.of(InvitationStatus.ACCEPTED), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+
+    Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
+
+    assertEquals(1, result.getData().size());
+    assertEquals(invitation1.getId(), result.getData().get(0).getId());
+  }
+
+  @Test
+  public void getInvitationsPageSortedByStatus() throws Exception {
+    System.out.println(CLASS_NAME + "getInvitationsPageSortedByStatus");
+
+    Invitation invitation1 = new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
+    Invitation invitation2 = new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
+    Invitation invitation3 = new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
+
+    invitation1.setStatus(InvitationStatus.REVOKED);
+    invitation2.setStatus(InvitationStatus.ACCEPTED);
+    invitation3.setStatus(InvitationStatus.PENDING);
+
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+    invitation2 = invitationsManager.createInvitation(session, invitation2);
+    invitation3 = invitationsManager.createInvitation(session, invitation3);
+
+    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.STATUS, "", new ArrayList<>());
+
+    Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
+
+    assertEquals(3, result.getData().size());
+    assertEquals(invitation2.getId(), result.getData().get(0).getId());
+  }
+
+  @Test
+  public void getInvitationsPageByExpiration() throws Exception {
+    System.out.println(CLASS_NAME + "getInvitationsPageByExpiration");
+
+    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(5)));
+    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+
+    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(2), LocalDate.now().plusDays(2));
+
+    Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
+
+    assertEquals(1, result.getData().size());
+    assertEquals(invitation2.getId(), result.getData().get(0).getId());
+  }
+
+  @Test
+  public void getInvitationsPageByReceiverName() throws Exception {
+    System.out.println(CLASS_NAME + "getInvitationsPageByReceiverName");
+
+    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation3 = invitationsManager.createInvitation(session, new Invitation(3, vo.getId(), group.getId(), sender.getId(), "other", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+
+    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.DESCENDING, InvitationsOrderColumn.RECEIVER_NAME, "receiver", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+
+    Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
+
+    assertEquals(2, result.getData().size());
+    assertEquals(invitation2.getId(), result.getData().get(0).getId());
+  }
+
+  @Test
+  public void getInvitationsPageByReceiverEmail() throws Exception {
+    System.out.println(CLASS_NAME + "getInvitationsPageByReceiverEmail");
+
+    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation3 = invitationsManager.createInvitation(session, new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver3", "other@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+
+    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.DESCENDING, InvitationsOrderColumn.RECEIVER_EMAIL, "test", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+
+    Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
+
+    assertEquals(2, result.getData().size());
+    assertEquals(invitation2.getId(), result.getData().get(0).getId());
+  }
+
+  @Test
+  public void getInvitationsPageBySenderName() throws Exception {
+    System.out.println(CLASS_NAME + "getInvitationsPageBySenderName");
+
+    User otherSender = setUpUser("Other", "Sender", "otherPreferredMail@mail.com");
+
+    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), otherSender.getId(), "receiver3", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+
+    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "other", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+
+    Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
+
+    assertEquals(1, result.getData().size());
+    assertEquals(invitation2.getId(), result.getData().get(0).getId());
+  }
+
+  @Test
+  public void getInvitationsPageBySenderEmail() throws Exception {
+    System.out.println(CLASS_NAME + "getInvitationsPageBySenderEmail");
+
+    User otherSender = setUpUser("Other", "Sender", "otherPreferredMail@mail.com");
+
+    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), otherSender.getId(), "receiver3", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+
+    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "otherPreferredMail", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+
+    Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
+
+    assertEquals(1, result.getData().size());
+    assertEquals(invitation2.getId(), result.getData().get(0).getId());
+  }
+
   private Group setUpGroup(String name, String desc) throws Exception {
     GroupsManager groupsManager = perun.getGroupsManager();
 
@@ -535,11 +687,22 @@ public class InvitationsManagerIntegrationTest {
     return group;
   }
 
-  private User setUpUser(String firstName, String lastName) {
+  private User setUpUser(String firstName, String lastName, String email) {
     User user = new User();
     user.setFirstName(firstName);
     user.setLastName(lastName);
     perun.getUsersManagerBl().createUser(session, user);
+
+    try {
+      Attribute attrEmail = new Attribute(
+          perun.getAttributesManagerBl()
+              .getAttributeDefinition(session, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+      attrEmail.setValue(email);
+      perun.getAttributesManagerBl().setAttribute(session, user, attrEmail);
+    } catch (AttributeNotExistsException | WrongAttributeValueException | WrongAttributeAssignmentException |
+             WrongReferenceAttributeValueException ex) {
+      // Ignore
+    }
     return user;
   }
 

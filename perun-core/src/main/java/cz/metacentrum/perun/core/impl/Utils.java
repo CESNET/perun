@@ -120,6 +120,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
+
 /**
  * Utilities.
  */
@@ -2405,6 +2406,36 @@ public class Utils {
   }
 
   /**
+   * Returns a part of WHERE condition to search invitations in their ids, receiver's name and receiver's email by given
+   * search string.
+   *
+   * @param searchString string to search by
+   * @param namedParams  parameters used in the query
+   * @return search query
+   */
+  public static String prepareSqlWhereForInvitationSearch(String searchString, MapSqlParameterSource namedParams) {
+    if (isEmpty(searchString)) {
+      return "";
+    }
+
+    String invitationIdQueryString = "";
+    try {
+      int appId = Integer.parseInt(searchString);
+      invitationIdQueryString = " OR invitations.id=";
+      invitationIdQueryString += appId;
+    } catch (NumberFormatException e) {
+      // IGNORE wrong format of id
+    }
+
+    String receiverNameEmailQueryString = prepareReceiverNameEmailSearchQuerySimilarMatch();
+    String senderNameQueryString = prepareSenderNameEmailSearchQuerySimilarMatch();
+
+    namedParams.addValue("searchString", searchString);
+
+    return "(" + receiverNameEmailQueryString + " OR " + senderNameQueryString + invitationIdQueryString + ")";
+  }
+
+  /**
    * Returns search query to search by group name or description (similar match) based on databased in use.
    *
    * @return search query
@@ -2433,6 +2464,29 @@ public class Utils {
   public static String prepareApplicationDataSearchQuerySimilarMatch() {
     return "(strpos(lower(" + Compatibility.convertToAscii("COALESCE(d.value,'')") + "), lower(" +
            Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  }
+
+  /**
+   * Returns search query to search by receiver name or email (similar match) based on databased in use.
+   *
+   * @return search query
+   */
+  public static String prepareReceiverNameEmailSearchQuerySimilarMatch() {
+    return "(strpos(lower(" + Compatibility.convertToAscii(
+        "COALESCE(invitations.receiver_name,'') || COALESCE(invitations.receiver_email,'')") + "), lower(" +
+               Compatibility.convertToAscii(":searchString") + ")) > 0)";
+  }
+
+  /**
+   * Returns search query to search by sender name or email (similar match) based on databased in use.
+   *
+   * @return search query
+   */
+  public static String prepareSenderNameEmailSearchQuerySimilarMatch() {
+    return "(strpos(lower(" + Compatibility.convertToAscii(
+        "COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'') || " +
+                "COALESCE(mails.attr_value,'')") + "), lower(" + Compatibility.convertToAscii(":searchString") +
+            ")) > 0)";
   }
 
   /**
