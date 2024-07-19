@@ -32,12 +32,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InvitationsManagerBlImpl implements InvitationsManagerBl {
+
+  static final Logger LOG = LoggerFactory.getLogger(InvitationsManagerBlImpl.class);
 
   private final InvitationsManagerImplApi invitationsManagerImpl;
   private final RegistrarManager registrarManager;
   private PerunBl perun;
+
 
   public InvitationsManagerBlImpl(InvitationsManagerImplApi invitationsManagerImpl, RegistrarManager registrarManager) {
     this.invitationsManagerImpl = invitationsManagerImpl;
@@ -143,6 +148,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
     } catch (RegistrarException ex) {
       invitation.setStatus(InvitationStatus.UNSENT);
       invitationsManagerImpl.setInvitationStatus(sess, invitation, InvitationStatus.UNSENT);
+      LOG.error("Invitation: {} failed to be sent and was set to UNSENT due to {}", invitation, ex.getMessage());
       if (csv) {
         throw ex;
       }
@@ -185,6 +191,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
     }
     invitationsManagerImpl.setInvitationStatus(sess, invitation, InvitationStatus.EXPIRED);
     invitation.setStatus(InvitationStatus.EXPIRED);
+    LOG.info("Invitation: {} was set to EXPIRED.", invitation);
     return invitation;
   }
 
@@ -196,6 +203,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
     }
     invitationsManagerImpl.setInvitationStatus(sess, invitation, InvitationStatus.REVOKED);
     invitation.setStatus(InvitationStatus.REVOKED);
+    LOG.info("Invitation: {} was set to REVOKED.", invitation);
     return invitation;
   }
 
@@ -208,6 +216,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
     }
     invitationsManagerImpl.setInvitationStatus(sess, invitation, InvitationStatus.ACCEPTED);
     invitation.setStatus(InvitationStatus.ACCEPTED);
+    LOG.info("Invitation: {} was set to ACCEPTED.", invitation);
     return invitation;
   }
 
