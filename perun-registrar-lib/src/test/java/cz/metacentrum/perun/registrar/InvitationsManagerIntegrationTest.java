@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
 import cz.metacentrum.perun.registrar.bl.InvitationsManagerBl;
 import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
+import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.Invitation;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
@@ -401,6 +403,43 @@ public class InvitationsManagerIntegrationTest {
 
   }
 
+  @Test
+  public void canInvitationBeAcceptedExistingPendingInvitation() throws Exception {
+    System.out.println(CLASS_NAME + "canInvitationBeAcceptedExistingPendingInvitation");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+
+    invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken());
+  }
+
+  @Test(expected = InvitationNotExistsException.class)
+  public void canInvitationBeAcceptedInvitationDoesNotExist() throws Exception {
+    System.out.println(CLASS_NAME + "canInvitationBeAcceptedInvitationDoesNotExist");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+
+    UUID nonExistingUUID = UUID.fromString("bdf5788f-55dd-4fcc-9566-fb38f9d6fcd2");
+    invitationsManagerBl.canInvitationBeAccepted(session, nonExistingUUID);
+  }
+
+  @Test(expected = InvalidInvitationStatusException.class)
+  public void canInvitationBeAcceptedInvitationNotPending() throws Exception {
+    System.out.println(CLASS_NAME + "canInvitationBeAcceptedInvitationNotPending");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    invitation1.setStatus(InvitationStatus.ACCEPTED);
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+
+    invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken());
+  }
 
   private Group setUpGroup(String name, String desc) throws Exception {
     GroupsManager groupsManager = perun.getGroupsManager();

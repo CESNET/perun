@@ -2,6 +2,7 @@ package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -9,6 +10,7 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public enum InvitationsManagerMethod implements ManagerMethod {
 
@@ -174,6 +176,22 @@ public enum InvitationsManagerMethod implements ManagerMethod {
       return ac.getInvitationsManager().inviteToGroupFromCsv(ac.getSession(), ac.getVoById(parms.readInt("vo")),
           ac.getGroupById(parms.readInt("group")), parms.readList("invitationData", String.class),
           parms.readString("language"), parms.readLocalDate("expiration"), redirectUrl);
+    }
+  },
+
+  /*#
+   * Checks if an invitation given by the uuid exists and if it is in a pending state. Throws exception otherwise.
+   *
+   * @param sess session
+   * @param uuid random token assigned to the invitation
+   * @throws InvitationNotExistsException invitation does not exist
+   * @throws InvalidInvitationStatusException status is other than pending
+   */
+  canInvitationBeAccepted {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      ac.getInvitationsManager().canInvitationBeAccepted(ac.getSession(), parms.readUUID("uuid"));
+      return null;
     }
   }
 }

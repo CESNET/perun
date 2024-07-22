@@ -64,6 +64,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * UsersManager manages users.
@@ -154,7 +155,7 @@ public interface UsersManagerBl {
    * @throws PasswordChangeFailedException      When password change failed
    * @throws PasswordOperationTimeoutException  When password change timed out
    */
-  void changeNonAuthzPassword(PerunSession sess, String token, String password, String lang)
+  void changeNonAuthzPassword(PerunSession sess, UUID token, String password, String lang)
       throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException,
       PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException,
       PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
@@ -225,7 +226,7 @@ public interface UsersManagerBl {
    * @throws PasswordResetLinkExpiredException  when the reset link expired
    * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed
    */
-  void checkPasswordResetRequestIsValid(PerunSession sess, String token)
+  void checkPasswordResetRequestIsValid(PerunSession sess, UUID token)
       throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
 
   /**
@@ -1812,7 +1813,7 @@ public interface UsersManagerBl {
    * @throws AttributeNotExistsException           If user:preferredEmail attribute doesn't exists.
    * @throws WrongReferenceAttributeValueException
    */
-  String validatePreferredEmailChange(PerunSession sess, User user, String token)
+  String validatePreferredEmailChange(PerunSession sess, User user, UUID token)
       throws WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException,
       WrongReferenceAttributeValueException;
 

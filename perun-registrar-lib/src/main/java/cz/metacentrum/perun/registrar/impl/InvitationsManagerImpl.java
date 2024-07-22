@@ -181,4 +181,17 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
       throw new InternalErrorException(ex);
     }
   }
+
+  @Override
+  public void setInvitationApplicationId(PerunSession sess, Invitation invitation, Integer applicationId) {
+    try {
+      jdbc.update(
+          "update invitations set application_id=?, modified_by=?, modified_at= " +
+              Compatibility.getSysdate() + ", modified_by_uid=? where id=?", applicationId,
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), invitation.getId()
+      );
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
 }

@@ -1278,7 +1278,7 @@ public enum UsersManagerMethod implements ManagerMethod {
    * Checks if the password reset request is valid. The request is valid, if it
    * was created, never used and hasn't expired yet.
    *
-   * @param token String token for the password reset request
+   * @param token UUID token for the password reset request
    * @throw PasswordResetLinkExpiredException when the reset link expired
    * @throw PasswordResetLinkNotValidException when the reset link was already used or has never existed
    */
@@ -1286,7 +1286,7 @@ public enum UsersManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       if (parms.contains("token")) {
-        ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readString("token"));
+        ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readUUID("token"));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "token or (i and m)");
       }
@@ -1296,7 +1296,7 @@ public enum UsersManagerMethod implements ManagerMethod {
   }, /*#
    * Changes user password in defined login-namespace based on token parameter.
    *
-   * @param token String token for the password reset request
+   * @param token UUID token for the password reset request
    * @param password String new password
    * @param lang language to get notification in (optional).
    * @throw UserNotExistsException When the user who requested the password reset doesn't exist
@@ -1315,7 +1315,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
       if (parms.contains("token")) {
         ac.getUsersManager()
-            .changeNonAuthzPassword(ac.getSession(), parms.readString("token"), parms.readString("password"),
+            .changeNonAuthzPassword(ac.getSession(), parms.readUUID("token"), parms.readString("password"),
                 (parms.contains("lang") ? parms.readString("lang") : null));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "token");
@@ -1572,7 +1572,7 @@ public enum UsersManagerMethod implements ManagerMethod {
    * on token parameter sent in email notice
    * by requestPreferredEmailChange() method.
    *
-   * @param token String token for the email change request to validate
+   * @param token UUID token for the email change request to validate
    * @param u int <code>id</code> of user you want to validate preferred email request
    *
    * @return String new validated email address
@@ -1584,7 +1584,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
       if (parms.contains("token")) {
         return ac.getUsersManager().validatePreferredEmailChange(ac.getSession(), ac.getUserById(parms.readInt("u")),
-            parms.readString("token"));
+            parms.readUUID("token"));
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "token");
       }

@@ -3564,6 +3564,15 @@ components:
       in: query
       required: true
 
+    invitationUuid:
+      name: uuid
+      description: "uuid of Invitation"
+      schema:
+        type: string
+        format: uuid
+      in: query
+      required: true
+
 
 
 #################################################
@@ -9629,7 +9638,7 @@ paths:
                 - token
                 - u
               properties:
-                token: { type: string }
+                token: { type: string, format: uuid }
                 u: { type: integer }
 
   /json/usersManager/getPendingPreferredEmailChanges:
@@ -9827,7 +9836,7 @@ paths:
               required:
                 - token
               properties:
-                token: { type: string, description: "token for the password reset request"}
+                token: { type: string, format: uuid, description: "token for the password reset request"}
 
   /json/usersManager/changeNonAuthzPassword/token:
     post:
@@ -9856,7 +9865,7 @@ paths:
                 - token
                 - password
               properties:
-                token: { type: string, description: "token for the password reset request" }
+                token: { type: string, format: uuid, description: "token for the password reset request" }
                 password: { type: string }
                 lang: { type: string, description: "language to get notifications in (optional)" }
 
@@ -17575,6 +17584,7 @@ paths:
               properties:
                 app: { $ref: '#/components/schemas/Application' }
                 data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+                invitationToken: { type: string, format: uuid, description: "uuid token of invitation if application is pre-approved", nullable: true }
 
   /json/registrarManager/getGroupsToAutoRegistration:
     get:
@@ -20002,3 +20012,17 @@ paths:
                 language: { type: string, description: "language", nullable: false }
                 expiration: { type: string, description: "Date in format yyyy-MM-dd ", nullable: true }
                 redirectUrl: { type: string, description: "redirect url", nullable: true }
+
+  /urlinjsonout/invitationsManager/canInvitationBeAccepted:
+    get:
+      tags:
+        - InvitationsManager
+      operationId: canInvitationBeAccepted
+      summary: Checks whether an invitation under the given uuid exists and is in a pending state.
+      parameters:
+        - $ref: '#/components/parameters/invitationUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'

@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -166,6 +167,15 @@ public abstract class Deserializer {
    * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
    */
   public abstract String readString(String name);
+
+  /**
+   * Reads value with the specified name as {@code UUID}.
+   *
+   * @param name name of the value to read
+   * @return the value as {@code UUID}
+   * @throws RpcException If the specified value cannot be parsed as {@code UUID} or if it is not supplied
+   */
+  public abstract UUID readUUID(String name);
 
   /**
    * Check whether method that changes state is not GET.

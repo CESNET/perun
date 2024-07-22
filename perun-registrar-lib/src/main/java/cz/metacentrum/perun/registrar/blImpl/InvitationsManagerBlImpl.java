@@ -11,13 +11,13 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.bl.InvitationsManagerBl;
 import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
+import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.implApi.InvitationsManagerImplApi;
@@ -218,6 +218,22 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
     invitation.setStatus(InvitationStatus.ACCEPTED);
     LOG.info("Invitation: {} was set to ACCEPTED.", invitation);
     return invitation;
+  }
+
+  @Override
+  public void canInvitationBeAccepted(PerunSession sess, UUID uuid)
+      throws InvalidInvitationStatusException, InvitationNotExistsException,
+                 InvitationAlreadyAssignedToAnApplicationException {
+    Invitation invitation = invitationsManagerImpl.getInvitationByToken(sess, uuid);
+
+    if (!invitation.getStatus().equals(InvitationStatus.PENDING)) {
+      throw new InvalidInvitationStatusException(
+          "Expected the invitation in state " + InvitationStatus.PENDING + " got " + invitation.getStatus());
+    }
+    if (invitation.getApplicationId() != null) {
+      throw new InvitationAlreadyAssignedToAnApplicationException(
+          "Invitation with uuid " + invitation.getToken() + " is already assigned to a different application.");
+    }
   }
 
   private void checkInvitationCsvData(List<List<String>> parsedData) {

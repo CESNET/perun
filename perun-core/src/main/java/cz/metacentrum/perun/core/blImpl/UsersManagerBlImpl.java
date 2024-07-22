@@ -173,21 +173,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     }
   }
 
-  /**
-   * Safely converts string token for pwd-reset to UUID object
-   *
-   * @param token String version of pwd-reset token
-   * @return UUID object
-   * @throws PasswordResetLinkNotValidException when token is not in UUID format
-   */
-  private UUID pwdTokenToUUID(String token) throws PasswordResetLinkNotValidException {
-    try {
-      return UUID.fromString(token);
-    } catch (java.lang.IllegalArgumentException e) {
-      throw new PasswordResetLinkNotValidException("Password reset request " + token + " doesn't exist.");
-    }
-  }
-
   @Override
   public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationExistsException {
     if (specificUser.isServiceUser() && specificUser.isSponsoredUser()) {
@@ -297,11 +282,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
-  public void changeNonAuthzPassword(PerunSession sess, String token, String password, String lang)
+  public void changeNonAuthzPassword(PerunSession sess, UUID token, String password, String lang)
       throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException,
       PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException,
       PasswordResetLinkExpiredException, PasswordResetLinkNotValidException, UserNotExistsException {
-    Map<String, Object> request = getUsersManagerImpl().loadPasswordResetRequest(sess, UUID.fromString(token));
+    Map<String, Object> request = getUsersManagerImpl().loadPasswordResetRequest(sess, token);
 
     User user = perunBl.getUsersManagerBl().getUserById(sess, (Integer) request.get("user_id"));
     String namespace = (String) request.get("namespace");
@@ -521,9 +506,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
-  public void checkPasswordResetRequestIsValid(PerunSession sess, String token)
+  public void checkPasswordResetRequestIsValid(PerunSession sess, UUID token)
       throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
-    getUsersManagerImpl().checkPasswordResetRequestIsValid(sess, pwdTokenToUUID(token));
+    getUsersManagerImpl().checkPasswordResetRequestIsValid(sess, token);
   }
 
   @Override
@@ -2669,10 +2654,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
-  public String validatePreferredEmailChange(PerunSession sess, User user, String token)
+  public String validatePreferredEmailChange(PerunSession sess, User user, UUID token)
       throws WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException,
       WrongReferenceAttributeValueException {
-    String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, UUID.fromString(token));
+    String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, token);
 
     AttributeDefinition def = getPerunBl().getAttributesManagerBl()
         .getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");

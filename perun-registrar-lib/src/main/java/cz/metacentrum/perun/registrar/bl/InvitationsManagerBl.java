@@ -4,17 +4,15 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
+import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Handles invitation logic. Invitations are used for pre-approved applications sent to users via email.
@@ -151,4 +149,16 @@ public interface InvitationsManagerBl {
    * @throws InvalidInvitationStatusException transition is not allowed from the current invitation status
    */
   Invitation markInvitationAccepted(PerunSession sess, Invitation invitation) throws InvalidInvitationStatusException;
+
+  /**
+   * Checks if an invitation given by the uuid exists and if it is in a pending state. Throws exception otherwise.
+   *
+   * @param sess session
+   * @param uuid random token assigned to the invitation
+   * @throws InvitationNotExistsException invitation does not exist
+   * @throws InvalidInvitationStatusException status is other than pending
+   */
+  void canInvitationBeAccepted(PerunSession sess, UUID uuid)
+      throws InvalidInvitationStatusException, InvitationNotExistsException,
+                 InvitationAlreadyAssignedToAnApplicationException;
 }

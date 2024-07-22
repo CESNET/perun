@@ -105,6 +105,7 @@ import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
+import cz.metacentrum.perun.registrar.blImpl.InvitationsManagerBlImpl;
 import cz.metacentrum.perun.registrar.exceptions.AlreadyProcessingException;
 import cz.metacentrum.perun.registrar.exceptions.AlreadyRegisteredException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationNotCreatedException;
@@ -128,6 +129,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.model.ApplicationOperationResult;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Identity;
+import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.RichApplication;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -410,6 +412,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
   MailManager mailManager;
   @Autowired
   ConsolidatorManager consolidatorManager;
+  @Autowired
+  InvitationsManagerImpl invitationsManager;
+  @Autowired
+  InvitationsManagerBlImpl invitationsManagerBl;
   private final Set<String> runningCreateApplication = new HashSet<>();
   private final Set<Integer> runningApproveApplication = new HashSet<>();
   private final Set<Integer> runningRejectApplication = new HashSet<>();
@@ -4949,6 +4955,20 @@ public class RegistrarManagerImpl implements RegistrarManager {
   public Application submitApplication(PerunSession session, Application application,
                                        List<ApplicationFormItemData> data) throws PerunException {
     int appId = processApplication(session, application, data);
+    return getApplicationById(appId);
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  @Override
+  public Application submitApplication(PerunSession session, Application application,
+                                       List<ApplicationFormItemData> data, UUID invitationToken) throws PerunException {
+    int appId = processApplication(session, application, data);
+
+    invitationsManagerBl.canInvitationBeAccepted(session, invitationToken);
+    Invitation invitation = invitationsManager.getInvitationByToken(session, invitationToken);
+    invitationsManager.setInvitationApplicationId(session, invitation, appId);
+    LOG.debug("Invitation {} was assigned to application {}", invitation.getId(), appId);
+
     return getApplicationById(appId);
   }
 
