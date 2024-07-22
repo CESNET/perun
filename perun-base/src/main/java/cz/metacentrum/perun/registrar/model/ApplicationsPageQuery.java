@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.registrar.model;
 
+import cz.metacentrum.perun.core.api.PageQuery;
 import cz.metacentrum.perun.core.api.SortingOrder;
 import java.time.LocalDate;
 import java.util.List;
@@ -10,10 +11,7 @@ import java.util.Objects;
  *
  * @author David Flor <493294@mail.muni.cz>
  */
-public class ApplicationsPageQuery {
-  private int pageSize;
-  private int offset;
-  private SortingOrder order;
+public class ApplicationsPageQuery extends PageQuery {
   private ApplicationsOrderColumn sortColumn;
   private Boolean includeGroupApplications = true;
   private Boolean getDetails = false;
@@ -29,25 +27,19 @@ public class ApplicationsPageQuery {
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                Boolean includeGroupApplications) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.includeGroupApplications = includeGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                List<Application.AppState> states, Boolean includeGroupApplications) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.includeGroupApplications = includeGroupApplications;
     this.states = states;
@@ -56,9 +48,7 @@ public class ApplicationsPageQuery {
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states,
                                Boolean includeGroupApplications) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.includeGroupApplications = includeGroupApplications;
     this.searchString = searchString;
@@ -68,9 +58,7 @@ public class ApplicationsPageQuery {
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, LocalDate dateFrom,
                                LocalDate dateTo, Boolean includeGroupApplications) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.includeGroupApplications = includeGroupApplications;
     this.searchString = searchString;
@@ -81,18 +69,14 @@ public class ApplicationsPageQuery {
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                List<Application.AppState> states) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                List<Application.AppState> states, Integer groupId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
     this.groupId = groupId;
@@ -100,9 +84,7 @@ public class ApplicationsPageQuery {
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                List<Application.AppState> states, Integer userId, Integer groupId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
     this.userId = userId;
@@ -112,9 +94,7 @@ public class ApplicationsPageQuery {
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                List<Application.AppState> states, LocalDate dateFrom, LocalDate dateTo,
                                Integer groupId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
     this.dateFrom = dateFrom;
@@ -125,9 +105,7 @@ public class ApplicationsPageQuery {
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, Integer userId,
                                Integer groupId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.states = states;
@@ -138,9 +116,7 @@ public class ApplicationsPageQuery {
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                List<Application.AppState> states, LocalDate dateFrom, LocalDate dateTo, Integer userId,
                                Integer groupId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
     this.dateFrom = dateFrom;
@@ -152,9 +128,7 @@ public class ApplicationsPageQuery {
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, LocalDate dateFrom,
                                LocalDate dateTo, Integer groupId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.states = states;
@@ -165,9 +139,7 @@ public class ApplicationsPageQuery {
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, Integer groupId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.states = states;
@@ -177,9 +149,7 @@ public class ApplicationsPageQuery {
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, LocalDate dateFrom,
                                LocalDate dateTo, Integer userId, Integer groupId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.states = states;
@@ -191,9 +161,7 @@ public class ApplicationsPageQuery {
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.states = states;
@@ -202,9 +170,7 @@ public class ApplicationsPageQuery {
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, LocalDate dateFrom,
                                LocalDate dateTo) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.states = states;
@@ -298,30 +264,6 @@ public class ApplicationsPageQuery {
 
   public void setIncludeGroupApplications(Boolean includeGroupApplications) {
     this.includeGroupApplications = includeGroupApplications;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
   }
 
   public String getSearchString() {

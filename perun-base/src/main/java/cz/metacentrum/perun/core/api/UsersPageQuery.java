@@ -8,10 +8,7 @@ import java.util.Objects;
  *
  * @author Metodej Klang
  */
-public class UsersPageQuery {
-  private int pageSize;
-  private int offset;
-  private SortingOrder order;
+public class UsersPageQuery extends PageQuery {
   private UsersOrderColumn sortColumn;
   private String searchString = "";
   private boolean withoutVo = false;
@@ -26,34 +23,26 @@ public class UsersPageQuery {
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn,
                         String searchString) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, boolean withoutVo) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.withoutVo = withoutVo;
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         boolean withoutVo) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.withoutVo = withoutVo;
@@ -61,9 +50,7 @@ public class UsersPageQuery {
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -71,9 +58,7 @@ public class UsersPageQuery {
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId, boolean onlyAllowed) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -82,9 +67,7 @@ public class UsersPageQuery {
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId, Integer voId, Integer serviceId, Integer resourceId) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -95,9 +78,7 @@ public class UsersPageQuery {
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId, Integer voId, Integer serviceId, Integer resourceId, boolean onlyAllowed) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -110,9 +91,7 @@ public class UsersPageQuery {
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, String searchString,
                         Integer facilityId, Integer voId, Integer serviceId, Integer resourceId, boolean onlyAllowed,
                         List<ConsentStatus> consentStatuses) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.facilityId = facilityId;
@@ -134,10 +113,10 @@ public class UsersPageQuery {
 
     UsersPageQuery that = (UsersPageQuery) o;
 
-    if (pageSize != that.pageSize) {
+    if (getPageSize() != that.getPageSize()) {
       return false;
     }
-    if (offset != that.offset) {
+    if (getOffset() != that.getOffset()) {
       return false;
     }
     if (withoutVo != that.withoutVo) {
@@ -146,7 +125,7 @@ public class UsersPageQuery {
     if (onlyAllowed != that.onlyAllowed) {
       return false;
     }
-    if (order != that.order) {
+    if (getOrder() != that.getOrder()) {
       return false;
     }
     if (sortColumn != that.sortColumn) {
@@ -184,30 +163,6 @@ public class UsersPageQuery {
 
   public void setFacilityId(Integer facilityId) {
     this.facilityId = facilityId;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
   }
 
   public Integer getResourceId() {
@@ -252,9 +207,9 @@ public class UsersPageQuery {
 
   @Override
   public int hashCode() {
-    int result = pageSize;
-    result = 31 * result + offset;
-    result = 31 * result + order.hashCode();
+    int result = getPageSize();
+    result = 31 * result + getOffset();
+    result = 31 * result + getOrder().hashCode();
     result = 31 * result + sortColumn.hashCode();
     result = 31 * result + (searchString != null ? searchString.hashCode() : 0);
     result = 31 * result + (withoutVo ? 1 : 0);

@@ -8,19 +8,14 @@ import java.util.Objects;
  *
  * @author Johana Supikova <xsupikov@fi.muni.cz>
  */
-public class MessagesPageQuery {
-  private int pageSize;
-  private int offset;
-  private SortingOrder order;
+public class MessagesPageQuery extends PageQuery {
   private List<String> selectedEvents;
 
   public MessagesPageQuery() {
   }
 
   public MessagesPageQuery(int pageSize, int offset, SortingOrder order, List<String> selectedEvents) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, order);
     this.selectedEvents = selectedEvents;
   }
 
@@ -35,30 +30,6 @@ public class MessagesPageQuery {
 
     return (getPageSize() == that.getPageSize()) && (getOffset() == that.getOffset()) &&
            (getOrder() == that.getOrder()) && (Objects.equals(getSelectedEvents(), that.getSelectedEvents()));
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return this.order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
   }
 
   public List<String> getSelectedEvents() {
