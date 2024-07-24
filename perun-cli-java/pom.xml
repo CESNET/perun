@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>perun</artifactId>
 		<groupId>cz.metacentrum</groupId>
-		<version>37.4.0</version>
+		<version>37.5.0</version>
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
