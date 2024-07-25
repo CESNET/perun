@@ -3573,7 +3573,13 @@ components:
       in: query
       required: true
 
-
+    invitationId:
+      name: invitationId
+      description: "id of Invitation"
+      schema:
+        type: integer
+      in: query
+      required: true
 
 #################################################
 #                                               #
@@ -20024,5 +20030,33 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/invitationsManager/revokeInvitationById:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: revokeInvitationById
+      summary: Revokes existing invitation by its id.
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/invitationsManager/revokeInvitationByUuid:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: revokeInvitationByUuid
+      summary: Revokes existing invitation by its uuid.
+      parameters:
+        - $ref: '#/components/parameters/invitationUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'

@@ -59,6 +59,11 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   }
 
   @Override
+  public Invitation getInvitationByToken(PerunSession sess, UUID token) throws InvitationNotExistsException {
+    return invitationsManagerImpl.getInvitationByToken(sess, token);
+  }
+
+  @Override
   public List<Invitation> getInvitationsForSender(PerunSession sess, Group group, User user) {
     return invitationsManagerImpl.getInvitationsForSender(sess, group, user);
   }
@@ -109,12 +114,12 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
 
   @Override
   public Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
-                                  String language, LocalDate expiration, String redirectUrl) throws RegistrarException {
+      String language, LocalDate expiration, String redirectUrl) throws RegistrarException {
     return inviteToGroup(sess, vo, group, receiverName, receiverEmail, language, expiration, redirectUrl, false);
   }
 
   private Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
-                                  String language, LocalDate expiration, String redirectUrl, boolean csv)
+      String language, LocalDate expiration, String redirectUrl, boolean csv)
       throws RegistrarException {
     if (!Utils.EMAIL_PATTERN.matcher(receiverEmail).matches()) {
       throw new RegistrarException("Invalid email address: " + receiverEmail);
@@ -137,7 +142,8 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
 
     String url;
     try {
-      // TODO determine which authentication to use (add as parameter or some other way)
+      // TODO determine which authentication to use (add as parameter or some other
+      // way)
       url = createInvitationUrl(sess, "krb", invitation.getToken().toString());
     } catch (InvitationNotExistsException e) {
       throw new ConsistencyErrorException("Invitation created during invite process does not exist.", e);
@@ -158,7 +164,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
 
   @Override
   public Map<String, String> inviteToGroupFromCsv(PerunSession sess, Vo vo, Group group, List<String> data,
-                                                  String language, LocalDate expiration, String redirectUrl) {
+      String language, LocalDate expiration, String redirectUrl) {
     List<List<String>> parsedLines;
     Map<String, String> result = new HashMap<>();
     try {
@@ -187,7 +193,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   public Invitation expireInvitation(PerunSession sess, Invitation invitation) throws InvalidInvitationStatusException {
     if (!invitation.getStatus().equals(InvitationStatus.PENDING)) {
       throw new InvalidInvitationStatusException("Invitation: " + invitation + "cannot be expired when in status: " +
-                                                    invitation.getStatus());
+          invitation.getStatus());
     }
     invitationsManagerImpl.setInvitationStatus(sess, invitation, InvitationStatus.EXPIRED);
     invitation.setStatus(InvitationStatus.EXPIRED);
@@ -199,7 +205,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   public Invitation revokeInvitation(PerunSession sess, Invitation invitation) throws InvalidInvitationStatusException {
     if (!invitation.getStatus().equals(InvitationStatus.PENDING)) {
       throw new InvalidInvitationStatusException("Invitation: " + invitation + "cannot be revoked when in status: " +
-                                                    invitation.getStatus());
+          invitation.getStatus());
     }
     invitationsManagerImpl.setInvitationStatus(sess, invitation, InvitationStatus.REVOKED);
     invitation.setStatus(InvitationStatus.REVOKED);
@@ -212,7 +218,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
       throws InvalidInvitationStatusException {
     if (!invitation.getStatus().equals(InvitationStatus.PENDING)) {
       throw new InvalidInvitationStatusException("Invitation: " + invitation + "cannot be accepted when in status: " +
-                                                    invitation.getStatus());
+          invitation.getStatus());
     }
     invitationsManagerImpl.setInvitationStatus(sess, invitation, InvitationStatus.ACCEPTED);
     invitation.setStatus(InvitationStatus.ACCEPTED);
@@ -262,9 +268,9 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   private List<List<String>> parseInvitationCsv(List<String> data) throws IOException {
     CsvMapper csvMapper = new CsvMapper();
     csvMapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
-    MappingIterator<List<String>> rows =
-        csvMapper.readerFor(List.class).with(CsvSchema.emptySchema().withColumnSeparator(';'))
-            .readValues(String.join("\n", data));
+    MappingIterator<List<String>> rows = csvMapper.readerFor(List.class)
+        .with(CsvSchema.emptySchema().withColumnSeparator(';'))
+        .readValues(String.join("\n", data));
     return rows.readAll();
   }
 }

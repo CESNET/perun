@@ -32,6 +32,16 @@ public interface InvitationsManagerBl {
   Invitation getInvitationById(PerunSession sess, int id) throws InvitationNotExistsException;
 
   /**
+   * Get invitation object with the specified uuid.
+   *
+   * @param sess session
+   * @param token uuid token of the desired invitation
+   * @return Invitation object with the specified uuid
+   * @throws InvitationNotExistsException when invitation with this uuid does not exist
+   */
+  Invitation getInvitationByToken(PerunSession sess, UUID token) throws InvitationNotExistsException;
+
+  /**
    * Lists all invitations made by the specified user to the specified group.
    *
    * @param sess session

@@ -193,5 +193,41 @@ public enum InvitationsManagerMethod implements ManagerMethod {
       ac.getInvitationsManager().canInvitationBeAccepted(ac.getSession(), parms.readUUID("uuid"));
       return null;
     }
-  }
+  },
+
+  /*#
+   * Changes status of invitation with specified id to revoked.
+   *
+   * @param sess session
+   * @param id id of the invitation
+   * @return Invitation object with updated status
+   * @throws InvitationNotExistsException when invitation with this id does not exist
+   * @throws PrivilegeException insufficient rights
+   * @throws InvalidInvitationStatusException transition is not allowed from the current invitation status
+   */
+  revokeInvitationById {
+    @Override
+    public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      return ac.getInvitationsManager().revokeInvitationById(ac.getSession(), parms.readInt("invitationId"));
+    }
+  },
+
+  /*#
+   * Changes status of invitation with specified uuid to revoked.
+   *
+   * @param sess session
+   * @param uuid uuid of the invitation
+   * @return Invitation object with updated status
+   * @throws InvitationNotExistsException when invitation with this uuid does not exist
+   * @throws PrivilegeException insufficient rights
+   * @throws InvalidInvitationStatusException transition is not allowed from the current invitation status
+   */
+  revokeInvitationByUuid {
+    @Override
+    public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      return ac.getInvitationsManager().revokeInvitationByUuid(ac.getSession(), parms.readUUID("invitationUuid"));
+    }
+  },
 }

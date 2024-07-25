@@ -8565,6 +8565,22 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+  
+  revokeInvitationById_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy
+
+  revokeInvitationByUuid_UUID_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy  
 
   inviteToGroup_Vo_Group_String_String_String_LocalDate_String_policy:
     policy_roles:
