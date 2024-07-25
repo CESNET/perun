@@ -113,7 +113,7 @@ public interface InvitationsManager {
       throws InvitationNotExistsException, PrivilegeException, InvalidInvitationStatusException;
 
   // TODO determine whether to add this to all layers + RPC/openapi
-  String createInvitationUrl(PerunSession sess, String authentication, String token)
+  String createInvitationUrl(PerunSession sess, String token)
       throws PrivilegeException, InvitationNotExistsException;
 
   /**

@@ -54,13 +54,12 @@ public interface MailManager {
    * Creates an invitation link for the default registrar instance with the passed authentication method and adds the
    * invitation token to the parameters.
    *
-   * @param authentication authentication method to use in the resulting URL
    * @param group group
    * @param vo vo
    * @param token invitation token
    * @return the full invitation URL for Vo or Group
    */
-  String buildInviteURLForInvitation(Vo vo, Group group, String authentication, UUID token);
+  String buildInviteURLForInvitation(Vo vo, Group group, UUID token);
 
   /**
    * Copy all mail definitions from one group into another group.

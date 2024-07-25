@@ -82,12 +82,11 @@ public interface InvitationsManagerBl {
    * Builds the url to the registrar application form of the group/vo of the invitation associated with the passed
    * token.
    *
-   * @param sess session
-   * @param authentication authentication to use in the link
+   * @param sess  session
    * @param token token of the invitation
    * @return the url
    */
-  String createInvitationUrl(PerunSession sess, String authentication, String token)
+  String createInvitationUrl(PerunSession sess, String token)
       throws InvitationNotExistsException;
 
   /**

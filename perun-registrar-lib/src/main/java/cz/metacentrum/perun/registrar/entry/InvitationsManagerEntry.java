@@ -172,15 +172,15 @@ public class InvitationsManagerEntry implements InvitationsManager {
   }
 
   @Override
-  public String createInvitationUrl(PerunSession sess, String authentication, String token)
+  public String createInvitationUrl(PerunSession sess, String token)
       throws PrivilegeException, InvitationNotExistsException {
     Utils.checkPerunSession(sess);
 
-    if (!AuthzResolver.authorizedInternal(sess, "createInvitationUrl_String_String")) {
+    if (!AuthzResolver.authorizedInternal(sess, "createInvitationUrl_String")) {
       throw new PrivilegeException("createInvitationUrl");
     }
 
-    return invitationsManagerBl.createInvitationUrl(sess, authentication, token);
+    return invitationsManagerBl.createInvitationUrl(sess, token);
   }
 
   @Override
