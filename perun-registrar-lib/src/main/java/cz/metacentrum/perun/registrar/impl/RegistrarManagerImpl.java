@@ -4964,7 +4964,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                                        List<ApplicationFormItemData> data, UUID invitationToken) throws PerunException {
     int appId = processApplication(session, application, data);
 
-    invitationsManagerBl.canInvitationBeAccepted(session, invitationToken);
+    invitationsManagerBl.canInvitationBeAccepted(session, invitationToken, application.getGroup());
     Invitation invitation = invitationsManager.getInvitationByToken(session, invitationToken);
     invitationsManager.setInvitationApplicationId(session, invitation, appId);
     LOG.debug("Invitation {} was assigned to application {}", invitation.getId(), appId);

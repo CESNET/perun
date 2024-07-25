@@ -221,11 +221,15 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   }
 
   @Override
-  public void canInvitationBeAccepted(PerunSession sess, UUID uuid)
+  public Invitation canInvitationBeAccepted(PerunSession sess, UUID uuid, Group group)
       throws InvalidInvitationStatusException, InvitationNotExistsException,
                  InvitationAlreadyAssignedToAnApplicationException {
     Invitation invitation = invitationsManagerImpl.getInvitationByToken(sess, uuid);
 
+    if (invitation.getGroupId() != group.getId()) {
+      throw new IllegalArgumentException("Wrong group! You are trying to apply to group " +
+                                             group.getId() + " with invitation for group " + invitation.getGroupId());
+    }
     if (!invitation.getStatus().equals(InvitationStatus.PENDING)) {
       throw new InvalidInvitationStatusException(
           "Expected the invitation in state " + InvitationStatus.PENDING + " got " + invitation.getStatus());
@@ -234,6 +238,8 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
       throw new InvitationAlreadyAssignedToAnApplicationException(
           "Invitation with uuid " + invitation.getToken() + " is already assigned to a different application.");
     }
+
+    return invitation;
   }
 
   private void checkInvitationCsvData(List<List<String>> parsedData) {

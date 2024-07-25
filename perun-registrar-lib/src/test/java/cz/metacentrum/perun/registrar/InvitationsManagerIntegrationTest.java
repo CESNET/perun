@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
@@ -412,7 +413,7 @@ public class InvitationsManagerIntegrationTest {
         LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
 
-    invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken());
+    invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken(), group);
   }
 
   @Test(expected = InvitationNotExistsException.class)
@@ -425,7 +426,7 @@ public class InvitationsManagerIntegrationTest {
     invitation1 = invitationsManager.createInvitation(session, invitation1);
 
     UUID nonExistingUUID = UUID.fromString("bdf5788f-55dd-4fcc-9566-fb38f9d6fcd2");
-    invitationsManagerBl.canInvitationBeAccepted(session, nonExistingUUID);
+    invitationsManagerBl.canInvitationBeAccepted(session, nonExistingUUID, group);
   }
 
   @Test(expected = InvalidInvitationStatusException.class)
@@ -438,7 +439,23 @@ public class InvitationsManagerIntegrationTest {
     invitation1.setStatus(InvitationStatus.ACCEPTED);
     invitation1 = invitationsManager.createInvitation(session, invitation1);
 
-    invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken());
+    invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken(), group);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void canInvitationBeAcceptedWrongGroup() throws Exception {
+    System.out.println(CLASS_NAME + "canInvitationBeAcceptedWrongGroup");
+
+    Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    Group wrongGroup = new Group("name", "description");
+    wrongGroup = perun.getGroupsManager().createGroup(session, vo, wrongGroup);
+
+    invitation1.setStatus(InvitationStatus.ACCEPTED);
+    invitation1 = invitationsManager.createInvitation(session, invitation1);
+
+    invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken(), wrongGroup);
   }
 
   private Group setUpGroup(String name, String desc) throws Exception {
