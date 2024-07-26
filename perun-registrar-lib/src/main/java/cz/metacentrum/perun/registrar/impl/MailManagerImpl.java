@@ -370,7 +370,7 @@ public class MailManagerImpl implements MailManager {
     return buildUrl(url, params, namespace, "registrar");
   }
 
-  public String buildInviteURLForInvitation(Vo vo, Group group, String authentication, UUID token) {
+  public String buildInviteURLForInvitation(Vo vo, Group group, UUID token) {
     // do not use vo/group attributes to determine url
     String url = getPerunUrl(null, null);
     if (!StringUtils.hasText(url)) {
@@ -384,7 +384,7 @@ public class MailManagerImpl implements MailManager {
     }
     params.put("token", token.toString());
 
-    return buildUrl(url, params, authentication, "registrar");
+    return buildUrl(url, params, getAuthTypeFromAttribute(vo, group), "registrar");
   }
 
   /**

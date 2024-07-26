@@ -8,6 +8,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -263,9 +265,15 @@ public class InvitationsManagerIntegrationTest {
     LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
 
-    String url = invitationsManagerBl.createInvitationUrl(session, "krb", invitation1.
-                                                                                         getToken().toString());
-    System.out.println(url);
+    Attribute authTypeAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(session,
+        AttributesManager.NS_GROUP_ATTR_DEF + ":authType"));
+    authTypeAttr.setValue("krb");
+    perun.getAttributesManager().setAttribute(session, group, authTypeAttr);
+
+
+    String url = invitationsManagerBl.createInvitationUrl(session, invitation1.getToken().toString());
+    assertEquals("perun-dev/krb/registrar/?vo=" + vo.getShortName() +"&group=" + group.getShortName() +
+                     "&token=" + invitation1.getToken(), url);
   }
 
   @Test

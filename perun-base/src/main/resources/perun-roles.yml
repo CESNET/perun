@@ -8598,7 +8598,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  createInvitationUrl_String_String:
+  createInvitationUrl_String:
     policy_roles:
       - SELF:
     include_policies:

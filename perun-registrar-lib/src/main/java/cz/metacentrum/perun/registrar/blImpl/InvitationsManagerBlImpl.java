@@ -88,7 +88,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   }
 
   @Override
-  public String createInvitationUrl(PerunSession sess, String authentication, String token)
+  public String createInvitationUrl(PerunSession sess, String token)
       throws InvitationNotExistsException {
     UUID tokenUuid;
     try {
@@ -109,7 +109,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
           ex);
     }
 
-    return registrarManager.getMailManager().buildInviteURLForInvitation(vo, group, authentication, tokenUuid);
+    return registrarManager.getMailManager().buildInviteURLForInvitation(vo, group, tokenUuid);
   }
 
   @Override
@@ -142,9 +142,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
 
     String url;
     try {
-      // TODO determine which authentication to use (add as parameter or some other
-      // way)
-      url = createInvitationUrl(sess, "krb", invitation.getToken().toString());
+      url = createInvitationUrl(sess, invitation.getToken().toString());
     } catch (InvitationNotExistsException e) {
       throw new ConsistencyErrorException("Invitation created during invite process does not exist.", e);
     }
