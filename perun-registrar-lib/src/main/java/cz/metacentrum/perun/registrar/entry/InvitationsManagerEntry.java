@@ -184,7 +184,7 @@ public class InvitationsManagerEntry implements InvitationsManager {
   }
 
   @Override
-  public void canInvitationBeAccepted(PerunSession sess, UUID uuid)
+  public Invitation canInvitationBeAccepted(PerunSession sess, UUID uuid, Group group)
       throws PrivilegeException, InvalidInvitationStatusException, InvitationNotExistsException,
                  InvitationAlreadyAssignedToAnApplicationException {
     Utils.checkPerunSession(sess);
@@ -193,6 +193,6 @@ public class InvitationsManagerEntry implements InvitationsManager {
       throw new PrivilegeException("canInvitationBeAccepted");
     }
 
-    invitationsManagerBl.canInvitationBeAccepted(sess, uuid);
+    return invitationsManagerBl.canInvitationBeAccepted(sess, uuid, group);
   }
 }

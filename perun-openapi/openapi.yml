@@ -20024,12 +20024,13 @@ paths:
       tags:
         - InvitationsManager
       operationId: canInvitationBeAccepted
-      summary: Checks whether an invitation under the given uuid exists and is in a pending state.
+      summary: Checks whether an invitation under the given uuid exists, is in a pending state and matches the given group. If so returns the invitation.
       parameters:
         - $ref: '#/components/parameters/invitationUuid'
+        - $ref: '#/components/parameters/groupId'
       responses:
         '200':
-          $ref: '#/components/responses/VoidResponse'
+          $ref: '#/components/responses/InvitationResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

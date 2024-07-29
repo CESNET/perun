@@ -160,14 +160,17 @@ public interface InvitationsManagerBl {
   Invitation markInvitationAccepted(PerunSession sess, Invitation invitation) throws InvalidInvitationStatusException;
 
   /**
-   * Checks if an invitation given by the uuid exists and if it is in a pending state. Throws exception otherwise.
+   * Checks if an invitation given by the uuid exists and if it is in a pending state.
+   * If yes return the invitation, otherwise throws an exception.
    *
    * @param sess session
    * @param uuid random token assigned to the invitation
+   * @param group the group for which the invitation is to be used
+   * @return the invitation
    * @throws InvitationNotExistsException invitation does not exist
    * @throws InvalidInvitationStatusException status is other than pending
    */
-  void canInvitationBeAccepted(PerunSession sess, UUID uuid)
+  Invitation canInvitationBeAccepted(PerunSession sess, UUID uuid, Group group)
       throws InvalidInvitationStatusException, InvitationNotExistsException,
                  InvitationAlreadyAssignedToAnApplicationException;
 }
