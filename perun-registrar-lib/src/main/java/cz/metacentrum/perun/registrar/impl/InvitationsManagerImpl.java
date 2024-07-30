@@ -15,6 +15,7 @@ import cz.metacentrum.perun.registrar.implApi.InvitationsManagerImplApi;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -28,7 +29,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 public class InvitationsManagerImpl implements InvitationsManagerImplApi {
   private JdbcPerunTemplate jdbc;
-  static final Logger LOG = LoggerFactory.getLogger(ConsentsManagerImpl.class);
+  static final Logger LOG = LoggerFactory.getLogger(InvitationsManagerImpl.class);
 
   protected static final String INVITATION_SELECT_QUERY = "invitations.id as invitations_id, " +
                                                               "invitations.token as invitations_token, " +
@@ -192,6 +193,24 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
       );
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public Invitation setInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate) {
+    try {
+      jdbc.update(
+          "update invitations set expiration=?, modified_by=?, modified_at= " +
+              Compatibility.getSysdate() + ", modified_by_uid=? where id=?", newExpirationDate.atStartOfDay(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), invitation.getId()
+      );
+
+      return getInvitationById(sess, invitation.getId());
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    } catch (InvitationNotExistsException e) {
+      LOG.warn("Invitation was probably deleted while being updated.");
+      throw new RuntimeException(e);
     }
   }
 }

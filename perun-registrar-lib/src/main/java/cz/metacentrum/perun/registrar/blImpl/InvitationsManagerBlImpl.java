@@ -246,6 +246,29 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
     return invitation;
   }
 
+  @Override
+  public Invitation extendInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate)
+      throws InvalidInvitationStatusException {
+    if (newExpirationDate == null) {
+      newExpirationDate = invitation.getExpiration().plusMonths(1);
+    }
+
+    if (newExpirationDate.isBefore(invitation.getExpiration())) {
+      throw new IllegalArgumentException("New expiration date '" +
+                                             newExpirationDate + "' is earlier than the current one.");
+    }
+
+    if (!invitation.getStatus().equals(InvitationStatus.PENDING)) {
+      throw new InvalidInvitationStatusException("Invitation: " + invitation + "cannot be extended when in status: " +
+                                                     invitation.getStatus());
+    }
+
+    Invitation invitationToReturn = invitationsManagerImpl.setInvitationExpiration(sess, invitation, newExpirationDate);
+    LOG.debug("Expiration date for invitation {} was extended to {}.",
+        invitationToReturn.getId(), invitationToReturn.getExpiration().toString());
+    return invitationToReturn;
+  }
+
   private void checkInvitationCsvData(List<List<String>> parsedData) {
     Set<String> emails = new HashSet<>();
     for (List<String> row : parsedData) {

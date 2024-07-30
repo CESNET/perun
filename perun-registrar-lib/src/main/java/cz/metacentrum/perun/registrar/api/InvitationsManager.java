@@ -37,6 +37,18 @@ public interface InvitationsManager {
   Invitation getInvitationById(PerunSession sess, int id) throws InvitationNotExistsException, PrivilegeException;
 
   /**
+   * Get invitation object with the specified uuid.
+   *
+   * @param sess session
+   * @param token uuid token of the desired invitation
+   * @return Invitation object with the specified uuid
+   * @throws InvitationNotExistsException when invitation with this uuid does not exist
+   * @throws PrivilegeException insufficient rights
+   */
+  Invitation getInvitationByToken(PerunSession sess, UUID token) throws InvitationNotExistsException,
+                                                                            PrivilegeException;
+
+  /**
    * Lists all invitations made by the specified user to the specified group.
    *
    * @param sess session
@@ -181,4 +193,15 @@ public interface InvitationsManager {
   Invitation canInvitationBeAccepted(PerunSession sess, UUID uuid, Group group)
       throws PrivilegeException, InvalidInvitationStatusException, InvitationNotExistsException,
                  InvitationAlreadyAssignedToAnApplicationException;
+
+  /**
+   * Extend the invitation date on the expiration to some later date.
+   *
+   * @param invitation invitation to be extended
+   * @param newExpirationDate of the invitation, +1 month if null
+   * @throws PrivilegeException insufficient rights
+   * @throws InvalidInvitationStatusException when invitation is not PENDING
+   */
+  Invitation extendInvitationExpiration(PerunSession session, Invitation invitation, LocalDate newExpirationDate)
+      throws PrivilegeException, InvalidInvitationStatusException;
 }

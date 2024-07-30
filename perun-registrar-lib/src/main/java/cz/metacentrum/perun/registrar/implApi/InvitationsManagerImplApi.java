@@ -4,9 +4,11 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -92,4 +94,12 @@ public interface InvitationsManagerImplApi {
    */
   void setInvitationApplicationId(PerunSession sess, Invitation invitation, Integer applicationId);
 
+
+  /**
+   * Set the new expiration date of the invitation.
+   *
+   * @param invitation invitation to modify
+   * @param newExpirationDate of the invitation
+   */
+  Invitation setInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate);
 }

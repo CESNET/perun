@@ -236,4 +236,62 @@ public enum InvitationsManagerMethod implements ManagerMethod {
       return ac.getInvitationsManager().revokeInvitationByUuid(ac.getSession(), parms.readUUID("invitationUuid"));
     }
   },
+
+  /*#
+   * Extend the invitation date on the expiration to some later date.
+   *
+   * @param invitation int Invitation <code>id</code>
+   * @param expiration String New expiration date of the invitation, should be later than the old, yyyy-mm-dd format.
+   * @throw PrivilegeException Insufficient rights
+   * @throw InvitationNotExistsException Invitation does not exist
+   * @throw InvalidInvitationStatusException when invitation is not PENDING
+   */
+  /*#
+   * Extend the invitation date on the expiration by one month.
+   *
+   * @param invitation int Invitation <code>id</code>
+   * @throw PrivilegeException Insufficient rights
+   * @throw InvitationNotExistsException Invitation does not exist
+   * @throw InvalidInvitationStatusException when invitation is not PENDING
+   */
+  extendInvitationExpiration {
+    @Override
+    public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      LocalDate expiration = parms.contains("expiration") ? parms.readLocalDate("expiration") : null;
+      return ac.getInvitationsManager().extendInvitationExpiration(ac.getSession(),
+          ac.getInvitationsManager().getInvitationById(ac.getSession(), parms.readInt("invitation")),
+          expiration);
+    }
+  },
+
+  /*#
+   * Extend the invitation date on the expiration to some later date.
+   *
+   * @param uuid token of the Invitation
+   * @param expiration String New expiration date of the invitation, should be later than the old, yyyy-mm-dd format.
+   * @throw PrivilegeException Insufficient rights
+   * @throw InvitationNotExistsException Invitation does not exist
+   * @throw InvalidInvitationStatusException when invitation is not PENDING
+   */
+  /*#
+   * Extend the invitation date on the expiration by one month.
+   *
+   * @param uuid token of the Invitation
+   * @throw PrivilegeException Insufficient rights
+   * @throw InvitationNotExistsException Invitation does not exist
+   * @throw InvalidInvitationStatusException when invitation is not PENDING
+   */
+  extendInvitationExpirationByUUID {
+    @Override
+    public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      LocalDate expiration = parms.contains("expiration") ? parms.readLocalDate("expiration") : null;
+      return ac.getInvitationsManager().extendInvitationExpiration(ac.getSession(),
+          ac.getInvitationsManager().getInvitationByToken(ac.getSession(), parms.readUUID("invitation")),
+          expiration);
+    }
+  },
 }

@@ -3564,20 +3564,20 @@ components:
       in: query
       required: true
 
+    invitationId:
+      name: invitation
+      description: "id of Invitation"
+      schema:
+        type: integer
+      in: query
+      required: true
+
     invitationUuid:
       name: uuid
       description: "uuid of Invitation"
       schema:
         type: string
         format: uuid
-      in: query
-      required: true
-
-    invitationId:
-      name: invitationId
-      description: "id of Invitation"
-      schema:
-        type: integer
       in: query
       required: true
 
@@ -20056,6 +20056,36 @@ paths:
       summary: Revokes existing invitation by its uuid.
       parameters:
         - $ref: '#/components/parameters/invitationUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/invitationsManager/extendInvitationExpiration:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: extendInvitationExpiration
+      summary: Sets a new later expiration date for the invitation.
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+        - { name: expiration, description: "New expiration date of the invite in format yyyy-MM-dd}", schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/invitationsManager/extendInvitationExpirationByUUID:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: extendInvitationExpirationByUUID
+      summary: Sets a new later expiration date for the invitation given by its token.
+      parameters:
+        - $ref: '#/components/parameters/invitationUuid'
+        - { name: expiration, description: "New expiration date of the invite in format yyyy-MM-dd}", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/InvitationResponse'
