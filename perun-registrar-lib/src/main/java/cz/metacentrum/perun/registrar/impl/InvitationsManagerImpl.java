@@ -6,12 +6,15 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.ConsentsManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.implApi.InvitationsManagerImplApi;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import java.sql.Timestamp;
@@ -98,6 +101,19 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
     try {
       return jdbc.queryForObject("select " + INVITATION_SELECT_QUERY + " from invitations where invitations.token=?",
           INVITATION_ROW_MAPPER, token);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new InvitationNotExistsException(ex);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public Invitation getInvitationByApplication(PerunSession sess, Application application)
+      throws InvitationNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + INVITATION_SELECT_QUERY + " from invitations" +
+                                     " where invitations.application_id=?", INVITATION_ROW_MAPPER, application.getId());
     } catch (EmptyResultDataAccessException ex) {
       throw new InvitationNotExistsException(ex);
     } catch (RuntimeException ex) {

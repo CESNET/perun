@@ -61,6 +61,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationOperationResult;
 import cz.metacentrum.perun.registrar.model.ApplicationsOrderColumn;
 import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import cz.metacentrum.perun.registrar.model.RichApplication;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -2437,6 +2438,127 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
 
     assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
+  }
+
+  @Test
+  public void autoApproveApplicationWithInvitationTokenTest() throws PerunException {
+    System.out.println("autoApproveApplicationWithInvitationTokenTest");
+
+    User user = new User(1, "User1", "Test1", "", "", "");
+    user = perun.getUsersManagerBl().createUser(session, user);
+    User sender = new User(2, "Sender", "Sending", "", "", "");
+    sender = perun.getUsersManagerBl().createUser(session, sender);
+
+    Group group = new Group("Test", "Test group");
+    perun.getGroupsManagerBl().createGroup(session, vo, group);
+    registrarManager.createApplicationFormInGroup(session, group);
+
+    Application applicationToVo = prepareApplicationToVo(user);
+    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    registrarManager.approveApplication(session, applicationToVo.getId());
+
+    Invitation invitation = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    invitation = invitationsManager.createInvitation(session, invitation);
+
+    Application applicationToGroup = prepareApplicationToGroup(user, group);
+    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+
+    List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
+    assertEquals(1, groupApps.size());
+    assertEquals(user, groupApps.get(0).getUser());
+    assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
+    assertEquals(InvitationStatus.ACCEPTED, invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
+    assertEquals(session.getPerunPrincipal().getActor(), registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
+  }
+
+  @Test
+  public void autoApproveApplicationWithInvitationAfterVoApplicationApprovalTest() throws PerunException {
+    System.out.println("autoApproveApplicationWithInvitationAfterVoApplicationApprovalTest");
+
+    User user = new User(1, "User1", "Test1", "", "", "");
+    user = perun.getUsersManagerBl().createUser(session, user);
+    User sender = new User(2, "Sender", "Sending", "", "", "");
+    sender = perun.getUsersManagerBl().createUser(session, sender);
+    ExtSource source = new ExtSource("ExtSource", ExtSourcesManager.EXTSOURCE_IDP);
+    perun.getExtSourcesManagerBl().createExtSource(session, source, new HashMap<>());
+    UserExtSource ues = new UserExtSource(source, session.getPerunPrincipal().getActor());
+    perun.getUsersManagerBl().addUserExtSource(session, user, ues);
+
+    Group group = new Group("Test", "Test group");
+    perun.getGroupsManagerBl().createGroup(session, vo, group);
+    registrarManager.createApplicationFormInGroup(session, group);
+
+    Application applicationToVo = prepareApplicationToVo(user);
+    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+
+    Invitation invitation = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    invitation = invitationsManager.createInvitation(session, invitation);
+
+    Application applicationToGroup = prepareApplicationToGroup(null, group);
+    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+
+    List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
+    assertEquals(0, groupApps.size());
+    registrarManager.approveApplication(session, applicationToVo.getId());
+    // We have to call this method explicitly as it is called asynchronously in the code.
+    registrarManager.handleUsersGroupApplications(session, vo, user);
+
+    groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
+    assertEquals(1, groupApps.size());
+    assertEquals(user, groupApps.get(0).getUser());
+    assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
+    assertEquals(InvitationStatus.ACCEPTED, invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
+    assertEquals(session.getPerunPrincipal().getActor(), registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
+  }
+
+  @Test
+  public void autoApproveApplicationWithInvitationTokenAndCheckAutomaticEmailVerificationTest() throws PerunException {
+    System.out.println("autoApproveApplicationWithInvitationTokenAndCheckAutomaticEmailVerificationTest");
+
+    User user = new User(1, "User1", "Test1", "", "", "");
+    user = perun.getUsersManagerBl().createUser(session, user);
+    User sender = new User(2, "Sender", "Sending", "", "", "");
+    sender = perun.getUsersManagerBl().createUser(session, sender);
+
+    Group group = new Group("Test", "Test group");
+    perun.getGroupsManagerBl().createGroup(session, vo, group);
+    registrarManager.createApplicationFormInGroup(session, group);
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+    ApplicationFormItem mailItem = new ApplicationFormItem();
+    mailItem.setType(ApplicationFormItem.Type.VALIDATED_EMAIL);
+    mailItem.setShortname("embeddedGroups");
+    registrarManager.addFormItem(session, form, mailItem);
+
+    Application applicationToVo = prepareApplicationToVo(user);
+    registrarManager.submitApplication(session, applicationToVo, new ArrayList<>());
+    registrarManager.approveApplication(session, applicationToVo.getId());
+
+    String receiverMail = "receiver@email.com";
+    Invitation invitation = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
+        "receiver name", receiverMail, Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
+    invitation = invitationsManager.createInvitation(session, invitation);
+
+    Application applicationToGroup = prepareApplicationToGroup(user, group);
+
+    List<ApplicationFormItemData> data = new ArrayList<>();
+    data.add(new ApplicationFormItemData(mailItem, mailItem.getShortname(), receiverMail, "0"));
+    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, data, invitation.getToken());
+
+    List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
+    List<ApplicationFormItemData> processedData = registrarManager.getApplicationDataById(session, applicationToGroup.getId());
+
+    assertEquals("1", processedData.get(0).getAssuranceLevel());
+    assertEquals(1, groupApps.size());
+    assertEquals(user, groupApps.get(0).getUser());
+    assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
+    assertEquals(InvitationStatus.ACCEPTED, invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
+    assertEquals(session.getPerunPrincipal().getActor(), registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
   }
 
   /*

@@ -117,7 +117,8 @@ public interface RegistrarManager {
    * @param appId   application id
    * @throws PerunException
    */
-  Application approveApplicationInternal(PerunSession session, int appId) throws PerunException;
+  Application approveApplicationInternal(PerunSession session, int appId, String approver)
+      throws PerunException;
 
   /**
    * Manually approves multiple applications at once. Expected to be called as a result of direct VO administrator
