@@ -1675,7 +1675,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Map<String, Object> data = registrarManager.initRegistrar(session, vo.getShortName(), null);
     var items = (List<ApplicationFormItemWithPrefilledValue>) data.get("voFormInitial");
 
-    String expectedOptions = groupA.getId() + "#A";
+    String expectedOptions = groupA.getId() + "#A#ENABLED";
 
     assertThat(items.get(0).getFormItem().getI18n().get(ApplicationFormItem.EN).getOptions()).isEqualTo(
         expectedOptions);
