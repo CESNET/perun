@@ -1,5 +1,27 @@
 Upgrade notes
 
+## [37.6.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.5.0...v37.6.0) (2024-08-02)
+
+
+### Features
+
+* add RPC methods for revoking an invitation ([323c01b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/323c01bffc78d2d3cd6ca26db8a95cb245f68b55))
+* **core:** add attribute to LDAP scheme and LDAPc mapping ([afe7d46](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/afe7d46114946581b4421727cfb43c616661c5b3))
+* **registrar:** add logs to InvitationsManagerBlImpl ([a98564e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a98564eb2384f59f65eb1c1d19817e4112b4b4e5))
+* **registrar:** add methods for sending out pre-approved invites ([8162957](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/81629579374412b9cdf414d3b995f517a58469ce))
+* **registrar:** auto approve application from pre-approved invitation ([832ce0f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/832ce0ff3e74f4e16e907f2832b0a4cfe4f55a34))
+* **registrar:** change authentication in preapproved invitation based on attribute ([bc7aca2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bc7aca295b31e75ca97bac82fac116063e797f5b))
+* **registrar:** check invitation and pair it with an application ([398e47f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/398e47f7d75e50c1ff2679a52a372c9d13b34ca9))
+* **registrar:** method to extend expiration date of an invitation ([274d90e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/274d90e1d9eb15f1dd04e7feec6e8963ad2aec9e))
+
+
+### Bug Fixes
+
+* **core:** remove security image ([a1809b2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a1809b2e0c9dc16ee09df3ce5ac605ba66041501))
+* **deps:** update dependency google-api-services-admin-directory ([a4e0a2b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a4e0a2b682fd46054bf39f9258077cd94bb424f8))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.9.0 ([520b311](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/520b3114610883e0ffdb510b5def3fbb8e389872))
+* **registrar:** invitation checked to match the group from the application ([19901be](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/19901be8c974d555e6554e38255062d25ed3b8fd))
+
 ## [37.5.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.4.0...v37.5.0) (2024-07-24)
 
 
