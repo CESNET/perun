@@ -36,6 +36,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Perun Registrar API.
@@ -116,7 +117,8 @@ public interface RegistrarManager {
    * @param appId   application id
    * @throws PerunException
    */
-  Application approveApplicationInternal(PerunSession session, int appId) throws PerunException;
+  Application approveApplicationInternal(PerunSession session, int appId, String approver)
+      throws PerunException;
 
   /**
    * Manually approves multiple applications at once. Expected to be called as a result of direct VO administrator
@@ -732,13 +734,29 @@ public interface RegistrarManager {
    *
    * <p>The method triggers approval for VOs with auto-approved applications.
    *
-   * @param session     user present in session
-   * @param application application
-   * @param data        data
+   * @param session         user present in session
+   * @param application     application
+   * @param data            data
    * @return Application Submitted application
    * @throws PerunException
    */
   Application submitApplication(PerunSession session, Application application, List<ApplicationFormItemData> data)
+      throws PerunException;
+
+  /**
+   * Creates a new application from pre-approved invite and if succeeds, trigger validation and approval.
+   *
+   * <p>The method triggers approval for VOs with auto-approved applications.
+   *
+   * @param session         user present in session
+   * @param application     application
+   * @param data            data
+   * @param invitationToken uuid corresponding to pre-approved invitation if application is to be paired with one
+   * @return Application Submitted application
+   * @throws PerunException
+   */
+  Application submitApplication(PerunSession session, Application application, List<ApplicationFormItemData> data,
+                                UUID invitationToken)
       throws PerunException;
 
   /**

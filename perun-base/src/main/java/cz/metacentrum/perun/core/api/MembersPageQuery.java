@@ -8,10 +8,7 @@ import java.util.Objects;
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public class MembersPageQuery {
-  private int pageSize;
-  private int offset;
-  private SortingOrder order;
+public class MembersPageQuery extends PageQuery {
   private MembersOrderColumn sortColumn;
   private String searchString = "";
   private List<Status> statuses;
@@ -22,26 +19,20 @@ public class MembersPageQuery {
   }
 
   public MembersPageQuery(int pageSize, int offset, SortingOrder sortingOrder, MembersOrderColumn sortColumn) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = sortingOrder;
+    super(pageSize, offset, sortingOrder);
     this.sortColumn = sortColumn;
   }
 
   public MembersPageQuery(int pageSize, int offset, SortingOrder sortingOrder, MembersOrderColumn sortColumn,
                           String searchString) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = sortingOrder;
+    super(pageSize, offset, sortingOrder);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
   }
 
   public MembersPageQuery(int pageSize, int offset, SortingOrder sortingOrder, MembersOrderColumn sortColumn,
                           String searchString, List<Status> statuses) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = sortingOrder;
+    super(pageSize, offset, sortingOrder);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.statuses = statuses;
@@ -49,19 +40,15 @@ public class MembersPageQuery {
 
   public MembersPageQuery(int pageSize, int offset, SortingOrder sortingOrder, MembersOrderColumn sortColumn,
                           List<Status> statuses) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = sortingOrder;
+    super(pageSize, offset, sortingOrder);
     this.sortColumn = sortColumn;
     this.statuses = statuses;
   }
 
-  public MembersPageQuery(int pageSize, int offset, SortingOrder order, MembersOrderColumn sortColumn,
+  public MembersPageQuery(int pageSize, int offset, SortingOrder sortingOrder, MembersOrderColumn sortColumn,
                           String searchString, List<Status> statuses, Integer groupId,
                           List<MemberGroupStatus> groupStatuses) {
-    this.pageSize = pageSize;
-    this.offset = offset;
-    this.order = order;
+    super(pageSize, offset, sortingOrder);
     this.sortColumn = sortColumn;
     this.searchString = searchString;
     this.statuses = statuses;
@@ -118,30 +105,6 @@ public class MembersPageQuery {
 
   public void setGroupStatuses(List<MemberGroupStatus> groupStatuses) {
     this.groupStatuses = groupStatuses;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
-  }
-
-  public SortingOrder getOrder() {
-    return order;
-  }
-
-  public void setOrder(SortingOrder order) {
-    this.order = order;
-  }
-
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
   }
 
   public String getSearchString() {

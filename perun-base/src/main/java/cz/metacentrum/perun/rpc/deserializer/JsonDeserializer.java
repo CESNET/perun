@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -237,7 +238,6 @@ public class JsonDeserializer extends Deserializer {
         }
       }
     }
-
     return node.intValue();
   }
 
@@ -367,6 +367,30 @@ public class JsonDeserializer extends Deserializer {
     }
 
     return node.asText();
+  }
+
+  @Override
+  public UUID readUUID(String name) {
+    JsonNode node = root.get(name);
+
+    if (node == null) {
+      throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+    }
+    if (node.isNull()) {
+      return null;
+    }
+    if (!node.isValueNode()) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as UUID");
+    }
+
+    UUID uuid;
+    try {
+      uuid = UUID.fromString(node.asText());
+    } catch (IllegalArgumentException e) {
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as UUID");
+    }
+
+    return uuid;
   }
 
   @JsonIgnoreProperties({"name", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})

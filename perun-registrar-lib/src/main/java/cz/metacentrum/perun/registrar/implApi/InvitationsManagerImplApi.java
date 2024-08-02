@@ -4,10 +4,14 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Handles invitation logic. Invitations are used for pre-approved applications sent to users via email.
@@ -25,6 +29,26 @@ public interface InvitationsManagerImplApi {
    * @throws InvitationNotExistsException when invitation with this id does not exist
    */
   Invitation getInvitationById(PerunSession sess, int id) throws InvitationNotExistsException;
+
+  /**
+   * Get invitation object with the specified uuid.
+   *
+   * @param sess session
+   * @param token uuid of the desired invitation
+   * @return Invitation object with the specified uuid
+   * @throws InvitationNotExistsException when invitation with this id does not exist
+   */
+  Invitation getInvitationByToken(PerunSession sess, UUID token) throws InvitationNotExistsException;
+
+  /**
+   * Get invitation object assigned to the given application.
+   *
+   * @param sess session
+   * @param Application the application tied to the wanted invitation
+   * @return Invitation object with the specified uuid
+   * @throws InvitationNotExistsException when invitation with this id does not exist
+   */
+  Invitation getInvitationByApplication(PerunSession sess, Application application) throws InvitationNotExistsException;
 
   /**
    * Lists all invitations made by the specified user to the specified group.
@@ -71,4 +95,22 @@ public interface InvitationsManagerImplApi {
    * @param status new status
    */
   void setInvitationStatus(PerunSession sess, Invitation invitation, InvitationStatus status);
+
+  /**
+   * Updates invitation application_id.
+   *
+   * @param sess session
+   * @param invitation invitation to update
+   * @param applicationId the id of the application corresponding to this invitation
+   */
+  void setInvitationApplicationId(PerunSession sess, Invitation invitation, Integer applicationId);
+
+
+  /**
+   * Set the new expiration date of the invitation.
+   *
+   * @param invitation invitation to modify
+   * @param newExpirationDate of the invitation
+   */
+  Invitation setInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate);
 }

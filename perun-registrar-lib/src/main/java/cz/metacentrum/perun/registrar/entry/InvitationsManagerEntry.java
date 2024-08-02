@@ -13,9 +13,15 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
 import cz.metacentrum.perun.registrar.bl.InvitationsManagerBl;
+import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
+import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Invitations entry logic
@@ -49,6 +55,17 @@ public class InvitationsManagerEntry implements InvitationsManager {
     }
 
     return invitation;
+  }
+
+  @Override
+  public Invitation getInvitationByToken(PerunSession sess, UUID token)
+      throws InvitationNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+    if (!AuthzResolver.authorizedInternal(sess, "getInvitationByToken_String_policy")) {
+      throw new PrivilegeException("getInvitationByToken");
+    }
+
+    return invitationsManagerBl.getInvitationByToken(sess, token);
   }
 
   @Override
@@ -89,13 +106,52 @@ public class InvitationsManagerEntry implements InvitationsManager {
   }
 
   @Override
+  public Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+                                  String language, LocalDate expiration, String redirectUrl)
+      throws PrivilegeException, GroupNotExistsException, VoNotExistsException, RegistrarException {
+    Utils.checkPerunSession(sess);
+
+    perun.getGroupsManagerBl().checkGroupExists(sess, group);
+    perun.getVosManagerBl().checkVoExists(sess, vo);
+    if (!AuthzResolver.authorizedInternal(sess,
+        "inviteToGroup_Vo_Group_String_String_String_LocalDate_String_policy", vo, group)) {
+      throw new PrivilegeException("inviteToGroup");
+    }
+
+    return invitationsManagerBl.inviteToGroup(sess, vo, group, receiverName, receiverEmail, language, expiration,
+        redirectUrl);
+  }
+
+  @Override
+  public Map<String, String> inviteToGroupFromCsv(PerunSession sess, Vo vo, Group group, List<String> data,
+                                                  String language, LocalDate expiration, String redirectUrl)
+      throws GroupNotExistsException, VoNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    perun.getGroupsManagerBl().checkGroupExists(sess, group);
+    perun.getVosManagerBl().checkVoExists(sess, vo);
+    if (!AuthzResolver.authorizedInternal(sess,
+        "inviteToGroupFromCsv_Vo_Group_List<String>_policy", vo, group)) {
+      throw new PrivilegeException("inviteToGroupFromCsv");
+    }
+    return invitationsManagerBl.inviteToGroupFromCsv(sess, vo, group, data, language, expiration, redirectUrl);
+  }
+
+  @Override
+  public Invitation extendInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate)
+      throws PrivilegeException, InvalidInvitationStatusException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "extendInvitationExpiration_Invitation_LocalDate_policy", invitation)) {
+      throw new PrivilegeException("extendInvitationExpiration");
+    }
+    return invitationsManagerBl.extendInvitationExpiration(sess, invitation, newExpirationDate);
+  }
+
+  @Override
   public Invitation createInvitation(PerunSession sess, Invitation invitation)
       throws PrivilegeException, GroupNotExistsException, VoNotExistsException {
     Utils.checkPerunSession(sess);
-
-    if (!Utils.EMAIL_PATTERN.matcher(invitation.getReceiverEmail()).matches()) {
-      throw new IllegalArgumentException("Invalid email address: " + invitation.getReceiverEmail());
-    }
 
     perun.getGroupsManagerBl().checkGroupExists(sess, perun.getGroupsManagerBl().getGroupById(sess, invitation
                                                                                                         .getGroupId()));
@@ -107,5 +163,58 @@ public class InvitationsManagerEntry implements InvitationsManager {
     }
 
     return invitationsManagerBl.createInvitation(sess, invitation);
+  }
+
+  @Override
+  public Invitation revokeInvitationById(PerunSession sess, int id)
+      throws InvitationNotExistsException, PrivilegeException, InvalidInvitationStatusException {
+    Utils.checkPerunSession(sess);
+
+    Invitation invitation = invitationsManagerBl.getInvitationById(sess, id);
+
+    if (!AuthzResolver.authorizedInternal(sess, "revokeInvitationById_int_policy", invitation)) {
+      throw new PrivilegeException("revokeInvitationById");
+    }
+
+    return invitationsManagerBl.revokeInvitation(sess, invitation);
+  }
+
+  @Override
+  public Invitation revokeInvitationByUuid(PerunSession sess, UUID token)
+      throws InvitationNotExistsException, PrivilegeException, InvalidInvitationStatusException {
+    Utils.checkPerunSession(sess);
+
+    Invitation invitation = invitationsManagerBl.getInvitationByToken(sess, token);
+
+    if (!AuthzResolver.authorizedInternal(sess, "revokeInvitationByUuid_UUID_policy", invitation)) {
+      throw new PrivilegeException("revokeInvitationByUuid");
+    }
+
+    return invitationsManagerBl.revokeInvitation(sess, invitation);
+  }
+
+  @Override
+  public String createInvitationUrl(PerunSession sess, String token)
+      throws PrivilegeException, InvitationNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "createInvitationUrl_String")) {
+      throw new PrivilegeException("createInvitationUrl");
+    }
+
+    return invitationsManagerBl.createInvitationUrl(sess, token);
+  }
+
+  @Override
+  public Invitation canInvitationBeAccepted(PerunSession sess, UUID uuid, Group group)
+      throws PrivilegeException, InvalidInvitationStatusException, InvitationNotExistsException,
+                 InvitationAlreadyAssignedToAnApplicationException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "canInvitationBeAccepted_UUID_policy")) {
+      throw new PrivilegeException("canInvitationBeAccepted");
+    }
+
+    return invitationsManagerBl.canInvitationBeAccepted(sess, uuid, group);
   }
 }

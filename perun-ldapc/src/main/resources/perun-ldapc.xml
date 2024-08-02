@@ -1137,18 +1137,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="dependsOnPerunAttribute" value="urn:perun:group:attribute-def:def:sponsorOrganizationIdentifier"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
-					<property name="name" value="securityImage;x-ns-"/>
-					<property name="required" value="false"/>
-					<property name="deleted" value="true"/>
-					<property name="singleValueExtractor">
-						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
-							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:securityImage:"/>
-							<property name="namespace" value="urn:perun:user:attribute-def:def:securityImage"/>
-							<property name="name" value=""/>
-						</bean>
-					</property>
-				</bean>
-				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="securityText;x-ns-"/>
 					<property name="required" value="false"/>
 					<property name="singleValueExtractor">

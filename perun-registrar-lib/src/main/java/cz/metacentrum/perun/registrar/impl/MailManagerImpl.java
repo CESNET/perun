@@ -82,6 +82,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailText;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
+import cz.metacentrum.perun.registrar.model.Invitation;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -100,6 +101,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -366,6 +368,23 @@ public class MailManagerImpl implements MailManager {
       params.put("group", group.getName());
     }
     return buildUrl(url, params, namespace, "registrar");
+  }
+
+  public String buildInviteURLForInvitation(Vo vo, Group group, UUID token) {
+    // do not use vo/group attributes to determine url
+    String url = getPerunUrl(null, null);
+    if (!StringUtils.hasText(url)) {
+      return EMPTY_STRING;
+    }
+
+    Map<String, String> params = new HashMap<>();
+    params.put("vo", vo.getShortName());
+    if (group != null) {
+      params.put("group", group.getName());
+    }
+    params.put("token", token.toString());
+
+    return buildUrl(url, params, getAuthTypeFromAttribute(vo, group), "registrar");
   }
 
   /**
@@ -707,6 +726,31 @@ public class MailManagerImpl implements MailManager {
     }
     String mailSubject = getMailSubjectInvitation(mail, lang, vo, group, user, name);
     message.setSubject(mailSubject);
+
+    return message;
+  }
+
+  private MimeMessage getInvitationMessagePreApproved(Vo vo, Group group, Invitation invitation, String url)
+      throws MessagingException {
+    Application fakeApp = getFakeApplication(vo, group);
+    MimeMessage message = mailSender.createMimeMessage();
+
+    setFromMailAddress(message, fakeApp);
+    setRecipient(message, invitation.getReceiverEmail());
+    // do something like this in the future when we have notifications for preapproved invitations
+    //    mail = getInvitationMailTemplate(group);
+    //    lang = checkLocaleAndFallBack(mail, lang);
+    //    getInvitationMessage(vo, group, user, lang);
+
+    String body = "Dear " + invitation.getReceiverName() + ", \n\n You have been invited to join group " +
+                      group.getShortName() + ". Please visit the link below, where you can fill out the pre-approved" +
+                      " application:\n\n" + url + "\n\n" + "Link is valid till " + invitation.getExpiration() +
+                      "\n\n" + "Message is automatically generated." +
+        "\n----------------------------------------------------------------" +
+        "\nPerun - Identity & Access Management System";
+    String subject = "[" + BeansUtils.getCoreConfig().getInstanceName() + "] Invitation to " + group.getShortName();
+    message.setText(body);
+    message.setSubject(subject);
 
     return message;
   }
@@ -1151,7 +1195,7 @@ public class MailManagerImpl implements MailManager {
    * @return Base url or empty string.
    */
   private String getPerunUrl(Vo vo, Group group) {
-    PerunAppsConfig.Brand voBrand = PerunAppsConfig.getBrandContainingVo(vo.getShortName());
+    PerunAppsConfig.Brand voBrand = PerunAppsConfig.getBrandContainingVo(vo != null ? vo.getShortName() : "");
     String result = voBrand != null ? voBrand.getOldGuiDomain() : EMPTY_STRING;
 
     try {
@@ -1166,7 +1210,7 @@ public class MailManagerImpl implements MailManager {
             result = (String) a2.getValue();
           }
         }
-      } else {
+      } else if (vo != null) {
         // take it from the VO
         Attribute a2 = attrManager.getAttribute(registrarSession, vo, URN_VO_REGISTRAR_URL);
         if (a2 != null && a2.getValue() != null && !((String) a2.getValue()).isEmpty()) {
@@ -2250,6 +2294,17 @@ public class MailManagerImpl implements MailManager {
     sendInvitationMail(sess, vo, group, email, language, message, app);
   }
 
+  public void sendInvitationPreApproved(Vo vo, Group group, Invitation invitation, String url)
+      throws RegistrarException {
+    MimeMessage message;
+    try {
+      message = getInvitationMessagePreApproved(vo, group, invitation, url);
+    } catch (MessagingException ex) {
+      throw new RegistrarException("[MAIL MANAGER] Exception thrown when getting invitation message", ex);
+    }
+    sendInvitationMailPreApproved(vo, group, invitation, message);
+  }
+
   /**
    * Send invitation email to one user
    */
@@ -2277,6 +2332,18 @@ public class MailManagerImpl implements MailManager {
           app.getGroup());
     } catch (MailException | MessagingException ex) {
       LOG.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
+      throw new RegistrarException("Unable to send e-mail.", ex);
+    }
+  }
+
+  private void sendInvitationMailPreApproved(Vo vo, Group group, Invitation invitation,
+                                             MimeMessage message) throws RegistrarException {
+    try {
+      mailSender.send(message);
+      LOG.info("[MAIL MANAGER] Sending mail: PRE_APPROVED_INVITE to {} / {} {}", message.getAllRecipients(), vo, group);
+    } catch (MailException | MessagingException ex) {
+      LOG.error("[MAIL MANAGER] Sending mail: PRE_APPROVED_INVITE of Invitation {} failed because of exception.",
+          invitation, ex);
       throw new RegistrarException("Unable to send e-mail.", ex);
     }
   }

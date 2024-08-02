@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -884,6 +885,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
    * @return Application Submitted application
    */
+  /*#
+   * Creates a new application from pre-approved invitation.
+   * The method triggers approval for VOs with auto-approved applications.
+   *
+   * @param app Application Application JSON object
+   * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
+   * @param token uuid corresponding to pre-approved invitation
+   * @return Application Submitted application
+   */
   submitApplication {
     @Override
     public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -891,9 +901,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
       Application app = parms.read("app", Application.class);
       List<ApplicationFormItemData> data = parms.readList("data", ApplicationFormItemData.class);
+      if (parms.contains("token")) {
+        if (app.getGroup() == null) {
+          throw new IllegalArgumentException("The token parameter is only meant for group applications.");
+        }
+        return ac.getRegistrarManager().submitApplication(ac.getSession(), app, data, parms.readUUID("token"));
+      }
 
       return ac.getRegistrarManager().submitApplication(ac.getSession(), app, data);
-
     }
 
   },

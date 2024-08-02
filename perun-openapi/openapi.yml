@@ -1210,6 +1210,32 @@ components:
         - APP_ERROR_VO_ADMIN
         - USER_INVITE
 
+    InvitationStatus:
+      type: string
+      enum:
+        - PENDING
+        - ACCEPTED
+        - EXPIRED
+        - REVOKED
+        - UNSENT
+
+    Invitation:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+      properties:
+        voId: { type: integer }
+        groupId: { type: integer }
+        applicationId: { type: integer, nullable: true }
+        senderId: { type: integer }
+        receiverName: { type: string }
+        receiverEmail: { type: string, format: email }
+        redirectUrl: { type: string, nullable: true }
+        token: { type: string, format: uuid, nullable: true }
+        language: { type: string }
+        expiration: { type: string }
+        status: {$ref: '#/components/schemas/InvitationStatus'}
+
     PerunPrincipal:
       type: object
       required:
@@ -2304,6 +2330,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Application"
+
+    InvitationResponse:
+      description: "returns Invitation"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Invitation'
 
     ListOfApplicationsResponse:
       description: "returns List<Application>"
@@ -3531,7 +3564,22 @@ components:
       in: query
       required: true
 
+    invitationId:
+      name: invitation
+      description: "id of Invitation"
+      schema:
+        type: integer
+      in: query
+      required: true
 
+    invitationUuid:
+      name: uuid
+      description: "uuid of Invitation"
+      schema:
+        type: string
+        format: uuid
+      in: query
+      required: true
 
 #################################################
 #                                               #
@@ -3606,6 +3654,10 @@ tags:
     description: ConsentsManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ConsentsManager.html
+  - name: InvitationsManager
+    description: InvitationsManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-InvitationsManager.html
   - name: DatabaseManager
     description: DatabaseManager RPC API in Perun
     externalDocs:
@@ -9592,7 +9644,7 @@ paths:
                 - token
                 - u
               properties:
-                token: { type: string }
+                token: { type: string, format: uuid }
                 u: { type: integer }
 
   /json/usersManager/getPendingPreferredEmailChanges:
@@ -9790,7 +9842,7 @@ paths:
               required:
                 - token
               properties:
-                token: { type: string, description: "token for the password reset request"}
+                token: { type: string, format: uuid, description: "token for the password reset request"}
 
   /json/usersManager/changeNonAuthzPassword/token:
     post:
@@ -9819,7 +9871,7 @@ paths:
                 - token
                 - password
               properties:
-                token: { type: string, description: "token for the password reset request" }
+                token: { type: string, format: uuid, description: "token for the password reset request" }
                 password: { type: string }
                 lang: { type: string, description: "language to get notifications in (optional)" }
 
@@ -17538,6 +17590,7 @@ paths:
               properties:
                 app: { $ref: '#/components/schemas/Application' }
                 data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+                invitationToken: { type: string, format: uuid, description: "uuid token of invitation if application is pre-approved", nullable: true }
 
   /json/registrarManager/getGroupsToAutoRegistration:
     get:
@@ -19905,5 +19958,136 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # InvitationsManager                            #
+  #                                               #
+  #################################################
+  /urlinjsonout/invitationsManager/inviteToGroup:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: inviteToGroup
+      summary: Creates invitation to group and sends the link via email. Link leads to the application form of the group and consequently connects to a pre-approved application.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/groupId'
+        - { name: receiverName, description: "Name of the invited user", schema: { type: string }, in: query, required: true }
+        - { name: receiverEmail, description: "Email of the invited user", schema: { type: string, format: string }, in: query, required: true }
+        - { name: language, description: "Language of the invitation, should match available instance locales", schema: { type: string }, in: query, required: true }
+        - { name: expiration, description: "Expiration date of the invite in format yyyy-MM-dd}", schema: { type: string }, in: query, required: false }
+        - { name: redirectUrl, description: "URL to redirect to after application filled out.", schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/invitationsManager/inviteToGroupFromCsv:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: inviteToGroupFromCsv
+      summary: Creates invitations to group and sends the link via email from CSV. Link leads to the application form of the group and consequently connects to a pre-approved application.
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputInviteToGroupFromCsv
+              description: "input to inviteToGroupFromCsv"
+              type: object
+              required:
+                - vo
+                - group
+                - invitationData
+                - language
+                - expiration
+              properties:
+                vo: { type: integer, description: "vo id", nullable: false }
+                group: { type: integer, description: "group id", nullable: false }
+                invitationData: { type: array, items: { type: string }, description: "values separated with semicolons" }
+                language: { type: string, description: "language", nullable: false }
+                expiration: { type: string, description: "Date in format yyyy-MM-dd ", nullable: true }
+                redirectUrl: { type: string, description: "redirect url", nullable: true }
+
+  /urlinjsonout/invitationsManager/canInvitationBeAccepted:
+    get:
+      tags:
+        - InvitationsManager
+      operationId: canInvitationBeAccepted
+      summary: Checks whether an invitation under the given uuid exists, is in a pending state and matches the given group. If so returns the invitation.
+      parameters:
+        - $ref: '#/components/parameters/invitationUuid'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/invitationsManager/revokeInvitationById:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: revokeInvitationById
+      summary: Revokes existing invitation by its id.
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/invitationsManager/revokeInvitationByUuid:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: revokeInvitationByUuid
+      summary: Revokes existing invitation by its uuid.
+      parameters:
+        - $ref: '#/components/parameters/invitationUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/invitationsManager/extendInvitationExpiration:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: extendInvitationExpiration
+      summary: Sets a new later expiration date for the invitation.
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+        - { name: expiration, description: "New expiration date of the invite in format yyyy-MM-dd}", schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/invitationsManager/extendInvitationExpirationByUUID:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: extendInvitationExpirationByUUID
+      summary: Sets a new later expiration date for the invitation given by its token.
+      parameters:
+        - $ref: '#/components/parameters/invitationUuid'
+        - { name: expiration, description: "New expiration date of the invite in format yyyy-MM-dd}", schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'

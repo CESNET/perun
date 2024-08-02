@@ -81,6 +81,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,7 +212,7 @@ public class UsersManagerEntry implements UsersManager {
   }
 
   @Override
-  public void changeNonAuthzPassword(PerunSession sess, String token, String password, String lang)
+  public void changeNonAuthzPassword(PerunSession sess, UUID token, String password, String lang)
       throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException,
                  PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException,
                  PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
@@ -303,7 +304,7 @@ public class UsersManagerEntry implements UsersManager {
   }
 
   @Override
-  public void checkPasswordResetRequestIsValid(PerunSession sess, String token)
+  public void checkPasswordResetRequestIsValid(PerunSession sess, UUID token)
       throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
     Utils.checkPerunSession(sess);
     Utils.notNull(token, "token");
@@ -1963,7 +1964,7 @@ public class UsersManagerEntry implements UsersManager {
   }
 
   @Override
-  public String validatePreferredEmailChange(PerunSession sess, User user, String token)
+  public String validatePreferredEmailChange(PerunSession sess, User user, UUID token)
       throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException,
                  WrongReferenceAttributeValueException, WrongAttributeValueException {
     Utils.checkPerunSession(sess);

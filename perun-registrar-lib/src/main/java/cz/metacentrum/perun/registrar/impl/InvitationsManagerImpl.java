@@ -6,15 +6,19 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.ConsentsManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.implApi.InvitationsManagerImplApi;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -28,7 +32,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 public class InvitationsManagerImpl implements InvitationsManagerImplApi {
   private JdbcPerunTemplate jdbc;
-  static final Logger LOG = LoggerFactory.getLogger(ConsentsManagerImpl.class);
+  static final Logger LOG = LoggerFactory.getLogger(InvitationsManagerImpl.class);
 
   protected static final String INVITATION_SELECT_QUERY = "invitations.id as invitations_id, " +
                                                               "invitations.token as invitations_token, " +
@@ -93,6 +97,31 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
   }
 
   @Override
+  public Invitation getInvitationByToken(PerunSession sess, UUID token) throws InvitationNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + INVITATION_SELECT_QUERY + " from invitations where invitations.token=?",
+          INVITATION_ROW_MAPPER, token);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new InvitationNotExistsException(ex);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public Invitation getInvitationByApplication(PerunSession sess, Application application)
+      throws InvitationNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + INVITATION_SELECT_QUERY + " from invitations" +
+                                     " where invitations.application_id=?", INVITATION_ROW_MAPPER, application.getId());
+    } catch (EmptyResultDataAccessException ex) {
+      throw new InvitationNotExistsException(ex);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
   public List<Invitation> getInvitationsForSender(PerunSession sess, Group group, User user) {
     try {
       return jdbc.query("select " + INVITATION_SELECT_QUERY + " from invitations where invitations.group_id=? and " +
@@ -137,12 +166,13 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
       int newId = Utils.getNewId(jdbc, "invitations_id_seq");
       // set app id as null for now, update later when invitation filled out and application created
       jdbc.update("insert into invitations(id, vo_id, group_id, application_id, sender_id, receiver_name, " +
-                      "receiver_email, language, expiration, status, created_by, modified_by, created_by_uid," +
-                      " modified_by_uid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::invitations_status, ?, " +
-                      "?, ?, ?)", newId, invitation.getVoId(), invitation.getGroupId(), null,
+                      "receiver_email, redirect_url, language, expiration, status, created_by, modified_by," +
+                      " created_by_uid, modified_by_uid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::invitations_status," +
+                      " ?, ?, ?, ?)", newId, invitation.getVoId(), invitation.getGroupId(), null,
                       invitation.getSenderId(), invitation.getReceiverName(), invitation.getReceiverEmail(),
-          invitation.getLanguage().toString(), Timestamp.valueOf(invitation.getExpiration().atStartOfDay()),
-          invitation.getStatus().toString(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
+          invitation.getRedirectUrl(), invitation.getLanguage().toString(),
+          Timestamp.valueOf(invitation.getExpiration().atStartOfDay()), invitation.getStatus().toString(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
           sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 
       // get invitation to retrieve created uuid
@@ -166,6 +196,37 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
       );
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void setInvitationApplicationId(PerunSession sess, Invitation invitation, Integer applicationId) {
+    try {
+      jdbc.update(
+          "update invitations set application_id=?, modified_by=?, modified_at= " +
+              Compatibility.getSysdate() + ", modified_by_uid=? where id=?", applicationId,
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), invitation.getId()
+      );
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public Invitation setInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate) {
+    try {
+      jdbc.update(
+          "update invitations set expiration=?, modified_by=?, modified_at= " +
+              Compatibility.getSysdate() + ", modified_by_uid=? where id=?", newExpirationDate.atStartOfDay(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), invitation.getId()
+      );
+
+      return getInvitationById(sess, invitation.getId());
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    } catch (InvitationNotExistsException e) {
+      LOG.warn("Invitation was probably deleted while being updated.");
+      throw new RuntimeException(e);
     }
   }
 }

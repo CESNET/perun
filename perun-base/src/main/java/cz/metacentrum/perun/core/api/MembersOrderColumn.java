@@ -10,7 +10,7 @@ import java.util.function.Function;
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public enum MembersOrderColumn {
+public enum MembersOrderColumn implements OrderColumn {
   NAME(", users.first_name, users.last_name ", "", ", users.last_name, users.first_name",
       query -> "users.last_name " + getLangSql(query) + query.getOrder().getSqlValue() + ", " + "users.first_name " +
                getLangSql(query) + query.getOrder().getSqlValue()),
@@ -86,8 +86,8 @@ public enum MembersOrderColumn {
     return this.joinSql;
   }
 
-  public String getSqlOrderBy(MembersPageQuery query) {
-    return this.orderBySqlFunction.apply(query);
+  public String getSqlOrderBy(PageQuery query) {
+    return this.orderBySqlFunction.apply((MembersPageQuery) query);
   }
 
   public String getSqlSelect() {

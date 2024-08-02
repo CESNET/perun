@@ -4,14 +4,15 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
+import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Handles invitation logic. Invitations are used for pre-approved applications sent to users via email.
@@ -29,6 +30,16 @@ public interface InvitationsManagerBl {
    * @throws InvitationNotExistsException when invitation with this id does not exist
    */
   Invitation getInvitationById(PerunSession sess, int id) throws InvitationNotExistsException;
+
+  /**
+   * Get invitation object with the specified uuid.
+   *
+   * @param sess session
+   * @param token uuid token of the desired invitation
+   * @return Invitation object with the specified uuid
+   * @throws InvitationNotExistsException when invitation with this uuid does not exist
+   */
+  Invitation getInvitationByToken(PerunSession sess, UUID token) throws InvitationNotExistsException;
 
   /**
    * Lists all invitations made by the specified user to the specified group.
@@ -68,6 +79,57 @@ public interface InvitationsManagerBl {
   Invitation createInvitation(PerunSession sess, Invitation invitation);
 
   /**
+   * Builds the url to the registrar application form of the group/vo of the invitation associated with the passed
+   * token.
+   *
+   * @param sess  session
+   * @param token token of the invitation
+   * @return the url
+   */
+  String createInvitationUrl(PerunSession sess, String token)
+      throws InvitationNotExistsException;
+
+  /**
+   * Creates invitation based on the passed parameters, generates the UUID token, creates invitation link to the group
+   * application form with the token as parameter and sends it to the receiver's email. Optionally a redirect url can be
+   * passed, which the user will be redirected to after filling out the form.
+   * Should an error occur in the process, the created invitation is set to the UNSENT state.
+   *
+   * @param sess session
+   * @param vo vo of the group
+   * @param group group to be invited to
+   * @param receiverName receiver's name
+   * @param receiverEmail receiver's email
+   * @param language language of the invitation
+   * @param expiration expiration of the invitation link
+   * @param redirectUrl optional redirect url to redirect to upon filling out the form
+   * @throws RegistrarException when email address format is incorrect
+   * @return created Invitation object
+   */
+  Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+                           String language, LocalDate expiration, String redirectUrl) throws RegistrarException;
+
+  /**
+   * Creates invitations based on the CSV parameters, for each generates the UUID token, creates invitation link
+   * to the group application form with the token as parameter and sends it to the receiver's email.
+   * Optionally a redirect url can be passed, which the user will be redirected to after filling out the form.
+   * Should an error occur in the process, the created invitation is set to the UNSENT state.
+   * <p>
+   * Expected format: `receiverEmail;receiverName\n`
+   * @param sess session
+   * @param vo vo of the group
+   * @param group group to be invited to
+   * @param data CSV data
+   * @param language language of the invitations
+   * @param expiration expiration of the invitation link
+   * @param redirectUrl optional redirect url to redirect to upon filling out the form
+   * @return Map containing the results. The key is name and email of receiver, value is either 'OK' or 'ERROR' with the
+   *  error message
+   */
+  Map<String, String> inviteToGroupFromCsv(PerunSession sess, Vo vo, Group group, List<String> data, String language,
+                                           LocalDate expiration, String redirectUrl);
+
+  /**
    * Checks whether the transition is allowed and expires invitation.
    *
    * @param sess session
@@ -96,4 +158,29 @@ public interface InvitationsManagerBl {
    * @throws InvalidInvitationStatusException transition is not allowed from the current invitation status
    */
   Invitation markInvitationAccepted(PerunSession sess, Invitation invitation) throws InvalidInvitationStatusException;
+
+  /**
+   * Checks if an invitation given by the uuid exists and if it is in a pending state.
+   * If yes return the invitation, otherwise throws an exception.
+   *
+   * @param sess session
+   * @param uuid random token assigned to the invitation
+   * @param group the group for which the invitation is to be used
+   * @return the invitation
+   * @throws InvitationNotExistsException invitation does not exist
+   * @throws InvalidInvitationStatusException status is other than pending
+   */
+  Invitation canInvitationBeAccepted(PerunSession sess, UUID uuid, Group group)
+      throws InvalidInvitationStatusException, InvitationNotExistsException,
+                 InvitationAlreadyAssignedToAnApplicationException;
+
+  /**
+   * Extend the invitation date on the expiration to some later date.
+   *
+   * @param invitation invitation to be extended
+   * @param newExpirationDate of the invitation, +1 month if null
+   * @throws InvalidInvitationStatusException when invitation is not PENDING
+   */
+  Invitation extendInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate)
+      throws InvalidInvitationStatusException;
 }

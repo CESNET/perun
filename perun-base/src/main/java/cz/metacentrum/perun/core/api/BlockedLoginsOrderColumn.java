@@ -7,7 +7,7 @@ import java.util.function.Function;
  * <p>
  * For each such column, this instances also contain sql parts that are specific for them.
  */
-public enum BlockedLoginsOrderColumn {
+public enum BlockedLoginsOrderColumn implements OrderColumn {
   LOGIN("", "", query -> "login " + query.getOrder().getSqlValue()),
   NAMESPACE("", "", query -> "namespace " + query.getOrder().getSqlValue());
 
@@ -30,8 +30,8 @@ public enum BlockedLoginsOrderColumn {
     return this.joinSql;
   }
 
-  public String getSqlOrderBy(BlockedLoginsPageQuery query) {
-    return this.orderBySqlFunction.apply(query);
+  public String getSqlOrderBy(PageQuery query) {
+    return this.orderBySqlFunction.apply((BlockedLoginsPageQuery) query);
   }
 
   public String getSqlSelect() {
