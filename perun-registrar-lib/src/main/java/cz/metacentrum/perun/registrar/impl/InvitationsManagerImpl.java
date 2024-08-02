@@ -159,6 +159,18 @@ public class InvitationsManagerImpl implements InvitationsManagerImplApi {
   }
 
   @Override
+  public List<Invitation> getAllInvitations(PerunSession sess, InvitationStatus status) {
+    try {
+      return jdbc.query("select " + INVITATION_SELECT_QUERY + " from invitations where status = ?::invitations_status",
+              INVITATION_ROW_MAPPER, status.toString());
+    } catch (EmptyResultDataAccessException ex) {
+      return new ArrayList<>();
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
   public Invitation createInvitation(PerunSession sess, Invitation invitation) {
     // TODO check for existing?
 

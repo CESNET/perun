@@ -79,6 +79,11 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   }
 
   @Override
+  public List<Invitation> getAllInvitations(PerunSession sess, InvitationStatus status) {
+    return invitationsManagerImpl.getAllInvitations(sess, status);
+  }
+
+  @Override
   public Invitation createInvitation(PerunSession sess, Invitation invitation) {
     if (!Utils.EMAIL_PATTERN.matcher(invitation.getReceiverEmail()).matches()) {
       throw new IllegalArgumentException("Invalid email address: " + invitation.getReceiverEmail());

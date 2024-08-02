@@ -15,6 +15,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
                             cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
             <task:scheduled ref="appAutoRejectionScheduler" method="checkApplicationsExpiration"
                             cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
+            <task:scheduled ref="invitationExpirationScheduler" method="checkInvitationsExpiration"
+                            cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
             <!-- <task:scheduled ref="expirationNotifScheduler" method="checkIsCesnetEligible" cron="0 5 0 * * ?"/>--> <!-- fixme: UNCOMMENT TO RUN every day at 00:05 -->
         </task:scheduled-tasks>
     </beans>
