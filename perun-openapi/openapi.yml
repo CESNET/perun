@@ -3375,6 +3375,16 @@ components:
       in: query
       required: true
 
+    operandGroupIds:
+      name: "operandGroups[]"
+      description: "IDs of Groups to be removed from 'resultGroup' subgroups"
+      schema:
+        type: array
+        items:
+          type: integer
+      in: query
+      required: true
+
     key:
       name: key
       description: key of an entityless attribute
@@ -13895,6 +13905,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/resultGroupId'
         - $ref: '#/components/parameters/operandGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/removeGroupUnions:
+    post:
+      tags:
+        - GroupsManager
+      operationId: removeGroupUnions
+      summary: Removes unions of groups, where "operandGroups" are technically removed from subgroups of "resultGroup". Members from "operandGroups" are removed from "resultGroup" if they were INDIRECT members sourcing from these groups only.
+      parameters:
+        - $ref: '#/components/parameters/resultGroupId'
+        - $ref: '#/components/parameters/operandGroupIds'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

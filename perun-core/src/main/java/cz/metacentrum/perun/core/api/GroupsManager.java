@@ -1531,6 +1531,23 @@ public interface GroupsManager {
                  ExternallyManagedException;
 
   /**
+   * Removes a union relations between groups. All indirect members that originate from operand groups are removed
+   * from result group.
+   *
+   * @param sess         perun session
+   * @param resultGroup  group from which members are removed
+   * @param operandGroups groups which members are removed from result group
+   * @throws GroupNotExistsException
+   * @throws InternalErrorException
+   * @throws GroupRelationDoesNotExist
+   * @throws GroupRelationCannotBeRemoved
+   * @throws PrivilegeException
+   */
+  void removeGroupUnions(PerunSession sess, Group resultGroup, List<Group> operandGroups)
+          throws GroupNotExistsException, PrivilegeException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved,
+          ExternallyManagedException;
+
+  /**
    * Removes member form the group.
    *
    * @param perunSession

@@ -2589,6 +2589,29 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
+  result-removeGroupUnions_Group_List<Group>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
+  operand-removeGroupUnions_Group_List<Group>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Group
+      - MFA: Vo
+
   getGroupUnions_Group_boolean_policy:
     policy_roles:
       - VOOBSERVER: Vo
@@ -8565,7 +8588,7 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
-  
+
   revokeInvitationById_int_policy:
     policy_roles:
       - VOADMIN: Vo
@@ -8580,7 +8603,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
-      - default_policy  
+      - default_policy
 
   extendInvitationExpiration_Invitation_LocalDate_policy:
     policy_roles:

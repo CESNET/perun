@@ -67,6 +67,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -1881,6 +1882,34 @@ public class GroupsManagerEntry implements GroupsManager {
     }
 
     getGroupsManagerBl().removeGroupUnion(sess, resultGroup, operandGroup, false);
+  }
+
+  public void removeGroupUnions(PerunSession sess, Group resultGroup, List<Group> operandGroups)
+          throws GroupNotExistsException, PrivilegeException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved,
+          ExternallyManagedException {
+
+    Utils.checkPerunSession(sess);
+    getGroupsManagerBl().checkGroupExists(sess, resultGroup);
+    if (getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, resultGroup)) {
+      throw new ExternallyManagedException("Result group: " + resultGroup + " is externally managed!");
+    }
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "result-removeGroupUnions_Group_List<Group>_policy", resultGroup)) {
+      throw new PrivilegeException(sess, "removeGroupUnion");
+    }
+
+    for (Group operandGroup : operandGroups) {
+
+      getGroupsManagerBl().checkGroupExists(sess, operandGroup);
+
+      // Authorization
+      if (!AuthzResolver.authorizedInternal(sess, "operand-removeGroupUnions_Group_List<Group>_policy", operandGroup)) {
+        throw new PrivilegeException(sess, "removeGroupUnion");
+      }
+
+      getGroupsManagerBl().removeGroupUnion(sess, resultGroup, operandGroup, false);
+
+    }
   }
 
   @Override
