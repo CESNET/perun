@@ -257,6 +257,34 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Removes unions between groups, where "operandGroups" are technically removed from subgroups of "resultGroup".
+   * Members from all "operandGroups" are removed from "resultGroup" if they were INDIRECT members sourcing from these
+   * groups only.
+   *
+   * @throw GroupNotExistsException If any group not exists in perun
+   * @throw GroupRelationDoesNotExist If the relation doesn't exist
+   * @throw GroupRelationCannotBeRemoved When the group relation cannot be removed
+   *
+   * @param resultGroup int <code>id</code> of Group to have removed "operandGroup" from subgroups
+   * @param operandGroups List<Integer> list of Groups to be removed from "resultGroup" subgroups
+   */
+  removeGroupUnions {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      //TODO: optimalizovat?
+      int[] ids = parms.readArrayOfInts("operandGroups");
+      List<Group> operandGroups = new ArrayList<>(ids.length);
+      for (int i : ids) {
+        operandGroups.add(ac.getGroupById(i));
+      }
+      ac.getGroupsManager().removeGroupUnions(ac.getSession(), ac.getGroupById(parms.readInt("resultGroup")),
+              operandGroups);
+      return null;
+    }
+  },
+
+  /*#
    * Updates a group.
    *
    * @throw GroupNotExistsException When the group doesn't exist
