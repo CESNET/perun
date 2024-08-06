@@ -9139,7 +9139,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
-    //urn:perun:group:attribute-def:def:groupStructuresynchronizationInterval
+    //urn:perun:group:attribute-def:def:groupStructureSynchronizationInterval
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     attr.setType(String.class.getName());
