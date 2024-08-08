@@ -79,6 +79,14 @@ public interface InvitationsManagerImplApi {
   List<Invitation> getInvitationsForVo(PerunSession sess, Vo vo);
 
   /**
+   * Lists all invitations to groups with a given status
+   *
+   * @param sess session
+   * @return List of all invitations
+   */
+  List<Invitation> getAllInvitations(PerunSession sess, InvitationStatus status);
+
+  /**
    * Creates new Invitation object.
    *
    * @param sess session

@@ -9,6 +9,7 @@ import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnAp
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,14 @@ public interface InvitationsManagerBl {
    * @return List of all invitations to groups of the specified Vo
    */
   List<Invitation> getInvitationsForVo(PerunSession sess, Vo vo);
+
+  /**
+   * Lists all invitations with a given status
+   *
+   * @param sess session
+   * @return List of all invitations
+   */
+  List<Invitation> getAllInvitations(PerunSession sess, InvitationStatus status);
 
   /**
    * Creates new Invitation object - does not send it out or perform any other actions.

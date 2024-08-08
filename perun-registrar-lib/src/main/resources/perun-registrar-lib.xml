@@ -50,6 +50,12 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="registrarManager" ref="registrarManager"/>
     </bean>
 
+    <bean id="invitationExpirationScheduler" class="cz.metacentrum.perun.registrar.impl.InvitationExpirationScheduler"
+          init-method="initialize">
+        <property name="perun" ref="perun"/>
+        <property name="invitationsManagerBl" ref="invitationsManagerBl"/>
+    </bean>
+
     <bean id="invitationsManager" class="cz.metacentrum.perun.registrar.entry.InvitationsManagerEntry">
         <property name="perun" ref="perun"/>
         <property name="invitationsManagerBl" ref="invitationsManagerBl"/>
