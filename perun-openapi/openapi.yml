@@ -1234,7 +1234,53 @@ components:
         token: { type: string, format: uuid, nullable: true }
         language: { type: string }
         expiration: { type: string }
-        status: {$ref: '#/components/schemas/InvitationStatus'}
+        status: { $ref: '#/components/schemas/InvitationStatus' }
+
+    InvitationWithSender:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Invitation'
+      properties:
+        senderName: { type: string }
+        senderEmail: { type: string, format: email }
+
+    PaginatedInvitationsWithSender:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/InvitationWithSender' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
+    InvitationsOrderColumn:
+      type: string
+      enum:
+        - ID
+        - STATUS
+        - EXPIRATION
+        - RECEIVER_NAME
+        - RECEIVER_EMAIL
+        - SENDER_NAME
+
+    InvitationsPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+        sortColumn: { $ref: '#/components/schemas/InvitationsOrderColumn' }
+        searchString: { type: string }
+        statuses: { type: array, items: { $ref: '#/components/schemas/InvitationStatus' } }
+        dateFrom: { type: string, format: date }
+        dateTo: { type: string, format: date }
+      required:
+        - pageSize
+        - offset
+        - order
+        - sortColumn
 
     PerunPrincipal:
       type: object
@@ -2143,6 +2189,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/PaginatedRichApplications"
+
+    PaginatedInvitationWithSenderResponse:
+      description: "returns Paginated<InvitationWithSender>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaginatedInvitationsWithSender"
 
     ResourceResponse:
       description: "returns Resource"
@@ -20116,3 +20169,29 @@ paths:
           $ref: '#/components/responses/InvitationResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/invitationsManager/getInvitationsPage:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: getInvitationsPage
+      summary: Get page of invitations for the given group, based on the query attributes.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedInvitationWithSenderResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetInvitationsPage
+              description: "input to getInvitationsPage"
+              type: object
+              required:
+                - group
+                - query
+              properties:
+                group: { type: integer }
+                query: { $ref: '#/components/schemas/InvitationsPageQuery' }

@@ -1,4 +1,4 @@
--- database version 3.2.21 (don't forget to update insert statement at the end of file)
+-- database version 3.2.22 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -667,9 +667,9 @@ create table application_reserved_logins (
 );
 
 create type invitations_status as enum (
-    'PENDING',
     'ACCEPTED',
     'EXPIRED',
+    'PENDING',
     'REVOKED',
     'UNSENT'
 );
@@ -2062,7 +2062,7 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.21');
+insert into configurations values ('DATABASE VERSION','3.2.22');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

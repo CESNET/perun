@@ -8648,6 +8648,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getInvitationsPage_Group_InvitationPageQuery_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy
+
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 #  primary_object serves to determine with which object is the role primarily connected. Other objects are just complementary.
 #  assign_to_objects is a map of objects which can be assigned with the role. Key is a object name and value is mapping to the database.

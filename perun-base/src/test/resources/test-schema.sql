@@ -1,4 +1,4 @@
--- database version 3.2.21 (don't forget to update insert statement at the end of file)
+-- database version 3.2.22 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -715,9 +715,9 @@ create table application_reserved_logins
 );
 
 create type invitations_status as enum (
-    'PENDING',
     'ACCEPTED',
     'EXPIRED',
+    'PENDING',
     'REVOKED',
     'UNSENT'
 );
@@ -2079,7 +2079,7 @@ create index idx_fk_inv_usr on invitations(sender_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.21');
+values ('DATABASE VERSION', '3.2.22');
 -- insert membership types
 insert into membership_types (id, membership_type, description)
 values (1, 'DIRECT', 'Member is directly added into group');
