@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [37.7.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.6.0...v37.7.0) (2024-08-12)
+
+
+### Features
+
+* **core:** attribute modules for eosc beyond login ([69196ab](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/69196aba679c265f4ab340d44d760883bf2a3645))
+
 ## [37.6.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.5.0...v37.6.0) (2024-08-02)
 
 
