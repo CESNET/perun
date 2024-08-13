@@ -155,6 +155,9 @@ public class MailManagerImpl implements MailManager {
   private static final String FIELD_GROUP_NAME = "{groupName}";
   private static final String FIELD_DISPLAY_NAME = "{displayName}";
   private static final String FIELD_INVITATION_LINK = "{invitationLink}";
+  private static final String FIELD_PRE_APPROVED_INVITATION_LINK = "{preapprovedInvitationLink}";
+  private static final String FIELD_EXPIRATION_DATE = "{expirationDate}";
+  private static final String FIELD_SENDER_NAME = "{senderName}";
   private static final String FIELD_MAIL_FOOTER = "{mailFooter}";
   private static final String FIELD_HTML_MAIL_FOOTER = "{htmlMailFooter}";
   private static final String FIELD_APP_ID = "{appId}";
@@ -266,6 +269,7 @@ public class MailManagerImpl implements MailManager {
     }
 
     for (Locale loc : mail.getMessage().keySet()) {
+      checkRequiredTagsInMessageText(mail.getMailType(), mail.getMessage(loc).getText());
       try {
         jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
             mail.getId(), loc.toString(), false, mail.getMessage(loc).getSubject(), mail.getMessage(loc).getText());
@@ -296,6 +300,8 @@ public class MailManagerImpl implements MailManager {
         mail.getHtmlMessage(loc).setText(parser2.getEscapedHTML());
       }
 
+      checkRequiredTagsInMessageText(mail.getMailType(), mail.getHtmlMessage(loc).getText());
+
       try {
         jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
             mail.getId(), loc.toString(), true, mail.getHtmlMessage(loc).getSubject(),
@@ -313,6 +319,16 @@ public class MailManagerImpl implements MailManager {
     }
 
     return id;
+  }
+
+  private void checkRequiredTagsInMessageText(MailType mailType, String messageText)
+          throws ApplicationMailTextMissingException {
+    if (mailType == MailType.USER_PRE_APPROVED_INVITE && messageText != null && !messageText.isEmpty() &&
+        (!messageText.contains(FIELD_PRE_APPROVED_INVITATION_LINK) || !messageText.contains(FIELD_EXPIRATION_DATE))) {
+      throw new ApplicationMailTextMissingException(
+              "Each set mail message text must contain tags '" + FIELD_PRE_APPROVED_INVITATION_LINK +
+                      "' and '" + FIELD_EXPIRATION_DATE + "'.");
+    }
   }
 
   private void appCreatedVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data,
@@ -731,26 +747,29 @@ public class MailManagerImpl implements MailManager {
   }
 
   private MimeMessage getInvitationMessagePreApproved(Vo vo, Group group, Invitation invitation, String url)
-      throws MessagingException {
+      throws MessagingException, FormNotExistsException, RegistrarException {
     Application fakeApp = getFakeApplication(vo, group);
     MimeMessage message = mailSender.createMimeMessage();
 
     setFromMailAddress(message, fakeApp);
     setRecipient(message, invitation.getReceiverEmail());
-    // do something like this in the future when we have notifications for preapproved invitations
-    //    mail = getInvitationMailTemplate(group);
-    //    lang = checkLocaleAndFallBack(mail, lang);
-    //    getInvitationMessage(vo, group, user, lang);
 
-    String body = "Dear " + invitation.getReceiverName() + ", \n\n You have been invited to join group " +
-                      group.getShortName() + ". Please visit the link below, where you can fill out the pre-approved" +
-                      " application:\n\n" + url + "\n\n" + "Link is valid till " + invitation.getExpiration() +
-                      "\n\n" + "Message is automatically generated." +
-        "\n----------------------------------------------------------------" +
-        "\nPerun - Identity & Access Management System";
-    String subject = "[" + BeansUtils.getCoreConfig().getInstanceName() + "] Invitation to " + group.getShortName();
-    message.setText(body);
-    message.setSubject(subject);
+    ApplicationForm form = getForm(vo, group);
+    ApplicationMail mail = getMail(form, AppType.INITIAL, MailType.USER_PRE_APPROVED_INVITE);
+
+    Locale lang = checkLocaleAndFallback(mail, invitation.getLanguage());
+    // get localized subject and text
+    String mailText = getMailTextPreApprovedInvitation(mail, lang, vo, group, invitation, url);
+    if (containsHtmlMessage(mail, lang)) {
+      String alternativePlainText = getMailAlternativePlainTextPreApprovedInvitation(mail, lang, vo, group, invitation,
+              url);
+      setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
+    } else {
+      message.setText(mailText);
+    }
+
+    String mailSubject = getMailSubjectPreApprovedInvitation(mail, lang, vo, group, invitation, url);
+    message.setSubject(mailSubject);
 
     return message;
   }
@@ -944,6 +963,19 @@ public class MailManagerImpl implements MailManager {
     return mailText;
   }
 
+  private String getMailAlternativePlainTextPreApprovedInvitation(ApplicationMail mail, Locale lang, Vo vo, Group group,
+                                                                  Invitation invitation, String url) {
+    String mailText = EMPTY_STRING;
+    MailText mt = mail.getMessage(lang);
+
+    if (mt.getText() != null && !mt.getText().isEmpty()) {
+      mailText = mt.getText();
+      mailText = substituteCommonStringsForPreApprovedInvite(vo, group, invitation, url, mailText, true);
+    }
+
+    return mailText;
+  }
+
   @Override
   public ApplicationMail getMailById(PerunSession sess, Integer id) throws ApplicationMailNotExistsException {
     // TODO authz
@@ -1108,6 +1140,25 @@ public class MailManagerImpl implements MailManager {
     return mailSubject;
   }
 
+  private String getMailSubjectPreApprovedInvitation(ApplicationMail mail, Locale lang, Vo vo, Group group,
+                                                     Invitation invitation, String url) {
+    String mailSubject = EMPTY_STRING;
+
+    MailText htmlMt = mail.getHtmlMessage(lang);
+    MailText mt = mail.getMessage(lang);
+
+    if (htmlMt.getSubject() != null && !htmlMt.getSubject().isBlank()) {
+      mailSubject = htmlMt.getSubject();
+      mailSubject = substituteCommonStringsForPreApprovedInvite(vo, group, invitation, url, mailSubject, false);
+
+    } else if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
+      mailSubject = mt.getSubject();
+      mailSubject = substituteCommonStringsForPreApprovedInvite(vo, group, invitation, url, mailSubject, false);
+    }
+
+    return mailSubject;
+  }
+
   private String getMailText(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
                              String reason, List<Exception> exceptions) {
     String mailText = EMPTY_STRING;
@@ -1138,6 +1189,24 @@ public class MailManagerImpl implements MailManager {
     } else if (mt.getText() != null && !mt.getText().isEmpty()) {
       mailText = mt.getText();
       mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText, false);
+    }
+
+    return mailText;
+  }
+
+  private String getMailTextPreApprovedInvitation(ApplicationMail mail, Locale lang, Vo vo, Group group,
+                                                  Invitation invitation, String url) {
+    String mailText = EMPTY_STRING;
+
+    MailText htmlMt = mail.getHtmlMessage(lang);
+    MailText mt = mail.getMessage(lang);
+
+    if (htmlMt.getText() != null && !htmlMt.getText().isBlank()) {
+      mailText = htmlMt.getText();
+      mailText = substituteCommonStringsForPreApprovedInvite(vo, group, invitation, url, mailText, false);
+    } else if (mt.getText() != null && !mt.getText().isEmpty()) {
+      mailText = mt.getText();
+      mailText = substituteCommonStringsForPreApprovedInvite(vo, group, invitation, url, mailText, false);
     }
 
     return mailText;
@@ -1502,32 +1571,39 @@ public class MailManagerImpl implements MailManager {
 
   @Override
   public Boolean invitationFormExists(PerunSession sess, Vo vo, Group group) throws PerunException {
-    return isInvitationEnabled(sess, vo, group, true, false);
+    return isInvitationEnabled(sess, vo, group, true, false, false);
+  }
+
+  @Override
+  public Boolean isPreApprovedInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException {
+    return isInvitationEnabled(sess, vo, group, true, true, true);
   }
 
   @Override
   public Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException {
-    return isInvitationEnabled(sess, vo, group, true, true);
+    return isInvitationEnabled(sess, vo, group, true, true, false);
   }
 
   /**
-   * Checks if invitation is enabled - if application form exists and according to the params if: - invitation
-   * notification exists - application form can be submitted
+   * Checks if (pre-approved) invitation is enabled - if application form exists and according to the params if:
+   * - (pre-approved) invitation notification exists - application form can be submitted
    *
    * @param sess                session
    * @param vo                  vo
    * @param group               group (can be null for vo check)
    * @param viaNotification     if check only invitation form or also an invitation notification
    * @param checkCanBeSubmitted check also if the invitation form can be submitted
-   * @return true if invitation notification exists, application form exists and application form can be submitted
+   * @param isPreApproved       if true, check pre-approved invitation notification, else check invitation notification
+   * @return true if (pre-approved) invitation notification exists, application form exists and application form can be
+   * submitted
    * @throws PerunException exception
    */
   private Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group, boolean viaNotification,
-                                      boolean checkCanBeSubmitted) throws PerunException {
+                                      boolean checkCanBeSubmitted, boolean isPreApproved) throws PerunException {
     Utils.checkPerunSession(sess);
 
     perun.getVosManagerBl().checkVoExists(sess, vo);
-    if (group != null) {
+    if (group != null || isPreApproved) {
       perun.getGroupsManagerBl().checkGroupExists(sess, group);
     }
 
@@ -1542,7 +1618,7 @@ public class MailManagerImpl implements MailManager {
     // check that invitation notification exist
     if (viaNotification) {
       try {
-        getMail(form, AppType.INITIAL, MailType.USER_INVITE);
+        getMail(form, AppType.INITIAL, isPreApproved ? MailType.USER_PRE_APPROVED_INVITE : MailType.USER_INVITE);
       } catch (RegistrarException e) {
         return false;
       }
@@ -1563,7 +1639,7 @@ public class MailManagerImpl implements MailManager {
 
   @Override
   public Boolean isLinkInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException {
-    return isInvitationEnabled(sess, vo, group, false, true);
+    return isInvitationEnabled(sess, vo, group, false, true, false);
   }
 
   private void mailValidation(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason,
@@ -2299,7 +2375,7 @@ public class MailManagerImpl implements MailManager {
     MimeMessage message;
     try {
       message = getInvitationMessagePreApproved(vo, group, invitation, url);
-    } catch (MessagingException ex) {
+    } catch (MessagingException | FormNotExistsException ex) {
       throw new RegistrarException("[MAIL MANAGER] Exception thrown when getting invitation message", ex);
     }
     sendInvitationMailPreApproved(vo, group, invitation, message);
@@ -2340,9 +2416,10 @@ public class MailManagerImpl implements MailManager {
                                              MimeMessage message) throws RegistrarException {
     try {
       mailSender.send(message);
-      LOG.info("[MAIL MANAGER] Sending mail: PRE_APPROVED_INVITE to {} / {} {}", message.getAllRecipients(), vo, group);
+      LOG.info("[MAIL MANAGER] Sending mail: USER_PRE_APPROVED_INVITE to {} / {} {}",
+              message.getAllRecipients(), vo, group);
     } catch (MailException | MessagingException ex) {
-      LOG.error("[MAIL MANAGER] Sending mail: PRE_APPROVED_INVITE of Invitation {} failed because of exception.",
+      LOG.error("[MAIL MANAGER] Sending mail: USER_PRE_APPROVED_INVITE of Invitation {} failed because of exception.",
           invitation, ex);
       throw new RegistrarException("Unable to send e-mail.", ex);
     }
@@ -2932,6 +3009,75 @@ public class MailManagerImpl implements MailManager {
     return mailText;
   }
 
+  /**
+   * Substitute common strings in mail text for PRE-APPROVED INVITATIONS based on passed params
+   * Substituted strings are:
+   * {voName} - full vo name
+   * {groupName} - group short name
+   * {displayName} - users display name returned from federation
+   * {preapprovedInvitationLink} - link to registration form
+   * {expirationDate} - invitation expiration date
+   * {senderName} - inviting user's name
+   * {mailFooter} - common VO's footer
+   * {htmlMailFooter} - common VO's HTML footer
+   *
+   * @param vo                     Vo this template belongs to
+   * @param group                  Group this template belongs to
+   * @param invitation             Pre-approved invitations
+   * @param url                    Link to registration form
+   * @param mailText               Original mail text template
+   * @param isAlternativePlainText if the text will be used as alternative plain text to an HTML text
+   */
+  private String substituteCommonStringsForPreApprovedInvite(Vo vo, Group group, Invitation invitation, String url,
+                                                             String mailText, boolean isAlternativePlainText) {
+    // replace voName
+    if (mailText.contains(FIELD_VO_NAME)) {
+      mailText = replaceNullSafe(mailText, FIELD_VO_NAME, vo.getName());
+    }
+
+    // replace groupName
+    if (mailText.contains(FIELD_GROUP_NAME)) {
+      if (group != null) {
+        mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, group.getShortName());
+      } else {
+        mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, EMPTY_STRING);
+      }
+    }
+
+    // replace name of user
+    if (mailText.contains(FIELD_DISPLAY_NAME)) {
+      mailText = replaceNullSafe(mailText, FIELD_DISPLAY_NAME, invitation.getReceiverName());
+    }
+
+    // replace pre-approved invitation link
+    if (mailText.contains(FIELD_PRE_APPROVED_INVITATION_LINK)) {
+      mailText = replaceNullSafe(mailText, FIELD_PRE_APPROVED_INVITATION_LINK, url);
+    }
+
+    // replace expiration date
+    if (mailText.contains(FIELD_EXPIRATION_DATE)) {
+      mailText = replaceNullSafe(mailText, FIELD_EXPIRATION_DATE, invitation.getExpiration().toString());
+    }
+
+    // replace sender name
+    if (mailText.contains(FIELD_SENDER_NAME)) {
+      try {
+        User user = perun.getUsersManagerBl().getUserById(registrarSession, invitation.getSenderId());
+        mailText = replaceNullSafe(mailText, FIELD_SENDER_NAME, user.getDisplayName());
+      } catch (Exception ex) {
+        mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, EMPTY_STRING);
+      }
+    }
+
+    mailText = replacePerunGuiUrl(mailText, vo, group);
+    mailText = replaceAppGuiUrl(mailText, vo, group);
+
+    mailText = replaceFooter(FIELD_MAIL_FOOTER, vo, group, mailText, true);
+    mailText = replaceFooter(FIELD_HTML_MAIL_FOOTER, vo, group, mailText, isAlternativePlainText);
+
+    return mailText;
+  }
+
   @Override
   @Transactional(rollbackFor = Exception.class)
   public void updateMailById(PerunSession sess, ApplicationMail mail)
@@ -2972,6 +3118,9 @@ public class MailManagerImpl implements MailManager {
 
     for (Locale loc : mail.getMessage().keySet()) {
       MailText text = mail.getMessage(loc);
+
+      checkRequiredTagsInMessageText(mail.getMailType(), text.getText());
+
       jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
           mail.getId(), loc.toString(), false, text.getSubject(), text.getText());
     }
@@ -3000,6 +3149,8 @@ public class MailManagerImpl implements MailManager {
         }
         htmlMessage.setText(parser2.getEscapedHTML());
       }
+
+      checkRequiredTagsInMessageText(mail.getMailType(), htmlMessage.getText());
 
       jdbc.update("insert into application_mail_texts(mail_id,locale,htmlFormat,subject,text) values (?,?,?,?,?)",
           mail.getId(), loc.toString(), true, htmlMessage.getSubject(), htmlMessage.getText());

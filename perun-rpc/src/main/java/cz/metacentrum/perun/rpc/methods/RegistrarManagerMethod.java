@@ -233,6 +233,25 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Checks if pre-approved invitation via notification is enabled (pre-approved invitation notification exists,
+   * application form exists and application form can be submitted)
+   *
+   * @param vo Vo <code>id</code>
+   * @param group Group <code>id</code>
+   *
+   * @return true if pre-approved invitation notification exists, application form exists and application form can be
+   * submitted
+   */
+  isPreApprovedInvitationEnabled {
+    @Override
+    public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getRegistrarManager().getMailManager()
+              .isPreApprovedInvitationEnabled(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+                  ac.getGroupById(parms.readInt("group")));
+    }
+  },
+
+  /*#
    * Checks if invitation via link is enabled (application form exists and application form can be submitted)
    *
    * @param vo Vo <code>id</code>

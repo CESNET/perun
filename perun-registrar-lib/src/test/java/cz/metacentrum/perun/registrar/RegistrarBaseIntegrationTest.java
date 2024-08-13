@@ -45,6 +45,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailTextMissingException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.impl.InvitationsManagerImpl;
 import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
@@ -1516,6 +1517,177 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     assertTrue(mailManager.isInvitationEnabled(session, vo, null));
     assertFalse(mailManager.isInvitationEnabled(session, voWithoutInvitation, null));
+  }
+
+  @Test
+  public void isPreApprovedInvitationEnabled() throws Exception {
+    System.out.println("isPreApprovedInvitationEnabled");
+
+    Group groupWithInvitation =
+            perun.getGroupsManagerBl().createGroup(session, vo, new Group("group1", "group with form"));
+    Group groupWithoutInvitation =
+            perun.getGroupsManagerBl().createGroup(session, vo, new Group("group2", "group without form"));
+
+    registrarManager.createApplicationFormInGroup(session, groupWithInvitation);
+    ApplicationForm form = registrarManager.getFormForGroup(groupWithInvitation);
+
+    registrarManager.createApplicationFormInGroup(session, groupWithoutInvitation);
+    ApplicationForm form2 = registrarManager.getFormForGroup(groupWithoutInvitation);
+
+    ApplicationFormItem submitButton = new ApplicationFormItem();
+    submitButton.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
+    submitButton.setShortname("submitButton");
+
+    registrarManager.addFormItem(session, form, submitButton);
+    registrarManager.addFormItem(session, form2, submitButton);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","{preapprovedInvitationLink} {expirationDate}"));
+
+    mailManager.addMail(session, form, mail);
+
+    assertTrue(mailManager.isPreApprovedInvitationEnabled(session, vo, groupWithInvitation));
+    assertFalse(mailManager.isPreApprovedInvitationEnabled(session, vo, groupWithoutInvitation));
+  }
+
+  @Test
+  public void addMailWithRequiredTagsInPlaintext() throws Exception {
+    System.out.println("addMailWithRequiredTagsInPlaintext");
+
+    Group group = setUpGroup("group", "test group");
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
+
+    mailManager.addMail(session, form, mail);
+  }
+
+  @Test
+  public void addMailWithoutRequiredTagsInPlaintext() throws Exception {
+    System.out.println("addMailWithoutRequiredTagsInPlaintext");
+
+    Group group = setUpGroup("group", "test group");
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Message text without tags"));
+
+    assertThatExceptionOfType(ApplicationMailTextMissingException.class).isThrownBy(
+        () -> mailManager.addMail(session, form, mail));
+  }
+
+  @Test
+  public void addMailWithRequiredTagsInHtml() throws Exception {
+    System.out.println("addMailWithRequiredTagsInHtml");
+
+    Group group = setUpGroup("group", "test group");
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
+
+    mailManager.addMail(session, form, mail);
+  }
+
+  @Test
+  public void addMailWithoutRequiredTagsInHtml() throws Exception {
+    System.out.println("addMailWithoutRequiredTagsInHtml");
+
+    Group group = setUpGroup("group", "test group");
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Message text without tags</div>"));
+
+    assertThatExceptionOfType(ApplicationMailTextMissingException.class).isThrownBy(
+        () -> mailManager.addMail(session, form, mail));
+  }
+
+  @Test
+  public void updateMailWithRequiredTagsInPlainText() throws Exception {
+    System.out.println("updateMailWithRequiredTagsInPlainText()");
+
+    Group group = setUpGroup("group", "test group");
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
+
+    int mailId = mailManager.addMail(session, form, mail);
+    ApplicationMail updatedMail = mailManager.getMailById(session, mailId);
+
+    MailText message = mail.getMessage(Locale.ENGLISH);
+    message.setText("Updated version: Submit your application here {preapprovedInvitationLink} until {expirationDate}");
+
+    mailManager.updateMailById(session, mail);
+  }
+
+  @Test
+  public void updateMailWithoutRequiredTagsInPlainText() throws Exception {
+    System.out.println("updateMailWithoutRequiredTagsInPlainText()");
+
+    Group group = setUpGroup("group", "test group");
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
+
+    int mailId = mailManager.addMail(session, form, mail);
+    ApplicationMail updatedMail = mailManager.getMailById(session, mailId);
+
+    MailText message = mail.getMessage(Locale.ENGLISH);
+    message.setText("Updated version without tags");
+
+    assertThatExceptionOfType(ApplicationMailTextMissingException.class).isThrownBy(
+        () -> mailManager.updateMailById(session, mail));
+  }
+
+  @Test
+  public void updateMailWithRequiredTagsInHtml() throws Exception {
+    System.out.println("updateMailWithRequiredTagsInHtml()");
+
+    Group group = setUpGroup("group", "test group");
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
+
+    int mailId = mailManager.addMail(session, form, mail);
+    ApplicationMail updatedMail = mailManager.getMailById(session, mailId);
+
+    MailText htmlMessage = mail.getHtmlMessage(Locale.ENGLISH);
+    htmlMessage.setText("<div>Updated version: Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>");
+
+    mailManager.updateMailById(session, mail);
+  }
+
+  @Test
+  public void updateMailWithoutRequiredTagsInHtml() throws Exception {
+    System.out.println("updateMailWithoutRequiredTagsInHtml()");
+
+    Group group = setUpGroup("group", "test group");
+
+    ApplicationForm form = registrarManager.getFormForGroup(group);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
+
+    int mailId = mailManager.addMail(session, form, mail);
+    ApplicationMail updatedMail = mailManager.getMailById(session, mailId);
+
+    MailText htmlMessage = mail.getHtmlMessage(Locale.ENGLISH);
+    htmlMessage.setText("<div>Updated message text without tags</div>");
+
+    assertThatExceptionOfType(ApplicationMailTextMissingException.class).isThrownBy(
+        () -> mailManager.updateMailById(session, mail));
   }
 
   @Test
