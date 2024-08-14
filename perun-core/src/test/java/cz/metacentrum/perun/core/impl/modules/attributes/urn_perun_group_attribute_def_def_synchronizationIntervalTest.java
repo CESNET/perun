@@ -13,8 +13,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-public class urn_perun_group_attribute_def_def_groupSynchronizationIntervalTest {
-  private urn_perun_group_attribute_def_def_groupSynchronizationInterval classInstance;
+public class urn_perun_group_attribute_def_def_synchronizationIntervalTest {
+  private urn_perun_group_attribute_def_def_synchronizationInterval classInstance;
   private Attribute attributeToCheck;
   private Group group = new Group(1, "group1", "Group 1", null, null, null, null, 0, 0);
   private Attribute syncTimes;
@@ -22,7 +22,7 @@ public class urn_perun_group_attribute_def_def_groupSynchronizationIntervalTest 
 
   @Before
   public void setUp() throws Exception {
-    classInstance = new urn_perun_group_attribute_def_def_groupSynchronizationInterval();
+    classInstance = new urn_perun_group_attribute_def_def_synchronizationInterval();
     attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
     syncTimes = new Attribute(classInstance.getAttributeDefinition());
     sess = mock(PerunSessionImpl.class);
