@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
@@ -15,7 +16,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
 import java.util.ArrayList;
 import java.util.List;
 
-public class urn_perun_group_attribute_def_def_groupSynchronizationInterval extends GroupAttributesModuleAbstract
+public class urn_perun_group_attribute_def_def_synchronizationInterval extends GroupAttributesModuleAbstract
     implements GroupAttributesModuleImplApi {
 
   @Override
@@ -44,8 +45,8 @@ public class urn_perun_group_attribute_def_def_groupSynchronizationInterval exte
   public AttributeDefinition getAttributeDefinition() {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    attr.setFriendlyName("groupSynchronizationInterval");
-    attr.setDisplayName("Group synchronization interval");
+    attr.setFriendlyName("synchronizationInterval");
+    attr.setDisplayName("Synchronization interval");
     attr.setType(String.class.getName());
     attr.setDescription("Time between two successful synchronizations.");
     return attr;
@@ -56,5 +57,22 @@ public class urn_perun_group_attribute_def_def_groupSynchronizationInterval exte
     List<String> dependencies = new ArrayList<>();
     dependencies.add(GroupsManager.GROUP_SYNCHRO_TIMES_ATTRNAME);
     return dependencies;
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    String stringVal = attribute.valueAsString();
+
+    Integer interval;
+    try {
+      interval = stringVal == null ? null : Integer.parseInt(stringVal);
+    } catch (NumberFormatException e) {
+      throw new WrongAttributeValueException(attribute, "Attribute value has to be a positive integer.", e);
+    }
+
+    if (interval != null && interval < 1) {
+      throw new WrongAttributeValueException(attribute, "Attribute value must be bigger than 0.");
+    }
   }
 }

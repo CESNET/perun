@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -23,6 +24,8 @@ import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.implApi.InvitationsManagerImplApi;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
+import cz.metacentrum.perun.registrar.model.InvitationWithSender;
+import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -76,6 +79,11 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   @Override
   public List<Invitation> getInvitationsForVo(PerunSession sess, Vo vo) {
     return invitationsManagerImpl.getInvitationsForVo(sess, vo);
+  }
+
+  @Override
+  public List<Invitation> getAllInvitations(PerunSession sess, InvitationStatus status) {
+    return invitationsManagerImpl.getAllInvitations(sess, status);
   }
 
   @Override
@@ -267,6 +275,12 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
     LOG.debug("Expiration date for invitation {} was extended to {}.",
         invitationToReturn.getId(), invitationToReturn.getExpiration().toString());
     return invitationToReturn;
+  }
+
+  @Override
+  public Paginated<InvitationWithSender> getInvitationsPage(PerunSession sess, Group group,
+                                                            InvitationsPageQuery query) {
+    return invitationsManagerImpl.getInvitationsPage(sess, group, query);
   }
 
   private void checkInvitationCsvData(List<List<String>> parsedData) {

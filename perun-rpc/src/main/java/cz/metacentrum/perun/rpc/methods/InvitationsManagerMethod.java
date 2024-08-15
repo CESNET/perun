@@ -1,19 +1,14 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RpcException;
-import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
-import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public enum InvitationsManagerMethod implements ManagerMethod {
 
@@ -294,4 +289,25 @@ public enum InvitationsManagerMethod implements ManagerMethod {
           expiration);
     }
   },
+
+  /*#
+   * Get page of invitations for the given group.
+   * Query parameter specifies offset, page size, sorting order, sorting column, statuses of the invitations,
+   * searched range of expiration date and string to search invitations by id, receiver name/email or sender name/email.
+   *
+   * @param group int Group <code>id</code>
+   * @param query InvitationsPageQuery Query with page information
+   *
+   * @return Paginated<InvitationWithSender> page of requested invitations with sender's information
+   * @throw GroupNotExistsException if there is no such group
+   * @throw PrivilegeException if user doesn't have sufficient privileges
+   */
+  getInvitationsPage {
+    @Override
+    public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getInvitationsManager().getInvitationsPage(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+              parms.read("query", InvitationsPageQuery.class));
+    }
+
+  }
 }

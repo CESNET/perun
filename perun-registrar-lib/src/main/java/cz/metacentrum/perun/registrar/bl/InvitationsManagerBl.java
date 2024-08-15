@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.registrar.bl;
 
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -9,6 +10,9 @@ import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnAp
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import cz.metacentrum.perun.registrar.model.InvitationStatus;
+import cz.metacentrum.perun.registrar.model.InvitationWithSender;
+import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +72,14 @@ public interface InvitationsManagerBl {
    * @return List of all invitations to groups of the specified Vo
    */
   List<Invitation> getInvitationsForVo(PerunSession sess, Vo vo);
+
+  /**
+   * Lists all invitations with a given status
+   *
+   * @param sess session
+   * @return List of all invitations
+   */
+  List<Invitation> getAllInvitations(PerunSession sess, InvitationStatus status);
 
   /**
    * Creates new Invitation object - does not send it out or perform any other actions.
@@ -183,4 +195,14 @@ public interface InvitationsManagerBl {
    */
   Invitation extendInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate)
       throws InvalidInvitationStatusException;
+
+  /**
+   * Get page of invitations for the given group.
+   *
+   * @param sess  session
+   * @param group group
+   * @param query query with page information
+   * @return page of invitations with sender's information
+   */
+  Paginated<InvitationWithSender> getInvitationsPage(PerunSession sess, Group group, InvitationsPageQuery query);
 }

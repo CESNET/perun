@@ -2,6 +2,7 @@ package cz.metacentrum.perun.registrar.entry;
 
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -18,6 +19,8 @@ import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnAp
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
+import cz.metacentrum.perun.registrar.model.InvitationWithSender;
+import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +48,7 @@ public class InvitationsManagerEntry implements InvitationsManager {
 
   @Override
   public Invitation getInvitationById(PerunSession sess, int id) throws InvitationNotExistsException,
-                                                                              PrivilegeException {
+                                                                            PrivilegeException {
     Utils.checkPerunSession(sess);
 
     Invitation invitation = invitationsManagerBl.getInvitationById(sess, id);
@@ -216,5 +219,18 @@ public class InvitationsManagerEntry implements InvitationsManager {
     }
 
     return invitationsManagerBl.canInvitationBeAccepted(sess, uuid, group);
+  }
+
+  @Override
+  public Paginated<InvitationWithSender> getInvitationsPage(PerunSession sess, Group group, InvitationsPageQuery query)
+      throws PrivilegeException, GroupNotExistsException {
+    Utils.checkPerunSession(sess);
+    perun.getGroupsManagerBl().checkGroupExists(sess, group);
+
+    if (!AuthzResolver.authorizedInternal(sess, "getInvitationsPage_Group_InvitationPageQuery_policy", group)) {
+      throw new PrivilegeException("getInvitationsPage");
+    }
+
+    return invitationsManagerBl.getInvitationsPage(sess, group, query);
   }
 }

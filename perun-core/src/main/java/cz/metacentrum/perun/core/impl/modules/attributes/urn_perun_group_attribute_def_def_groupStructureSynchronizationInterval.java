@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
@@ -32,7 +33,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationInte
       if (foundAttribute.getValue() != null) {
         throw new WrongReferenceAttributeValueException(attribute, foundAttribute, group, null, group, null,
             "Attribute " + attribute.getName() + " cannot be set because attribute " +
-            GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME + " is already set.");
+                GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME + " is already set.");
       }
     } catch (AttributeNotExistsException exc) {
       throw new ConsistencyErrorException(
@@ -56,5 +57,22 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationInte
     List<String> dependencies = new ArrayList<>();
     dependencies.add(GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME);
     return dependencies;
+  }
+
+  @Override
+  public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute)
+      throws WrongAttributeValueException {
+    String stringVal = attribute.valueAsString();
+
+    Integer interval;
+    try {
+      interval = stringVal == null ? null : Integer.parseInt(stringVal);
+    } catch (NumberFormatException e) {
+      throw new WrongAttributeValueException(attribute, "Attribute value has to be a positive integer.", e);
+    }
+
+    if (interval != null && interval < 1) {
+      throw new WrongAttributeValueException(attribute, "Attribute value must be bigger than 0.");
+    }
   }
 }

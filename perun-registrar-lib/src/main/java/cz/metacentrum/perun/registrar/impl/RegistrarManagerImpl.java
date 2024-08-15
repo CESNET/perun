@@ -74,6 +74,10 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.MfaRoleTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.MfaTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.MultipleApplicationFormItemsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.OpenApplicationExistsException;
@@ -1038,6 +1042,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
   @Override
   public List<ApplicationOperationResult> approveApplications(PerunSession sess, List<Integer> applicationIds)
       throws PerunException {
+    checkMFAForApplications(sess, applicationIds, "approveApplicationInternal_int_policy");
+
     Collections.sort(applicationIds);
     List<ApplicationOperationResult> approveApplicationsResult = new ArrayList<>();
     for (Integer id : applicationIds) {
@@ -1990,6 +1996,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   @Override
   public List<ApplicationOperationResult> deleteApplications(PerunSession sess, List<Integer> applicationIds) {
+    checkMFAForApplications(sess, applicationIds, "deleteApplication_Application_policy");
+
     List<ApplicationOperationResult> deleteApplicationsResult = new ArrayList<>();
 
     for (Integer id : applicationIds) {
@@ -4723,6 +4731,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
   @Override
   public List<ApplicationOperationResult> rejectApplications(PerunSession sess, List<Integer> applicationIds,
                                                              String reason) {
+    checkMFAForApplications(sess, applicationIds, "rejectApplication_int_String_policy");
+
     Collections.sort(applicationIds, Collections.reverseOrder());
     List<ApplicationOperationResult> rejectApplicationsResult = new ArrayList<>();
     for (Integer id : applicationIds) {
@@ -4734,6 +4744,37 @@ public class RegistrarManagerImpl implements RegistrarManager {
       }
     }
     return rejectApplicationsResult;
+  }
+
+
+  /**
+   * Method to raise MFA exceptions in the given applications before starting the bulk operations.
+   *
+   * @param sess PerunSession
+   * @param applicationsIds ids of the applications to check for MFA access
+   * @param policy the policy name part that matches ^(?:vo-|group-)(.*), tldr whatever follows vo- or group- prefix
+   */
+  private void checkMFAForApplications(PerunSession sess, List<Integer> applicationsIds, String policy) {
+    try {
+      for (Integer id : applicationsIds) {
+        Application application = getApplicationById(id);
+        if (application == null) {
+          continue;
+        }
+
+        if (application.getGroup() == null) {
+          AuthzResolver.authorizedInternal(sess, "vo-" + policy,
+              Collections.singletonList(application.getVo()));
+        } else {
+          AuthzResolver.authorizedInternal(sess, "group-" + policy,
+              Arrays.asList(application.getVo(), application.getGroup()));
+        }
+      }
+    } catch (MfaPrivilegeException | MfaTimeoutException | MfaRoleTimeoutException e) {
+      throw e;
+    } catch (Exception ignored) {
+      // deal with this exception later in the bulk call
+    }
   }
 
   /**
