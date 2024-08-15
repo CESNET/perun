@@ -1,5 +1,26 @@
 Upgrade notes
 
+## [38.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.7.0...v38.0.0) (2024-08-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** edited invitations_status type in DB
+
+### Features
+
+* **core:** allow removal of multiple group relations at once ([f4aeb2f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f4aeb2fd92e6a2200d75f3f05a7281066110f77f))
+* **core:** attribute modules for eosc beyond login ([25f8fc8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/25f8fc8de57ad4c69454b6c8c1329fbe4a81a720))
+* **core:** getInvitationsPage ([e5a6f32](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e5a6f329785ffe130bbc46e2f3c1360191630905))
+* **registrar:** invitation automatic expiration ([c623c30](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c623c301af61a69ad18b437982ad4d4af768b711))
+
+
+### Bug Fixes
+
+* **core:** group sync interval attributes syntax check ([c9605b3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c9605b389eb0cb17c547a7e34288eb6951141703))
+* **core:** proper fix for group structure sync ([274d816](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/274d8160960e29d3701080302d75fd91d6ebb195))
+* **registrar:** application bulk operations now correctly handle MFA exception ([b4d3557](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b4d3557d5b48e9f6624ec6ca51d5d25c14fc3ea6))
+
 ## [37.7.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.6.0...v37.7.0) (2024-08-12)
 
 
