@@ -210,7 +210,7 @@ public enum InvitationsManagerMethod implements ManagerMethod {
     @Override
     public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      return ac.getInvitationsManager().revokeInvitationById(ac.getSession(), parms.readInt("invitationId"));
+      return ac.getInvitationsManager().revokeInvitationById(ac.getSession(), parms.readInt("invitation"));
     }
   },
 
