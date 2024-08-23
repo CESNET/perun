@@ -60,11 +60,12 @@ public class urn_perun_user_attribute_def_def_login_namespace_admin_meta
               AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:einfra");
       String einfraLogin = einfraAttribute.valueAsString();
 
+      // user has no login in einfra, no reason to compare
       if (einfraLogin == null) {
-        throw new WrongReferenceAttributeValueException(attribute, einfraAttribute, user, null, user, null,
-                "User must have non-empty einfra login for admin-meta");
+        return;
       }
 
+      // check if logins are the same
       if (!Objects.equals(userLogin, einfraLogin)) {
         throw new WrongReferenceAttributeValueException(attribute, einfraAttribute, user, null, user, null,
                 "Login in admin-meta namespace must match login in einfra.");
