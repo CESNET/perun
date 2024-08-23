@@ -1,5 +1,13 @@
 Upgrade notes
 
+## [38.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v38.0.0...v38.0.1) (2024-08-23)
+
+
+### Bug Fixes
+
+* **core:** fixed semantic check in login-namespace:admin-meta ([4b3e414](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4b3e4143461ba7367d249d30ecbb8bd3ba226ced))
+* **registrar:** changed revoke invitation param name to be consistent with openapi ([70444f9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/70444f913ea5b4885006d4232cce48f66eec467f))
+
 ## [38.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v37.7.0...v38.0.0) (2024-08-15)
 
 
