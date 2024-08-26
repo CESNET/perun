@@ -12,10 +12,18 @@ import java.util.Map;
 
 public enum InvitationsManagerMethod implements ManagerMethod {
 
+  /*#
+   * Returns invitation by ID
+   *
+   * @param sess session
+   * @param invitation id of the invitation
+   * @throw InvitationNotExistsException invitation does not exist
+   * @throw PrivilegeException insufficient rights
+   */
   getInvitationById {
     @Override
     public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return null;
+      return ac.getInvitationsManager().getInvitationById(ac.getSession(), parms.readInt("invitation"));
     }
   },
 

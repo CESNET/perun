@@ -20044,6 +20044,20 @@ paths:
   # InvitationsManager                            #
   #                                               #
   #################################################
+  /json/invitationsManager/getInvitationById:
+    get:
+      tags:
+        - InvitationsManager
+      operationId: getInvitationById
+      summary: Gets existing invitation by its ID.
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/invitationsManager/inviteToGroup:
     post:
       tags:
