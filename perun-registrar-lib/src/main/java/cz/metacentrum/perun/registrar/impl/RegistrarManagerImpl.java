@@ -4814,7 +4814,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   /**
    * To the given EMBEDDED_GROUP_APPLICATION item, sets options of allowed groups. Example format:
-   * 111#GroupA|222#GroupB
+   * 111#GroupA#ENABLED|222#GroupB#DISABLED
    *
    * @param sess              session
    * @param item              item, to which the group options will be set, only EMBEDDED_GROUP_APPLICATION is
@@ -4836,15 +4836,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
       groups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo, item.getFormItem());
     }
 
+    List<Group> userGroups;
     if (user != null) {
-      List<Group> userGroups = groupsManager.getGroupsWhereUserIsActiveMember(sess, user, vo);
-      groups = groups.stream().filter(g -> !userGroups.contains(g)).collect(Collectors.toList());
+      userGroups = groupsManager.getGroupsWhereUserIsActiveMember(sess, user, vo);
+    } else {
+      userGroups = new ArrayList<>();
     }
 
     String groupOptions = null;
     if (!groups.isEmpty()) {
+      // append DISABLED flag to indicate that user is already a member of this group for frontend purposes
       groupOptions = groups.stream().sorted(Comparator.comparing(Group::getName))
-          .map(group -> group.getId() + "#" + group.getName()).collect(Collectors.joining("|"));
+          .map(group -> group.getId() + "#" + group.getName() + (userGroups.contains(group) ? "#DISABLED" : "#ENABLED"))
+          .collect(Collectors.joining("|"));
     }
 
     if (ApplicationFormItem.CS != null) {
