@@ -906,6 +906,86 @@ public enum AuthzResolverMethod implements ManagerMethod {
   },
 
   /*#
+   * Checks the facilities and returns those in which group is the last admin
+   *
+   * @param group int <code>id</code> of group
+   * @param facilities int[] ids of facilities to check
+   * @return List<Facility> facilities that the group is last admin in
+   */
+  isGroupLastAdminInFacilities {
+    @Override
+    public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      int[] ids = parms.readArrayOfInts("facilities");
+      List<Facility> facilities = new ArrayList<>(ids.length);
+      for (int i : ids) {
+        facilities.add(ac.getFacilityById(i));
+      }
+      return AuthzResolver.isGroupLastAdminInFacilities(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+          facilities);
+    }
+  },
+
+  /*#
+   * Checks the vos and returns those in which group is the last admin
+   *
+   * @param group int <code>id</code> of group
+   * @param vos int[] ids of vos to check
+   * @return List<Vo> vos that the group is last admin in
+   */
+  isGroupLastAdminInVos {
+    @Override
+    public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      int[] ids = parms.readArrayOfInts("vos");
+      List<Vo> vos = new ArrayList<>(ids.length);
+      for (int i : ids) {
+        vos.add(ac.getVoById(i));
+      }
+      return AuthzResolver.isGroupLastAdminInVos(ac.getSession(), ac.getGroupById(parms.readInt("group")),
+          vos);
+    }
+  },
+
+  /*#
+   * Checks the facilities and returns those in which user is the last admin
+   *
+   * @param user int <code>id</code> of user
+   * @param facilities int[] ids of facilities to check
+   * @return List<Facility> facilities that the user is last admin in
+   */
+  isUserLastAdminInFacilities {
+    @Override
+    public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      int[] ids = parms.readArrayOfInts("facilities");
+      List<Facility> facilities = new ArrayList<>(ids.length);
+      for (int i : ids) {
+        facilities.add(ac.getFacilityById(i));
+      }
+      return AuthzResolver.isUserLastAdminInFacilities(ac.getSession(), ac.getUserById(parms.readInt("user")),
+          facilities);
+    }
+  },
+
+  /*#
+   * Checks the vos and returns those in which user is the last admin
+   *
+   * @param user int <code>id</code> of user
+   * @param vos int[] ids of vos to check
+   * @return List<Vo> vos that the user is last admin in
+   */
+  isUserLastAdminInVos {
+    @Override
+    public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      int[] ids = parms.readArrayOfInts("vos");
+      List<Vo> vos = new ArrayList<>(ids.length);
+      for (int i : ids) {
+        vos.add(ac.getVoById(i));
+      }
+      return AuthzResolver.isUserLastAdminInVos(ac.getSession(), ac.getUserById(parms.readInt("user")),
+          vos);
+    }
+  },
+
+  /*#
    * Returns User which is associated with credentials used to log-in to Perun.
    *
    * @return User Currently logged user

@@ -427,6 +427,58 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
   }
 
   @Override
+  public List<Facility> isGroupLastAdminInSomeFacility(PerunSession sess, Group group) {
+    try {
+      return jdbc.query("WITH managed_facilities AS (SELECT facility_id FROM authz WHERE " +
+                            "authz.authorized_group_id=? AND authz.role_id=(SELECT id FROM roles WHERE" +
+                            " name='facilityadmin') " +
+                            "), num_groups AS (SELECT authz.facility_id, count(authorized_group_id) AS groups_count " +
+                            "FROM authz WHERE authz.facility_id IN (select * from" +
+                            " managed_facilities) AND authz.role_id=(SELECT id FROM roles WHERE " +
+                            "name='facilityadmin') GROUP BY " +
+                            "authz.facility_id), num_admins as (SELECT authz.facility_id, count(user_id) " +
+                            "AS admins_count " +
+                            "FROM authz WHERE authz.facility_id IN (select * from managed_facilities) " +
+                            "AND authz.role_id=(SELECT id FROM roles WHERE name='facilityadmin') GROUP BY" +
+                            " authz.facility_id) " +
+                            "SELECT " + FacilitiesManagerImpl.FACILITY_MAPPING_SELECT_QUERY + " FROM facilities JOIN " +
+                            "num_groups ON " +
+                            "facilities.id=num_groups.facility_id LEFT JOIN num_admins ON " +
+                            "facilities.id=num_admins.facility_id WHERE num_groups.groups_count=1 AND" +
+                            " num_admins.admins_count<1",
+          FacilitiesManagerImpl.FACILITY_MAPPER, group.getId()
+      );
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Vo> isGroupLastAdminInSomeVo(PerunSession sess, Group group) {
+    try {
+      return jdbc.query("WITH managed_vos AS (SELECT vo_id FROM authz WHERE " +
+              "authz.authorized_group_id=? AND authz.role_id=(SELECT id FROM roles WHERE name='voadmin') " +
+                            "), num_groups AS (SELECT authz.vo_id, count(authorized_group_id) AS groups_count" +
+                            " FROM authz WHERE authz.vo_id IN (select * from managed_vos) AND " +
+                            "authz.role_id=(SELECT id FROM roles WHERE name='voadmin') GROUP BY " +
+                            "authz.vo_id), num_admins as (SELECT authz.vo_id, count(user_id) AS admins_count " +
+                            "FROM authz WHERE authz.vo_id IN (select * from managed_vos) " +
+                            "AND authz.role_id=(SELECT id FROM roles WHERE name='voadmin') GROUP BY authz.vo_id) " +
+                            "SELECT " + VosManagerImpl.VO_MAPPING_SELECT_QUERY + " FROM vos JOIN num_groups ON " +
+                            "vos.id=num_groups.vo_id LEFT JOIN num_admins ON vos.id=num_admins.vo_id WHERE " +
+                            "num_groups.groups_count=1 AND num_admins.admins_count<1",
+          VosManagerImpl.VO_MAPPER, group.getId()
+          );
+    } catch (EmptyResultDataAccessException e) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
   public List<Group> getAllAllowedGroupsToHierarchicalVo(PerunSession sess, Vo vo) {
     try {
       return jdbc.query("SELECT " + GROUP_MAPPING_SELECT_QUERY + " FROM groups WHERE id IN " +

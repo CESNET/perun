@@ -504,6 +504,29 @@ perun_policies:
     include_policies:
       - default_policy
 
+  isGroupLastAdminInFacilities_Group_List<Facility>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  isUserLastAdminInFacilities_User_List<Facility>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  isGroupLastAdminInVos_Group_List<Vo>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  isUserLastAdminInVos_User_List<Vo>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
   #DatabaseManagerEntry
   getCurrentDatabaseVersion_policy:
     policy_roles:
@@ -1800,6 +1823,20 @@ perun_policies:
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  isGroupLastAdminInSomeVo_List<Group>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  isGroupLastAdminInSomeFacility_List<Group>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
     include_policies:
       - default_policy
 

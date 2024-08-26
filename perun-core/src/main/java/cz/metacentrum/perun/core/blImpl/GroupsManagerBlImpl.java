@@ -4006,6 +4006,40 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   }
 
   @Override
+  public List<Facility> isGroupLastAdminInSomeFacility(PerunSession sess, Group group) {
+    return getGroupsManagerImpl().isGroupLastAdminInSomeFacility(sess, group);
+  }
+
+  @Override
+  public List<Group> isGroupLastAdminInSomeFacility(PerunSession sess, List<Group> groups) {
+    List<Group> result = new ArrayList<>();
+
+    for (Group group : groups) {
+      if (!this.isGroupLastAdminInSomeFacility(sess, group).isEmpty()) {
+        result.add(group);
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public List<Vo> isGroupLastAdminInSomeVo(PerunSession sess, Group group) {
+    return getGroupsManagerImpl().isGroupLastAdminInSomeVo(sess, group);
+  }
+
+  @Override
+  public List<Group> isGroupLastAdminInSomeVo(PerunSession sess, List<Group> groups) {
+    List<Group> result = new ArrayList<>();
+
+    for (Group group : groups) {
+      if (!this.isGroupLastAdminInSomeVo(sess, group).isEmpty()) {
+        result.add(group);
+      }
+    }
+    return result;
+  }
+
+  @Override
   public boolean isGroupMember(PerunSession sess, Group group, Member member) {
     return getGroupsManagerImpl().isGroupMember(sess, group, member);
   }

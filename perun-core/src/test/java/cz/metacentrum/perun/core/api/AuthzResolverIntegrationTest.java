@@ -1664,6 +1664,228 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
+  public void isGroupLastVoAdmin() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastVoAdmin");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    AuthzResolver.setRole(sess, testGroup, otherVo, Role.VOADMIN);
+
+    assertEquals(List.of(otherVo), perun.getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastVoAdminHasDirectAdmins() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastVoAdminHasDirectAdmins");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    final Member createdMember = createSomeMember(otherVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    AuthzResolver.setRole(sess, createdUser, otherVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, testGroup, otherVo, Role.VOADMIN);
+
+    assertEquals(List.of(), perun.getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastVoAdminMixed() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastVoAdminMixed");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Vo otherVo2 = perun.getVosManager().createVo(sess, new Vo(2, "testvo3", "testvo3"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    final Member createdMember = createSomeMember(otherVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    AuthzResolver.setRole(sess, createdUser, otherVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, testGroup, otherVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, testGroup, otherVo2, Role.VOADMIN);
+
+    assertEquals(List.of(otherVo2), perun.getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastVoAdminNone() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastVoAdminNone");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Vo otherVo2 = perun.getVosManager().createVo(sess, new Vo(2, "testvo3", "testvo3"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+
+    assertEquals(List.of(), perun.getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastVoAdminIgnoreOtherRole() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastVoAdminIgnoreOtherRole");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    final Group testGroup2 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup2", "testg"));
+    AuthzResolver.setRole(sess, testGroup2, otherVo, Role.VOOBSERVER);
+    AuthzResolver.setRole(sess, testGroup, otherVo, Role.VOADMIN);
+
+    assertEquals(List.of(otherVo), perun.getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastVoAdminBulk() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastVoAdminBulk");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    final Group testGroup2 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup2", "testg"));
+    AuthzResolver.setRole(sess, testGroup, otherVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, testGroup2, otherVo, Role.VOOBSERVER);
+
+    assertEquals(List.of(testGroup), perun.getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, List.of(testGroup, testGroup2)));
+  }
+
+  @Test
+  public void isGroupLastFacilityAdmin() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastFacilityAdmin");
+
+    final Facility testFac = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "testfac1"));
+    final Facility otherFac = perun.getFacilitiesManager().createFacility(sess, new Facility(1, "testfac2"));
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    AuthzResolver.setRole(sess, testGroup, testFac, Role.FACILITYADMIN);
+
+    assertEquals(List.of(testFac), perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, testGroup));
+  }
+    @Test
+  public void isGroupLastFacilityAdminHasDirectAdmins() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastFacilityAdminHasDirectAdmins");
+
+    final Facility testFac = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "testfac1"));
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    final Member createdMember = createSomeMember(testVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    AuthzResolver.setRole(sess, createdUser, testFac, Role.FACILITYADMIN);
+    AuthzResolver.setRole(sess, testGroup, testFac, Role.FACILITYADMIN);
+
+    assertEquals(List.of(), perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastFacilityAdminMixed() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastFacilityAdminMixed");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Facility testFac = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "testfac1"));
+    final Facility otherFac = perun.getFacilitiesManager().createFacility(sess, new Facility(1, "testfac2"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Member createdMember = createSomeMember(otherVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    AuthzResolver.setRole(sess, createdUser, testFac, Role.FACILITYADMIN);
+    AuthzResolver.setRole(sess, testGroup, testFac, Role.FACILITYADMIN);
+    AuthzResolver.setRole(sess, testGroup, otherFac, Role.FACILITYADMIN);
+
+    assertEquals(List.of(otherFac), perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastFacilityAdminNone() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastFacilityAdminNone");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Facility testFac = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "testfac1"));
+    final Facility otherFac = perun.getFacilitiesManager().createFacility(sess, new Facility(1, "testfac2"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+
+    assertEquals(List.of(), perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastFacilityAdminIgnoreOtherRole() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastFacilityAdminIgnoreOtherRole");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Facility testFac = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "testfac1"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    final Group testGroup2 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup2", "testg"));
+    AuthzResolver.setRole(sess, testGroup2, testFac, Role.FACILITYOBSERVER);
+    AuthzResolver.setRole(sess, testGroup, testFac, Role.FACILITYADMIN);
+
+    assertEquals(List.of(testFac), perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, testGroup));
+  }
+
+  @Test
+  public void isGroupLastFacilityAdminBulk() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastFacilityAdminBulk");
+
+    final Facility testFac = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "testfac1"));
+    final Facility otherFac = perun.getFacilitiesManager().createFacility(sess, new Facility(1, "testfac2"));
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    final Group testGroup2 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup2", "testg"));
+    AuthzResolver.setRole(sess, testGroup, testFac, Role.FACILITYADMIN);
+    AuthzResolver.setRole(sess, testGroup2, testFac, Role.FACILITYOBSERVER);
+
+    assertEquals(List.of(testGroup), perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, List.of(testGroup, testGroup2)));
+  }
+
+  @Test
+  public void isGroupLastAdminInFacilities() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastAdminInFacilities");
+
+    final Facility testFac = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "testfac1"));
+    final Facility otherFac = perun.getFacilitiesManager().createFacility(sess, new Facility(1, "testfac2"));
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    AuthzResolver.setRole(sess, testGroup, testFac, Role.FACILITYADMIN);
+
+    assertEquals(List.of(testFac), AuthzResolver.isGroupLastAdminInFacilities(sess, testGroup, List.of(testFac, otherFac)));
+  }
+
+  @Test
+  public void isUserLastAdminInFacilities() throws Exception {
+    System.out.println(CLASS_NAME + "isUserLastAdminInFacilities");
+
+    final Facility testFac = perun.getFacilitiesManager().createFacility(sess, new Facility(0, "testfac1"));
+    final Facility otherFac = perun.getFacilitiesManager().createFacility(sess, new Facility(1, "testfac2"));
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Member createdMember = createSomeMember(testVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    AuthzResolver.setRole(sess, createdUser, testFac, Role.FACILITYADMIN);
+
+    assertEquals(List.of(testFac), AuthzResolver.isUserLastAdminInFacilities(sess, createdUser, List.of(testFac, otherFac)));
+  }
+
+  @Test
+  public void isGroupLastAdminInVos() throws Exception {
+    System.out.println(CLASS_NAME + "isGroupLastAdminInVos");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+    AuthzResolver.setRole(sess, testGroup, testVo, Role.VOADMIN);
+
+    assertEquals(List.of(testVo), AuthzResolver.isGroupLastAdminInVos(sess, testGroup, List.of(testVo, otherVo)));
+  }
+
+  @Test
+  public void isUserLastAdminInVos() throws Exception {
+    System.out.println(CLASS_NAME + "isUserLastAdminInVos");
+
+    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+    final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1, "testvo2", "testvo2"));
+    final Member createdMember = createSomeMember(otherVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    AuthzResolver.setRole(sess, createdUser, testVo, Role.VOADMIN);
+
+    assertEquals(List.of(testVo), AuthzResolver.isUserLastAdminInVos(sess, createdUser, List.of(testVo, otherVo)));
+  }
+
+  @Test
   public void roleExistsForExistingRole() {
     assertTrue(AuthzResolver.roleExists("PERUNADMIN"));
   }
