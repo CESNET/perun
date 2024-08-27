@@ -294,7 +294,12 @@ public class ApplicationMail {
     /**
      * Notification to User with invitation to VO / group
      */
-    USER_INVITE
+    USER_INVITE,
+
+    /**
+     * Notification to User with pre-approved invitation to group
+     */
+    USER_PRE_APPROVED_INVITE
 
   }
 

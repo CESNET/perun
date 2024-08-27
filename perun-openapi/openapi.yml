@@ -1209,6 +1209,7 @@ components:
         - APP_REJECTED_USER
         - APP_ERROR_VO_ADMIN
         - USER_INVITE
+        - USER_PRE_APPROVED_INVITE
 
     InvitationStatus:
       type: string
@@ -17860,6 +17861,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/optionalGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/isPreApprovedInvitationEnabled:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: isPreApprovedInvitationEnabled
+      summary: Checks if pre-approved invitation via notification is enabled (pre-approved invitation notification exists, application form exists and application form can be submitted).
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/groupId'
       responses:
         '200':
           $ref: '#/components/responses/BooleanResponse'
