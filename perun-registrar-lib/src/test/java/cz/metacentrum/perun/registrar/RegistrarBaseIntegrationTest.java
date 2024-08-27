@@ -1575,8 +1575,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
     mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Message text without tags"));
 
-    assertThatExceptionOfType(ApplicationMailTextMissingException.class).isThrownBy(
+    Exception e = assertThrows(ApplicationMailTextMissingException.class,
         () -> mailManager.addMail(session, form, mail));
+    assertTrue(e.getMessage().contains(
+        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}', '{expirationDate}'."));
   }
 
   @Test
@@ -1604,8 +1606,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
     mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Message text without tags</div>"));
 
-    assertThatExceptionOfType(ApplicationMailTextMissingException.class).isThrownBy(
+    Exception e = assertThrows(ApplicationMailTextMissingException.class,
         () -> mailManager.addMail(session, form, mail));
+    assertTrue(e.getMessage().contains(
+        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}', '{expirationDate}'."));
   }
 
   @Test
@@ -1645,8 +1649,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     MailText message = mail.getMessage(Locale.ENGLISH);
     message.setText("Updated version without tags");
 
-    assertThatExceptionOfType(ApplicationMailTextMissingException.class).isThrownBy(
+    Exception e = assertThrows(ApplicationMailTextMissingException.class,
         () -> mailManager.updateMailById(session, mail));
+    assertTrue(e.getMessage().contains(
+        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}', '{expirationDate}'."));
   }
 
   @Test
@@ -1686,8 +1692,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     MailText htmlMessage = mail.getHtmlMessage(Locale.ENGLISH);
     htmlMessage.setText("<div>Updated message text without tags</div>");
 
-    assertThatExceptionOfType(ApplicationMailTextMissingException.class).isThrownBy(
+    Exception e = assertThrows(ApplicationMailTextMissingException.class,
         () -> mailManager.updateMailById(session, mail));
+    assertTrue(e.getMessage().contains(
+        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}', '{expirationDate}'."));
   }
 
   @Test

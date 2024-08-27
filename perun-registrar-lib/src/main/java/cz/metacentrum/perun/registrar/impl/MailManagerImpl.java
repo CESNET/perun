@@ -181,6 +181,10 @@ public class MailManagerImpl implements MailManager {
   private static final String GROUP = "Group";
   private static final String VO = "Vo";
 
+  private static final Map<MailType, List<String>> REQUIRED_TAGS = Map.of(
+      MailType.USER_PRE_APPROVED_INVITE, List.of(FIELD_PRE_APPROVED_INVITATION_LINK, FIELD_EXPIRATION_DATE)
+  );
+
   @Autowired
   PerunBl perun;
   @Autowired
@@ -321,13 +325,24 @@ public class MailManagerImpl implements MailManager {
     return id;
   }
 
+  /**
+   * Checks whether the notification text includes all the required tags for the given notification type. Specified
+   * by the REQUIRED_TAGS map.
+   *
+   * @param mailType the type of the notification
+   * @param messageText the text of the notification
+   * @throws ApplicationMailTextMissingException if any of the required tags is missing
+   */
   private void checkRequiredTagsInMessageText(MailType mailType, String messageText)
           throws ApplicationMailTextMissingException {
-    if (mailType == MailType.USER_PRE_APPROVED_INVITE && messageText != null && !messageText.isEmpty() &&
-        (!messageText.contains(FIELD_PRE_APPROVED_INVITATION_LINK) || !messageText.contains(FIELD_EXPIRATION_DATE))) {
-      throw new ApplicationMailTextMissingException(
-              "Each set mail message text must contain tags '" + FIELD_PRE_APPROVED_INVITATION_LINK +
-                      "' and '" + FIELD_EXPIRATION_DATE + "'.");
+    if (messageText != null && !messageText.isEmpty() && REQUIRED_TAGS.get(mailType) != null) {
+      for (String requiredTag : REQUIRED_TAGS.get(mailType)) {
+        if (!messageText.contains(requiredTag)) {
+          throw new ApplicationMailTextMissingException(
+              "The mail message text for this notification type must contain following tags: '" +
+                  String.join("', '", REQUIRED_TAGS.get(mailType)) + "'.");
+        }
+      }
     }
   }
 
@@ -3037,11 +3052,7 @@ public class MailManagerImpl implements MailManager {
 
     // replace groupName
     if (mailText.contains(FIELD_GROUP_NAME)) {
-      if (group != null) {
-        mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, group.getShortName());
-      } else {
-        mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, EMPTY_STRING);
-      }
+      mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, group.getShortName());
     }
 
     // replace name of user
@@ -3065,7 +3076,8 @@ public class MailManagerImpl implements MailManager {
         User user = perun.getUsersManagerBl().getUserById(registrarSession, invitation.getSenderId());
         mailText = replaceNullSafe(mailText, FIELD_SENDER_NAME, user.getDisplayName());
       } catch (Exception ex) {
-        mailText = replaceNullSafe(mailText, FIELD_GROUP_NAME, EMPTY_STRING);
+        LOG.error("The sender of the invitation {} could not be found.", invitation.getId(), ex);
+        mailText = replaceNullSafe(mailText, FIELD_SENDER_NAME, EMPTY_STRING);
       }
     }
 
