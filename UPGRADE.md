@@ -1,5 +1,24 @@
 Upgrade notes
 
+## [39.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v38.0.1...v39.0.0) (2024-08-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **registrar:** new mail_type value added into DB
+
+### Features
+
+* **registrar:** concat group item checkbox values with disabled flag ([83c58a0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/83c58a058dc33a1e8e56b12f0f1b34b2688264be))
+* **registrar:** preapproved invitation mail type ([5aa15bd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5aa15bdcf91fcd3a7c1cca817d13bfae708e4943))
+
+
+### Bug Fixes
+
+* **core:** fixed semantic check in login-namespace:admin-meta ([38277bb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/38277bb3a12a6057f5bdffc9acaa5975b6aaa0cd))
+* **registrar:** additional changes squash later ([7591f67](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7591f67ea9350c1512d7a1069aa927489b06b7a8))
+* **registrar:** changed revoke invitation param name to be consistent with openapi ([a1e2d6b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a1e2d6b421202f035747b763003bc9a6bb2f8f81))
+
 ## [38.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v38.0.0...v38.0.1) (2024-08-23)
 
 
