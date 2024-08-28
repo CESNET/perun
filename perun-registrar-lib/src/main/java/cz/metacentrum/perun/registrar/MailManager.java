@@ -164,6 +164,19 @@ public interface MailManager {
   Boolean isInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException;
 
   /**
+   * Checks if pre-approved invitation via notification is enabled (pre-approved invitation notification exists,
+   * application form exists and application form can be submitted)
+   *
+   * @param sess  session
+   * @param vo    vo
+   * @param group group
+   * @return true if pre-approved invitation notification exists, application form exists and application form can be
+   * submitted
+   * @throws PerunException exception
+   */
+  Boolean isPreApprovedInvitationEnabled(PerunSession sess, Vo vo, Group group) throws PerunException;
+
+  /**
    * Checks if invitation via link is enabled (application form exists and application form can be submitted)
    *
    * @param sess  session

@@ -1,5 +1,14 @@
 package cz.metacentrum.perun.registrar;
 
+import static cz.metacentrum.perun.registrar.model.Application.AppType.INITIAL;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -25,11 +34,21 @@ import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusExceptio
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
+import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import cz.metacentrum.perun.registrar.model.InvitationWithSender;
 import cz.metacentrum.perun.registrar.model.InvitationsOrderColumn;
 import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,24 +59,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.mail.internet.MimeMessage;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-registrar-lib.xml"})
@@ -683,6 +684,11 @@ public class InvitationsManagerIntegrationTest {
     ApplicationForm groupForm = registrarManager.getFormForGroup(group);
     groupForm.setAutomaticApproval(true);
     registrarManager.updateForm(session, groupForm);
+
+    ApplicationMail mail = new ApplicationMail(0, INITIAL, groupForm.getId(), ApplicationMail.MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new ApplicationMail.MailText(Locale.ENGLISH, "test","Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
+
+    mailManager.addMail(session, groupForm, mail);
 
     return group;
   }

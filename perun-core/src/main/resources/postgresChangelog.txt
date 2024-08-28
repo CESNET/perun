@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.23
+ALTER TYPE mail_type ADD VALUE 'USER_PRE_APPROVED_INVITE';
+UPDATE configurations SET value='3.2.23' WHERE property='DATABASE VERSION';
+
 3.2.22
 ALTER TYPE invitations_status RENAME TO invitations_status_old;
 CREATE TYPE invitations_status as enum ('ACCEPTED', 'EXPIRED', 'PENDING', 'REVOKED', 'UNSENT');
