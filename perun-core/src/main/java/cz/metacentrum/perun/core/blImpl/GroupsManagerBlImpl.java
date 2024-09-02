@@ -1806,7 +1806,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
       if (!forceDelete) {
         throw new RelationExistsException("Group group=" + group + " has some manager roles.");
       } else {
+        List<Vo> lastAdminVos = isGroupLastAdminInSomeVo(sess, group);
+        List<Facility> lastAdminFacilities = isGroupLastAdminInSomeFacility(sess, group);
         getGroupsManagerImpl().removeAllManagerRolesOfGroup(sess, group);
+        // group removal could have resulted in Vo/Facilities without a contact person
+        for (Vo managedVo : lastAdminVos) {
+          AuthzResolverBlImpl.logLastAdmin(sess, managedVo);
+        }
+        for (Facility facility : lastAdminFacilities) {
+          AuthzResolverBlImpl.logLastAdmin(sess, facility);
+        }
       }
     }
 
