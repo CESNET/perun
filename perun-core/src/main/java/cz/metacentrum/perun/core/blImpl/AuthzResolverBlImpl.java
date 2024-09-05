@@ -2903,6 +2903,58 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   }
 
   /**
+   * Checks the facilities and returns those in which group is the last admin
+   *
+   * @param sess sess
+   * @param group group
+   * @param facilities facilities to check
+   * @return facilities in which the user is last admin
+   */
+  public static List<Facility> isGroupLastAdminInFacilities(PerunSession sess, Group group, List<Facility> facilities) {
+    List<Facility> result = new ArrayList<>();
+    List<Group> adminGroups;
+    List<User> directAdmins;
+    for (Facility facility : facilities) {
+      try {
+        adminGroups = getAdminGroups(facility, Role.FACILITYADMIN);
+        directAdmins = getAdmins(sess, facility, Role.FACILITYADMIN, true);
+      } catch (RoleCannotBeManagedException ex) {
+        throw new InternalErrorException(ex);
+      }
+      if (directAdmins.isEmpty() && adminGroups.equals(List.of(group))) {
+        result.add(facility);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Checks the vos and return those in which group is the last admin.
+   *
+   * @param sess sess
+   * @param group group
+   * @param vos vos to check
+   * @return vos in which the user is last admin
+   */
+  public static List<Vo> isGroupLastAdminInVos(PerunSession sess, Group group, List<Vo> vos) {
+    List<Vo> result = new ArrayList<>();
+    List<Group> adminGroups;
+    List<User> directAdmins;
+    for (Vo vo : vos) {
+      try {
+        adminGroups = getAdminGroups(vo, Role.VOADMIN);
+        directAdmins = getAdmins(sess, vo, Role.VOADMIN, true);
+      } catch (RoleCannotBeManagedException ex) {
+        throw new InternalErrorException(ex);
+      }
+      if (directAdmins.isEmpty() && adminGroups.equals(List.of(group))) {
+        result.add(vo);
+      }
+    }
+    return result;
+  }
+
+  /**
    * Checks authorization for attribute according to MFA rules. Returns false if attribute action is marked as critical,
    * attribute's object is marked as critical and principal is not authorized by MFA and hasn't got a system role. If
    * MFA is globally disabled for whole instance, returns true.
@@ -3006,6 +3058,58 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    */
   static boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo) {
     return authzResolverImpl.isUserInRoleForVo(session, user, role, vo);
+  }
+
+  /**
+   * Checks the facilities and returns those in which user is the last admin
+   *
+   * @param sess sess
+   * @param user user
+   * @param facilities facilities to check
+   * @return facilities in which the user is last admin
+   */
+  public static List<Facility> isUserLastAdminInFacilities(PerunSession sess, User user, List<Facility> facilities) {
+    List<Facility> result = new ArrayList<>();
+    List<Group> adminGroups;
+    List<User> directAdmins;
+    for (Facility facility : facilities) {
+      try {
+        adminGroups = getAdminGroups(facility, Role.FACILITYADMIN);
+        directAdmins = getAdmins(sess, facility, Role.FACILITYADMIN, true);
+      } catch (RoleCannotBeManagedException ex) {
+        throw new InternalErrorException(ex);
+      }
+      if (adminGroups.isEmpty() && directAdmins.equals(List.of(user))) {
+        result.add(facility);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Checks the vos and return those in which user is the last admin.
+   *
+   * @param sess sess
+   * @param user user
+   * @param vos vos to check
+   * @return vos in which the user is last admin
+   */
+  public static List<Vo> isUserLastAdminInVos(PerunSession sess, User user, List<Vo> vos) {
+    List<Vo> result = new ArrayList<>();
+    List<Group> adminGroups;
+    List<User> directAdmins;
+    for (Vo vo : vos) {
+      try {
+        adminGroups = getAdminGroups(vo, Role.VOADMIN);
+        directAdmins = getAdmins(sess, vo, Role.VOADMIN, true);
+      } catch (RoleCannotBeManagedException ex) {
+        throw new InternalErrorException(ex);
+      }
+      if (adminGroups.isEmpty() && directAdmins.equals(List.of(user))) {
+        result.add(vo);
+      }
+    }
+    return result;
   }
 
   /**

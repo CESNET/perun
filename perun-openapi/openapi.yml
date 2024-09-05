@@ -1275,8 +1275,8 @@ components:
         sortColumn: { $ref: '#/components/schemas/InvitationsOrderColumn' }
         searchString: { type: string }
         statuses: { type: array, items: { $ref: '#/components/schemas/InvitationStatus' } }
-        dateFrom: { type: string, format: date }
-        dateTo: { type: string, format: date }
+        expirationFrom: { type: string, format: date }
+        expirationTo: { type: string, format: date }
       required:
         - pageSize
         - offset
@@ -2986,6 +2986,16 @@ components:
       in: query
       required: true
 
+    facilityIds:
+      name: "facilities[]"
+      description: "list of Facility ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     facilityName:
       name: facility
       description: "name of Facility"
@@ -3099,6 +3109,16 @@ components:
         type: integer
       in: query
       required: true
+
+    voIds:
+      name: "vos[]"
+      description: "list of Vo ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
 
     memberVoId:
       name: memberVo
@@ -4540,6 +4560,66 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isGroupLastAdminInFacilities:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isGroupLastAdminInFacilities
+      summary: Checks whether groups is the last admin the facilities and returns those in which it is.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/facilityIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isGroupLastAdminInVos:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isGroupLastAdminInVos
+      summary: Checks whether groups is the last admin the vos and returns those in which it is.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/voIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isUserLastAdminInFacilities:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isUserLastAdminInFacilities
+      summary: Checks whether user is the last admin the facilities and returns those in which it is.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isUserLastAdminInVos:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isUserLastAdminInVos
+      summary: Checks whether user is the last admin the vos and returns those in which it is.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/voIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -13509,6 +13589,34 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/isGroupLastAdminInSomeFacility:
+    get:
+      tags:
+        - GroupsManager
+      operationId: isGroupLastAdminInSomeFacility
+      summary: Return groups which supply the last FACILITYADMIN in some Facility.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/isGroupLastAdminInSomeVo:
+    get:
+      tags:
+        - GroupsManager
+      operationId: isGroupLastAdminInSomeVo
+      summary: Returns groups which supply the last VOADMIN in some VO.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

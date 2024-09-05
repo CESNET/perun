@@ -2,6 +2,7 @@ package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;
@@ -714,6 +715,51 @@ public enum GroupsManagerMethod implements ManagerMethod {
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getGroupsManager()
           .getGroupRichMembersWithAttributes(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+    }
+  },
+
+  /*#
+   * Return groups which supply the last FACILITYADMIN in some Facility.
+   *
+   * @throw GroupNotExistsException When a group doesn't exist
+   * @throw PrivilegeException Insufficient rights
+   *
+   * @param groups int[] Array of Group IDs
+   * @return List<Group> groups which supply the last FACILITYADMIN in some Facility
+   */
+  isGroupLastAdminInSomeFacility {
+    @Override
+    public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      int[] ids = parms.readArrayOfInts("groups");
+      List<Group> groups = new ArrayList<>(ids.length);
+      for (int i : ids) {
+        groups.add(ac.getGroupById(i));
+      }
+
+      return ac.getGroupsManager()
+                 .isGroupLastAdminInSomeFacility(ac.getSession(), groups);
+    }
+  },
+
+  /*#
+   * Return groups which supply the last VOADMIN in some VO.
+   *
+   * @throw GroupNotExistsException When a group doesn't exist
+   * @throw PrivilegeException Insufficient rights
+   *
+   * @param groups int[] Array of Group IDs
+   * @return List<Group> groups which supply the last VOADMIN in some VO
+   */
+  isGroupLastAdminInSomeVo {
+    @Override
+    public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      int[] ids = parms.readArrayOfInts("groups");
+      List<Group> groups = new ArrayList<>(ids.length);
+      for (int i : ids) {
+        groups.add(ac.getGroupById(i));
+      }
+      return ac.getGroupsManager()
+                 .isGroupLastAdminInSomeVo(ac.getSession(), groups);
     }
   },
 
