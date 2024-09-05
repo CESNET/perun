@@ -20188,6 +20188,20 @@ paths:
   # InvitationsManager                            #
   #                                               #
   #################################################
+  /json/invitationsManager/getInvitationByApplication:
+    get:
+      tags:
+        - InvitationsManager
+      operationId: getInvitationByApplication
+      summary: Get invitation object associated with the application. Return null if such invitation doesn't exist.
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/invitationsManager/getInvitationById:
     get:
       tags:

@@ -8577,6 +8577,17 @@ perun_policies:
 
   # invitationsManagerEntry
 
+  getInvitationByApplication_Application_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy
+
   getInvitationById_int_policy:
     policy_roles:
       - VOADMIN: Vo
