@@ -63,7 +63,7 @@
 		<spring.profiles.default>default</spring.profiles.default>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
-		<commons-cli.version>1.8.0</commons-cli.version>
+		<commons-cli.version>1.9.0</commons-cli.version>
 		<commons-text.version>1.12.0</commons-text.version>
 		<commons-lang3.version>3.14.0</commons-lang3.version> <!-- newer commons-text requires also newer commons-lang3 than provided by current spring-boot-parent -->
 		<docker-java.version>3.4.0</docker-java.version>
