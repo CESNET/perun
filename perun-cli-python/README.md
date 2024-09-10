@@ -88,7 +88,7 @@ can be specified using the `--mfa-valid <minutes>` switch, the default is 480 mi
 
 ```bash
 ./perun_cli.py --http-basic-auth \
-              --username perun \
+              --user perun \
               --password test \
               getPerunStatus
 ```

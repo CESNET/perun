@@ -16,11 +16,13 @@ def main(
         None, "-id", "--form_item_id", help="application form item ID"
     ),
     en_options: Annotated[
-        Optional[List[str]], typer.Option(default=None)
-    ] = typer.Option(None, "-en", "--en", help="english option, use multiple times"),
+        Optional[List[str]],
+        typer.Option("--en", "-en", help="english option, use multiple times"),
+    ] = None,
     cs_options: Annotated[
-        Optional[List[str]], typer.Option(default=None)
-    ] = typer.Option(None, "-cs", "--cs", help="czech option, use multiple times"),
+        Optional[List[str]],
+        typer.Option("--cs", "-cs", help="czech option, use multiple times"),
+    ] = None,
 ) -> None:
     """
     updates options in english and czech labels in a form item.
