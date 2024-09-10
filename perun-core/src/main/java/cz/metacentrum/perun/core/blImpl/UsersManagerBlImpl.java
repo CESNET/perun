@@ -10,6 +10,8 @@ import cz.metacentrum.perun.audit.events.UserManagerEvents.UserDeleted;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceAddedToUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceRemovedFromUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceUpdated;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserNameChangeRequest;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserOrganizationChangeRequested;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserUpdated;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
@@ -70,6 +72,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredExceptio
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PersonalDataChangeNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
@@ -2736,4 +2739,171 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     Utils.validateSSHPublicKey(sshKey);
   }
 
+  @Override
+  public void changeOrganization(PerunSession sess, User user, String newOrganizationName)
+      throws PersonalDataChangeNotEnabledException, UserExtSourceNotExistsException {
+    if (!BeansUtils.getCoreConfig().getEnableLinkedOrganization()) {
+      throw new PersonalDataChangeNotEnabledException(
+          "Change of user's organization to organization from user ext source is not enabled.");
+    }
+
+    List<UserExtSource> uesList = getUserExtSources(sess, user);
+
+    for (UserExtSource ues : uesList) {
+      try {
+        Attribute uesOrganizationAttr =
+            getPerunBl().getAttributesManagerBl().getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":o");
+
+        if (ues.getLoa() > 0 && newOrganizationName.equals(uesOrganizationAttr.getValue())) {
+          AttributeDefinition userOrganizationAttrDef = getPerunBl().getAttributesManagerBl()
+                                                            .getAttributeDefinition(sess,
+                                                                AttributesManager.NS_USER_ATTR_DEF +
+                                                                    ":organization");
+          Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, newOrganizationName);
+          getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
+          return;
+        }
+      } catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
+               WrongAttributeValueException | AttributeNotExistsException ex) {
+        throw new InternalErrorException(ex);
+      }
+    }
+    throw new UserExtSourceNotExistsException(
+        "No trusted user ext source with organization '" + newOrganizationName + "' exists for user: " + user);
+  }
+
+  @Override
+  public void changeOrganizationCustom(PerunSession sess, User user, String newOrganizationName)
+      throws PersonalDataChangeNotEnabledException {
+    if (!BeansUtils.getCoreConfig().getEnableCustomOrganization()) {
+      throw new PersonalDataChangeNotEnabledException(
+          "Change of user's organization to custom organization is not enabled.");
+    }
+
+    if (BeansUtils.getCoreConfig().getCustomOrganizationRequiresApprove()) {
+      getPerunBl().getAuditer().log(sess, new UserOrganizationChangeRequested(user, newOrganizationName));
+    } else {
+      try {
+        AttributeDefinition userOrganizationAttrDef = getPerunBl().getAttributesManagerBl()
+                                                          .getAttributeDefinition(sess,
+                                                              AttributesManager.NS_USER_ATTR_DEF + ":organization");
+        Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, newOrganizationName);
+        getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
+      } catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
+               AttributeNotExistsException | WrongAttributeValueException ex) {
+        throw new InternalErrorException(ex);
+      }
+    }
+  }
+
+  @Override
+  public void changeName(PerunSession sess, User user, String newUserName)
+      throws UserExtSourceNotExistsException, PersonalDataChangeNotEnabledException {
+    if (!BeansUtils.getCoreConfig().getEnableLinkedName()) {
+      throw new PersonalDataChangeNotEnabledException(
+          "Change of user's name to name from user ext source is not enabled.");
+    }
+
+    List<UserExtSource> uesList = getUserExtSources(sess, user);
+
+    for (UserExtSource ues : uesList) {
+      try {
+        Attribute uesNameAttr =
+            getPerunBl().getAttributesManagerBl().getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":cn");
+
+        if (ues.getLoa() > 0 && newUserName.equals(uesNameAttr.getValue())) {
+          User updatedUser = Utils.parseUserFromCommonName(newUserName, true);
+          updatedUser.setId(user.getId());
+          usersManagerImpl.updateUser(sess, updatedUser);
+          return;
+        }
+      } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+        throw new InternalErrorException(ex);
+      }
+    }
+
+    throw new UserExtSourceNotExistsException(
+        "No trusted user ext source with user's name '" + newUserName + "' exists for user: " + user);
+  }
+
+  @Override
+  public void changeNameCustom(PerunSession sess, User user, String titleBefore, String firstName, String middleName,
+                               String lastName, String titleAfter) throws PersonalDataChangeNotEnabledException {
+    if (!BeansUtils.getCoreConfig().getEnableCustomName()) {
+      throw new PersonalDataChangeNotEnabledException(
+          "Change of user's name to custom name is not enabled.");
+    }
+
+    if (BeansUtils.getCoreConfig().getCustomNameRequiresApprove()) {
+      getPerunBl().getAuditer().log(
+          sess, new UserNameChangeRequest(user, titleBefore, firstName, middleName, lastName, titleAfter)
+      );
+    } else {
+      user.setTitleBefore(titleBefore);
+      user.setFirstName(firstName);
+      user.setMiddleName(middleName);
+      user.setLastName(lastName);
+      user.setTitleAfter(titleAfter);
+      usersManagerImpl.updateUser(sess, user);
+    }
+  }
+
+  @Override
+  public void changeEmail(PerunSession sess, User user, String newEmail)
+      throws UserExtSourceNotExistsException, PersonalDataChangeNotEnabledException {
+    if (!BeansUtils.getCoreConfig().getEnableLinkedEmail()) {
+      throw new PersonalDataChangeNotEnabledException(
+          "Change of user's email to email from user ext source is not enabled.");
+    }
+
+    List<UserExtSource> uesList = getUserExtSources(sess, user);
+
+    for (UserExtSource ues : uesList) {
+      try {
+        Attribute uesMailAttr = getPerunBl().getAttributesManagerBl()
+                                    .getAttribute(sess, ues, AttributesManager.NS_UES_ATTR_DEF + ":mail");
+
+        if (ues.getLoa() > 0 && newEmail.equals(uesMailAttr.getValue())) {
+          AttributeDefinition userOrganizationAttrDef = getPerunBl().getAttributesManagerBl()
+                                                            .getAttributeDefinition(sess,
+                                                                AttributesManager.NS_USER_ATTR_DEF +
+                                                                    ":preferredMail");
+          Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, newEmail);
+          getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
+          return;
+        }
+      } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+               WrongReferenceAttributeValueException ex) {
+        throw new InternalErrorException(ex);
+      }
+    }
+
+    throw new UserExtSourceNotExistsException(
+        "No trusted user ext source with email '" + newEmail + "' exists for user: " + user);
+  }
+
+  @Override
+  public void changeEmailCustom(PerunSession sess, User user, String newEmail, String url, String lang, String path,
+                                String idp)
+      throws PersonalDataChangeNotEnabledException {
+    if (!BeansUtils.getCoreConfig().getEnableCustomEmail()) {
+      throw new PersonalDataChangeNotEnabledException("Change of user's email to custom email is not enabled.");
+    }
+
+    if (BeansUtils.getCoreConfig().getCustomEmailRequiresVerification()) {
+      requestPreferredEmailChange(sess, url, user, newEmail, lang, path, idp);
+    } else {
+      try {
+        AttributeDefinition userOrganizationAttrDef = getPerunBl().getAttributesManagerBl()
+                                                          .getAttributeDefinition(sess,
+                                                              AttributesManager.NS_USER_ATTR_DEF +
+                                                                  ":preferredMail");
+        Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, newEmail);
+        getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
+      } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+               WrongReferenceAttributeValueException ex) {
+        throw new InternalErrorException(ex);
+      }
+    }
+  }
 }

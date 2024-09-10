@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.OidcConfig;
+import cz.metacentrum.perun.core.api.PersonalDataChangeConfig;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
@@ -46,5 +47,24 @@ public class ConfigManagerBlImpl implements ConfigManagerBl {
   @Override
   public boolean isArchiveSpoolEnabled() {
     return configManagerImpl.isArchiveSpoolEnabled();
+  }
+
+  @Override
+  public PersonalDataChangeConfig getPersonalDataChangeConfig() {
+    PersonalDataChangeConfig config = new PersonalDataChangeConfig();
+
+    config.setEnableLinkedName(configManagerImpl.getEnableLinkedName());
+    config.setEnableCustomName(configManagerImpl.getEnableCustomName());
+    config.setCustomNameRequiresApprove(configManagerImpl.getCustomNameRequiresApprove());
+
+    config.setEnableLinkedOrganization(configManagerImpl.getEnableLinkedOrganization());
+    config.setEnableCustomOrganization(configManagerImpl.getEnableCustomOrganization());
+    config.setCustomOrganizationRequiresApprove(configManagerImpl.getCustomOrganizationRequiresApprove());
+
+    config.setEnableLinkedEmail(configManagerImpl.getEnableLinkedEmail());
+    config.setEnableCustomEmail(configManagerImpl.getEnableCustomEmail());
+    config.setCustomEmailRequiresVerification(configManagerImpl.getCustomEmailRequiresVerification());
+
+    return config;
   }
 }

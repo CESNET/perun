@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.ConfigManager;
 import cz.metacentrum.perun.core.api.OidcConfig;
+import cz.metacentrum.perun.core.api.PersonalDataChangeConfig;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
@@ -73,5 +74,12 @@ public class ConfigManagerEntry implements ConfigManager {
 
   public void setPerunBl(PerunBlImpl perunBl) {
     this.perunBl = perunBl;
+  }
+
+  @Override
+  public PersonalDataChangeConfig getPersonalDataChangeConfig(PerunSession sess) {
+    Utils.checkPerunSession(sess);
+
+    return configManagerBl.getPersonalDataChangeConfig();
   }
 }

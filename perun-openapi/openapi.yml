@@ -1675,6 +1675,30 @@ components:
         applicationId: { type: integer }
         error: { $ref: "#/components/schemas/PerunException" }
 
+    PersonalDataChangeConfig:
+      description: represents personal data change config
+      type: object
+      properties:
+        enableLinkedName: { type: boolean }
+        enableCustomName: { type: boolean }
+        customNameRequiresApprove: { type: boolean }
+        enableLinkedOrganization: { type: boolean }
+        enableCustomOrganization: { type: boolean }
+        customOrganizationRequiresApprove: { type: boolean }
+        enableLinkedEmail: { type: boolean }
+        enableCustomEmail: { type: boolean }
+        customEmailRequiresVerification: { type: boolean }
+      required:
+        - enableLinkedName
+        - enableCustomName
+        - customNameRequiresApprove
+        - enableLinkedOrganization
+        - enableCustomOrganization
+        - customOrganizationRequiresApprove
+        - enableLinkedEmail
+        - enableCustomEmail
+        - customEmailRequiresVerification
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -1793,6 +1817,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/User"
+
+    PersonalDataChangeConfigResponse:
+      description: returns PersonalDataChangeConfig
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PersonalDataChangeConfig"
 
     ListOfUsersResponse:
       description: "returns List<User>"
@@ -3770,7 +3801,10 @@ tags:
     description: ServicesManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ServicesManager.html
-
+  - name: ConfigManager
+    description: ConfigManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ConfigManager.html
 
 #################################################
 #                                               #
@@ -10537,6 +10571,104 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MapStringListOfPerunBeanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeOrganization:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeOrganization
+      summary: Change organization from which user came to organization from user ext source.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: newOrganizationName, schema: { type: string }, in: query, required: true, description: "name of new organization which will be set" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeOrganizationCustom:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeOrganizationCustom
+      summary: Change organization from which user came to custom organization. If check from admin is required, then UserOrganizationChangeRequested audit log will be created. Otherwise, it will be set immediately.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: newOrganizationName, schema: { type: string }, in: query, required: true, description: "name of new organization which will be set" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeName:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeName
+      summary: Change user's name to user's name from user ext source.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: newUserName, schema: { type: string }, in: query, required: true, description: "new user's name which will be set" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeNameCustom:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeNameCustom
+      summary: Change user's name to custom name. If check from admin is required, then UserNameChangeRequest audit log will be created. Otherwise, it will be set immediately.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: titleBefore, schema: { type: string }, in: query, required: true, description: "new title before which will be set" }
+        - { name: firstName, schema: { type: string }, in: query, required: true, description: "new first name which will be set" }
+        - { name: middleName, schema: { type: string }, in: query, required: true, description: "new middle name which will be set" }
+        - { name: lastName, schema: { type: string }, in: query, required: true, description: "new last name which will be set" }
+        - { name: titleAfter, schema: { type: string }, in: query, required: true, description: "new title after which will be set" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeEmail:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeEmail
+      summary: Change user's email to email from user ext source.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: newEmail, schema: { type: string }, in: query, required: true, description: "new email which will be set" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeEmailCustom:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeEmailCustom
+      summary: Change user's email to custom email. If verification is required, then verification email will be sent. Otherwise, it will be set immediately.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: newEmail, schema: { type: string }, in: query, required: true, description: "new email which will be set" }
+        - { name: lang, description: "language to get confirmation mail in (optional)", schema: { type: string }, in: query, required: false }
+        - { name: linkPath, description: "path that is appended to the referer and creates the verification link (optional)", schema: { type: string }, in: query, required: false }
+        - { name: customUrl, description: "url to verification link containing path (optional)", schema: { type: string }, in: query, required: false }
+        - { name: idpFilter, description: "authentication method appended to query parameters of verification link (optional)", schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -20485,5 +20617,23 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # ConfigManager                                 #
+  #                                               #
+  #################################################
+
+  /json/configManager/getPersonalDataChangeConfig:
+    get:
+      tags:
+        - ConfigManager
+      operationId: getPersonalDataChangeConfig
+      summary: Gets personal data change configuration with all related core config properties.
+      responses:
+        '200':
+          $ref: '#/components/responses/PersonalDataChangeConfigResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
