@@ -13,6 +13,21 @@ import java.util.Map;
 public enum InvitationsManagerMethod implements ManagerMethod {
 
   /*#
+   * Get invitation object associated with the application. Return null if such invitation doesn't exist.
+   *
+   * @param appId int <code>id</code> of application to send notification for
+   * @throw PrivilegeException insufficient rights
+   */
+  getInvitationByApplication {
+    @Override
+    public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getInvitationsManager().getInvitationByApplication(ac.getSession(), ac.getApplicationById(
+          parms.readInt("appId")
+      ));
+    }
+  },
+
+  /*#
    * Returns invitation by ID
    *
    * @param sess session
