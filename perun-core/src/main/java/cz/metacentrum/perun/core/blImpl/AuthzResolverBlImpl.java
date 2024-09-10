@@ -11,7 +11,9 @@ import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleSetForGroup;
 import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleSetForUser;
 import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleUnsetForGroup;
 import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleUnsetForUser;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.LastAdminRemovedFromFacility;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserPromotedToPerunAdmin;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.LastAdminRemovedFromVo;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
@@ -52,7 +54,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -89,8 +90,6 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.Invitation;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -3908,6 +3907,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
     getPerunBl().getAuditer().log(sess, new RoleUnsetForUser(complementaryObject, user, role));
 
+    logLastAdmin(sess, complementaryObject);
+
     if (role.equals(Role.SPONSOR) && complementaryObject.getBeanName().equals("Vo")) {
       getPerunBl().getVosManagerBl().handleUserLostVoRole(sess, user, (Vo) complementaryObject, Role.SPONSOR);
     }
@@ -3950,6 +3951,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
     getPerunBl().getAuditer().log(sess, new RoleUnsetForGroup(complementaryObject, authorizedGroup, role));
 
+    logLastAdmin(sess, complementaryObject);
+
     if (role.equals(Role.SPONSOR) && complementaryObject.getBeanName().equals("Vo")) {
       getPerunBl().getVosManagerBl()
           .handleGroupLostVoRole(sess, authorizedGroup, (Vo) complementaryObject, Role.SPONSOR);
@@ -3963,6 +3966,35 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       if (!userMembers.isEmpty()) {
         AuthzResolverBlImpl.refreshAuthz(sess);
       }
+    }
+  }
+
+  /**
+   * Checks whether removed admin user/group was the last admin of Vo/Facility, log an AuditEvent which will trigger a
+   * notification if this was the case.
+   *
+   * @param sess session
+   * @param complementaryObject Vo/Facility object
+   */
+  public static void logLastAdmin(PerunSession sess, PerunBean complementaryObject) {
+    List<User> admins;
+    List<Group> groups;
+    try {
+      if (complementaryObject instanceof Vo) {
+        admins = getAdmins(sess, complementaryObject, Role.VOADMIN, true);
+        groups = getAdminGroups(complementaryObject, Role.VOADMIN);
+        if (admins.isEmpty() && groups.isEmpty()) {
+          getPerunBl().getAuditer().log(sess, new LastAdminRemovedFromVo((Vo) complementaryObject));
+        }
+      } else if (complementaryObject instanceof Facility) {
+        admins = getAdmins(sess, complementaryObject, Role.FACILITYADMIN, true);
+        groups = getAdminGroups(complementaryObject, Role.FACILITYADMIN);
+        if (admins.isEmpty() && groups.isEmpty()) {
+          getPerunBl().getAuditer().log(sess, new LastAdminRemovedFromFacility((Facility) complementaryObject));
+        }
+      }
+    } catch (RoleCannotBeManagedException ex) {
+      throw new InternalErrorException(ex);
     }
   }
 
