@@ -50,7 +50,7 @@ see `./perun_cli.py --help` for available values.
 The client supports three types of authentication:
 - OIDC with token obtained from oidc-agent
 - OIDC with token obtained using Device Code flow
-- HTTP Basic Auth
+- HTTP Basic Auth (or Kerberos)
 
 ## OIDC with token obtained from oidc-agent
 
@@ -85,6 +85,9 @@ The switch `--mfa` requests an MFA. The second factor authentication must not be
 can be specified using the `--mfa-valid <minutes>` switch, the default is 480 minutes or 8 hours.
 
 ## HTTP Basic Auth
+
+You can use either `--http-basic-auth` to contact /ba/ endpoint or 
+`--http-krb-auth` to contact /krb/ endpoint supporting kerberos authentication.
 
 ```bash
 ./perun_cli.py --http-basic-auth \
