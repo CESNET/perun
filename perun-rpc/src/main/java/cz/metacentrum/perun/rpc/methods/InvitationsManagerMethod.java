@@ -85,6 +85,7 @@ public enum InvitationsManagerMethod implements ManagerMethod {
    * @throw PrivilegeException Insufficient rights
    * @throw GroupNotExistsException Group does not exist
    * @throw VoNotExistsException VO does not exist
+   * @return int created Invitation <code>id</code>
    */
   /*#
    * Send invitation link to end user's email. The link leads to the application form of the group, when filled out a
@@ -99,6 +100,7 @@ public enum InvitationsManagerMethod implements ManagerMethod {
    * @throw PrivilegeException Insufficient rights
    * @throw GroupNotExistsException Group does not exist
    * @throw VoNotExistsException VO does not exist
+   * @return int created Invitation <code>id</code>
    */
   /*#
    * Send invitation link to end user's email. The link leads to the application form of the group, when filled out a
@@ -116,6 +118,7 @@ public enum InvitationsManagerMethod implements ManagerMethod {
    * @throw GroupNotExistsException Group does not exist
    * @throw VoNotExistsException VO does not exist
    * @throw RegistrarException when email address format is incorrect
+   * @return int created Invitation <code>id</code>
    */
   /*#
    * Send invitation link to end user's email. The link leads to the application form of the group, when filled out a
@@ -132,10 +135,11 @@ public enum InvitationsManagerMethod implements ManagerMethod {
    * @throw GroupNotExistsException Group does not exist
    * @throw VoNotExistsException VO does not exist
    * @throw RegistrarException when email address format is incorrect
+   * @return int created Invitation <code>id</code>
    */
   inviteToGroup {
     @Override
-    public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
+    public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
       String redirectUrl = "";

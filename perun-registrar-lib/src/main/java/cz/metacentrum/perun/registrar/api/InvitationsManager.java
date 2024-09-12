@@ -156,13 +156,13 @@ public interface InvitationsManager {
    * @param language language of the invitation
    * @param expiration expiration of the invitation link
    * @param redirectUrl optional redirect url to redirect to upon filling out the form
-   * @return created Invitation object
+   * @return created Invitation id
    * @throws PrivilegeException insufficient rights
    * @throws GroupNotExistsException group does not exist
    * @throws VoNotExistsException vo does not exist
    * @throws RegistrarException when email address format is incorrect
    */
-  Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+  int inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
                            String language, LocalDate expiration, String redirectUrl) throws PrivilegeException,
                                                                                              GroupNotExistsException,
                                                                                              VoNotExistsException,

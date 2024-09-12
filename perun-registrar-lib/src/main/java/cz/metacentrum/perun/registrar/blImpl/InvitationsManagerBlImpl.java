@@ -133,11 +133,27 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   }
 
   @Override
-  public Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+  public int inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
       String language, LocalDate expiration, String redirectUrl) throws RegistrarException {
-    return inviteToGroup(sess, vo, group, receiverName, receiverEmail, language, expiration, redirectUrl, false);
+    return inviteToGroup(sess, vo, group, receiverName, receiverEmail, language, expiration, redirectUrl, false)
+               .getId();
   }
 
+  /**
+   * Performs some parameter validation, creates invitation object in db, generates uuid, sets the sender and status.
+   *
+   * @param sess session
+   * @param vo vo
+   * @param group group
+   * @param receiverName name of the receiver
+   * @param receiverEmail email of the receiver
+   * @param language language of the invitation
+   * @param expiration date of invitation expiration
+   * @param redirectUrl optional redirect url
+   * @param csv whether invitation was via csv
+   * @return created invitation object
+   * @throws RegistrarException
+   */
   private Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
       String language, LocalDate expiration, String redirectUrl, boolean csv)
       throws RegistrarException {

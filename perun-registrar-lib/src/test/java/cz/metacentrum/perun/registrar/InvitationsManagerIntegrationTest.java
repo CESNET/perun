@@ -352,7 +352,7 @@ public class InvitationsManagerIntegrationTest {
     try {
       ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
 
-      Invitation invitation = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
+      invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
           "test@receiver.com", "en", null, "");
 
 
@@ -374,8 +374,9 @@ public class InvitationsManagerIntegrationTest {
       doNothing().when(spyMailSender).send(any(MimeMessage.class));
       ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
 
-      Invitation invitation = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
+      int invitationId = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
           "test@receiver.com", "en", null, "");
+      Invitation invitation = invitationsManagerBl.getInvitationById(session, invitationId);
 
       assertEquals(InvitationStatus.PENDING, invitation.getStatus());
       assertEquals(sender.getId(), invitation.getSenderId());
@@ -397,7 +398,7 @@ public class InvitationsManagerIntegrationTest {
       doNothing().when(spyMailSender).send(any(MimeMessage.class));
       ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
 
-      Invitation invitation = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
+      invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
           "test-receiver.com", "en", null, "");
     } finally {
       ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
@@ -416,8 +417,9 @@ public class InvitationsManagerIntegrationTest {
       doThrow(new MailSendException("test")).when(spyMailSender).send(any(MimeMessage.class));
       ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
 
-      Invitation invitation = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
+      int invitationId = invitationsManagerBl.inviteToGroup(senderSess, vo, group, "test receiver",
           "test@receiver.com", "en", null, "");
+      Invitation invitation = invitationsManagerBl.getInvitationById(session, invitationId);
 
       assertEquals(InvitationStatus.UNSENT, invitation.getStatus());
     } finally {
