@@ -22,6 +22,7 @@ import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnAp
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.implApi.InvitationsManagerImplApi;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import cz.metacentrum.perun.registrar.model.InvitationWithSender;
@@ -54,6 +55,17 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
 
   public void setPerun(PerunBl perunBl) {
     this.perun = perunBl;
+  }
+
+  @Override
+  public Invitation getInvitationByApplication(PerunSession sess, Application application) {
+    Invitation invitation;
+    try {
+      invitation = invitationsManagerImpl.getInvitationByApplication(sess, application);
+    } catch (InvitationNotExistsException ex) {
+      invitation = null;
+    }
+    return invitation;
   }
 
   @Override

@@ -1806,7 +1806,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
       if (!forceDelete) {
         throw new RelationExistsException("Group group=" + group + " has some manager roles.");
       } else {
+        List<Vo> lastAdminVos = isGroupLastAdminInSomeVo(sess, group);
+        List<Facility> lastAdminFacilities = isGroupLastAdminInSomeFacility(sess, group);
         getGroupsManagerImpl().removeAllManagerRolesOfGroup(sess, group);
+        // group removal could have resulted in Vo/Facilities without a contact person
+        for (Vo managedVo : lastAdminVos) {
+          AuthzResolverBlImpl.logLastAdmin(sess, managedVo);
+        }
+        for (Facility facility : lastAdminFacilities) {
+          AuthzResolverBlImpl.logLastAdmin(sess, facility);
+        }
       }
     }
 
@@ -4003,6 +4012,40 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
       throw new InternalErrorException(e);
     }
+  }
+
+  @Override
+  public List<Facility> isGroupLastAdminInSomeFacility(PerunSession sess, Group group) {
+    return getGroupsManagerImpl().isGroupLastAdminInSomeFacility(sess, group);
+  }
+
+  @Override
+  public List<Group> isGroupLastAdminInSomeFacility(PerunSession sess, List<Group> groups) {
+    List<Group> result = new ArrayList<>();
+
+    for (Group group : groups) {
+      if (!this.isGroupLastAdminInSomeFacility(sess, group).isEmpty()) {
+        result.add(group);
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public List<Vo> isGroupLastAdminInSomeVo(PerunSession sess, Group group) {
+    return getGroupsManagerImpl().isGroupLastAdminInSomeVo(sess, group);
+  }
+
+  @Override
+  public List<Group> isGroupLastAdminInSomeVo(PerunSession sess, List<Group> groups) {
+    List<Group> result = new ArrayList<>();
+
+    for (Group group : groups) {
+      if (!this.isGroupLastAdminInSomeVo(sess, group).isEmpty()) {
+        result.add(group);
+      }
+    }
+    return result;
   }
 
   @Override

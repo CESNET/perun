@@ -5,10 +5,12 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import cz.metacentrum.perun.registrar.model.InvitationWithSender;
@@ -24,6 +26,15 @@ import java.util.UUID;
  * @author David Flor <493294@mail.muni.cz>
  */
 public interface InvitationsManagerBl {
+
+  /**
+   * Get invitation object associated with the application
+   *
+   * @param sess session
+   * @param application application to get invitation for
+   * @return invitation object or null if such invitation doesn't exist
+   */
+  Invitation getInvitationByApplication(PerunSession sess, Application application);
 
   /**
    * Get invitation object with the specified id.

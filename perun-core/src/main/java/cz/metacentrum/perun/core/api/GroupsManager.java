@@ -1454,6 +1454,30 @@ public interface GroupsManager {
       throws GroupNotExistsException, PrivilegeException;
 
   /**
+   * Check whether some of the groups supply the last FACILITYADMIN in some facility, return the groups that do.
+   * Such facilities could upon removal of the group be left without a person to manage them.
+   * @param sess session
+   * @param groups groups to check
+   * @return list of groups which supply last FACILITYADMIN in some facility
+   * @throws GroupNotExistsException group does not exist
+   * @throws PrivilegeException insufficient rights
+   */
+  List<Group> isGroupLastAdminInSomeFacility(PerunSession sess, List<Group> groups)
+      throws GroupNotExistsException, PrivilegeException;
+
+  /**
+   * Check whether some of the groups supply the last VOADMIN in some vo, return the groups that do.
+   * Such vos could upon removal of the group be left without a person to manage them.
+   * @param sess session
+   * @param groups groups to check
+   * @return list of groups which supply last VOADMIN in some facility
+   * @throws GroupNotExistsException group does not exist
+   * @throws PrivilegeException insufficient rights
+   */
+  List<Group> isGroupLastAdminInSomeVo(PerunSession sess, List<Group> groups) throws GroupNotExistsException,
+                                                                                         PrivilegeException;
+
+  /**
    * Return true if Member is member of the Group
    *
    * @param sess

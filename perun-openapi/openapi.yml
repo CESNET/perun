@@ -1275,8 +1275,8 @@ components:
         sortColumn: { $ref: '#/components/schemas/InvitationsOrderColumn' }
         searchString: { type: string }
         statuses: { type: array, items: { $ref: '#/components/schemas/InvitationStatus' } }
-        dateFrom: { type: string, format: date }
-        dateTo: { type: string, format: date }
+        expirationFrom: { type: string, format: date }
+        expirationTo: { type: string, format: date }
       required:
         - pageSize
         - offset
@@ -2986,6 +2986,16 @@ components:
       in: query
       required: true
 
+    facilityIds:
+      name: "facilities[]"
+      description: "list of Facility ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     facilityName:
       name: facility
       description: "name of Facility"
@@ -3099,6 +3109,16 @@ components:
         type: integer
       in: query
       required: true
+
+    voIds:
+      name: "vos[]"
+      description: "list of Vo ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
 
     memberVoId:
       name: memberVo
@@ -4540,6 +4560,66 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isGroupLastAdminInFacilities:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isGroupLastAdminInFacilities
+      summary: Checks whether groups is the last admin the facilities and returns those in which it is.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/facilityIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isGroupLastAdminInVos:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isGroupLastAdminInVos
+      summary: Checks whether groups is the last admin the vos and returns those in which it is.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/voIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isUserLastAdminInFacilities:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isUserLastAdminInFacilities
+      summary: Checks whether user is the last admin the facilities and returns those in which it is.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isUserLastAdminInVos:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isUserLastAdminInVos
+      summary: Checks whether user is the last admin the vos and returns those in which it is.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/voIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -13512,6 +13592,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/isGroupLastAdminInSomeFacility:
+    get:
+      tags:
+        - GroupsManager
+      operationId: isGroupLastAdminInSomeFacility
+      summary: Return groups which supply the last FACILITYADMIN in some Facility.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/isGroupLastAdminInSomeVo:
+    get:
+      tags:
+        - GroupsManager
+      operationId: isGroupLastAdminInSomeVo
+      summary: Returns groups which supply the last VOADMIN in some VO.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/isGroupMember:
     get:
       tags:
@@ -16572,32 +16680,52 @@ paths:
   #################################################
 
   /json/registrarManager/checkCheckboxHtml:
-    get:
+    post:
       tags:
         - RegistrarManager
       operationId: checkCheckboxHtml
       summary: Check whether input html is safe for our application form item checkbox labels
-      parameters:
-        - { name: html, schema: { type: string }, in: query, required: true, description: "string containing the html to check for" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCheckCheckboxHtml
+              description: "input to checkCheckboxHtml"
+              type: object
+              required:
+                - html
+              properties:
+                html: { type: string, description: "string containing the html to check for" }
 
   /json/registrarManager/checkHtmlInput:
-    get:
+    post:
       tags:
         - RegistrarManager
       operationId: checkHtmlInput
       summary: Checks whether input is valid html according to the rules in our custom html parser (returns warning message if the input will be autocompleted/changed during the sanitization)
-      parameters:
-        - { name: html, schema: { type: string }, in: query, required: true, description: "input html to check" }
       responses:
         '200':
           $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCheckHtmlInput
+              description: "input to checkHtmlInput"
+              type: object
+              required:
+                - html
+              properties:
+                html: { type: string, description: "input html to check" }
 
   /json/registrarManager/consolidateIdentityUsingToken:
     post:
@@ -20060,6 +20188,34 @@ paths:
   # InvitationsManager                            #
   #                                               #
   #################################################
+  /json/invitationsManager/getInvitationByApplication:
+    get:
+      tags:
+        - InvitationsManager
+      operationId: getInvitationByApplication
+      summary: Get invitation object associated with the application. Return null if such invitation doesn't exist.
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/invitationsManager/getInvitationById:
+    get:
+      tags:
+        - InvitationsManager
+      operationId: getInvitationById
+      summary: Gets existing invitation by its ID.
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/invitationsManager/inviteToGroup:
     post:
       tags:

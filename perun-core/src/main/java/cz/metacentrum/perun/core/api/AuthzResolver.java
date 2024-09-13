@@ -1510,6 +1510,43 @@ public class AuthzResolver {
   }
 
   /**
+   * Checks the facilities and returns those in which group is the last admin
+   *
+   * @param sess sess
+   * @param group group
+   * @param facilities facilities to check
+   * @return facilities in which the user is last admin
+   */
+  public static List<Facility> isGroupLastAdminInFacilities(PerunSession sess, Group group, List<Facility> facilities)
+      throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    //Authorization
+    if (!authorizedInternal(sess, "isGroupLastAdminInFacilities_Group_List<Facility>_policy")) {
+      throw new PrivilegeException(sess, "isGroupLastAdminInFacilities");
+    }
+    return AuthzResolverBlImpl.isGroupLastAdminInFacilities(sess, group, facilities);
+  }
+
+  /**
+   * Checks the vos and return those in which group is the last admin.
+   *
+   * @param sess sess
+   * @param group group
+   * @param vos vos to check
+   * @return vos in which the user is last admin
+   */
+  public static List<Vo> isGroupLastAdminInVos(PerunSession sess, Group group, List<Vo> vos) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    //Authorization
+    if (!authorizedInternal(sess, "isGroupLastAdminInVos_Group_List<Vo>_policy")) {
+      throw new PrivilegeException(sess, "isGroupLastAdminInVos");
+    }
+    return AuthzResolverBlImpl.isGroupLastAdminInVos(sess, group, vos);
+  }
+
+  /**
    * Returns true if the perun principal inside the perun session is perun admin.
    *
    * @param sess perun session
@@ -1517,6 +1554,43 @@ public class AuthzResolver {
    */
   public static boolean isPerunAdmin(PerunSession sess) {
     return AuthzResolverBlImpl.isPerunAdmin(sess);
+  }
+
+  /**
+   * Checks the facilities and returns those in which user is the last admin
+   *
+   * @param sess sess
+   * @param user user
+   * @param facilities facilities to check
+   * @return facilities in which the user is last admin
+   */
+  public static List<Facility> isUserLastAdminInFacilities(PerunSession sess, User user, List<Facility> facilities)
+      throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    //Authorization
+    if (!authorizedInternal(sess, "isUserLastAdminInFacilities_User_List<Facility>_policy")) {
+      throw new PrivilegeException(sess, "isUserLastAdminInFacilities");
+    }
+    return AuthzResolverBlImpl.isUserLastAdminInFacilities(sess, user, facilities);
+  }
+
+  /**
+   * Checks the vos and return those in which user is the last admin.
+   *
+   * @param sess sess
+   * @param user user
+   * @param vos vos to check
+   * @return vos in which the user is last admin
+   */
+  public static List<Vo> isUserLastAdminInVos(PerunSession sess, User user, List<Vo> vos) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    //Authorization
+    if (!authorizedInternal(sess, "isUserLastAdminInVos_User_List<Vo>_policy")) {
+      throw new PrivilegeException(sess, "isUserLastAdminInVos");
+    }
+    return AuthzResolverBlImpl.isUserLastAdminInVos(sess, user, vos);
   }
 
   /**

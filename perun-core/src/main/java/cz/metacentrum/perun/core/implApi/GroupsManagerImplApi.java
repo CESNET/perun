@@ -800,6 +800,24 @@ public interface GroupsManagerImplApi {
   boolean isGroupForAutoRegistration(PerunSession sess, Group group, List<Integer> formItems);
 
   /**
+   * Check whether the group supplies the last FACILITYADMIN in some facility, return those facilities in which it does.
+   * Such facilities could upon removal of the group be left without a person to manage them.
+   * @param sess session
+   * @param group group
+   * @return list of facilities which the group supplies last FACILITYADMIN to
+   */
+  List<Facility> isGroupLastAdminInSomeFacility(PerunSession sess, Group group);
+
+  /**
+   * Check whether the group supplies the last VOADMIN in some vo, return those vos in which it does.
+   * Such vos could upon removal of the group be left without a person to manage them.
+   * @param sess session
+   * @param group group
+   * @return list of vos which the group supplies last VOADMIN to
+   */
+  List<Vo> isGroupLastAdminInSomeVo(PerunSession sess, Group group);
+
+  /**
    * Return true if Member is member of the Group
    *
    * @param sess

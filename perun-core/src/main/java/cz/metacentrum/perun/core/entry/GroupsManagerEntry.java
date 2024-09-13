@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.GroupsPageQuery;
@@ -1779,6 +1780,40 @@ public class GroupsManagerEntry implements GroupsManager {
     }
 
     return getGroupsManagerBl().isDirectGroupMember(sess, group, member);
+  }
+
+  @Override
+  public List<Group> isGroupLastAdminInSomeFacility(PerunSession sess, List<Group> groups)
+      throws GroupNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    for (Group group : groups) {
+      getGroupsManagerBl().checkGroupExists(sess, group);
+
+      // Authorization
+      if (!AuthzResolver.authorizedInternal(sess, "isGroupLastAdminInSomeFacility_List<Group>_policy", group)) {
+        throw new PrivilegeException(sess, "isGroupLastAdminInSomeFacility");
+      }
+    }
+
+    return getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, groups);
+  }
+
+  @Override
+  public List<Group> isGroupLastAdminInSomeVo(PerunSession sess, List<Group> groups)
+      throws GroupNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    for (Group group : groups) {
+      getGroupsManagerBl().checkGroupExists(sess, group);
+
+      // Authorization
+      if (!AuthzResolver.authorizedInternal(sess, "isGroupLastAdminInSomeVo_List<Group>_policy", group)) {
+        throw new PrivilegeException(sess, "isGroupLastAdminInSomeVo");
+      }
+    }
+
+    return getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, groups);
   }
 
   @Override

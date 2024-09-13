@@ -13,6 +13,7 @@ import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusExceptio
 import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationWithSender;
 import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
@@ -27,6 +28,16 @@ import java.util.UUID;
  * @author David Flor <493294@mail.muni.cz>
  */
 public interface InvitationsManager {
+
+  /**
+   * Get invitation object associated with the application
+   *
+   * @param sess session
+   * @param application application to get invitation for
+   * @return invitation object or null if such invitation doesn't exist
+   * @throws PrivilegeException insufficient rights
+   */
+  Invitation getInvitationByApplication(PerunSession sess, Application application) throws PrivilegeException;
 
   /**
    * Get invitation object with the specified id.

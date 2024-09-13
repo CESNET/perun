@@ -50,6 +50,7 @@ class PerunInstance(str, Enum):
     muni_test = ("muni_test",)
     perun_dev = ("perun_dev",)
     elixir = ("elixir",)
+    egi = ("egi",)
 
 
 class PerunInstances:
@@ -61,6 +62,7 @@ class PerunInstances:
             "scopes": "openid perun_api perun_admin offline_access",
             "perun_api_url": "https://perun-api.e-infra.cz/oauth/rpc",
             "perun_api_url_ba": "https://perun-api.e-infra.cz/ba/rpc",
+            "perun_api_url_krb": "https://perun-api.e-infra.cz/krb/rpc",
             "mfa": True,
         },
         PerunInstance.einfra_acc: {
@@ -70,6 +72,7 @@ class PerunInstances:
             "scopes": "openid perun_api perun_admin offline_access",
             "perun_api_url": "https://perun-api.acc.aai.e-infra.cz/oauth/rpc/",
             "perun_api_url_ba": "https://perun-api.acc.aai.e-infra.cz/ba/rpc/",
+            "perun_api_url_krb": "https://perun-api.acc.aai.e-infra.cz/krb/rpc/",
             "mfa": True,
         },
         PerunInstance.perun_dev: {
@@ -79,6 +82,7 @@ class PerunInstances:
             "scopes": "openid perun_api perun_admin offline_access",
             "perun_api_url": "https://api-dev.perun-aai.org/oauth/rpc",
             "perun_api_url_ba": "https://api-dev.perun-aai.org/ba/rpc",
+            "perun_api_url_krb": "https://api-dev.perun-aai.org/krb/rpc",
             "mfa": False,
         },
         PerunInstance.muni: {
@@ -88,6 +92,7 @@ class PerunInstances:
             "scopes": "openid perun_api perun_admin offline_access",
             "perun_api_url": "https://perun-api.aai.muni.cz/oauth/rpc",
             "perun_api_url_ba": "https://perun-api.aai.muni.cz/ba/rpc",
+            "perun_api_url_krb": "https://perun-api.aai.muni.cz/krb/rpc",
             "mfa": True,
         },
         PerunInstance.muni_test: {
@@ -97,6 +102,7 @@ class PerunInstances:
             "scopes": "openid perun_api perun_admin offline_access",
             "perun_api_url": "https://perun-api-test.aai.muni.cz/oauth/rpc",
             "perun_api_url_ba": "https://perun-api-test.aai.muni.cz/ba/rpc",
+            "perun_api_url_krb": "https://perun-api-test.aai.muni.cz/krb/rpc",
             "mfa": True,
         },
         PerunInstance.elixir: {
@@ -106,7 +112,18 @@ class PerunInstances:
             "scopes": "openid perun_api perun_admin offline_access",
             "perun_api_url": "https://elixir-api.aai.lifescience-ri.eu/oauth/rpc",
             "perun_api_url_ba": "https://elixir-api.aai.lifescience-ri.eu/ba/rpc",
+            "perun_api_url_krb": "",
             "mfa": True,
+        },
+        PerunInstance.egi: {
+            "issuer": "",
+            "metadata_url": "",
+            "client_id": "",
+            "scopes": "",
+            "perun_api_url": "",
+            "perun_api_url_ba": "https://api.perun.egi.eu/ba/rpc",
+            "perun_api_url_krb": "https://api.perun.egi.eu/krb/rpc",
+            "mfa": False,
         },
     }
 
@@ -126,6 +143,9 @@ def main(
     ),
     basic_auth: bool = typer.Option(
         False, "--http-basic-auth", "-b", help="use HTTP basic authentication"
+    ),
+    krb_auth: bool = typer.Option(
+        False, "--http-krb-auth", "-k", help="use HTTP Kerberos authentication"
     ),
     device_code_auth: bool = typer.Option(
         False,
@@ -177,6 +197,14 @@ def main(
                 username=perun_user,
                 password=perun_password,
                 host=config_data["perun_api_url_ba"],
+            )
+        )
+    elif krb_auth:
+        perun.cli.rpc = PerunRpc(
+            Configuration(
+                username=perun_user,
+                password=perun_password,
+                host=config_data["perun_api_url_krb"],
             )
         )
     elif device_code_auth:

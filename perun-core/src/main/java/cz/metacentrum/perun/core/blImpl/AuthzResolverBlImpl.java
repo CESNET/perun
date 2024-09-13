@@ -11,7 +11,9 @@ import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleSetForGroup;
 import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleSetForUser;
 import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleUnsetForGroup;
 import cz.metacentrum.perun.audit.events.AuthorizationEvents.RoleUnsetForUser;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.LastAdminRemovedFromFacility;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserPromotedToPerunAdmin;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.LastAdminRemovedFromVo;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
@@ -52,7 +54,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -89,8 +90,6 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.Invitation;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -2903,6 +2902,58 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   }
 
   /**
+   * Checks the facilities and returns those in which group is the last admin
+   *
+   * @param sess sess
+   * @param group group
+   * @param facilities facilities to check
+   * @return facilities in which the user is last admin
+   */
+  public static List<Facility> isGroupLastAdminInFacilities(PerunSession sess, Group group, List<Facility> facilities) {
+    List<Facility> result = new ArrayList<>();
+    List<Group> adminGroups;
+    List<User> directAdmins;
+    for (Facility facility : facilities) {
+      try {
+        adminGroups = getAdminGroups(facility, Role.FACILITYADMIN);
+        directAdmins = getAdmins(sess, facility, Role.FACILITYADMIN, true);
+      } catch (RoleCannotBeManagedException ex) {
+        throw new InternalErrorException(ex);
+      }
+      if (directAdmins.isEmpty() && adminGroups.equals(List.of(group))) {
+        result.add(facility);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Checks the vos and return those in which group is the last admin.
+   *
+   * @param sess sess
+   * @param group group
+   * @param vos vos to check
+   * @return vos in which the user is last admin
+   */
+  public static List<Vo> isGroupLastAdminInVos(PerunSession sess, Group group, List<Vo> vos) {
+    List<Vo> result = new ArrayList<>();
+    List<Group> adminGroups;
+    List<User> directAdmins;
+    for (Vo vo : vos) {
+      try {
+        adminGroups = getAdminGroups(vo, Role.VOADMIN);
+        directAdmins = getAdmins(sess, vo, Role.VOADMIN, true);
+      } catch (RoleCannotBeManagedException ex) {
+        throw new InternalErrorException(ex);
+      }
+      if (directAdmins.isEmpty() && adminGroups.equals(List.of(group))) {
+        result.add(vo);
+      }
+    }
+    return result;
+  }
+
+  /**
    * Checks authorization for attribute according to MFA rules. Returns false if attribute action is marked as critical,
    * attribute's object is marked as critical and principal is not authorized by MFA and hasn't got a system role. If
    * MFA is globally disabled for whole instance, returns true.
@@ -3006,6 +3057,58 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    */
   static boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo) {
     return authzResolverImpl.isUserInRoleForVo(session, user, role, vo);
+  }
+
+  /**
+   * Checks the facilities and returns those in which user is the last admin
+   *
+   * @param sess sess
+   * @param user user
+   * @param facilities facilities to check
+   * @return facilities in which the user is last admin
+   */
+  public static List<Facility> isUserLastAdminInFacilities(PerunSession sess, User user, List<Facility> facilities) {
+    List<Facility> result = new ArrayList<>();
+    List<Group> adminGroups;
+    List<User> directAdmins;
+    for (Facility facility : facilities) {
+      try {
+        adminGroups = getAdminGroups(facility, Role.FACILITYADMIN);
+        directAdmins = getAdmins(sess, facility, Role.FACILITYADMIN, true);
+      } catch (RoleCannotBeManagedException ex) {
+        throw new InternalErrorException(ex);
+      }
+      if (adminGroups.isEmpty() && directAdmins.equals(List.of(user))) {
+        result.add(facility);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Checks the vos and return those in which user is the last admin.
+   *
+   * @param sess sess
+   * @param user user
+   * @param vos vos to check
+   * @return vos in which the user is last admin
+   */
+  public static List<Vo> isUserLastAdminInVos(PerunSession sess, User user, List<Vo> vos) {
+    List<Vo> result = new ArrayList<>();
+    List<Group> adminGroups;
+    List<User> directAdmins;
+    for (Vo vo : vos) {
+      try {
+        adminGroups = getAdminGroups(vo, Role.VOADMIN);
+        directAdmins = getAdmins(sess, vo, Role.VOADMIN, true);
+      } catch (RoleCannotBeManagedException ex) {
+        throw new InternalErrorException(ex);
+      }
+      if (adminGroups.isEmpty() && directAdmins.equals(List.of(user))) {
+        result.add(vo);
+      }
+    }
+    return result;
   }
 
   /**
@@ -3804,6 +3907,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
     getPerunBl().getAuditer().log(sess, new RoleUnsetForUser(complementaryObject, user, role));
 
+    logLastAdmin(sess, complementaryObject);
+
     if (role.equals(Role.SPONSOR) && complementaryObject.getBeanName().equals("Vo")) {
       getPerunBl().getVosManagerBl().handleUserLostVoRole(sess, user, (Vo) complementaryObject, Role.SPONSOR);
     }
@@ -3846,6 +3951,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
     getPerunBl().getAuditer().log(sess, new RoleUnsetForGroup(complementaryObject, authorizedGroup, role));
 
+    logLastAdmin(sess, complementaryObject);
+
     if (role.equals(Role.SPONSOR) && complementaryObject.getBeanName().equals("Vo")) {
       getPerunBl().getVosManagerBl()
           .handleGroupLostVoRole(sess, authorizedGroup, (Vo) complementaryObject, Role.SPONSOR);
@@ -3859,6 +3966,35 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       if (!userMembers.isEmpty()) {
         AuthzResolverBlImpl.refreshAuthz(sess);
       }
+    }
+  }
+
+  /**
+   * Checks whether removed admin user/group was the last admin of Vo/Facility, log an AuditEvent which will trigger a
+   * notification if this was the case.
+   *
+   * @param sess session
+   * @param complementaryObject Vo/Facility object
+   */
+  public static void logLastAdmin(PerunSession sess, PerunBean complementaryObject) {
+    List<User> admins;
+    List<Group> groups;
+    try {
+      if (complementaryObject instanceof Vo) {
+        admins = getAdmins(sess, complementaryObject, Role.VOADMIN, true);
+        groups = getAdminGroups(complementaryObject, Role.VOADMIN);
+        if (admins.isEmpty() && groups.isEmpty()) {
+          getPerunBl().getAuditer().log(sess, new LastAdminRemovedFromVo((Vo) complementaryObject));
+        }
+      } else if (complementaryObject instanceof Facility) {
+        admins = getAdmins(sess, complementaryObject, Role.FACILITYADMIN, true);
+        groups = getAdminGroups(complementaryObject, Role.FACILITYADMIN);
+        if (admins.isEmpty() && groups.isEmpty()) {
+          getPerunBl().getAuditer().log(sess, new LastAdminRemovedFromFacility((Facility) complementaryObject));
+        }
+      }
+    } catch (RoleCannotBeManagedException ex) {
+      throw new InternalErrorException(ex);
     }
   }
 

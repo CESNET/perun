@@ -18,6 +18,7 @@ import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusExceptio
 import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationWithSender;
 import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
@@ -44,6 +45,18 @@ public class InvitationsManagerEntry implements InvitationsManager {
 
   public void setPerun(PerunBl perunBl) {
     this.perun = perunBl;
+  }
+
+  @Override
+  public Invitation getInvitationByApplication(PerunSession sess, Application application) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "getInvitationByApplication_Application_policy",
+        application.getGroup())) {
+      throw new PrivilegeException("getInvitationByApplication");
+    }
+
+    return invitationsManagerBl.getInvitationByApplication(sess, application);
   }
 
   @Override
