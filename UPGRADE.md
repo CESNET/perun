@@ -1,5 +1,26 @@
 Upgrade notes
 
+## [39.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v39.0.0...v39.1.0) (2024-09-13)
+
+
+### Features
+
+* **cli:** added egi instance, support kerberos endpoints ([df2a24c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/df2a24c24bec4e454f3d5f85fb68595bf982b77f))
+* **core:** audit log last admin removed from Vo/Facility ([136366b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/136366b864a2bbab2b19707d172f6a9d43035e9d))
+* **core:** methods to check whether group/user removal leaves VO/Facility without manager ([c92f6da](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c92f6da84f944ceb0109aa2c3608f4640ab06ec5))
+* **registrar:** added funcionality to getinvitationbyid method ([347d21e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/347d21eb3266f8a76d8358b23992124f4df11847))
+* **registrar:** new getInvitationByApplication method ([2107bd3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2107bd305628faef4d09e1ce578ab089091b0ea9))
+
+
+### Bug Fixes
+
+* **deps:** update dependency commons-cli:commons-cli to v1.9.0 ([71ca524](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/71ca524cc28b5d5384ca37c15128ffac61b4a0b2))
+* **deps:** update dependency google-api-services-admin-directory ([63d98c3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/63d98c3c01097a00b7b9bbd7be424a7790416883))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.9.1 ([db9f70c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/db9f70c7decd71cbf8996d1e2dd24624c75ba220))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.9.2 ([f0be829](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f0be829a2cc84e77d3d71fcc2bd3e445e425989d))
+* fixed typer lib usage for python version of perun_cli ([88a976f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/88a976ff9c9585203fbf25dfd6f9f46a14f23e81))
+* **openapi:** change checkHtmlInput to PUT request to avoid parameter size restrictions ([09ef9a9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/09ef9a903975abd67841eafea242ad1748d2b566))
+
 ## [39.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v38.0.1...v39.0.0) (2024-08-28)
 
 
