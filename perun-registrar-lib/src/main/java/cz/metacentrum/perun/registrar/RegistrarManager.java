@@ -165,14 +165,34 @@ public interface RegistrarManager {
   String checkHtmlInput(PerunSession sess, String html) throws InvalidHtmlInputException;
 
   /**
+   * Resets the application form to the state after creation - deletes all form items, removes modules and sets approval
+   * styles to manual.
+   * @param sess sess
+   * @param group group of which application form to clear
+   */
+  void clearGroupForm(PerunSession sess, Group group)
+      throws PrivilegeException, GroupNotExistsException, VoNotExistsException, FormNotExistsException;
+
+  /**
+   * Resets the application form to the state after creation - deletes all form items, removes modules and sets approval
+   * styles to manual.
+   * @param sess sess
+   * @param vo vo of which application form to clear
+   */
+  void clearVoForm(PerunSession sess, Vo vo)
+      throws PrivilegeException, GroupNotExistsException, VoNotExistsException, FormNotExistsException;
+
+  /**
    * Copy all form items from selected Group into another.
    *
    * @param sess      PerunSession for authz
    * @param fromGroup Group to get form items from
    * @param toGroup   Group to set new form items
+   * @param idempotent if true delete existing target form items
    * @throws PerunException
    */
-  void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
+  void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup, boolean idempotent)
+      throws PerunException;
 
   /**
    * Copy all form items from selected VO into Group and also in opposite direction.
@@ -181,9 +201,11 @@ public interface RegistrarManager {
    * @param fromVo  VO to copy form items from (or opposite if reverse=TRUE)
    * @param toGroup Group to copy form items into (or opposite if reverse=TRUE)
    * @param reverse FALSE = copy from VO to Group (default) / TRUE = copy from Group to VO
+   * @param idempotent if true delete existing target form items
    * @throws PerunException
    */
-  void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
+  void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse, boolean idempotent)
+      throws PerunException;
 
   /**
    * Copy all form items from selected VO into another.
@@ -191,9 +213,10 @@ public interface RegistrarManager {
    * @param sess   PerunSession for authz
    * @param fromVo VO to get form items from
    * @param toVo   VO to set new form items
+   * @param idempotent if true delete existing target form items
    * @throws PerunException
    */
-  void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
+  void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo, boolean idempotent) throws PerunException;
 
   /**
    * Creates a new application and if succeeds, trigger validation and approval.

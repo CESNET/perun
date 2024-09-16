@@ -178,7 +178,7 @@ public class EscPithiaOrganizations extends DefaultRegistrarModule {
     // copy registration form and notifications from template
     try {
       registrar.createApplicationFormInGroup(session, destinationGroup);
-      registrar.copyFormFromGroupToGroup(session, templateGroup, destinationGroup);
+      registrar.copyFormFromGroupToGroup(session, templateGroup, destinationGroup, false);
       registrar.getMailManager().copyMailsFromGroupToGroup(session, templateGroup, destinationGroup);
 
       ApplicationForm newForm = registrar.getFormForGroup(destinationGroup);

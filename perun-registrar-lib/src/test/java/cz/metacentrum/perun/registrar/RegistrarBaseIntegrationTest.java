@@ -364,7 +364,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.addFormItem(session, form, otherItem);
 
     Vo otherVo = perun.getVosManagerBl().createVo(session, new Vo(-1, "other", ""));
-    registrarManager.copyFormFromVoToVo(session, vo, otherVo);
+    registrarManager.copyFormFromVoToVo(session, vo, otherVo, false);
 
     var items = registrarManager.getFormItems(session, registrarManager.getFormForVo(otherVo));
     assertThat(items).hasSize(2);

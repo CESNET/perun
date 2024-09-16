@@ -17343,6 +17343,34 @@ paths:
               properties:
                 form: { $ref: '#/components/schemas/ApplicationForm' }
 
+  /urlinjsonout/registrarManager/clearVoForm:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: clearVoForm
+      summary: Resets the vo application form to the state after creation - deletes all form items, removes modules and sets approval styles to manual.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/clearGroupForm:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: clearGroupForm
+      summary: Resets the group application form to the state after creation - deletes all form items, removes modules and sets approval styles to manual.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/registrarManager/copyForm/voToVo:
     post:
       tags:
@@ -17352,6 +17380,7 @@ paths:
       parameters:
         - { name: fromVo, schema: { type: integer }, in: query, description: "source VO" }
         - { name: toVo, schema: { type: integer }, in: query, description: "destination VO" }
+        - { name: idempotent, schema: { type: boolean }, in: query, required: false, description: "when true existing target items are deleted" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -17367,6 +17396,7 @@ paths:
       parameters:
         - { name: fromGroup, schema: { type: integer }, in: query, description: "source group" }
         - { name: toVo, schema: { type: integer }, in: query, description: "destination VO" }
+        - { name: idempotent, schema: { type: boolean }, in: query, required: false, description: "when true existing target items are deleted" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -17382,6 +17412,7 @@ paths:
       parameters:
         - { name: fromVo, schema: { type: integer }, in: query, description: "source VO" }
         - { name: toGroup, schema: { type: integer }, in: query, description: "destination group" }
+        - { name: idempotent, schema: { type: boolean }, in: query, required: false, description: "when true existing target items are deleted" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -17397,6 +17428,7 @@ paths:
       parameters:
         - { name: fromGroup, schema: { type: integer }, in: query, description: "source group" }
         - { name: toGroup, schema: { type: integer }, in: query, description: "destination group" }
+        - { name: idempotent, schema: { type: boolean }, in: query, required: false, description: "when true existing target items are deleted" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
