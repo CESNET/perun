@@ -193,9 +193,10 @@ public enum ResourcesManagerMethod implements ManagerMethod {
    *  same VO and withGroups is true)
    * Template Resource can be from any of user's facilities.
    *
-   * @param templateResource template resource to copy
-   * @param destinationResource destination resource containing IDs of destination facility, VO and resource name.
-   * @param withGroups if set to true and resources ARE from the same VO we also
+   * @param templateResource Resource template resource to copy
+   * @param destinationResource Resource destination resource containing IDs of destination facility,
+   *  VO and resource name.
+   * @param withGroups boolean if set to true and resources ARE from the same VO we also
    *                      copy all group-resource and member-resource attributes and assign all groups same as on
    * templateResource
    *                   if set to true and resources ARE NOT from the same VO InternalErrorException is thrown,
