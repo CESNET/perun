@@ -1482,6 +1482,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw new PrivilegeException(sess, "copyFormFromGroupToGroup");
     }
 
+    try {
+      getFormForGroup(toGroup);
+    } catch (FormNotExistsException ignored) {
+      // we need empty form to copy the items to
+      createApplicationFormInGroup(sess, toGroup);
+    }
     copyItems(sess, getFormForGroup(fromGroup), getFormForGroup(toGroup));
   }
 
@@ -1510,6 +1516,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
         throw new PrivilegeException(sess, "copyFormFromVoToGroup");
       }
 
+      try {
+        getFormForGroup(toGroup);
+      } catch (FormNotExistsException ignored) {
+        // we need empty form to copy the items to
+        createApplicationFormInGroup(sess, toGroup);
+      }
       copyItems(sess, getFormForVo(fromVo), getFormForGroup(toGroup));
     }
   }
