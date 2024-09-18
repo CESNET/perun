@@ -16,6 +16,11 @@ public class PerunNotifMessageDto {
   private PerunNotifReceiver receiver;
 
   /**
+   * Reply_to field of messageToSend
+   */
+  private String replyTo;
+
+  /**
    * Sender of messageToSend
    */
   private String sender;
@@ -57,6 +62,10 @@ public class PerunNotifMessageDto {
     return receiver;
   }
 
+  public String getReplyTo() {
+    return replyTo;
+  }
+
   public String getSender() {
     return sender;
   }
@@ -83,6 +92,10 @@ public class PerunNotifMessageDto {
 
   public void setReceiver(PerunNotifReceiver receiver) {
     this.receiver = receiver;
+  }
+
+  public void setReplyTo(String replyTo) {
+    this.replyTo = replyTo;
   }
 
   public void setSender(String sender) {

@@ -37,6 +37,7 @@ public class PerunNotifTemplate {
       template.setYoungestMessageTime(rs.getLong("youngest_message_time"));
       template.setOldestMessageTime(rs.getLong("oldest_message_time"));
       template.setSender(rs.getString("sender"));
+      template.setReplyTo(rs.getString("reply_to"));
 
       return template;
     }
@@ -101,6 +102,12 @@ public class PerunNotifTemplate {
    * Column sender
    */
   private String sender;
+  /**
+   * String value which is used as reply_to in the email
+   * <p>
+   * Column reply_to
+   */
+  private String replyTo;
 
   public PerunNotifTemplate() {
 
@@ -210,6 +217,13 @@ public class PerunNotifTemplate {
     return receivers;
   }
 
+  public String getReplyTo() {
+    if (replyTo == null || replyTo.isEmpty()) {
+      return getSender();
+    }
+    return replyTo;
+  }
+
   public String getSender() {
     return sender;
   }
@@ -296,6 +310,10 @@ public class PerunNotifTemplate {
     }
   }
 
+  public void setReplyTo(String replyTo) {
+    this.replyTo = replyTo;
+  }
+
   public void setSender(String sender) {
     this.sender = sender;
   }
@@ -308,7 +326,7 @@ public class PerunNotifTemplate {
   public String toString() {
     return "id: " + getId() + " primary properties: " + getSerializedPrimaryProperties() + " notify trigger: " +
            getNotifyTrigger() + " youngest message time: " + getYoungestMessageTime() + " oldest message time: " +
-           getOldestMessageTime() + " sender: " + getSender() + " name: " + getName();
+           getOldestMessageTime() + " sender: " + getSender() + " reply_to: " + getReplyTo() + " name: " + getName();
   }
 
   public void update(PerunNotifTemplate updatedTemplate) {
@@ -321,5 +339,6 @@ public class PerunNotifTemplate {
     this.oldestMessageTime = updatedTemplate.getOldestMessageTime();
     this.youngestMessageTime = updatedTemplate.getYoungestMessageTime();
     this.sender = updatedTemplate.getSender();
+    this.replyTo = updatedTemplate.getReplyTo();
   }
 }
