@@ -3019,10 +3019,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
     // data from pending app to group's VO, use values from attributes which destination in VO application matches
     List<ApplicationFormItemData> pendingVoApplicationData = new ArrayList<>();
 
+    // storage for all prefilled values from perun
+    Map<String, Attribute> map = new HashMap<>();
+
     // get user and member attributes from DB for existing users
     if (user != null) {
-
-      Map<String, Attribute> map = new HashMap<>();
 
       // process user attributes
       List<Attribute> userAttributes = attrManager.getAttributes(sess, user);
@@ -3039,38 +3040,39 @@ public class RegistrarManagerImpl implements RegistrarManager {
       } catch (MemberNotExistsException ex) {
         // we don't care that user is not yet member
       }
+    }
 
-      // get also vo/group attributes for extended pre-fill !!
-      List<Attribute> voAttributes = attrManager.getAttributes(sess, vo);
-      for (Attribute att : voAttributes) {
+    // get also vo/group attributes for extended pre-fill !!
+    List<Attribute> voAttributes = attrManager.getAttributes(sess, vo);
+    for (Attribute att : voAttributes) {
+      map.put(att.getName(), att);
+    }
+    if (group != null) {
+      List<Attribute> groupAttributes = attrManager.getAttributes(sess, group);
+      for (Attribute att : groupAttributes) {
         map.put(att.getName(), att);
       }
-      if (group != null) {
-        List<Attribute> groupAttributes = attrManager.getAttributes(sess, group);
-        for (Attribute att : groupAttributes) {
-          map.put(att.getName(), att);
-        }
-      }
+    }
 
-      Iterator<ApplicationFormItemWithPrefilledValue> it =
-          ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
-      while (it.hasNext()) {
-        ApplicationFormItemWithPrefilledValue itemW = it.next();
-        String sourceAttribute = itemW.getFormItem().getPerunSourceAttribute();
-        // skip items without perun attr reference
-        if (sourceAttribute == null || sourceAttribute.equals("")) {
-          continue;
-        }
-        // if attr exist and value != null
-        if (map.get(sourceAttribute) != null && map.get(sourceAttribute).getValue() != null) {
-          if (itemW.getFormItem().getType() == PASSWORD) {
-            // if login in namespace exists, do not return password field
-            // because application form is not place to change login or password
-            it.remove();
-          } else {
-            // else set value
-            itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get(sourceAttribute)));
-          }
+    // fill prepared values from Perun to the form
+    Iterator<ApplicationFormItemWithPrefilledValue> it =
+            ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
+    while (it.hasNext()) {
+      ApplicationFormItemWithPrefilledValue itemW = it.next();
+      String sourceAttribute = itemW.getFormItem().getPerunSourceAttribute();
+      // skip items without perun attr reference
+      if (sourceAttribute == null || sourceAttribute.equals("")) {
+        continue;
+      }
+      // if attr exist and value != null
+      if (map.get(sourceAttribute) != null && map.get(sourceAttribute).getValue() != null) {
+        if (itemW.getFormItem().getType() == PASSWORD && user != null) {
+          // if login in namespace exists (for existing users), do not return password field
+          // because application form is not place to change login or password
+          it.remove();
+        } else {
+          // else set value
+          itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get(sourceAttribute)));
         }
       }
     }
@@ -3087,9 +3089,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
     List<ApplicationFormItemWithPrefilledValue> itemsWithMissingData = new ArrayList<>();
 
     // get user attributes from federation
-    Iterator<ApplicationFormItemWithPrefilledValue> it = (itemsWithValues).iterator();
-    while (it.hasNext()) {
-      ApplicationFormItemWithPrefilledValue itemW = it.next();
+    Iterator<ApplicationFormItemWithPrefilledValue> it2 = (itemsWithValues).iterator();
+    while (it2.hasNext()) {
+      ApplicationFormItemWithPrefilledValue itemW = it2.next();
       String fa = itemW.getFormItem().getFederationAttribute();
       if (fa != null && !fa.isEmpty()) {
 
@@ -3105,7 +3107,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
           }
           // remove password field if (login) prefilled from federation
           if (itemW.getFormItem().getType() == PASSWORD) {
-            it.remove();
+            it2.remove();
             continue;
           }
           itemW.setPrefilledValue(s);
@@ -3192,7 +3194,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
               if (itemW.getFormItem().getType() == USERNAME) {
                 itemW.setPrefilledValue(login.getRight());
               } else {
-                it.remove(); // remove password field if login is prefilled from reserved logins
+                it2.remove(); // remove password field if login is prefilled from reserved logins
               }
               break;
             }
