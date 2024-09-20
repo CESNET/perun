@@ -1217,7 +1217,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   /*#
    * Copy all form items from selected VO into Group.
    *
-   * @param fromVO int Source VO <code>id</code>
+   * @param fromVo int Source VO <code>id</code>
    * @param toGroup int Destination Group <code>id</code>
    * @return Object Always null
    */
@@ -1225,7 +1225,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * Copy all form items from selected Group into VO.
    *
    * @param fromGroup int Source Group <code>id</code>
-   * @param toVO int Destination VO <code>id</code>
+   * @param toVo int Destination VO <code>id</code>
    * @return Object Always null
    */
   copyForm {
@@ -1240,14 +1240,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
           ac.getRegistrarManager().copyFormFromVoToVo(ac.getSession(), ac.getVoById(parms.readInt("fromVo")),
               ac.getVoById(parms.readInt("toVo")));
 
-        } else if (parms.contains("toGroup")) {
+        } else {
 
           ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(), ac.getVoById(parms.readInt("fromVo")),
               ac.getGroupById(parms.readInt("toGroup")), false);
 
         }
 
-      } else if (parms.contains("fromGroup")) {
+      } else {
 
         if (parms.contains("toGroup")) {
 
@@ -1255,7 +1255,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
               .copyFormFromGroupToGroup(ac.getSession(), ac.getGroupById(parms.readInt("fromGroup")),
                   ac.getGroupById(parms.readInt("toGroup")));
 
-        } else if (parms.contains("toVo")) {
+        } else {
 
           ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(), ac.getVoById(parms.readInt("toVo")),
               ac.getGroupById(parms.readInt("fromGroup")), true);
