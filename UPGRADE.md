@@ -1,5 +1,22 @@
 Upgrade notes
 
+## [39.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v39.1.0...v39.2.0) (2024-09-20)
+
+
+### Features
+
+* **core:** added attribute module for optional login in egi ([9d1ca2d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9d1ca2d56de3dd83432850d6c2d41b2b74f61eee))
+* **registrar:** copyForm idempotent variant ([36a730f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/36a730f66fff489f32a39379ec737bfbc3b15b6e))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.9.4 ([e0cad22](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e0cad222044d998f1e090be7a575bc4d75068e07))
+* **deps:** update google-api-services-admin-directory to rev20240917-2.0.0 ([a409d3a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a409d3ada8414a54d5a02d60143a16c1d7f86aa2))
+* **registrar:** create empty form when copying to group if not existing ([4f50588](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4f50588ea38e699c0e0f9426ed5ffbed6c44ebba))
+* **registrar:** fix copyForm parameter validation ([b895eda](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b895edadf6b3ccea1b0c81242cf54dbda9578a6e))
+* **registrar:** prefill vo/group attr values to form items for non-users ([31ebd42](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/31ebd42b11e1102d8de61e33bf6f581bb198e2f5))
+
 ## [39.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v39.0.0...v39.1.0) (2024-09-13)
 
 
