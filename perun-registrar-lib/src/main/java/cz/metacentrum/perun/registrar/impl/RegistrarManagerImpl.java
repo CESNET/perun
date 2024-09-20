@@ -1470,7 +1470,77 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   @Override
-  public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
+  public void clearVoForm(PerunSession sess, Vo vo)
+      throws PrivilegeException, VoNotExistsException, FormNotExistsException {
+    //Authorization
+    perun.getVosManagerBl().checkVoExists(sess, vo);
+    if (!AuthzResolver.authorizedInternal(sess, "clearVoForm_Vo_policy",
+        Collections.singletonList(vo))) {
+      throw new PrivilegeException(sess, "clearVoForm");
+    }
+    ApplicationForm form = getFormForVo(vo);
+    // reset approval styles and modules
+    form.setAutomaticApproval(false);
+    form.setAutomaticApprovalExtension(false);
+    form.setAutomaticApprovalEmbedded(false);
+    form.setModuleClassNames(new ArrayList<>());
+    // auth policies are the same for now so should be fine
+    try {
+      updateForm(sess, form);
+    } catch (GroupNotExistsException ex) {
+      throw new InternalErrorException(ex);
+    }
+
+    List<ApplicationFormItem> items;
+    try {
+      items = getFormItems(sess, form);
+    } catch (PerunException e) {
+      throw new InternalErrorException(e);
+    }
+    // delete all form items
+    for (ApplicationFormItem item : items) {
+      item.setForDelete(true);
+    }
+    try {
+      updateFormItems(sess, form, items);
+    } catch (PerunException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void clearGroupForm(PerunSession sess, Group group)
+      throws PrivilegeException, FormNotExistsException, GroupNotExistsException, VoNotExistsException {
+    //Authorization
+    perun.getGroupsManagerBl().checkGroupExists(sess, group);
+    if (!AuthzResolver.authorizedInternal(sess, "clearGroupForm_Group_policy",
+        group)) {
+      throw new PrivilegeException(sess, "clearGroupForm");
+    }
+    ApplicationForm form = getFormForGroup(group);
+    // reset approval styles and modules
+    form.setAutomaticApproval(false);
+    form.setAutomaticApprovalExtension(false);
+    form.setAutomaticApprovalEmbedded(false);
+    form.setModuleClassNames(new ArrayList<>());
+    // auth policies are the same for now so should be fine
+    updateForm(sess, form);
+
+    List<ApplicationFormItem> items;
+    try {
+      items = getFormItems(sess, form);
+    } catch (PerunException e) {
+      throw new InternalErrorException(e);
+    }
+    // delete all form items
+    for (ApplicationFormItem item : items) {
+      deleteFormItem(sess, form, item.getOrdnum());
+    }
+  }
+
+  @Override
+  public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup, boolean idempotent)
+      throws PerunException {
     groupsManager.checkGroupExists(sess, fromGroup);
     groupsManager.checkGroupExists(sess, toGroup);
 
@@ -1482,11 +1552,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw new PrivilegeException(sess, "copyFormFromGroupToGroup");
     }
 
-    copyItems(sess, getFormForGroup(fromGroup), getFormForGroup(toGroup));
+    try {
+      getFormForGroup(toGroup);
+    } catch (FormNotExistsException ignored) {
+      // we need empty form to copy the items to
+      createApplicationFormInGroup(sess, toGroup);
+    }
+    copyItems(sess, getFormForGroup(fromGroup), getFormForGroup(toGroup), idempotent);
   }
 
   @Override
-  public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse)
+  public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse, boolean idempotent)
       throws PerunException {
     vosManager.checkVoExists(sess, fromVo);
     groupsManager.checkGroupExists(sess, toGroup);
@@ -1500,7 +1576,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         throw new PrivilegeException(sess, "copyFormFromVoToGroup");
       }
 
-      copyItems(sess, getFormForGroup(toGroup), getFormForVo(fromVo));
+      copyItems(sess, getFormForGroup(toGroup), getFormForVo(fromVo), idempotent);
     } else {
       //Authorization
       if (!AuthzResolver.authorizedInternal(sess, "source-copyFormFromVoToGroup_Vo_Group_Policy",
@@ -1510,12 +1586,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
         throw new PrivilegeException(sess, "copyFormFromVoToGroup");
       }
 
-      copyItems(sess, getFormForVo(fromVo), getFormForGroup(toGroup));
+      try {
+        getFormForGroup(toGroup);
+      } catch (FormNotExistsException ignored) {
+        // we need empty form to copy the items to
+        createApplicationFormInGroup(sess, toGroup);
+      }
+      copyItems(sess, getFormForVo(fromVo), getFormForGroup(toGroup), idempotent);
     }
   }
 
   @Override
-  public void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException {
+  public void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo, boolean idempotent) throws PerunException {
     vosManager.checkVoExists(sess, fromVo);
     vosManager.checkVoExists(sess, toVo);
 
@@ -1525,7 +1607,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw new PrivilegeException(sess, "copyFormFromVoToVo");
     }
 
-    copyItems(sess, getFormForVo(fromVo), getFormForVo(toVo));
+    copyItems(sess, getFormForVo(fromVo), getFormForVo(toVo), idempotent);
   }
 
   /**
@@ -1534,16 +1616,26 @@ public class RegistrarManagerImpl implements RegistrarManager {
    * @param sess     session
    * @param fromForm the form from which the items are taken
    * @param toForm   the form where the items are added
+   * @param idempotent delete existing target form items if true
    */
-  private void copyItems(PerunSession sess, ApplicationForm fromForm, ApplicationForm toForm) throws PerunException {
+  private void copyItems(PerunSession sess, ApplicationForm fromForm, ApplicationForm toForm, boolean idempotent)
+      throws PerunException {
     List<ApplicationFormItem> items = getFormItems(sess, fromForm);
     Map<Integer, Integer> oldToNewIDs = new HashMap<>();
 
-    List<ApplicationFormItem> bothItems = new ArrayList<>(items);
-    bothItems.addAll(registrarManager.getFormItems(sess, toForm));
-    if (countEmbeddedGroupFormItems(bothItems) > 1) {
-      throw new MultipleApplicationFormItemsException(
-          "Multiple definitions of embedded groups. Only one definition is allowed.");
+    if (idempotent) {
+      List<ApplicationFormItem> oldItems = getFormItems(sess, toForm);
+      for (ApplicationFormItem item : oldItems) {
+        item.setForDelete(true);
+      }
+      updateFormItems(sess, toForm, oldItems);
+    } else {
+      List<ApplicationFormItem> bothItems = new ArrayList<>(items);
+      bothItems.addAll(registrarManager.getFormItems(sess, toForm));
+      if (countEmbeddedGroupFormItems(bothItems) > 1) {
+        throw new MultipleApplicationFormItemsException(
+            "Multiple definitions of embedded groups. Only one definition is allowed.");
+      }
     }
 
     for (ApplicationFormItem item : items) {
@@ -3007,10 +3099,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
     // data from pending app to group's VO, use values from attributes which destination in VO application matches
     List<ApplicationFormItemData> pendingVoApplicationData = new ArrayList<>();
 
+    // storage for all prefilled values from perun
+    Map<String, Attribute> map = new HashMap<>();
+
     // get user and member attributes from DB for existing users
     if (user != null) {
-
-      Map<String, Attribute> map = new HashMap<>();
 
       // process user attributes
       List<Attribute> userAttributes = attrManager.getAttributes(sess, user);
@@ -3027,38 +3120,39 @@ public class RegistrarManagerImpl implements RegistrarManager {
       } catch (MemberNotExistsException ex) {
         // we don't care that user is not yet member
       }
+    }
 
-      // get also vo/group attributes for extended pre-fill !!
-      List<Attribute> voAttributes = attrManager.getAttributes(sess, vo);
-      for (Attribute att : voAttributes) {
+    // get also vo/group attributes for extended pre-fill !!
+    List<Attribute> voAttributes = attrManager.getAttributes(sess, vo);
+    for (Attribute att : voAttributes) {
+      map.put(att.getName(), att);
+    }
+    if (group != null) {
+      List<Attribute> groupAttributes = attrManager.getAttributes(sess, group);
+      for (Attribute att : groupAttributes) {
         map.put(att.getName(), att);
       }
-      if (group != null) {
-        List<Attribute> groupAttributes = attrManager.getAttributes(sess, group);
-        for (Attribute att : groupAttributes) {
-          map.put(att.getName(), att);
-        }
-      }
+    }
 
-      Iterator<ApplicationFormItemWithPrefilledValue> it =
-          ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
-      while (it.hasNext()) {
-        ApplicationFormItemWithPrefilledValue itemW = it.next();
-        String sourceAttribute = itemW.getFormItem().getPerunSourceAttribute();
-        // skip items without perun attr reference
-        if (sourceAttribute == null || sourceAttribute.equals("")) {
-          continue;
-        }
-        // if attr exist and value != null
-        if (map.get(sourceAttribute) != null && map.get(sourceAttribute).getValue() != null) {
-          if (itemW.getFormItem().getType() == PASSWORD) {
-            // if login in namespace exists, do not return password field
-            // because application form is not place to change login or password
-            it.remove();
-          } else {
-            // else set value
-            itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get(sourceAttribute)));
-          }
+    // fill prepared values from Perun to the form
+    Iterator<ApplicationFormItemWithPrefilledValue> it =
+            ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
+    while (it.hasNext()) {
+      ApplicationFormItemWithPrefilledValue itemW = it.next();
+      String sourceAttribute = itemW.getFormItem().getPerunSourceAttribute();
+      // skip items without perun attr reference
+      if (sourceAttribute == null || sourceAttribute.equals("")) {
+        continue;
+      }
+      // if attr exist and value != null
+      if (map.get(sourceAttribute) != null && map.get(sourceAttribute).getValue() != null) {
+        if (itemW.getFormItem().getType() == PASSWORD && user != null) {
+          // if login in namespace exists (for existing users), do not return password field
+          // because application form is not place to change login or password
+          it.remove();
+        } else {
+          // else set value
+          itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get(sourceAttribute)));
         }
       }
     }
@@ -3075,9 +3169,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
     List<ApplicationFormItemWithPrefilledValue> itemsWithMissingData = new ArrayList<>();
 
     // get user attributes from federation
-    Iterator<ApplicationFormItemWithPrefilledValue> it = (itemsWithValues).iterator();
-    while (it.hasNext()) {
-      ApplicationFormItemWithPrefilledValue itemW = it.next();
+    Iterator<ApplicationFormItemWithPrefilledValue> it2 = (itemsWithValues).iterator();
+    while (it2.hasNext()) {
+      ApplicationFormItemWithPrefilledValue itemW = it2.next();
       String fa = itemW.getFormItem().getFederationAttribute();
       if (fa != null && !fa.isEmpty()) {
 
@@ -3093,7 +3187,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
           }
           // remove password field if (login) prefilled from federation
           if (itemW.getFormItem().getType() == PASSWORD) {
-            it.remove();
+            it2.remove();
             continue;
           }
           itemW.setPrefilledValue(s);
@@ -3180,7 +3274,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
               if (itemW.getFormItem().getType() == USERNAME) {
                 itemW.setPrefilledValue(login.getRight());
               } else {
-                it.remove(); // remove password field if login is prefilled from reserved logins
+                it2.remove(); // remove password field if login is prefilled from reserved logins
               }
               break;
             }

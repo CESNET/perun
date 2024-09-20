@@ -1201,10 +1201,43 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Resets the Vo application form to the state after creation - deletes all form items, removes modules and
+   * sets approval styles to manual.
+   *
+   * @param vo int <code>id</code> of vo
+   */
+  clearVoForm {
+    @Override
+    public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      ac.getRegistrarManager().clearVoForm(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+      return null;
+    }
+  },
+
+  /*#
+   * Resets the group application form to the state after creation - deletes all form items, removes modules and
+   * sets approval styles to manual.
+   *
+   * @param group int <code>id</code> of group
+   */
+  clearGroupForm {
+    @Override
+    public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      ac.getRegistrarManager().clearGroupForm(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+      return null;
+    }
+  },
+
+  /*#
    * Copy all form items from selected VO into another.
    *
    * @param fromVo int Source VO <code>id</code>
    * @param toVo int Destination VO <code>id</code>
+   * @param idempotent boolean if true, the target existing form items are deleted (optional, default is false)
    * @return Object Always null
    */
   /*#
@@ -1212,20 +1245,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    *
    * @param fromGroup int Source Group <code>id</code>
    * @param toGroup int Destination Group <code>id</code>
+   * @param idempotent boolean if true, the target existing form items are deleted (optional, default is false)
    * @return Object Always null
    */
   /*#
    * Copy all form items from selected VO into Group.
    *
-   * @param fromVO int Source VO <code>id</code>
+   * @param fromVo int Source VO <code>id</code>
    * @param toGroup int Destination Group <code>id</code>
+   * @param idempotent boolean if true, the target existing form items are deleted (optional, default is false)
    * @return Object Always null
    */
   /*#
    * Copy all form items from selected Group into VO.
    *
    * @param fromGroup int Source Group <code>id</code>
-   * @param toVO int Destination VO <code>id</code>
+   * @param toVo int Destination VO <code>id</code>
+   * @param idempotent boolean if true, the target existing form items are deleted (optional, default is false)
    * @return Object Always null
    */
   copyForm {
@@ -1233,32 +1269,37 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
+      boolean idempotent = false;
+      if (parms.contains("idempotent")) {
+        idempotent = parms.readBoolean("idempotent");
+      }
+
       if (parms.contains("fromVo")) {
 
         if (parms.contains("toVo")) {
 
           ac.getRegistrarManager().copyFormFromVoToVo(ac.getSession(), ac.getVoById(parms.readInt("fromVo")),
-              ac.getVoById(parms.readInt("toVo")));
+              ac.getVoById(parms.readInt("toVo")), idempotent);
 
-        } else if (parms.contains("toGroup")) {
+        } else {
 
           ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(), ac.getVoById(parms.readInt("fromVo")),
-              ac.getGroupById(parms.readInt("toGroup")), false);
+              ac.getGroupById(parms.readInt("toGroup")), false, idempotent);
 
         }
 
-      } else if (parms.contains("fromGroup")) {
+      } else {
 
         if (parms.contains("toGroup")) {
 
           ac.getRegistrarManager()
               .copyFormFromGroupToGroup(ac.getSession(), ac.getGroupById(parms.readInt("fromGroup")),
-                  ac.getGroupById(parms.readInt("toGroup")));
+                  ac.getGroupById(parms.readInt("toGroup")), idempotent);
 
-        } else if (parms.contains("toVo")) {
+        } else {
 
           ac.getRegistrarManager().copyFormFromVoToGroup(ac.getSession(), ac.getVoById(parms.readInt("toVo")),
-              ac.getGroupById(parms.readInt("fromGroup")), true);
+              ac.getGroupById(parms.readInt("fromGroup")), true, idempotent);
 
         }
 
