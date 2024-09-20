@@ -8356,6 +8356,24 @@ perun_policies:
       - MFA: Vo
       - MFA: Group
 
+  clearVoForm_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+
+  clearGroupForm_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
+
   source-copyFormFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo

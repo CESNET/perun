@@ -1470,7 +1470,77 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   @Override
-  public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
+  public void clearVoForm(PerunSession sess, Vo vo)
+      throws PrivilegeException, VoNotExistsException, FormNotExistsException {
+    //Authorization
+    perun.getVosManagerBl().checkVoExists(sess, vo);
+    if (!AuthzResolver.authorizedInternal(sess, "clearVoForm_Vo_policy",
+        Collections.singletonList(vo))) {
+      throw new PrivilegeException(sess, "clearVoForm");
+    }
+    ApplicationForm form = getFormForVo(vo);
+    // reset approval styles and modules
+    form.setAutomaticApproval(false);
+    form.setAutomaticApprovalExtension(false);
+    form.setAutomaticApprovalEmbedded(false);
+    form.setModuleClassNames(new ArrayList<>());
+    // auth policies are the same for now so should be fine
+    try {
+      updateForm(sess, form);
+    } catch (GroupNotExistsException ex) {
+      throw new InternalErrorException(ex);
+    }
+
+    List<ApplicationFormItem> items;
+    try {
+      items = getFormItems(sess, form);
+    } catch (PerunException e) {
+      throw new InternalErrorException(e);
+    }
+    // delete all form items
+    for (ApplicationFormItem item : items) {
+      item.setForDelete(true);
+    }
+    try {
+      updateFormItems(sess, form, items);
+    } catch (PerunException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void clearGroupForm(PerunSession sess, Group group)
+      throws PrivilegeException, FormNotExistsException, GroupNotExistsException, VoNotExistsException {
+    //Authorization
+    perun.getGroupsManagerBl().checkGroupExists(sess, group);
+    if (!AuthzResolver.authorizedInternal(sess, "clearGroupForm_Group_policy",
+        group)) {
+      throw new PrivilegeException(sess, "clearGroupForm");
+    }
+    ApplicationForm form = getFormForGroup(group);
+    // reset approval styles and modules
+    form.setAutomaticApproval(false);
+    form.setAutomaticApprovalExtension(false);
+    form.setAutomaticApprovalEmbedded(false);
+    form.setModuleClassNames(new ArrayList<>());
+    // auth policies are the same for now so should be fine
+    updateForm(sess, form);
+
+    List<ApplicationFormItem> items;
+    try {
+      items = getFormItems(sess, form);
+    } catch (PerunException e) {
+      throw new InternalErrorException(e);
+    }
+    // delete all form items
+    for (ApplicationFormItem item : items) {
+      deleteFormItem(sess, form, item.getOrdnum());
+    }
+  }
+
+  @Override
+  public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup, boolean idempotent)
+      throws PerunException {
     groupsManager.checkGroupExists(sess, fromGroup);
     groupsManager.checkGroupExists(sess, toGroup);
 
@@ -1488,11 +1558,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
       // we need empty form to copy the items to
       createApplicationFormInGroup(sess, toGroup);
     }
-    copyItems(sess, getFormForGroup(fromGroup), getFormForGroup(toGroup));
+    copyItems(sess, getFormForGroup(fromGroup), getFormForGroup(toGroup), idempotent);
   }
 
   @Override
-  public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse)
+  public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse, boolean idempotent)
       throws PerunException {
     vosManager.checkVoExists(sess, fromVo);
     groupsManager.checkGroupExists(sess, toGroup);
@@ -1506,7 +1576,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         throw new PrivilegeException(sess, "copyFormFromVoToGroup");
       }
 
-      copyItems(sess, getFormForGroup(toGroup), getFormForVo(fromVo));
+      copyItems(sess, getFormForGroup(toGroup), getFormForVo(fromVo), idempotent);
     } else {
       //Authorization
       if (!AuthzResolver.authorizedInternal(sess, "source-copyFormFromVoToGroup_Vo_Group_Policy",
@@ -1522,12 +1592,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
         // we need empty form to copy the items to
         createApplicationFormInGroup(sess, toGroup);
       }
-      copyItems(sess, getFormForVo(fromVo), getFormForGroup(toGroup));
+      copyItems(sess, getFormForVo(fromVo), getFormForGroup(toGroup), idempotent);
     }
   }
 
   @Override
-  public void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException {
+  public void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo, boolean idempotent) throws PerunException {
     vosManager.checkVoExists(sess, fromVo);
     vosManager.checkVoExists(sess, toVo);
 
@@ -1537,7 +1607,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw new PrivilegeException(sess, "copyFormFromVoToVo");
     }
 
-    copyItems(sess, getFormForVo(fromVo), getFormForVo(toVo));
+    copyItems(sess, getFormForVo(fromVo), getFormForVo(toVo), idempotent);
   }
 
   /**
@@ -1546,16 +1616,26 @@ public class RegistrarManagerImpl implements RegistrarManager {
    * @param sess     session
    * @param fromForm the form from which the items are taken
    * @param toForm   the form where the items are added
+   * @param idempotent delete existing target form items if true
    */
-  private void copyItems(PerunSession sess, ApplicationForm fromForm, ApplicationForm toForm) throws PerunException {
+  private void copyItems(PerunSession sess, ApplicationForm fromForm, ApplicationForm toForm, boolean idempotent)
+      throws PerunException {
     List<ApplicationFormItem> items = getFormItems(sess, fromForm);
     Map<Integer, Integer> oldToNewIDs = new HashMap<>();
 
-    List<ApplicationFormItem> bothItems = new ArrayList<>(items);
-    bothItems.addAll(registrarManager.getFormItems(sess, toForm));
-    if (countEmbeddedGroupFormItems(bothItems) > 1) {
-      throw new MultipleApplicationFormItemsException(
-          "Multiple definitions of embedded groups. Only one definition is allowed.");
+    if (idempotent) {
+      List<ApplicationFormItem> oldItems = getFormItems(sess, toForm);
+      for (ApplicationFormItem item : oldItems) {
+        item.setForDelete(true);
+      }
+      updateFormItems(sess, toForm, oldItems);
+    } else {
+      List<ApplicationFormItem> bothItems = new ArrayList<>(items);
+      bothItems.addAll(registrarManager.getFormItems(sess, toForm));
+      if (countEmbeddedGroupFormItems(bothItems) > 1) {
+        throw new MultipleApplicationFormItemsException(
+            "Multiple definitions of embedded groups. Only one definition is allowed.");
+      }
     }
 
     for (ApplicationFormItem item : items) {
