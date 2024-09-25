@@ -122,7 +122,7 @@ public class InvitationsManagerEntry implements InvitationsManager {
   }
 
   @Override
-  public int inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+  public Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
                                   String language, LocalDate expiration, String redirectUrl)
       throws PrivilegeException, GroupNotExistsException, VoNotExistsException, RegistrarException {
     Utils.checkPerunSession(sess);
