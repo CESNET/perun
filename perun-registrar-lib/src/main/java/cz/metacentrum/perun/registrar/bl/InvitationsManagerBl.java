@@ -127,9 +127,9 @@ public interface InvitationsManagerBl {
    * @param expiration expiration of the invitation link
    * @param redirectUrl optional redirect url to redirect to upon filling out the form
    * @throws RegistrarException when email address format is incorrect
-   * @return created Invitation id
+   * @return created Invitation object
    */
-  int inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+  Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
                            String language, LocalDate expiration, String redirectUrl) throws RegistrarException;
 
   /**

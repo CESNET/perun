@@ -133,10 +133,9 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   }
 
   @Override
-  public int inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
+  public Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
       String language, LocalDate expiration, String redirectUrl) throws RegistrarException {
-    return inviteToGroup(sess, vo, group, receiverName, receiverEmail, language, expiration, redirectUrl, false)
-               .getId();
+    return inviteToGroup(sess, vo, group, receiverName, receiverEmail, language, expiration, redirectUrl, false);
   }
 
   /**
