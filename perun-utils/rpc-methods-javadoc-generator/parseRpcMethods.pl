@@ -144,7 +144,7 @@ $objectExamples{"List<RichMember>"} = $objectExamples{"List&lt;RichMember&gt;"};
 
 $objectExamples{"RTMessage"} = "{ \"ticketNumber\" : 32525 , \"memberPreferredEmail\" : \"mail\@mail.com\" }";
 
-$objectExamples{"Service"} = "{ \"id\" : 290 , \"name\" : \"passwd\" , \"description\" : \"Provision /etc/passwd file.\" , \"delay\" : 10 , \"recurrence\" : 2 , \"enabled\" : true , \"script\" : \"./passwd\" , \"useExpiredMembers\" : false }";
+$objectExamples{"Service"} = "{ \"id\" : 290 , \"name\" : \"passwd\" , \"description\" : \"Provision /etc/passwd file.\" , \"delay\" : 10 , \"recurrence\" : 2 , \"enabled\" : true , \"script\" : \"./passwd\" , \"useExpiredMembers\" : false , \"useExpiredVoMembers\" : false }";
 $objectExamples{"List&lt;Service&gt;"} = $listPrepend . $objectExamples{"Service"} . $listAppend;
 $objectExamples{"List<Service>"} = $objectExamples{"List&lt;Service&gt;"};
 

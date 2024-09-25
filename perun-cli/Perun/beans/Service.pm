@@ -18,6 +18,7 @@ sub toString {
 	my $recurrence = $self->{_recurrence};
 	my $enabled = $self->{_enabled};
 	my $useExpiredMembers = $self->{_useExpiredMembers};
+	my $useExpiredVoMembers = $self->{_useExpiredVoMembers};
 	my $script = $self->{_script};
 
 	my $str = 'Service (';
@@ -28,6 +29,7 @@ sub toString {
 	$str .= "recurrence: $recurrence, ";
 	$str .= "enabled: $enabled, ";
 	$str .= "useExpiredMembers: $useExpiredMembers, ";
+	$str .= "useExpiredVoMembers: $useExpiredVoMembers, ";
 	$str .= "script: $script, ";
 	$str .= ')';
 
@@ -90,7 +92,14 @@ sub TO_JSON
 		$useExpiredMembers = "true";
 	}
 
-	return { id => $id, name => $name, beanName => "Service", description => $description, script => $script, enabled => $enabled, useExpiredMembers => $useExpiredMembers };
+	my $useExpiredVoMembers;
+	if (defined($self->{_useExpiredVoMembers})) {
+		$useExpiredVoMembers = "$self->{_useExpiredVoMembers}";
+	} else {
+		$useExpiredVoMembers = "true";
+	}
+
+	return { id => $id, name => $name, beanName => "Service", description => $description, script => $script, enabled => $enabled, useExpiredMembers => $useExpiredMembers , useExpiredVoMembers => $useExpiredVoMembers };
 }
 
 sub getId
@@ -195,6 +204,19 @@ sub setUseExpiredMembers
 	return;
 }
 
+sub getUseExpiredVoMembers
+{
+	my $self = shift;
+
+	return $self->{_useExpiredVoMembers};
+}
+sub setUseExpiredVoMembers
+{
+	my $self = shift;
+	$self->{_useExpiredVoMembers} = shift;
+	return;
+}
+
 sub getScript
 {
 	my $self = shift;
@@ -212,11 +234,11 @@ sub setScript
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_name}, $self->{_delay}, $self->{_recurrence}, $self->{_enabled}, $self->{_script}, $self->{_description}, $self->{_useExpiredMembers});
+	return ($self->{_id}, $self->{_name}, $self->{_delay}, $self->{_recurrence}, $self->{_enabled}, $self->{_script}, $self->{_description}, $self->{_useExpiredMembers}, $self->{_useExpiredVoMembers});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Delay','Recurrence','Enaled','Script','Description', 'UseExpiredMembers');
+	return ('ID', 'Name', 'Delay','Recurrence','Enaled','Script','Description', 'UseExpiredMembers', 'UseExpiredVoMembers');
 }
 
 

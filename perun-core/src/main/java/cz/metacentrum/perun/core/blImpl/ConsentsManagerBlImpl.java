@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsentExistsException;
@@ -147,11 +148,11 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
         boolean isExpiredInResource = groups.stream().allMatch(
             group -> getPerunBl().getGroupsManagerBl().getTotalMemberGroupStatus(sess, member, group)
                 .equals(MemberGroupStatus.EXPIRED));
+        boolean isExpiredInVo = member.getStatus().equals(Status.EXPIRED);
         for (Service service : perunBl.getResourcesManagerBl().getAssignedServices(sess, resource)) {
-          if (!service.isUseExpiredMembers()) {
-            if (isExpiredInResource) {
-              continue;
-            }
+          if ((!service.isUseExpiredMembers() && isExpiredInResource) ||
+                  (!service.isUseExpiredVoMembers() && isExpiredInVo)) {
+            continue;
           }
           for (AttributeDefinition attr : perunBl.getAttributesManagerBl()
               .getRequiredAttributesDefinition(sess, service)) {
@@ -295,9 +296,7 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
       }
 
       for (Service service : facilityAssignedServices) {
-        List<Member> members = service.isUseExpiredMembers() ?
-            getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service) :
-            getPerunBl().getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
+        List<Member> members = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
 
         evaluateConsents(sess, service, facility, members);
       }

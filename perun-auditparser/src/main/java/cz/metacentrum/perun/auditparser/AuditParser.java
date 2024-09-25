@@ -553,6 +553,7 @@ public class AuditParser {
     service.setEnabled(Boolean.valueOf(beanAttr.get("enabled")).booleanValue());
     service.setScript(BeansUtils.eraseEscaping(beanAttr.get("script")));
     service.setUseExpiredMembers(Boolean.valueOf(beanAttr.get("useExpiredMembers")).booleanValue());
+    service.setUseExpiredVoMembers(Boolean.valueOf(beanAttr.get("useExpiredVoMembers")).booleanValue());
     return service;
   }
 
