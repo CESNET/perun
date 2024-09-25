@@ -46,6 +46,8 @@ use Perun::beans::BanOnFacility;
 use Perun::beans::ApplicationForm;
 use Perun::beans::ResourceTag;
 use Perun::beans::ApplicationFormItem;
+use Perun::beans::ApplicationMail;
+use Perun::beans::MailText;
 use Perun::beans::Sponsor;
 use Perun::beans::Application;
 use Perun::beans::EnrichedGroup;
