@@ -169,6 +169,10 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
       throw new IllegalArgumentException("Expiration '" + expiration + "' is in the past.");
     }
 
+    if (expiration.isAfter(LocalDate.now().plusYears(1))) {
+      throw new IllegalArgumentException("Expiration '" + expiration + "' is more than 1 year in the future.");
+    }
+
     Invitation invitation = new Invitation(vo.getId(), group.getId(), receiverName,
         receiverEmail, redirectUrl, new Locale(language), expiration);
     // set sender to current principal
@@ -292,6 +296,11 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
     if (newExpirationDate.isBefore(invitation.getExpiration())) {
       throw new IllegalArgumentException("New expiration date '" +
                                              newExpirationDate + "' is earlier than the current one.");
+    }
+
+    if (newExpirationDate.isAfter(LocalDate.now().plusYears(1))) {
+      throw new IllegalArgumentException("Invitation '" +
+                                                    invitation + "' cannot be extended more than 1 year after today.");
     }
 
     if (!invitation.getStatus().equals(InvitationStatus.PENDING)) {
