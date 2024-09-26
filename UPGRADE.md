@@ -1,5 +1,24 @@
 Upgrade notes
 
+## [40.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v39.2.0...v40.0.0) (2024-09-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **registrar:** 'inviteToGroup' still return the whole Invitation object, RPC docs updated
+* **registrar:** 'inviteToGroup' now returns id of the invitation instead of whole object
+
+### Features
+
+* **registrar:** inviteToGroup return Invitation id ([b3a74e2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b3a74e2012eebebd4db3540f30c0efaac50c136f))
+* **registrar:** revert inviteToGroup return value ([0112827](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0112827818e90d52e9168847f42e2fb53f6c74d8))
+
+
+### Bug Fixes
+
+* **core:** correctly check for MFA timeout when un/setting roles ([1dbbee0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1dbbee06bde16da0ad5648ca7247c0fdc4f0c9c7))
+* **registrar:** get preapproved invitation url from attributes ([ca76a1d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ca76a1dbf806485b2b916941b298e77eb71c3675))
+
 ## [39.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v39.1.0...v39.2.0) (2024-09-20)
 
 
