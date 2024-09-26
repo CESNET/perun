@@ -444,7 +444,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
 
     // check complementary objects for MFA requirements
-    if (!mfaAuthorized(sess, mfaPolicies, mapOfBeans)) {
+    if (!mfaAuthorized(sess, mfaPolicies, mapOfBeans) && !updatePrincipalMfa(sess)) {
       if (complementaryObject == null) {
         throw new MfaPrivilegeException("Multi-Factor authentication is required to set this role.");
       }
