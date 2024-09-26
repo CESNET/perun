@@ -187,6 +187,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
     // resolve sender
     String sender = resolveSender(template.getSender(), container);
+    String replyTo = resolveSender(template.getReplyTo(), container);
 
     // Create of message based on receiver
     List<PerunNotifMessageDto> result = new ArrayList<PerunNotifMessageDto>();
@@ -202,6 +203,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
       messageDto.setTemplate(template);
       messageDto.setSubject(subjectContent);
       messageDto.setSender(sender);
+      messageDto.setReplyTo(replyTo);
 
       result.add(messageDto);
     }
@@ -544,7 +546,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
           for (PerunNotifRegex regex : template.getMatchingRegexs()) {
             if (!foundRegexIds.contains(regex.getId())) {
               LOGGER.info("Not all regexes found for templateId: " + templateId + ", and keyAttributes: " +
-                          dto.getKeyAttributes() + " missing:" + regex.getId());
+                           dto.getKeyAttributes() + " missing:" + regex.getId());
               allRegexes = false;
             }
           }

@@ -34,6 +34,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
       for (PerunNotifEmailMessageToSendDto dto : list) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(dto.getSender());
+        message.setReplyTo(dto.getReplyTo());
         message.setTo(dto.getReceiver());
         message.setSubject(dto.getSubject());
         message.setText(dto.getMessage());

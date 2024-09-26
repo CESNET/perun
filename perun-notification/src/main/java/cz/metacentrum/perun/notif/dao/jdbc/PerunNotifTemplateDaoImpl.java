@@ -168,10 +168,10 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 
     this.getJdbcTemplate().update(
         "insert into pn_template(id, name, primary_properties, notify_trigger, youngest_message_time, " +
-        "oldest_message_time, sender) values (?, ?, ?, ?, ?, ?, ?)",
+        "oldest_message_time, sender, reply_to) values (?, ?, ?, ?, ?, ?, ?, ?)",
         newPerunNotifTemplateId, template.getName(), template.getSerializedPrimaryProperties(),
         template.getNotifyTrigger().getKey(), template.getYoungestMessageTime(), template.getOldestMessageTime(),
-        template.getSender());
+        template.getSender(), template.getReplyTo());
     template.setId(newPerunNotifTemplateId);
 
     return template;
@@ -205,10 +205,10 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 
     this.getJdbcTemplate().update(
         "update pn_template set name = ?, notify_trigger = ?, oldest_message_time = ?, youngest_message_time=?, " +
-        "primary_properties=?, sender = ? where id = ?",
+        "primary_properties=?, sender = ?, reply_to = ? where id = ?",
         template.getName(), template.getNotifyTrigger().getKey(), template.getOldestMessageTime(),
         template.getYoungestMessageTime(), template.getSerializedPrimaryProperties(), template.getSender(),
-        template.getId());
+        template.getReplyTo(), template.getId());
 
     return getPerunNotifTemplateById(template.getId());
   }

@@ -14,6 +14,7 @@ Available options:
  --name                | -n name
  --primaryProperty     | -p primary property (key and value divide by '=', values divide by '/', more properties allowed)
  --sender              | -s sender
+ --replyTo             | -r reply_to field
  --batch               | -b batch
  --help                | -h prints this help
 };
@@ -25,12 +26,13 @@ Available options:
 # --youngestMessageTime | -y youngest message time in millis
 
 our $batch;
-my ($name, @properties, $sender);
+my ($name, @properties, $sender, $replyTo);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
 	}, "batch|b"     => \$batch,
-	"name|n=s"       => \$name, "primaryProperty|p=s" => \@properties, "sender|s=s" => \$sender) || die help();
+	"name|n=s"       => \$name, "primaryProperty|p=s" => \@properties, "sender|s=s" => \$sender,
+    "replyTo|r=s" => \$replyTo) || die help();
 
 # unless (defined($notifyTrigger)) {die "ERROR: PerunNotifTemplate: notifyTrigger is required\n"}
 #if (($notifyTrigger !~ /^ALL_REGEX_IDS$/) and ($notifyTrigger !~ /^STREAM$/)) { die "ERROR: allowed notifyTrigger values are only ALL_REGEX_IDS or STREAM \n";}
@@ -51,6 +53,7 @@ $object->setNotifyTrigger( "ALL_REGEX_IDS" );
 $object->setOldestMessageTime( 0 );
 $object->setYoungestMessageTime( 0 );
 $object->setSender( $sender );
+$object->setReplyTo( $replyTo );
 
 my (%hashedProperties, @list);
 

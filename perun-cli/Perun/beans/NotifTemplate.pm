@@ -68,10 +68,18 @@ sub TO_JSON
 		$sender = undef;
 	}
 
+	my $replyTo;
+	if (defined($self->{_replyTo})) {
+		$replyTo = "$self->{_replyTo}";
+	} else {
+		$replyTo = undef;
+	}
+
 	return { id             => $id, name => $name, primaryProperties => $primaryProperties,
 		notifyTrigger       => $notifyTrigger, oldestMessageTime => $oldestMessageTime,
 		youngestMessageTime => $youngestMessageTime,
-		sender              => $sender };
+		sender              => $sender,
+		replyTo             => $replyTo };
 }
 
 sub getId
@@ -187,6 +195,20 @@ sub setSender
 
 	return;
 }
+sub getReplyTo
+{
+	my $self = shift;
+
+	return $self->{_replyTo};
+}
+
+sub setReplyTo
+{
+	my $self = shift;
+	$self->{_replyTo} = shift;
+
+	return;
+}
 
 sub getCommonArrayRepresentation {
 	my $object = shift;
@@ -197,12 +219,12 @@ sub getCommonArrayRepresentation {
 	}
 
 	return ($object->getId, $object->getName, $hashInString, $object->getNotifyTrigger,
-		$object->getOldestMessageTime, $object->getYoungestMessageTime, $object->getSender);
+		$object->getOldestMessageTime, $object->getYoungestMessageTime, $object->getSender, $object->getReplyTo);
 }
 
 sub getCommonArrayRepresentationHeading {
 	return ('Id', 'Name', 'Primary Properties', 'Notify Trigger', 'Oldest Message Time', 'Youngest Message Time',
-		'Sender');
+		'Sender', "Reply-To");
 }
 
 1;

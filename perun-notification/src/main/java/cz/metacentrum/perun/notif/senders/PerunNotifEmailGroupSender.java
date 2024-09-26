@@ -69,6 +69,12 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
         }
         LOGGER.debug("Calculated sender : {}", groupSender);
 
+        String groupReplyTo = dto.getKeyAttributes().get(template.getReplyTo());
+        if (groupReplyTo == null || groupReplyTo.isEmpty()) {
+          groupReplyTo = template.getReplyTo();
+        }
+        LOGGER.debug("Calculated replyTo : {}", groupReplyTo);
+
         Integer groupId = Integer.valueOf(receiver.getTarget());
         Group group = perun.getGroupsManagerBl().getGroupById(session, groupId);
         List<Member> groupMembers = perun.getGroupsManagerBl().getGroupMembers(session, group);
@@ -82,6 +88,7 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
                   .getAttribute(session, perun.getUsersManager().getUserByMember(session, member),
                       "urn:perun:user:attribute-def:def:preferredMail").getValue());
               memberEmailDto.setSender(groupSender);
+              memberEmailDto.setReplyTo(groupReplyTo);
 
               messagesToSend.add(memberEmailDto);
             } catch (Exception ex) {

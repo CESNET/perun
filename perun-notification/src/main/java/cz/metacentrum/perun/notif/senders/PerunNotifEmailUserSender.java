@@ -68,8 +68,11 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
       usedPools.addAll(messageDto.getUsedPoolIds());
 
       String sender = messageDto.getSender();
+      String replyTo = messageDto.getReplyTo();
       emailDto.setSender(sender);
+      emailDto.setReplyTo(replyTo);
       LOGGER.debug("Calculated sender for receiver: {}, sender: {}", receiver.getId(), sender);
+      LOGGER.debug("Calculated reply_to for receiver: {}, reply_to: {}", receiver.getId(), replyTo);
 
       String myReceiverId = dto.getKeyAttributes().get(receiver.getTarget());
       if (myReceiverId == null || myReceiverId.isEmpty()) {
