@@ -388,7 +388,7 @@ public class MailManagerImpl implements MailManager {
   }
 
   private String buildInviteURL(Vo vo, Group group, String namespace) {
-    String url = getPerunUrl(vo, group);
+    String url = getPerunRegistrarUrl(vo, group);
     if (!StringUtils.hasText(url)) {
       return EMPTY_STRING;
     }
@@ -402,8 +402,7 @@ public class MailManagerImpl implements MailManager {
   }
 
   public String buildInviteURLForInvitation(Vo vo, Group group, UUID token) {
-    // do not use vo/group attributes to determine url
-    String url = getPerunUrl(null, null);
+    String url = getPerunRegistrarUrl(vo, group);
     if (!StringUtils.hasText(url)) {
       return EMPTY_STRING;
     }
@@ -1278,7 +1277,7 @@ public class MailManagerImpl implements MailManager {
    * @param group to get link for
    * @return Base url or empty string.
    */
-  private String getPerunUrl(Vo vo, Group group) {
+  private String getPerunRegistrarUrl(Vo vo, Group group) {
     PerunAppsConfig.Brand voBrand = PerunAppsConfig.getBrandContainingVo(vo != null ? vo.getShortName() : "");
     String result = voBrand != null ? voBrand.getOldGuiDomain() : EMPTY_STRING;
 
@@ -1749,7 +1748,7 @@ public class MailManagerImpl implements MailManager {
   private String replaceAppDetailUrl(String mailText, int appId, Vo vo, Group group) {
     // replace appDetail for VO admins
     if (mailText.contains(FIELD_APP_DETAIL_URL)) {
-      String text = getPerunUrl(vo, group);
+      String text = getPerunRegistrarUrl(vo, group);
       if (StringUtils.hasText(text)) {
         if (!text.endsWith("/")) {
           text += "/";
@@ -1797,7 +1796,7 @@ public class MailManagerImpl implements MailManager {
               newValue = buildUrl(newValue, Map.of(), pathComponents);
             }
           } else {
-            newValue = getPerunUrl(vo, group);
+            newValue = getPerunRegistrarUrl(vo, group);
             if (StringUtils.hasText(newValue)) {
               if (!newValue.endsWith("/")) {
                 newValue += "/";
@@ -1822,7 +1821,7 @@ public class MailManagerImpl implements MailManager {
     // replace perun application GUI link with list of applications
     if (mailText.contains(FIELD_APP_GUI_URL)) {
       // new backup
-      String text = getPerunUrl(vo, group);
+      String text = getPerunRegistrarUrl(vo, group);
       if (StringUtils.hasText(text)) {
         Map<String, String> params = new HashMap<>();
         params.put("vo", vo.getShortName());
@@ -1853,7 +1852,7 @@ public class MailManagerImpl implements MailManager {
           // only namespace "fed", "cert",...
           String namespace = m2.group(1);
 
-          newValue = getPerunUrl(vo, group);
+          newValue = getPerunRegistrarUrl(vo, group);
           if (StringUtils.hasText(newValue)) {
             Map<String, String> params = new HashMap<>();
             params.put("vo", vo.getShortName());
@@ -2148,7 +2147,7 @@ public class MailManagerImpl implements MailManager {
   private String replacePerunGuiUrl(String mailText, Vo vo, Group group) {
     // replace perun GUI links
     if (mailText.contains(FIELD_PERUN_GUI_URL)) {
-      String text = getPerunUrl(vo, group);
+      String text = getPerunRegistrarUrl(vo, group);
       if (StringUtils.hasText(text)) {
         // use authType from vo/group attribute if exists
         text = buildUrl(text, Map.of(), getAuthTypeFromAttribute(vo, group), "gui");
@@ -2177,7 +2176,7 @@ public class MailManagerImpl implements MailManager {
           if (namespace.equals("newGUI")) {
             newValue = PerunAppsConfig.getBrandContainingVo(vo.getShortName()).getNewApps().getAdmin();
           } else {
-            newValue = getPerunUrl(vo, group);
+            newValue = getPerunRegistrarUrl(vo, group);
             if (StringUtils.hasText(newValue)) {
               newValue = buildUrl(newValue, Map.of(), namespace, "gui");
             }
@@ -2234,7 +2233,7 @@ public class MailManagerImpl implements MailManager {
           // only namespace "fed", "cert",...
           String namespace = m2.group(1);
 
-          newValue = getPerunUrl(app.getVo(), app.getGroup());
+          newValue = getPerunRegistrarUrl(app.getVo(), app.getGroup());
 
           if (newValue != null && !newValue.isEmpty()) {
             Map<String, String> params = new HashMap<>();
@@ -2254,7 +2253,7 @@ public class MailManagerImpl implements MailManager {
 
     if (mailText.contains(FIELD_VALIDATION_LINK)) {
       // new backup if validation URL is missing
-      String url = getPerunUrl(app.getVo(), app.getGroup());
+      String url = getPerunRegistrarUrl(app.getVo(), app.getGroup());
       if (StringUtils.hasText(url)) {
         Map<String, String> params = new HashMap<>();
         params.put("vo", app.getVo().getShortName());
