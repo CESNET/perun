@@ -85,6 +85,7 @@ public enum InvitationsManagerMethod implements ManagerMethod {
    * @throw PrivilegeException Insufficient rights
    * @throw GroupNotExistsException Group does not exist
    * @throw VoNotExistsException VO does not exist
+   * @return Invitation created Invitation object
    */
   /*#
    * Send invitation link to end user's email. The link leads to the application form of the group, when filled out a
@@ -99,6 +100,7 @@ public enum InvitationsManagerMethod implements ManagerMethod {
    * @throw PrivilegeException Insufficient rights
    * @throw GroupNotExistsException Group does not exist
    * @throw VoNotExistsException VO does not exist
+   * @return Invitation created Invitation object
    */
   /*#
    * Send invitation link to end user's email. The link leads to the application form of the group, when filled out a
@@ -116,6 +118,7 @@ public enum InvitationsManagerMethod implements ManagerMethod {
    * @throw GroupNotExistsException Group does not exist
    * @throw VoNotExistsException VO does not exist
    * @throw RegistrarException when email address format is incorrect
+   * @return Invitation created Invitation object
    */
   /*#
    * Send invitation link to end user's email. The link leads to the application form of the group, when filled out a
@@ -132,6 +135,7 @@ public enum InvitationsManagerMethod implements ManagerMethod {
    * @throw GroupNotExistsException Group does not exist
    * @throw VoNotExistsException VO does not exist
    * @throw RegistrarException when email address format is incorrect
+   * @return Invitation created Invitation object
    */
   inviteToGroup {
     @Override
