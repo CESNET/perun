@@ -81,7 +81,7 @@
 		<json.version>20231013</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
 		<reflections.version>0.9.12</reflections.version>
-		<testcontainers.version>1.20.1</testcontainers.version>
+		<testcontainers.version>1.20.2</testcontainers.version>
 
 		<!-- upgraded version of Spring Framework against the Spring Boot dependency to avoid high vulnerability (CVE-2024-22243) -->
 		<spring-framework.version>5.3.32</spring-framework.version>
