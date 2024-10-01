@@ -52,6 +52,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceOnlyRoleAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -83,6 +84,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -228,6 +230,18 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue("User should be service user again", user2.isServiceUser());
 		List<User> owners = usersManager.getUsersBySpecificUser(sess, user2);
 		assertTrue("There should be just our owner", owners.size() == 1 && owners.contains(owner));
+	}
+
+	@Test
+	public void unsetServiceUserWithServiceOnlyRole() throws Exception {
+		System.out.println(CLASS_NAME + "unsetServiceUserWithServiceOnlyRole");
+		setUpUser();
+
+		assertTrue("User should be service user", serviceUser1.isServiceUser());
+		AuthzResolverBlImpl.setRole(sess, serviceUser1, null, Role.EXEMPTEDFROMMFA);
+		assertThrows(ServiceOnlyRoleAssignedException.class,
+				() -> usersManager.unsetSpecificUser(sess, serviceUser1, SpecificUserType.SERVICE));
+		AuthzResolverBlImpl.unsetRole(sess, serviceUser1, null, Role.EXEMPTEDFROMMFA);
 	}
 
 	@Test

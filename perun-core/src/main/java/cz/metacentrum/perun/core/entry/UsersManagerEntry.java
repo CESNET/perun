@@ -61,6 +61,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceOnlyRoleAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
@@ -1836,7 +1837,7 @@ public class UsersManagerEntry implements UsersManager {
 
   @Override
   public User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType)
-      throws UserNotExistsException, PrivilegeException {
+      throws UserNotExistsException, PrivilegeException, ServiceOnlyRoleAssignedException {
     Utils.checkPerunSession(sess);
     Utils.notNull(specificUserType, "specificUserType");
     getPerunBl().getUsersManagerBl().checkUserExists(sess, specificUser);

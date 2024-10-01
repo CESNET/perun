@@ -796,6 +796,7 @@ components:
           additionalProperties:
             type: string
         assignableToAttributes: { type: boolean }
+        skipMFA: { type: boolean }
         displayName: { type: string }
       required:
         - roleName
@@ -805,6 +806,7 @@ components:
         - entitiesToManage
         - assignedObjects
         - assignableToAttributes
+        - skipMFA
         - displayName
 
     NamespaceRules:

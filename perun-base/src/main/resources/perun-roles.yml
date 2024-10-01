@@ -78,6 +78,8 @@
 # It is a sign of an account with a Self role being created by someone else.
 # The only role with privileges to create a Service user is the Perun administrator role.
 #
+# EXEMPTEDFROMMFA is a role that can be assigned to service accounts to allow them to skip MFA.
+#
 # SPREGAPPLICATION is a role that can be assigned to a service account primarily to work
 # with facilities, groups and attributes.
 #
@@ -144,6 +146,7 @@ perun_roles:
   - RPC
   - NOTIFICATIONS
   - SERVICEUSER
+  - EXEMPTEDFROMMFA
   - SPREGAPPLICATION
   - SPONSOR
   - SPONSORNOCREATERIGHTS
@@ -9267,6 +9270,25 @@ perun_roles_management:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     display_name: "Service user"
+
+  EXEMPTEDFROMMFA:
+    primary_object:
+    assign_to_objects: { }
+    assignment_check:
+      - MFA:
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+    associated_read_roles: [ ]
+    assignable_to_attributes: false
+    skip_mfa: true
+    display_name: "Exempted from MFA"
 
   SPREGAPPLICATION:
     primary_object:
