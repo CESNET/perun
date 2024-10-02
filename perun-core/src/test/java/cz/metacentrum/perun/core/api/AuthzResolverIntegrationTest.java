@@ -2465,6 +2465,23 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
+  public void testVoCreatorRole() throws Exception {
+    System.out.println(CLASS_NAME + "testVoCreatorRole");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    PerunSession session = getHisSession(createdMember);
+    perun.getMembersManagerBl().deleteMember(sess, createdMember);
+    AuthzResolver.setRole(sess, createdUser, null, Role.VOCREATOR);
+
+    AuthzResolver.refreshAuthz(session);
+    assertTrue(
+        AuthzResolver.authorizedInternal(session, "test_vo_creator_role")
+    );
+  }
+
+  @Test
   public void authorizedGroupAdminInVoOfResource() throws Exception {
     System.out.println(CLASS_NAME + "authorizedGroupAdminInVoOfResource");
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
