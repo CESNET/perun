@@ -20399,3 +20399,17 @@ paths:
               properties:
                 group: { type: integer }
                 query: { $ref: '#/components/schemas/InvitationsPageQuery' }
+
+  /urlinjsonout/invitationsManager/resendInvitation:
+    post:
+      tags:
+        - InvitationsManager
+      operationId: resendInvitation
+      summary: Resends the notification for the given preapproved invitation.
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'

@@ -246,4 +246,16 @@ public class InvitationsManagerEntry implements InvitationsManager {
 
     return invitationsManagerBl.getInvitationsPage(sess, group, query);
   }
+
+  @Override
+  public void resendInvitation(PerunSession sess, Invitation invitation)
+      throws RegistrarException, PrivilegeException, InvalidInvitationStatusException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "resendInvitation_Invitation_policy", invitation)) {
+      throw new PrivilegeException("resendInvitation_Invitation_policy");
+    }
+
+    invitationsManagerBl.resendInvitation(sess, invitation);
+  }
 }

@@ -726,6 +726,28 @@ public class InvitationsManagerIntegrationTest {
     assertEquals(invitation2.getId(), result.getData().get(0).getId());
   }
 
+  @Test
+  public void resendInvitation() throws Exception {
+    System.out.println(CLASS_NAME + "resendInvitation");
+
+    JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
+    assert mailSender != null;
+    JavaMailSender spyMailSender = spy(mailSender);
+    Invitation invitation = invitationsManager.createInvitation(session,
+        new Invitation(2, vo.getId(), group.getId(), sender.getId(), "test receiver2", "test2@receiver.com",
+            Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    try {
+      doNothing().when(spyMailSender).send(any(MimeMessage.class));
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+
+      invitationsManagerBl.resendInvitation(senderSess, invitation);
+
+      verify(spyMailSender, times(1)).send(any(MimeMessage.class));
+    } finally {
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
+  }
+
   private Group setUpGroup(String name, String desc) throws Exception {
     GroupsManager groupsManager = perun.getGroupsManager();
 

@@ -314,6 +314,41 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   }
 
   @Override
+  public void resendInvitation(PerunSession sess, Invitation invitation)
+      throws RegistrarException, InvalidInvitationStatusException {
+    if (invitation.getStatus() != InvitationStatus.PENDING) {
+      throw new InvalidInvitationStatusException("Cannot resend invitation " + invitation.getId() + " as it is not" +
+          " in PENDING state.");
+    }
+
+    Vo vo;
+    Group group;
+    try {
+      vo = perun.getVosManagerBl().getVoById(sess, invitation.getVoId());
+      group = perun.getGroupsManagerBl().getGroupById(sess, invitation.getGroupId());
+    } catch (VoNotExistsException ex) {
+      throw new ConsistencyErrorException("The vo of the invitation " + invitation.getVoId() + " does not exist");
+    } catch (GroupNotExistsException ex) {
+      throw new ConsistencyErrorException("The group of the invitation " + invitation.getGroupId() + " does not exist");
+    }
+
+    String url;
+    try {
+      url = createInvitationUrl(sess, invitation.getToken().toString());
+    } catch (InvitationNotExistsException e) {
+      // Should not really happen if called from api
+      throw new ConsistencyErrorException("Invitation " + invitation.getId() + " does not exist.", e);
+    }
+
+    try {
+      registrarManager.getMailManager().sendInvitationPreApproved(vo, group, invitation, url);
+    } catch (RegistrarException ex) {
+      LOG.error("Invitation: {} failed to be re-sent due to {}", invitation, ex.getMessage());
+      throw ex;
+    }
+  }
+
+  @Override
   public Paginated<InvitationWithSender> getInvitationsPage(PerunSession sess, Group group,
                                                             InvitationsPageQuery query) {
     return invitationsManagerImpl.getInvitationsPage(sess, group, query);

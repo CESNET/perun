@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
@@ -206,6 +205,17 @@ public interface InvitationsManagerBl {
    */
   Invitation extendInvitationExpiration(PerunSession sess, Invitation invitation, LocalDate newExpirationDate)
       throws InvalidInvitationStatusException;
+
+  /**
+   * Resends the notification for the given preapproved invitation.
+   *
+   * @param sess session
+   * @param invitation the invitation to be resent
+   * @throws RegistrarException when unable to send the mail
+   * @throws InvalidInvitationStatusException when the invitation is not in a pending state
+   */
+  void resendInvitation(PerunSession sess, Invitation invitation)
+      throws RegistrarException, InvalidInvitationStatusException;
 
   /**
    * Get page of invitations for the given group.
