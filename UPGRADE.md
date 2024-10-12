@@ -1,5 +1,25 @@
 Upgrade notes
 
+## [41.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v40.0.0...v41.0.0) (2024-10-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** db update
+
+### Features
+
+* added upper limit for invite and extend invitation methods ([29aee60](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/29aee608656216dbd630a76def2235e15912111d))
+* **cli:** added object and API definitions for applications mails ([a39d7e3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a39d7e31f025827e712d9a98e411fb5b62b8abdb))
+* **core:** reply_to in perun notifications ([6331123](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6331123df2789087e7442166492c28295914d683))
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-api-services-admin-directory ([5d9a3e1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5d9a3e114bef7cb192dabd78fb50f8970e98c8fa))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.9.5 ([b2d7cee](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b2d7cee8d0327372c76bc08aa81edddb4fc695be))
+* **openapi:** richApplication and RichUserExtSource discriminator without property beanName ([9837edd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9837eddc3415ad86d00ce77283df8559e0cfb19a))
+
 ## [40.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v39.2.0...v40.0.0) (2024-09-26)
 
 
