@@ -1152,8 +1152,6 @@ components:
         formData: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
       required:
         - formData
-      discriminator:
-        propertyName: beanName
 
     PaginatedRichApplications:
       properties:
@@ -1382,8 +1380,6 @@ components:
       required:
         - userExtSource
         - attributes
-      discriminator:
-        propertyName: beanName
 
     Candidate:
       allOf:

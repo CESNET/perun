@@ -16,6 +16,8 @@ public class PerunNotifEmailMessageToSendDto {
   private String subject;
   //Sender of email message
   private String sender;
+  //Reply_to of the email
+  private String replyTo;
 
   public String getMessage() {
     return message;
@@ -23,6 +25,10 @@ public class PerunNotifEmailMessageToSendDto {
 
   public String getReceiver() {
     return receiver;
+  }
+
+  public String getReplyTo() {
+    return replyTo;
   }
 
   public String getSender() {
@@ -39,6 +45,10 @@ public class PerunNotifEmailMessageToSendDto {
 
   public void setReceiver(String receiver) {
     this.receiver = receiver;
+  }
+
+  public void setReplyTo(String replyTo) {
+    this.replyTo = replyTo;
   }
 
   public void setSender(String sender) {

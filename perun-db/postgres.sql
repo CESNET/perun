@@ -1,4 +1,4 @@
--- database version 3.2.23 (don't forget to update insert statement at the end of file)
+-- database version 3.2.24 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1307,7 +1307,8 @@ create table pn_template (
 	youngest_message_time integer, --time limit for the youngest message
 	oldest_message_time integer,   --time limit for the oldest message
 	name varchar,       --arbitrary name
-	sender varchar,    --email addres that will be stated as sender
+	sender varchar,    --email address that will be stated as sender
+	reply_to varchar,  -- email address that will be used in the reply_to field
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint pn_tmpl_pk primary key (id)
@@ -2063,7 +2064,7 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.23');
+insert into configurations values ('DATABASE VERSION','3.2.24');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

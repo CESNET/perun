@@ -63,4 +63,29 @@ sub getApplicationById
 	return Perun::Common::callManagerMethod('getApplicationById', 'Application', @_);
 }
 
+sub addApplicationMail
+{
+	return Perun::Common::callManagerMethod('addApplicationMail', 'number', @_);
+}
+
+sub getApplicationMails
+{
+	return Perun::Common::callManagerMethod('getApplicationMails', '[]ApplicationMail', @_);
+}
+
+sub getApplicationMailById
+{
+	return Perun::Common::callManagerMethod('getApplicationMailById', 'ApplicationMail', @_);
+}
+
+sub updateApplicationMail
+{
+	return Perun::Common::callManagerMethod('updateApplicationMail', 'null', @_);
+}
+
+sub deleteApplicationMail
+{
+	return Perun::Common::callManagerMethod('deleteApplicationMail', 'null', @_);
+}
+
 1;
