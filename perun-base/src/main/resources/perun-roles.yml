@@ -8657,6 +8657,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   revokeInvitationById_int_policy:
     policy_roles:
@@ -8665,6 +8668,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   revokeInvitationByUuid_UUID_policy:
     policy_roles:
@@ -8673,6 +8679,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   extendInvitationExpiration_Invitation_LocalDate_policy:
     policy_roles:
@@ -8681,6 +8690,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   inviteToGroup_Vo_Group_String_String_String_LocalDate_String_policy:
     policy_roles:
@@ -8689,6 +8701,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   inviteToGroupFromCsv_Vo_Group_List<String>_policy:
     policy_roles:
@@ -8697,6 +8712,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createInvitationUrl_String:
     policy_roles:
@@ -8713,7 +8731,7 @@ perun_policies:
   canInvitationBeAccepted_UUID_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - REGISTRAR
+      - REGISTRAR:
     include_policies:
       - default_policy
 
@@ -8724,8 +8742,20 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
+
+  resendInvitation_Invitation_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 #  primary_object serves to determine with which object is the role primarily connected. Other objects are just complementary.
