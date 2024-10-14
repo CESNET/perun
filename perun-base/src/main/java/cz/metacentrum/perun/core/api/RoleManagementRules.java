@@ -197,7 +197,7 @@ public class RoleManagementRules {
     this.skipMFA = skipMFA;
   }
 
-  public boolean shouldSkipMFA() {
+  public boolean getSkipMFA() {
     return skipMFA;
   }
 
