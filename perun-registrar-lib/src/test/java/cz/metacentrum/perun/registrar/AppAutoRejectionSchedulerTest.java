@@ -43,7 +43,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  *
  * @author Jakub Hejda <Jakub.Hejda@cesnet.cz>
  */
-public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest {
+public class AppAutoRejectionSchedulerTest extends AbstractRegistrarIntegrationTest {
 
   private static final String CLASS_NAME = "ApplicationAutoRejectorTest.";
 

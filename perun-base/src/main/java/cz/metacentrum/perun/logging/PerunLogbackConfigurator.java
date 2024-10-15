@@ -29,7 +29,7 @@ import java.nio.file.Paths;
 public class PerunLogbackConfigurator extends ContextAwareBase implements Configurator {
 
   @Override
-  public void configure(LoggerContext loggerContext) {
+  public ExecutionStatus configure(LoggerContext loggerContext) {
     JoranConfigurator configurator = new JoranConfigurator();
     configurator.setContext(loggerContext);
 
@@ -55,5 +55,6 @@ public class PerunLogbackConfigurator extends ContextAwareBase implements Config
         basicConfigurator.configure(loggerContext);
       }
     }
+    return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
   }
 }

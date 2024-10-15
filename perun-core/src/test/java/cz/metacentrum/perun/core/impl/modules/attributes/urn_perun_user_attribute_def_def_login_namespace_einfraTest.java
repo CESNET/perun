@@ -81,7 +81,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfraTest {
     PasswordManagerModule module = mock(EinfraPasswordManagerModule.class);
     when(session.getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, "einfra")).thenReturn(module);
 
-    ModulesUtilsBl modulesUtilsBlSpy = spy(mock(ModulesUtilsBl.class));
+    ModulesUtilsBl modulesUtilsBlSpy = spy(ModulesUtilsBl.class);
     when(session.getPerunBl().getModulesUtilsBl()).thenReturn(modulesUtilsBlSpy);
 
     Mockito.doThrow(InvalidLoginException.class).when(modulesUtilsBlSpy)

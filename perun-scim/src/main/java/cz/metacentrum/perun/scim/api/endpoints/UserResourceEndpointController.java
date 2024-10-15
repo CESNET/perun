@@ -15,10 +15,10 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.scim.api.entities.EmailSCIM;
 import cz.metacentrum.perun.scim.api.entities.UserSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public class UserResourceEndpointController {
   }
 
   private UserSCIM mapPerunUserToScimUser(User perunUser) {
-    Long userId = new Long(perunUser.getId());
+    Long userId = (long) perunUser.getId();
 
     UserSCIM result = new UserSCIM();
     EmailSCIM email = getEmail(perunUser);

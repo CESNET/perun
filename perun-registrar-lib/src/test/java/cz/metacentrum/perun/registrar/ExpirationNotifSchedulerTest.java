@@ -61,7 +61,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
+public class ExpirationNotifSchedulerTest extends AbstractRegistrarIntegrationTest {
 
   private static final String CLASS_NAME = "ExpirationNotifSchedulerTest.";
 

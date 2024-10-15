@@ -4551,7 +4551,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// test new way - single select
 		List<Group> groups = perun.getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
-		Assert.notNull(groups);
+		assertNotNull(groups);
 		assertTrue(groups.size() == 2);
 		assertTrue(groups.contains(group11));
 		assertTrue(groups.contains(group21));
@@ -4564,7 +4564,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		for (Resource r : resources) {
 			oldGroups.addAll(perun.getResourcesManager().getAssignedGroups(sess, r));
 		}
-		Assert.notNull(oldGroups);
+		assertNotNull(oldGroups);
 		assertTrue(oldGroups.contains(group11));
 		assertTrue(oldGroups.contains(group21));
 		assertTrue(!oldGroups.contains(group12));

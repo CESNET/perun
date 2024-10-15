@@ -47,7 +47,6 @@ import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailTextMissingException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
-import cz.metacentrum.perun.registrar.impl.InvitationsManagerImpl;
 import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
@@ -64,6 +63,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationsPageQuery;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationStatus;
 import cz.metacentrum.perun.registrar.model.RichApplication;
+import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,40 +77,17 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
-import javax.mail.internet.MimeMessage;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base registrar-lib test class
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-registrar-lib.xml"})
-@Transactional(transactionManager = "perunTransactionManager")
-public class RegistrarBaseIntegrationTest {
-
-
-  @Autowired
-  PerunBl perun;
-  @Autowired
-  RegistrarManager registrarManager;
-  @Autowired
-  MailManager mailManager;
-  @Autowired
-  InvitationsManagerImpl invitationsManager;
-  PerunSession session;
-  private Vo vo;
+public class RegistrarBaseIntegrationTest extends AbstractRegistrarIntegrationTest {
 
   private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo, PerunSession user)
       throws PerunException {
@@ -339,13 +316,6 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
 
     registrarManager.addGroupsToAutoRegistration(session, List.of(group2), embeddedGroupsItem);
-  }
-
-  @After
-  public void cleanTest() throws Exception {
-
-    //perun.getVosManagerBl().deleteVo(session, vo, true);
-
   }
 
   @Test
@@ -1928,22 +1898,6 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     return user;
   }
 
-  @Before
-  public void setupTest() throws Exception {
-
-    if (vo == null || session == null) {
-
-      session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-          ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
-
-      // create test VO
-      vo = new Vo(0, "registrarTestVO", "regTestVO");
-      vo = perun.getVosManagerBl().createVo(session, vo);
-
-    }
-
-  }
-
   @Test
   public void testAddFormItem_multipleEmbeddedGroupsItems() throws PerunException {
 
@@ -2448,39 +2402,43 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     JavaMailSender mailSender = (JavaMailSender) ReflectionTestUtils.getField(mailManager, "mailSender");
     assert mailSender != null;
     JavaMailSender spyMailSender = spy(mailSender);
-    ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
+    try {
+      ReflectionTestUtils.setField(mailManager, "mailSender", spyMailSender);
 
-    User user1 = new User(-1, "User1", "Test1", "", "", "");
-    User user2 = new User(-2, "User2", "Test2", "", "", "");
-    User user3 = new User(-3, "User3", "Test3", "", "", "");
-    user1 = perun.getUsersManagerBl().createUser(session, user1);
-    user2 = perun.getUsersManagerBl().createUser(session, user2);
-    user3 = perun.getUsersManagerBl().createUser(session, user3);
+      User user1 = new User(-1, "User1", "Test1", "", "", "");
+      User user2 = new User(-2, "User2", "Test2", "", "", "");
+      User user3 = new User(-3, "User3", "Test3", "", "", "");
+      user1 = perun.getUsersManagerBl().createUser(session, user1);
+      user2 = perun.getUsersManagerBl().createUser(session, user2);
+      user3 = perun.getUsersManagerBl().createUser(session, user3);
 
-    Application application1 = prepareApplicationToVo(user1);
-    Application application2 = prepareApplicationToVo(user2);
-    Application application3 = prepareApplicationToVo(user3);
-    registrarManager.submitApplication(session, application1, new ArrayList<>());
-    registrarManager.submitApplication(session, application2, new ArrayList<>());
-    registrarManager.submitApplication(session, application3, new ArrayList<>());
+      Application application1 = prepareApplicationToVo(user1);
+      Application application2 = prepareApplicationToVo(user2);
+      Application application3 = prepareApplicationToVo(user3);
+      registrarManager.submitApplication(session, application1, new ArrayList<>());
+      registrarManager.submitApplication(session, application2, new ArrayList<>());
+      registrarManager.submitApplication(session, application3, new ArrayList<>());
 
-    application1.setState(Application.AppState.REJECTED);
-    application2.setState(Application.AppState.REJECTED);
-    application3.setState(Application.AppState.REJECTED);
+      application1.setState(Application.AppState.REJECTED);
+      application2.setState(Application.AppState.REJECTED);
+      application3.setState(Application.AppState.REJECTED);
 
-    ApplicationForm form = registrarManager.getFormForVo(vo);
+      ApplicationForm form = registrarManager.getFormForVo(vo);
 
-    ApplicationMail mail = new ApplicationMail(0, AppType.INITIAL, form.getId(), MailType.APP_REJECTED_USER, true);
-    MailText t = mail.getMessage(new Locale("en"));
-    t.setSubject("Test subject");
-    t.setText("Test Mail content.");
-    mailManager.addMail(session, form, mail);
+      ApplicationMail mail = new ApplicationMail(0, AppType.INITIAL, form.getId(), MailType.APP_REJECTED_USER, true);
+      MailText t = mail.getMessage(new Locale("en"));
+      t.setSubject("Test subject");
+      t.setText("Test Mail content.");
+      mailManager.addMail(session, form, mail);
 
 
-    mailManager.sendMessages(session, List.of(application1, application2, application3), MailType.APP_REJECTED_USER,
-        null);
+      mailManager.sendMessages(session, List.of(application1, application2, application3), MailType.APP_REJECTED_USER,
+          null);
 
-    verify(spyMailSender, times(3)).send(any(MimeMessage.class));
+      verify(spyMailSender, times(3)).send(any(MimeMessage.class));
+    } finally {
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+    }
   }
 
   @Test
