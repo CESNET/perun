@@ -1,5 +1,18 @@
 Upgrade notes
 
+## [42.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v41.0.0...v42.0.0) (2024-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* New spring boot and framework version
+
+(cherry picked from commit 27552a5f2b345bca358492e0a918ca1a0d4363c0)
+
+### Build
+
+* migration of spring boot to v3 ([efa9c4e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/efa9c4eddf81254c5b58fa6bb17befcd3f1050cc))
+
 ## [41.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v40.0.0...v41.0.0) (2024-10-12)
 
 
