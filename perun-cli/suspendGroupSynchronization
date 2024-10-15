@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Suspend synchronizing groups and their structures. Groups being currently synchronized will finish.
+    This is only for temporary suspension, synchronizations will always resume on instance restart. In order to disable synchronizations permanently, use config properties.
+	--------------------------------------
+	Available options:
+	--batch        | -b batch
+	--help         | -h prints this help
+
+	};
+}
+
+my ($batch);
+GetOptions ("help|h"   => sub {
+	print help();
+	exit 0;
+}, "batch|b"       => \$batch) || die help();
+
+my $agent = Perun::Agent->new();
+my $groupsAgent = $agent->getGroupsAgent;
+
+$groupsAgent->suspendGroupSynchronization();
+
+printMessage("Group synchronization is suspended.", $batch);

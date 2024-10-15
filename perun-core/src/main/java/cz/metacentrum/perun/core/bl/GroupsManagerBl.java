@@ -1951,6 +1951,21 @@ public interface GroupsManagerBl {
   boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group);
 
   /**
+   * Suspend synchronizing groups and their structures.
+   *
+   * @param sess session
+   * @param suspend whether to suspend or unsuspend
+   */
+  void suspendGroupSynchronization(PerunSession sess, boolean suspend);
+
+  /**
+   * Check if synchronizing groups is suspended.
+   *
+   * @return True if suspended, false if synchronizing
+   */
+  boolean isSuspendedGroupSynchronization();
+
+  /**
    * Checks whether the user is member of the group.
    *
    * @param sess

@@ -14487,6 +14487,30 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/suspendGroupSynchronization:
+    post:
+      tags:
+        - GroupsManager
+      operationId: suspendGroupSynchronization
+      summary: Suspends group synchronization. Groups being currently synchronized will finish. This is only for temporary suspension, synchronizations will always resume on instance restart. In order to disable synchronizations permanently, use config properties.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/resumeGroupSynchronization:
+    post:
+      tags:
+        - GroupsManager
+      operationId: resumeGroupSynchronization
+      summary: Resumes previously suspended group synchronization
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ResourceManager                               #
@@ -19644,8 +19668,18 @@ paths:
         - TasksManager
       operationId: suspendTasksPropagation
       summary: Suspends waiting tasks propagation to the engine. Does not affect already propagated tasks.
-      parameters:
-        - { name: suspend, description: "if true stops propagating waiting tasks to the engine, if false resumes propagation", schema: { type: boolean }, in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/resumeTasksPropagation:
+    post:
+      tags:
+        - TasksManager
+      operationId: resumeTasksPropagation
+      summary: Resumes previously suspended waiting tasks propagation to the engine.
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

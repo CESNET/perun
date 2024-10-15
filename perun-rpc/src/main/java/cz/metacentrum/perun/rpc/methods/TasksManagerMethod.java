@@ -343,7 +343,8 @@ public enum TasksManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Stops dispatcher from propagating waiting tasks to the engine.
+   * Temporarily stops dispatcher from propagating waiting tasks to the engine. Propagation will always resume on
+   * instance restart. To permanently disable propagation, use dispatcher config properties.
    * Tasks which were sent to the engine before won't be affected and will be finished.
    */
   suspendTasksPropagation {
