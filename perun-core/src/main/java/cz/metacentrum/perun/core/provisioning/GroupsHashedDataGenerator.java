@@ -38,18 +38,21 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
   private final Service service;
   private final Facility facility;
   private final GenDataProvider dataProvider;
-  private final boolean filterExpiredMembers;
+  private final boolean filterExpiredGroupMembers;
+  private final boolean filterExpiredVoMembers;
   private final Set<Member> membersWithConsent = new HashSet<>();
   private final boolean consentEval;
   private final int taskRunId;
   private static final Logger LOG = LoggerFactory.getLogger(GroupsHashedDataGenerator.class);
 
   private GroupsHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
-                                    boolean filterExpiredMembers, boolean consentEval, int taskRunId) {
+                                    boolean filterExpiredGroupMembers,
+                                    boolean filterExpiredVoMembers, boolean consentEval, int taskRunId) {
     this.sess = sess;
     this.service = service;
     this.facility = facility;
-    this.filterExpiredMembers = filterExpiredMembers;
+    this.filterExpiredGroupMembers = filterExpiredGroupMembers;
+    this.filterExpiredVoMembers = filterExpiredVoMembers;
     this.consentEval = consentEval;
     this.taskRunId = taskRunId;
     dataProvider = new GenDataProviderImpl(sess, service, facility);
@@ -64,12 +67,8 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 
     if (BeansUtils.getCoreConfig().getForceConsents()) {
       List<Member> membersToEvaluate;
-      if (filterExpiredMembers) {
-        membersToEvaluate =
-            sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
-      } else {
-        membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
-      }
+      membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
+
       membersWithConsent.addAll(sess.getPerunBl().getConsentsManagerBl()
           .evaluateConsents(sess, service, facility, membersToEvaluate, consentEval));
     }
@@ -94,7 +93,7 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
     dataProvider.getGroupAttributesHashes(resource, group);
 
     List<Member> members;
-    if (filterExpiredMembers) {
+    if (filterExpiredGroupMembers) {
       members = sess.getPerunBl().getGroupsManagerBl().getActiveGroupMembers(sess, group);
       // previous method for active group members doesn't care about VO status, so we must remove INVALID and
       // DISABLED VO members
@@ -103,6 +102,8 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
     } else {
       members = sess.getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
     }
+    members.removeIf(
+          member -> filterExpiredVoMembers && member.getStatus().equals(Status.EXPIRED));
     if (BeansUtils.getCoreConfig().getForceConsents()) {
       // remove the members without granted consents on required attributes
       members.removeIf(member -> !membersWithConsent.contains(member));
@@ -132,11 +133,13 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 
   private GenResourceDataNode getDataForResource(Resource resource) {
     List<Member> members;
-    if (filterExpiredMembers) {
+    if (filterExpiredGroupMembers) {
       members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
     } else {
       members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
     }
+    members.removeIf(
+          member -> filterExpiredVoMembers && member.getStatus().equals(Status.EXPIRED));
     if (BeansUtils.getCoreConfig().getForceConsents()) {
       // remove the members without granted consents on required attributes
       members.removeIf(member -> !membersWithConsent.contains(member));
@@ -168,13 +171,15 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
     private PerunSessionImpl sess;
     private Service service;
     private Facility facility;
-    private boolean filterExpiredMembers = false;
+    private boolean filterExpiredGroupMembers = false;
+    private boolean filterExpiredVoMembers = false;
     private boolean consentEval = false;
     private int taskRunId;
 
 
     public GroupsHashedDataGenerator build() {
-      return new GroupsHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval, taskRunId);
+      return new GroupsHashedDataGenerator(sess, service, facility, filterExpiredGroupMembers,
+          filterExpiredVoMembers, consentEval, taskRunId);
     }
 
     public Builder consentEval(boolean consentEval) {
@@ -187,8 +192,13 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
       return this;
     }
 
-    public Builder filterExpiredMembers(boolean filterExpiredMembers) {
-      this.filterExpiredMembers = filterExpiredMembers;
+    public Builder filterExpiredGroupMembers(boolean filterExpiredGroupMembers) {
+      this.filterExpiredGroupMembers = filterExpiredGroupMembers;
+      return this;
+    }
+
+    public Builder filterExpiredVoMembers(boolean filterExpiredVoMembers) {
+      this.filterExpiredVoMembers = filterExpiredVoMembers;
       return this;
     }
 

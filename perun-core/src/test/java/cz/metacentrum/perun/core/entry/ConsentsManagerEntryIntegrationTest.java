@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
@@ -496,6 +497,154 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
     consents2 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
     assertThat(consents1).containsExactly(expectedConsent1);
     assertThat(consents2).containsExactly(expectedConsent2);
+  }
+
+  @Test
+  public void evaluateConsentsForConsentHubUseCreatesConsentsNoExpiredMembers() throws Exception {
+    System.out.println(CLASS_NAME + "evaluateConsentsForConsentHubUseCreatesConsentsNoExpiredMembers");
+
+    boolean originalUseExpiredMembers = service.isUseExpiredMembers();
+
+    User user1 = setUpUser("Harry", "Doe");
+    User user2 = setUpUser("James", "Doe");
+    Member member1 = perun.getMembersManager().createMember(sess, vo, user1);
+    Member member2 = perun.getMembersManager().createMember(sess, vo, user2);
+    perun.getGroupsManagerBl().addMember(sess, group, member1);
+    perun.getGroupsManagerBl().addMember(sess, group, member2);
+    perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.VALID);
+    perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
+
+    // validate both members in VOs, otherwise they will be skipped
+    perun.getMembersManagerBl().validateMember(sess, member1);
+    perun.getMembersManagerBl().validateMember(sess, member2);
+
+    ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+    boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+    try {
+      BeansUtils.getCoreConfig().setForceConsents(true);
+      service.setUseExpiredMembers(false);
+      perun.getServicesManagerBl().updateService(sess, service);
+
+      perun.getConsentsManagerBl().evaluateConsents(sess, consentHub);
+    } finally {
+      BeansUtils.getCoreConfig().setForceConsents(originalForce);
+      service.setUseExpiredMembers(originalUseExpiredMembers);
+      perun.getServicesManagerBl().updateService(sess, service);
+    }
+
+    List<Consent> consents1 =
+        consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+    List<Consent> consents2 =
+        consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
+
+    Consent expectedConsent1 = new Consent(consents1.get(0).getId(), user1.getId(), consentHub, List.of(attrDef));
+
+    assertThat(consents1).containsExactly(expectedConsent1);
+    assertThat(consents2).isEmpty();
+
+    // evaluate again, each user still should have only the one UNSIGNED consent
+    try {
+      BeansUtils.getCoreConfig().setForceConsents(true);
+      service.setUseExpiredMembers(false);
+      perun.getServicesManagerBl().updateService(sess, service);
+
+      perun.getConsentsManagerBl().evaluateConsents(sess, consentHub);
+    } finally {
+      BeansUtils.getCoreConfig().setForceConsents(originalForce);
+      service.setUseExpiredMembers(originalUseExpiredMembers);
+      perun.getServicesManagerBl().updateService(sess, service);
+
+    }
+
+    consents1 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+    consents2 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
+    assertThat(consents1).containsExactly(expectedConsent1);
+    assertThat(consents2).isEmpty();
+  }
+
+  @Test
+  public void evaluateConsentsForConsentHubUseCreatesConsentsNoExpiredVo() throws Exception {
+    System.out.println(CLASS_NAME + "evaluateConsentsForConsentHubUseCreatesConsentsNoExpiredVo");
+
+    boolean originalUseExpiredMembers = service.isUseExpiredMembers();
+    boolean originalUseExpiredVoMembers = service.isUseExpiredVoMembers();
+
+    User user1 = setUpUser("Harry", "Doe");
+    User user2 = setUpUser("James", "Doe");
+    User user3 = setUpUser("Jane", "Doe");
+    Member member1 = perun.getMembersManager().createMember(sess, vo, user1);
+    Member member2 = perun.getMembersManager().createMember(sess, vo, user2);
+    Member member3 = perun.getMembersManager().createMember(sess, vo, user3);
+    perun.getGroupsManagerBl().addMember(sess, group, member1);
+    perun.getGroupsManagerBl().addMember(sess, group, member2);
+    perun.getGroupsManagerBl().addMember(sess, group, member3);
+    perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.VALID);
+    perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
+    perun.getGroupsManager().setMemberGroupStatus(sess, member3, group, MemberGroupStatus.VALID);
+
+    // validate both members in VOs, otherwise they will be skipped
+    perun.getMembersManagerBl().validateMember(sess, member1);
+    perun.getMembersManagerBl().validateMember(sess, member2);
+    perun.getMembersManagerBl().validateMember(sess, member3);
+
+    // expire member, should be skipped
+    perun.getMembersManagerBl().setStatus(sess, member3, Status.EXPIRED);
+
+    ConsentHub consentHub = consentsManagerEntry.getConsentHubByFacility(sess, facility.getId());
+
+    boolean originalForce = BeansUtils.getCoreConfig().getForceConsents();
+    try {
+      BeansUtils.getCoreConfig().setForceConsents(true);
+      service.setUseExpiredMembers(true);
+      service.setUseExpiredVoMembers(false);
+      perun.getServicesManagerBl().updateService(sess, service);
+
+      perun.getConsentsManagerBl().evaluateConsents(sess, consentHub);
+    } finally {
+      BeansUtils.getCoreConfig().setForceConsents(originalForce);
+      service.setUseExpiredMembers(originalUseExpiredMembers);
+      perun.getServicesManagerBl().updateService(sess, service);
+    }
+
+    List<Consent> consents1 =
+        consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+    List<Consent> consents2 =
+        consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
+    List<Consent> consents3 =
+        consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user3.getId(), consentHub.getId());
+
+    Consent expectedConsent1 = new Consent(consents1.get(0).getId(), user1.getId(), consentHub, List.of(attrDef));
+    Consent expectedConsent2 = new Consent(consents2.get(0).getId(), user2.getId(), consentHub, List.of(attrDef));
+
+    assertThat(consents1).containsExactly(expectedConsent1);
+    assertThat(consents2).containsExactly(expectedConsent2);
+
+    // expired member should not be processed
+    assertThat(consents3).isEmpty();
+
+    // evaluate again, each user still should have only the one UNSIGNED consent
+    try {
+      BeansUtils.getCoreConfig().setForceConsents(true);
+      service.setUseExpiredMembers(true);
+      service.setUseExpiredVoMembers(false);
+      perun.getServicesManagerBl().updateService(sess, service);
+
+      perun.getConsentsManagerBl().evaluateConsents(sess, consentHub);
+    } finally {
+      BeansUtils.getCoreConfig().setForceConsents(originalForce);
+      service.setUseExpiredMembers(originalUseExpiredMembers);
+      service.setUseExpiredVoMembers(originalUseExpiredVoMembers);
+      perun.getServicesManagerBl().updateService(sess, service);
+
+    }
+
+    consents1 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user1.getId(), consentHub.getId());
+    consents2 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user2.getId(), consentHub.getId());
+    consents3 = consentsManagerEntry.getConsentsForUserAndConsentHub(sess, user3.getId(), consentHub.getId());
+    assertThat(consents1).containsExactly(expectedConsent1);
+    assertThat(consents2).containsExactly(expectedConsent2);
+    assertThat(consents3).isEmpty();
   }
 
   @Test

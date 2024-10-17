@@ -54,7 +54,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
       "services.description as services_description, services.delay as services_delay, services.recurrence as " +
       "services_recurrence, " +
       "services.enabled as services_enabled, services.script as services_script, services.use_expired_members as " +
-      "services_use_expired_members, " +
+      "services_use_expired_members, " + "services.use_expired_vo_members as services_use_expired_vo_members, " +
       "services.created_at as services_created_at, services.created_by as services_created_by, " +
       "services.modified_by as services_modified_by, services.modified_at as services_modified_at, " +
       "services.created_by_uid as services_created_by_uid, services.modified_by_uid as services_modified_by_uid";
@@ -133,6 +133,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
     service.setEnabled(resultSet.getBoolean("services_enabled"));
     service.setScript(resultSet.getString("services_script"));
     service.setUseExpiredMembers(resultSet.getBoolean("services_use_expired_members"));
+    service.setUseExpiredVoMembers(resultSet.getBoolean("services_use_expired_vo_members"));
     service.setCreatedAt(resultSet.getString("services_created_at"));
     service.setCreatedBy(resultSet.getString("services_created_by"));
     service.setModifiedAt(resultSet.getString("services_modified_at"));
@@ -429,13 +430,14 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
         service.setScript("./" + service.getName());
       }
       jdbc.update(
-          "insert into services(id,name,description,delay,recurrence,enabled,script,use_expired_members,created_by," +
-          "created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " + "values (?,?,?,?,?,?,?,?,?," +
+          "insert into services(id,name,description,delay,recurrence,enabled,script,use_expired_members," +
+              "use_expired_vo_members,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
+              "values (?,?,?,?,?,?,?,?,?,?," +
           Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
           service.getDescription(), service.getDelay(), service.getRecurrence(), service.isEnabled(),
-          service.getScript(), service.isUseExpiredMembers(), sess.getPerunPrincipal().getActor(),
-          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
-          sess.getPerunPrincipal().getUserId());
+          service.getScript(), service.isUseExpiredMembers(), service.isUseExpiredVoMembers(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
+          sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 
       service.setId(newId);
 
@@ -1107,11 +1109,11 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
         service.setScript("./" + service.getName());
       }
       jdbc.update("update services set name=?, description=?, delay=?, recurrence=?, enabled=?, script=?, " +
-                  "use_expired_members=?," + "modified_by=?, modified_by_uid=?, modified_at=" +
-                  Compatibility.getSysdate() + "  where id=?", service.getName(), service.getDescription(),
-          service.getDelay(), service.getRecurrence(), service.isEnabled(), service.getScript(),
-          service.isUseExpiredMembers(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
-          service.getId());
+                  "use_expired_members=?," + "use_expired_vo_members=?," + "modified_by=?, modified_by_uid=?," +
+                      " modified_at=" + Compatibility.getSysdate() + "  where id=?", service.getName(),
+          service.getDescription(), service.getDelay(), service.getRecurrence(), service.isEnabled(),
+          service.getScript(), service.isUseExpiredMembers(), service.isUseExpiredVoMembers(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), service.getId());
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
     }

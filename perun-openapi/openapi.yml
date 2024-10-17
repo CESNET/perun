@@ -989,6 +989,7 @@ components:
         enabled: { type: boolean }
         script: { type: string }
         useExpiredMembers: { type: boolean }
+        useExpiredVoMembers: { type: boolean }
       discriminator:
         propertyName: beanName
 

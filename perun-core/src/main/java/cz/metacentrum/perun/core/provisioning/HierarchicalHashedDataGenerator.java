@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.HashSet;
 import java.util.List;
@@ -37,17 +38,20 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
   private final Facility facility;
   private final GenDataProvider dataProvider;
   private final Set<Member> membersWithConsent = new HashSet<>();
-  private final boolean filterExpiredMembers;
+  private final boolean filterExpiredGroupMembers;
+  private final boolean filterExpiredVoMembers;
   private final boolean consentEval;
   private final int taskRunId;
   private static final Logger LOG = LoggerFactory.getLogger(HierarchicalHashedDataGenerator.class);
 
   private HierarchicalHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
-                                          boolean filterExpiredMembers, boolean consentEval, int taskRunId) {
+                                          boolean filterExpiredGroupMembers,
+                                          boolean filetExpiredVoMembers, boolean consentEval, int taskRunId) {
     this.sess = sess;
     this.service = service;
     this.facility = facility;
-    this.filterExpiredMembers = filterExpiredMembers;
+    this.filterExpiredGroupMembers = filterExpiredGroupMembers;
+    this.filterExpiredVoMembers = filetExpiredVoMembers;
     this.consentEval = consentEval;
     this.taskRunId = taskRunId;
     dataProvider = new GenDataProviderImpl(sess, service, facility);
@@ -62,12 +66,8 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 
     if (BeansUtils.getCoreConfig().getForceConsents()) {
       List<Member> membersToEvaluate;
-      if (filterExpiredMembers) {
-        membersToEvaluate =
-            sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
-      } else {
-        membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
-      }
+      membersToEvaluate = sess.getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
+
       membersWithConsent.addAll(sess.getPerunBl().getConsentsManagerBl()
           .evaluateConsents(sess, service, facility, membersToEvaluate, consentEval));
     }
@@ -96,11 +96,13 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 
   private GenResourceDataNode getDataForResource(Resource resource) {
     List<Member> members;
-    if (filterExpiredMembers) {
+    if (filterExpiredGroupMembers) {
       members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
     } else {
       members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
     }
+    members.removeIf(
+          member -> filterExpiredVoMembers && member.getStatus().equals(Status.EXPIRED));
     if (BeansUtils.getCoreConfig().getForceConsents()) {
       // remove the members without granted consents on required attributes
       members.removeIf(member -> !membersWithConsent.contains(member));
@@ -124,12 +126,14 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
     private PerunSessionImpl sess;
     private Service service;
     private Facility facility;
-    private boolean filterExpiredMembers = false;
+    private boolean filterExpiredGroupMembers = false;
+    private boolean filterExpiredVoMembers = false;
     private boolean consentEval = false;
     private int taskRunId;
 
     public HierarchicalHashedDataGenerator build() {
-      return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredMembers, consentEval, taskRunId);
+      return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredGroupMembers,
+          filterExpiredVoMembers, consentEval, taskRunId);
     }
 
     public Builder consentEval(boolean consentEval) {
@@ -147,8 +151,13 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
       return this;
     }
 
-    public Builder filterExpiredMembers(boolean filterExpiredMembers) {
-      this.filterExpiredMembers = filterExpiredMembers;
+    public Builder filterExpiredGroupMembers(boolean filterExpiredGroupMembers) {
+      this.filterExpiredGroupMembers = filterExpiredGroupMembers;
+      return this;
+    }
+
+    public Builder filterExpiredVoMembers(boolean filterExpiredVoMembers) {
+      this.filterExpiredVoMembers = filterExpiredVoMembers;
       return this;
     }
 

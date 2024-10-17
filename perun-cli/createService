@@ -15,14 +15,15 @@ sub help {
 	--description  | -d service description
 	--script       | -s service script path (default './service_name')
 	--enabled      | -e enabled (default 'true')
-	--expired      | -x use expired members (default 'true')
+	--expired      | -x use expired group members (default 'true')
+	--expiredVo    | -v use expired VO members (default 'false')
 	--batch        | -b batch
 	--help         | -h prints this help
 
 	};
 }
 
-my ($name, $description, $script, $enabled, $batch, $expired);
+my ($name, $description, $script, $enabled, $batch, $expired, $expiredVo);
 GetOptions ("help|h"  => sub {
 		print help();
 		exit 0;
@@ -33,6 +34,7 @@ GetOptions ("help|h"  => sub {
 	"script|s=s" => \$script,
 	"enabled|e=s" => \$enabled,
 	"expired|x=s" => \$expired,
+	"expiredVo|v=s" => \$expiredVo,
 ) || die help();
 
 # Check options
@@ -49,6 +51,7 @@ unless ($script) {
 }
 $service->setScript($script);
 $service->setUseExpiredMembers($expired);
+$service->setUseExpiredVoMembers($expiredVo);
 $service->setEnabled($enabled);
 $service->setRecurrence(2);
 $service->setDelay(10);

@@ -2226,6 +2226,103 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getAllowedMembersForServiceAndFacilityNoExpiredVoMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getAllowedMembersForServiceAndFacilityNoExpiredVoMembers");
+
+		Vo vo2 = new Vo(0, "facilityTestVo002", "facilityTestVo002");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Member member11 = setUpMember(vo);
+		Member member12 = setUpMember(vo);
+		Member member13 = setUpMember(vo);
+		Member member21 = setUpMember(vo2);
+
+		Resource resource1 = setUpResource(vo);
+		Resource resource2 = setUpResource(vo2);
+
+		Group group1 = setUpGroup(vo, member11);
+		Group group2 = setUpGroup(vo2, member21);
+
+		// make them not-allowed
+		perun.getMembersManager().setStatus(sess, member12, Status.INVALID);
+
+		perun.getGroupsManager().addMember(sess, group1, member12);
+
+        // expired members should not be included
+		perun.getMembersManager().setStatus(sess, member13, Status.EXPIRED);
+
+		perun.getGroupsManager().addMember(sess, group1, member13);
+
+		// expired group members should be included
+		perun.getGroupsManagerBl().expireMemberInGroup(sess, member11, group1);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false, false, false);
+
+
+		Service service = new Service(0, "TestService01", null);
+		service = perun.getServicesManager().createService(sess, service);
+
+		perun.getResourcesManager().assignService(sess, resource1, service);
+
+		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
+		assertTrue(members.size() == 1);
+		assertTrue("Expired group member must be returned!", members.contains(member11));
+		assertTrue("Invalid vo member cannot be returned!", !members.contains(member12));
+		assertTrue("Expired vo member cannot be returned!", !members.contains(member13));
+		assertTrue("Member not associated with service cannot be returned", !members.contains(member21));
+	}
+
+	@Test
+	public void getAllowedMembersForServiceAndFacilityExpiredVoMembersIncluded() throws Exception {
+		System.out.println(CLASS_NAME + "getAllowedMembersForServiceAndFacilityExpiredVoMembersIncluded");
+
+		Vo vo2 = new Vo(0, "facilityTestVo002", "facilityTestVo002");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Member member11 = setUpMember(vo);
+		Member member12 = setUpMember(vo);
+		Member member13 = setUpMember(vo);
+		Member member21 = setUpMember(vo2);
+
+		Resource resource1 = setUpResource(vo);
+		Resource resource2 = setUpResource(vo2);
+
+		Group group1 = setUpGroup(vo, member11);
+		Group group2 = setUpGroup(vo2, member21);
+
+		// make them not-allowed
+		perun.getMembersManager().setStatus(sess, member12, Status.INVALID);
+
+		perun.getGroupsManager().addMember(sess, group1, member12);
+
+        // expired members should be included
+		perun.getMembersManager().setStatus(sess, member13, Status.EXPIRED);
+
+		perun.getGroupsManager().addMember(sess, group1, member13);
+
+		// expired group members should be included
+		perun.getGroupsManagerBl().expireMemberInGroup(sess, member11, group1);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false, false, false);
+
+
+		Service service = new Service(0, "TestService01", null);
+        service.setUseExpiredVoMembers(true);
+		service = perun.getServicesManager().createService(sess, service);
+
+		perun.getResourcesManager().assignService(sess, resource1, service);
+
+		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
+		assertTrue(members.size() == 2);
+		assertTrue("Expired group member must be returned!", members.contains(member11));
+		assertTrue("Invalid vo member cannot be returned!", !members.contains(member12));
+		assertTrue("Expired vo member should be returned!", members.contains(member13));
+		assertTrue("Member not associated with service cannot be returned", !members.contains(member21));
+	}
+
+	@Test
 	public void getAllowedMembersForServiceAndFacilityNotExpiredInGroup() throws Exception {
 		System.out.println(CLASS_NAME + "getAllowedMembersForServiceAndFacilityNotExpiredInGroup");
 
@@ -2257,17 +2354,117 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 
 		Service service = new Service(0, "TestService01", null);
+        service.setUseExpiredMembers(false);
 		service = perun.getServicesManager().createService(sess, service);
 
 		perun.getResourcesManager().assignService(sess, resource1, service);
 
-		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
+		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
 		assertTrue(members.size() == 1);
 		assertTrue("Expired group member cannot be returned!", !members.contains(member11));
 		assertTrue("Invalid vo member cannot be returned!", !members.contains(member12));
 		assertTrue("Valid member was not returned!", members.contains(member13));
 		assertTrue("Member not associated with service cannot be returned", !members.contains(member21));
 	}
+
+	@Test
+	public void getAllowedMembersForServiceAndFacilityNotExpiredInGroupNotExpiredInVo() throws Exception {
+		System.out.println(CLASS_NAME + "getAllowedMembersForServiceAndFacilityNotExpiredInGroupNotExpiredInVo");
+
+		Vo vo2 = new Vo(0, "facilityTestVo002", "facilityTestVo002");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Member member11 = setUpMember(vo);
+		Member member12 = setUpMember(vo);
+		Member member13 = setUpMember(vo);
+		Member member14 = setUpMember(vo);
+		Member member21 = setUpMember(vo2);
+
+		Resource resource1 = setUpResource(vo);
+		Resource resource2 = setUpResource(vo2);
+
+		Group group1 = setUpGroup(vo, member11);
+		Group group2 = setUpGroup(vo2, member21);
+
+		// make them not-allowed
+		perun.getMembersManager().setStatus(sess, member12, Status.INVALID);
+		perun.getMembersManager().setStatus(sess, member14, Status.EXPIRED);
+
+		perun.getGroupsManager().addMember(sess, group1, member12);
+		perun.getGroupsManager().addMember(sess, group1, member13);
+		perun.getGroupsManager().addMember(sess, group1, member14);
+
+		// expired group members should be not be included
+		perun.getGroupsManagerBl().expireMemberInGroup(sess, member11, group1);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false, false, false);
+
+
+		Service service = new Service(0, "TestService01", null);
+        service.setUseExpiredMembers(false);
+		service = perun.getServicesManager().createService(sess, service);
+
+		perun.getResourcesManager().assignService(sess, resource1, service);
+
+		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
+		assertTrue(members.size() == 1);
+		assertTrue("Expired group member cannot be returned!", !members.contains(member11));
+		assertTrue("Invalid vo member cannot be returned!", !members.contains(member12));
+		assertTrue("Valid member was not returned!", members.contains(member13));
+		assertTrue("Member not associated with service cannot be returned", !members.contains(member21));
+	}
+
+	@Test
+	public void getAllowedMembersForServiceAndFacilityNotExpiredInGroupExpiredInVo() throws Exception {
+		System.out.println(CLASS_NAME + "getAllowedMembersForServiceAndFacilityNotExpiredInGroupExpiredInVo");
+
+		Vo vo2 = new Vo(0, "facilityTestVo002", "facilityTestVo002");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Member member11 = setUpMember(vo);
+		Member member12 = setUpMember(vo);
+		Member member13 = setUpMember(vo);
+		Member member14 = setUpMember(vo);
+		Member member21 = setUpMember(vo2);
+
+		Resource resource1 = setUpResource(vo);
+		Resource resource2 = setUpResource(vo2);
+
+		Group group1 = setUpGroup(vo, member11);
+		Group group2 = setUpGroup(vo2, member21);
+
+		// make them not-allowed
+		perun.getMembersManager().setStatus(sess, member12, Status.INVALID);
+		perun.getMembersManager().setStatus(sess, member14, Status.EXPIRED);
+
+		perun.getGroupsManager().addMember(sess, group1, member12);
+		perun.getGroupsManager().addMember(sess, group1, member13);
+		perun.getGroupsManager().addMember(sess, group1, member14);
+
+		// expired group members should be not be included
+		perun.getGroupsManagerBl().expireMemberInGroup(sess, member11, group1);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1, false, false, false);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false, false, false);
+
+
+		Service service = new Service(0, "TestService01", null);
+        service.setUseExpiredMembers(false);
+        service.setUseExpiredVoMembers(true);
+		service = perun.getServicesManager().createService(sess, service);
+
+		perun.getResourcesManager().assignService(sess, resource1, service);
+
+		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility, service);
+		assertTrue(members.size() == 2);
+		assertTrue("Expired group member cannot be returned!", !members.contains(member11));
+		assertTrue("Invalid vo member cannot be returned!", !members.contains(member12));
+		assertTrue("Valid member was not returned!", members.contains(member13));
+		assertTrue("Expired member was not returned!", members.contains(member14));
+		assertTrue("Member not associated with service cannot be returned", !members.contains(member21));
+	}
+
 
 	@Test
 	public void getAssociatedMembersForUserAndFacility() throws Exception {
