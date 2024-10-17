@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [42.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v42.0.0...v42.0.1) (2024-10-17)
+
+
+### Bug Fixes
+
+* **core:** correctly load logback config ([c6ba0ee](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c6ba0ee358ed51d33fe92118e69ff9d2ce5fcfa7))
+
 ## [42.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v41.0.0...v42.0.0) (2024-10-15)
 
 
