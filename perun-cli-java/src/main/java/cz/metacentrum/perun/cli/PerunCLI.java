@@ -100,7 +100,7 @@ public class PerunCLI implements CommandLineRunner {
 
     PerunRPC perunRPC;
     if (user == null) {
-      perunRPC = new PerunRPC(perunUrl, null, null, new KerberosRestTemplate(null, "-"));
+      perunRPC = new PerunRPC(perunUrl, null, null, new KerberosRestTemplate());
     } else {
       int slash = user.indexOf('/');
       if (slash == -1) {
