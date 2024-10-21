@@ -26,6 +26,8 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuota extends
   public static final String A_MR_bucketQuota = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":bucketQuota";
   public static final String A_MR_bucketQuotaOverride =
       AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":bucketQuotaOverride";
+  public static final String A_R_blockBucketCreation = AttributesManager.NS_RESOURCE_ATTR_DEF + ":blockBucketCreation";
+  public static final String BLOCK_NEW_BUCKETS_CREATION_VALUE = "-1:-1";
 
   @Override
   public AttributeDefinition getAttributeDefinition() {
@@ -36,7 +38,8 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuota extends
     attr.setType(String.class.getName());
     attr.setDescription(
         "The quota in format 'SoftQuota:HardQuota' Example: '100:200'. Taken from the quota override and regular " +
-            "quota attributes, if none are present, default quota is filled in.");
+            "quota attributes, if none are present, default quota is filled in. Value '-1:-1' is reserved for when " +
+            "the creation of new buckets is disabled.");
     return attr;
   }
 
@@ -68,6 +71,22 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuota extends
     }
     if (memberTransferredQuotaOverride != null) {
       attribute.setValue(memberTransferredQuotaOverride.getLeft() + ":" + memberTransferredQuotaOverride.getRight());
+      return attribute;
+    }
+
+    Attribute resourceBlockBucketCreation;
+    try {
+      resourceBlockBucketCreation = sess.getPerunBl().getAttributesManagerBl().getAttribute(
+          sess, resource, A_R_blockBucketCreation);
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+
+    if (resourceBlockBucketCreation != null && resourceBlockBucketCreation.getValue() != null &&
+        resourceBlockBucketCreation.valueAsBoolean()) {
+      attribute.setValue(BLOCK_NEW_BUCKETS_CREATION_VALUE);
       return attribute;
     }
 
@@ -129,6 +148,7 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuota extends
     strongDependencies.add(A_R_defaultBucketQuota);
     strongDependencies.add(A_MR_bucketQuota);
     strongDependencies.add(A_MR_bucketQuotaOverride);
+    strongDependencies.add(A_R_blockBucketCreation);
     return strongDependencies;
   }
 }
