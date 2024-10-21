@@ -9905,6 +9905,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/userManager/getUnanonymizedUsersBySpecificUser:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUnanonymizedUsersBySpecificUser
+      summary: Return all users who owns the specific user and are not anonymized.
+      parameters:
+        - $ref: '#/components/parameters/specificUserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/updateUser:
     post:
       tags:

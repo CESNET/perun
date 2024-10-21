@@ -6138,6 +6138,21 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getUnanonymizedUsersBySpecificUser_User_policy:
+    policy_roles:
+      - SPONSOR: User
+      - SPONSORNOCREATERIGHTS: User
+      - ENGINE:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   removeSpecificUserOwner_User_User_policy:
     policy_roles:
       - SPONSOR: User

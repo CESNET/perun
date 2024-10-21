@@ -113,12 +113,15 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private static final String namespaceBlockedLogin = "namespaceLogin";
 
 	private User user;           // our User
+	private User anonymizedUser;
 	private User serviceUser1;
 	private User serviceUser2;
 	private User sponsoredUser;
 	private Vo vo;
 	String userFirstName = "";
 	String userLastName = "";
+	String anonymizedUserFirstName = "AnonymFirstName";
+	String anonymizedUserLastName = "AnonymLastName";
 	String extLogin = "";        // his login in external source
 	String extLogin2 = "";
 	final String extSourceName = "UserManagerEntryIntegrationTest";
@@ -137,8 +140,9 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		extLogin2 = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		vo = setUpVo();
 		setUpUser();
+		setUpAnonymizedUser();
 		setUpUserExtSource();
-		setUpSpecificUser1ForUser(vo);
+		setUpSpecificUser1ForUsers(vo);
 		setUpSpecificUser2ForUser(vo);
 		setUpSponsoredUserForVo(vo);
 	}
@@ -250,7 +254,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		List<User> users = usersManager.getUsersBySpecificUser(sess, serviceUser1);
 		assertTrue(users.contains(user));
-		assertTrue(users.size() == 1);
+		assertTrue(users.size() == 2);
 	}
 
 	@Test
@@ -259,6 +263,16 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		List<User> users = usersManager.getUsersBySpecificUser(sess, serviceUser2);
 		assertTrue(users.contains(user));
+		assertTrue(users.size() == 1);
+	}
+
+	@Test
+	public void getUnanonymizedUsersBySpecificUser1() throws Exception {
+		System.out.println(CLASS_NAME + "getUnanonymizedUsersBySpecificUser1");
+
+		List<User> users = usersManager.getUnanonymizedUsersBySpecificUser(sess, serviceUser1);
+		assertTrue(users.contains(user));
+		assertFalse(users.contains(anonymizedUser));
 		assertTrue(users.size() == 1);
 	}
 
@@ -3346,6 +3360,21 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// save user for deletion after testing
 	}
 
+	private void setUpAnonymizedUser() throws Exception {
+
+		anonymizedUser = new User();
+		anonymizedUser.setFirstName(anonymizedUserFirstName);
+		anonymizedUser.setMiddleName("");
+		anonymizedUser.setLastName(anonymizedUserLastName);
+		anonymizedUser.setTitleBefore("");
+		anonymizedUser.setTitleAfter("");
+		assertNotNull(perun.getUsersManagerBl().createUser(sess, anonymizedUser));
+		perun.getUsersManagerBl().anonymizeUser(sess, anonymizedUser, true);
+		// create new user in database
+		usersForDeletion.add(anonymizedUser);
+		// save user for deletion after testing
+	}
+
 	private User setUpUser(String firstName, String lastName) throws Exception {
 
 		User user = new User();
@@ -3376,11 +3405,12 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		return usr;
 	}
 
-	private void setUpSpecificUser1ForUser(Vo vo) throws Exception {
+	private void setUpSpecificUser1ForUsers(Vo vo) throws Exception {
 		Candidate candidate = setUpCandidateForSpecificUser1();
 
 		List<User> owners = new ArrayList<>();
 		owners.add(user);
+		owners.add(anonymizedUser);
 
 		Member serviceMember = perun.getMembersManagerBl().createServiceMember(sess, vo, candidate, owners);
 		perun.getMembersManagerBl().validateMember(sess, serviceMember);
