@@ -2238,6 +2238,11 @@ perun_policies:
       - MFA: Group
       - MFA: Vo
 
+  suspendGroupSynchronization_boolean_policy:
+    policy_roles: [ ]
+    include_policies:
+      - default_policy
+
   synchronizeGroups_policy:
     policy_roles: [ ]
     include_policies:

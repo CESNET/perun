@@ -2631,6 +2631,36 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Suspend synchronizing groups and their structures. Groups being currently synchronized will finish.
+   * This is only for temporary suspension, synchronizations will always resume on instance restart. In order to disable
+   * synchronizations permanently, use config properties.
+   *
+   */
+  suspendGroupSynchronization {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      ac.getGroupsManager().suspendGroupSynchronization(ac.getSession(), true);
+      return null;
+    }
+  },
+
+  /*#
+   * Resumes previously suspended group (and group structure) synchronization.
+   *
+   */
+  resumeGroupSynchronization {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      ac.getGroupsManager().suspendGroupSynchronization(ac.getSession(), false);
+      return null;
+    }
+  },
+
+  /*#
    * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
    *
    * @param member int Member <code>id</code>
