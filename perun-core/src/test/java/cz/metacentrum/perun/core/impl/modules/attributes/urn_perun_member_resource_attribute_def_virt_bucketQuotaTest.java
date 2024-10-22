@@ -42,7 +42,6 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuotaTest extend
     memberQuotaAttr = new Attribute();
     overrideQuotaAttr = new Attribute();
 
-
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
         eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultBucketQuota"))).thenReturn(defaultQuotaAttr);
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class),
@@ -114,5 +113,35 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuotaTest extend
             AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":bucketQuota"));
 
     assertEquals(defaultQuotaAttr.getValue(), testAttr.getValue());
+  }
+
+  @Test
+  public void getAttributeValueBlockNewBucketCreation() throws Exception {
+    System.out.println("urn_perun_member_resource_attribute_def_virt_bucketQuota.getAttributeValueBlockNewBucketCreation()");
+
+    defaultQuotaAttr.setValue("100:200");
+    memberQuotaAttr.setValue("200:400");
+    overrideQuotaAttr.setValue(null);
+
+    Attribute blockBucketCreationAttr = new Attribute();
+    blockBucketCreationAttr.setValue(true);
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class),
+        eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":blockBucketCreation"))).thenReturn(blockBucketCreationAttr);
+
+    when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(defaultQuotaAttr),
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100,200));
+
+    when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(memberQuotaAttr),
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(200,400));
+
+    when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(overrideQuotaAttr),
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(0,0));
+
+    Attribute testAttr = classInstance.getAttributeValue(session, member, resource,
+        session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
+            AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":bucketQuota"));
+
+    assertEquals(urn_perun_member_resource_attribute_def_virt_bucketQuota.BLOCK_NEW_BUCKETS_CREATION_VALUE,
+        testAttr.getValue());
   }
 }
