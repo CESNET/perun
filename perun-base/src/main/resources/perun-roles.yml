@@ -17,6 +17,8 @@
 # Group administrators, Top group creators, Resource self-service, Sponsor and Sponsor without rights to create roles.
 # The VO administrator role may be set to users or groups of users by other VO administrators or Perun administrators.
 #
+# VOCREATOR role has one sole purpose - creating virtual organizations.
+#
 # GROUPADMIN role can create subgroups for the group which is associated with this role
 # and add members to the group and its subgroups. Users with this role are also able to send group invitations
 # to other VO members, and to create a registration sheet for group membership. The role may be set
@@ -129,6 +131,7 @@ perun_roles:
   - PERUNOBSERVER
   - PERUNADMINBA
   - VOADMIN
+  - VOCREATOR
   - GROUPADMIN
   - GROUPOBSERVER
   - GROUPMEMBERSHIPMANAGER
@@ -7227,7 +7230,7 @@ perun_policies:
 
   createVo_Vo_policy:
     policy_roles:
-      - VOADMIN:
+      - VOCREATOR:
     include_policies:
       - default_policy
 
@@ -8860,6 +8863,23 @@ perun_roles_management:
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Audit consumer admin"
+
+  VOCREATOR:
+    primary_object:
+    assign_to_objects: { }
+    assignment_check:
+      - MFA:
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+    associated_read_roles: [ ]
+    assignable_to_attributes: false
+    display_name: "Organization creator"
 
   VOADMIN:
     primary_object: Vo
