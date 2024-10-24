@@ -76,6 +76,8 @@ public class CreateServiceTabItem implements TabItem {
     final ExtendedTextBox serviceDescription = new ExtendedTextBox();
     final ExtendedTextBox scriptPath = new ExtendedTextBox();
     final CheckBox enabled = new CheckBox();
+    final CheckBox useExpiredVoMembers = new CheckBox();
+    final CheckBox useExpiredGroupMembers = new CheckBox();
     final ExtendedTextBox delay = new ExtendedTextBox();
     final ExtendedTextBox recurrence = new ExtendedTextBox();
 
@@ -101,6 +103,11 @@ public class CreateServiceTabItem implements TabItem {
 
     enabled.setText("Enabled / Disabled");
     enabled.setValue(true);
+
+    useExpiredVoMembers.setText("Expired VO Members");
+    useExpiredGroupMembers.setText("Expired Group Members");
+    useExpiredVoMembers.setValue(false);
+    useExpiredGroupMembers.setValue(false);
 
     delay.getTextBox().setText(DEFAULT_DELAY);
     recurrence.getTextBox().setText("2");
@@ -162,16 +169,20 @@ public class CreateServiceTabItem implements TabItem {
     layout.setHTML(0, 0, "Name:");
     layout.setHTML(1, 0, "Description:");
     layout.setHTML(2, 0, "Status:");
-    layout.setHTML(3, 0, "Delay:");
-    layout.setHTML(4, 0, "Recurrence:");
-    layout.setHTML(5, 0, "Script path:");
+    layout.setHTML(3, 0, "Provision:");
+    layout.setHTML(4, 0, "");
+    layout.setHTML(5, 0, "Delay:");
+    layout.setHTML(6, 0, "Recurrence:");
+    layout.setHTML(7, 0, "Script path:");
 
     layout.setWidget(0, 1, serviceName);
     layout.setWidget(1, 1, serviceDescription);
     layout.setWidget(2, 1, enabled);
-    layout.setWidget(3, 1, delay);
-    layout.setWidget(4, 1, recurrence);
-    layout.setWidget(5, 1, scriptPath);
+    layout.setWidget(3, 1, useExpiredVoMembers);
+    layout.setWidget(4, 1, useExpiredGroupMembers);
+    layout.setWidget(5, 1, delay);
+    layout.setWidget(6, 1, recurrence);
+    layout.setWidget(7, 1, scriptPath);
 
     for (int i = 0; i < layout.getRowCount(); i++) {
       cellFormatter.addStyleName(i, 0, "itemName");
@@ -195,7 +206,9 @@ public class CreateServiceTabItem implements TabItem {
               Integer.parseInt(delay.getTextBox().getText().trim()),
               Integer.parseInt(recurrence.getTextBox().getText().trim()),
               enabled.getValue(),
-              scriptPath.getTextBox().getText().trim());
+              scriptPath.getTextBox().getText().trim(),
+              useExpiredVoMembers.getValue(),
+              useExpiredGroupMembers.getValue());
         }
       }
     });

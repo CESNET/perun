@@ -85,20 +85,14 @@ public class UpdateService {
         events.onError(error); // custom events
       }
 
-      ;
-
       public void onFinished(JavaScriptObject jso) {
         session.getUiElements().setLogSuccessText("Service " + service.getName() + " updated.");
         events.onFinished(jso);
       }
 
-      ;
-
       public void onLoadingStart() {
         events.onLoadingStart();
       }
-
-      ;
     };
 
     // sending data
@@ -127,6 +121,7 @@ public class UpdateService {
     newService.put("enabled", JSONBoolean.getInstance(service.isEnabled()));
     newService.put("script", new JSONString(service.getScriptPath()));
     newService.put("useExpiredMembers", JSONBoolean.getInstance(service.getUseExpiredMembers()));
+    newService.put("useExpiredVoMembers", JSONBoolean.getInstance(service.getUseExpiredVoMembers()));
 
     // whole JSON query
     JSONObject jsonQuery = new JSONObject();

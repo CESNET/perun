@@ -28,6 +28,8 @@ public class CreateService {
   private String description = "";
   private String script = "";
   private boolean enabled = true;
+  private boolean useExpiredVoMembers = false;
+  private boolean useExpiredGroupMembers = false;
   private int delay = 10;
   private int recurrence = 2;
   // custom events
@@ -90,7 +92,8 @@ public class CreateService {
    * it first tests the values and then submits them.
    */
   public void createService(final String name, final String description, final int delay, final int recurrence,
-                            final boolean enabled, final String script) {
+                            final boolean enabled, final String script, final boolean useExpiredVoMembers,
+                            final boolean useExpiredGroupMembers) {
 
     this.serviceName = name;
     this.description = description;
@@ -98,6 +101,8 @@ public class CreateService {
     this.recurrence = recurrence;
     this.enabled = enabled;
     this.script = script;
+    this.useExpiredVoMembers = useExpiredVoMembers;
+    this.useExpiredGroupMembers = useExpiredGroupMembers;
 
     // test arguments
     if (!this.testCreating()) {
@@ -111,20 +116,14 @@ public class CreateService {
         events.onError(error); // custom events
       }
 
-      ;
-
       public void onFinished(JavaScriptObject jso) {
         session.getUiElements().setLogSuccessText("Service " + serviceName + " created.");
         events.onFinished(jso);
       }
 
-      ;
-
       public void onLoadingStart() {
         events.onLoadingStart();
       }
-
-      ;
     };
 
     // sending data
@@ -148,6 +147,8 @@ public class CreateService {
     jsonObject.put("script", new JSONString(script));
     jsonObject.put("delay", new JSONNumber(delay));
     jsonObject.put("enabled", JSONBoolean.getInstance(enabled));
+    jsonObject.put("useExpiredMembers", JSONBoolean.getInstance(useExpiredVoMembers));
+    jsonObject.put("useExpiredVoMembers", JSONBoolean.getInstance(useExpiredGroupMembers));
 
     JSONObject jsonQuery = new JSONObject();
     jsonQuery.put("service", jsonObject);
