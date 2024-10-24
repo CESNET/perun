@@ -133,6 +133,32 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
       }
     });
 
+    Column<Service, String> expiredVoMembersColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Service, String>() {
+      public String getValue(Service serv) {
+        return serv.getUseExpiredVoMembers() ? "YES" : "NO";
+      }
+    }, tableFieldUpdater);
+
+    expiredVoMembersColumn.setSortable(true);
+    columnSortHandler.setComparator(expiredVoMembersColumn, new Comparator<Service>() {
+      public int compare(Service o1, Service o2) {
+        return (o1.getUseExpiredVoMembers() ? "YES" : "NO").compareToIgnoreCase((o2.getUseExpiredVoMembers() ? "YES" : "NO"));
+      }
+    });
+
+    Column<Service, String> expiredGroupMembersColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Service, String>() {
+      public String getValue(Service serv) {
+        return serv.getUseExpiredMembers() ? "YES" : "NO";
+      }
+    }, tableFieldUpdater);
+
+    expiredGroupMembersColumn.setSortable(true);
+    columnSortHandler.setComparator(expiredGroupMembersColumn, new Comparator<Service>() {
+      public int compare(Service o1, Service o2) {
+        return (o1.getUseExpiredMembers() ? "YES" : "NO").compareToIgnoreCase((o2.getUseExpiredMembers() ? "YES" : "NO"));
+      }
+    });
+
     Column<Service, String> scriptColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Service, String>() {
       public String getValue(Service serv) {
         return serv.getScriptPath();
@@ -151,6 +177,8 @@ public class GetAssignedServices implements JsonCallback, JsonCallbackTable<Serv
     table.addNameColumn(tableFieldUpdater);
     table.addColumn(enabledColumn, "Enabled");
     table.addColumn(scriptColumn, "Script");
+    table.addColumn(expiredVoMembersColumn, "Provision expired VO members");
+    table.addColumn(expiredGroupMembersColumn, "Provision expired group members");
     table.addDescriptionColumn(tableFieldUpdater);
 
     return table;
