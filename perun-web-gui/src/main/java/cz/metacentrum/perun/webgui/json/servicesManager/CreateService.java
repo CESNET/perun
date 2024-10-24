@@ -29,7 +29,7 @@ public class CreateService {
   private String script = "";
   private boolean enabled = true;
   private boolean useExpiredVoMembers = false;
-  private boolean useExpiredGroupMembers = false;
+  private boolean useExpiredGroupMembers = true;
   private int delay = 10;
   private int recurrence = 2;
   // custom events
@@ -147,8 +147,8 @@ public class CreateService {
     jsonObject.put("script", new JSONString(script));
     jsonObject.put("delay", new JSONNumber(delay));
     jsonObject.put("enabled", JSONBoolean.getInstance(enabled));
-    jsonObject.put("useExpiredMembers", JSONBoolean.getInstance(useExpiredVoMembers));
-    jsonObject.put("useExpiredVoMembers", JSONBoolean.getInstance(useExpiredGroupMembers));
+    jsonObject.put("useExpiredMembers", JSONBoolean.getInstance(useExpiredGroupMembers));
+    jsonObject.put("useExpiredVoMembers", JSONBoolean.getInstance(useExpiredVoMembers));
 
     JSONObject jsonQuery = new JSONObject();
     jsonQuery.put("service", jsonObject);

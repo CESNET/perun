@@ -107,7 +107,7 @@ public class CreateServiceTabItem implements TabItem {
     useExpiredVoMembers.setText("Expired VO Members");
     useExpiredGroupMembers.setText("Expired Group Members");
     useExpiredVoMembers.setValue(false);
-    useExpiredGroupMembers.setValue(false);
+    useExpiredGroupMembers.setValue(true);
 
     delay.getTextBox().setText(DEFAULT_DELAY);
     recurrence.getTextBox().setText("2");

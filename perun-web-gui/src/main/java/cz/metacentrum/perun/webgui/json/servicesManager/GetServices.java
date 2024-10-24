@@ -162,7 +162,7 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
 
     Column<Service, String> expiredGroupMembersColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Service, String>() {
       public String getValue(Service serv) {
-        return serv.getUseExpiredVoMembers() ? "YES" : "NO";
+        return serv.getUseExpiredMembers() ? "YES" : "NO";
       }
     }, tableFieldUpdater);
 
