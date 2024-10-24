@@ -231,4 +231,16 @@ public interface InvitationsManager {
    */
   Paginated<InvitationWithSender> getInvitationsPage(PerunSession sess, Group group, InvitationsPageQuery query)
       throws PrivilegeException, GroupNotExistsException;
+
+  /**
+   * Resends the notification for the given preapproved invitation.
+   *
+   * @param sess session
+   * @param invitation the invitation to be resent
+   * @throws RegistrarException when unable to send the mail
+   * @throws PrivilegeException insufficient permission
+   * @throws InvalidInvitationStatusException when the invitation is not in a pending state
+   */
+  void resendInvitation(PerunSession sess, Invitation invitation)
+      throws RegistrarException, PrivilegeException, InvalidInvitationStatusException;
 }

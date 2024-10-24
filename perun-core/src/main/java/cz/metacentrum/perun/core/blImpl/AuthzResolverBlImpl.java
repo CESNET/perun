@@ -400,7 +400,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       if (rules.isMfaCriticalRole()) {
         requireMfaRoles.add(rules.getRoleName());
       }
-      if (rules.shouldSkipMFA()) {
+      if (rules.getSkipMFA()) {
         skipMfaRoles.add(rules.getRoleName());
       }
     }
@@ -1297,7 +1297,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
     AuthzRoles roles = sess.getPerunPrincipal().getRoles();
     for (String role : roles.getRolesNames()) {
-      if (AuthzResolverImpl.getRoleManagementRules(role).shouldSkipMFA()) {
+      if (AuthzResolverImpl.getRoleManagementRules(role).getSkipMFA()) {
         return true;
       }
     }
@@ -3800,7 +3800,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
 
     try {
-      if (AuthzResolverImpl.getRoleManagementRules(role).shouldSkipMFA() && !user.isServiceUser()) {
+      if (AuthzResolverImpl.getRoleManagementRules(role).getSkipMFA() && !user.isServiceUser()) {
         throw new RoleCannotBeSetException("MFA skippable role " + role + " can not be set for non-service user");
       }
     } catch (RoleManagementRulesNotExistsException ex) {
@@ -3845,7 +3845,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     }
 
     try {
-      if (AuthzResolverImpl.getRoleManagementRules(role).shouldSkipMFA()) {
+      if (AuthzResolverImpl.getRoleManagementRules(role).getSkipMFA()) {
         throw new RoleCannotBeSetException("MFA skippable role " + role + " can not be set for group");
       }
     } catch (RoleManagementRulesNotExistsException ex) {

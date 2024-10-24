@@ -346,9 +346,9 @@ public interface FacilitiesManagerBl {
   List<Member> getAllowedMembers(PerunSession sess, Facility facility);
 
   /**
-   * Return all members, which are "allowed" on facility through any resource assigned to the given service disregarding
-   * their possible expired status in a group. All members include all group statuses, through which they can be
-   * filtered if necessary.
+   * Return all members, which are "allowed" on facility through any resource assigned to the given service.
+   * Service settings decide whether expired group and expired VO members are returned as well. Disabled and invalid VO
+   * members are always ignored.
    *
    * @param sess
    * @param facility
@@ -356,17 +356,6 @@ public interface FacilitiesManagerBl {
    * @return list of allowed members
    */
   List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service);
-
-  /**
-   * Return all members, which are "allowed" on facility through any resource assigned to the given service and have
-   * ACTIVE status in a group.
-   *
-   * @param sess
-   * @param facility
-   * @param service
-   * @return list of allowed members
-   */
-  List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Facility facility, Service service);
 
   /**
    * Get all RichGroups which can use this facility (Groups must be assigned to Resource which belongs to this facility)

@@ -246,6 +246,8 @@ public enum UsersManagerMethod implements ManagerMethod {
    * @param specificUser int User <code>id</code>
    * @param specificUserType String specific user type
    * @return User user without specific user type set
+   *
+   * @throw ServiceOnlyRoleAssignedException when trying to unset service flag from a user with service only role
    */
   unsetSpecificUser {
     @Override

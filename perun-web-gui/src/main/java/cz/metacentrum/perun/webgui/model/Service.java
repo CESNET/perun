@@ -213,4 +213,22 @@ public class Service extends JavaScriptObject {
 		this.useExpiredMembers = useExpiredMembers;
 	}-*/;
 
+  /**
+   * Get useExpiredMembers of service
+   *
+   * @return useExpiredMembers of service
+   */
+  public final native boolean getUseExpiredVoMembers() /*-{
+    return this.useExpiredVoMembers;
+  }-*/;
+
+  /**
+   * Set useExpiredVoMembers of service
+   *
+   * @param useExpiredVoMembers of service
+   */
+  public final native void setUseExpiredVoMembers(boolean useExpiredVoMembers) /*-{
+    this.useExpiredVoMembers = useExpiredVoMembers;
+  }-*/;
+
 }

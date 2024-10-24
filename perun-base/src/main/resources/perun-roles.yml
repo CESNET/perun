@@ -17,6 +17,8 @@
 # Group administrators, Top group creators, Resource self-service, Sponsor and Sponsor without rights to create roles.
 # The VO administrator role may be set to users or groups of users by other VO administrators or Perun administrators.
 #
+# VOCREATOR role has one sole purpose - creating virtual organizations.
+#
 # GROUPADMIN role can create subgroups for the group which is associated with this role
 # and add members to the group and its subgroups. Users with this role are also able to send group invitations
 # to other VO members, and to create a registration sheet for group membership. The role may be set
@@ -78,6 +80,8 @@
 # It is a sign of an account with a Self role being created by someone else.
 # The only role with privileges to create a Service user is the Perun administrator role.
 #
+# EXEMPTEDFROMMFA is a role that can be assigned to service accounts to allow them to skip MFA.
+#
 # SPREGAPPLICATION is a role that can be assigned to a service account primarily to work
 # with facilities, groups and attributes.
 #
@@ -127,6 +131,7 @@ perun_roles:
   - PERUNOBSERVER
   - PERUNADMINBA
   - VOADMIN
+  - VOCREATOR
   - GROUPADMIN
   - GROUPOBSERVER
   - GROUPMEMBERSHIPMANAGER
@@ -144,6 +149,7 @@ perun_roles:
   - RPC
   - NOTIFICATIONS
   - SERVICEUSER
+  - EXEMPTEDFROMMFA
   - SPREGAPPLICATION
   - SPONSOR
   - SPONSORNOCREATERIGHTS
@@ -2234,6 +2240,11 @@ perun_policies:
     mfa_rules:
       - MFA: Group
       - MFA: Vo
+
+  suspendGroupSynchronization_boolean_policy:
+    policy_roles: [ ]
+    include_policies:
+      - default_policy
 
   synchronizeGroups_policy:
     policy_roles: [ ]
@@ -7219,7 +7230,7 @@ perun_policies:
 
   createVo_Vo_policy:
     policy_roles:
-      - VOADMIN:
+      - VOCREATOR:
     include_policies:
       - default_policy
 
@@ -8654,6 +8665,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   revokeInvitationById_int_policy:
     policy_roles:
@@ -8662,6 +8676,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   revokeInvitationByUuid_UUID_policy:
     policy_roles:
@@ -8670,6 +8687,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   extendInvitationExpiration_Invitation_LocalDate_policy:
     policy_roles:
@@ -8678,6 +8698,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   inviteToGroup_Vo_Group_String_String_String_LocalDate_String_policy:
     policy_roles:
@@ -8686,6 +8709,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   inviteToGroupFromCsv_Vo_Group_List<String>_policy:
     policy_roles:
@@ -8694,6 +8720,9 @@ perun_policies:
       - GROUPMEMBERSHIPMANAGER: Group
     include_policies:
       - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
   createInvitationUrl_String:
     policy_roles:
@@ -8710,7 +8739,7 @@ perun_policies:
   canInvitationBeAccepted_UUID_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - REGISTRAR
+      - REGISTRAR:
     include_policies:
       - default_policy
 
@@ -8721,8 +8750,20 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
+
+  resendInvitation_Invitation_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: Vo
+      - MFA: Group
 
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 #  primary_object serves to determine with which object is the role primarily connected. Other objects are just complementary.
@@ -8822,6 +8863,23 @@ perun_roles_management:
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Audit consumer admin"
+
+  VOCREATOR:
+    primary_object:
+    assign_to_objects: { }
+    assignment_check:
+      - MFA:
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+    associated_read_roles: [ ]
+    assignable_to_attributes: false
+    display_name: "Organization creator"
 
   VOADMIN:
     primary_object: Vo
@@ -9267,6 +9325,25 @@ perun_roles_management:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     display_name: "Service user"
+
+  EXEMPTEDFROMMFA:
+    primary_object:
+    assign_to_objects: { }
+    assignment_check:
+      - MFA:
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+    associated_read_roles: [ ]
+    assignable_to_attributes: false
+    skip_mfa: true
+    display_name: "Exempted from MFA"
 
   SPREGAPPLICATION:
     primary_object:

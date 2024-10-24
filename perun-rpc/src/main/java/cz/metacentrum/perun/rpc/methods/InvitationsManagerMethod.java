@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.registrar.model.InvitationsPageQuery;
 import cz.metacentrum.perun.rpc.ApiCaller;
@@ -333,8 +336,24 @@ public enum InvitationsManagerMethod implements ManagerMethod {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getInvitationsManager().getInvitationsPage(ac.getSession(), ac.getGroupById(parms.readInt("group")),
-              parms.read("query", InvitationsPageQuery.class));
+          parms.read("query", InvitationsPageQuery.class));
     }
+  },
 
+  /*#
+   * Resends the notification for the given preapproved invitation.
+   *
+   * @param invitation int the id of the invitation to be resent
+   * @throw RegistrarException when unable to send the mail
+   * @throw PrivilegeException insufficient permission
+   * @throw InvalidInvitationStatusException when the invitation is not in a pending state
+   */
+  resendInvitation {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      ac.getInvitationsManager().resendInvitation(ac.getSession(),
+          ac.getInvitationsManager().getInvitationById(ac.getSession(), parms.readInt("invitation")));
+      return null;
+    }
   }
 }

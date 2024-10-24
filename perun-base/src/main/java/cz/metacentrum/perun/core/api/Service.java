@@ -14,6 +14,7 @@ public class Service extends Auditable implements Comparable<PerunBean> {
   private String script;
 
   private boolean useExpiredMembers = true;
+  private boolean useExpiredVoMembers = false;
 
   public Service() {
     super();
@@ -140,6 +141,14 @@ public class Service extends Auditable implements Comparable<PerunBean> {
     this.useExpiredMembers = useExpiredUsers;
   }
 
+  public boolean isUseExpiredVoMembers() {
+    return useExpiredVoMembers;
+  }
+
+  public void setUseExpiredVoMembers(boolean useExpiredVoMembers) {
+    this.useExpiredVoMembers = useExpiredVoMembers;
+  }
+
   @Override
   public String serializeToString() {
     StringBuilder str = new StringBuilder();
@@ -151,7 +160,8 @@ public class Service extends Auditable implements Comparable<PerunBean> {
         .append(", delay=<").append(this.getDelay()).append(">").append(", recurrence=<").append(this.getRecurrence())
         .append(">").append(", enabled=<").append(this.isEnabled()).append(">").append(", script=<")
         .append(getScript() == null ? "\\0" : BeansUtils.createEscaping(getScript())).append(">")
-        .append(", useExpiredMembers=<").append(isUseExpiredMembers()).append(">").append(']').toString();
+        .append(", useExpiredMembers=<").append(isUseExpiredMembers()).append(">")
+        .append(", useExpiredVoMembers=<").append(isUseExpiredVoMembers()).append(">").append(']').toString();
   }
 
   @Override
@@ -161,6 +171,7 @@ public class Service extends Auditable implements Comparable<PerunBean> {
         .append("', description='").append(getDescription()).append("', delay='").append(getDelay())
         .append("', recurrence='").append(getRecurrence()).append("', enabled='").append(isEnabled())
         .append("', script='").append(getScript()).append("', useExpiredMembers='").append(isUseExpiredMembers())
+        .append("', useExpiredVoMembers='").append(isUseExpiredVoMembers())
         .append("']").toString();
   }
 }

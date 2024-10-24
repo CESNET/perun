@@ -187,6 +187,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   private static final String A_U_V_LOA = AttributesManager.NS_USER_ATTR_VIRT + ":loa";
   private static final List<Status> STATUSES_AFFECTED_BY_SYNCHRONIZATION =
       Arrays.asList(Status.DISABLED, Status.EXPIRED, Status.INVALID);
+  private static boolean suspendedGroupSynchronization = false;
   private final GroupsManagerImplApi groupsManagerImpl;
   private final Integer maxConcurentGroupsToSynchronize;
   private final ArrayList<GroupSynchronizerThread> groupSynchronizerThreads;
@@ -6002,6 +6003,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
    */
   @Override
   public synchronized void synchronizeGroups(PerunSession sess) {
+    if (isSuspendedGroupSynchronization()) {
+      LOG.info("Group synchronizations are manually suspended,. New threads for group membership synchronizations" +
+                   " won't be started until resumed.");
+      return;
+    }
     // Get the default synchronization interval and synchronization timeout from the configuration file
     int timeout = BeansUtils.getCoreConfig().getGroupSynchronizationTimeout();
     // Get the number of miliseconds from the epoch, so we can divide it by the synchronization interval value
@@ -6085,6 +6091,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
   @Override
   public synchronized void synchronizeGroupsStructures(PerunSession sess) {
+    if (isSuspendedGroupSynchronization()) {
+      LOG.info("Group synchronizations are manually suspended. New threads for group structure synchronizations " +
+                   "won't be started until resumed.");
+      return;
+    }
     int numberOfNewlyRemovedThreads = processCurrentGroupStructureSynchronizationThreads();
     int numberOfNewlyCreatedThreads = createNewGroupStructureSynchronizationThreads(sess);
     int numberOfNewlyAddedGroups = addGroupsToGroupStructureSynchronizationPool(sess);
@@ -6552,6 +6563,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   }
 
   @Override
+  public void suspendGroupSynchronization(PerunSession sess, boolean suspend) {
+    synchronized (GroupsManagerBlImpl.class) {
+      suspendedGroupSynchronization = suspend;
+    }
+  }
+
+  @Override
+  public boolean isSuspendedGroupSynchronization() {
+    synchronized (GroupsManagerBlImpl.class) {
+      return suspendedGroupSynchronization;
+    }
+  }
+
+  @Override
   public void validateMemberInGroup(PerunSession sess, Member member, Group group) {
 
     if (group == null) {
@@ -6625,8 +6650,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
         //if exception which produce fail of whole synchronization was thrown
         boolean failedDueToException = false;
 
-        //Take another group from the pool to synchronize it
         try {
+          if (perunBl.getGroupsManagerBl().isSuspendedGroupSynchronization()) {
+            // do not synchronize another group until the process is resumed
+            return;
+          }
+          //Take another group from the pool to synchronize it
           group = poolOfSynchronizations.takeGroup((PerunSessionImpl) sess);
         } catch (InterruptedException ex) {
           LOG.error("Thread was interrupted when trying to take another group to synchronize from pool", ex);
@@ -6751,6 +6780,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
         boolean failedDueToException = false;
 
         try {
+          if (perunBl.getGroupsManagerBl().isSuspendedGroupSynchronization()) {
+            // do not synchronize another group until the process is resumed
+            waitForResumingSynchronization();
+          }
           group = poolOfSynchronizations.takeGroupStructure((PerunSessionImpl) sess);
         } catch (InterruptedException ex) {
           LOG.error("Thread was interrupted when trying to take another group structure to synchronize from pool", ex);
@@ -6803,6 +6836,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     private void setThreadToDefaultState() {
       this.startTime = 0;
+    }
+
+    private void waitForResumingSynchronization() throws InterruptedException {
+      int sleepTime = 60000;
+      while (perunBl.getGroupsManagerBl().isSuspendedGroupSynchronization()) {
+        LOG.debug("Synchronization of groups is suspended. This thread won't synchronize another group structure " +
+                      "until resumed.");
+        Thread.sleep(sleepTime);
+      }
+      LOG.debug("Synchronization of groups is resumed.");
     }
 
   }

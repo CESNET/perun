@@ -178,4 +178,13 @@ sub getAllRichSubGroupsWithAttributesByNames
 	return Perun::Common::callManagerMethod('getAllRichSubGroupsWithAttributesByNames', '[]Group', @_)
 }
 
+sub suspendGroupSynchronization
+{
+    return Perun::Common::callManagerMethod('suspendGroupSynchronization', '', @_)
+}
+sub resumeGroupSynchronization
+{
+    return Perun::Common::callManagerMethod('resumeGroupSynchronization', '', @_)
+}
+
 1;

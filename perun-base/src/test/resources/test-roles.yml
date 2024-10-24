@@ -264,5 +264,10 @@ perun_policies:
       - GROUPADMIN: Vo
     include_policies: [ ]
 
+  test_vo_creator_role:
+    policy_roles:
+      - VOCREATOR:
+    include_policies: [ ]
+
 perun_roles_management: { }
 ...

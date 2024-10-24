@@ -50,6 +50,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceOnlyRoleAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
@@ -1717,8 +1718,10 @@ public interface UsersManagerBl {
    * @param specificUserType specific type of user
    * @return user who is no more specific
    * @throws InternalErrorException
+   * @throws ServiceOnlyRoleAssignedException when trying to unset service flag from a user with service only role
    */
-  User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType);
+  User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType)
+      throws ServiceOnlyRoleAssignedException;
 
   /**
    * Updates titles before/after users name.

@@ -488,11 +488,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
-  public List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Facility facility, Service service) {
-    return getFacilitiesManagerImpl().getAllowedMembersNotExpiredInGroups(sess, facility, service);
-  }
-
-  @Override
   public List<RichGroup> getAllowedRichGroupsWithAttributes(PerunSession perunSession, Facility facility, Vo specificVo,
                                                             Service specificService, List<String> attrNames) {
 

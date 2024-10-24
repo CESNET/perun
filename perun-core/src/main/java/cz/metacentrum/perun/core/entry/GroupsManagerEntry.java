@@ -2076,6 +2076,18 @@ public class GroupsManagerEntry implements GroupsManager {
   }
 
   @Override
+  public void suspendGroupSynchronization(PerunSession sess, boolean suspend) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "suspendGroupSynchronization_boolean_policy")) {
+      throw new PrivilegeException(sess, "suspendGroupSynchronization");
+    }
+
+    getGroupsManagerBl().suspendGroupSynchronization(sess, suspend);
+  }
+
+  @Override
   public void synchronizeGroups(PerunSession sess) throws PrivilegeException {
     Utils.checkPerunSession(sess);
 

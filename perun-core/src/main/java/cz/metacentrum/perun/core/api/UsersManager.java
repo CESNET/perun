@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceOnlyRoleAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
@@ -1497,9 +1498,10 @@ public interface UsersManager {
    * @throws InternalErrorException
    * @throws UserNotExistsException
    * @throws PrivilegeException
+   * @throws ServiceOnlyRoleAssignedException when trying to unset service flag from a user with service only role
    */
   User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType)
-      throws UserNotExistsException, PrivilegeException;
+      throws UserNotExistsException, PrivilegeException, ServiceOnlyRoleAssignedException;
 
   /**
    * Updates titles before/after name of user.

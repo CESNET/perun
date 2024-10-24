@@ -72,6 +72,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceOnlyRoleAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
@@ -93,6 +94,8 @@ import cz.metacentrum.perun.core.api.exceptions.rt.PasswordStrengthFailedRuntime
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModule;
@@ -2537,11 +2540,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
-  public User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) {
+  public User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType)
+      throws ServiceOnlyRoleAssignedException {
     if (!specificUser.getMajorSpecificType().equals(specificUserType)) {
       throw new InternalErrorException(
           "Can't unset " + specificUserType.getSpecificUserType() + " for " + specificUser +
           ", because he hasn't this flag yet.");
+    }
+
+    if (specificUserType.equals(SpecificUserType.SERVICE)) {
+      try {
+        AuthzRoles roles = AuthzResolver.getUserRoles(sess, specificUser.getId(), false);
+        for (String role : roles.keySet()) {
+          if (AuthzResolverImpl.getRoleManagementRules(role).getSkipMFA()) {
+            throw new ServiceOnlyRoleAssignedException("Can't unset service flag for " + specificUser +
+                " as its role " + role + " is reserved for service users only.");
+          }
+        }
+      } catch (ServiceOnlyRoleAssignedException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new InternalErrorException("Failed to check user's roles", e);
+      }
     }
 
     //remove all owners for this new specific user
