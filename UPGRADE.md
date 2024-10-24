@@ -1,5 +1,37 @@
 Upgrade notes
 
+## [43.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v42.0.1...v43.0.0) (2024-10-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** `createVo`can now only be called by newly created VOCREATOR role
+* **core:** removed `user_facility:virt:bucketQuota` attribute
+* **core:** db update, new Service property modifying propagation
+* New spring boot and framework version
+
+### Features
+
+* **core:** add option to not propagate expired VO members in services ([2bb47bf](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2bb47bfe7b815da173f0e09e92c8c00ade3c747b))
+* **core:** blockBucketCreation resource attribute ([3f0efa7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3f0efa7711bf5054751cf9b04013e32b24a38c38))
+* **core:** new role EXEMPTEDFROMMFA ([3ce1e94](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3ce1e94859fd61834eb4217b03d08f7ef7a76a38))
+* **core:** new VOCREATOR role ([87cb7f2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/87cb7f261651cd521274670c8cbf238a4befb817))
+* **core:** suspendGroupSynchronization ([789b6b1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/789b6b1ce5c9ad65e1420d153bd24012c12bcfe2))
+* **gui:** support setting additional flags in service object ([68d8647](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/68d8647b99680313fa76de684fef62fefca7b4e8))
+* **registrar:** resendInvitation method ([c0ce2bf](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c0ce2bfe2b6ed2a86e68dc3122693fbbc30e638f))
+
+
+### Bug Fixes
+
+* **core:** correctly load logback config ([762fb09](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/762fb09d622c90b247d5bec79e89f471aced1e91))
+* **gui:** vo/group mismatch in variable names ([c909552](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c909552256604a8b32ef603ca019c5de57133b47))
+* **openapi:** fixed dependencies for perun-openapi after upgrade to Spring Boot 3 ([5617fa3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5617fa3b35af891e96a7e2fc3a16fb71f3033e3a))
+
+
+### Build
+
+* migration of spring boot to v3 ([27552a5](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/27552a5f2b345bca358492e0a918ca1a0d4363c0))
+
 ## [42.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v42.0.0...v42.0.1) (2024-10-17)
 
 
