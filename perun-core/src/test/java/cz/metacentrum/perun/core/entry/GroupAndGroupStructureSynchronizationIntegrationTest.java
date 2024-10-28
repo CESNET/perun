@@ -1,17 +1,21 @@
 package cz.metacentrum.perun.core.entry;
 
+import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
@@ -46,6 +50,7 @@ import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.ExtSourceLdap;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
+import cz.metacentrum.perun.core.impl.PerunLocksUtils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import java.time.LocalDate;
@@ -62,6 +67,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
@@ -1696,6 +1702,40 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     groupsManagerBl.synchronizeGroup(sess, group);
     assertEquals(candidate.getAttributes().get(attribute.getName()),
         attributesManagerBl.getAttribute(sess, user, attribute.getName()).valueAsString());
+  }
+
+  @Test
+  public void addMissingMemberWhileSynchronizationRollsBackCorrectly() throws Exception {
+    System.out.println("GroupsManager.addMissingMemberWhileSynchronizationRollsBackCorrectly");
+
+    Group group2 = new Group("GroupsManagerTestGroup2","testovaci2");
+    Group group3 = new Group("GroupsManagerTestGroup3","testovaci3");
+    Group group4 = new Group("GroupsManagerTestGroup4","testovaci4");
+    Group group5 = new Group("GroupsManagerTestGroup5","testovaci5");
+    Group group6 = new Group("GroupsManagerTestGroup6","testovaci6");
+    Group group7 = new Group("GroupsManagerTestGroup7","testovaci7");
+    groupsManagerBl.createGroup(sess, vo, group2);
+    groupsManagerBl.createGroup(sess, vo, group3);
+    groupsManagerBl.createGroup(sess, vo, group4);
+    groupsManagerBl.createGroup(sess, vo, group5);
+    groupsManagerBl.createGroup(sess, vo, group6);
+    groupsManagerBl.createGroup(sess, vo, group7);
+
+    groupsManagerBl.createGroupUnion(sess, group6, group7, false);
+    groupsManagerBl.createGroupUnion(sess, group5, group7, false);
+    groupsManagerBl.createGroupUnion(sess, group4, group7, false);
+    groupsManagerBl.createGroupUnion(sess, group3, group4, false);
+    groupsManagerBl.createGroupUnion(sess, group2, group4, false);
+    groupsManagerBl.createGroupUnion(sess, group, group4, false);
+
+    Candidate candidate = setUpCandidate();
+
+    try (MockedStatic<PerunLocksUtils> mockedLockUtils = mockStatic(PerunLocksUtils.class)) {
+      mockedLockUtils.when(() -> lockGroupMembership(eq(group3), any())).thenThrow(new RuntimeException());
+      assertThrows(RuntimeException.class, () -> groupsManagerBl.addMissingMemberWhileSynchronization(
+          sess, group7, candidate, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+      assertEquals(0, groupsManagerBl.getGroupMembers(sess, group7).size());
+    }
   }
 
   private class TestGroup {
