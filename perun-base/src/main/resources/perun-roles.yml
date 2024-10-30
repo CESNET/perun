@@ -8736,13 +8736,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  canInvitationBeAccepted_UUID_policy:
-    policy_roles:
-      - PERUNOBSERVER:
-      - REGISTRAR:
-    include_policies:
-      - default_policy
-
   getInvitationsPage_Group_InvitationPageQuery_policy:
     policy_roles:
       - VOADMIN: Vo
