@@ -224,7 +224,7 @@ public class CreateVoTabItem implements TabItem {
 
   public boolean isAuthorized() {
 
-    if (session.isVoAdmin()) {
+    if (session.isVoCreator()) {
       return true;
     } else {
       return false;

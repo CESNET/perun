@@ -37,6 +37,7 @@ public class PerunWebSession {
   static public final String USER_ROLE = "SELF";
   static public final String VO_OBSERVER_PRINCIPAL_ROLE = "VOOBSERVER";
   static public final String SECURITY_ADMIN_PRINCIPAL_ROLE = "SECURITYADMIN";
+  static public final String VO_CREATOR_PRINCIPAL_ROLE = "VOCREATOR";
   // Only instance
   static private PerunWebSession INSTANCE;
   // Main GUI classes
@@ -54,6 +55,7 @@ public class PerunWebSession {
   private boolean self = false; // is not admin
   private boolean securityAdmin = false;
   private boolean sponsor = false; // sponsor
+  private boolean voCreator = false;
   // Entities which can the user edit
   private ArrayList<Integer> editableGroups = new ArrayList<Integer>();
   private ArrayList<Integer> editableVos = new ArrayList<Integer>();
@@ -291,6 +293,19 @@ public class PerunWebSession {
       return viewableVos.contains(id);
     }
     return false;
+  }
+
+  /**
+   * True if the user is VO creator.
+   * TRUE for PerunAdmin too.
+   *
+   * @return true if VO creator
+   */
+  public boolean isVoCreator() {
+    if (this.perunAdmin) {
+      return this.perunAdmin;
+    }
+    return this.voCreator;
   }
 
   /**
@@ -807,6 +822,7 @@ public class PerunWebSession {
     this.self = roles.hasRole(USER_ROLE);
     this.voObserver = roles.hasRole(VO_OBSERVER_PRINCIPAL_ROLE);
     this.securityAdmin = roles.hasRole(SECURITY_ADMIN_PRINCIPAL_ROLE);
+    this.voCreator = roles.hasRole(VO_CREATOR_PRINCIPAL_ROLE);
 
     JsArrayInteger array = roles.getEditableEntities("VOADMIN", "Vo");
     for (int i = 0; i < array.length(); i++) {

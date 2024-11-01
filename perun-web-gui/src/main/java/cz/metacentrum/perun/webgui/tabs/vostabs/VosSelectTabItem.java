@@ -93,7 +93,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
     firstTabPanel.add(tabMenu);
     firstTabPanel.setCellHeight(tabMenu, "30px");
 
-    if (session.isVoAdmin() && !Utils.disableCreateVo()) {
+    if (session.isVoCreator()) {
       // do not display to VO observer
       tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createVo(),
           new ClickHandler() {
