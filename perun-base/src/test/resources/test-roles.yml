@@ -269,5 +269,10 @@ perun_policies:
       - VOCREATOR:
     include_policies: [ ]
 
+  test_facility_creator_role:
+    policy_roles:
+      - FACILITYCREATOR:
+    include_policies: [ ]
+
 perun_roles_management: { }
 ...
