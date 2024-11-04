@@ -581,23 +581,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
         loginAttributeDefinition, skippedGroups, mergeAttributes);
   }
 
-  /**
-   * Get new candidate and add him to the Group.
-   * <p>
-   * If Candidate can't be added to Group, skip him and add this information to skippedMembers list.
-   * <p>
-   * When creating new member from Candidate, if user already exists, merge his attributes, if attribute exists in list
-   * of overwriteUserAttributesList, update it instead of merging.
-   * <p>
-   * This method runs in separate transaction.
-   *
-   * @param sess                        perun session
-   * @param group                       to be synchronized
-   * @param candidate                   new member (candidate)
-   * @param overwriteUserAttributesList list of attributes to be updated for user if found
-   * @param mergeMemberAttributesList   list of attributes to be merged for member if found
-   * @param skippedMembers              list of not successfully synchronized members
-   */
+  @Override
   public void addMissingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate,
                                                    List<String> overwriteUserAttributesList,
                                                    List<String> mergeMemberAttributesList,
@@ -612,8 +596,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
       // member exists - update attributes
       RichMember memberToUpdate = getPerunBl().getMembersManagerBl().getRichMember(sess, member);
 
-      updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList,
-          mergeMemberAttributesList, new ArrayList<>());
+      // we don't want to start new transaction here, simply not calling the method through interface will do just that
+      updateExistingMemberWhileSynchronization(sess, group,
+          candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
 
     } catch (MemberNotExistsException e) {
       try {
@@ -632,8 +617,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
                   candidate.getUserExtSources());
           // member exists - update attribute
           RichMember memberToUpdate = getPerunBl().getMembersManagerBl().getRichMember(sess, member);
-          updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList,
-              mergeMemberAttributesList, new ArrayList<>());
+
+          // we don't want to start new transaction here
+          // simply not calling the method through interface will do just that
+          updateExistingMemberWhileSynchronization(sess, group, candidate,
+              memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
         } catch (Exception e2) {
           //Something is still wrong, thrown consistency exception
           throw new ConsistencyErrorException(
@@ -4986,20 +4974,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     return removedGroups;
   }
 
-  /**
-   * Remove former member from group (if he is not listed in ExtSource).
-   * <p>
-   * If this is membersGroup (of some Vo) try to disableMember, if not possible then delete him. If this is regular
-   * group (of some Vo) remove him and if this group is also his last authoritative group, disable or delete him also in
-   * the Vo.
-   * <p>
-   * This method runs in separate transaction.
-   *
-   * @param sess           perun session
-   * @param group          to be synchronized
-   * @param memberToRemove member to be removed from Group
-   * @throws GroupNotExistsException if group does not exist
-   */
+  @Override
   public void removeFormerMemberWhileSynchronization(PerunSession sess, Group group, RichMember memberToRemove,
                                                      boolean isAuthoritative) throws GroupNotExistsException {
     // Member is missing in the external group, so remove him from the perun group
@@ -5849,7 +5824,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
       Collections.sort(membersToRemove);
       LOG.debug("Group synchronization {}: removing {} members", group, membersToRemove.size());
       for (RichMember memberToRemove : membersToRemove) {
-        removeFormerMemberWhileSynchronization(sess, group, memberToRemove, isAuthoritative);
+        this.getPerunBl().getGroupsManagerBl().removeFormerMemberWhileSynchronization(
+            sess, group, memberToRemove, isAuthoritative);
       }
 
       List<AttributeDefinition> attrDefs = new ArrayList<>();
@@ -5861,15 +5837,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
         if (!candidate.getAttributes().isEmpty() && attrDefs.isEmpty()) {
           attrDefs = getAttributesToSynchronizeFromCandidates(sess, group, candidate);
         }
-        updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList,
-            mergeMemberAttributesList, attrDefs);
+        this.getPerunBl().getGroupsManagerBl().updateExistingMemberWhileSynchronization(sess, group, candidate,
+            memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, attrDefs);
       }
 
       //Add not presented candidates to group
       Collections.sort(candidatesToAdd);
       LOG.debug("Group synchronization {}: adding {} members", group, candidatesToAdd.size());
       for (Candidate candidateToAdd : candidatesToAdd) {
-        addMissingMemberWhileSynchronization(sess, group, candidateToAdd, overwriteUserAttributesList,
+        getPerunBl().getGroupsManagerBl().addMissingMemberWhileSynchronization(
+            sess, group, candidateToAdd, overwriteUserAttributesList,
             mergeMemberAttributesList, skippedMembers);
       }
 
@@ -6178,28 +6155,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     }
   }
 
-  /**
-   * Get candidate and corresponding memberToUpdate and update his attributes, extSources, expiration and status.
-   * <p>
-   * For Member - updateAttributes For User - updateAttributes if exists in list of overwriteUserAttributesList, in
-   * other case just mergeAttributes.
-   * <p>
-   * updateAttributes = store new values mergeAttributes = for List and Map add new values, do not remove old one, for
-   * other cases store new values (like String, Integer etc.)
-   * <p>
-   * This method runs in separate transaction.
-   *
-   * @param sess                        perun session
-   * @param group                       to be synchronized
-   * @param candidate                   candidate to update by
-   * @param memberToUpdate              richMember for updating in Perun by information from extSource
-   * @param overwriteUserAttributesList list of user attributes to be updated instead of merged
-   * @param mergeMemberAttributesList   list of member attributes to be merged instead of updated
-   * @param attrDefs                    list of attribute definitions to update from candidate, if null the list is
-   *                                    filled in process
-   * @throws AttributeNotExistsException       if some attributes not exists and for this reason can't be updated
-   * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
-   */
+  @Override
   public void updateExistingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate,
                                                        RichMember memberToUpdate,
                                                        List<String> overwriteUserAttributesList,
