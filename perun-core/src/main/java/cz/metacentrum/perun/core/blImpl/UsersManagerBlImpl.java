@@ -2550,7 +2550,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     if (specificUserType.equals(SpecificUserType.SERVICE)) {
       try {
-        AuthzRoles roles = AuthzResolver.getUserRoles(sess, specificUser.getId(), false);
+        AuthzRoles roles = AuthzResolver.getUserRoles(sess, specificUser, false);
         for (String role : roles.keySet()) {
           if (AuthzResolverImpl.getRoleManagementRules(role).getSkipMFA()) {
             throw new ServiceOnlyRoleAssignedException("Can't unset service flag for " + specificUser +

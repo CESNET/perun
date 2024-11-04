@@ -2503,4 +2503,90 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     );
   }
 
+  @Test
+  public void getUserRolesNonAdminCalledByPerunAdmin() throws Exception {
+    System.out.println(CLASS_NAME + "getUserRolesNonAdmin");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+    Facility createdFacility = setUpFacility();
+    Resource createdResource = setUpResource(createdVo, createdFacility);
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    final Group createdGroup = setUpGroup(createdVo, createdMember);
+    Group createdGroup2 = new Group("Test group2", "test group2");
+    createdGroup2 = perun.getGroupsManagerBl().createGroup(sess, createdVo, createdGroup2);
+
+    AuthzResolver.setRole(sess, createdUser, null, Role.VOCREATOR);
+    AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdGroup2, Role.GROUPADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEBANMANAGER);
+
+    AuthzRoles rolesShouldBe = new AuthzRoles();
+    Map<String, Set<Integer>> groupAdminObjects = new HashMap<>();
+    groupAdminObjects.put("Group", new HashSet<>(Arrays.asList(createdGroup.getId(), createdGroup2.getId())));
+    groupAdminObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("GROUPADMIN", groupAdminObjects);
+    Map<String, Set<Integer>> membershipObjects = new HashMap<>();
+    membershipObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    membershipObjects.put("Group", new HashSet<>(Arrays.asList(perun.getGroupsManager().getGroups(sess, createdVo)
+        .get(0).getId(), createdGroup.getId())));
+    rolesShouldBe.putAuthzRoles("MEMBERSHIP", membershipObjects);
+    rolesShouldBe.putAuthzRole("VOCREATOR");
+    Map<String, Set<Integer>> selfObjects = new HashMap<>();
+    selfObjects.put("Member", new HashSet<>(Arrays.asList(createdMember.getId())));
+    rolesShouldBe.putAuthzRoles("SELF", selfObjects);
+    Map<String, Set<Integer>> voAdminObjects = new HashMap<>();
+    voAdminObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("VOADMIN", voAdminObjects);
+    Map<String, Set<Integer>> resourceBanManagerObjects = new HashMap<>();
+    resourceBanManagerObjects.put("Resource", new HashSet<>(Arrays.asList(createdResource.getId())));
+    resourceBanManagerObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    resourceBanManagerObjects.put("Facility", new HashSet<>(Arrays.asList(createdFacility.getId())));
+    rolesShouldBe.putAuthzRoles("RESOURCEBANMANAGER", resourceBanManagerObjects);
+
+    AuthzRoles roles = AuthzResolver.getUserRoles(sess, createdUser, false);
+    assertEquals(rolesShouldBe, roles);
+  }
+
+  @Test
+  public void getUserRolesNonAdminCalledByVoAdmin() throws Exception {
+    System.out.println(CLASS_NAME + "getUserRolesNonAdmin");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+    Facility createdFacility = setUpFacility();
+    Resource createdResource = setUpResource(createdVo, createdFacility);
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    final Group createdGroup = setUpGroup(createdVo, createdMember);
+    Group createdGroup2 = new Group("Test group2", "test group2");
+    createdGroup2 = perun.getGroupsManagerBl().createGroup(sess, createdVo, createdGroup2);
+
+    Candidate candidate = setUpCandidate("callerLogin");
+    Member callerMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
+    PerunSession callerSession = getHisSession(callerMember);
+    AuthzResolver.setRole(sess, callerSession.getPerunPrincipal().getUser(), createdVo, Role.VOADMIN);
+
+    AuthzResolver.setRole(sess, createdUser, null, Role.VOCREATOR);
+    AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdGroup2, Role.GROUPADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEBANMANAGER);
+
+    AuthzRoles rolesShouldBe = new AuthzRoles();
+    Map<String, Set<Integer>> groupAdminObjects = new HashMap<>();
+    groupAdminObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("GROUPADMIN", groupAdminObjects);
+    Map<String, Set<Integer>> membershipObjects = new HashMap<>();
+    membershipObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("MEMBERSHIP", membershipObjects);
+    Map<String, Set<Integer>> voAdminObjects = new HashMap<>();
+    voAdminObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("VOADMIN", voAdminObjects);
+    Map<String, Set<Integer>> resourceBanManagerObjects = new HashMap<>();
+    resourceBanManagerObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("RESOURCEBANMANAGER", resourceBanManagerObjects);
+
+    AuthzRoles roles = AuthzResolver.getUserRoles(callerSession, createdUser, false);
+    assertEquals(rolesShouldBe, roles);
+  }
+
 }

@@ -4400,7 +4400,7 @@ paths:
       tags:
         - AuthzResolver
       operationId: getUserRoles
-      summary: Returns all roles as an AuthzRoles object for a given user.
+      summary: Returns all roles accessible to the principal as an AuthzRoles object for a given user.
       parameters:
         - $ref: '#/components/parameters/userIdLiterally'
       responses:
@@ -4414,7 +4414,7 @@ paths:
       tags:
         - AuthzResolver
       operationId: getUserDirectRoles
-      summary: Returns all roles except for those obtained from membership in authorized groups as an AuthzRoles object for a given user.
+      summary: Returns all roles accessible to the principal except for those obtained from membership in authorized groups as an AuthzRoles object for a given user.
       parameters:
         - $ref: '#/components/parameters/userIdLiterally'
       responses:

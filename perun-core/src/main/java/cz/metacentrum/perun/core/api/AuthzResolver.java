@@ -606,26 +606,65 @@ public class AuthzResolver {
 
   /**
    * Returns user's direct roles, can also include roles resulting from being a VALID member of authorized groups.
-   * Returns also sponsorship and membership roles.
+   * Returns also sponsorship and membership roles. Behaves differently for PERUNADMIN and other principals.
+   * For PERUNADMIN, PERUNOBSERVER and SELF on the user returns all roles of the given user.
+   * For other principals the roles are filtered only to those that the caller can read.
    *
    * @param sess                         perun session
-   * @param userId                       id of a user
+   * @param user                         the user for whom to fetch the roles
    * @param getAuthorizedGroupBasedRoles include roles based on membership in authorized groups
-   * @return AuthzRoles object which contains all roles with perunbeans
+   * @return AuthzRoles object which contains roles accessible to the caller with perunbeans
    * @throws InternalErrorException
    * @throws UserNotExistsException
    */
-  public static AuthzRoles getUserRoles(PerunSession sess, int userId, boolean getAuthorizedGroupBasedRoles)
-      throws UserNotExistsException, PrivilegeException {
+  public static AuthzRoles getUserRoles(PerunSession sess, User user, boolean getAuthorizedGroupBasedRoles) {
     Utils.checkPerunSession(sess);
-    User user = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserById(sess, userId);
 
-    //Authorization
-    if (!authorizedInternal(sess, "getUserRoles_int_boolean_policy", user)) {
-      throw new PrivilegeException("getUserRoles.");
+    AuthzRoles userRoles = AuthzResolverBlImpl.getUserRoles(sess, user, getAuthorizedGroupBasedRoles);
+    if (authorizedInternal(sess, "getUserRoles_int_boolean_policy", user)) {
+      return userRoles;
+    }
+    return filterRolesBasedOnPrincipalRights(sess, userRoles);
+  }
+
+  /**
+   * Filters list of roles and their complementary objects only to those that the principal can read.
+   */
+  private static AuthzRoles filterRolesBasedOnPrincipalRights(PerunSession sess, AuthzRoles roles) {
+    AuthzRoles rolesFiltered = new AuthzRoles();
+
+    for (Map.Entry<String, Map<String, Set<Integer>>> role : roles.entrySet()) {
+      String roleName = role.getKey();
+
+      // check for the roles with no complementary objects
+      try {
+        if (role.getValue().isEmpty() && authorizedToReadRole(sess, null, roleName)) {
+          rolesFiltered.putAuthzRole(roleName);
+        }
+      } catch (RoleManagementRulesNotExistsException ignored) {
+        // do not fail just skip this role
+      }
+
+      // check for the roles with complementary objects
+      for (String beanName : role.getValue().keySet()) {
+        Set<Integer> beanIds = role.getValue().get(beanName);
+        for (Integer id : beanIds) {
+          try {
+            PerunBean bean = (PerunBean) Class.forName("cz.metacentrum.perun.core.api." + beanName)
+                .getConstructor()
+                .newInstance();
+            bean.setId(id);
+            if (authorizedToReadRole(sess, bean, roleName)) {
+              rolesFiltered.putAuthzRole(roleName, bean);
+            }
+          } catch (Exception ignored) {
+            // do not fail just skip this role
+          }
+        }
+      }
     }
 
-    return AuthzResolverBlImpl.getUserRoles(sess, user, getAuthorizedGroupBasedRoles);
+    return rolesFiltered;
   }
 
   /**
