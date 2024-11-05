@@ -274,5 +274,10 @@ perun_policies:
       - FACILITYCREATOR:
     include_policies: [ ]
 
+  test_organization_membership_manager_role:
+    policy_roles:
+      - ORGANIZATIONMEMBERSHIPMANAGER:
+    include_policies: [ ]
+
 perun_roles_management: { }
 ...
