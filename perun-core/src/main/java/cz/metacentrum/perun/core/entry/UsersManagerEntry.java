@@ -767,6 +767,35 @@ public class UsersManagerEntry implements UsersManager {
     return getUsersManagerBl().getAllowedResources(sess, user);
   }
 
+
+  public Map<Facility, List<Resource>> getUserAssignments(PerunSession sess, User user)
+      throws UserNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    getUsersManagerBl().checkUserExists(sess, user);
+
+
+    if (!AuthzResolver.authorizedInternal(sess, "getUserAssignments_User_policy", user)) {
+      throw new PrivilegeException(sess, "getUserAssignments");
+    }
+
+    List<Facility> facilities = perunBl.getFacilitiesManager().getAssignedFacilities(sess, user);
+    Map<Facility, List<Resource>> assignments = new HashMap<>();
+
+    for (Facility fac : facilities) {
+      List<Resource> resources;
+      try {
+        resources = getAssociatedResources(sess, fac, user);
+      } catch (FacilityNotExistsException e) {
+        throw new ConsistencyErrorException("Facility should exist", e);
+      }
+
+      assignments.put(fac, resources);
+    }
+
+    return assignments;
+  }
+
   @Override
   public List<RichResource> getAssignedRichResources(PerunSession sess, User user)
       throws UserNotExistsException, PrivilegeException {

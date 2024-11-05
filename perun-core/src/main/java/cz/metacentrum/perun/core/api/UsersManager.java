@@ -598,6 +598,18 @@ public interface UsersManager {
    */
   List<Resource> getAllowedResources(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException;
 
+
+  /**
+   * Returns all assignments of the user, assignments being Facilities and Resources they are assigned to.
+   * @param sess session
+   * @param user user
+   * @return the assignments
+   * @throws UserNotExistsException user does not exist
+   * @throws PrivilegeException insufficient rights
+   */
+  Map<Facility, List<Resource>> getUserAssignments(PerunSession sess, User user) throws UserNotExistsException,
+                                                                                            PrivilegeException;
+
   /**
    * Get all rich resources which have the user assigned.
    *

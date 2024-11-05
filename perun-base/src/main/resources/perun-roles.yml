@@ -6087,6 +6087,16 @@ perun_policies:
       - default_policy
 
   #UsersManagerEntry
+
+  getUserAssignments_User_policy:
+    policy_roles:
+      - SELF: User
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getUserByUserExtSource_UserExtSource_policy:
     policy_roles:
       - SELF: User

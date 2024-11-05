@@ -1073,6 +1073,21 @@ public enum UsersManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Get all assignments of the user. This meaning all the facilities and resources they are assigned to (filtered by
+   *  the privileges of the caller)
+   *
+   * @param user int User <code>id</code>
+   * @return Map<Facility, List<Resource>> The assignments
+   */
+  getUserAssignments {
+    @Override
+    public Map<Facility, List<Resource>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      User user = ac.getUserById(parms.readInt("user"));
+      return ac.getUsersManager().getUserAssignments(ac.getSession(), user);
+    }
+  },
+
+  /*#
    * Get all rich resources which have the user assigned.
    *
    * @param user int User <code>id</code>

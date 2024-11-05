@@ -82,6 +82,8 @@ import cz.metacentrum.perun.core.blImpl.UsersManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
+
+import java.util.UUID;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,6 +95,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1823,6 +1826,27 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue("created resource should be allowed",resources.contains(resource));
 
 	}
+
+
+    @Test
+    public void getUserAssignments() throws Exception {
+      System.out.println(CLASS_NAME + "getUserAssignments");
+
+      Member member = setUpMember(vo);
+      User user = usersManager.getUserByMember(sess, member);
+      Group group = setUpGroup(vo, member);
+
+      Facility facility = setUpFacility();
+      Resource resource = setUpResource(facility, vo);
+      Resource resource2 = setUpResource(facility, vo);
+
+      perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
+      perun.getResourcesManager().assignGroupToResource(sess, group, resource2, false, false, false);
+
+      Map<Facility, List<Resource>> res = perun.getUsersManager().getUserAssignments(sess, user);
+      assertThat(res.keySet()).containsExactly(facility);
+      assertThat(res.get(facility)).containsOnly(resource2, resource);
+    }
 
 	@Test
 	public void getAssociatedResources() throws Exception {
@@ -3681,7 +3705,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	private Resource setUpResource(Facility facility, Vo vo) throws Exception {
 		Resource resource = new Resource();
-		resource.setName("UsersManagerTestResource");
+		resource.setName(UUID.randomUUID().toString());
 		resource.setDescription("Testovaci");
 		return perun.getResourcesManager().createResource(sess, resource, vo, facility);
 	}
