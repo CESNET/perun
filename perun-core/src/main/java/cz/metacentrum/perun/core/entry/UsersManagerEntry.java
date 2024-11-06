@@ -1366,6 +1366,25 @@ public class UsersManagerEntry implements UsersManager {
   }
 
   @Override
+  public List<User> getUnanonymizedUsersBySpecificUser(PerunSession sess, User specificUser)
+      throws UserNotExistsException, PrivilegeException, SpecificUserExpectedException {
+    Utils.checkPerunSession(sess);
+    getUsersManagerBl().checkUserExists(sess, specificUser);
+    if (!specificUser.isSpecificUser()) {
+      throw new SpecificUserExpectedException(specificUser);
+    }
+
+    List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, specificUser);
+    for (Vo vo : vos) {
+      if (!AuthzResolver.authorizedInternal(sess, "getUsersBySpecificUser_User_policy",
+          Arrays.asList(specificUser, vo))) {
+        throw new PrivilegeException(sess, "getUsersBySpecificUser");
+      }
+    }
+    return getUsersManagerBl().getUnanonymizedUsersBySpecificUser(sess, specificUser);
+  }
+
+  @Override
   public int getUsersCount(PerunSession sess) {
     Utils.checkPerunSession(sess);
 

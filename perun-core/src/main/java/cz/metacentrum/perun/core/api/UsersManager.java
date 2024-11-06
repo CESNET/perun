@@ -1124,6 +1124,20 @@ public interface UsersManager {
       throws UserNotExistsException, PrivilegeException, SpecificUserExpectedException;
 
   /**
+   * Return all users who owns the specific one and are not anonymized
+   *
+   * @param sess
+   * @param specificUser the specific user
+   * @return list of user who owns the specificUser
+   * @throws InternalErrorException
+   * @throws UserNotExistsException
+   * @throws PrivilegeException
+   * @throws SpecificUserExpectedException when the serviceUser is not really service user (is it normal user)
+   */
+  List<User> getUnanonymizedUsersBySpecificUser(PerunSession sess, User specificUser)
+      throws UserNotExistsException, PrivilegeException, SpecificUserExpectedException;
+
+  /**
    * Get count of all users.
    *
    * @param sess PerunSession
