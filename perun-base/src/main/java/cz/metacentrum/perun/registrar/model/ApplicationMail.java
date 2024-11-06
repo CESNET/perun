@@ -37,9 +37,9 @@ public class ApplicationMail {
 
   {
     if (CS != null) {
-      htmlMessage.put(CS, new MailText(CS));
+      htmlMessage.put(CS, new MailText(CS, true));
     }
-    htmlMessage.put(EN, new MailText(EN));
+    htmlMessage.put(EN, new MailText(EN, true));
   }
 
   public ApplicationMail() {
@@ -317,6 +317,11 @@ public class ApplicationMail {
 
     public MailText(Locale locale) {
       this.locale = locale;
+    }
+
+    public MailText(Locale locale, boolean htmlFormat) {
+      this.locale = locale;
+      this.htmlFormat = htmlFormat;
     }
 
     public MailText(Locale locale, String subject, String text) {
