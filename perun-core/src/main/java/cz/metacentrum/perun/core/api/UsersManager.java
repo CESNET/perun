@@ -1616,4 +1616,15 @@ public interface UsersManager {
    * @throws SSHKeyNotValidException when validation fails
    */
   void validateSSHKey(PerunSession sess, String sshKey) throws SSHKeyNotValidException;
+
+  /**
+   * Gets map with 2 items which are a list of all vos and a list of all groups where given user is member filtered by
+   * principal's privileges.
+   *
+   * @param sess perun session
+   * @param user user
+   * @return Result map with lists of vos and groups where given user is member
+   * @throws UserNotExistsException If user does not exist.
+   */
+  Map<String, List<PerunBean>> getUserRelations(PerunSession sess, User user) throws UserNotExistsException;
 }

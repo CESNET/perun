@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -80,6 +81,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -1984,5 +1986,37 @@ public class UsersManagerEntry implements UsersManager {
     Utils.checkPerunSession(sess);
 
     getPerunBl().getUsersManagerBl().validateSSHKey(sess, sshKey);
+  }
+
+  @Override
+  public Map<String, List<PerunBean>> getUserRelations(PerunSession sess, User user) throws UserNotExistsException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    Map<String, List<PerunBean>> result = new HashMap<>();
+
+    List<Vo> vos = new ArrayList<>();
+    List<Group> groups = new ArrayList<>();
+
+    for (Vo vo : getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user)) {
+      try {
+        Member member = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+        if (AuthzResolver.authorizedInternal(sess, "filter-vo-getUserRelations_User_policy", member)) {
+          vos.add(vo);
+          List<Group> memberGroups = perunBl.getGroupsManagerBl().getMemberGroups(sess, member);
+          memberGroups.removeIf(
+                  group -> !AuthzResolver.authorizedInternal(sess, "filter-group-getUserRelations_User_policy",
+                          Arrays.asList(group, member)));
+          groups.addAll(memberGroups);
+        }
+      } catch (MemberNotExistsException ex) {
+        throw new InternalErrorException(ex);
+      }
+    }
+
+    result.put("vos", vos.stream().map(PerunBean.class::cast).toList());
+    result.put("groups", groups.stream().map(PerunBean.class::cast).toList());
+
+    return result;
   }
 }

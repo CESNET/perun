@@ -7118,6 +7118,30 @@ perun_policies:
     include_policies:
       - default_policy
 
+  filter-vo-getUserRelations_User_policy:
+    policy_roles:
+      - SELF: User
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-group-getUserRelations_User_policy:
+    policy_roles:
+      - SELF: User
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   #VosManagerEntry
   getVos_policy:
     policy_roles:

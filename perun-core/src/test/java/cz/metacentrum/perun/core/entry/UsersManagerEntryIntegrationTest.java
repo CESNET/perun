@@ -1,5 +1,21 @@
 package cz.metacentrum.perun.core.entry;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.TestUtils.TestConsumer;
 import cz.metacentrum.perun.TestUtils.TestSupplier;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
@@ -25,6 +41,10 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
@@ -60,12 +80,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.UsersManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,22 +93,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Integration tests of UsersManager.
@@ -3292,6 +3296,80 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		String namespace = "admin-meta";
 		perun.getUsersManager().blockLogins(sess, Collections.singletonList(namespaceBlockedLogin), namespace);
 		perun.getUsersManagerBl().checkBlockedLogins(sess, namespace, namespaceBlockedLogin, false);
+	}
+
+	@Test
+	public void getUserRelations() throws Exception {
+		System.out.println("getUserRelations");
+
+		User admin = setUpUser("Admin", "Test");
+
+		Vo adminVo = perun.getVosManagerBl().createVo(sess, new Vo(1111, "adminVo", "adminVo"));
+		perun.getMembersManagerBl().createMember(sess, adminVo, user);
+		AuthzResolverBlImpl.setRole(sess, admin, adminVo, Role.VOADMIN);
+		Group otherGroup = perun.getGroupsManagerBl().createGroup(sess, adminVo, new Group("otherGroup", ""));
+		perun.getGroupsManagerBl()
+				.addMember(sess, otherGroup, perun.getMembersManagerBl().getMemberByUser(sess, adminVo, user));
+
+		Vo otherVo = perun.getVosManagerBl().createVo(sess, new Vo(2222, "otherVo", "otherVo"));
+		perun.getMembersManagerBl().createMember(sess, otherVo, user);
+		Group notAdminGroup = perun.getGroupsManagerBl().createGroup(sess, otherVo, new Group("notAdminGroup", ""));
+		perun.getGroupsManagerBl()
+				.addMember(sess, notAdminGroup, perun.getMembersManagerBl().getMemberByUser(sess, otherVo, user));
+		Group adminGroup = perun.getGroupsManagerBl().createGroup(sess, otherVo, new Group("adminGroup", ""));
+		perun.getGroupsManagerBl()
+				.addMember(sess, adminGroup, perun.getMembersManagerBl().getMemberByUser(sess, adminVo, user));
+		AuthzResolverBlImpl.setRole(sess, admin, adminGroup, Role.GROUPADMIN);
+
+		Vo notAdminVo = perun.getVosManagerBl().createVo(sess, new Vo(3333, "notAdminVo", "notAdminVo"));
+		perun.getMembersManagerBl().createMember(sess, notAdminVo, user);
+
+		PerunSession sess2 = new PerunSessionImpl(
+				perun,
+				new PerunPrincipal("getUserRelationsTest", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+						ExtSourcesManager.EXTSOURCE_INTERNAL),
+				new PerunClient()
+		);
+		sess2.getPerunPrincipal().setUser(admin);
+
+		Map<String, List<PerunBean>> relations = perun.getUsersManager().getUserRelations(sess2, user);
+
+		assertEquals(2, relations.get("vos").size());
+		assertTrue(relations.get("vos").stream().map(PerunBean::getId).toList()
+						   .containsAll(List.of(adminVo.getId(), otherVo.getId())));
+
+		assertEquals(2, relations.get("groups").size());
+		assertTrue(relations.get("groups").stream().map(PerunBean::getId).toList()
+						   .containsAll(List.of(adminGroup.getId(), otherGroup.getId())));
+	}
+
+	@Test
+	public void getUserRelationsSelf() throws Exception {
+		System.out.println("getUserRelationsSelf");
+
+		User testUser = setUpUser("User", "Test");
+
+		Vo testVo = perun.getVosManagerBl().createVo(sess, new Vo(1111, "testVo", "testVo"));
+		perun.getMembersManagerBl().createMember(sess, testVo, testUser);
+
+		Group testGroup = perun.getGroupsManagerBl().createGroup(sess, testVo, new Group("testGroup", ""));
+		perun.getGroupsManagerBl().addMember(sess, testGroup, perun.getMembersManagerBl().getMemberByUser(sess, testVo, testUser));
+
+		PerunSession sess2 = new PerunSessionImpl(
+				perun,
+				new PerunPrincipal("getUserRelationsSelfTest", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+						ExtSourcesManager.EXTSOURCE_INTERNAL),
+				new PerunClient()
+		);
+		sess2.getPerunPrincipal().setUser(testUser);
+
+		Map<String, List<PerunBean>> relations = perun.getUsersManager().getUserRelations(sess2, testUser);
+
+		assertEquals(1, relations.get("vos").size());
+		assertEquals(testVo.getId(), relations.get("vos").get(0).getId());
+
+		assertEquals(1, relations.get("groups").size());
+		assertEquals(testGroup.getId(), relations.get("groups").get(0).getId());
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------
