@@ -1074,6 +1074,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
       type.addItem("MAIL", "email");
       type.addItem("SIGNED MAIL", "semail");
       type.addItem("SERVICE SPECIFIC", "service-specific");
+      type.addItem("S3", "s3");
 
       final ListBox propTypeSelect = new ListBox();
       propTypeSelect.addItem("PARALLEL");

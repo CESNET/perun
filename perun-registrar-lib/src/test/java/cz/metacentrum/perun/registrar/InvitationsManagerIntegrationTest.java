@@ -547,7 +547,7 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     invitation1 = invitationsManager.createInvitation(session, invitation1);
 
     invitation1 = invitationsManagerBl.extendInvitationExpiration(session, invitation1, null);
-    assertEquals(LocalDate.now().plusMonths(2), invitation1.getExpiration());
+    assertEquals(LocalDate.now().plusMonths(1).plusMonths(1), invitation1.getExpiration());
   }
 
   @Test(expected = IllegalArgumentException.class)

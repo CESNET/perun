@@ -17,12 +17,13 @@
 	<description>JS web application based on GWT framework which provides GUI for Perun.</description>
 
 	<properties>
-		<!-- used GWT version supports only java version up to 11 -->
-		<java.version>11</java.version>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<!-- Used GWT version supports java version up to 17 which is currently project default
+		<java.version>17</java.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		 -->
 		<!-- Convenience property to set the GWT version -->
-		<gwtVersion>2.11.0</gwtVersion>
+		<gwtVersion>2.12.0</gwtVersion>
 		<webappDirectory>${project.build.directory}/${project.name}</webappDirectory>
 		<gui.url.modifier/>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -86,7 +87,7 @@
 				<!-- Plugin configuration. There are many available options, see
 				  gwt-maven-plugin documentation at codehaus.org -->
 				<configuration>
-					<sourceLevel>1.11</sourceLevel>
+					<sourceLevel>1.17</sourceLevel>
 					<extraJvmArgs>-Xmx1024m</extraJvmArgs>
 					<modules>
 						<module>cz.metacentrum.perun.webgui.perun-web</module>

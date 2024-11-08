@@ -613,23 +613,6 @@ public class Utils {
   }
 
   /**
-   * Return TRUE if VO managers should have VO creation disabled in administrative GUI.
-   *
-   * @return TRUE if VO creation should be disabled
-   */
-  public static boolean disableCreateVo() {
-
-    if (PerunWebSession.getInstance().getConfiguration() != null) {
-      String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("disableCreateVo");
-      if (Objects.equals(value, "true")) {
-        return true;
-      }
-    }
-    return false;
-
-  }
-
-  /**
    * Clear all cookies provided by federation IDP in user's browser.
    */
   public static void clearFederationCookies() {

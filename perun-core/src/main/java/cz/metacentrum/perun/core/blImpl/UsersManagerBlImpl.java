@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.UserManagerEvents.LastSpecificUserOwnerRemoved;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipDisabledForSpecificUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipEnabledForSpecificUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipRemovedForSpecificUser;
@@ -1181,6 +1182,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
     }
 
+    List<User> specificUsers = new ArrayList<User>();
+    if (!user.isServiceUser()) {
+      specificUsers.addAll(getSpecificUsersByUser(sess, user));
+    }
 
     // Remove all sponsored user authz of his owners
     if (user.isSponsoredUser()) {
@@ -1197,6 +1202,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       // Finally delete the user
       getUsersManagerImpl().deleteUser(sess, user);
       getPerunBl().getAuditer().log(sess, new UserDeleted(user));
+    }
+
+    for (User specificUser : specificUsers) {
+      logLastSpecificUserOwner(sess, specificUser);
     }
   }
 
@@ -1987,6 +1996,34 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     return getUsersManagerImpl().getUsersBySpecificUser(sess, specificUser);
   }
 
+  @Override
+  public List<User> getUnanonymizedUsersBySpecificUser(PerunSession sess, User specificUser) {
+    if (specificUser.isServiceUser() && specificUser.isSponsoredUser()) {
+      throw new InternalErrorException("We don't support specific and sponsored users together yet.");
+    }
+    if (specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) {
+      throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
+    }
+    return getUsersManagerImpl().getUnanonymizedUsersBySpecificUser(sess, specificUser);
+  }
+
+
+  /**
+   * Checks whether removed user was the last owner of specific user, log an AuditEvent which will trigger a
+   * notification if this was the case.
+   *
+   * @param sess session
+   * @param specificUser specificUser
+   */
+  private void logLastSpecificUserOwner(PerunSession sess, User specificUser) {
+    List<User> owners;
+    owners = getUnanonymizedUsersBySpecificUser(sess, specificUser);
+    if (owners.isEmpty()) {
+      getPerunBl().getAuditer().log(sess, new LastSpecificUserOwnerRemoved(specificUser));
+    }
+  }
+
+
   private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef,
                                                 String attributeValue) {
     // try to find method in attribute module
@@ -2255,6 +2292,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       getPerunBl().getAuditer().log(sess, new OwnershipDisabledForSpecificUser(user, specificUser));
       getUsersManagerImpl().disableOwnership(sess, user, specificUser);
     }
+
+    logLastSpecificUserOwner(sess, specificUser);
   }
 
   @Override

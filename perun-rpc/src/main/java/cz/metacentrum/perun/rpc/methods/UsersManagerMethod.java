@@ -187,6 +187,21 @@ public enum UsersManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Return unanonymized users who owns the specific user.
+   *
+   * @param specificUser int Specific User <code>id</code>
+   * @return List<User> Users for a service user
+   */
+  getUnanonymizedUsersBySpecificUser {
+    @Override
+    public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getUsersManager().getUnanonymizedUsersBySpecificUser(
+        ac.getSession(), ac.getUserById(parms.readInt("specificUser"))
+      );
+    }
+  },
+
+  /*#
    * Add specific user owner (the user).
    *
    * @param user int User <code>id</code>

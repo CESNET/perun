@@ -43,6 +43,8 @@
 # FACILITYOBSERVER role has access to all information, to which has access Facility admin, but Facility observer is not
 # able to perform any changes.
 #
+# FACILITYCREATOR role has one sole purpose - creating facilities.
+#
 # TRUSTEDFACILITYADMIN role can be assign to a user or a group in specific VO. Only VO administrator is able to set this
 # role, but only in his own VO. User with role Trusted facility admin has privileges to assign group(s) to resource(s)
 # and remove group(s) from resource(s), but only if the user has the role Facility Admin for the specific facility at
@@ -140,6 +142,7 @@ perun_roles:
   - FACILITYOBSERVER
   - TRUSTEDFACILITYADMIN
   - FACILITYBANMANAGER
+  - FACILITYCREATOR
   - RESOURCEADMIN
   - RESOURCEOBSERVER
   - RESOURCESELFSERVICE
@@ -979,7 +982,7 @@ perun_policies:
 
   createFacility_Facility_policy:
     policy_roles:
-      - FACILITYADMIN:
+      - FACILITYCREATOR:
       - SPREGAPPLICATION:
       - PROXY:
     include_policies:
@@ -6141,6 +6144,21 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getUnanonymizedUsersBySpecificUser_User_policy:
+    policy_roles:
+      - SPONSOR: User
+      - SPONSORNOCREATERIGHTS: User
+      - ENGINE:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   removeSpecificUserOwner_User_User_policy:
     policy_roles:
       - SPONSOR: User
@@ -8736,13 +8754,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  canInvitationBeAccepted_UUID_policy:
-    policy_roles:
-      - PERUNOBSERVER:
-      - REGISTRAR:
-    include_policies:
-      - default_policy
-
   getInvitationsPage_Group_InvitationPageQuery_policy:
     policy_roles:
       - VOADMIN: Vo
@@ -9072,6 +9083,23 @@ perun_roles_management:
     assignable_to_attributes: false
     display_name: "Facility observer"
 
+  FACILITYCREATOR:
+    primary_object:
+    assign_to_objects: { }
+    assignment_check:
+      - MFA:
+    entities_to_manage:
+      User: user_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+    associated_read_roles: [ ]
+    assignable_to_attributes: false
+    display_name: "Facility creator"
 
   TRUSTEDFACILITYADMIN:
     primary_object: Vo

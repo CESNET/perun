@@ -1006,6 +1006,7 @@ components:
         - "service-specific"
         - "user@host-windows"
         - "host-windows-proxy"
+        - "s3"
 
     DestinationPropagationType:
       type: string
@@ -9897,6 +9898,20 @@ paths:
         - UsersManager
       operationId: getUsersBySpecificUser
       summary: Return all users who owns the specific user.
+      parameters:
+        - $ref: '#/components/parameters/specificUserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/userManager/getUnanonymizedUsersBySpecificUser:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUnanonymizedUsersBySpecificUser
+      summary: Return all users who owns the specific user and are not anonymized.
       parameters:
         - $ref: '#/components/parameters/specificUserId'
       responses:
@@ -19079,7 +19094,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/destinationName'
-        - { name: type, description: "Destination type (host,user@host,user@host:port,url,mail,service-specific)", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
+        - { name: type, description: "Destination type (host,user@host,user@host:port,url,mail,service-specific, s3)", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
         - { name: propagationType, description: "propagation type (PARALLEL, DUMMY - doesn't send data)", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: false }
       responses:
         '200':

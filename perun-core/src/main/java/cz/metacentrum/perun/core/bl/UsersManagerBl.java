@@ -1371,6 +1371,17 @@ public interface UsersManagerBl {
   List<User> getUsersBySpecificUser(PerunSession sess, User specificUser);
 
   /**
+   * Return all users who owns the specificUser, their ownership is not in status disabled
+   * and are not anonymized
+   *
+   * @param sess
+   * @param specificUser the specific User
+   * @return list of user who owns the specificUser
+   * @throws InternalErrorException
+   */
+  List<User> getUnanonymizedUsersBySpecificUser(PerunSession sess, User specificUser);
+
+  /**
    * Get count of all users.
    *
    * @param perunSession

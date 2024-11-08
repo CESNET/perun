@@ -1614,6 +1614,22 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   }
 
   @Override
+  public List<User> getUnanonymizedUsersBySpecificUser(PerunSession sess, User specificUser) {
+    try {
+      return jdbc.query("select " + USER_MAPPING_SELECT_QUERY +
+                            " from users, specific_user_users where users.id=specific_user_users.user_id and " +
+                            " users.anonymized=false and specific_user_users" +
+                            ".status=0 and specific_user_users.specific_user_id=? " +
+                            " and specific_user_users.type=?",
+          USER_MAPPER, specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
+    } catch (EmptyResultDataAccessException ex) {
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
   public List<User> getUsersByVo(PerunSession sess, Vo vo) {
     try {
       return jdbc.query("select " + USER_MAPPING_SELECT_QUERY + " from users, members " +

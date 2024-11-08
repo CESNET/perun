@@ -149,6 +149,9 @@ public class Utils {
       "^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)@(?:(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)" +
       "[a-z0-9-]+\\.?)|(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}):[0-9]+");
   public static final Pattern SERVICE_SPECIFIC_PATTERN = Pattern.compile("^(?!-)[a-zA-Z0-9-_.:/]*$");
+  public static final Pattern S3_PATTERN = Pattern.compile(
+      "^(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;()*$']+)/([-a-zA-Z0-9+&@#%?=~_|!:,.;()*$'']+)$");
+
   /**
    * Integer row mapper
    */
@@ -1673,7 +1676,8 @@ public class Utils {
          (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTPORTTYPE)) &&
          (!Objects.equals(destinationType, Destination.DESTINATIONSERVICESPECIFICTYPE)) &&
          (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWS)) &&
-         (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWSPROXY)))) {
+         (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWSPROXY)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONS3TYPE)))) {
       throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
     }
   }
@@ -1712,6 +1716,9 @@ public class Utils {
     }
     if (destinationType.equals(Destination.DESTINATIONSERVICESPECIFICTYPE)) {
       matcher = SERVICE_SPECIFIC_PATTERN.matcher(destination.getDestination());
+    }
+    if (destinationType.equals(Destination.DESTINATIONS3TYPE)) {
+      matcher = S3_PATTERN.matcher(destination.getDestination());
     }
 
     // it should not happen because destination type is checked earlier

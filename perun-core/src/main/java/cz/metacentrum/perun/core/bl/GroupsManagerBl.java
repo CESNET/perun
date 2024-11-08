@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.EnrichedGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -46,7 +48,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -160,6 +161,29 @@ public interface GroupsManagerBl {
   void addMembers(PerunSession perunSession, Group group, List<Member> members)
       throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException,
       GroupNotExistsException;
+
+  /**
+   * Get new candidate and add him to the Group.
+   * <p>
+   * If Candidate can't be added to Group, skip him and add this information to skippedMembers list.
+   * <p>
+   * When creating new member from Candidate, if user already exists, merge his attributes, if attribute exists in list
+   * of overwriteUserAttributesList, update it instead of merging.
+   * <p>
+   * This method runs in separate transaction.
+   *
+   * @param sess                        perun session
+   * @param group                       to be synchronized
+   * @param candidate                   new member (candidate)
+   * @param overwriteUserAttributesList list of attributes to be updated for user if found
+   * @param mergeMemberAttributesList   list of attributes to be merged for member if found
+   * @param skippedMembers              list of not successfully synchronized members
+   */
+  void addMissingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate,
+                                            List<String> overwriteUserAttributesList,
+                                            List<String> mergeMemberAttributesList,
+                                            List<String> skippedMembers);
+
 
   /**
    * Method recalculates all relations between groups. Method recursively adds members from groups and all their
@@ -2013,6 +2037,23 @@ public interface GroupsManagerBl {
                                                Map<Integer, Map<Integer, MemberGroupStatus>> previousStatuses);
 
   /**
+   * Remove former member from group (if he is not listed in ExtSource).
+   * <p>
+   * If this is membersGroup (of some Vo) try to disableMember, if not possible then delete him. If this is regular
+   * group (of some Vo) remove him and if this group is also his last authoritative group, disable or delete him also in
+   * the Vo.
+   * <p>
+   * This method runs in separate transaction.
+   *
+   * @param sess           perun session
+   * @param group          to be synchronized
+   * @param memberToRemove member to be removed from Group
+   * @throws GroupNotExistsException if group does not exist
+   */
+  void removeFormerMemberWhileSynchronization(PerunSession sess, Group group, RichMember memberToRemove,
+                                              boolean isAuthoritative) throws GroupNotExistsException;
+
+  /**
    * Removes a union relation between two groups. All indirect members that originate from operand group are removed
    * from result group.
    *
@@ -2283,6 +2324,34 @@ public interface GroupsManagerBl {
    * @throws InternalErrorException
    */
   void synchronizeGroupsStructures(PerunSession sess);
+
+  /**
+   * Get candidate and corresponding memberToUpdate and update his attributes, extSources, expiration and status.
+   * <p>
+   * For Member - updateAttributes For User - updateAttributes if exists in list of overwriteUserAttributesList, in
+   * other case just mergeAttributes.
+   * <p>
+   * updateAttributes = store new values mergeAttributes = for List and Map add new values, do not remove old one, for
+   * other cases store new values (like String, Integer etc.)
+   * <p>
+   * This method runs in separate transaction.
+   *
+   * @param sess                        perun session
+   * @param group                       to be synchronized
+   * @param candidate                   candidate to update by
+   * @param memberToUpdate              richMember for updating in Perun by information from extSource
+   * @param overwriteUserAttributesList list of user attributes to be updated instead of merged
+   * @param mergeMemberAttributesList   list of member attributes to be merged instead of updated
+   * @param attrDefs                    list of attribute definitions to update from candidate, if null the list is
+   *                                    filled in process
+   * @throws AttributeNotExistsException       if some attributes not exists and for this reason can't be updated
+   * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
+   */
+  void updateExistingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate,
+                                                RichMember memberToUpdate,
+                                                List<String> overwriteUserAttributesList,
+                                                List<String> mergeMemberAttributesList,
+                                                List<AttributeDefinition> attrDefs);
 
   /**
    * Updates group by ID.

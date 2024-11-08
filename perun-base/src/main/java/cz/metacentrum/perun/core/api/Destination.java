@@ -16,6 +16,7 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
   public static final String DESTINATIONSERVICESPECIFICTYPE = "service-specific";
   public static final String DESTINATIONWINDOWS = "user@host-windows";
   public static final String DESTINATIONWINDOWSPROXY = "host-windows-proxy";
+  public static final String DESTINATIONS3TYPE = "s3";
 
   public static final String PROPAGATIONTYPE_PARALLEL = "PARALLEL";
   public static final String PROPAGATIONTYPE_SERIAL = "SERIAL";
