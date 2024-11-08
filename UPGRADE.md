@@ -1,5 +1,33 @@
 Upgrade notes
 
+## [44.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v43.0.0...v44.0.0) (2024-11-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** `createFacility`can now only be called by newly created FACILITYCREATOR role
+* **gui:** Configuration property "disableCreateVo" is no longer used and can be removed from the perun-web-gui.properties.
+
+### Features
+
+* **core:** add s3 destination ([045a7da](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/045a7da013cdd7b65be0fbbd84bbee5b52d257a6))
+* **core:** logging of last manager, and retrieving non-anonymized users for last manager check ([30642f8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/30642f81e17028a5e2decf17c4e7bfaa3e0a9f02))
+* **core:** new FACILITYCREATOR role ([9b9c95b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9b9c95b7c273ce607e083d3568b82f605b45d051))
+* **gui:** support new vocreator role ([5f784e0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5f784e057e80f2f68a3aeae5d1bf819270d1ee86))
+
+
+### Bug Fixes
+
+* **core:** broken transactional behaviour on sync methods ([daf7538](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/daf7538246243a2660f8fb107b6c909be53e7555))
+* **core:** initialize empty MailText with htmlFormat flag set ([d83e9cb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d83e9cb63324ddf2195d8fe139fdb4b9a84389b3))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.3.5 ([fd77eba](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fd77eba06bd89d02835b4095117b7d73639e4b2a))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.10.0 ([c19c5d0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c19c5d0792cc610e72301d96734f07e10710ba35))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.10.2 ([68a61bd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/68a61bdd105272a4cf26544f74021f9087fa9270))
+* **deps:** update google-api-services-admin-directory ([3dd2a22](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3dd2a226a95929705ddb8ed98144cddf39bd44e0))
+* **deps:** update gwtversion to v2.12.0 ([689f8fc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/689f8fc9e2600ee8d075b52f5d366b8b667df646))
+* **registrar:** extendInvitationExpirationNoExpirationDate test ([0f41f7c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0f41f7cc9f98850d2cdb9cac0943822638fcb628))
+* **registrar:** remove policy check on canInvitationBeAccepted ([2d8c878](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2d8c878c100061ff90fd5476f05ac9a7ffd052ec))
+
 ## [43.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v42.0.1...v43.0.0) (2024-10-24)
 
 
