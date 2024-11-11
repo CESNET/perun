@@ -495,4 +495,41 @@ public class TasksManagerBlImplTest {
     assertEquals(TaskStatus.ERROR, task.getStatus());
   }
 
+  @Test
+  public void suspendTasksPropagation() {
+    System.out.println("TasksManagerBlImplTest.suspendTasksPropagation");
+
+    assertFalse("Should be enabled by default", tasksManager.isSuspendedTasksPropagation());
+
+    tasksManager.suspendTasksPropagation(perunSession, true, false);
+
+    assertTrue(tasksManager.isSuspendedTasksPropagation());
+
+    assertFalse("Persistent which is enabled by default in test-schema.sql should not be affected",
+        tasksManager.isSuspendedTasksPropagationPersistently());
+
+    tasksManager.suspendTasksPropagation(perunSession, false, false);
+
+    assertFalse(tasksManager.isSuspendedTasksPropagation());
+  }
+
+  @Test
+  public void suspendTasksPropagationPersistently() {
+    System.out.println("TasksManagerBlImplTest.suspendTasksPropagationPersistently");
+
+    assertFalse("Should be enabled in test-schema.sql",
+          tasksManager.isSuspendedTasksPropagationPersistently());
+
+    tasksManager.suspendTasksPropagation(perunSession, true, true);
+
+    assertTrue(tasksManager.isSuspendedTasksPropagationPersistently());
+    assertTrue("This method should take persistence in consideration ", tasksManager.isSuspendedTasksPropagation());
+
+
+    tasksManager.suspendTasksPropagation(perunSession, false, true);
+
+    assertFalse(tasksManager.isSuspendedTasksPropagationPersistently());
+    assertFalse("This method should take persistence in consideration ", tasksManager.isSuspendedTasksPropagation());
+  }
+
 }

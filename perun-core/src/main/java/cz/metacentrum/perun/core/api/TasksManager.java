@@ -232,6 +232,15 @@ public interface TasksManager {
       throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;
 
   /**
+   * Check if propagating tasks to engine is suspended via the DB flag
+   * CAREFUL: even if not suspended though DB, can be disabled temporarily through synced field
+   *
+   * @return True if suspended in DB, false otherwise
+   * @throws PrivilegeException insufficient rights
+   */
+  boolean isSuspendedTasksPropagationPersistently(PerunSession session) throws PrivilegeException;
+
+  /**
    * Retrieve all task results.
    *
    * @param perunSession
@@ -264,8 +273,10 @@ public interface TasksManager {
    *
    * @param perunSession
    * @param suspend      True to suspend propagation, false to resume propagation
+   * @param persistently True for the change to persist even after Perun restart
    * @throws PrivilegeException
    */
-  void suspendTasksPropagation(PerunSession perunSession, boolean suspend) throws PrivilegeException;
+  void suspendTasksPropagation(PerunSession perunSession, boolean suspend, boolean persistently)
+      throws PrivilegeException;
 
 }

@@ -14662,19 +14662,19 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/groupsManager/suspendGroupSynchronization:
+  /urlinjsonout/groupsManager/suspendGroupSynchronization:
     post:
       tags:
         - GroupsManager
       operationId: suspendGroupSynchronization
-      summary: Suspends group synchronization. Groups being currently synchronized will finish. This is only for temporary suspension, synchronizations will always resume on instance restart. In order to disable synchronizations permanently, use config properties.
+      summary: Suspends group synchronization. Groups being currently synchronized will finish.
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/groupsManager/resumeGroupSynchronization:
+  /urlinjsonout/groupsManager/resumeGroupSynchronization:
     post:
       tags:
         - GroupsManager
@@ -14683,6 +14683,18 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/isSuspendedGroupSynchronization:
+    get:
+      tags:
+        - GroupsManager
+      operationId: isSuspendedGroupSynchronization
+      summary: Return true if group synchronization has been suspended.
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -19837,24 +19849,40 @@ paths:
                 destinationName: { type: string, description: "destination name", nullable: false }
                 destinationType: { type: string, description: "destination type", nullable: false }
 
-  /json/tasksManager/suspendTasksPropagation:
+  /urlinjsonout/tasksManager/suspendTasksPropagation:
     post:
       tags:
         - TasksManager
       operationId: suspendTasksPropagation
       summary: Suspends waiting tasks propagation to the engine. Does not affect already propagated tasks.
+      parameters:
+        - { name: persistently, schema: { type: boolean }, in: query, required: false, description: 'optionally remain the suspension through Perun reset' }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/tasksManager/resumeTasksPropagation:
+  /json/tasksManager/isSuspendedTasksPropagation:
+    get:
+      tags:
+        - TasksManager
+      operationId: isSuspendedTasksPropagation
+      summary: Check if propagating tasks to engine is suspended via the DB flag
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/tasksManager/resumeTasksPropagation:
     post:
       tags:
         - TasksManager
       operationId: resumeTasksPropagation
       summary: Resumes previously suspended waiting tasks propagation to the engine.
+      parameters:
+        - { name: persistently, schema: { type: boolean }, in: query, required: false, description: 'optional, resume persistent suspension' }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.TasksManagerImplApi;
@@ -17,6 +18,7 @@ import java.util.List;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -495,6 +497,16 @@ public class TasksManagerImpl implements TasksManagerImplApi {
   }
 
   @Override
+  public boolean isSuspendedTasksPropagation() {
+    try {
+      return jdbc.query("SELECT value FROM configurations WHERE property='suspendTasksProp'",
+          (resultSet, i) -> resultSet.getString("value").equals("true")).get(0);
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
   public boolean isThereSuchTask(Service service, Facility facility) {
     //this.getJdbcTemplate().update("select id from services where id = ? for update", service.getId());
 
@@ -589,6 +601,15 @@ public class TasksManagerImpl implements TasksManagerImplApi {
     getMyJdbcTemplate().update("delete from tasks where service_id = ? and facility_id = ?", service.getId(),
         facility.getId());
     LOG.debug("Deleted Task with Service ID {} and Facility ID {}", service.getId(), facility.getId());
+  }
+
+  @Override
+  public void suspendTasksPropagation(PerunSession sess, boolean suspend) {
+    try {
+      jdbc.update("UPDATE configurations SET value=? where property='suspendTasksProp'", suspend);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
   }
 
   @Override

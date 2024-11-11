@@ -871,6 +871,21 @@ public interface GroupsManagerImplApi {
   boolean isUserMemberOfGroup(PerunSession sess, User user, Group group);
 
   /**
+  * Suspend synchronizing groups and their structures.
+  *
+  * @param sess session
+  * @param suspend whether to suspend or unsuspend
+  */
+  void suspendGroupSynchronization(PerunSession sess, boolean suspend);
+
+  /**
+   * Check if synchronizing groups is suspended.
+   *
+   * @return True if suspended, false if synchronizing
+   */
+  boolean isSuspendedGroupSynchronization();
+
+  /**
    * Removes all manager roles related to the given group
    *
    * @param session session

@@ -343,27 +343,56 @@ public enum TasksManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Temporarily stops dispatcher from propagating waiting tasks to the engine. Propagation will always resume on
-   * instance restart. To permanently disable propagation, use dispatcher config properties.
-   * Tasks which were sent to the engine before won't be affected and will be finished.
+   * Temporarily stops dispatcher from propagating waiting tasks to the engine. Perun restart will by default resume
+   * propagation, you can use either the optional `persistently` parameter or dispatcher property settings for a more
+   * permanent solution
+   *
+   * @param persistently boolean true if the suspension should persist through restart
    */
   suspendTasksPropagation {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getTasksManager().suspendTasksPropagation(ac.getSession(), true);
+      boolean persistently = false;
+      if (parms.contains("persistently")) {
+        persistently = parms.readBoolean("persistently");
+      }
+
+      ac.getTasksManager().suspendTasksPropagation(ac.getSession(), true, persistently);
       return null;
     }
   },
 
   /*#
-   * Resumes dispatcher's tasks propagation to the engine.
+   * Resumes dispatcher's tasks propagation to the engine. Persistent suspension needs to be resumed using the optional
+   * `persistently` parameter.
+   *
+   * @param persistently boolean true if the suspension to resume is persistent
    */
   resumeTasksPropagation {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
-      ac.getTasksManager().suspendTasksPropagation(ac.getSession(), false);
+
+      boolean persistently = false;
+      if (parms.contains("persistently")) {
+        persistently = parms.readBoolean("persistently");
+      }
+
+      ac.getTasksManager().suspendTasksPropagation(ac.getSession(), false, persistently);
       return null;
     }
-  };
+  },
 
+  /*#
+   * Check if propagating tasks to engine is suspended via the DB flag
+   * CAREFUL: even if not suspended though DB, can be suspended temporarily through un-persistent call of
+   *  `suspendTasksPropagation`
+   *
+   * @return boolean True if task propagation is suspended in DB
+   *
+   */
+  isSuspendedTasksPropagation {
+    public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getTasksManager().isSuspendedTasksPropagationPersistently(ac.getSession());
+    }
+  };
 }
