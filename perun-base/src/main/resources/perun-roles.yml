@@ -9026,7 +9026,10 @@ perun_roles_management:
       - MFA: User
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Self"
@@ -9301,7 +9304,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     skip_mfa: true
@@ -9313,7 +9319,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     skip_mfa: true
@@ -9325,7 +9334,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     skip_mfa: true
@@ -9337,7 +9349,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     skip_mfa: true
@@ -9349,7 +9364,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     display_name: "Service user"
@@ -9586,7 +9604,21 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Membership"
@@ -9598,7 +9630,14 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Sponsorship"
@@ -9609,7 +9648,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     display_name: "MFA"
