@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
@@ -1913,6 +1914,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 
       return ac.getUsersManager().createServiceUser(ac.getSession(), parms.read("candidate", Candidate.class),
           parms.readList("specificUserOwners", User.class));
+    }
+  },
+
+  /*#
+   * Gets map with 2 items which are a list of all vos and a list of all groups where given user is member filtered by
+   * principal's privileges.
+   *
+   * @param user Integer ID of User
+   *
+   * @return Map with lists of vos and groups where given user is member
+   *
+   * @throw UserNotExistsException If user does not exist.
+   */
+  getUserRelations {
+    @Override
+    public Map<String, List<PerunBean>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getUsersManager().getUserRelations(ac.getSession(), ac.getUserById(parms.readInt("user")));
     }
   }
 

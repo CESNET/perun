@@ -1764,6 +1764,18 @@ components:
             additionalProperties:
               type: integer
 
+
+    MapStringListOfPerunBeanResponse:
+      description: "returns Map<String,List<PerunBean>>"
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                $ref: "#/components/schemas/PerunBean"
+
     ListOfMapStringStringResponse:
       description: "returns List<Map<String,String>>"
       content:
@@ -10511,6 +10523,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUserRelations:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserRelations
+      summary:  Gets map with 2 items which are a list of all vos and a list of all groups where given user is member filtered by principal's privileges.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringListOfPerunBeanResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
