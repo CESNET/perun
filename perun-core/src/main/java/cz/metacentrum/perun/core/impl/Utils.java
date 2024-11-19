@@ -151,6 +151,7 @@ public class Utils {
   public static final Pattern SERVICE_SPECIFIC_PATTERN = Pattern.compile("^(?!-)[a-zA-Z0-9-_.:/]*$");
   public static final Pattern S3_PATTERN = Pattern.compile(
       "^(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;()*$']+)/([-a-zA-Z0-9+&@#%?=~_|!:,.;()*$'']+)$");
+  public static final Pattern URL_JSON_PATTERN = URL_PATTERN;
 
   /**
    * Integer row mapper
@@ -1677,7 +1678,8 @@ public class Utils {
          (!Objects.equals(destinationType, Destination.DESTINATIONSERVICESPECIFICTYPE)) &&
          (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWS)) &&
          (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWSPROXY)) &&
-         (!Objects.equals(destinationType, Destination.DESTINATIONS3TYPE)))) {
+         (!Objects.equals(destinationType, Destination.DESTINATIONS3TYPE)) &&
+         (!Objects.equals(destinationType, Destination.DESTINATIONURLJSON)))) {
       throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
     }
   }
@@ -1719,6 +1721,9 @@ public class Utils {
     }
     if (destinationType.equals(Destination.DESTINATIONS3TYPE)) {
       matcher = S3_PATTERN.matcher(destination.getDestination());
+    }
+    if (destinationType.equals(Destination.DESTINATIONURLJSON)) {
+      matcher = URL_JSON_PATTERN.matcher(destination.getDestination());
     }
 
     // it should not happen because destination type is checked earlier
