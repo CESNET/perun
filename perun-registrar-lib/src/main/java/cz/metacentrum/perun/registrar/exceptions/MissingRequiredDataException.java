@@ -48,4 +48,20 @@ public class MissingRequiredDataException extends PerunException {
     return formItems;
   }
 
+  @Override
+  public String getMessage() {
+    StringBuilder problematicItemsInfoBuilder = new StringBuilder();
+    if (formItems != null) {
+      for (ApplicationFormItemWithPrefilledValue item : formItems) {
+        problematicItemsInfoBuilder
+            .append("\n")
+            .append(item.getFormItem().getShortname())
+            .append(" filled from ")
+            .append(item.getFormItem().getFederationAttribute() != null ?
+                "federation attribute " + item.getFormItem().getFederationAttribute() :
+                "perun attribute " + item.getFormItem().getPerunSourceAttribute());
+      }
+    }
+    return super.getMessage() + problematicItemsInfoBuilder;
+  }
 }

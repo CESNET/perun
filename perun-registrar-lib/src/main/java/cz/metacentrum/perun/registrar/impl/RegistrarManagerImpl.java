@@ -3333,14 +3333,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     if (!itemsWithMissingData.isEmpty() && extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
       // throw exception only if user is logged-in by Federation IDP
-      String idp = federValues.get("originIdentityProvider");
       LOG.error(
-          "[REGISTRAR] Wrongly configured form OR user doesn't match any conditions for the following form items OR " +
-           "IDP {} doesn't provide data for following form items: {}",
-          idp, itemsWithMissingData);
+          "[REGISTRAR] Unable to prefill following disabled/hidden form items from their respective Perun/Federation " +
+              "attributes: {}", itemsWithMissingData);
       throw new MissingRequiredDataException(
-          "The administrator set up this form wrongly OR you don't match any conditions OR your IDP doesn't provide " +
-           "data required by this application form.",
+          "Some form items that are disabled or hidden could not be prefilled from their source Perun/Federation " +
+              "attributes:",
           itemsWithMissingData);
     }
 
