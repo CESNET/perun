@@ -45,7 +45,6 @@ import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -891,9 +890,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
       LOG.debug("Loading authzresolver manager init in readOnly version.");
     }
 
-    this.perunRolesLoader.loadPerunRoles(jdbc);
-    perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
-    perunPoliciesContainer.setRolesManagementRules(this.perunRolesLoader.loadPerunRolesManagement());
+    List<String> roles = this.perunRolesLoader.loadPerunRoles(jdbc);
+    perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies(roles));
+    perunPoliciesContainer.setRolesManagementRules(this.perunRolesLoader.loadPerunRolesManagement(roles));
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -937,9 +936,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
   @Override
   public void loadAuthorizationComponents() {
-    this.perunRolesLoader.loadPerunRoles(jdbc);
-    perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
-    perunPoliciesContainer.setRolesManagementRules(this.perunRolesLoader.loadPerunRolesManagement());
+    List<String> roles = this.perunRolesLoader.loadPerunRoles(jdbc);
+    perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies(roles));
+    perunPoliciesContainer.setRolesManagementRules(this.perunRolesLoader.loadPerunRolesManagement(roles));
   }
 
   @Override

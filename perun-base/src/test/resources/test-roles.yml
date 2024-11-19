@@ -85,7 +85,7 @@ perun_policies:
 
   test_audit:
     policy_roles:
-      - AUDITCONSUMERADMIN
+      - AUDITCONSUMERADMIN:
     include_policies: [ ]
 
   test_self:
