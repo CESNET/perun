@@ -108,6 +108,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
     type.addItem("SIGNED MAIL", "semail");
     type.addItem("SERVICE SPECIFIC", "service-specific");
     type.addItem("S3", "s3");
+    type.addItem("URL-JSON", "url-json");
 
     final ListBox propTypeSelect = new ListBox();
     propTypeSelect.addItem("PARALLEL");
