@@ -103,6 +103,15 @@ public class CoreConfig {
   private Map<String, String> oidcIssuersExtsourceNames = new HashMap<>();
   private Map<String, String> oidcIssuersExtsourceTypes = new HashMap<>();
   private int auditlogReadLimit;
+  private boolean enableLinkedName;
+  private boolean enableCustomName;
+  private boolean customNameRequiresApprove;
+  private boolean enableLinkedOrganization;
+  private boolean enableCustomOrganization;
+  private boolean customOrganizationRequiresApprove;
+  private boolean enableLinkedEmail;
+  private boolean enableCustomEmail;
+  private boolean customEmailRequiresVerification;
 
   private void createAttributeDefinitions(String extSourceType, List<String> attrNames) {
     List<AttributeDefinition> attrs = new ArrayList<>();
@@ -970,4 +979,75 @@ public class CoreConfig {
     this.auditlogReadLimit = auditlogReadLimit;
   }
 
+  public boolean getEnableLinkedName() {
+    return enableLinkedName;
+  }
+
+  public void setEnableLinkedName(boolean enableLinkedName) {
+    this.enableLinkedName = enableLinkedName;
+  }
+
+  public boolean getEnableCustomName() {
+    return enableCustomName;
+  }
+
+  public void setEnableCustomName(boolean enableCustomName) {
+    this.enableCustomName = enableCustomName;
+  }
+
+  public boolean getCustomNameRequiresApprove() {
+    return customNameRequiresApprove;
+  }
+
+  public void setCustomNameRequiresApprove(boolean customNameRequiresApprove) {
+    this.customNameRequiresApprove = customNameRequiresApprove;
+  }
+
+  public boolean getEnableLinkedOrganization() {
+    return enableLinkedOrganization;
+  }
+
+  public void setEnableLinkedOrganization(boolean enableLinkedOrganization) {
+    this.enableLinkedOrganization = enableLinkedOrganization;
+  }
+
+  public boolean getEnableCustomOrganization() {
+    return enableCustomOrganization;
+  }
+
+  public void setEnableCustomOrganization(boolean enableCustomOrganization) {
+    this.enableCustomOrganization = enableCustomOrganization;
+  }
+
+  public boolean getCustomOrganizationRequiresApprove() {
+    return customOrganizationRequiresApprove;
+  }
+
+  public void setCustomOrganizationRequiresApprove(boolean customOrganizationRequiresApprove) {
+    this.customOrganizationRequiresApprove = customOrganizationRequiresApprove;
+  }
+
+  public boolean getEnableLinkedEmail() {
+    return enableLinkedEmail;
+  }
+
+  public void setEnableLinkedEmail(boolean enableLinkedEmail) {
+    this.enableLinkedEmail = enableLinkedEmail;
+  }
+
+  public boolean getEnableCustomEmail() {
+    return enableCustomEmail;
+  }
+
+  public void setEnableCustomEmail(boolean enableCustomEmail) {
+    this.enableCustomEmail = enableCustomEmail;
+  }
+
+  public boolean getCustomEmailRequiresVerification() {
+    return customEmailRequiresVerification;
+  }
+
+  public void setCustomEmailRequiresVerification(boolean customEmailRequiresVerification) {
+    this.customEmailRequiresVerification = customEmailRequiresVerification;
+  }
 }

@@ -2689,6 +2689,24 @@ public class Utils {
   }
 
   /**
+   * Try to trim input, and if the input is the empty string, then return null.
+   *
+   * @param input string input to be trimmed
+   * @return trimmed input
+   */
+  public static String trimInput(String input) {
+    if (input != null) {
+      input = input.trim();
+    }
+
+    if (input != null && input.isEmpty()) {
+      input = null;
+    }
+
+    return input;
+  }
+
+  /**
    * Sends alert to the mail of the removed identity.
    *
    * @param sess       session

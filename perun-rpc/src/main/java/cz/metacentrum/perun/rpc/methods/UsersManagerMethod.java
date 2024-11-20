@@ -1550,7 +1550,7 @@ public enum UsersManagerMethod implements ManagerMethod {
    * @param lang String language to get confirmation mail in (optional)
    * @param linkPath path that is appended to the referer and creates the verification link (optional)
    * @param customUrl url to verification link containing path (optional)
-   * @param idpFiler authentication method appended to query parameters of verification link (optional)
+   * @param idpFilter authentication method appended to query parameters of verification link (optional)
    */
   requestPreferredEmailChange {
     @Override
@@ -1929,6 +1929,183 @@ public enum UsersManagerMethod implements ManagerMethod {
 
       return ac.getUsersManager().createServiceUser(ac.getSession(), parms.read("candidate", Candidate.class),
           parms.readList("specificUserOwners", User.class));
+    }
+  },
+
+  /*#
+   * Change organization from which user came to organization from user ext source.
+   *
+   * @param user user
+   * @param newOrganizationName new organization name
+   * @throw UserNotExistsException                If user does not exist.
+   * @throw PrivilegeException                    if privileges are not given.
+   * @throw PersonalDataChangeNotEnabledException If change of organization to organization from ues is not enabled.
+   * @throw UserExtSourceNotExistsException       If user ext source with given organization name and required
+   *                                               loa does not exist.
+   */
+  changeOrganization {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getUsersManager()
+          .changeOrganization(ac.getSession(), ac.getUserById(parms.readInt("user")),
+              parms.readString("newOrganizationName"));
+      return null;
+    }
+  },
+
+  /*#
+   * Change organization from which user came to custom organization. If check from admin is required, then
+   * UserOrganizationChangeRequested audit log will be created. Otherwise, it will be set immediately.
+   *
+   * @param user user
+   * @param newOrganizationName new organization name
+   * @throw UserNotExistsException                If user does not exist.
+   * @throw PrivilegeException                    if privileges are not given.
+   * @throw PersonalDataChangeNotEnabledException If change of organization to custom organization is not enabled.
+   */
+  changeOrganizationCustom {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getUsersManager()
+          .changeOrganizationCustom(ac.getSession(), ac.getUserById(parms.readInt("user")),
+              parms.readString("newOrganizationName"));
+      return null;
+    }
+  },
+
+  /*#
+   * Change user's name to user's name from user ext source.
+   *
+   * @param user user
+   * @param newUserName new user's name
+   * @throw UserNotExistsException                If user does not exist.
+   * @throw PrivilegeException                    if privileges are not given.
+   * @throw PersonalDataChangeNotEnabledException If change of user's name to name from ues is not enabled.
+   * @throw UserExtSourceNotExistsException       If user ext source with given user's name and required
+   *                                              loa does not exist.
+   */
+  changeName {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getUsersManager()
+          .changeName(ac.getSession(), ac.getUserById(parms.readInt("user")),
+              parms.readString("newUserName"));
+      return null;
+    }
+  },
+
+  /*#
+   * Change user's to name custom name. If check from admin is required, then UserNameChangeRequest audit log will be
+   * created.cOtherwise, it will be set immediately.
+   *
+   * @param user user
+   * @param titleBefore new user's title before
+   * @param firstName new user's first name
+   * @param middleName new user's middle name
+   * @param lastName new user's last name
+   * @param titleAfter new user's title after
+   * @throw UserNotExistsException                If user does not exist.
+   * @throw PrivilegeException                    if privileges are not given.
+   * @throw PersonalDataChangeNotEnabledException If change of user's name to custom name is not enabled.
+   */
+  changeNameCustom {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getUsersManager()
+          .changeNameCustom(ac.getSession(),
+              ac.getUserById(parms.readInt("user")),
+              parms.readString("titleBefore"),
+              parms.readString("firstName"),
+              parms.readString("middleName"),
+              parms.readString("lastName"),
+              parms.readString("titleAfter"));
+      return null;
+    }
+  },
+
+  /*#
+   * Change user's email to email from user ext source.
+   *
+   * @param user user
+   * @param newEmail new email
+   * @throw UserNotExistsException                If user does not exist.
+   * @throw PrivilegeException                    if privileges are not given.
+   * @throw PersonalDataChangeNotEnabledException If change of user's email to email from ues is not enabled.
+   * @throw UserExtSourceNotExistsException       If user ext source with given email and required
+   *                                               loa does not exist.
+   */
+  changeEmail {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getUsersManager()
+          .changeEmail(ac.getSession(), ac.getUserById(parms.readInt("user")),
+              parms.readString("newEmail"));
+      return null;
+    }
+  },
+
+  /*#
+   * Change user's email to custom email. If verification is required, then verification email will be sent.
+   * Otherwise, it will be set immediately.
+   *
+   * @param user user
+   * @param newEmail new email
+   * @param lang String language to get confirmation mail in (optional)
+   * @param linkPath path that is appended to the referer and creates the verification link (optional)
+   * @param customUrl url to verification link containing path (optional)
+   * @param idpFilter authentication method appended to query parameters of verification link (optional)
+   * @throw UserNotExistsException                If user does not exist.
+   * @throw PrivilegeException                    if privileges are not given.
+   * @throw PersonalDataChangeNotEnabledException If change of user's email to custom email is not enabled.
+   */
+  changeEmailCustom {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      String referer = parms.getServletRequest().getHeader("Referer");
+      String customUrl = parms.contains("customUrl") ? parms.readString("customUrl") : null;
+      String customPath = parms.contains("linkPath") ? parms.readString("linkPath") : null;
+
+      if ((referer == null || referer.isEmpty()) && customUrl == null) {
+        throw new RpcException(RpcException.Type.MISSING_VALUE,
+            "Missing \"Referer\" header in HTTP request and no custom verification link specified.");
+      }
+
+      if (customUrl != null) { // customUrl option
+        URL url = null;
+        try {
+          url = new URL(customUrl);
+        } catch (MalformedURLException e) {
+          throw new RpcException(RpcException.Type.INVALID_URL, "Invalid custom verification link.");
+        }
+        referer = customUrl;
+        customPath = url.getPath();
+      } else if (customPath != null) { // referer + linkPath option
+        // check that path won't change domain of the url (security risk)
+        try {
+          URL refUrl = new URL(referer);
+          URL refDomainWithPath = new URL(refUrl.getProtocol() + "://" + refUrl.getHost() + customPath);
+          if (!refUrl.getHost().equals(refDomainWithPath.getHost())) {
+            throw new RpcException(RpcException.Type.INVALID_URL,
+                "Invalid verification link - path changes domain: " + refDomainWithPath);
+          }
+        } catch (MalformedURLException e) {
+          throw new RpcException(RpcException.Type.INVALID_URL, "Invalid referer or path.");
+        }
+      }
+
+      ac.getUsersManager()
+          .changeEmailCustom(ac.getSession(), ac.getUserById(parms.readInt("user")),
+              parms.readString("newEmail"), referer, parms.contains("lang") ? parms.readString("lang") : null,
+              customPath,
+              parms.contains("idpFilter") ? parms.readString("idpFilter") : null);
+      return null;
     }
   },
 

@@ -7018,6 +7018,54 @@ perun_policies:
     mfa_rules:
       - MFA: User
 
+  changeOrganization_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      -MFA: User
+
+  changeOrganizationCustom_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      -MFA: User
+
+  changeEmail_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      -MFA: User
+
+  changeEmailCustom_User_String_String_String_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      -MFA: User
+
+  changeName_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      -MFA: User
+
+  changeNameCustom_User_String_String_String_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      -MFA: User
+
   validatePreferredEmailChange_User_String_policy:
     policy_roles:
       - SELF: User

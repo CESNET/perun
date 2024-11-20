@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.implApi;
 
-
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
@@ -47,4 +46,67 @@ public interface ConfigManagerImplApi {
    * @param perunOidcConfigLoader loader to set
    */
   void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader);
+
+  /**
+   * Check if change of name to name from user ext source is enabled.
+   *
+   * @return true if name from ues is enabled, otherwise false
+   */
+  boolean getEnableLinkedName();
+
+  /**
+   * Check if change of name to custom name is enabled.
+   *
+   * @return true if custom name enabled, otherwise false
+   */
+  boolean getEnableCustomName();
+
+  /**
+   * Check if custom name requires approve.
+   *
+   * @return true if custom name requires approve, otherwise false
+   */
+  boolean getCustomNameRequiresApprove();
+
+  /**
+   * Check if change of organization to organization from user ext source is enabled.
+   *
+   * @return true if organization from ues is enabled, otherwise false
+   */
+  boolean getEnableLinkedOrganization();
+
+  /**
+   * Check if change of organization to organization name is enabled.
+   *
+   * @return true if custom organization enabled, otherwise false
+   */
+  boolean getEnableCustomOrganization();
+
+  /**
+   * Check if custom organization requires approve.
+   *
+   * @return true if custom organization requires approve, otherwise false
+   */
+  boolean getCustomOrganizationRequiresApprove();
+
+  /**
+   * Check if change of email to email from user ext source is enabled.
+   *
+   * @return true if email from ues is enabled, otherwise false
+   */
+  boolean getEnableLinkedEmail();
+
+  /**
+   * Check if change of email to organization email is enabled.
+   *
+   * @return true if custom email enabled, otherwise false
+   */
+  boolean getEnableCustomEmail();
+
+  /**
+   * Check if custom email requires verification.
+   *
+   * @return true if custom email requires verification, otherwise false
+   */
+  boolean getCustomEmailRequiresVerification();
 }

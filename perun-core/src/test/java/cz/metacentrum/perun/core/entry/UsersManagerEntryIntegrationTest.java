@@ -111,9 +111,13 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private static final String CLASS_NAME = "UsersManager.";
 	private static final String ATTR_UES_O = "o";
 	private static final String ATTR_UES_CN = "cn";
+	private static final String ATTR_UES_MAIL = "mail";
 	private static final String URN_ATTR_USER_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
+	private static final String URN_ATTR_USER_ORGANIZATION = AttributesManager.NS_USER_ATTR_DEF + ":organization";
 	private static final String URN_ATTR_UES_O = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_O;
 	private static final String URN_ATTR_UES_CN = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_CN;
+	private static final String URN_ATTR_UES_MAIL = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_MAIL;
+
 
 	private static final String defaultBlockedLogin = "perunEngine";
 	private static final String globallyBlockedLogin = "globalLogin";
@@ -3408,6 +3412,205 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		assertEquals(1, relations.get("groups").size());
 		assertEquals(testGroup.getId(), relations.get("groups").get(0).getId());
+	}
+
+	@Test
+	public void changeOrganization() throws Exception {
+		System.out.println("changeOrganization");
+
+		// Set config property
+		BeansUtils.getCoreConfig().setEnableLinkedOrganization(true);
+
+		// Organization values
+		String originalOrganization = "Original organization";
+		String uesOrganization = "Organization from ues";
+
+		// Set up user and their urn:perun:user:attribute-def:def:organization attribute
+		User user = setUpUser("Test", "User");
+
+		AttributeDefinition userOrganizationAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, URN_ATTR_USER_ORGANIZATION);
+		Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, originalOrganization);
+		perun.getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
+
+		// Set up user ext source and its urn:perun:ues:attribute-def:def:o attribute
+		UserExtSource ues = perun.getUsersManagerBl().addUserExtSource(sess, user, new UserExtSource(extSource, 2, extLogin));
+
+		createUserExtSourceAttribute(ATTR_UES_O);
+
+		AttributeDefinition uesOrganizationAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, URN_ATTR_UES_O);
+		Attribute uesOrganizationAttr = new Attribute(uesOrganizationAttrDef, uesOrganization);
+		perun.getAttributesManagerBl().setAttribute(sess, ues, uesOrganizationAttr);
+
+		// Test
+		sess.getPerunPrincipal().setUser(user);
+
+		Attribute userOrganizationBeforeChange = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_ORGANIZATION);
+		assertEquals(originalOrganization, userOrganizationBeforeChange.getValue());
+
+		usersManager.changeOrganization(sess, user, uesOrganization);
+
+		Attribute userOrganizationAfterChange = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_ORGANIZATION);
+		assertEquals(uesOrganization, userOrganizationAfterChange.getValue());
+	}
+
+	@Test
+	public void changeOrganizationCustomWithoutApprove() throws Exception {
+		System.out.println("changeOrganizationCustomWithoutApprove");
+
+		// Set config property
+		BeansUtils.getCoreConfig().setEnableCustomOrganization(true);
+
+		// Organization values
+		String oldOrganization = "Old organization";
+		String customOrganization = "Custom organization";
+
+		// Set up user and their urn:perun:user:attribute-def:def:organization attribute
+		User user = setUpUser("Test", "User");
+
+		AttributeDefinition userOrganizationAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, URN_ATTR_USER_ORGANIZATION);
+		Attribute userOrganizationAttr = new Attribute(userOrganizationAttrDef, oldOrganization);
+		perun.getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
+
+		// Test
+		sess.getPerunPrincipal().setUser(user);
+
+		Attribute userOrganizationBeforeChange = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_ORGANIZATION);
+		assertEquals(oldOrganization, userOrganizationBeforeChange.getValue());
+
+		usersManager.changeOrganizationCustom(sess, user, customOrganization);
+
+		Attribute userOrganizationAfterChange = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_ORGANIZATION);
+		assertEquals(customOrganization, userOrganizationAfterChange.getValue());
+	}
+
+	@Test
+	public void changeName() throws Exception {
+		System.out.println("changeName");
+
+		// Set config property
+		BeansUtils.getCoreConfig().setEnableLinkedName(true);
+
+		// Name value
+		String newName = "Joe Doe";
+
+		// Set up user
+		User user = setUpUser("User", "Test");
+
+		// Set up user ext source and its urn:perun:ues:attribute-def:def:cn attribute
+		UserExtSource ues = perun.getUsersManagerBl().addUserExtSource(sess, user, new UserExtSource(extSource, 2, extLogin));
+
+		createUserExtSourceAttribute(ATTR_UES_CN);
+
+		AttributeDefinition uesNameAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, URN_ATTR_UES_CN);
+		Attribute uesNameAttr = new Attribute(uesNameAttrDef, newName);
+		perun.getAttributesManagerBl().setAttribute(sess, ues, uesNameAttr);
+
+		// Test
+		sess.getPerunPrincipal().setUser(user);
+
+		usersManager.changeName(sess, user, newName);
+
+		User updatedUser = perun.getUsersManagerBl().getUserById(sess, user.getId());
+		assertEquals(newName, updatedUser.getDisplayName());
+	}
+
+	@Test
+	public void changeNameCustomWithoutApprove() throws Exception {
+		System.out.println("changeNameCustomWithoutApprove");
+
+		// Set config property
+		BeansUtils.getCoreConfig().setEnableCustomName(true);
+
+		// Name value
+		String titleBefore = "Ing.";
+		String firstName = "Joe";
+		String middleName = "Johny";
+		String lastName = "Doe";
+		String titleAfter = "Ph.D.";
+
+		// Set up user
+		User user = setUpUser("Test", "User");
+
+		// Test
+		sess.getPerunPrincipal().setUser(user);
+
+		usersManager.changeNameCustom(sess, user, titleBefore, firstName, middleName, lastName, titleAfter);
+
+		User updatedUser = perun.getUsersManagerBl().getUserById(sess, user.getId());
+		assertEquals(titleBefore, updatedUser.getTitleBefore());
+		assertEquals(firstName, updatedUser.getFirstName());
+		assertEquals(middleName, updatedUser.getMiddleName());
+		assertEquals(lastName, updatedUser.getLastName());
+		assertEquals(titleAfter, updatedUser.getTitleAfter());
+	}
+
+	@Test
+	public void changeEmail() throws Exception {
+		System.out.println("changeEmail");
+
+		// Set config properties
+		BeansUtils.getCoreConfig().setEnableLinkedEmail(true);
+
+		// Email values
+		String oldEmail = "old@mail.com";
+		String newEmail = "new@mail.com";
+
+		// Set up user and their urn:perun:user:attribute-def:def:preferred attribute
+		User user = setUpUser("Test", "User");
+
+		AttributeDefinition userPreferredMailAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, URN_ATTR_USER_PREFERRED_MAIL);
+		Attribute userPreferredMailAttr = new Attribute(userPreferredMailAttrDef, oldEmail);
+		perun.getAttributesManagerBl().setAttribute(sess, user, userPreferredMailAttr);
+
+		// Set up user ext source and its urn:perun:ues:attribute-def:def:mail attribute
+		UserExtSource ues = perun.getUsersManagerBl().addUserExtSource(sess, user, new UserExtSource(extSource, 2, extLogin));
+
+		createUserExtSourceAttribute(ATTR_UES_MAIL);
+
+		AttributeDefinition uesMailAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, URN_ATTR_UES_MAIL);
+		Attribute uesMailAttr = new Attribute(uesMailAttrDef, newEmail);
+		perun.getAttributesManagerBl().setAttribute(sess, ues, uesMailAttr);
+
+		// Test
+		sess.getPerunPrincipal().setUser(user);
+
+		Attribute userEmailBeforeChange = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_PREFERRED_MAIL);
+		assertEquals(oldEmail, userEmailBeforeChange.getValue());
+
+		usersManager.changeEmail(sess, user, newEmail);
+
+		Attribute userEmailAfterChange = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_PREFERRED_MAIL);
+		assertEquals(newEmail, userEmailAfterChange.getValue());
+	}
+
+	@Test
+	public void changeEmailCustomWithoutVerification() throws Exception {
+		System.out.println("changeEmailCustomWithoutVerification");
+
+		// Set config properties
+		BeansUtils.getCoreConfig().setEnableCustomEmail(true);
+
+		// Email values
+		String oldEmail = "old@mail.com";
+		String newEmail = "new@mail.com";
+
+		// Set up user and their urn:perun:user:attribute-def:def:preferred attribute
+		User user = setUpUser("Test", "User");
+
+		AttributeDefinition userPreferredMailAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, URN_ATTR_USER_PREFERRED_MAIL);
+		Attribute userPreferredMailAttr = new Attribute(userPreferredMailAttrDef, oldEmail);
+		perun.getAttributesManagerBl().setAttribute(sess, user, userPreferredMailAttr);
+
+		// Test
+		sess.getPerunPrincipal().setUser(user);
+
+		Attribute userEmailBeforeChange = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_PREFERRED_MAIL);
+		assertEquals(oldEmail, userEmailBeforeChange.getValue());
+
+		usersManager.changeEmailCustom(sess, user, newEmail, null, null, null, null);
+
+		Attribute userEmailAfterChange = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_PREFERRED_MAIL);
+		assertEquals(newEmail, userEmailAfterChange.getValue());
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

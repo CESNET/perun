@@ -100,6 +100,16 @@
         <property name="idpLoginValidityExceptions" value="#{'${perun.idpLoginValidityExceptions}'.split('\s*,\s*')}"/>
         <property name="forceHtmlSanitization" value="${perun.forceHtmlSanitization}"/>
         <property name="auditlogReadLimit" value="${perun.auditlogReadLimit}"/>
+        <property name="enableLinkedName" value="${perun.enableLinkedName}"/>
+        <property name="enableCustomName" value="${perun.enableCustomName}"/>
+        <property name="customNameRequiresApprove" value="${perun.customNameRequiresApprove}"/>
+        <property name="enableLinkedOrganization" value="${perun.enableLinkedOrganization}"/>
+        <property name="enableCustomOrganization" value="${perun.enableCustomOrganization}"/>
+        <property name="customOrganizationRequiresApprove" value="${perun.customOrganizationRequiresApprove}"/>
+        <property name="enableLinkedEmail" value="${perun.enableLinkedEmail}"/>
+        <property name="enableCustomEmail" value="${perun.enableCustomEmail}"/>
+        <property name="customEmailRequiresVerification" value="${perun.customEmailRequiresVerification}"/>
+
     </bean>
 
 
@@ -214,6 +224,16 @@
                 <prop key="perun.enforceMfa">false</prop>
                 <prop key="perun.forceHtmlSanitization">false</prop>
                 <prop key="perun.auditlogReadLimit">10000</prop>
+
+                <prop key="perun.enableLinkedName">false</prop>
+                <prop key="perun.enableCustomName">false</prop>
+                <prop key="perun.customNameRequiresApprove">false</prop>
+                <prop key="perun.enableLinkedOrganization">false</prop>
+                <prop key="perun.enableCustomOrganization">false</prop>
+                <prop key="perun.customOrganizationRequiresApprove">false</prop>
+                <prop key="perun.enableLinkedEmail">false</prop>
+                <prop key="perun.enableCustomEmail">false</prop>
+                <prop key="perun.customEmailRequiresVerification">false</prop>
             </props>
         </property>
     </bean>
