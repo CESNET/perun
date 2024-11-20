@@ -167,6 +167,9 @@ perun_roles:
   - MEMBERSHIP
   - PROXY
   - SERVICEACCOUNTCREATOR
+  - SYNCHRONIZER
+  - SERVICE
+  - AUTHZRESOLVER
   - UNKNOWN
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
@@ -7024,7 +7027,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   changeOrganizationCustom_User_String_policy:
     policy_roles:
@@ -7032,7 +7035,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   changeEmail_User_String_policy:
     policy_roles:
@@ -7040,7 +7043,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   changeEmailCustom_User_String_String_String_String_String_policy:
     policy_roles:
@@ -7048,7 +7051,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   changeName_User_String_policy:
     policy_roles:
@@ -7056,7 +7059,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   changeNameCustom_User_String_String_String_String_String_policy:
     policy_roles:
@@ -7064,7 +7067,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   validatePreferredEmailChange_User_String_policy:
     policy_roles:
