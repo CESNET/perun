@@ -1,5 +1,44 @@
 Upgrade notes
 
+## [44.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v44.0.0...v44.1.0) (2024-11-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** Added new config properties for personal data change:
+enableLinkedName,
+enableCustomName,
+customNameRequiresApprove,
+enableLinkedOrganization,
+enableCustomOrganization,
+customOrganizationRequiresApprove,
+enableLinkedEmail,
+enableCustomEmail,
+customEmailRequiresVerification.
+
+To preserve the current behavior, set only the following properties to true:
+
+perun.enableCustomEmail=true
+perun.customEmailRequiresVerification=true
+* **core:** Perun startup will now fail if roles.yml is incorrect
+
+### Features
+
+* **core:** add url-json destination ([2af53a6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2af53a650c7cb891a637ee8c8aba9a750b0be847))
+* **core:** change personal data ([53b68a1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/53b68a17477408e4c5eeb559b46629c5394c265b))
+* **core:** check correctnes of role.yml when loading roles ([ccfd4ef](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ccfd4eff2d2a41450e61d2a00750e9d5ad9905a1))
+* **core:** getUserAssignments method ([1887dfd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1887dfddb9832cecef178eced81e11a9e004da41))
+* **core:** getUserRelations method ([f029c79](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f029c79f388db18164a35d7a2114998fedcdcfe6))
+* **core:** getUserRoles filtered by caller rights ([7f00701](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7f007015140e7f20d6d0fcf2ce046dc8812d105f))
+
+
+### Bug Fixes
+
+* **core:** changed roles to pass the newly added lint ([f802bb8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f802bb8fab231b3f12f39690005bd0466469b3fb))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.11.0 ([a666bd9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a666bd9f85f572f751542db123e5f26d5ba0e86c))
+* **deps:** update gwtversion to v2.12.1 ([b692ec7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b692ec76336dddeadc951da5b57a9c09a58c20bb))
+* **registrar:** add info about problematic form items to the exception messages ([6cb54c3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6cb54c30950934e0e2ea501d3b84bb4f116c0be8))
+
 ## [44.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v43.0.0...v44.0.0) (2024-11-08)
 
 
