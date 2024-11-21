@@ -30,4 +30,12 @@ public class NoPrefilledUneditableRequiredDataException extends PerunException {
     return formItems;
   }
 
+  @Override
+  public String getMessage() {
+    List<String> itemNames = new ArrayList<>();
+    if (formItems != null) {
+      itemNames = formItems.stream().map(item -> item.getFormItem().getShortname()).toList();
+    }
+    return super.getMessage() + "\n Item names: " + String.join(", ", itemNames);
+  }
 }

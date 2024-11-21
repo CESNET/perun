@@ -12,6 +12,9 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Sets;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
@@ -22,13 +25,15 @@ import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.rt.RolesConfigurationException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import cz.metacentrum.perun.core.impl.PerunRolesLoader;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -41,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Integration tests of AuthzResolver
@@ -50,8 +56,30 @@ import org.junit.Test;
 public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
   private static final String CLASS_NAME = "AuthzResolver.";
+  private static final ObjectMapper YAMLMAPPER = new ObjectMapper(new YAMLFactory());
+  private static final List<String> ROLENAMESFORTESTING = List.of("PERUNADMIN", "VOADMIN", "GROUPADMIN", "VOOBSERVER");
   final ExtSource extSource = new ExtSource(0, "AuthzResolverExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
   private int userLoginSequence = 0;
+  @Autowired
+  PerunRolesLoader perunRolesLoader;
+
+  private Method getLoadPoliciesFromJsonNodeMethod() throws NoSuchMethodException {
+    // need to do this since loadPoliciesFromJsonNode is a private method
+    Method method = PerunRolesLoader.class.getDeclaredMethod(
+        "loadPoliciesFromJsonNode", JsonNode.class, List.class);
+    method.setAccessible(true);
+
+    return method;
+  }
+
+  private Method getLoadPerunRolesManagementFromJsonNode() throws NoSuchMethodException {
+    // need to do this since loadPoliciesFromJsonNode is a private method
+    Method method = PerunRolesLoader.class.getDeclaredMethod(
+        "loadPerunRolesManagementFromJsonNode", JsonNode.class, List.class);
+    method.setAccessible(true);
+
+    return method;
+  }
 
   @Test
   public void addAllSubgroupsToAuthzRoles() throws Exception {
@@ -2520,4 +2548,321 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     );
   }
 
+  @Test
+  public void getUserRolesNonAdminCalledByPerunAdmin() throws Exception {
+    System.out.println(CLASS_NAME + "getUserRolesNonAdmin");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+    Facility createdFacility = setUpFacility();
+    Resource createdResource = setUpResource(createdVo, createdFacility);
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    final Group createdGroup = setUpGroup(createdVo, createdMember);
+    Group createdGroup2 = new Group("Test group2", "test group2");
+    createdGroup2 = perun.getGroupsManagerBl().createGroup(sess, createdVo, createdGroup2);
+
+    AuthzResolver.setRole(sess, createdUser, null, Role.VOCREATOR);
+    AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdGroup2, Role.GROUPADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEBANMANAGER);
+
+    AuthzRoles rolesShouldBe = new AuthzRoles();
+    Map<String, Set<Integer>> groupAdminObjects = new HashMap<>();
+    groupAdminObjects.put("Group", new HashSet<>(Arrays.asList(createdGroup.getId(), createdGroup2.getId())));
+    groupAdminObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("GROUPADMIN", groupAdminObjects);
+    Map<String, Set<Integer>> membershipObjects = new HashMap<>();
+    membershipObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    membershipObjects.put("Group", new HashSet<>(Arrays.asList(perun.getGroupsManager().getGroups(sess, createdVo)
+        .get(0).getId(), createdGroup.getId())));
+    rolesShouldBe.putAuthzRoles("MEMBERSHIP", membershipObjects);
+    rolesShouldBe.putAuthzRole("VOCREATOR");
+    Map<String, Set<Integer>> selfObjects = new HashMap<>();
+    selfObjects.put("Member", new HashSet<>(Arrays.asList(createdMember.getId())));
+    rolesShouldBe.putAuthzRoles("SELF", selfObjects);
+    Map<String, Set<Integer>> voAdminObjects = new HashMap<>();
+    voAdminObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("VOADMIN", voAdminObjects);
+    Map<String, Set<Integer>> resourceBanManagerObjects = new HashMap<>();
+    resourceBanManagerObjects.put("Resource", new HashSet<>(Arrays.asList(createdResource.getId())));
+    resourceBanManagerObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    resourceBanManagerObjects.put("Facility", new HashSet<>(Arrays.asList(createdFacility.getId())));
+    rolesShouldBe.putAuthzRoles("RESOURCEBANMANAGER", resourceBanManagerObjects);
+
+    AuthzRoles roles = AuthzResolver.getUserRoles(sess, createdUser, false);
+    assertEquals(rolesShouldBe, roles);
+  }
+
+  @Test
+  public void getUserRolesNonAdminCalledByVoAdmin() throws Exception {
+    System.out.println(CLASS_NAME + "getUserRolesNonAdmin");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+    Facility createdFacility = setUpFacility();
+    Resource createdResource = setUpResource(createdVo, createdFacility);
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    final Group createdGroup = setUpGroup(createdVo, createdMember);
+    Group createdGroup2 = new Group("Test group2", "test group2");
+    createdGroup2 = perun.getGroupsManagerBl().createGroup(sess, createdVo, createdGroup2);
+
+    Candidate candidate = setUpCandidate("callerLogin");
+    Member callerMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
+    PerunSession callerSession = getHisSession(callerMember);
+    AuthzResolver.setRole(sess, callerSession.getPerunPrincipal().getUser(), createdVo, Role.VOADMIN);
+
+    AuthzResolver.setRole(sess, createdUser, null, Role.VOCREATOR);
+    AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdGroup2, Role.GROUPADMIN);
+    AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEBANMANAGER);
+
+    AuthzRoles rolesShouldBe = new AuthzRoles();
+    Map<String, Set<Integer>> groupAdminObjects = new HashMap<>();
+    groupAdminObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("GROUPADMIN", groupAdminObjects);
+    Map<String, Set<Integer>> membershipObjects = new HashMap<>();
+    membershipObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("MEMBERSHIP", membershipObjects);
+    Map<String, Set<Integer>> voAdminObjects = new HashMap<>();
+    voAdminObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("VOADMIN", voAdminObjects);
+    Map<String, Set<Integer>> resourceBanManagerObjects = new HashMap<>();
+    resourceBanManagerObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
+    rolesShouldBe.putAuthzRoles("RESOURCEBANMANAGER", resourceBanManagerObjects);
+
+    AuthzRoles roles = AuthzResolver.getUserRoles(callerSession, createdUser, false);
+    assertEquals(rolesShouldBe, roles);
+  }
+
+  @Test
+  public void loadPoliciesFromJsonNodePassesOnCorrectPolicy() throws Exception {
+    System.out.println(CLASS_NAME + "loadPoliciesFromJsonNodePassesOnCorrectPolicy");
+    String yaml = "perun_policies:\n" +
+        "  default_policy:\n" +
+        "    policy_roles:\n" +
+        "      - PERUNADMIN:\n" +
+        "    include_policies: [ ]";
+
+    JsonNode rootNode = YAMLMAPPER.readTree(yaml);
+    Method loadPoliciesFromJsonNode = getLoadPoliciesFromJsonNodeMethod();
+
+    loadPoliciesFromJsonNode.invoke(perunRolesLoader, rootNode, ROLENAMESFORTESTING);
+  }
+
+  @Test
+  public void loadPoliciesFromJsonNodeFailsOnMissingColon() throws Exception {
+    System.out.println(CLASS_NAME + "loadPoliciesFromJsonNodeFailsOnMissingColon");
+    String yaml = "perun_policies:\n" +
+        "  default_policy:\n" +
+        "    policy_roles:\n" +
+        "      - PERUNADMIN\n" +
+        "    include_policies: [ ]";
+
+    JsonNode rootNode = YAMLMAPPER.readTree(yaml);
+    Method loadPoliciesFromJsonNode = getLoadPoliciesFromJsonNodeMethod();
+
+    boolean exceptionCaught = false;
+    try {
+      loadPoliciesFromJsonNode.invoke(perunRolesLoader, rootNode, ROLENAMESFORTESTING);
+    } catch (Exception e) {
+      // invoke will wrap the exception in its own thus the need to look at cause
+      assertEquals(RolesConfigurationException.class, e.getCause().getClass());
+      exceptionCaught = true;
+    }
+    assertTrue(exceptionCaught);
+  }
+
+  @Test
+  public void loadPoliciesFromJsonNodeFailsOnNonExistingRole() throws Exception {
+    System.out.println(CLASS_NAME + "loadPoliciesFromJsonNodeFailsOnNonExistingRole");
+    String yaml = "perun_policies:\n" +
+        "  default_policy:\n" +
+        "    policy_roles:\n" +
+        "      - NONEXISTINGROLE:\n" +
+        "    include_policies: [ ]";
+
+    JsonNode rootNode = YAMLMAPPER.readTree(yaml);
+    Method loadPoliciesFromJsonNode = getLoadPoliciesFromJsonNodeMethod();
+
+    boolean exceptionCaught = false;
+    try {
+      loadPoliciesFromJsonNode.invoke(perunRolesLoader, rootNode, ROLENAMESFORTESTING);
+    } catch (Exception e) {
+      // invoke will wrap the exception in its own thus the need to look at cause
+      assertEquals(RolesConfigurationException.class, e.getCause().getClass());
+      exceptionCaught = true;
+    }
+    assertTrue(exceptionCaught);
+  }
+
+  @Test
+  public void loadPoliciesFromJsonNodeFailsOnNonArrayRoles() throws Exception {
+    System.out.println(CLASS_NAME + "loadPoliciesFromJsonNodeFailsOnNonArrayRoles");
+    String yaml = "perun_policies:\n" +
+        "  default_policy:\n" +
+        "    policy_roles:\n" +
+        "      PERUNADMIN:\n" +
+        "    include_policies: [ ]";
+
+    JsonNode rootNode = YAMLMAPPER.readTree(yaml);
+    Method loadPoliciesFromJsonNode = getLoadPoliciesFromJsonNodeMethod();
+
+    boolean exceptionCaught = false;
+    try {
+      loadPoliciesFromJsonNode.invoke(perunRolesLoader, rootNode, ROLENAMESFORTESTING);
+    } catch (Exception e) {
+      // invoke will wrap the exception in its own thus the need to look at cause
+      assertEquals(RolesConfigurationException.class, e.getCause().getClass());
+      exceptionCaught = true;
+    }
+    assertTrue(exceptionCaught);
+  }
+
+  @Test
+  public void loadRoleManagementRulesFromJsonNodePassesOnCorrectStructure() throws Exception {
+    System.out.println(CLASS_NAME + "loadRoleManagementRulesFromJsonNodePassesOnCorrectStructure");
+    String yaml = "perun_roles_management:\n" +
+                  "  VOADMIN:\n" +
+                  "    primary_object: Vo\n" +
+                  "    assign_to_objects:\n" +
+                  "      Vo: vo_id\n" +
+                  "    assignment_check:\n" +
+                  "      - MFA: Vo\n" +
+                  "    entities_to_manage:\n" +
+                  "      User: user_id\n" +
+                  "      Group: authorized_group_id\n" +
+                  "    privileged_roles_to_manage:\n" +
+                  "      - PERUNADMIN:\n" +
+                  "      - VOADMIN: Vo\n" +
+                  "    privileged_roles_to_read:\n" +
+                  "      - PERUNADMIN:\n" +
+                  "    associated_read_roles:\n" +
+                  "      - VOOBSERVER\n" +
+                  "    assignable_to_attributes: true\n" +
+                  "    display_name: \"Organization admin\"\n" +
+                  "    receive_notifications:\n" +
+                  "      - Vo";
+
+    JsonNode rootNode = YAMLMAPPER.readTree(yaml);
+    Method loadPerunRolesManagementFromJsonNode = getLoadPerunRolesManagementFromJsonNode();
+
+    loadPerunRolesManagementFromJsonNode.invoke(perunRolesLoader, rootNode, ROLENAMESFORTESTING);
+  }
+
+  @Test
+  public void loadRoleManagementRulesFromJsonNodeFailsOnMissingColon() throws Exception {
+    System.out.println(CLASS_NAME + "loadRoleManagementRulesFromJsonNodeFailsOnMissingColon");
+    String yaml = "perun_roles_management:\n" +
+        "  VOADMIN:\n" +
+        "    primary_object: Vo\n" +
+        "    assign_to_objects:\n" +
+        "      Vo: vo_id\n" +
+        "    assignment_check:\n" +
+        "      - MFA\n" +
+        "    entities_to_manage:\n" +
+        "      User: user_id\n" +
+        "      Group: authorized_group_id\n" +
+        "    privileged_roles_to_manage:\n" +
+        "      - PERUNADMIN:\n" +
+        "      - VOADMIN: Vo\n" +
+        "    privileged_roles_to_read:\n" +
+        "      - PERUNADMIN:\n" +
+        "    associated_read_roles:\n" +
+        "      - VOOBSERVER\n" +
+        "    assignable_to_attributes: true\n" +
+        "    display_name: \"Organization admin\"\n" +
+        "    receive_notifications:\n" +
+        "      - Vo";
+
+    JsonNode rootNode = YAMLMAPPER.readTree(yaml);
+    Method loadPerunRolesManagementFromJsonNode = getLoadPerunRolesManagementFromJsonNode();
+
+    boolean exceptionCaught = false;
+    try {
+      loadPerunRolesManagementFromJsonNode.invoke(perunRolesLoader, rootNode, ROLENAMESFORTESTING);
+    } catch (Exception e) {
+      // invoke will wrap the exception in its own thus the need to look at cause
+      assertEquals(RolesConfigurationException.class, e.getCause().getClass());
+      exceptionCaught = true;
+    }
+    assertTrue(exceptionCaught);
+  }
+
+  @Test
+  public void loadRoleManagementRulesFromJsonNodeFailsOnIncorrectArray() throws Exception {
+    System.out.println(CLASS_NAME + "loadRoleManagementRulesFromJsonNodeFailsOnIncorrectArray");
+    String yaml = "perun_roles_management:\n" +
+        "  VOADMIN:\n" +
+        "    primary_object: Vo\n" +
+        "    assign_to_objects:\n" +
+        "      Vo: vo_id\n" +
+        "    assignment_check:\n" +
+        "      - MFA: Vo\n" +
+        "    entities_to_manage:\n" +
+        "      User: user_id\n" +
+        "      Group: authorized_group_id\n" +
+        "    privileged_roles_to_manage:\n" +
+        "      - PERUNADMIN:\n" +
+        "      - VOADMIN: Vo\n" +
+        "    privileged_roles_to_read:\n" +
+        "      - PERUNADMIN:\n" +
+        "    associated_read_roles:\n" +
+        "      - VOOBSERVER\n" +
+        "    assignable_to_attributes: true\n" +
+        "    display_name: \"Organization admin\"\n" +
+        "    receive_notifications:\n" +
+        "      Vo";
+
+    JsonNode rootNode = YAMLMAPPER.readTree(yaml);
+    Method loadPerunRolesManagementFromJsonNode = getLoadPerunRolesManagementFromJsonNode();
+
+    boolean exceptionCaught = false;
+    try {
+      loadPerunRolesManagementFromJsonNode.invoke(perunRolesLoader, rootNode, ROLENAMESFORTESTING);
+    } catch (Exception e) {
+      // invoke will wrap the exception in its own thus the need to look at cause
+      assertEquals(RolesConfigurationException.class, e.getCause().getClass());
+      exceptionCaught = true;
+    }
+    assertTrue(exceptionCaught);
+  }
+
+  @Test
+  public void loadRoleManagementRulesFromJsonNodeFailsOnNonExistingRole() throws Exception {
+    System.out.println(CLASS_NAME + "loadRoleManagementRulesFromJsonNodeFailsOnNonExistingRole");
+    String yaml = "perun_roles_management:\n" +
+        "  VOADMIN:\n" +
+        "    primary_object: Vo\n" +
+        "    assign_to_objects:\n" +
+        "      Vo: vo_id\n" +
+        "    assignment_check:\n" +
+        "      - MFA: Vo\n" +
+        "    entities_to_manage:\n" +
+        "      User: user_id\n" +
+        "      Group: authorized_group_id\n" +
+        "    privileged_roles_to_manage:\n" +
+        "      - PERUNADMIN:\n" +
+        "      - VOADMIN: Vo\n" +
+        "    privileged_roles_to_read:\n" +
+        "      - NONEXISTINGROLE:\n" +
+        "    associated_read_roles:\n" +
+        "      - VOOBSERVER\n" +
+        "    assignable_to_attributes: true\n" +
+        "    display_name: \"Organization admin\"\n" +
+        "    receive_notifications:\n" +
+        "      - Vo";
+
+    JsonNode rootNode = YAMLMAPPER.readTree(yaml);
+    Method loadPerunRolesManagementFromJsonNode = getLoadPerunRolesManagementFromJsonNode();
+
+    boolean exceptionCaught = false;
+    try {
+      loadPerunRolesManagementFromJsonNode.invoke(perunRolesLoader, rootNode, ROLENAMESFORTESTING);
+    } catch (Exception e) {
+      // invoke will wrap the exception in its own thus the need to look at cause
+      assertEquals(RolesConfigurationException.class, e.getCause().getClass());
+      exceptionCaught = true;
+    }
+    assertTrue(exceptionCaught);
+  }
 }

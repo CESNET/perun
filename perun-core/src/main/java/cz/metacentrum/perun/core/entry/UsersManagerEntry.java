@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -37,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
@@ -55,6 +57,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredExceptio
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PersonalDataChangeNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
@@ -80,6 +83,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -763,6 +767,35 @@ public class UsersManagerEntry implements UsersManager {
     getUsersManagerBl().checkUserExists(sess, user);
 
     return getUsersManagerBl().getAllowedResources(sess, user);
+  }
+
+
+  public Map<Facility, List<Resource>> getUserAssignments(PerunSession sess, User user)
+      throws UserNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    getUsersManagerBl().checkUserExists(sess, user);
+
+
+    if (!AuthzResolver.authorizedInternal(sess, "getUserAssignments_User_policy", user)) {
+      throw new PrivilegeException(sess, "getUserAssignments");
+    }
+
+    List<Facility> facilities = perunBl.getFacilitiesManager().getAssignedFacilities(sess, user);
+    Map<Facility, List<Resource>> assignments = new HashMap<>();
+
+    for (Facility fac : facilities) {
+      List<Resource> resources;
+      try {
+        resources = getAssociatedResources(sess, fac, user);
+      } catch (FacilityNotExistsException e) {
+        throw new ConsistencyErrorException("Facility should exist", e);
+      }
+
+      assignments.put(fac, resources);
+    }
+
+    return assignments;
   }
 
   @Override
@@ -2003,5 +2036,152 @@ public class UsersManagerEntry implements UsersManager {
     Utils.checkPerunSession(sess);
 
     getPerunBl().getUsersManagerBl().validateSSHKey(sess, sshKey);
+  }
+
+  @Override
+  public Map<String, List<PerunBean>> getUserRelations(PerunSession sess, User user) throws UserNotExistsException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    Map<String, List<PerunBean>> result = new HashMap<>();
+
+    List<Vo> vos = new ArrayList<>();
+    List<Group> groups = new ArrayList<>();
+
+    for (Vo vo : getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user)) {
+      try {
+        Member member = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+        if (AuthzResolver.authorizedInternal(sess, "filter-vo-getUserRelations_User_policy", member)) {
+          vos.add(vo);
+          List<Group> memberGroups = perunBl.getGroupsManagerBl().getMemberGroups(sess, member);
+          memberGroups.removeIf(
+                  group -> !AuthzResolver.authorizedInternal(sess, "filter-group-getUserRelations_User_policy",
+                          Arrays.asList(group, member)));
+          groups.addAll(memberGroups);
+        }
+      } catch (MemberNotExistsException ex) {
+        throw new InternalErrorException(ex);
+      }
+    }
+
+    result.put("vos", vos.stream().map(PerunBean.class::cast).toList());
+    result.put("groups", groups.stream().map(PerunBean.class::cast).toList());
+
+    return result;
+  }
+
+  @Override
+  public void changeOrganization(PerunSession sess, User user, String newOrganizationName)
+      throws UserNotExistsException, PrivilegeException, UserExtSourceNotExistsException,
+                 PersonalDataChangeNotEnabledException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "changeOrganization_User_String_policy", user)) {
+      throw new PrivilegeException(sess, "changeOrganization");
+    }
+
+    getUsersManagerBl().changeOrganization(sess, user, newOrganizationName);
+  }
+
+  @Override
+  public void changeOrganizationCustom(PerunSession sess, User user, String newOrganizationName)
+      throws UserNotExistsException, PrivilegeException,
+                 PersonalDataChangeNotEnabledException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    newOrganizationName = Utils.trimInput(newOrganizationName);
+
+    if (newOrganizationName == null) {
+      throw new IllegalArgumentException("Organization is required");
+    }
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "changeOrganizationCustom_User_String_policy", user)) {
+      throw new PrivilegeException(sess, "changeOrganizationCustom");
+    }
+
+    getUsersManagerBl().changeOrganizationCustom(sess, user, newOrganizationName);
+  }
+
+  @Override
+  public void changeName(PerunSession sess, User user, String newUserName)
+      throws UserNotExistsException, PrivilegeException, UserExtSourceNotExistsException,
+                 PersonalDataChangeNotEnabledException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "changeName_User_String_policy", user)) {
+      throw new PrivilegeException(sess, "changeName");
+    }
+
+    getUsersManagerBl().changeName(sess, user, newUserName);
+  }
+
+  @Override
+  public void changeNameCustom(PerunSession sess, User user, String titleBefore, String firstName, String middleName,
+                               String lastName, String titleAfter)
+      throws UserNotExistsException, PrivilegeException, PersonalDataChangeNotEnabledException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    titleBefore = Utils.trimInput(titleBefore);
+    firstName = Utils.trimInput(firstName);
+    middleName = Utils.trimInput(middleName);
+    lastName = Utils.trimInput(lastName);
+    titleAfter = Utils.trimInput(titleAfter);
+
+    if (firstName == null || lastName == null) {
+      throw new IllegalArgumentException("First name and last name are required");
+    }
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess,
+        "changeNameCustom_User_String_String_String_String_String_policy", user)) {
+      throw new PrivilegeException(sess, "changeNameCustom");
+    }
+
+    getUsersManagerBl().changeNameCustom(sess, user, titleBefore, firstName, middleName, lastName, titleAfter);
+
+  }
+
+  @Override
+  public void changeEmail(PerunSession sess, User user, String newEmail)
+      throws UserNotExistsException, PrivilegeException, UserExtSourceNotExistsException,
+                 PersonalDataChangeNotEnabledException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "changeEmail_User_String_policy", user)) {
+      throw new PrivilegeException(sess, "changeEmail");
+    }
+
+    getUsersManagerBl().changeEmail(sess, user, newEmail);
+  }
+
+  @Override
+  public void changeEmailCustom(PerunSession sess, User user, String newEmail, String url, String lang, String path,
+                                String idp)
+      throws UserNotExistsException, PrivilegeException, PersonalDataChangeNotEnabledException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    newEmail = Utils.trimInput(newEmail);
+
+    if (newEmail == null) {
+      throw new IllegalArgumentException("Email is required");
+    }
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "changeEmailCustom_User_String_String_String_String_String_policy",
+        user)) {
+      throw new PrivilegeException(sess, "changeEmailCustom");
+    }
+
+    getUsersManagerBl().changeEmailCustom(sess, user, newEmail, url, lang, path, idp);
   }
 }

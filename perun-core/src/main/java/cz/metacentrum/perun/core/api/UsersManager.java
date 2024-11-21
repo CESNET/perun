@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredExceptio
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PersonalDataChangeNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
@@ -597,6 +598,18 @@ public interface UsersManager {
    * @throws PrivilegeException
    */
   List<Resource> getAllowedResources(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException;
+
+
+  /**
+   * Returns all assignments of the user, assignments being Facilities and Resources they are assigned to.
+   * @param sess session
+   * @param user user
+   * @return the assignments
+   * @throws UserNotExistsException user does not exist
+   * @throws PrivilegeException insufficient rights
+   */
+  Map<Facility, List<Resource>> getUserAssignments(PerunSession sess, User user) throws UserNotExistsException,
+                                                                                            PrivilegeException;
 
   /**
    * Get all rich resources which have the user assigned.
@@ -1630,4 +1643,116 @@ public interface UsersManager {
    * @throws SSHKeyNotValidException when validation fails
    */
   void validateSSHKey(PerunSession sess, String sshKey) throws SSHKeyNotValidException;
+
+  /**
+   * Change organization from which user came to organization from user ext source.
+   *
+   * @param sess                session
+   * @param user                user
+   * @param newOrganizationName new organization name
+   * @throws UserNotExistsException                If user does not exist.
+   * @throws PrivilegeException                    if privileges are not given.
+   * @throws PersonalDataChangeNotEnabledException If change of organization to organization from ues is not enabled.
+   * @throws UserExtSourceNotExistsException       If user ext source with given organization name and required
+   *                                               loa does not exist.
+   */
+  void changeOrganization(PerunSession sess, User user, String newOrganizationName)
+      throws UserNotExistsException, PrivilegeException, UserExtSourceNotExistsException,
+                 PersonalDataChangeNotEnabledException;
+
+  /**
+   * Change organization from which user came to custom organization. If check from admin is required, then
+   * UserOrganizationChangeRequested audit log will be created. Otherwise, it will be set immediately.
+   *
+   * @param sess                session
+   * @param user                user
+   * @param newOrganizationName new organization name
+   * @throws UserNotExistsException                If user does not exist.
+   * @throws PrivilegeException                    if privileges are not given.
+   * @throws PersonalDataChangeNotEnabledException If change of organization to custom organization is not enabled.
+   */
+  void changeOrganizationCustom(PerunSession sess, User user, String newOrganizationName)
+      throws UserNotExistsException, PrivilegeException, PersonalDataChangeNotEnabledException;
+
+  /**
+   * Change user's name to user's name from user ext source.
+   *
+   * @param sess        session
+   * @param user        user
+   * @param newUserName new user's name
+   * @throws UserNotExistsException                If user does not exist.
+   * @throws PrivilegeException                    if privileges are not given.
+   * @throws PersonalDataChangeNotEnabledException If change of user's name to user's name from ues is not enabled.
+   * @throws UserExtSourceNotExistsException       If user ext source with given user's name and required
+   *                                               loa does not exist.
+   */
+  void changeName(PerunSession sess, User user, String newUserName)
+      throws UserNotExistsException, PrivilegeException, UserExtSourceNotExistsException,
+                 PersonalDataChangeNotEnabledException;
+
+  /**
+   * Change user's name to custom name. If check from admin is required, then UserNameChangeRequest audit log will be
+   * created. Otherwise, it will be set immediately.
+   *
+   * @param sess        session
+   * @param user        user
+   * @param titleBefore new title before
+   * @param firstName   new first name
+   * @param middleName  new middle name
+   * @param lastName    new last name
+   * @param titleAfter  new title after
+   * @throws UserNotExistsException                If user does not exist.
+   * @throws PrivilegeException                    if privileges are not given.
+   * @throws PersonalDataChangeNotEnabledException If change of user's name to custom name is not enabled.
+   */
+  void changeNameCustom(PerunSession sess, User user, String titleBefore, String firstName, String middleName,
+                        String lastName, String titleAfter)
+      throws UserNotExistsException, PrivilegeException, PersonalDataChangeNotEnabledException;
+
+  /**
+   * Change user's email to email from user ext source.
+   *
+   * @param sess     session
+   * @param user     user
+   * @param newEmail new email
+   * @throws UserNotExistsException                If user does not exist.
+   * @throws PrivilegeException                    if privileges are not given.
+   * @throws PersonalDataChangeNotEnabledException If change of user's email to email from ues is not enabled.
+   * @throws UserExtSourceNotExistsException       If user ext source with given email and required
+   *                                               loa does not exist.
+   */
+  void changeEmail(PerunSession sess, User user, String newEmail)
+      throws UserNotExistsException, PrivilegeException, UserExtSourceNotExistsException,
+                 PersonalDataChangeNotEnabledException;
+
+  /**
+   * Change user's email to custom email. If verification is required, then verification email will be sent.
+   * Otherwise, it will be set immediately.
+   *
+   * @param sess     session
+   * @param user     user
+   * @param newEmail new email
+   * @param url      base URL of running perun instance passed from RPC.
+   * @param lang     Language to get confirmation mail in (optional)
+   * @param path     path that is appended to the url of the verification link (optional)
+   * @param idp      authentication method appended to query parameters of verification link (optional)
+   * @throws UserNotExistsException                If user does not exist.
+   * @throws PrivilegeException                    if privileges are not given.
+   * @throws PersonalDataChangeNotEnabledException If change of user's email to custom email is not enabled.
+   */
+  void changeEmailCustom(PerunSession sess, User user, String newEmail, String url, String lang, String path,
+                         String idp)
+      throws UserNotExistsException, PrivilegeException, PersonalDataChangeNotEnabledException;
+
+
+  /**
+   * Gets map with 2 items which are a list of all vos and a list of all groups where given user is member filtered by
+   * principal's privileges.
+   *
+   * @param sess perun session
+   * @param user user
+   * @return Result map with lists of vos and groups where given user is member
+   * @throws UserNotExistsException If user does not exist.
+   */
+  Map<String, List<PerunBean>> getUserRelations(PerunSession sess, User user) throws UserNotExistsException;
 }

@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigFileNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OidcConfigNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.implApi.ConfigManagerImplApi;
 
 /**
@@ -42,5 +41,50 @@ public class ConfigManagerImpl implements ConfigManagerImplApi {
 
   public void setPerunOidcConfigLoader(PerunOidcConfigLoader perunOidcConfigLoader) {
     this.perunOidcConfigLoader = perunOidcConfigLoader;
+  }
+
+  @Override
+  public boolean getEnableLinkedName() {
+    return BeansUtils.getCoreConfig().getEnableLinkedName();
+  }
+
+  @Override
+  public boolean getEnableCustomName() {
+    return BeansUtils.getCoreConfig().getEnableCustomName();
+  }
+
+  @Override
+  public boolean getCustomNameRequiresApprove() {
+    return BeansUtils.getCoreConfig().getCustomNameRequiresApprove();
+  }
+
+  @Override
+  public boolean getEnableLinkedOrganization() {
+    return BeansUtils.getCoreConfig().getEnableLinkedOrganization();
+  }
+
+  @Override
+  public boolean getEnableCustomOrganization() {
+    return BeansUtils.getCoreConfig().getEnableCustomOrganization();
+  }
+
+  @Override
+  public boolean getCustomOrganizationRequiresApprove() {
+    return BeansUtils.getCoreConfig().getCustomOrganizationRequiresApprove();
+  }
+
+  @Override
+  public boolean getEnableLinkedEmail() {
+    return BeansUtils.getCoreConfig().getEnableLinkedEmail();
+  }
+
+  @Override
+  public boolean getEnableCustomEmail() {
+    return BeansUtils.getCoreConfig().getEnableCustomEmail();
+  }
+
+  @Override
+  public boolean getCustomEmailRequiresVerification() {
+    return BeansUtils.getCoreConfig().getCustomEmailRequiresVerification();
   }
 }

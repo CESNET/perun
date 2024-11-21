@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.OidcConfig;
+import cz.metacentrum.perun.core.api.PersonalDataChangeConfig;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -39,5 +40,14 @@ public enum ConfigManagerMethod implements ManagerMethod {
       return ac.getConfigManager()
           .isArchiveSpoolEnabled(ac.getSession());
     }
-  }
+  },
+  /*#
+   * Gets personal data change configuration with all related core config properties.
+   */
+  getPersonalDataChangeConfig {
+    @Override
+    public PersonalDataChangeConfig call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getConfigManager().getPersonalDataChangeConfig(ac.getSession());
+    }
+  },
 }

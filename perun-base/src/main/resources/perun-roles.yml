@@ -167,6 +167,9 @@ perun_roles:
   - MEMBERSHIP
   - PROXY
   - SERVICEACCOUNTCREATOR
+  - SYNCHRONIZER
+  - SERVICE
+  - AUTHZRESOLVER
   - UNKNOWN
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
@@ -193,7 +196,7 @@ perun_roles:
 #            - VOADMIN: Vo
 #            - GROUPADMIN: Group
 #              RESOURCEADMIN: Resource
-#            - PERUNOBESRVER:
+#            - PERUNOBSERVER:
 #
 # Explanation: The list contains 3 elements. The first element contains a map with one entry,
 # the second one with two, and the last one with one. It is enough to satisfy just one element in the list.
@@ -6087,6 +6090,16 @@ perun_policies:
       - default_policy
 
   #UsersManagerEntry
+
+  getUserAssignments_User_policy:
+    policy_roles:
+      - SELF: User
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getUserByUserExtSource_UserExtSource_policy:
     policy_roles:
       - SELF: User
@@ -6786,7 +6799,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   changePassword_String_String_String_String_boolean_policy:
     policy_roles:
@@ -6795,7 +6808,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   reserveRandomPassword_User_String_policy:
     policy_roles:
@@ -6803,7 +6816,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   service_user-reserveRandomPassword_User_String_policy:
     policy_roles:
@@ -6813,7 +6826,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   reservePassword_String_String_String_policy:
     policy_roles:
@@ -6821,7 +6834,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA:
+      - MFA:
 
   reservePassword_User_String_String_policy:
     policy_roles:
@@ -6829,7 +6842,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   service_user-reservePassword_User_String_String_policy:
     policy_roles:
@@ -6839,7 +6852,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   validatePassword_String_String_policy:
     policy_roles:
@@ -6847,7 +6860,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA:
+      - MFA:
 
   validatePassword_User_String_policy:
     policy_roles:
@@ -6856,7 +6869,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   service_user-validatePassword_User_String_policy:
     policy_roles:
@@ -6866,7 +6879,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   deletePassword_String_String_policy:
     policy_roles:
@@ -6874,7 +6887,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA:
+      - MFA:
 
   deletePassword_User_String_policy:
     policy_roles:
@@ -6883,7 +6896,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   service_user-deletePassword_User_String_policy:
     policy_roles:
@@ -6891,7 +6904,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   loginExist_User_String_policy:
     policy_roles:
@@ -6915,7 +6928,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   deleteAlternativePassword_User_String_String_policy:
     policy_roles:
@@ -6923,7 +6936,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   getAllRichUsersWithAttributes_boolean_List<String>_policy:
     policy_roles:
@@ -6941,7 +6954,7 @@ perun_policies:
       - GROUPADMIN:
       - GROUPOBSERVER:
       - GROUPMEMBERSHIPMANAGER:
-      - VOOBSREVER:
+      - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
     include_policies:
@@ -6998,7 +7011,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   requestPreferredEmailChange_String_User_String_String_policy:
     policy_roles:
@@ -7006,7 +7019,55 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
+
+  changeOrganization_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+
+  changeOrganizationCustom_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+
+  changeEmail_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+
+  changeEmailCustom_User_String_String_String_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+
+  changeName_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+
+  changeNameCustom_User_String_String_String_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
 
   validatePreferredEmailChange_User_String_policy:
     policy_roles:
@@ -7014,7 +7075,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: User
+      - MFA: User
 
   getPendingPreferredEmailChanges_User_policy:
     policy_roles:
@@ -7029,7 +7090,7 @@ perun_policies:
     include_policies:
       - default_policy
     mfa_rules:
-      -MFA: UserExtSource
+      - MFA: UserExtSource
 
   generateAccount_String_Map<String_String>_policy:
     policy_roles:
@@ -7129,6 +7190,30 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - FACILITYBANMANAGER: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-vo-getUserRelations_User_policy:
+    policy_roles:
+      - SELF: User
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-group-getUserRelations_User_policy:
+    policy_roles:
+      - SELF: User
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -9026,7 +9111,10 @@ perun_roles_management:
       - MFA: User
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Self"
@@ -9301,7 +9389,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     skip_mfa: true
@@ -9313,7 +9404,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     skip_mfa: true
@@ -9325,7 +9419,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     skip_mfa: true
@@ -9337,7 +9434,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     skip_mfa: true
@@ -9349,7 +9449,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     display_name: "Service user"
@@ -9586,7 +9689,21 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Membership"
@@ -9598,7 +9715,14 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - SPONSOR: Vo
+      - SPONSORNOCREATERIGHTS: Vo
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Sponsorship"
@@ -9609,7 +9733,10 @@ perun_roles_management:
     assignment_check: [ ]
     entities_to_manage: { }
     privileged_roles_to_manage: [ ]
-    privileged_roles_to_read: [ ]
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
     associated_read_roles: [ ]
     assignable_to_attributes: false
     display_name: "MFA"

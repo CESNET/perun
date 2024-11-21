@@ -481,7 +481,92 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 
     destination.setDestination("https://custom.endpoint/bucket-name/");
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+  }
 
+  @Test
+  public void checkUrlJsonDestination() {
+    System.out.println("Utils.checkUrlJsonDestination");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONURLJSON);
+
+    destination.setDestination("https://www.url.test/");
+    Utils.checkDestination(destination);
+  }
+
+  @Test
+  public void checkUrlJsonDestinationValidIP() {
+    System.out.println("Utils.checkUrlJsonDestinationValidIP");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONURLJSON);
+
+    destination.setDestination("https://42.42.1.1/");
+    assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+  }
+
+  @Test
+  public void checkUrlJsonDestinationValidIPPort() {
+    System.out.println("Utils.checkUrlJsonDestinationValidIPPort");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONURLJSON);
+
+    destination.setDestination("https://42.42.1.1:8080/");
+    assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+  }
+
+  @Test
+  public void checkUrlJsonDestinationDash() {
+    System.out.println("Utils.checkDestinationDash");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONURLJSON);
+
+    destination.setDestination("https://my.url/my-name");
+    assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+
+    destination.setDestination("https://my-url.com/");
+    assertThatNoException().isThrownBy(() -> Utils.checkDestination(destination));
+  }
+
+  @Test
+  public void checkUrlJsonDestinationSpecialCharacters() {
+    System.out.println("Utils.checkUrlJsonDestinationSpecialCharacters");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONURLJSON);
+
+    destination.setDestination("https://aA0123456789/+&@#%?=~_|!:,.;()*$/zZ9876543210+&@#%?=~_|!:,.;()*$");
+    Utils.checkDestination(destination);
+  }
+
+  @Test
+  public void checkUrlJsonDestinationInvalidSpaces() {
+    System.out.println("Utils.checkUrlJsonDestinationInvalidSpaces");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONURLJSON);
+
+    destination.setDestination("https:// my.url/my-name");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+  }
+
+  @Test
+  public void checkUrlJsonDestinationInvalidIncompleteUrl() {
+    System.out.println("Utils.checkUrlJsonDestinationInvalidIncompleteUrl");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONURLJSON);
+
+    destination.setDestination("https://");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+    destination.setDestination("https//my.url/my-name");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+    destination.setDestination("my.url/my-name");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
   }
 
   @Test

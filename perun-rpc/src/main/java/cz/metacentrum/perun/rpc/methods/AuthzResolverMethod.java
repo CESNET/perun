@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -67,8 +68,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns all roles as an AuthzRoles object for a given user.
-   * Returns also sponsorship and membership roles.
+   * Returns all roles as an AuthzRoles object for a given user. Returns also sponsorship and membership roles.
+   * Behaves differently for PERUNADMIN and other principals.
+   * For PERUNADMIN, PERUNOBSERVER and SELF on the user returns all roles of the given user.
+   * For other principals the roles are filtered only to those that the caller can read.
    *
    * @param userId int Id of a user
    * @return AuthzRoles Object which contains all roles with perunbeans
@@ -78,14 +81,18 @@ public enum AuthzResolverMethod implements ManagerMethod {
   getUserRoles {
     @Override
     public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), parms.readInt("userId"), true);
+      User user = ac.getUserById(parms.readInt("userId"));
+
+      return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), user, true);
     }
   },
 
   /*#
    * Returns all roles assigned to user except for those obtained from membership in authorized groups as an
-   * AuthzRoles object.
-   * Returns also sponsorship and membership roles.
+   * AuthzRoles object. Returns also sponsorship and membership roles.
+   * Behaves differently for PERUNADMIN and other principals.
+   * For PERUNADMIN, PERUNOBSERVER and SELF on the user returns all roles of the given user.
+   * For other principals the roles are filtered only to those that the caller can read.
    *
    * @param userId int Id of a user
    * @return AuthzRoles Object which contains all roles with perunbeans
@@ -95,7 +102,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
   getUserDirectRoles {
     @Override
     public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), parms.readInt("userId"), false);
+      User user = ac.getUserById(parms.readInt("userId"));
+
+      return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), user, false);
     }
   },
 

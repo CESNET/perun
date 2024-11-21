@@ -39,4 +39,12 @@ public interface ConfigManager {
    * @throws PrivilegeException insufficient privileges
    */
   boolean isArchiveSpoolEnabled(PerunSession sess) throws PrivilegeException;
+
+  /**
+   * Gets personal data change configuration with all related core config properties.
+   *
+   * @param sess session
+   * @return personal data change config
+   */
+  PersonalDataChangeConfig getPersonalDataChangeConfig(PerunSession sess);
 }
