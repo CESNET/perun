@@ -111,14 +111,27 @@ public interface RegistrarManager {
   Application approveApplication(PerunSession session, int appId) throws PerunException;
 
   /**
-   * Approves an application in one transaction.
+   * Process application approval in 1 transaction. If validateMember is true performs also an asynchronous member
+   * validation after the transaction commits.
    *
-   * @param session who approves the application
-   * @param appId   application id
+   * @param session  perun session
+   * @param appId application ID to approve
+   * @param validateMember whether to perform also a member validation
+   * @return updated application
    * @throws PerunException
    */
-  Application approveApplicationInternal(PerunSession session, int appId, String approver)
+  Application approveApplicationInternal(PerunSession session, int appId, String approver, boolean validateMember)
       throws PerunException;
+
+  /**
+   * Post commit logic after approving an application. Asynchronously validates the new member and handles his group
+   * applications. Also clears the existing commited transaction.
+   *
+   * @param sess perun session
+   * @param member the applying member
+   * @param app the crated application
+   */
+  void approveApplicationAfterCommitValidation(PerunSession sess, Member member, Application app);
 
   /**
    * Manually approves multiple applications at once. Expected to be called as a result of direct VO administrator
