@@ -3872,7 +3872,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     addVoToMemberOrganizationsAttributes(session, vo, sponsoredMember);
 
     if (Validation.ASYNC.equals(validation)) {
-      validateMemberAsync(session, sponsoredMember);
+      getPerunBl().getMembersManagerBl().validateMemberAsync(session, sponsoredMember);
     } else if (Validation.SYNC.equals(validation)) {
       //for unit tests
       validateMember(session, sponsoredMember);
