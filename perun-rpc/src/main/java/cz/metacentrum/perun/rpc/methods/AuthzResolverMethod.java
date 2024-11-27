@@ -789,7 +789,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
           return null;
         } else {
           cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
-              ac.getUserById(parms.readInt("authorizedGroup")), null, roleName);
+              ac.getGroupById(parms.readInt("authorizedGroup")), null, roleName);
           return null;
         }
 
