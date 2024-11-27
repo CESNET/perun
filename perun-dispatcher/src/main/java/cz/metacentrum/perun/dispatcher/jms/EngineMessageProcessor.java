@@ -1,26 +1,18 @@
 package cz.metacentrum.perun.dispatcher.jms;
 
+import cz.metacentrum.perun.dispatcher.activemq.PerunActiveMQServer;
 import cz.metacentrum.perun.dispatcher.exceptions.MessageFormatException;
-import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
-import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
+import cz.metacentrum.perun.dispatcher.exceptions.PerunActiveMQServerException;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 import jakarta.annotation.Resource;
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.jms.Connection;
+import jakarta.jms.JMSException;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 import java.util.Properties;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import org.hornetq.api.core.TransportConfiguration;
-import org.hornetq.api.jms.HornetQJMSClient;
-import org.hornetq.api.jms.JMSFactoryType;
-import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.hornetq.core.remoting.impl.netty.TransportConstants;
-import org.hornetq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +40,7 @@ public class EngineMessageProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(EngineMessageProcessor.class);
 
   private Properties dispatcherProperties;
-  private PerunHornetQServer perunHornetQServer;
+  private PerunActiveMQServer perunActiveMQServer;
   private TaskExecutor taskExecutor;
   private EngineMessageConsumer engineMessageConsumer;
   private SchedulingPool schedulingPool;
@@ -57,10 +49,10 @@ public class EngineMessageProcessor {
   private Session session = null;
   private boolean processingMessages = false;
   private boolean systemQueueInitiated = false;
-  private ConnectionFactory cf;
+  private ActiveMQConnectionFactory connectionFactory = null;
   private Connection connection;
   private BlockingDeque<TextMessage> outputMessages = null;
-  private boolean restartHornetQServer = false;
+  private boolean restartActiveMQServer = false;
 
 
   // ----- setters -------------------------------------
@@ -69,16 +61,7 @@ public class EngineMessageProcessor {
    * Create JMS queue for Engine.
    */
   private void createDispatcherQueueForClient() {
-
-    String queueName = "queue";
-
-    try {
-      perunHornetQServer.getJMSServerManager().createQueue(false, queueName, null, false);
-    } catch (Exception e) {
-      LOG.error("Can't create JMS {}: {}", queueName, e);
-    }
-
-    engineMessageProducerFactory.createProducer(queueName, session, outputMessages);
+    engineMessageProducerFactory.createProducer("queue", session, outputMessages);
   }
 
   public Properties getDispatcherProperties() {
@@ -93,8 +76,8 @@ public class EngineMessageProcessor {
     return engineMessageProducerFactory;
   }
 
-  public PerunHornetQServer getPerunHornetQServer() {
-    return perunHornetQServer;
+  public PerunActiveMQServer getPerunActiveMQServer() {
+    return perunActiveMQServer;
   }
 
   public SchedulingPool getSchedulingPool() {
@@ -138,13 +121,13 @@ public class EngineMessageProcessor {
    * Task result message taskresult:object object is serialized TaskResult object sent from Engine
    *
    * @param message Message to be parsed a processed
-   * @throws PerunHornetQServerException When HornetQ server is not running
+   * @throws PerunActiveMQServerException When ActiveMQ server is not running
    * @throws MessageFormatException      When Engine sent malformed JMS message
    * @see EngineMessageConsumer
    */
-  protected void processEngineMessage(String message) throws PerunHornetQServerException, MessageFormatException {
+  protected void processEngineMessage(String message) throws PerunActiveMQServerException, MessageFormatException {
 
-    if (perunHornetQServer.isServerRunning() && perunHornetQServer.getJMSServerManager() != null) {
+    if (perunActiveMQServer.isServerRunning()) {
 
       LOG.debug("Processing JMS message: " + message);
 
@@ -186,7 +169,7 @@ public class EngineMessageProcessor {
 
         try {
           schedulingPool.onTaskStatusChange(Integer.parseInt(clientMessageSplitter[1]), clientMessageSplitter[2],
-              clientMessageSplitter[3]);
+                  clientMessageSplitter[3]);
         } catch (NumberFormatException e) {
           throw new MessageFormatException("Engine sent a malformed message, could not parse client ID", e);
         }
@@ -204,7 +187,7 @@ public class EngineMessageProcessor {
       }
 
     } else {
-      throw new PerunHornetQServerException("HornetQ server is not running or JMSServerManager is fucked up...");
+      throw new PerunActiveMQServerException("ActiveMQ server is not running or JMSServerManager is messed up...");
     }
   }
 
@@ -227,8 +210,8 @@ public class EngineMessageProcessor {
   }
 
   @Autowired
-  public void setPerunHornetQServer(PerunHornetQServer perunHornetQServer) {
-    this.perunHornetQServer = perunHornetQServer;
+  public void setPerunActiveMQServer(PerunActiveMQServer perunActiveMQServer) {
+    this.perunActiveMQServer = perunActiveMQServer;
   }
 
   @Autowired
@@ -242,10 +225,10 @@ public class EngineMessageProcessor {
   }
 
   /**
-   * Setup JMS queues between dispatcher and engines and start processing available messages. HornetQ server must be
+   * Setup JMS queues between dispatcher and engines and start processing available messages. ActiveMQ server must be
    * running already.
    *
-   * @see cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer
+   * @see PerunActiveMQServer
    */
   public void startProcessingSystemMessages() {
 
@@ -255,52 +238,26 @@ public class EngineMessageProcessor {
 
     connection = null;
     try {
-      if (restartHornetQServer) {
+      if (restartActiveMQServer) {
         engineMessageProducerFactory.removeProducer();
-        perunHornetQServer.stopServer();
-        perunHornetQServer.startServer();
+        perunActiveMQServer.stopServer();
+        perunActiveMQServer.startServer();
       }
 
-      // Step 2. Instantiate the TransportConfiguration object which
-      // contains the knowledge of what transport to use,
-      // The server port etc.
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Creating transport configuration...");
-        LOG.debug(
-            "Gonna connect to the host[" + dispatcherProperties.getProperty("dispatcher.ip.address") + "] on port[" +
-            dispatcherProperties.getProperty("dispatcher.port") + "]...");
-      }
-      Map<String, Object> connectionParams = new HashMap<String, Object>();
-      try {
-        connectionParams.put(TransportConstants.PORT_PROP_NAME,
-            Integer.parseInt(dispatcherProperties.getProperty("dispatcher.port")));
-      } catch (NumberFormatException e) {
-        LOG.error("Could not parse value of dispatcher.port property. Trying without...");
-      }
-      connectionParams.put(TransportConstants.HOST_PROP_NAME,
-          dispatcherProperties.getProperty("dispatcher.ip.address"));
+      // load dispatcher config, fallback to fixed values
+      String host = dispatcherProperties.getProperty("dispatcher.ip.address", "127.0.0.1");
+      String port = dispatcherProperties.getProperty("dispatcher.port", "6071");
+      connectionFactory = new ActiveMQConnectionFactory("tcp://" + host + ":" + port);
 
-      TransportConfiguration transportConfiguration =
-          new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams);
+      //Next we create a JMS connection using the connection factory:
+      connection = connectionFactory.createConnection();
 
-      // Step 3 Directly instantiate the JMS ConnectionFactory object
-      // using that TransportConfiguration
-      LOG.debug("Creating connection factory...");
-      cf = (ConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-          transportConfiguration);
-      ((HornetQConnectionFactory) cf).setUseGlobalPools(false);
-
-      // Step 4.Create a JMS Connection
-      LOG.debug("Creating connection...");
-      connection = cf.createConnection();
-
-      // Step 5. Create a JMS Session
-      LOG.debug("Creating session...");
+      //And we create a non transacted JMS Session, with AUTO\_ACKNOWLe.g. //acknowledge mode:
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      // Step 10. Start the Connection
-      LOG.debug("Starting connection...");
+      //We make sure we start the connection, or delivery won't occur on it:
       connection.start();
+
       if (processingMessages) {
         // make sure processing is stopped before new start when called as "restart"
         engineMessageConsumer.stop();
@@ -314,10 +271,10 @@ public class EngineMessageProcessor {
     } catch (JMSException e) {
       // If unable to connect to the server...
       LOG.error("Connection failed. \nThis is weird...are you sure that the Perun-Dispatcher is running on host [" +
-                dispatcherProperties.getProperty("dispatcher.ip.address") + "] on port [" +
-                dispatcherProperties.getProperty("dispatcher.port") +
-                "] ? \nSee: perun-dispatcher.properties. We gonna wait 5 sec and try again...", e);
-      restartHornetQServer = true;
+              dispatcherProperties.getProperty("dispatcher.ip.address") + "] on port [" +
+              dispatcherProperties.getProperty("dispatcher.port") +
+              "] ? \nSee: perun-dispatcher.properties. We gonna wait 5 sec and try again...", e);
+      restartActiveMQServer = true;
       throw new RuntimeException(e);
     } catch (Exception e) {
       LOG.error("Can't start processing of JMS: {}", e);
@@ -335,7 +292,6 @@ public class EngineMessageProcessor {
         connection.stop();
         session.close();
         connection.close();
-        ((HornetQConnectionFactory) cf).close();
         LOG.debug("JMS processing stopped.");
       } catch (JMSException e) {
         LOG.error("Error closing JMS client connection: ", e.toString());

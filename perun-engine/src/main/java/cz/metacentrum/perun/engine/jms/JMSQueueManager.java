@@ -2,21 +2,16 @@ package cz.metacentrum.perun.engine.jms;
 
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
+import jakarta.jms.Connection;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Queue;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import org.hornetq.api.core.TransportConfiguration;
-import org.hornetq.api.jms.HornetQJMSClient;
-import org.hornetq.api.jms.JMSFactoryType;
-import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.hornetq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,26 +58,16 @@ public class JMSQueueManager {
     while (needToConnect) {
 
       try {
-        // Step 2. Instantiate the TransportConfiguration object which
-        // contains the knowledge of what transport to use,
-        // The server port etc.
-        Map<String, Object> connectionParams = new HashMap<String, Object>();
         LOG.debug("Gonna connect to the host[{}] on port[{}].", propertiesBean.getProperty("dispatcher.ip.address"),
-            propertiesBean.getProperty("dispatcher.port"));
-        connectionParams.put(TransportConstants.PORT_PROP_NAME,
-            Integer.parseInt(propertiesBean.getProperty("dispatcher.port")));
-        connectionParams.put(TransportConstants.HOST_PROP_NAME, propertiesBean.getProperty("dispatcher.ip.address"));
+                    propertiesBean.getProperty("dispatcher.port"));
 
-        TransportConfiguration transportConfiguration =
-            new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams);
-
-        // Step 3 Directly instantiate the JMS ConnectionFactory object
-        // using that TransportConfiguration
-        ConnectionFactory cf = (ConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-            transportConfiguration);
+        // load dispatcher config, fallback to fixed values
+        String host = propertiesBean.getProperty("dispatcher.ip.address", "127.0.0.1");
+        String port = propertiesBean.getProperty("dispatcher.port", "6071");
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://" + host + ":" + port);
 
         // Step 4.Create a JMS Connection
-        connection = cf.createConnection();
+        connection = connectionFactory.createConnection();
 
         // Step 5. Create a JMS Session
         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -117,7 +102,7 @@ public class JMSQueueManager {
   public void registerForReceivingMessages() {
     try {
       // Step 1. Directly instantiate the JMS Queue object.
-      Queue queue = HornetQJMSClient.createQueue(SYSTEM_QUEUE_NAME);
+      Queue queue = session.createQueue(SYSTEM_QUEUE_NAME);
 
       // Step 6. Create a JMS Message Producer
       producer = session.createProducer(queue);

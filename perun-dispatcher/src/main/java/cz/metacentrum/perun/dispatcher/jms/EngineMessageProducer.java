@@ -1,12 +1,11 @@
 package cz.metacentrum.perun.dispatcher.jms;
 
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Queue;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 import java.util.concurrent.BlockingDeque;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import org.hornetq.api.jms.HornetQJMSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,7 @@ public class EngineMessageProducer {
     this.outputMessages = outputQueue;
     try {
       // Step 1. Directly instantiate the JMS Queue object.
-      this.queue = HornetQJMSClient.createQueue(this.queueName);
+      this.queue = session.createQueue(this.queueName);
       if (LOG.isDebugEnabled()) {
         LOG.debug("Created queue named as: " + this.queueName);
       }

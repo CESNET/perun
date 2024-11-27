@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.dispatcher.service;
 
 /**
- * Main class instantiating and manging various parts of Dispatcher (hornetQ server, auditer listener, task scheduling,
+ * Main class instantiating and manging various parts of Dispatcher (ActiveMQ server, auditer listener, task scheduling,
  * ...).
  *
  * @author Michal Karm Babacek
@@ -28,9 +28,9 @@ public interface DispatcherManager {
   void startAuditerListener();
 
   /**
-   * Start HornetQ server used to pass/receive JMS messages to/from Engine
+   * Start ActiveMQ server used to pass/receive JMS messages to/from Engine
    */
-  void startPerunHornetQServer();
+  void startPerunActiveMQServer();
 
   /**
    * Start processing read audit messages
@@ -58,9 +58,9 @@ public interface DispatcherManager {
   void stopAuditerListener();
 
   /**
-   * Stop HornetQ server used to pass/receive JMS messages to/from Engine
+   * Stop ActiveMQ server used to pass/receive JMS messages to/from Engine
    */
-  void stopPerunHornetQServer();
+  void stopPerunActiveMQServer();
 
   /**
    * Stop processing read audit messages

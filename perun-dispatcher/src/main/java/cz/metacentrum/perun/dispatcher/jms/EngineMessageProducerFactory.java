@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.dispatcher.jms;
 
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 import java.util.concurrent.BlockingDeque;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 import org.springframework.stereotype.Service;
 
 @Service
