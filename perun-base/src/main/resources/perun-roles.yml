@@ -813,6 +813,7 @@ perun_policies:
       - ENGINE:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
+      - FACILITYCREATOR:
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -829,6 +830,7 @@ perun_policies:
   getEnrichedFacilities_policy:
     policy_roles:
       - ENGINE:
+      - FACILITYCREATOR:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
       - FACILITYBANMANAGER:
@@ -7456,6 +7458,7 @@ perun_policies:
       - VOADMIN:
       - ORGANIZATIONMEMBERSHIPMANAGER:
       - VOBANMANAGER:
+      - VOCREATOR:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
@@ -9207,6 +9210,7 @@ perun_roles_management:
       - MFA:
     entities_to_manage:
       User: user_id
+      Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
       - PERUNADMINBA:
@@ -9447,6 +9451,7 @@ perun_roles_management:
       - MFA:
     entities_to_manage:
       User: user_id
+      Group: authorized_group_id
     privileged_roles_to_manage:
       - PERUNADMIN:
       - PERUNADMINBA:
