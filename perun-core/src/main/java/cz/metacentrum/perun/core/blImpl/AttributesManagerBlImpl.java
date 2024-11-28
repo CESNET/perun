@@ -8302,6 +8302,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8317,6 +8318,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8333,6 +8335,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8349,6 +8352,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8365,6 +8369,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8381,6 +8386,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8397,6 +8403,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8412,6 +8419,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8438,6 +8446,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
@@ -8454,6 +8463,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Group));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
     attributes.put(attr, createInitialPolicyCollections(policies));
@@ -8470,6 +8480,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Group.name
@@ -8484,6 +8495,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Group.description
@@ -8498,6 +8510,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Group.parentGroupId
@@ -8512,6 +8525,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Vo.id
@@ -8525,6 +8539,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Vo.uuid
@@ -8551,6 +8566,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Vo.createdAt
@@ -8574,6 +8590,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.MEMBERSHIP, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //Host.id
@@ -8613,6 +8630,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:user:attribute-def:def:preferredMail
@@ -8628,6 +8646,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     policies.add(Triple.of(Role.SPREGAPPLICATION, READ, RoleObject.None));
     policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
@@ -8647,6 +8666,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8664,6 +8684,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8695,6 +8716,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8712,6 +8734,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8729,6 +8752,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8747,6 +8771,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8764,6 +8789,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8776,6 +8802,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8793,6 +8820,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8810,6 +8839,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -8851,6 +8881,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:group:attribute-def:def:groupMembershipExpirationRules
@@ -8866,6 +8897,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
@@ -8883,6 +8915,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:group:attribute-def:def:applicationExpirationRules
@@ -8899,6 +8932,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
@@ -8931,6 +8965,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, WRITE, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
@@ -8949,6 +8985,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:group:attribute-def:def:blockManualMemberAdding
@@ -8963,6 +9000,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
@@ -9308,6 +9346,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, WRITE, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, WRITE, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:vo:attribute-def:def:autoApproveByGroupMembership
@@ -9323,6 +9363,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, WRITE, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:group:attribute-def:def:applicationViewPreferences
@@ -9337,6 +9379,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
@@ -9355,6 +9399,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
@@ -9556,6 +9602,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
     attributes.put(attr, createInitialPolicyCollections(policies));
@@ -9668,6 +9715,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -9678,6 +9726,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -9809,6 +9858,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn_perun_group_attribute_def_def_mfaCriticalObject
@@ -9837,6 +9887,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -9908,6 +9959,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
       policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
       policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+      policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
       policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
       policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
       attributes.put(attr, createInitialPolicyCollections(policies));
@@ -9925,6 +9977,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
       policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
       policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+      policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
       policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
       policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
       attributes.put(attr, createInitialPolicyCollections(policies));
