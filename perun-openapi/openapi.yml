@@ -66,6 +66,17 @@ components:
         name: { type: string }
         message: { type: string }
 
+    CantBeApprovedException:
+      description: thrown by Registrar modules when application shouldn't be approved
+      allOf:
+        - $ref: '#/components/schemas/PerunException'
+      properties:
+        affiliation: { type: string, nullable: true }
+        applicationId: { type: number }
+        category: { type: string, nullable: true }
+        reason: { type: string, nullable: true }
+        soft: { type: boolean }
+
     PerunBean:
       description: identifiable entity in Perun, common ancestor of all entity classes
       type: object
@@ -1707,11 +1718,18 @@ components:
   #################################################
   responses:
     ExceptionResponse:
-      description: exception occured
+      description: exception occurred
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/PerunException"
+
+    CantBeApprovedExceptionResponse:
+      description: exception occurred
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CantBeApprovedException"
 
     VoidResponse:
       description: "returns nothing"
@@ -17196,6 +17214,20 @@ paths:
           $ref: '#/components/responses/ApplicationResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/canBeApproved:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: canBeApproved
+      summary: Check if application can be approved based on form module rules. Throws exception if not.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/CantBeApprovedExceptionResponse'
 
   /urlinjsonout/registrarManager/approveApplications:
     post:
