@@ -1058,6 +1058,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     List<ApplicationOperationResult> approveApplicationsResult = new ArrayList<>();
     for (Integer id : applicationIds) {
       try {
+        registrarManager.canBeApproved(sess, registrarManager.getApplicationById(sess, id));
         registrarManager.approveApplication(sess, id);
         approveApplicationsResult.add(new ApplicationOperationResult(id, null));
       } catch (Exception e) {
