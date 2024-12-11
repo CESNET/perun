@@ -26,7 +26,7 @@ public class IT4Innovations extends DefaultRegistrarModule {
 
   @Override
   public void canBeApproved(PerunSession session, Application app) throws PerunException {
-    if (isBlockedUser(session)) {
+    if (isBlockedUser(session, app.getUser())) {
       throw new CantBeApprovedException(
           "Users account from application is in collision with existing account in IT4Innovations. It must be " +
           "resolved manually.");
@@ -36,18 +36,17 @@ public class IT4Innovations extends DefaultRegistrarModule {
   @Override
   public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params)
       throws PerunException {
-    if (isBlockedUser(session)) {
+    if (isBlockedUser(session, session.getPerunPrincipal().getUser())) {
       throw new CantBeSubmittedException(
           "Your existing user account is in collision with existing account in IT4Innovations. In order to register " +
           "please contact support at support@it4i.cz");
     }
   }
 
-  private boolean isBlockedUser(PerunSession session)
+  private boolean isBlockedUser(PerunSession session, User user)
       throws WrongAttributeAssignmentException, AttributeNotExistsException {
 
     PerunBl perun = (PerunBl) session.getPerun();
-    User user = session.getPerunPrincipal().getUser();
 
     if (user != null) {
       // Check if user is not prevented from registration.
