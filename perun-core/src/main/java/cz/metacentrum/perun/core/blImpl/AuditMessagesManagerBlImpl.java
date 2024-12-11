@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.AuditMessagesManagerImpl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.implApi.AuditMessagesManagerImplApi;
 import java.util.ArrayList;
@@ -40,9 +41,7 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
   @Override
   public List<String> findAllPossibleEvents(PerunSession sess) {
     try {
-      Reflections reflections = new Reflections(AuditEvent.class);
-      List<String> events =
-          new ArrayList<>((reflections.getSubTypesOf(AuditEvent.class).stream().map(Class::getSimpleName).toList()));
+      List<String> events = new ArrayList<>(AuditMessagesManagerImpl.EXISTING_EVENT_CLASS_NAMES);
 
       // Remove subclasses outside subpackages.
       events.remove("StringMessageEvent");
@@ -93,6 +92,11 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
   @Override
   public Paginated<AuditMessage> getMessagesPage(PerunSession perunSession, MessagesPageQuery query) {
+    for (String event : query.getSelectedEvents()) {
+      if (!AuditMessagesManagerImpl.EXISTING_EVENT_CLASS_NAMES.contains(event)) {
+        throw new IllegalArgumentException("The event " + event + " does not exist.");
+      }
+    }
     return getAuditMessagesManagerImpl().getMessagesPage(perunSession, query);
   }
 
