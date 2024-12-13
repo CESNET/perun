@@ -23,7 +23,6 @@ import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -51,9 +50,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -305,24 +301,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
       getFacilitiesManagerBl().addOwner(sess, facility, owner);
     }
-  }
-
-  @Override
-  public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException,
-                 SecurityTeamAlreadyAssignedException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
-    getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-    getFacilitiesManagerBl().checkSecurityTeamNotAssigned(sess, facility, securityTeam);
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "assignSecurityTeam_Facility_SecurityTeam_policy",
-        Arrays.asList(facility, securityTeam))) {
-      throw new PrivilegeException(sess, "assignSecurityTeam");
-    }
-
-    this.getFacilitiesManagerBl().assignSecurityTeam(sess, facility, securityTeam);
   }
 
   @Override
@@ -639,24 +617,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
   }
 
   @Override
-  public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam)
-      throws PrivilegeException, SecurityTeamNotExistsException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_SecurityTeam_policy", securityTeam)) {
-      throw new PrivilegeException(sess, "getAssignedFacilities");
-    }
-    List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
-    facilities.removeIf(
-        facility -> !AuthzResolver.authorizedInternal(sess, "filter-getAssignedFacilities_SecurityTeam_policy",
-            Arrays.asList(securityTeam, facility)));
-
-    return facilities;
-  }
-
-  @Override
   public List<Resource> getAssignedResources(PerunSession sess, Facility facility)
       throws PrivilegeException, FacilityNotExistsException {
     Utils.checkPerunSession(sess);
@@ -724,20 +684,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
     return getFacilitiesManagerBl().getAssignedRichResources(sess, facility, service);
 
-  }
-
-  @Override
-  public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility)
-      throws PrivilegeException, FacilityNotExistsException {
-    Utils.checkPerunSession(sess);
-    getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getAssignedSecurityTeams_Facility_policy", facility)) {
-      throw new PrivilegeException(sess, "getAssignedSecurityTeams");
-    }
-
-    return this.getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
   }
 
   @Override
@@ -1500,24 +1446,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
       getFacilitiesManagerBl().removeOwner(sess, facility, owner);
     }
-  }
-
-  @Override
-  public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException,
-                 SecurityTeamNotAssignedException {
-    Utils.checkPerunSession(sess);
-    getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
-    getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-    getFacilitiesManagerBl().checkSecurityTeamAssigned(sess, facility, securityTeam);
-
-    //Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "removeSecurityTeam_Facility_SecurityTeam_policy",
-        Arrays.asList(facility, securityTeam))) {
-      throw new PrivilegeException(sess, "removeSecurityTeam");
-    }
-
-    this.getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
   }
 
   @Override

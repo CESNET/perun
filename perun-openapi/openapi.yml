@@ -503,7 +503,6 @@ components:
         - "Resource"
         - "User"
         - "Member"
-        - "SecurityTeam"
 
     AttributePolicy:
       type: object
@@ -1322,15 +1321,6 @@ components:
               type: array
               items:
                 type: integer
-
-    SecurityTeam:
-      allOf:
-        - $ref: '#/components/schemas/Auditable'
-      properties:
-        name: { type: string }
-        description: { type: string }
-      discriminator:
-        propertyName: beanName
 
     Ban:
       allOf:
@@ -2595,15 +2585,6 @@ components:
             items:
               $ref: "#/components/schemas/ServiceForGUI"
 
-    ListOfSecurityTeamsResponse:
-      description: "returns List<SecurityTeam>"
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/SecurityTeam"
-
     ListOfCandidatesResponse:
       description: "return List<Candidate>"
       content:
@@ -3539,7 +3520,7 @@ components:
 
     complementaryObjectName:
       name: complementaryObjectName
-      description: "Property beanName of complementaryObject, meaning object type (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+      description: "Property beanName of complementaryObject, meaning object type (supported object types: Group | RichGroup | Vo | Resource | Facility)"
       schema:
         type: string
       in: query
@@ -4170,7 +4151,7 @@ paths:
           application/json:
             schema:
               title: setRoleWithUserComplementaryObject
-              description: "input to setRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+              description: "input to setRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility)"
               type: object
               required:
                 - role
@@ -4212,7 +4193,7 @@ paths:
                 user: { type: integer, description: "user id", nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility)"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4234,7 +4215,7 @@ paths:
           application/json:
             schema:
               title: unsetRoleWithUserComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility)"
               type: object
               required:
                 - role
@@ -4276,7 +4257,7 @@ paths:
                 user: { type: integer, description: "user id", nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility)"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4350,7 +4331,7 @@ paths:
           application/json:
             schema:
               title: setRoleWithGroupComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility)"
               type: object
               required:
                 - role
@@ -4392,7 +4373,7 @@ paths:
                 authorizedGroup: { type: integer, nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility)"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4414,7 +4395,7 @@ paths:
           application/json:
             schema:
               title: unsetRoleWithGroupComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility)"
               type: object
               required:
                 - role
@@ -4456,7 +4437,7 @@ paths:
                 authorizedGroup: { type: integer, nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility)"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4826,22 +4807,6 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfMembersResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/authzResolver/getSecurityTeamsWhereUserIsInRoles:
-    get:
-      tags:
-        - AuthzResolver
-      operationId: getSecurityTeamsWhereUserIsInRoles
-      summary: Get all SecurityTeams where the given user (principal if user not sent) has set one of the given roles
-        or the given user is a member of an authorized group with such roles.
-      parameters:
-        - $ref: '#/components/parameters/optionalUserId'
-        - $ref: '#/components/parameters/ListOfRoles'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -13327,94 +13292,6 @@ paths:
       parameters:
         - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id" }
         - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name" }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/facilitiesManager/getAssignedSecurityTeams:
-    get:
-      tags:
-        - FacilitiesManager
-      operationId: getAssignedSecurityTeams
-      summary: Return assigned security teams for specific facility
-      parameters:
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/facilitiesManager/getAssignedSecurityTeams/f-name:
-    get:
-      tags:
-        - FacilitiesManager
-      operationId: getAssignedSecurityTeamsByFacilityName
-      summary: Return assigned security teams for specific facility
-      parameters:
-        - $ref: '#/components/parameters/facilityName'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/facilitiesManager/assignSecurityTeam:
-    post:
-      tags:
-        - FacilitiesManager
-      operationId: assignSecurityTeam
-      summary: Assign given security team to given facility (means the facility trusts the security team)
-      parameters:
-        - $ref: '#/components/parameters/facilityId'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/facilitiesManager/assignSecurityTeam/f-name:
-    post:
-      tags:
-        - FacilitiesManager
-      operationId: assignSecurityTeamByFacilityName
-      summary: Assign given security team to given facility (means the facility trusts the security team)
-      parameters:
-        - $ref: '#/components/parameters/facilityName'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/facilitiesManager/removeSecurityTeam:
-    post:
-      tags:
-        - FacilitiesManager
-      operationId: removeSecurityTeam
-      summary: Remove (Unassign) given security team from given facility
-      parameters:
-        - $ref: '#/components/parameters/facilityId'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/facilitiesManager/removeSecurityTeam/f-name:
-    post:
-      tags:
-        - FacilitiesManager
-      operationId: removeSecurityTeamByFacilityName
-      summary: Remove (Unassign) given security team from given facility
-      parameters:
-        - $ref: '#/components/parameters/facilityName'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

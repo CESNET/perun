@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RoleAssignmentType;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -116,10 +115,6 @@ public interface AuthzResolverImplApi {
    * @throws AlreadyAdminException
    */
   void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws AlreadyAdminException;
-
-  void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException;
-
-  void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException;
 
   /**
    * Sets role to given user for given resource.
@@ -290,16 +285,6 @@ public interface AuthzResolverImplApi {
    * @return AuthzRoles object which contains roles with perunbeans
    */
   AuthzRoles getRolesObtainedFromAuthorizedGroupMemberships(User user);
-
-  /**
-   * Get all SecurityTeams where the given user has set one of the given roles or the given user is a member of an
-   * authorized group with such roles.
-   *
-   * @param user  for who SecurityTeams are retrieved
-   * @param roles for which SecurityTeams are retrieved
-   * @return Set of SecurityTeams
-   */
-  Set<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(User user, List<String> roles);
 
   /**
    * Gets list of VOs for which the group has the role.
@@ -507,10 +492,6 @@ public interface AuthzResolverImplApi {
    */
   void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws GroupNotAdminException;
 
-  void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException;
-
-  void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException;
-
   /**
    * Removes all authz entries for the facility
    *
@@ -537,15 +518,6 @@ public interface AuthzResolverImplApi {
    * @throws InternalErrorException
    */
   void removeAllAuthzForResource(PerunSession sess, Resource resource);
-
-  /**
-   * Removes all authz entries for the securityTeam
-   *
-   * @param sess
-   * @param securityTeam
-   * @throws InternalErrorException
-   */
-  void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam);
 
   /**
    * Removes all authz entries for the service

@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -1538,81 +1537,6 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
       return null;
 
-    }
-  },
-
-  /*#
-   * Return assigned security teams for specific facility
-   *
-   * @param facilityName String Facility name
-   * @return List<SecurityTeam> assigned security teams fot given facility
-   * @throw FacilityNotExistsException When Facility with given name doesn't exists.
-   */
-  /*#
-   * Return assigned security teams for specific facility
-   *
-   * @param facility int Facility <code>id</code>
-   * @return List<SecurityTeam> assigned security teams fot given facility
-   * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
-   */
-  getAssignedSecurityTeams {
-    @Override
-    public List<SecurityTeam> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getFacilitiesManager().getAssignedSecurityTeams(ac.getSession(), getFacility(ac, parms));
-    }
-  },
-
-  /*#
-   * Assign given security team to given facility (means the facility trusts the security team)
-   *
-   * @param facilityName String Facility name
-   * @param securityTeam int SecurityTeam <code>id</code>
-   * @throw SecurityTeamAlreadyAssignedException When SecurityTeam with given <code>id</code> is already assigned.
-   * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
-   * @throw FacilityNotExistsException When Facility with given name doesn't exists.
-   */
-  /*#
-   * Assign given security team to given facility (means the facility trusts the security team)
-   *
-   * @param facility int Facility <code>id</code>
-   * @param securityTeam int SecurityTeam <code>id</code>
-   * @throw SecurityTeamAlreadyAssignedException When SecurityTeam with given <code>id</code> is already assigned.
-   * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
-   * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
-   */
-  assignSecurityTeam {
-    @Override
-    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getFacilitiesManager().assignSecurityTeam(ac.getSession(), getFacility(ac, parms),
-          ac.getSecurityTeamById(parms.readInt("securityTeam")));
-      return null;
-    }
-  },
-
-  /*#
-   * Remove (Unassign) given security team from given facility
-   *
-   * @param facilityName String Facility name
-   * @param securityTeam int SecurityTeam <code>id</code>
-   * @throw SecurityTeamNotAssignedException When SecurityTeam with given <code>id</code> is not assigned.
-   * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
-   * @throw FacilityNotExistsException When Facility with given name doesn't exists.
-   */
-  /*#
-   * Remove (Unassign) given security team from given facility
-   *
-   * @param facility int Facility <code>id</code>
-   * @param securityTeam int SecurityTeam <code>id</code>
-   * @throw SecurityTeamNotAssignedException When SecurityTeam with given <code>id</code> is not assigned.
-   * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
-   * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
-   */
-  removeSecurityTeam {
-    @Override
-    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getFacilitiesManager().removeSecurityTeam(ac.getSession(), getFacility(ac, parms),
-          ac.getSecurityTeamById(parms.readInt("securityTeam")));
-      return null;
     }
   },
 

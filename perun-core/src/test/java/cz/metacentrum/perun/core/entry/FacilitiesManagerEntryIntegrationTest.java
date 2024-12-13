@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleObject;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.Status;
@@ -47,9 +46,6 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
@@ -1455,144 +1451,6 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
-	public void getAssignedSecurityTeams() throws Exception {
-		System.out.println(CLASS_NAME + "getAssignedSecurityTeams");
-
-		List<SecurityTeam> expected = new ArrayList<>();
-		expected.add(setUpSecurityTeam0());
-		expected.add(setUpSecurityTeam1());
-		setUpAssignSecurityTeams(facility, expected);
-		setUpSecurityTeam2();
-		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
-		Collections.sort(expected);
-		Collections.sort(actual);
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void getAssignedSecurityTeamsEmpty() throws Exception {
-		System.out.println(CLASS_NAME + "getAssignedSecurityTeamsEmpty");
-
-		List<SecurityTeam> expected = new ArrayList<>();
-		setUpAssignSecurityTeams(facility, expected);
-		setUpSecurityTeam0();
-		setUpSecurityTeam1();
-		setUpSecurityTeam2();
-		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
-		Collections.sort(expected);
-		Collections.sort(actual);
-		assertEquals(expected, actual);
-	}
-
-	@Test(expected = FacilityNotExistsException.class)
-	public void getAssignedSecurityTeamsFacilityNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "getAssignedSecurityTeamsFacilityNotExists");
-		setUpSecurityTeam0();
-		setUpSecurityTeam1();
-		// should throw an exception
-		facilitiesManagerEntry.getAssignedSecurityTeams(sess, new Facility(0, "Name"));
-	}
-
-	@Test
-	public void assignSecurityTeam() throws Exception {
-		System.out.println(CLASS_NAME + "assignSecurityTeam");
-
-		SecurityTeam st0 = setUpSecurityTeam0();
-		setUpSecurityTeam1();
-		facilitiesManagerEntry.assignSecurityTeam(sess, facility, st0);
-
-		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
-		assertTrue("Facility should have only 1 security team.", actual.size() == 1);
-		assertTrue("Expected security team is not assigned to facility.", actual.contains(st0));
-	}
-
-	@Test(expected = FacilityNotExistsException.class)
-	public void assignSecurityTeamFacilityNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "assignSecurityTeamFacilityNotExists");
-		SecurityTeam st0 = setUpSecurityTeam0();
-		setUpSecurityTeam1();
-		// should throw an exception
-		facilitiesManagerEntry.assignSecurityTeam(sess, new Facility(0, "Name"), st0);
-	}
-
-	@Test(expected = SecurityTeamNotExistsException.class)
-	public void assignSecurityTeamSecurityTeamNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "assignSecurityTeamSecurityTeamNotExists");
-		// should throw an exception
-		facilitiesManagerEntry.assignSecurityTeam(sess, facility, new SecurityTeam(0, "name", "dsc"));
-	}
-
-	@Test(expected = SecurityTeamAlreadyAssignedException.class)
-	public void assignSecurityTeamAlreadyAssigned() throws Exception {
-		System.out.println(CLASS_NAME + "assignSecurityTeamAlreadyAssigned");
-
-		SecurityTeam st0 = setUpSecurityTeam0();
-		List<SecurityTeam> expected = new ArrayList<>();
-		expected.add(st0);
-		expected.add(setUpSecurityTeam1());
-		setUpAssignSecurityTeams(facility, expected);
-		setUpSecurityTeam2();
-		// should throw an exception
-		facilitiesManagerEntry.assignSecurityTeam(sess, facility, st0);
-	}
-
-	@Test
-	public void removeSecurityTeam() throws Exception {
-		System.out.println(CLASS_NAME + "removeSecurityTeam");
-
-		SecurityTeam st0 = setUpSecurityTeam0();
-		SecurityTeam st1 = setUpSecurityTeam1();
-		List<SecurityTeam> expected = new ArrayList<>();
-		expected.add(st0);
-		expected.add(st1);
-		setUpAssignSecurityTeams(facility, expected);
-		setUpSecurityTeam2();
-		facilitiesManagerEntry.removeSecurityTeam(sess, facility, st0);
-		expected.remove(st0);
-
-		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
-		assertTrue("Facility should have only 1 security team.", actual.size() == 1);
-		assertTrue("Facility shouldn't have security team 0 assigned.", !actual.contains(st0));
-		assertTrue("Facility should have security team 1 assigned.", actual.contains(st1));
-
-	}
-
-	@Test(expected = FacilityNotExistsException.class)
-	public void removeSecurityTeamFacilityNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "removeSecurityTeamFacilityNotExists");
-
-		SecurityTeam st0 = setUpSecurityTeam0();
-		setUpSecurityTeam1();
-		// should throw an exception
-		facilitiesManagerEntry.removeSecurityTeam(sess, new Facility(0, "Name"), st0);
-	}
-
-	@Test(expected = SecurityTeamNotExistsException.class)
-	public void removeSecurityTeamSecurityTeamNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "removeSecurityTeamSecurityTeamNotExists");
-
-		List<SecurityTeam> expected = new ArrayList<>();
-		expected.add(setUpSecurityTeam0());
-		expected.add(setUpSecurityTeam1());
-		setUpAssignSecurityTeams(facility, expected);
-		setUpSecurityTeam2();
-		// should throw an exception
-		facilitiesManagerEntry.removeSecurityTeam(sess, facility, new SecurityTeam(0, "name", "dsc"));
-	}
-
-	@Test(expected = SecurityTeamNotAssignedException.class)
-	public void removeSecurityTeamNotAssigned() throws Exception {
-		System.out.println(CLASS_NAME + "removeSecurityTeamNotAssigned");
-
-		List<SecurityTeam> expected = new ArrayList<>();
-		expected.add(setUpSecurityTeam0());
-		expected.add(setUpSecurityTeam1());
-		setUpAssignSecurityTeams(facility, expected);
-		// should throw an exception
-		facilitiesManagerEntry.removeSecurityTeam(sess, facility, setUpSecurityTeam2());
-	}
-
-	@Test
 	public void setBan() throws Exception {
 		System.out.println(CLASS_NAME + "setBan");
 		Vo vo = setUpVo();
@@ -2783,29 +2641,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return banOnFacility;
 	}
 
-	private SecurityTeam setUpSecurityTeam0() throws Exception {
-		SecurityTeam st = new SecurityTeam("Security0", "Description test 0");
-		perun.getSecurityTeamsManagerBl().createSecurityTeam(sess, st);
-		return st;
-	}
-	private SecurityTeam setUpSecurityTeam1() throws Exception {
-		SecurityTeam st = new SecurityTeam("Security1", "Description test 1");
-		perun.getSecurityTeamsManagerBl().createSecurityTeam(sess, st);
-		return st;
-	}
-	private SecurityTeam setUpSecurityTeam2() throws Exception {
-		SecurityTeam st = new SecurityTeam("Security2", "Description test 2");
-		perun.getSecurityTeamsManagerBl().createSecurityTeam(sess, st);
-		return st;
-	}
-
-	private void setUpAssignSecurityTeams(Facility facility, List<SecurityTeam> securityTeams) throws Exception {
-		for (SecurityTeam st : securityTeams) {
-			facilitiesManagerEntry.assignSecurityTeam(sess, facility, st);
-		}
-	}
-
-        private List<AttributeDefinition> getMandatoryAttrs() {
+	private List<AttributeDefinition> getMandatoryAttrs() {
 		List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
                         AttributesManager.NS_USER_ATTR_DEF + ":organization",
                         AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
@@ -2820,6 +2656,5 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		}
 
 		return mandatoryAttrs;
-        }
-
+	}
 }

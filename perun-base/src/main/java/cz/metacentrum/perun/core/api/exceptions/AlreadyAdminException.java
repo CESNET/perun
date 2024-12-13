@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 
@@ -21,7 +20,6 @@ public class AlreadyAdminException extends PerunException {
   private Vo vo;
   private Group group;
   private Group authorizedGroup;
-  private SecurityTeam securityTeam;
   private String role;
 
 
@@ -309,60 +307,6 @@ public class AlreadyAdminException extends PerunException {
     this.vo = vo;
   }
 
-  /**
-   * Constructor with a message, Throwable object, user and the security team
-   *
-   * @param message      message with details about the cause
-   * @param cause        Throwable that caused throwing of this exception
-   * @param user         user who is already in the specific role
-   * @param securityTeam security team in which the user is already in the specific role
-   */
-  public AlreadyAdminException(String message, Throwable cause, User user, SecurityTeam securityTeam) {
-    super(message, cause);
-    this.user = user;
-    this.securityTeam = securityTeam;
-  }
-
-  /**
-   * Constructor with a message, user and security team
-   *
-   * @param message      message with details about the cause
-   * @param user         user who is already in the specific role
-   * @param securityTeam security team in which the user is already in the specific role
-   */
-  public AlreadyAdminException(String message, User user, SecurityTeam securityTeam) {
-    super(message);
-    this.user = user;
-    this.securityTeam = securityTeam;
-  }
-
-  /**
-   * Constructor with a message, Throwable object, group and a security team
-   *
-   * @param message      message with details about the cause
-   * @param cause        Throwable that caused throwing of this exception
-   * @param group        group which is already in the specific role
-   * @param securityTeam security team in which the group is already in the specific role
-   */
-  public AlreadyAdminException(String message, Throwable cause, Group group, SecurityTeam securityTeam) {
-    super(message, cause);
-    this.authorizedGroup = group;
-    this.securityTeam = securityTeam;
-  }
-
-  /**
-   * Constructor with a message, group and a security team
-   *
-   * @param message      message with details about the cause
-   * @param group        group which is already in the specific role
-   * @param securityTeam security team in which the group is already in the specific role
-   */
-  public AlreadyAdminException(String message, Group group, SecurityTeam securityTeam) {
-    super(message);
-    this.authorizedGroup = group;
-    this.securityTeam = securityTeam;
-  }
-
   // getters
 
   /**
@@ -417,15 +361,6 @@ public class AlreadyAdminException extends PerunException {
    */
   public String getRole() {
     return role;
-  }
-
-  /**
-   * Getter for the security team
-   *
-   * @return security team in which the user/entity is already in the specific role
-   */
-  public SecurityTeam getSecurityTeam() {
-    return securityTeam;
   }
 
   /**

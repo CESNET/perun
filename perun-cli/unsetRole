@@ -119,10 +119,6 @@ sub getObject {
 			my $servicesAgent = $agent->getServicesAgent;
 			return $servicesAgent->getServiceById( id => $objectId );
 		}
-		case "securityteam" {
-			my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
-			return $securityTeamsAgent->getSecurityTeamById( id => $objectId );
-		}
 		else {
 			die "ERROR: Invalid object name\n";
 		}

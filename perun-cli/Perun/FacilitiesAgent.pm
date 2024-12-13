@@ -187,21 +187,6 @@ sub getAllowedUsers
 	return Perun::Common::callManagerMethod('getAllowedUsers', '[]User', @_);
 }
 
-sub assignSecurityTeam
-{
-	return Perun::Common::callManagerMethod('assignSecurityTeam', 'SecurityTeam', @_);
-}
-
-sub removeSecurityTeam
-{
-	return Perun::Common::callManagerMethod('removeSecurityTeam', '', @_);
-}
-
-sub getAssignedSecurityTeams
-{
-	return Perun::Common::callManagerMethod('getAssignedSecurityTeams', '[]SecurityTeam', @_);
-}
-
 sub getFacilitiesByHostName
 {
 	return Perun::Common::callManagerMethod('getFacilitiesByHostName', '[]Facility', @_);

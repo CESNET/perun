@@ -11,13 +11,11 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -183,7 +181,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * @param role String Expected Role to filter managers by
    * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
    * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
-   *  (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  (supported object types: Group | RichGroup | Vo | Resource | Facility).
    * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
    * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with
    *  specific attributes
@@ -229,7 +227,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * @param role String Expected Role to filter managers by
    * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
    * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
-   *  (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  (supported object types: Group | RichGroup | Vo | Resource | Facility).
    * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with
    *  specific attributes
    * @return List<User> Administrators for complementary object and role
@@ -271,7 +269,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * @param role String Expected Role to filter managers by
    * @param complementaryObjectId int Property <code>id</code> of complementaryObject to search managers for
    * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
-   *  (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  (supported object types: Group | RichGroup | Vo | Resource | Facility).
    * @param onlyDirectAdmins boolean When true, search only direct users of the complementary object for role
    * @return true, if some user with required role exists, false otherwise
    */
@@ -311,7 +309,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * @param role String Expected Role to filter authorizedGroups by
    * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get groups of managers for
    * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type
-   *  (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  (supported object types: Group | RichGroup | Vo | Resource | Facility).
    * @return List<Group> List of authorizedGroups for complementaryObject and role
    */
   getAdminGroups {
@@ -353,10 +351,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param user int <code>id</code> of User to set role for
    * @param complementaryObject Object Object to associate role and user with (supported objects: Group | RichGroup |
-   *  Vo | Resource | Facility | SecurityTeam ).
+   *  Vo | Resource | Facility).
    * @exampleParam role "VOADMIN"
    * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName"
    *  : "Vo" }
@@ -371,10 +369,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param user int <code>id</code> of User to set role for
    * @param complementaryObjects List<Object> Objects to associate role and user with (supported objects: Group |
-   * RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   * RichGroup | Vo | Resource | Facility).
    * @exampleParam role "VOADMIN"
    * @exampleParam complementaryObjects [ { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" ,
    * "beanName" : "Vo" } , {...} , {...} ]
@@ -386,7 +384,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param user int <code>id</code> of user to set role for
    * @exampleParam role "VOADMIN"
    */
@@ -400,10 +398,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroup int <code>id</code> of Group to set role for
    * @param complementaryObject Object Object to associate role and authorizedGroup with (supported objects: Group |
-   * RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   * RichGroup | Vo | Resource | Facility).
    * @exampleParam role "VOADMIN"
    * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName"
    *  : "Vo" }
@@ -418,10 +416,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroup int <code>id</code> of Group to set role for
    * @param complementaryObjects List<Object> Objects to associate role and authorizedGroup with (supported objects:
-   * Group | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   * Group | RichGroup | Vo | Resource | Facility).
    * @exampleParam role "VOADMIN"
    * @exampleParam complementaryObjects [ { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" ,
    * "beanName" : "Vo" } , {...} , {...} ]
@@ -433,7 +431,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroup int <code>id</code> of Group to set role for
    * @exampleParam role "VOADMIN"
    */
@@ -447,10 +445,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param users int[] <code>ids</code> of users for which is the role set
    * @param complementaryObject Object Object to associate role and users with (supported objects: Group | RichGroup
-   * | Vo | Resource | Facility | SecurityTeam ).
+   * | Vo | Resource | Facility).
    * @exampleParam role "VOADMIN"
    * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName"
    *  : "Vo" }
@@ -462,7 +460,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param users int[] <code>ids</code> of users for which is the role set
    * @exampleParam role "VOADMIN"
    */
@@ -476,10 +474,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given groups ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroups int[] <code>ids</code> of groups for which is the role set
    * @param complementaryObject Object Object to associate role and authorizedGroups with (supported objects: Group |
-   *  RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  RichGroup | Vo | Resource | Facility).
    * @exampleParam role "VOADMIN"
    * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName"
    *  : "Vo" }
@@ -491,7 +489,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroups int[] <code>ids</code> of groups for which is the role set
    * @exampleParam role "VOADMIN"
    */
@@ -580,10 +578,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param user int <code>id</code> of User to unset role for
    * @param complementaryObject Object Object to remove role for a user (supported objects: Group | RichGroup | Vo |
-   * Resource | Facility | SecurityTeam ).
+   * Resource | Facility).
    * @exampleParam role "voadmin"
    * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName"
    *  : "Vo" }
@@ -598,10 +596,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param user int <code>id</code> of User to unset role for
    * @param complementaryObjects List<Object> Objects to remove role for a user (supported objects: Group | RichGroup
-   *  | Vo | Resource | Facility | SecurityTeam ).
+   *  | Vo | Resource | Facility).
    * @exampleParam role "voadmin"
    * @exampleParam complementaryObjects [ { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" ,
    * "beanName" : "Vo" } , {...} , {...} ]
@@ -613,7 +611,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be unset for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param user int <code>id</code> of user to unset role for
    * @exampleParam role "VOADMIN"
    */
@@ -627,10 +625,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroup int <code>id</code> of Group to unset role for
    * @param complementaryObject Object Object to remove role for an authorizedGroup (supported objects: Group |
-   * RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   * RichGroup | Vo | Resource | Facility).
    * @exampleParam role "voadmin"
    * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName"
    *  : "Vo" }
@@ -645,10 +643,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroup int <code>id</code> of Group to unset role for
    * @param complementaryObjects List<Object> Objects to remove role for an authorizedGroup (supported objects: Group
-   *  | RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   *  | RichGroup | Vo | Resource | Facility).
    * @exampleParam role "voadmin"
    * @exampleParam complementaryObjects [ { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" ,
    * "beanName" : "Vo" } , {...} , {...} ]
@@ -660,7 +658,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be unset for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroup int <code>id</code> of Group to unset role for
    * @exampleParam role "VOADMIN"
    */
@@ -674,10 +672,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be unset for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param users int[] <code>ids</code> of users for which is the role set
    * @param complementaryObject Object Object to remove role for a users (supported objects: Group | RichGroup | Vo |
-   *  Resource | Facility | SecurityTeam ).
+   *  Resource | Facility).
    * @exampleParam role "VOADMIN"
    * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName"
    *  : "Vo" }
@@ -689,7 +687,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be unset for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param users int[] <code>ids</code> of users for which is the role unset
    * @exampleParam role "VOADMIN"
    */
@@ -703,10 +701,10 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be set for given groups ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroups int[] <code>ids</code> of groups for which is the role set
    * @param complementaryObject Object Object to remove role for an authorizedGroups (supported objects: Group |
-   * RichGroup | Vo | Resource | Facility | SecurityTeam ).
+   * RichGroup | Vo | Resource | Facility).
    * @exampleParam role "VOADMIN"
    * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName"
    *  : "Vo" }
@@ -718,7 +716,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    *
    * @param role String Role which will be unset for given users ( FACILITYADMIN | GROUPADMIN | PERUNADMIN |
    * RESOURCEADMIN | RESOURCESELFSERVICE | SPONSOR | TOPGROUPCREATOR | VOADMIN | VOOBSERVER | PERUNOBSERVER |
-   * SECURITYADMIN | CABINETADMIN | AUDITCONSUMERADMIN )
+   * CABINETADMIN | AUDITCONSUMERADMIN )
    * @param authorizedGroups int[] <code>ids</code> of groups for which is the role unset
    * @exampleParam role "VOADMIN"
    */
@@ -1260,45 +1258,6 @@ public enum AuthzResolverMethod implements ManagerMethod {
             ac.getUserById(parms.readInt("user")), roles);
       } else {
         return cz.metacentrum.perun.core.api.AuthzResolver.getMembersWhereUserIsInRoles(ac.getSession(), null, roles);
-      }
-    }
-  },
-
-  /*#
-   * Get all SecurityTeams where the given user has set one of the given roles
-   * or the given user is a member of an authorized group with such roles.
-   *
-   * @param user int <code>id</code> of object User
-   * @param roles List<String> list of role names for which SecurityTeams are retrieved
-   * @return List<SecurityTeam> List of SecurityTeams
-   *
-   * @throws PrivilegeException when the principal is not authorized.
-   */
-  /*#
-   * Get all SecurityTeams where the given principal has set one of the given roles
-   * or the given principal is a member of an authorized group with such roles.
-   *
-   * @param roles List<String> list of role names for which SecurityTeams are retrieved
-   * @return List<SecurityTeam> List of SecurityTeams
-   *
-   * @throws PrivilegeException when the principal is not authorized.
-   */
-  getSecurityTeamsWhereUserIsInRoles {
-    @Override
-    public List<SecurityTeam> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      List<String> roles = parms.readList("roles", String.class);
-      roles.replaceAll(String::toUpperCase);
-      for (String role : roles) {
-        if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(role)) {
-          throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + role + " does not exist.");
-        }
-      }
-      if (parms.contains("user")) {
-        return cz.metacentrum.perun.core.api.AuthzResolver.getSecurityTeamsWhereUserIsInRoles(ac.getSession(),
-            ac.getUserById(parms.readInt("user")), roles);
-      } else {
-        return cz.metacentrum.perun.core.api.AuthzResolver.getSecurityTeamsWhereUserIsInRoles(ac.getSession(), null,
-            roles);
       }
     }
   };

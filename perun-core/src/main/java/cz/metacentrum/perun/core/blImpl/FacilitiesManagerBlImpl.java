@@ -8,8 +8,6 @@ import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityDeleted;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityUpdated;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostAddedToFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostRemovedFromFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamAssignedToFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamRemovedFromFacility;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -32,7 +30,6 @@ import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -61,8 +58,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -160,12 +155,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
-  public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
-    facilitiesManagerImpl.assignSecurityTeam(sess, facility, securityTeam);
-    getPerunBl().getAuditer().log(sess, new SecurityTeamAssignedToFacility(securityTeam, facility));
-  }
-
-  @Override
   public boolean banExists(PerunSession sess, int userId, int facilityId) {
     return getFacilitiesManagerImpl().banExists(sess, userId, facilityId);
   }
@@ -197,18 +186,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   @Override
   public void checkHostExists(PerunSession sess, Host host) throws HostNotExistsException {
     getFacilitiesManagerImpl().checkHostExists(sess, host);
-  }
-
-  @Override
-  public void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws SecurityTeamNotAssignedException {
-    getFacilitiesManagerImpl().checkSecurityTeamAssigned(sess, facility, securityTeam);
-  }
-
-  @Override
-  public void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws SecurityTeamAlreadyAssignedException {
-    getFacilitiesManagerImpl().checkSecurityTeamNotAssigned(sess, facility, securityTeam);
   }
 
   /**
@@ -395,12 +372,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
     //remove destinations
     getPerunBl().getServicesManagerBl().removeAllDestinations(sess, facility);
 
-    // remove assigned security teams
-    List<SecurityTeam> teams = getAssignedSecurityTeams(sess, facility);
-    for (SecurityTeam team : teams) {
-      removeSecurityTeam(sess, facility, team);
-    }
-
     // remove associated attributes
     try {
       getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, facility);
@@ -584,11 +555,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
-  public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) {
-    return getFacilitiesManagerImpl().getAssignedFacilities(sess, securityTeam);
-  }
-
-  @Override
   public List<Resource> getAssignedResources(PerunSession sess, Facility facility) {
     return getFacilitiesManagerImpl().getAssignedResources(sess, facility);
   }
@@ -610,11 +576,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   @Override
   public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility, Service service) {
     return getFacilitiesManagerImpl().getAssignedRichResources(sess, facility, service);
-  }
-
-  @Override
-  public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) {
-    return facilitiesManagerImpl.getAssignedSecurityTeams(sess, facility);
   }
 
   @Override
@@ -1123,12 +1084,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   @Override
   public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws OwnerAlreadyRemovedException {
     getFacilitiesManagerImpl().removeOwner(sess, facility, owner);
-  }
-
-  @Override
-  public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
-    facilitiesManagerImpl.removeSecurityTeam(sess, facility, securityTeam);
-    getPerunBl().getAuditer().log(sess, new SecurityTeamRemovedFromFacility(securityTeam, facility));
   }
 
   @Override

@@ -13,7 +13,7 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanRemovedForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanSetForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanUpdatedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamAssignedToFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.LastAdminRemovedFromFacility;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BanOnFacility;
@@ -39,7 +39,7 @@ public class urn_perun_user_facility_attribute_def_virt_isBannedTest {
     AuditEvent event4 = new BanSetForFacility(new BanOnFacility(), user.getId(), facility.getId());
     AuditEvent event5 = new BanUpdatedForFacility(new BanOnFacility(), user.getId(), facility.getId());
     AuditEvent event6 = new BanRemovedForFacility(new BanOnFacility(), user.getId(), facility.getId());
-    AuditEvent wrongEvent = new SecurityTeamAssignedToFacility();
+    AuditEvent wrongEvent = new LastAdminRemovedFromFacility();
 
     List<AuditEvent> resolvedEvents;
 

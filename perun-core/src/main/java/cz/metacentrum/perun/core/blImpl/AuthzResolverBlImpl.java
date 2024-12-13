@@ -45,7 +45,6 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleAssignmentType;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.RoleObject;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -73,7 +72,6 @@ import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -128,14 +126,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   private static final List<String> AUTHORIZED_DEFAULT_WRITE_ROLES = List.of(Role.PERUNADMIN, Role.PERUNADMINBA);
   private static AuthzResolverImplApi authzResolverImpl;
   private static PerunBl perunBl;
-
-  public static void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException {
-    authzResolverImpl.addAdmin(sess, securityTeam, user);
-  }
-
-  public static void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException {
-    authzResolverImpl.addAdmin(sess, securityTeam, group);
-  }
 
   /**
    * For the given role with association to "Group" add also all subgroups to authzRoles. If authzRoles is null, return
@@ -830,19 +820,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
               }
             }
           }
-
-          if (beanName.equals(SecurityTeam.class.getSimpleName())) {
-            for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
-              try {
-                complementaryObjects.add(perunBl.getSecurityTeamsManagerBl().getSecurityTeamById(sess, beanId));
-              } catch (SecurityTeamNotExistsException e) {
-                //this is ok, securityTeam was probably deleted but still exists in user session, only log it
-                LOG.debug("SecurityTeam not find by id {} but still exists in user session when " +
-                              "getComplementaryObjectsForRole method was called.", beanId);
-              }
-            }
-          }
-
         }
       }
     }
@@ -1149,26 +1126,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   }
 
   /**
-   * Get all SecurityTeams where the given user has set one of the given roles or the given user is a member of an
-   * authorized group with such roles.
-   *
-   * @param sess  Perun session
-   * @param user  for who SecurityTeams are retrieved
-   * @param roles for which SecurityTeams are retrieved
-   * @return List of SecurityTeams
-   */
-  public static List<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(PerunSession sess, User user,
-                                                                      List<String> roles) {
-    for (String role : roles) {
-      if (!roleExists(role)) {
-        throw new InternalErrorException("Role: " + role + " does not exists.");
-      }
-    }
-
-    return new ArrayList<>(authzResolverImpl.getSecurityTeamsWhereUserIsInRoles(user, roles));
-  }
-
-  /**
    * Get all User's roles. Does not include membership and sponsorship role.
    *
    * @param sess perun session
@@ -1445,12 +1402,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
         if (beanName.equals(Resource.class.getSimpleName())) {
           return sess.getPerunPrincipal().getRoles()
                      .hasRole(role, Resource.class.getSimpleName(), complementaryObject.getId());
-        }
-      } else if (role.equals(Role.SECURITYADMIN)) {
-        // Security admin, check if security admin is admin of the SecurityTeam
-        if (beanName.equals(SecurityTeam.class.getSimpleName())) {
-          return sess.getPerunPrincipal().getRoles()
-                     .hasRole(role, SecurityTeam.class.getSimpleName(), complementaryObject.getId());
         }
       } else if (role.equals(Role.GROUPADMIN) || role.equals(Role.TOPGROUPCREATOR)) {
         // Group admin can see some of the date of the VO
@@ -3027,16 +2978,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
   }
 
   /**
-   * Returns true if the perun principal inside the perun session is security admin.
-   *
-   * @param sess perun session
-   * @return true if the perun principal is security admin.
-   */
-  public static boolean isSecurityAdmin(PerunSession sess) {
-    return sess.getPerunPrincipal().getRoles().hasRole(Role.SECURITYADMIN);
-  }
-
-  /**
    * Returns true if the perun principal inside the perun session is top group creator.
    *
    * @param sess perun session
@@ -3430,15 +3371,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
   }
 
-  public static void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException {
-    authzResolverImpl.removeAdmin(sess, securityTeam, user);
-  }
-
-  public static void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group)
-      throws GroupNotAdminException {
-    authzResolverImpl.removeAdmin(sess, securityTeam, group);
-  }
-
   public static void removeAllAuthzForFacility(PerunSession sess, Facility facility) {
     authzResolverImpl.removeAllAuthzForFacility(sess, facility);
   }
@@ -3454,10 +3386,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
   public static void removeAllAuthzForResource(PerunSession sess, Resource resource) {
     authzResolverImpl.removeAllAuthzForResource(sess, resource);
-  }
-
-  public static void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam) {
-    authzResolverImpl.removeAllAuthzForSecurityTeam(sess, securityTeam);
   }
 
   public static void removeAllAuthzForService(PerunSession sess, Service service) {
@@ -3789,7 +3717,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
    * @param sess                perun session
    * @param user                the user for setting role
    * @param role                role of user in a session ( PERUNADMIN | PERUNADMINBA | VOADMIN | GROUPADMIN | SELF |
-   *                            FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | SECURITYADMIN | RESOURCESELFSERVICE |
+   *                            FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE |
    *                            RESOURCEADMIN | SERVICEACCOUNTCREATOR )
    * @param complementaryObject object for which role will be set
    */
@@ -4132,12 +4060,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       return Collections.singleton(member.getId());
     }), Resource((sess, member, resource) -> {
       return Collections.singleton(resource.getId());
-    }), SecurityTeam((sess, member, resource) -> {
-      List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess,
-          getPerunBl().getResourcesManagerBl().getFacility(sess, resource));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, member, resource) -> {
       return Collections.emptySet();
     });
@@ -4193,12 +4115,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       return memberIds;
     }), Resource((sess, group, resource) -> {
       return Collections.singleton(resource.getId());
-    }), SecurityTeam((sess, group, resource) -> {
-      List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess,
-          getPerunBl().getResourcesManagerBl().getFacility(sess, resource));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, group, resource) -> {
       return Collections.emptySet();
     });
@@ -4262,11 +4178,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       resources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, user, facility) -> {
-      List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, user, facility) -> {
       return Collections.emptySet();
     });
@@ -4322,16 +4233,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       resources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, member, group) -> {
-      List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
-      List<SecurityTeam> securityTeams = new ArrayList<>();
-      resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
-                                                             .getAssignedSecurityTeams(sess,
-                                                                 getPerunBl().getResourcesManagerBl()
-                                                                     .getFacility(sess, resource))));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, member, group) -> {
       return Collections.emptySet();
     });
@@ -4395,16 +4296,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       userResources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, user) -> {
-      List<Resource> resources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
-      List<SecurityTeam> securityTeams = new ArrayList<>();
-      resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
-                                                             .getAssignedSecurityTeams(sess,
-                                                                 getPerunBl().getResourcesManagerBl()
-                                                                     .getFacility(sess, resource))));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, user) -> {
       return Collections.emptySet();
     });
@@ -4461,16 +4352,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       memberResources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, member) -> {
-      List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, member);
-      List<SecurityTeam> securityTeams = new ArrayList<>();
-      resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
-                                                             .getAssignedSecurityTeams(sess,
-                                                                 getPerunBl().getResourcesManagerBl()
-                                                                     .getFacility(sess, resource))));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, member) -> {
       return Collections.emptySet();
     });
@@ -4532,16 +4413,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       voResources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, vo) -> {
-      List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-      List<SecurityTeam> securityTeams = new ArrayList<>();
-      resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
-                                                             .getAssignedSecurityTeams(sess,
-                                                                 getPerunBl().getResourcesManagerBl()
-                                                                     .getFacility(sess, resource))));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, vo) -> {
       return Collections.emptySet();
     });
@@ -4601,16 +4472,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       groupResources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, group) -> {
-      List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssociatedResources(sess, group);
-      List<SecurityTeam> securityTeams = new ArrayList<>();
-      resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
-                                                             .getAssignedSecurityTeams(sess,
-                                                                 getPerunBl().getResourcesManagerBl()
-                                                                     .getFacility(sess, resource))));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, group) -> {
       return Collections.emptySet();
     });
@@ -4667,12 +4528,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       return memberIds;
     }), Resource((sess, resource) -> {
       return Collections.singleton(resource.getId());
-    }), SecurityTeam((sess, resource) -> {
-      List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess,
-          getPerunBl().getResourcesManagerBl().getFacility(sess, resource));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, resource) -> {
       return Collections.emptySet();
     });
@@ -4738,11 +4593,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       facilityResources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, facility) -> {
-      List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, facility) -> {
       return Collections.emptySet();
     });
@@ -4814,12 +4664,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       facilityResources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, host) -> {
-      List<SecurityTeam> securityTeams = getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess,
-          getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, host) -> {
       return Collections.emptySet();
     });
@@ -4924,23 +4768,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
       Set<Integer> resourceIds = new HashSet<>();
       userResources.forEach(resource -> resourceIds.add(resource.getId()));
       return resourceIds;
-    }), SecurityTeam((sess, ues) -> {
-      User user;
-      try {
-        user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, ues);
-      } catch (UserNotExistsException e) {
-        LOG.warn("User not exists for the userExtSource: " + ues);
-        return Collections.emptySet();
-      }
-      List<Resource> resources = getPerunBl().getUsersManagerBl().getAssociatedResources(sess, user);
-      List<SecurityTeam> securityTeams = new ArrayList<>();
-      resources.forEach(resource -> securityTeams.addAll(getPerunBl().getFacilitiesManagerBl()
-                                                             .getAssignedSecurityTeams(sess,
-                                                                 getPerunBl().getResourcesManagerBl()
-                                                                     .getFacility(sess, resource))));
-      Set<Integer> ids = new HashSet<>();
-      securityTeams.forEach(team -> ids.add(team.getId()));
-      return ids;
     }), Default((sess, ues) -> {
       return Collections.emptySet();
     });

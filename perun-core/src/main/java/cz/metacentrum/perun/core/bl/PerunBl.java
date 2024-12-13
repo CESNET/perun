@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessagesManager;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
-import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.UsersManager;
@@ -246,20 +245,6 @@ public interface PerunBl extends Perun {
    * @return SearcherBl
    */
   SearcherBl getSearcherBl();
-
-  /**
-   * Gets a Security Teams manager.
-   *
-   * @return Security Teams manager
-   */
-  SecurityTeamsManager getSecurityTeamsManager();
-
-  /**
-   * Gets a Security Teams manager.
-   *
-   * @return Security Teams manager
-   */
-  SecurityTeamsManagerBl getSecurityTeamsManagerBl();
 
   /**
    * Gets a Services manager.

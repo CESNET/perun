@@ -37,8 +37,6 @@ import cz.metacentrum.perun.core.api.RTMessagesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
-import cz.metacentrum.perun.core.api.SecurityTeam;
-import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
@@ -95,7 +93,6 @@ public class ApiCaller {
   private AttributesManager attributesManager = null;
   private OwnersManager ownersManager = null;
   private RTMessagesManager rtMessagesManager = null;
-  private SecurityTeamsManager securityTeamsManager = null;
   private TasksManager tasksManager = null;
   private Searcher searcher = null;
   private ConfigManager configManager = null;
@@ -290,8 +287,6 @@ public class ApiCaller {
         return getResourceById(object.getId());
       case "Facility":
         return getFacilityById(object.getId());
-      case "SecurityTeam":
-        return getSecurityTeamById(object.getId());
       default:
         throw new RpcException(RpcException.Type.WRONG_PARAMETER,
             "Object " + object.getBeanName() + " is not supported.");
@@ -500,17 +495,6 @@ public class ApiCaller {
       searcher = rpcSession.getPerun().getSearcher();
     }
     return searcher;
-  }
-
-  public SecurityTeam getSecurityTeamById(int id) throws PerunException {
-    return getSecurityTeamsManager().getSecurityTeamById(rpcSession, id);
-  }
-
-  public SecurityTeamsManager getSecurityTeamsManager() {
-    if (securityTeamsManager == null) {
-      securityTeamsManager = rpcSession.getPerun().getSecurityTeamsManager();
-    }
-    return securityTeamsManager;
   }
 
   public Service getServiceById(int id) throws PerunException {

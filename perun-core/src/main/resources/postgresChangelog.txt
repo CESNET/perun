@@ -6,6 +6,24 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.28
+DROP TABLE IF EXISTS blacklists;
+ALTER TABLE authz ADD COLUMN IF NOT EXISTS security_team_id INTEGER;
+DELETE FROM authz WHERE security_team_id IS NOT NULL;
+DELETE FROM authz WHERE role_id = (SELECT id FROM roles WHERE upper(name) LIKE 'SECURITYADMIN');
+DELETE FROM attribute_policies WHERE role_id = (SELECT id FROM roles WHERE upper(name) LIKE 'SECURITYADMIN');
+DELETE FROM attributes_authz WHERE role_id = (SELECT id FROM roles WHERE upper(name) LIKE 'SECURITYADMIN');
+DELETE FROM roles WHERE upper(name) LIKE 'SECURITYADMIN';
+ALTER TABLE authz DROP COLUMN IF EXISTS security_team_id;
+DELETE FROM service_required_attrs WHERE attr_id = (SELECT id FROM attr_names WHERE attr_name='urn:perun:user_facility:attribute-def:virt:blacklisted');
+DELETE FROM attributes_authz WHERE attr_id=(SELECT id FROM attr_names WHERE attr_name='urn:perun:user_facility:attribute-def:virt:blacklisted');
+DELETE FROM attr_names WHERE attr_name='urn:perun:user_facility:attribute-def:virt:blacklisted';
+DROP TABLE IF EXISTS security_teams_facilities;
+DROP SEQUENCE IF EXISTS security_teams_id_seq;
+DROP TABLE IF EXISTS security_teams;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_authz_u ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'), COALESCE(sponsored_user_id, '0'));
+UPDATE configurations SET value='3.2.28' WHERE property='DATABASE VERSION';
+
 3.2.27
 DROP TABLE reserved_logins;
 UPDATE configurations SET value='3.2.27' WHERE property='DATABASE VERSION';
