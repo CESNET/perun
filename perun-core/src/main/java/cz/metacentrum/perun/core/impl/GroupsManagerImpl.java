@@ -52,6 +52,7 @@ import java.util.UUID;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -1531,6 +1532,25 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
               "groups_members.group_id=?", user.getId(), group.getId());
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public void suspendGroupSynchronization(PerunSession sess, boolean suspend) {
+    try {
+      jdbc.update("UPDATE configurations SET value=? where property='suspendGroupSync'", suspend);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public boolean isSuspendedGroupSynchronization() {
+    try {
+      return jdbc.query("SELECT value FROM configurations WHERE property='suspendGroupSync'",
+          (resultSet, i) -> resultSet.getString("value").equals("true")).get(0);
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e);
     }
   }
 

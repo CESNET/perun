@@ -232,6 +232,14 @@ public interface TasksManagerBl {
   boolean isSuspendedTasksPropagation();
 
   /**
+   * Check if propagating tasks to engine is suspended via the DB flag
+   * CAREFUL: even if not suspended though DB, can be disabled temporarily through synced field
+   *
+   * @return True if suspended in DB, false otherwise
+   */
+  boolean isSuspendedTasksPropagationPersistently();
+
+  /**
    * Check if there is a task for given service and facility.
    *
    * @param sess
@@ -313,8 +321,9 @@ public interface TasksManagerBl {
    *
    * @param sess
    * @param suspend True for suspending propagation, false for resuming propagation
+   * @param persistently True for the change to persist even after Perun restart
    */
-  void suspendTasksPropagation(PerunSession sess, boolean suspend);
+  void suspendTasksPropagation(PerunSession sess, boolean suspend, boolean persistently);
 
   /**
    * Update DB record for given task.

@@ -1,4 +1,4 @@
--- database version 3.2.25 (don't forget to update insert statement at the end of file)
+-- database version 3.2.26 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -2082,7 +2082,11 @@ create index idx_fk_inv_usr on invitations(sender_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.25');
+values ('DATABASE VERSION', '3.2.26');
+insert into configurations
+values ('suspendGroupSync', 'false');
+insert into configurations
+values ('suspendTasksProp', 'false');
 -- insert membership types
 insert into membership_types (id, membership_type, description)
 values (1, 'DIRECT', 'Member is directly added into group');

@@ -1647,14 +1647,19 @@ public interface GroupsManager {
 
   /**
    * Suspend synchronizing groups and their structures. Groups being currently synchronized will finish.
-   * This is only for temporary suspension, synchronizations will always resume on instance restart. In order to disable
-   * synchronizations permanently, use config properties.
    *
    * @param sess session
    * @param suspend whether to suspend or unsuspend
    * @throws PrivilegeException
    */
   void suspendGroupSynchronization(PerunSession sess, boolean suspend) throws PrivilegeException;
+
+  /**
+   * Check if synchronizing groups is suspended.
+   *
+   * @return True if suspended, false if synchronizing
+   */
+  boolean isSuspendedGroupSynchronization(PerunSession sess) throws PrivilegeException;
 
   /**
    * Synchronize all groups which have enabled synchronization. This method is run by the scheduler every 5 minutes.

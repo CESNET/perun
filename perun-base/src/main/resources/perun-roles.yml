@@ -2309,6 +2309,11 @@ perun_policies:
     include_policies:
       - default_policy
 
+  isSuspendedGroupSynchronization_policy:
+    policy_roles: [ ]
+    include_policies:
+      - default_policy
+
   synchronizeGroups_policy:
     policy_roles: [ ]
     include_policies:
@@ -6247,6 +6252,11 @@ perun_policies:
       - MFA: Facility
 
   suspendTasksPropagation_policy:
+    policy_roles: [ ]
+    include_policies:
+      - default_policy
+
+  isSuspendedTasksPropagationPersistently_policy:
     policy_roles: [ ]
     include_policies:
       - default_policy

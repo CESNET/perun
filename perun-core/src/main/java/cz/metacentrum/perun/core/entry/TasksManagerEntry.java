@@ -274,6 +274,18 @@ public class TasksManagerEntry implements TasksManager {
   }
 
   @Override
+  public boolean isSuspendedTasksPropagationPersistently(PerunSession session) throws PrivilegeException {
+    Utils.checkPerunSession(session);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(session, "isSuspendedTasksPropagationPersistently_policy")) {
+      throw new PrivilegeException(session, "isSuspendedTasksPropagationPersistently");
+    }
+
+    return tasksManagerBl.isSuspendedTasksPropagationPersistently();
+  }
+
+  @Override
   public List<Task> listAllTasks(PerunSession perunSession) {
     return tasksManagerBl.listAllTasks(perunSession);
   }
@@ -307,11 +319,12 @@ public class TasksManagerEntry implements TasksManager {
   }
 
   @Override
-  public void suspendTasksPropagation(PerunSession perunSession, boolean suspend) throws PrivilegeException {
+  public void suspendTasksPropagation(PerunSession perunSession, boolean suspend, boolean persistently)
+      throws PrivilegeException {
     // Authorization
     if (!AuthzResolver.authorizedInternal(perunSession, "suspendTasksPropagation_policy")) {
       throw new PrivilegeException(perunSession, "suspendTasksPropagation");
     }
-    tasksManagerBl.suspendTasksPropagation(perunSession, suspend);
+    tasksManagerBl.suspendTasksPropagation(perunSession, suspend, persistently);
   }
 }
