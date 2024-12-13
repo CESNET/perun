@@ -1,5 +1,17 @@
 Upgrade notes
 
+## [44.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v44.1.0...v44.2.0) (2024-12-13)
+
+
+### Features
+
+* add canBeApproved call to `approveApplications` ([47f5345](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/47f5345d7b20336794508185f4abc757587ac8aa))
+
+
+### Bug Fixes
+
+* **registrar:** wrong user check in IT4I module ([34ce3f7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/34ce3f78687f1509c116e4e22b396bfa2420bb28))
+
 ## [44.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v44.0.0...v44.1.0) (2024-11-21)
 
 
