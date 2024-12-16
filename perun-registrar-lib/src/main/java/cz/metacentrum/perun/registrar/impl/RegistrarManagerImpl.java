@@ -75,7 +75,6 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.MfaRolePrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.MfaRoleTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.MfaTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.MultipleApplicationFormItemsException;
@@ -176,7 +175,10 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Implementation of RegistrarManager. Provides methods for:
@@ -641,7 +643,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     Application app;
     try {
-      app = registrarManager.approveApplicationInternal(sess, appId, approver);
+      app = registrarManager.approveApplicationInternal(sess, appId, approver, true);
     } catch (AlreadyMemberException ex) {
       // case when user joined identity after sending initial application and former user was already member of VO
       throw new RegistrarException("User is already member (with ID: " + ex.getMember().getId() +
@@ -664,44 +666,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
       }
     }
 
-    Member member = membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
-
-    try {
-
-      // validate member async when all changes are committed
-      // we can't use existing core method, since we want to approve auto-approval waiting group applications
-      // once member is validated
-      new Thread(() -> {
-
-        try {
-          Thread.sleep(5000);
-        } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-
-        try {
-          membersManager.validateMember(registrarSession, member);
-        } catch (InternalErrorException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-          LOG.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
-        }
-
-        try {
-          // get user's group apps with auto-approve and approve them and set them user id
-          handleUsersGroupApplications(sess, app.getVo(), app.getUser());
-        } catch (PerunException ex) {
-          LOG.error(
-              "[REGISTRAR] Exception when auto-approving waiting group applications for {} after approving " +
-               "application {}.",
-              member, app);
-        }
-
-      }).start();
-
-    } catch (Exception ex) {
-      // we skip any exception thrown from here
-      LOG.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
-    }
     perun.getAuditer().log(sess, new ApplicationApproved(app));
 
     synchronized (runningApproveApplication) {
@@ -712,15 +676,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   /**
-   * Process application approval in 1 transaction !! WITHOUT members validation !!
+   * Process application approval in 1 transaction. If validateMember is true performs also an asynchronous member
+   * validation after the transaction commits.
    *
    * @param sess  session for authz
    * @param appId application ID to approve
+   * @param validateMember whether to perform also a member validation
    * @return updated application
    * @throws PerunException
    */
   @Transactional(rollbackFor = Exception.class)
-  public Application approveApplicationInternal(PerunSession sess, int appId, String approver)
+  public Application approveApplicationInternal(PerunSession sess, int appId, String approver, boolean validateMember)
       throws PerunException {
 
     Application app = getApplicationById(appId);
@@ -1034,9 +1000,53 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     getMailManager().sendMessage(app, MailType.APP_APPROVED_USER, null, null);
 
+    Member newMember = membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
+    // register afterCommit action for validating a member
+    if (validateMember) {
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCommit() {
+          // logic extracted to a separate method to clear the still existing commited transaction just to be safe
+          registrarManager.approveApplicationAfterCommitValidation(sess, newMember, app);
+        }
+      });
+    }
+
     // return updated application
     return app;
 
+  }
+
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void approveApplicationAfterCommitValidation(PerunSession sess, Member member, Application app) {
+    try {
+      // validate member async when all changes are committed
+      // we can't use existing core method, since we want to approve auto-approval waiting group applications
+      // once member is validated
+      new Thread(() -> {
+        try {
+          membersManager.validateMember(registrarSession, member);
+        } catch (InternalErrorException | WrongAttributeValueException |
+                 WrongReferenceAttributeValueException e) {
+          LOG.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
+        }
+
+        try {
+          // get user's group apps with auto-approve and approve them and set them user id
+          handleUsersGroupApplications(sess, app.getVo(), app.getUser());
+        } catch (PerunException ex) {
+          LOG.error(
+              "[REGISTRAR] Exception when auto-approving waiting group applications for {} after approving " +
+                  "application {}.",
+              member, app);
+        }
+
+      }).start();
+
+    } catch (Exception ex) {
+      // we skip any exception thrown from here
+      LOG.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
+    }
   }
 
   @Override
@@ -1098,7 +1108,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     String approver = invitation != null ? invitation.getCreatedBy() : sess.getPerunPrincipal().getActor();
     Application processedApplication;
     try {
-      processedApplication = registrarManager.approveApplicationInternal(sess, application.getId(), approver);
+      processedApplication = registrarManager.approveApplicationInternal(sess, application.getId(), approver, false);
     } catch (RegistrarException ex) {
       // case when user have UNVERIFIED group application
       // will be approved when user verify his email

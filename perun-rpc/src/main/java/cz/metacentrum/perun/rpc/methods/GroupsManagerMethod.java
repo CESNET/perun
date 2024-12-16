@@ -781,6 +781,19 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Return true if group synchronization has been suspended.
+   *
+   * @return boolean True if group synchronization is suspended
+   *
+   */
+  isSuspendedGroupSynchronization {
+    @Override
+    public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getGroupsManager().isSuspendedGroupSynchronization(ac.getSession());
+    }
+  },
+
+  /*#
    * Returns count of group members.
    *
    * @throw GroupNotExistsException When the group doesn't exist
@@ -2631,9 +2644,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Suspend synchronizing groups and their structures. Groups being currently synchronized will finish.
-   * This is only for temporary suspension, synchronizations will always resume on instance restart. In order to disable
-   * synchronizations permanently, use config properties.
+   * Suspend synchronizing groups and their structures. Groups being currently synchronized will finish.<<<
    *
    */
   suspendGroupSynchronization {

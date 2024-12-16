@@ -350,8 +350,13 @@ public class TasksManagerBlImpl implements TasksManagerBl {
   @Override
   public boolean isSuspendedTasksPropagation() {
     synchronized (TasksManagerBlImpl.class) {
-      return suspendedTasksPropagation;
+      return suspendedTasksPropagation || getTasksManagerImpl().isSuspendedTasksPropagation();
     }
+  }
+
+  @Override
+  public boolean isSuspendedTasksPropagationPersistently() {
+    return getTasksManagerImpl().isSuspendedTasksPropagation();
   }
 
   @Override
@@ -411,9 +416,12 @@ public class TasksManagerBlImpl implements TasksManagerBl {
   }
 
   @Override
-  public void suspendTasksPropagation(PerunSession perunSession, boolean suspend) {
+  public void suspendTasksPropagation(PerunSession perunSession, boolean suspend, boolean persistently) {
     synchronized (TasksManagerBlImpl.class) {
       suspendedTasksPropagation = suspend;
+    }
+    if (persistently) {
+      tasksManagerImpl.suspendTasksPropagation(perunSession, suspend);
     }
   }
 

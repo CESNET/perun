@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.Task;
@@ -148,6 +149,13 @@ public interface TasksManagerImplApi {
   int insertTask(Task task);
 
   /**
+   * Check if propagating tasks to engine is suspended.
+   *
+   * @return True if suspended, false if propagating
+   */
+  boolean isSuspendedTasksPropagation();
+
+  /**
    * Check if there is a task for given service and facility.
    *
    * @param service
@@ -209,6 +217,14 @@ public interface TasksManagerImplApi {
    * @param facility
    */
   void removeTask(Service service, Facility facility);
+
+  /**
+   * Suspend propagating tasks to engine.
+   *
+   * @param sess
+   * @param suspend True for suspending propagation, false for resuming propagation
+   */
+  void suspendTasksPropagation(PerunSession sess, boolean suspend);
 
   /**
    * Update DB record of given task.

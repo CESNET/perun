@@ -2906,6 +2906,24 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	}
 
+    @Test
+    public void suspendGroupSynchronization() throws Exception {
+      System.out.println(CLASS_NAME + "suspendGroupSynchronization");
+
+      assertFalse("Should be enabled in test-schema.sql",
+          groupsManager.isSuspendedGroupSynchronization(sess));
+
+
+      groupsManager.suspendGroupSynchronization(sess, true);
+
+      assertTrue(groupsManager.isSuspendedGroupSynchronization(sess));
+
+      groupsManager.suspendGroupSynchronization(sess, false);
+
+      assertFalse(groupsManager.isSuspendedGroupSynchronization(sess));
+
+  }
+
 	@Test
 	public void createGroupSetsUUID() throws Exception {
 		System.out.println(CLASS_NAME + "createGroupSetsUUID");

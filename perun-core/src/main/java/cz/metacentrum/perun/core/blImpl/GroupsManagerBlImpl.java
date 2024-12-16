@@ -6520,16 +6520,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
   @Override
   public void suspendGroupSynchronization(PerunSession sess, boolean suspend) {
-    synchronized (GroupsManagerBlImpl.class) {
-      suspendedGroupSynchronization = suspend;
-    }
+    groupsManagerImpl.suspendGroupSynchronization(sess, suspend);
   }
 
   @Override
   public boolean isSuspendedGroupSynchronization() {
-    synchronized (GroupsManagerBlImpl.class) {
-      return suspendedGroupSynchronization;
-    }
+    return groupsManagerImpl.isSuspendedGroupSynchronization();
   }
 
   @Override
