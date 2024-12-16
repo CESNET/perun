@@ -1,5 +1,35 @@
 Upgrade notes
 
+## [45.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v44.2.0...v45.0.0) (2024-12-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** addOrganizationMembershipManagerPolicies.pl needs to
+be run to fill the policies for the new role
+* **core:** db update
+
+### Features
+
+* add canBeApproved call to `approveApplications` ([cdf6b57](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cdf6b57fade137d1acd26667eec6f550b428e1ea))
+* **core:** creator roles assignable to groups ([33fc2cc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/33fc2cc90fd350469c566cb2987ea374fafe4f66))
+* **core:** new elterid login modules ([45a6838](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/45a6838b3503e1ac222a3a86a11b94f41e750b4b))
+* **core:** organization membership manager role ([aa567a2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/aa567a283d5d3cd388bd1977d49362081bd4b0db))
+* **core:** suspend persistent ([71a3a3e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/71a3a3e35f01d0f1eea41d0af24577f5abd4e871))
+* **registrar:** run validateMember after commit ([662f03c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/662f03ca52c134bcfb20e14ab9f9e90a3651f7e2))
+
+
+### Bug Fixes
+
+* **core:** correctly call `validateMemberAsync()` ([7dfdcbf](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7dfdcbfced66f785b389d212e23fa61756023c47))
+* **core:** skip nonexistent AuditEvents ([e329910](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e3299107139e1a417893a41daf1783b2d559597a))
+* **deps:** update dependency google-api-services-admin-directory ([d3ad0d9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d3ad0d9598e77b1b4b2836c9bf3a731e9b8e5b90))
+* **deps:** update dependency google-api-services-admin-directory to directory_v1-rev20241113-2.0.0 ([676c884](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/676c884536887ef640acf8eda22e882f54eac38b))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.4.0 ([fd02f0c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fd02f0c6adbf68c127b863d3936fc3f3c7e0812a))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.11.1 ([8de2796](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8de2796ebadb36ab52f396d8c40b853dac70b524))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.11.2 ([cc90c1b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cc90c1b81dcc6829dc323af97d78d16dd00740a5))
+* **registrar:** wrong user check in IT4I module ([3fdee02](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3fdee02c2ffb18035ea45ccd7f3d3cb8a7833552))
+
 ## [44.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v44.1.0...v44.2.0) (2024-12-13)
 
 
