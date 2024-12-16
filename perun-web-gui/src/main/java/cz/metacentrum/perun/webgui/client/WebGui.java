@@ -15,7 +15,17 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.ResizeLayoutPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import cz.metacentrum.perun.webgui.client.resources.ExceptionLogger;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
@@ -45,14 +55,9 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CantLogAsServiceUserWidget;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
-import org.eclipse.jetty.util.ajax.JSON;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The main web GUI class. It's GWT Entry point.
@@ -351,7 +356,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 
             // Specific GDPR approval is required only from admins
             if (session.isFacilityAdmin() || session.isVoAdmin() || session.isVoObserver() ||
-                session.isGroupAdmin() || session.isPerunAdmin() || session.isSecurityAdmin()) {
+                session.isGroupAdmin() || session.isPerunAdmin()) {
               checkGdprApproval(new JsonCallbackEvents() {
                 @Override
                 public void onFinished(JavaScriptObject jso) {

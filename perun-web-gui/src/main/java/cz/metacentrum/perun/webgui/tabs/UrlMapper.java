@@ -318,13 +318,6 @@ public class UrlMapper {
       return true;
     }
 
-    // security
-    if (tabPackage.equals(SecurityTabs.URL)) {
-      SecurityTabs tabs = new SecurityTabs();
-      tabs.loadTab(tabName, parameters);
-      return true;
-    }
-
     // test
     if (tabPackage.equals(TestTabs.URL)) {
       TestTabs tabs = new TestTabs();

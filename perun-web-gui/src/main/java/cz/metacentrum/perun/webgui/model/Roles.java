@@ -62,7 +62,7 @@ public class Roles extends JavaScriptObject {
    * Return all editable entities contained in session.
    *
    * @param role       VOADMIN, SELF, PERUNADMIN, GROUPADMIN, VOOBSERVER, FACILITYADMIN
-   * @param entityType "Vo, Facility, User, Group, SecurityTeam, Sponsor"
+   * @param entityType "Vo, Facility, User, Group, Sponsor"
    */
   public final native JsArrayInteger getEditableEntities(String role, String entityType) /*-{
 		var entities = new Array();

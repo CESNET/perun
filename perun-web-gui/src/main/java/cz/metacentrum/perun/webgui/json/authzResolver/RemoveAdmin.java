@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.SecurityTeam;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 
@@ -26,7 +25,6 @@ public class RemoveAdmin {
   final String VO_JSON_URL = "vosManager/removeAdmin";
   final String GROUP_JSON_URL = "groupsManager/removeAdmin";
   final String FACILITY_JSON_URL = "facilitiesManager/removeAdmin";
-  final String SECURITY_JSON_URL = "securityTeamsManager/removeAdmin";
   // web session
   private PerunWebSession session = PerunWebSession.getInstance();
   // external events
@@ -198,53 +196,6 @@ public class RemoveAdmin {
   }
 
   /**
-   * Attempts to remove admin from SecurityTeam, it first tests the values and then submits them.
-   *
-   * @param securityTeam where we want to remove admin from
-   * @param user         User to be removed from admins
-   */
-  public void removeSecurityTeamAdmin(final SecurityTeam securityTeam, final User user) {
-
-    this.userId = (user != null) ? user.getId() : 0;
-    this.entityId = (securityTeam != null) ? securityTeam.getId() : 0;
-    this.entity = PerunEntity.SECURITY_TEAM;
-
-    // test arguments
-    if (!this.testRemoving()) {
-      return;
-    }
-
-    // new events
-    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
-      public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Removing " + user.getFullName() + " from managers failed.");
-        events.onError(error); // custom events
-      }
-
-      ;
-
-      public void onFinished(JavaScriptObject jso) {
-        session.getUiElements()
-            .setLogSuccessText("User " + user.getFullName() + " removed form managers of " + securityTeam.getName());
-        events.onFinished(jso);
-      }
-
-      ;
-
-      public void onLoadingStart() {
-        events.onLoadingStart();
-      }
-
-      ;
-    };
-
-    // sending data
-    JsonPostClient jspc = new JsonPostClient(newEvents);
-    jspc.sendData(SECURITY_JSON_URL, prepareJSONObject());
-
-  }
-
-  /**
    * Attempts to remove admin group from Group, it first tests the values and then submits them.
    *
    * @param groupToAddAdminTo where we want to remove admin group from
@@ -389,54 +340,6 @@ public class RemoveAdmin {
   }
 
   /**
-   * Attempts to remove admin group from SecurityTeam, it first tests the values and then submits them.
-   *
-   * @param securityTeam where we want to remove admin from
-   * @param group        Group to be removed from admins
-   */
-  public void removeSecurityTeamAdminGroup(final SecurityTeam securityTeam, final Group group) {
-
-    // store group id to user id to used unified check method
-    this.userId = (group != null) ? group.getId() : 0;
-    this.entityId = (securityTeam != null) ? securityTeam.getId() : 0;
-    this.entity = PerunEntity.SECURITY_TEAM;
-
-    // test arguments
-    if (!this.testRemoving()) {
-      return;
-    }
-
-    // new events
-    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
-      public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Removing group " + group.getShortName() + " from managers failed.");
-        events.onError(error); // custom events
-      }
-
-      ;
-
-      public void onFinished(JavaScriptObject jso) {
-        session.getUiElements()
-            .setLogSuccessText("Group " + group.getShortName() + " removed from managers of " + securityTeam.getName());
-        events.onFinished(jso);
-      }
-
-      ;
-
-      public void onLoadingStart() {
-        events.onLoadingStart();
-      }
-
-      ;
-    };
-
-    // sending data
-    JsonPostClient jspc = new JsonPostClient(newEvents);
-    jspc.sendData(SECURITY_JSON_URL, prepareJSONObjectForGroup());
-
-  }
-
-  /**
    * Tests the values, if the process can continue
    *
    * @return true/false for continue/stop
@@ -476,8 +379,6 @@ public class RemoveAdmin {
       jsonQuery.put("group", new JSONNumber(entityId));
     } else if (entity.equals(PerunEntity.FACILITY)) {
       jsonQuery.put("facility", new JSONNumber(entityId));
-    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-      jsonQuery.put("securityTeam", new JSONNumber(entityId));
     }
     jsonQuery.put("user", new JSONNumber(userId));
     return jsonQuery;
@@ -497,8 +398,6 @@ public class RemoveAdmin {
       jsonQuery.put("group", new JSONNumber(entityId));
     } else if (entity.equals(PerunEntity.FACILITY)) {
       jsonQuery.put("facility", new JSONNumber(entityId));
-    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-      jsonQuery.put("securityTeam", new JSONNumber(entityId));
     }
     jsonQuery.put("authorizedGroup", new JSONNumber(userId));
     return jsonQuery;

@@ -10,7 +10,6 @@ import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabManager;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilityDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupDetailTabItem;
-import cz.metacentrum.perun.webgui.tabs.securitytabs.SecurityTeamDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ public class PerunWebSession {
   static public final String FACILITY_ADMIN_PRINCIPAL_ROLE = "FACILITYADMIN";
   static public final String USER_ROLE = "SELF";
   static public final String VO_OBSERVER_PRINCIPAL_ROLE = "VOOBSERVER";
-  static public final String SECURITY_ADMIN_PRINCIPAL_ROLE = "SECURITYADMIN";
   static public final String VO_CREATOR_PRINCIPAL_ROLE = "VOCREATOR";
   // Only instance
   static private PerunWebSession INSTANCE;
@@ -53,7 +51,6 @@ public class PerunWebSession {
   private boolean facilityAdmin = false;
   private boolean voObserver = false; // is not vo admin
   private boolean self = false; // is not admin
-  private boolean securityAdmin = false;
   private boolean sponsor = false; // sponsor
   private boolean voCreator = false;
   // Entities which can the user edit
@@ -70,7 +67,6 @@ public class PerunWebSession {
   private Group activeGroup;
   private Facility activeFacility;
   private User activeUser;
-  private SecurityTeam activeSecurityTeam;
   // History of entities which user edited
   private ArrayList<GeneralObject> entitiesHistoryList = new ArrayList<GeneralObject>();
   private BasicOverlayType configuration;
@@ -367,35 +363,6 @@ public class PerunWebSession {
   }
 
   /**
-   * True if the user is security admin.
-   * TRUE for PerunAdmin too.
-   *
-   * @return true if security admin
-   */
-  public boolean isSecurityAdmin() {
-    if (this.perunAdmin) {
-      return this.perunAdmin;
-    }
-    return this.securityAdmin;
-  }
-
-  /**
-   * True if the user is security admin of a specified SecurityTeam.
-   * TRUE for PerunAdmin too.
-   *
-   * @param id ID of SecurityTeam to check admin status for
-   * @return true if user is SecurityTeams admin
-   */
-  public boolean isSecurityAdmin(int id) {
-    if (this.perunAdmin) {
-      return this.perunAdmin;
-    } else if (this.securityAdmin) {
-      return editableSecTeams.contains(id);
-    }
-    return false;
-  }
-
-  /**
    * True if the user is Sponsor.
    * TRUE for PerunAdmin too.
    *
@@ -499,17 +466,6 @@ public class PerunWebSession {
   }
 
   /**
-   * Add a SecurityTeam, which user can edit
-   *
-   * @param secTeamId SecurityTeam, which can user edit
-   */
-  public void addEditableSecurityTeam(int secTeamId) {
-    if (!this.editableSecTeams.contains(secTeamId)) {
-      this.editableSecTeams.add(secTeamId);
-    }
-  }
-
-  /**
    * Add a SponsoredUser, which user can edit
    *
    * @param sponsoredUser SponsoredUser, which can user edit
@@ -565,15 +521,6 @@ public class PerunWebSession {
    */
   public ArrayList<Integer> getEditableFacilities() {
     return editableFacilities;
-  }
-
-  /**
-   * Return list of editable security team IDs
-   *
-   * @return sec teams
-   */
-  public ArrayList<Integer> getEditableSecurityTeams() {
-    return editableSecTeams;
   }
 
   /**
@@ -659,27 +606,6 @@ public class PerunWebSession {
     addObjectToEntitiesHistory(facility.cast());
     getUiElements().getMenu().setMenuTabItem(MainMenu.FACILITY_ADMIN, new FacilityDetailTabItem(facility));
     getUiElements().getMenu().updateLinks(MainMenu.FACILITY_ADMIN);
-  }
-
-  /**
-   * Returns SecurityTeam, which user currently edits
-   *
-   * @return SecurityTeam
-   */
-  public SecurityTeam getActiveSecurityTeam() {
-    return activeSecurityTeam;
-  }
-
-  /**
-   * Sets currently active SecurityTeam (refresh links in menu)
-   *
-   * @param securityTeam SecurityTeam which user is editing now
-   */
-  public void setActiveSecurityTeam(SecurityTeam securityTeam) {
-    this.activeSecurityTeam = securityTeam;
-    addObjectToEntitiesHistory(securityTeam.cast());
-    getUiElements().getMenu().setMenuTabItem(MainMenu.SECURITY_ADMIN, new SecurityTeamDetailTabItem(securityTeam));
-    getUiElements().getMenu().updateLinks(MainMenu.SECURITY_ADMIN);
   }
 
   /**
@@ -791,21 +717,6 @@ public class PerunWebSession {
   }
 
   /**
-   * Sets currently active SecurityTeam (refresh links in menu)
-   * when only ID is provided.
-   *
-   * @param securityTeamId ID of SecTeam which user is editing now
-   */
-  public void setActiveSecurityTeamId(int securityTeamId) {
-    new GetEntityById(PerunEntity.SECURITY_TEAM, securityTeamId, new JsonCallbackEvents() {
-      public void onFinished(JavaScriptObject jso) {
-        SecurityTeam f = jso.cast();
-        setActiveSecurityTeam(f);
-      }
-    }).retrieveData();
-  }
-
-  /**
    * Sets user's roles and editable entities received from RPC
    * within PerunPrincipal into Session
    * <p>
@@ -821,7 +732,6 @@ public class PerunWebSession {
     this.groupAdmin = roles.hasRole(GROUP_ADMIN_PRINCIPAL_ROLE);
     this.self = roles.hasRole(USER_ROLE);
     this.voObserver = roles.hasRole(VO_OBSERVER_PRINCIPAL_ROLE);
-    this.securityAdmin = roles.hasRole(SECURITY_ADMIN_PRINCIPAL_ROLE);
     this.voCreator = roles.hasRole(VO_CREATOR_PRINCIPAL_ROLE);
 
     JsArrayInteger array = roles.getEditableEntities("VOADMIN", "Vo");
@@ -843,10 +753,6 @@ public class PerunWebSession {
     JsArrayInteger array5 = roles.getEditableEntities("VOOBSERVER", "Vo");
     for (int i = 0; i < array5.length(); i++) {
       addViewableVo(array5.get(i));
-    }
-    JsArrayInteger array6 = roles.getEditableEntities("SECURITYADMIN", "SecurityTeam");
-    for (int i = 0; i < array6.length(); i++) {
-      addEditableSecurityTeam(array6.get(i));
     }
     JsArrayInteger array7 = roles.getEditableEntities("SPONSOR", "SponsoredUser");
     for (int i = 0; i < array7.length(); i++) {
@@ -883,9 +789,6 @@ public class PerunWebSession {
     }
     if (facilityAdmin) {
       result += "; FacilityManager=" + editableFacilities;
-    }
-    if (securityAdmin) {
-      result += "; SecurityAdmin=" + editableSecTeams;
     }
     if (sponsor) {
       result += "; Sponsor=" + editableSponsoredUsers;
