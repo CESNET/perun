@@ -1,4 +1,4 @@
--- database version 3.2.26 (don't forget to update insert statement at the end of file)
+-- database version 3.2.27 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -1359,18 +1359,6 @@ create table auditer_log
     constraint audlog_pk primary key (id)
 );
 
--- RESERVED_LOGINS - reserved lognames, actually is not used. Prepared for reservation by core.
-create table reserved_logins
-(
-    login           varchar, --logname
-    namespace       varchar, --namespace in which is logname using
-    application     varchar, --relation to application if any
-    id              varchar,
-    created_by_uid  integer,
-    modified_by_uid integer,
-    constraint reservlogins_pk primary key (login, namespace)
-);
-
 -- PN_AUDIT_MESSAGE - Contains all messages retrieved from the auditer log, since the notification module is auditer consumer. These messages are waiting to be processed by the notification module
 create table pn_audit_message
 (
@@ -2082,7 +2070,7 @@ create index idx_fk_inv_usr on invitations(sender_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.26');
+values ('DATABASE VERSION', '3.2.27');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations
