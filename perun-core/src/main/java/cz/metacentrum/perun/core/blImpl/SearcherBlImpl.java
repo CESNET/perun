@@ -49,6 +49,8 @@ public class SearcherBlImpl implements SearcherBl {
       return perunBl.getFacilitiesManagerBl().getFacilities(sess);
     }
 
+    attributesWithSearchingValues.replaceAll((attribute, value) -> value.trim());
+
     Map<Attribute, String> mapOfAttrsWithValues = new HashMap<>();
     Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<>();
 
@@ -185,6 +187,8 @@ public class SearcherBlImpl implements SearcherBl {
     if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
       return perunBl.getResourcesManagerBl().getResources(sess);
     }
+
+    attributesWithSearchingValues.replaceAll((attribute, value) -> value.trim());
 
     Map<Attribute, String> mapOfAttrsWithValues = new HashMap<>();
     Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<>();
@@ -358,6 +362,8 @@ public class SearcherBlImpl implements SearcherBl {
     if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
       return perunBl.getUsersManagerBl().getUsers(sess);
     }
+
+    attributesWithSearchingValues.replaceAll((attribute, value) -> value.trim());
 
     Map<Attribute, String> mapOfAttrsWithValues = new HashMap<>();
     Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<>();

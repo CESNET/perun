@@ -572,6 +572,8 @@ public class UsersManagerEntry implements UsersManager {
       throws UserNotExistsException, PrivilegeException {
     Utils.checkPerunSession(sess);
 
+    searchString = searchString.trim();
+
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "findRichUsersWithAttributes_String_List<String>_policy")) {
 
