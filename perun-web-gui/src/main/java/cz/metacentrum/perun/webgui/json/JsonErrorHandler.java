@@ -430,9 +430,6 @@ public class JsonErrorHandler {
             " is already manager of Facility: " + SafeHtmlUtils.fromString(error.getFacility().getName()).asString();
       } else if (error.getGroup() != null) {
         text += " is already manager of Group: " + SafeHtmlUtils.fromString(error.getGroup().getName()).asString();
-      } else if (error.getSecurityTeam() != null) {
-        text += " is already manager of SecurityTeam: " +
-            SafeHtmlUtils.fromString(error.getSecurityTeam().getName()).asString();
       }
       return text;
 
@@ -866,15 +863,6 @@ public class JsonErrorHandler {
 
       // FIXME - must contain also resource
       return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
-
-    } else if ("SecurityTeamAlreadyAssignedException".equalsIgnoreCase(errorName)) {
-
-      if (error.getSecurityTeam() != null) {
-        return "SecurityTeam <i>" + SafeHtmlUtils.fromString(error.getSecurityTeam().getName()).asString() +
-            "</i> is already assigned to facility.";
-      } else {
-        return "Same SecurityTeam is already assigned to facility.";
-      }
 
     } else if ("ServiceAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 

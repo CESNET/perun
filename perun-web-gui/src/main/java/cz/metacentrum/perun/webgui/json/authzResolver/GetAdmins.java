@@ -40,7 +40,6 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
   private static final String GROUP_JSON_URL = "groupsManager/getAdmins";
   private static final String VO_JSON_URL = "vosManager/getAdmins";
   private static final String FACILITY_JSON_URL = "facilitiesManager/getAdmins";
-  private static final String SECURITY_JSON_URL = "securityTeamsManager/getAdmins";
   // Selection model for the table
   final MultiSelectionModel<User> selectionModel = new MultiSelectionModel<User>(new GeneralKeyProvider<User>());
   // Session
@@ -103,9 +102,6 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
       Window.alert("Get admins for facility by new callback is not yet supported on perun side.");
       // param = "facility="+entityId;
       // js.retrieveData(FACILITY_JSON_URL, param, this);
-    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-      param = "securityTeam=" + entityId;
-      js.retrieveData(SECURITY_JSON_URL, param, this);
     }
 
   }

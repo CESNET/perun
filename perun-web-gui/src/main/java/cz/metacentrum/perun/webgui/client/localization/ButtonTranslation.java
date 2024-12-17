@@ -717,42 +717,4 @@ public interface ButtonTranslation extends Messages {
   @DefaultMessage("Click to select identity")
   String select();
 
-  /* SECURITY TEAMS */
-
-  @DefaultMessage("Filter security team by name")
-  String filterSecurityTeam();
-
-  @DefaultMessage("Create new Security Team")
-  String createSecurityTeam();
-
-  @DefaultMessage("Delete Security Team(s)")
-  String deleteSecurityTeam();
-
-  @DefaultMessage("Add member to SecurityTeam")
-  String addMemberToSecurityTeam();
-
-  @DefaultMessage("Remove member(s) from SecurityTeam")
-  String removeMemberOfSecurityTeam();
-
-  @DefaultMessage("Add selected users as manager to SecurityTeam")
-  String addSelectedManagersToSecurityTeam();
-
-  @DefaultMessage("Add user(s) to blacklist")
-  String addUsersToBlacklist();
-
-  @DefaultMessage("Add selected user(s) to blacklist")
-  String addSelectedUsersToBlacklist();
-
-  @DefaultMessage("Remove selected user(s) from blacklist")
-  String removeSelectedUsersFromBlacklist();
-
-  @DefaultMessage("Assign SecurityTeam")
-  String assignSecurityTeam();
-
-  @DefaultMessage("Remove selected SecurityTeam(s)")
-  String removeSelectedSecurityTeams();
-
-  @DefaultMessage("Filter blacklisted users by name")
-  String filterBlacklist();
-
 }

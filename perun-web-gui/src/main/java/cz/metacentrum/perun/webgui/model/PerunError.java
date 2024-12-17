@@ -207,18 +207,6 @@ public class PerunError extends JavaScriptObject {
 	}-*/;
 
   /**
-   * Get referenced SecurityTeam related to error message
-   *
-   * @return SecurityTeam object or null if not present
-   */
-  public final native SecurityTeam getSecurityTeam() /*-{
-		if (!this.securityTeam) {
-			return null;
-		}
-		return this.securityTeam;
-	}-*/;
-
-  /**
    * Get referenced User  related to error message
    *
    * @return User object or null if not present

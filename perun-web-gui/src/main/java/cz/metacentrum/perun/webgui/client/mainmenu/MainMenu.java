@@ -17,10 +17,6 @@ import cz.metacentrum.perun.webgui.tabs.cabinettabs.UsersPublicationsTabItem;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.*;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.*;
 import cz.metacentrum.perun.webgui.tabs.perunadmintabs.*;
-import cz.metacentrum.perun.webgui.tabs.securitytabs.SecurityTeamBlacklistTabItem;
-import cz.metacentrum.perun.webgui.tabs.securitytabs.SecurityTeamDetailTabItem;
-import cz.metacentrum.perun.webgui.tabs.securitytabs.SecurityTeamMembersTabItem;
-import cz.metacentrum.perun.webgui.tabs.securitytabs.SecurityTeamSelectTabItem;
 import cz.metacentrum.perun.webgui.tabs.servicestabs.ServicePackagesTabItem;
 import cz.metacentrum.perun.webgui.tabs.servicestabs.ServicesTabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.*;
@@ -40,11 +36,10 @@ import java.util.Map;
 public class MainMenu {
 
   static public final int PERUN_ADMIN = 0;
-  static public final int SECURITY_ADMIN = 1;
-  static public final int VO_ADMIN = 2;
-  static public final int GROUP_ADMIN = 3;
-  static public final int FACILITY_ADMIN = 4;
-  static public final int USER = 5;
+  static public final int VO_ADMIN = 1;
+  static public final int GROUP_ADMIN = 2;
+  static public final int FACILITY_ADMIN = 3;
+  static public final int USER = 4;
   static public final int MENU_WIDTH = 203;
   private AdvancedStackPanel menuStackPanel = new AdvancedStackPanel();
   private PerunWebSession session = PerunWebSession.getInstance();
@@ -60,7 +55,7 @@ public class MainMenu {
       public void onSelectionChange(SelectionChangeEvent event) {
 
         int menuPosition = menuStackPanel.getSelectedIndex();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 5; i++) {
           if (sectionsIds.containsKey(i)) {
             if (sectionsIds.get(i) == menuPosition) {
               // THIS ENSURES ALL LINKS IN MENU ARE ALWAYS CURRENT WHEN MENU IS OPENED
@@ -118,23 +113,6 @@ public class MainMenu {
       });
       i++;
       menuStackPanel.add(perunAdmin.getWidget(), perunAdmin.getHeader(), true);
-    }
-
-    // SECTION PERUN ADMIN
-    if (session.isSecurityAdmin()) {
-      MainMenuSection secAdmin =
-          new MainMenuSection("Security admin", new SecurityTeamSelectTabItem(), iconsLarge.userPoliceEnglandIcon(),
-              PERUN_ADMIN);
-
-      this.sectionsMap.put(SECURITY_ADMIN, secAdmin);
-      this.sectionsIds.put(SECURITY_ADMIN, i);
-      Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-        public void execute() {
-          buildSecurityAdminMenu();
-        }
-      });
-      i++;
-      menuStackPanel.add(secAdmin.getWidget(), secAdmin.getHeader(), true);
     }
 
     // SECTION VO ADMIN
@@ -265,8 +243,6 @@ public class MainMenu {
     switch (role) {
       case PERUN_ADMIN:
         buildPerunAdminMenu();
-      case SECURITY_ADMIN:
-        buildSecurityAdminMenu();
       case VO_ADMIN:
         buildVoAdminMenu();
       case GROUP_ADMIN:
@@ -286,7 +262,6 @@ public class MainMenu {
 
     // menu links
     buildPerunAdminMenu();
-    buildSecurityAdminMenu();
     buildVoAdminMenu();
     buildGroupAdminMenu();
     buildFacilityAdminMenu();
@@ -359,44 +334,6 @@ public class MainMenu {
     }
 
   }
-
-  /**
-   * Rebuild whole SECURITY ADMIN menu
-   */
-  private void buildSecurityAdminMenu() {
-    MainMenuSection menu = sectionsMap.get(SECURITY_ADMIN);
-    if (menu == null) {
-      return;
-    }
-    menu.clear();
-
-    SecurityTeam team = session.getActiveSecurityTeam();
-
-    menu.addItem(new MainMenuItem("Select SecurityTeam", new SecurityTeamSelectTabItem(),
-        SmallIcons.INSTANCE.userPoliceEnglandIcon()));
-    menu.addSplitter();
-
-    if (team != null) {
-
-      menu.addItem(new MainMenuItem(team.getName(), new SecurityTeamDetailTabItem(team),
-          SmallIcons.INSTANCE.userPoliceEnglandIcon()));
-      menu.addItem(
-          new MainMenuItem("Members", new SecurityTeamMembersTabItem(team), SmallIcons.INSTANCE.userGreenIcon()));
-      menu.addItem(
-          new MainMenuItem("Blacklist", new SecurityTeamBlacklistTabItem(team), SmallIcons.INSTANCE.firewallIcon()));
-
-    } else {
-
-      menu.addItem(new MainMenuItem("Detail", null, SmallIcons.INSTANCE.userPoliceEnglandIcon()));
-      menu.addItem(new MainMenuItem("Members", null, SmallIcons.INSTANCE.userGreenIcon()));
-      menu.addItem(new MainMenuItem("Blacklist", null, SmallIcons.INSTANCE.firewallIcon()));
-
-    }
-
-    menuStackPanel.setStackText(sectionsIds.get(SECURITY_ADMIN), menu.getHeader(), true);
-
-  }
-
 
   /**
    * Rebuild whole PERUN ADMIN menu
@@ -515,8 +452,6 @@ public class MainMenu {
     TabItemWithUrl hosts = null;
     TabItemWithUrl allowedGroups = null;
     TabItemWithUrl owners = null;
-    TabItemWithUrl security = null;
-    TabItemWithUrl black = null;
     TabItemWithUrl allPropagations = new FacilitiesPropagationsTabItem();
     String facilityName = "Facility overview";
 
@@ -530,9 +465,7 @@ public class MainMenu {
       settings = new FacilitySettingsTabItem(facility);
       hosts = new FacilityHostsTabItem(facility);
       allowedGroups = new FacilityAllowedGroupsTabItem(facility);
-      security = new FacilitySecurityTeamsTabItem(facility);
       owners = new FacilityOwnersTabItem(facility);
-      black = new FacilityBlacklistTabItem(facility);
     }
 
     menu.addItem(
@@ -551,8 +484,6 @@ public class MainMenu {
       menu.addItem(new MainMenuItem("Services destinations", destinations, SmallIcons.INSTANCE.serverGoIcon()));
       menu.addItem(new MainMenuItem("Hosts", hosts, SmallIcons.INSTANCE.serverIcon()));
       menu.addItem(new MainMenuItem("Managers", admins, SmallIcons.INSTANCE.administratorIcon()));
-      menu.addItem(new MainMenuItem("Security teams", security, SmallIcons.INSTANCE.userPoliceEnglandIcon()));
-      menu.addItem(new MainMenuItem("Blacklist", black, SmallIcons.INSTANCE.firewallIcon()));
       menu.addItem(new MainMenuItem("Owners", owners, SmallIcons.INSTANCE.userSilhouetteIcon()));
       menu.addItem(new MainMenuItem("All facilities states", allPropagations, SmallIcons.INSTANCE.arrowRightIcon()));
       menu.addAdvancedLink(facility != null);
