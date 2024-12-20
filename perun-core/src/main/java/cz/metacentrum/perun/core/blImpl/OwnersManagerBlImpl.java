@@ -16,7 +16,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Deprecated
 public class OwnersManagerBlImpl implements OwnersManagerBl {
 
   static final Logger LOG = LoggerFactory.getLogger(OwnersManagerBlImpl.class);

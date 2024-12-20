@@ -265,11 +265,13 @@ public class PerunBlImpl implements PerunBl {
     return modulesUtilsBl;
   }
 
+  @Deprecated
   @Override
   public OwnersManager getOwnersManager() {
     return ownersManager;
   }
 
+  @Deprecated
   @Override
   public OwnersManagerBl getOwnersManagerBl() {
     return ownersManagerBl;

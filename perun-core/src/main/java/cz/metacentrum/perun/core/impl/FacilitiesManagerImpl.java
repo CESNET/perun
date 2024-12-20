@@ -180,6 +180,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   }
 
   @Override
+  @Deprecated
   public void addOwner(PerunSession sess, Facility facility, Owner owner) throws OwnerAlreadyAssignedException {
     try {
       // Check if the owner is already assigned
@@ -985,6 +986,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   }
 
   @Override
+  @Deprecated
   public List<Owner> getOwners(PerunSession sess, Facility facility) {
     try {
       return jdbc.query("select " + OwnersManagerImpl.OWNER_MAPPING_SELECT_QUERY +
@@ -1080,6 +1082,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   }
 
   @Override
+  @Deprecated
   public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws OwnerAlreadyRemovedException {
     try {
       if (0 == jdbc.update("delete from facility_owners where facility_id=? and owner_id=?", facility.getId(),
@@ -1132,6 +1135,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   }
 
   @Override
+  @Deprecated
   public void setOwners(PerunSession sess, Facility facility, List<Owner> owners) {
     try {
       jdbc.update("delete from facility_owners where facility_id=?", facility.getId());

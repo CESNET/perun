@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Slavek Licehammer glory@ics.muni.cz
  */
+@Deprecated
 public class OwnersManagerEntry implements OwnersManager {
 
   static final Logger LOG = LoggerFactory.getLogger(OwnersManagerEntry.class);

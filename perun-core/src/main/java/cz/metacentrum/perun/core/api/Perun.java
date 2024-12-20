@@ -87,6 +87,7 @@ public interface Perun {
    *
    * @return Owners manager
    */
+  @Deprecated
   OwnersManager getOwnersManager();
 
   /**

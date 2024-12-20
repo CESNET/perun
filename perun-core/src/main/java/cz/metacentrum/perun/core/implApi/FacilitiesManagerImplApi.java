@@ -60,6 +60,7 @@ public interface FacilitiesManagerImplApi {
    * @throws InternalErrorException
    * @throws OwnerAlreadyAssignedException
    */
+  @Deprecated
   void addOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyAssignedException;
 
   /**
@@ -591,6 +592,7 @@ public interface FacilitiesManagerImplApi {
    * @return owners of specified facility
    * @throws InternalErrorException
    */
+  @Deprecated
   List<Owner> getOwners(PerunSession perunSession, Facility facility);
 
   boolean hostExists(PerunSession sess, Host host);
@@ -645,6 +647,7 @@ public interface FacilitiesManagerImplApi {
    * @throws InternalErrorException
    * @throws OwnerAlreadyRemovedException
    */
+  @Deprecated
   void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyRemovedException;
 
   /**
@@ -675,6 +678,7 @@ public interface FacilitiesManagerImplApi {
    * @param owners
    * @throws InternalErrorException
    */
+  @Deprecated
   void setOwners(PerunSession perunSession, Facility facility, List<Owner> owners);
 
   /**

@@ -10,6 +10,7 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public enum OwnersManagerMethod implements ManagerMethod {
 
   /*#
@@ -18,6 +19,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
    * Owner object must contain: name, contact, ownerType which can be: 0 - technical, 1 - administrative.
    * Other parameters are ignored.
    *
+   * @deprecated
    * @param owner Owner JSON object
    * @return Owner Created object
    * @exampleParam owner { "name" : "The Owner" , "contact" : "the contact", "ownerType" : 0 }
@@ -25,6 +27,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
   /*#
    * Creates a new owner.
    *
+   * @deprecated
    * @param name String name of a new owner
    * @param contact String contact of a new owner
    * @param ownerType int ownerType, 0 - technical, 1 - administrative
@@ -55,12 +58,14 @@ public enum OwnersManagerMethod implements ManagerMethod {
   /*#
    * Deletes an owner.
    *
+   * @deprecated
    * @param owner int Owner <code>id</code>
    * @return Object Always null
    */
   /*#
    * Forcefully deletes an owner.
    *
+   * @deprecated
    * @param owner int Owner <code>id</code>
    * @param force boolean Force must be true
    * @return Object Always null
@@ -82,12 +87,14 @@ public enum OwnersManagerMethod implements ManagerMethod {
   /*#
    * Deletes owners.
    *
+   * @deprecated
    * @param owners List<Integer> Owner <code>id</code>
    * @return Object Always null
    */
   /*#
    * Forcefully deletes owners.
    *
+   * @deprecated
    * @param owners List<Integer> Owner <code>id</code>
    * @param force boolean Force must be true
    * @return Object Always null
@@ -115,6 +122,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
   /*#
    * Returns an owner by its <code>id</code>.
    *
+   * @deprecated
    * @param id int Owner <code>id</code>
    * @return Owner Found Owner
    */
@@ -128,6 +136,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
   /*#
    * Returns an owner by its name.
    *
+   * @deprecated
    * @param name String Owner name
    * @return Owner Found Owner
    */
@@ -141,6 +150,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
   /*#
    * Returns all owners.
    *
+   * @deprecated
    * @return List<Owner> All owners
    */
   getOwners {
