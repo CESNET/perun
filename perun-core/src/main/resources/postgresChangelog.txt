@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.27
+DROP TABLE reserved_logins;
+UPDATE configurations SET value='3.2.27' WHERE property='DATABASE VERSION';
+
 3.2.26
 INSERT INTO configurations (property, value) VALUES ('suspendGroupSync', 'false');
 INSERT INTO configurations (property, value) VALUES ('suspendTasksProp', 'false');

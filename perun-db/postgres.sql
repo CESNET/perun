@@ -1,4 +1,4 @@
--- database version 3.2.26 (don't forget to update insert statement at the end of file)
+-- database version 3.2.27 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1267,17 +1267,6 @@ create table auditer_log (
 	constraint audlog_pk primary key (id)
 );
 
--- RESERVED_LOGINS - reserved lognames, actually is not used. Prepared for reservation by core.
-create table reserved_logins (
-	login varchar,        --logname
-	namespace varchar,    --namespace in which is logname using
-	application varchar,  --relation to application if any
-	id varchar,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint reservlogins_pk primary key (login,namespace)
-);
-
 -- PN_AUDIT_MESSAGE - Contains all messages retrieved from the auditer log, since the notification module is auditer consumer. These messages are waiting to be processed by the notification module
 create table pn_audit_message (
 	message text,
@@ -2022,7 +2011,6 @@ grant all on groups_resources_automatic to perun;
 grant all on groups_members to perun;
 grant all on application_mails to perun;
 grant all on application_mail_texts to perun;
-grant all on reserved_logins to perun;
 grant all on pn_audit_message to perun;
 grant all on pn_object to perun;
 grant all on pn_pool_message to perun;
@@ -2065,7 +2053,7 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.26');
+insert into configurations values ('DATABASE VERSION','3.2.27');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
