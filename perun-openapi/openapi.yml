@@ -9971,7 +9971,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/userManager/getUnanonymizedUsersBySpecificUser:
+  /json/usersManager/getUnanonymizedUsersBySpecificUser:
     get:
       tags:
         - UsersManager
@@ -14718,7 +14718,7 @@ paths:
 
   #################################################
   #                                               #
-  # ResourceManager                               #
+  # ResourcesManager                               #
   #                                               #
   #################################################
 
