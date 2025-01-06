@@ -115,6 +115,7 @@ import cz.metacentrum.perun.registrar.exceptions.ApplicationNotCreatedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
+import cz.metacentrum.perun.registrar.exceptions.FormItemSetupException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataException;
@@ -5824,6 +5825,28 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     int finalResult = 0;
     for (ApplicationFormItem item : items) {
+      // if creating or updating password item check that it has destination attribute set
+      if (item.getType() == PASSWORD && !item.isForDelete()) {
+        if (item.getPerunDestinationAttribute() == null || item.getPerunDestinationAttribute().isEmpty()) {
+          throw new FormItemSetupException("The form item of type PASSWORD needs to have destination attribute " +
+              "assigned.");
+        }
+
+        AttributeDefinition destinationAttrDef;
+        try {
+          destinationAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(
+              sess, item.getPerunDestinationAttribute());
+        } catch (AttributeNotExistsException e) {
+          throw new FormItemSetupException("The destination attribute used: " + item.getPerunDestinationAttribute() +
+              " does not exist. Please create it or use another.");
+        }
+
+        if (!(perun.getAttributesManagerBl().isDefAttribute(sess, destinationAttrDef) ||
+            perun.getAttributesManagerBl().isOptAttribute(sess, destinationAttrDef))) {
+          throw new FormItemSetupException("The destination attribute used: " + item.getPerunDestinationAttribute() +
+              " needs to be of def or opt type. Please modify the attribute accordingly.");
+        }
+      }
 
       // is item to create ? => create
       if (item.getId() <= 0 && !item.isForDelete()) {
