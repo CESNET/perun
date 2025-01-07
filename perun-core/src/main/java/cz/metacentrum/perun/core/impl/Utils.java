@@ -131,8 +131,10 @@ public class Utils {
   public static final String FIRST_NAME = "firstName";
   public static final String LAST_NAME = "lastName";
   public static final String TITLE_AFTER = "titleAfter";
-  public static final Pattern EMAIL_PATTERN =
-      Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+  public static final Pattern EMAIL_PATTERN = Pattern.compile("^(?:[a-zA-Z0-9!#$%&'*+\\/=?^_`\\{|\\}~-]+(?:\\." +
+      "[a-zA-Z0-9!#$%&'*+\\/=?^_`\\{|\\}~-]+)*|\"(?:[!#$%&'*+\\/=?^_`\\{|\\}~\\-\\x20-\\x7E]|\\\\[!#$%&'*+\\/=" +
+      "?^_`\\{|\\}~\\-\\x20-\\x7E])*\")@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9]" +
+      "(?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$");
   public static final Pattern UCO_EMAIL_PATTERN = Pattern.compile("^[0-9]+@muni\\.cz$");
   public static final DateTimeFormatter LAST_ACCESS_FORMATTER =
       new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss")
