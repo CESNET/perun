@@ -38,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
+import cz.metacentrum.perun.core.api.exceptions.MissingSubmitButtonException;
 import cz.metacentrum.perun.core.api.exceptions.MultipleApplicationFormItemsException;
 import cz.metacentrum.perun.core.api.exceptions.OpenApplicationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -323,10 +324,12 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForVo(vo);
 
     ApplicationFormItem firstItem = new ApplicationFormItem();
+    firstItem.setType(ApplicationFormItem.Type.HEADING);
     firstItem.setShortname("dependency");
     firstItem = registrarManager.addFormItem(session, form, firstItem);
 
     ApplicationFormItem otherItem = new ApplicationFormItem();
+    otherItem.setType(ApplicationFormItem.Type.HEADING);
     otherItem.setShortname("dep");
     otherItem.setHidden(ApplicationFormItem.Hidden.IF_PREFILLED);
     otherItem.setHiddenDependencyItemId(firstItem.getId());
@@ -968,9 +971,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForVo(vo);
 
     ApplicationFormItem savedItem = new ApplicationFormItem();
+    savedItem.setType(ApplicationFormItem.Type.HEADING);
     savedItem.setShortname("item");
     savedItem.setPerunDestinationAttribute("saved");
-    registrarManager.addFormItem(session, form, savedItem);
+    registrarManager.updateFormItems(session, form, List.of(savedItem));
 
     List<ApplicationFormItem> items = registrarManager.getFormItems(session, registrarManager.getFormForVo(vo));
     assertThat(items).hasSize(1);
@@ -1013,23 +1017,21 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     System.out.println("getApplicationsPageApplicationFormSearch");
     ApplicationForm form = registrarManager.getFormForVo(vo);
 
-
-    // set up application
-
+    // Form with input fields requires a submit button
+    ApplicationFormItem submitButtonItem = new ApplicationFormItem();
+    submitButtonItem.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
+    submitButtonItem.setShortname("submitButtonItem");
 
     ApplicationFormItem testItem = new ApplicationFormItem();
     testItem.setType(ApplicationFormItem.Type.TEXTFIELD);
     testItem.setShortname("testItem");
 
-    testItem = registrarManager.addFormItem(session, form, testItem);
-    registrarManager.updateFormItems(session, form, Collections.singletonList(testItem));
-
     ApplicationFormItem testItem2 = new ApplicationFormItem();
     testItem2.setType(ApplicationFormItem.Type.TEXTFIELD);
     testItem2.setShortname("testItem2");
 
-    testItem2 = registrarManager.addFormItem(session, form, testItem2);
-    registrarManager.updateFormItems(session, form, Collections.singletonList(testItem2));
+    registrarManager.updateFormItems(session, form, List.of(submitButtonItem, testItem, testItem2));
+
     ApplicationFormItemData testData2 = new ApplicationFormItemData(testItem2, "test2", "banana", "0");
 
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
@@ -1321,19 +1323,22 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationForm form = registrarManager.getFormForVo(vo);
 
+    // Form with input fields requires a submit button
+    ApplicationFormItem submitButtonItem = new ApplicationFormItem();
+    submitButtonItem.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
+    submitButtonItem.setShortname("submitButtonItem");
+
     ApplicationFormItem testItem = new ApplicationFormItem();
     testItem.setType(ApplicationFormItem.Type.TEXTFIELD);
     testItem.setShortname("testItem");
-
-    testItem = registrarManager.addFormItem(session, form, testItem);
-    registrarManager.updateFormItems(session, form, Collections.singletonList(testItem));
 
     ApplicationFormItem testItem2 = new ApplicationFormItem();
     testItem2.setType(ApplicationFormItem.Type.TEXTFIELD);
     testItem2.setShortname("testItem2");
 
-    testItem2 = registrarManager.addFormItem(session, form, testItem2);
-    registrarManager.updateFormItems(session, form, Collections.singletonList(testItem2));
+    registrarManager.updateFormItems(session, form, List.of(submitButtonItem, testItem, testItem2));
+
+
     ApplicationFormItemData testData2 = new ApplicationFormItemData(testItem2, "test2", "banana", "0");
 
     List<ApplicationFormItemData> appItemsData = new ArrayList<>();
@@ -1775,15 +1780,18 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationFormItem savedItem = new ApplicationFormItem();
     savedItem.setShortname("saved");
+    savedItem.setType(ApplicationFormItem.Type.HEADING);
     savedItem = registrarManager.addFormItem(session, form, savedItem);
     registrarManager.updateFormItems(session, form, new ArrayList<>(Arrays.asList(savedItem)));
 
     ApplicationFormItem firstUnsavedItem = new ApplicationFormItem();
     firstUnsavedItem.setShortname("unsaved1");
+    firstUnsavedItem.setType(ApplicationFormItem.Type.HEADING);
     firstUnsavedItem.setId(-1);
 
     ApplicationFormItem secondUnsavedItem = new ApplicationFormItem();
     secondUnsavedItem.setShortname("unsaved2");
+    secondUnsavedItem.setType(ApplicationFormItem.Type.HEADING);
     secondUnsavedItem.setId(-2);
 
     savedItem.setHidden(ApplicationFormItem.Hidden.IF_PREFILLED);
@@ -1912,6 +1920,67 @@ System.out.println("APPS ["+result.size()+"]:" + result);
       registrarManager.addFormItem(session, form, embeddedGroupsItem2);
     });
   }
+
+  @Test
+  public void testUpdateFormItems_missingSubmitButton() throws PerunException {
+    System.out.println("testUpdateFormItems_missingSubmitButton");
+
+    ApplicationFormItem inputItem = new ApplicationFormItem();
+    inputItem.setType(ApplicationFormItem.Type.TEXTFIELD);
+    inputItem.setShortname("inputItem");
+
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+
+    assertThatExceptionOfType(MissingSubmitButtonException.class).isThrownBy(
+            () -> registrarManager.updateFormItems(session, form, List.of(inputItem)));
+  }
+
+  @Test
+  public void testApplicationFormRemoveSubmitButtonValid() throws PerunException {
+    System.out.println("testApplicationFormRemoveSubmitButtonValid");
+
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+
+    ApplicationFormItem nonInputItem = new ApplicationFormItem();
+    nonInputItem.setType(ApplicationFormItem.Type.HEADING);
+    nonInputItem.setShortname("nonInputItem");
+    registrarManager.addFormItem(session, form, nonInputItem);
+
+    ApplicationFormItem submitButtonItem = new ApplicationFormItem();
+    submitButtonItem.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
+    submitButtonItem.setShortname("submitButtonItem");
+    registrarManager.addFormItem(session, form, submitButtonItem);
+
+    assertThat(registrarManager.getFormItems(session, form)).hasSize(2);
+
+    submitButtonItem.setForDelete(true);
+    registrarManager.updateFormItems(session, form, List.of(nonInputItem, submitButtonItem));
+  }
+
+  @Test
+  public void testApplicationFormRemoveSubmitButtonInvalid() throws PerunException {
+    System.out.println("testApplicationFormRemoveSubmitButtonInvalid");
+
+    ApplicationForm form = registrarManager.getFormForVo(vo);
+
+    ApplicationFormItem inputItem = new ApplicationFormItem();
+    inputItem.setType(ApplicationFormItem.Type.TEXTFIELD);
+    inputItem.setShortname("inputItem");
+    registrarManager.addFormItem(session, form, inputItem);
+
+    ApplicationFormItem submitButtonItem = new ApplicationFormItem();
+    submitButtonItem.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
+    submitButtonItem.setShortname("submitButtonItem");
+    registrarManager.addFormItem(session, form, submitButtonItem);
+
+    assertThat(registrarManager.getFormItems(session, form)).hasSize(2);
+
+    submitButtonItem.setForDelete(true);
+    assertThatExceptionOfType(MissingSubmitButtonException.class).isThrownBy(
+            () -> registrarManager.updateFormItems(session, form, List.of(inputItem, submitButtonItem))
+    );
+  }
+
 
   @Test
   public void testApproveApplications() throws PerunException {
@@ -2498,7 +2567,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 
     ApplicationFormItem testItem = new ApplicationFormItem();
-    testItem.setType(ApplicationFormItem.Type.TEXTFIELD);
+    testItem.setType(ApplicationFormItem.Type.HEADING);
     testItem.setShortname("testItem");
 
     ApplicationForm form = registrarManager.getFormForVo(vo);
@@ -2513,6 +2582,10 @@ System.out.println("APPS ["+result.size()+"]:" + result);
   public void updateShortnameDataWithFormItemOnOpenApps() throws PerunException {
     System.out.println("updateShortnameDataWithFormItemOnOpenApps");
 
+    // Form with input fields requires a submit button
+    ApplicationFormItem submitButtonItem = new ApplicationFormItem();
+    submitButtonItem.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
+    submitButtonItem.setShortname("submitButtonItem");
 
     ApplicationFormItem toChange = new ApplicationFormItem();
     toChange.setType(ApplicationFormItem.Type.TEXTFIELD);
@@ -2523,7 +2596,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     toNotChange.setShortname("correctone");
 
     ApplicationForm form = registrarManager.getFormForVo(vo);
-    registrarManager.updateFormItems(session, form, List.of(toChange, toNotChange));
+    registrarManager.updateFormItems(session, form, List.of(submitButtonItem, toChange, toNotChange));
 
     User user = setUpUser("Jo", "Jo");
     Application application = prepareApplicationToVo(user);
