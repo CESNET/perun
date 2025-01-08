@@ -274,6 +274,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
   }
 
   @Override
+  @Deprecated
   public void addOwner(PerunSession sess, Facility facility, Owner owner)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException {
     Utils.checkPerunSession(sess);
@@ -290,6 +291,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
   }
 
   @Override
+  @Deprecated
   public void addOwners(PerunSession sess, Facility facility, List<Owner> owners)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException {
     Utils.checkPerunSession(sess);
@@ -363,6 +365,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
   }
 
   @Override
+  @Deprecated
   public void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility)
       throws FacilityNotExistsException, PrivilegeException {
     Utils.checkPerunSession(sess);
@@ -1239,6 +1242,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
   }
 
   @Override
+  @Deprecated
   public List<Owner> getOwners(PerunSession sess, Facility facility)
       throws PrivilegeException, FacilityNotExistsException {
     Utils.checkPerunSession(sess);
@@ -1468,6 +1472,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
   }
 
   @Override
+  @Deprecated
   public void removeOwner(PerunSession sess, Facility facility, Owner owner)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException {
     Utils.checkPerunSession(sess);
@@ -1484,6 +1489,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
   }
 
   @Override
+  @Deprecated
   public void removeOwners(PerunSession sess, Facility facility, List<Owner> owners)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException {
     Utils.checkPerunSession(sess);
@@ -1547,6 +1553,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
   }
 
   @Override
+  @Deprecated
   public void setOwners(PerunSession sess, Facility facility, List<Owner> owners)
       throws PrivilegeException, FacilityNotExistsException, OwnerNotExistsException {
     Utils.checkPerunSession(sess);

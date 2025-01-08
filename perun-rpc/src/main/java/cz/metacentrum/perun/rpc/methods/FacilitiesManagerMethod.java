@@ -210,12 +210,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Returns owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @return List<Owner> Facility owners
    */
   /*#
    * Returns owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @return List<Owner> Facility owners
    */
@@ -229,24 +231,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Add owner of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param ownerName String Owner name
    */
   /*#
    * Add owner of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param owner int Owner <code>id</code>
    */
   /*#
    * Add owner of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param ownerName String Owner name
    */
   /*#
    * Add owner of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param owner int Owner <code>id</code>
    */
@@ -268,24 +274,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Add owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param ownerNames List<String> Owner name
    */
   /*#
    * Add owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param owners List<int> Owner <code>id</code>
    */
   /*#
    * Add owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param ownerNames List<String> Owner name
    */
   /*#
    * Add owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param owners List<int> Owner <code>id</code>
    */
@@ -311,24 +321,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Remove owner of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param ownerName String Owner name
    */
   /*#
    * Remove owner of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param ownerName String Owner name
    */
   /*#
    * Remove owner of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param owner int Owner <code>id</code>
    */
   /*#
    * Remove owner of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param owner int Owner <code>id</code>
    */
@@ -350,24 +364,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Remove owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param ownerNames List<String> Owner name
    */
   /*#
    * Remove owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param ownerNames List<String> Owner name
    */
   /*#
    * Remove owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param owners List<int> Owner <code>id</code>
    */
   /*#
    * Remove owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param owners List<int> Owner <code>id</code>
    */
@@ -724,6 +742,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
   /*#
    * Returns list of all facilities owned by the owner.
+   *
+   * @deprecated
    * @param owner int Owner <code>id</code>
    * @return List<Facility> Owner's facilities
    */
@@ -1383,6 +1403,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * Copy owners from source facility to destination facility.
    * You must be facility manager of both.
    *
+   * @deprecated
    * @param srcFacilityName String facility name
    * @param destFacilityName String facility name
    */
@@ -1390,6 +1411,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * Copy owners from source facility to destination facility.
    * You must be facility manager of both.
    *
+   * @deprecated
    * @param srcFacility int facility <code>id</code>
    * @param destFacilityName String facility name
    */
@@ -1397,6 +1419,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * Copy owners from source facility to destination facility.
    * You must be facility manager of both.
    *
+   * @deprecated
    * @param srcFacilityName String facility name
    * @param destFacility int facility <code>id</code>
    */
@@ -1404,6 +1427,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * Copy owners from source facility to destination facility.
    * You must be facility manager of both.
    *
+   * @deprecated
    * @param srcFacility int facility <code>id</code>
    * @param destFacility int facility <code>id</code>
    */

@@ -98,6 +98,7 @@ public interface FacilitiesManagerBl {
    * @throws InternalErrorException
    * @throws OwnerAlreadyAssignedException
    */
+  @Deprecated
   void addOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyAssignedException;
 
   /**
@@ -221,6 +222,7 @@ public interface FacilitiesManagerBl {
    * @param destinationFacility
    * @throws InternalErrorException
    */
+  @Deprecated
   void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility);
 
   /**
@@ -935,6 +937,7 @@ public interface FacilitiesManagerBl {
    * @return owners of specified facility
    * @throws InternalErrorException
    */
+  @Deprecated
   List<Owner> getOwners(PerunSession perunSession, Facility facility);
 
   /**
@@ -1079,6 +1082,7 @@ public interface FacilitiesManagerBl {
    * @throws InternalErrorException
    * @throws OwnerAlreadyRemovedException
    */
+  @Deprecated
   void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyRemovedException;
 
   /**

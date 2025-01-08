@@ -422,14 +422,17 @@ public class ApiCaller {
     return notificationManager;
   }
 
+  @Deprecated
   public Owner getOwnerById(int id) throws PerunException {
     return getOwnersManager().getOwnerById(rpcSession, id);
   }
 
+  @Deprecated
   public Owner getOwnerByName(String name) throws PerunException {
     return getOwnersManager().getOwnerByName(rpcSession, name);
   }
 
+  @Deprecated
   public OwnersManager getOwnersManager() {
     if (ownersManager == null) {
       ownersManager = rpcSession.getPerun().getOwnersManager();

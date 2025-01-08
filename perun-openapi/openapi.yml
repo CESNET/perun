@@ -12085,6 +12085,7 @@ paths:
 
   /json/facilitiesManager/getOwners:
     get:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: getFacilityOwners
@@ -12099,6 +12100,7 @@ paths:
 
   /json/facilitiesManager/getOwners/f-name:
     get:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: getFacilityOwnersByFacilityName
@@ -12113,6 +12115,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwner:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwner
@@ -12128,6 +12131,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwners:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwners
@@ -12143,6 +12147,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwner/f-o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnerByFacilityNameOwnerName
@@ -12158,6 +12163,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwners/f-o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnersByFacilityNameOwnerName
@@ -12173,6 +12179,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwner/f-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnerByFacilityName
@@ -12188,6 +12195,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwners/f-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnersByFacilityName
@@ -12203,6 +12211,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwner/o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnerByOwnerName
@@ -12218,6 +12227,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwners/o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnersByOwnerName
@@ -12233,6 +12243,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwner:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwner
@@ -12248,6 +12259,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwners:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwners
@@ -12263,6 +12275,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwner/f-o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnerByFacilityNameOwnerName
@@ -12278,6 +12291,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwners/f-o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnersByFacilityNameOwnerName
@@ -12293,6 +12307,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwner/f-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnerByFacilityName
@@ -12308,6 +12323,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwners/f-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnersByFacilityName
@@ -12323,6 +12339,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwner/o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnerByOwnerName
@@ -12338,6 +12355,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwners/o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnersByOwnerName
@@ -12601,6 +12619,7 @@ paths:
 
   /json/facilitiesManager/getOwnerFacilities:
     get:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: getOwnerFacilities
@@ -13155,6 +13174,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/copyOwners:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: copyOwners
@@ -13170,6 +13190,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/copyOwners/src-dest-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: copyOwnersBySourceDestinationNames
@@ -13185,6 +13206,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/copyOwners/src-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: copyOwnersBySourceName
@@ -13200,6 +13222,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/copyOwners/dest-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: copyOwnersByDestinationName
@@ -13598,6 +13621,7 @@ paths:
 
   /json/ownersManager/createOwner:
     post:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: createOwner
@@ -13629,6 +13653,7 @@ paths:
 
   /urlinjsonout/ownersManager/deleteOwner:
     post:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: deleteOwner
@@ -13644,6 +13669,7 @@ paths:
 
   /urlinjsonout/ownersManager/deleteOwners:
     post:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: deleteOwners
@@ -13659,6 +13685,7 @@ paths:
 
   /json/ownersManager/getOwnerById:
     get:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: getOwnerById
@@ -13673,6 +13700,7 @@ paths:
 
   /json/ownersManager/getOwnerByName:
     get:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: getOwnerByName
@@ -13687,6 +13715,7 @@ paths:
 
   /json/ownersManager/getOwners:
     get:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: getAllOwners

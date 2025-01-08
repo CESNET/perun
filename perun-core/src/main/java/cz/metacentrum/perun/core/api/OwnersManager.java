@@ -9,9 +9,11 @@ import java.util.List;
 
 /**
  * OwnersManager
+ * @deprecated
  *
  * @author Slavek Licehammer
  */
+@Deprecated
 public interface OwnersManager {
 
   /**

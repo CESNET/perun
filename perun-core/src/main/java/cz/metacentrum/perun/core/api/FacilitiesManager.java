@@ -98,6 +98,7 @@ public interface FacilitiesManager {
   /**
    * Add owner of the facility
    */
+  @Deprecated
   void addOwner(PerunSession perunSession, Facility facility, Owner owner)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException;
 
@@ -112,6 +113,7 @@ public interface FacilitiesManager {
    * @throws FacilityNotExistsException    when facility does not exist
    * @throws OwnerAlreadyAssignedException when owner was already assigned to the facility
    */
+  @Deprecated
   void addOwners(PerunSession sess, Facility facility, List<Owner> owners)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException;
 
@@ -150,6 +152,7 @@ public interface FacilitiesManager {
    * facility and aren't in the source facility, are retained. The common owners are replaced with owners from source
    * facility.
    */
+  @Deprecated
   void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility)
       throws FacilityNotExistsException, PrivilegeException;
 
@@ -611,6 +614,7 @@ public interface FacilitiesManager {
    *
    * @return owners of specified facility
    */
+  @Deprecated
   List<Owner> getOwners(PerunSession perunSession, Facility facility)
       throws PrivilegeException, FacilityNotExistsException;
 
@@ -734,6 +738,7 @@ public interface FacilitiesManager {
   /**
    * Remove owner of the facility
    */
+  @Deprecated
   void removeOwner(PerunSession perunSession, Facility facility, Owner owner)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
 
@@ -748,6 +753,7 @@ public interface FacilitiesManager {
    * @throws FacilityNotExistsException   when facility does not exist
    * @throws OwnerAlreadyRemovedException when owner was already removed from the facility
    */
+  @Deprecated
   void removeOwners(PerunSession sess, Facility facility, List<Owner> owners)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
 

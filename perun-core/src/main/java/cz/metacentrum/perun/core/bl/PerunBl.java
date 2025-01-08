@@ -173,6 +173,7 @@ public interface PerunBl extends Perun {
    *
    * @return Owners manager
    */
+  @Deprecated
   OwnersManager getOwnersManager();
 
   /**
@@ -180,6 +181,7 @@ public interface PerunBl extends Perun {
    *
    * @return Owners manager
    */
+  @Deprecated
   OwnersManagerBl getOwnersManagerBl();
 
   /**

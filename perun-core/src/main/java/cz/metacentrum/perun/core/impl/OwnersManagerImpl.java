@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
+@Deprecated
 public class OwnersManagerImpl implements OwnersManagerImplApi {
 
   protected static final String OWNER_MAPPING_SELECT_QUERY =

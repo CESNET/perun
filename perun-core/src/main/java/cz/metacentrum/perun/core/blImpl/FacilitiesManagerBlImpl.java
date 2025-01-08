@@ -155,6 +155,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
+  @Deprecated
   public void addOwner(PerunSession sess, Facility facility, Owner owner) throws OwnerAlreadyAssignedException {
     getFacilitiesManagerImpl().addOwner(sess, facility, owner);
   }
@@ -270,6 +271,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
+  @Deprecated
   public void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility) {
     for (Owner owner : getOwners(sess, sourceFacility)) {
       try {
@@ -979,6 +981,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
+  @Deprecated
   public List<Owner> getOwners(PerunSession sess, Facility facility) {
     return getFacilitiesManagerImpl().getOwners(sess, facility);
   }
@@ -1121,6 +1124,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
+  @Deprecated
   public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws OwnerAlreadyRemovedException {
     getFacilitiesManagerImpl().removeOwner(sess, facility, owner);
   }
@@ -1143,6 +1147,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
+  @Deprecated
   public void setOwners(PerunSession sess, Facility facility, List<Owner> owners) {
     getFacilitiesManagerImpl().setOwners(sess, facility, owners);
   }

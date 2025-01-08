@@ -13,6 +13,7 @@ import java.util.List;
  *
  * @author Slavek Licehammer
  */
+@Deprecated
 public interface OwnersManagerBl {
 
   void checkOwnerExists(PerunSession sess, Owner owner) throws OwnerNotExistsException;
