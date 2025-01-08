@@ -122,13 +122,6 @@ public interface Perun {
   Searcher getSearcher();
 
   /**
-   * Gets a Security teams manager.
-   *
-   * @return Security teams manager
-   */
-  SecurityTeamsManager getSecurityTeamsManager();
-
-  /**
    * Gets a Services manager.
    *
    * @return Services manager

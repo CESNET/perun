@@ -21,7 +21,7 @@ sub help {
 
 	 	ACTION = R (Read), W (Write), R+W (Read + Write)
 	 	ROLE   = one of the available Perun roles.
-	 	OBJECT = None, Group, Vo, Facility, Resource, User, Member, SecurityTeam
+	 	OBJECT = None, Group, Vo, Facility, Resource, User, Member
 
 	--overwrite         | -o overwrites already existing policy collections
 	--batch             | -b batch
@@ -30,7 +30,7 @@ sub help {
 }
 
 my ($attributeId, $attributeName, $collectionsString, $overwrite, $batch);
-my @objects = ("None", "Group", "Vo", "Facility", "Resource", "User", "Member", "SecurityTeam");
+my @objects = ("None", "Group", "Vo", "Facility", "Resource", "User", "Member");
 GetOptions("help|h"   => sub {
 	print help;
 	exit 0;

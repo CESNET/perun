@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Group;
 
 /**
- * This exception is thrown when the group is not admin of: facility, another group, resource, security team, ...
+ * This exception is thrown when the group is not admin of: facility, another group, resource, ...
  *
  * @author Jiří Mauritz
  */

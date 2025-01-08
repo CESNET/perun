@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -30,8 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
@@ -203,20 +200,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   }
 
   @Override
-  public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
-    try {
-      jdbc.update(
-          "insert into security_teams_facilities(security_team_id, facility_id, created_by, created_at, modified_by, " +
-          "modified_at, created_by_uid, modified_by_uid) " + "values (?,?,?," + Compatibility.getSysdate() + ",?," +
-          Compatibility.getSysdate() + ",?,?)", securityTeam.getId(), facility.getId(),
-          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-          sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
   public boolean banExists(PerunSession sess, int userId, int facilityId) {
     try {
       int numberOfExistences =
@@ -269,22 +252,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   public void checkHostExists(PerunSession sess, Host host) throws HostNotExistsException {
     if (!hostExists(sess, host)) {
       throw new HostNotExistsException("Host: " + host);
-    }
-  }
-
-  @Override
-  public void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws SecurityTeamNotAssignedException {
-    if (!isSecurityTeamAssigned(sess, facility, securityTeam)) {
-      throw new SecurityTeamNotAssignedException(securityTeam);
-    }
-  }
-
-  @Override
-  public void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws SecurityTeamAlreadyAssignedException {
-    if (isSecurityTeamAssigned(sess, facility, securityTeam)) {
-      throw new SecurityTeamAlreadyAssignedException(securityTeam);
     }
   }
 
@@ -531,18 +498,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   }
 
   @Override
-  public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) {
-    try {
-      return jdbc.query("select " + FACILITY_MAPPING_SELECT_QUERY + " from facilities" +
-                        " join ( select security_teams_facilities.facility_id from security_teams_facilities where " +
-                        "security_team_id=? ) " + Compatibility.getAsAlias("assigned_ids") +
-                        " ON facilities.id=assigned_ids.facility_id", FACILITY_MAPPER, securityTeam.getId());
-    } catch (RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
   public List<Resource> getAssignedResources(PerunSession sess, Facility facility) {
     try {
       return jdbc.query(
@@ -620,21 +575,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
                         " left outer join res_tags on tags_resources.tag_id=res_tags.id" +
                         " where resources.facility_id=? and resource_services.service_id=?",
           ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR, facility.getId(), service.getId());
-    } catch (RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
-  public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) {
-    try {
-      return jdbc.query(
-          "select " + SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPING_SELECT_QUERY +
-          " from security_teams inner join (" +
-          "select security_teams_facilities.security_team_id from security_teams_facilities where facility_id=?" +
-          ") " + Compatibility.getAsAlias("assigned_ids") +
-          " ON security_teams.id=assigned_ids.security_team_id",
-          SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER, facility.getId());
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
     }
@@ -1015,25 +955,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
     }
   }
 
-  private boolean isSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
-    try {
-      int number =
-          jdbc.queryForInt("select count(1) from security_teams_facilities where security_team_id=? and facility_id=?",
-              securityTeam.getId(), facility.getId());
-      if (number == 1) {
-        return true;
-      } else if (number > 1) {
-        throw new ConsistencyErrorException(
-            "Security team " + securityTeam + " is assigned multiple to facility " + facility);
-      }
-      return false;
-    } catch (EmptyResultDataAccessException ex) {
-      return false;
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
   @Override
   public void removeAllServiceDenials(int facilityId) {
     try {
@@ -1092,16 +1013,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
       LOG.info("Owner was removed from facility owners. Owner: {} facility:{}", owner, facility);
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
-  public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
-    try {
-      jdbc.update("delete from security_teams_facilities where security_team_id=? and facility_id=?",
-          securityTeam.getId(), facility.getId());
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
     }
   }
 

@@ -8,8 +8,6 @@ import static cz.metacentrum.perun.core.impl.MembersManagerImpl.MEMBER_MAPPER;
 import static cz.metacentrum.perun.core.impl.MembersManagerImpl.MEMBER_MAPPING_SELECT_QUERY;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPER;
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPING_SELECT_QUERY;
-import static cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER;
-import static cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPING_SELECT_QUERY;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_MAPPER;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_MAPPING_SELECT_QUERY;
 import static cz.metacentrum.perun.core.impl.VosManagerImpl.VO_MAPPER;
@@ -29,7 +27,6 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleAssignmentType;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
@@ -75,8 +72,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
       " authz.authorized_group_id as authz_authorized_group_id, " +
           "authz.vo_id as pb_vo_id, authz.group_id as pb_group_id, authz.facility_id as pb_facility_id, authz" +
           ".member_id as pb_member_id, " +
-          "authz.resource_id as pb_resource_id, authz.service_id as pb_service_id, authz.security_team_id as " +
-          "pb_security_team_id, " +
+          "authz.resource_id as pb_resource_id, authz.service_id as pb_service_id, " +
           "authz.sponsored_user_id as pb_sponsored_user_id, roles.name as role_name, groups.name as groups_name, " +
           "groups.dsc as groups_description, groups.vo_id as groups_vo_id";
   private static final String AUTHZ_ROLE_MAPPING_SELECT_QUERY =
@@ -84,7 +80,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
           "authz.authorized_group_id as authz_authorized_group_id, authz.vo_id as pb_vo_id, authz.group_id as " +
           "pb_group_id, " +
           "authz.facility_id as pb_facility_id, authz.member_id as pb_member_id, authz.resource_id as pb_resource_id," +
-          " " + "authz.service_id as pb_service_id, authz.security_team_id as pb_security_team_id, " +
+          " " + "authz.service_id as pb_service_id, " +
           "authz.sponsored_user_id as pb_sponsored_user_id";
   private static final Pattern COLUMN_NAMES_PATTERN = Pattern.compile("^[_0-9a-zA-Z]+$");
   private static final RowMapper<Pair<String, Map<String, Map<Integer, List<Group>>>>>
@@ -387,36 +383,6 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
       throw new AlreadyAdminException(
           "Group id=" + authorizedGroup.getId() + " is already group admin in group " + group, e, authorizedGroup,
           group);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
-  public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException {
-    try {
-      jdbc.update("insert into authz (user_id, role_id, security_team_id, created_by, created_by_uid)" +
-                      " values (?, (select id from roles where name=?), ?, ?, ?)", user.getId(),
-          Role.SECURITYADMIN.toLowerCase(), securityTeam.getId(), sess.getPerunPrincipal().getActor(),
-          sess.getPerunPrincipal().getUserId());
-    } catch (DataIntegrityViolationException e) {
-      throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in securityTeam " + securityTeam,
-          e, user, securityTeam);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
-  public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException {
-    try {
-      jdbc.update("insert into authz (authorized_group_id, role_id, security_team_id, created_by, created_by_uid)" +
-                      " values (?, (select id from roles where name=?), ?, ?, ?)", group.getId(),
-          Role.SECURITYADMIN.toLowerCase(), securityTeam.getId(), sess.getPerunPrincipal().getActor(),
-          sess.getPerunPrincipal().getUserId());
-    } catch (DataIntegrityViolationException e) {
-      throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin in securityTeam " + securityTeam,
-          e, group, securityTeam);
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }
@@ -794,22 +760,6 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
     }
 
     return authzRoles;
-  }
-
-  @Override
-  public Set<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(User user, List<String> roles) {
-    MapSqlParameterSource parameters = prepareParametersToGetObjectsByUserRoles(user, roles);
-
-    try {
-      return new HashSet<>(namedParameterJdbcTemplate.query(
-          "select " + SECURITY_TEAM_MAPPING_SELECT_QUERY + " from authz join security_teams on authz" +
-              ".security_team_id=security_teams.id " + " left outer join groups_members on groups_members" +
-              ".group_id=authz.authorized_group_id " + " left outer join members on members.id=groups_members" +
-              ".member_id " + " where (authz.user_id=:uid or members.user_id=:uid) and " + "authz.role_id in " +
-              "(select id from roles where name in (:roles))", parameters, SECURITY_TEAM_MAPPER));
-    } catch (RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
   }
 
   @Override
@@ -1228,34 +1178,6 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
   }
 
   @Override
-  public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException {
-    try {
-      if (0 == jdbc.update(
-          "delete from authz where user_id=? and security_team_id=? and role_id=(select id from roles where name=?)",
-          user.getId(), securityTeam.getId(), Role.SECURITYADMIN.toLowerCase())) {
-        throw new UserNotAdminException(
-            "User id=" + user.getId() + " is not admin of the security team " + securityTeam);
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
-  public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException {
-    try {
-      if (0 == jdbc.update(
-          "delete from authz where authorized_group_id=? and security_team_id=? and role_id=(select id from roles " +
-              "where name=?)", group.getId(), securityTeam.getId(), Role.SECURITYADMIN.toLowerCase())) {
-        throw new GroupNotAdminException(
-            "Group id=" + group.getId() + " is not admin of the security team " + securityTeam);
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
   public void removeAllAuthzForFacility(PerunSession sess, Facility facility) {
     try {
       jdbc.update("delete from authz where facility_id=?", facility.getId());
@@ -1277,15 +1199,6 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
   public void removeAllAuthzForResource(PerunSession sess, Resource resource) {
     try {
       jdbc.update("delete from authz where resource_id=?", resource.getId());
-    } catch (RuntimeException err) {
-      throw new InternalErrorException(err);
-    }
-  }
-
-  @Override
-  public void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam) {
-    try {
-      jdbc.update("delete from authz where security_team_id=?", securityTeam.getId());
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);
     }

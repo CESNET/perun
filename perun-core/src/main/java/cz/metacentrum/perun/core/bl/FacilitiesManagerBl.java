@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.RichFacility;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -35,8 +34,6 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -101,15 +98,6 @@ public interface FacilitiesManagerBl {
   @Deprecated
   void addOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyAssignedException;
 
-  /**
-   * Assign given security team to given facility (means the facility trusts the security team)
-   *
-   * @param sess
-   * @param facility
-   * @param securityTeam
-   * @throws InternalErrorException
-   */
-  void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam);
 
   /**
    * Get true if any ban for user and facility exists.
@@ -160,30 +148,6 @@ public interface FacilitiesManagerBl {
   void checkFacilityExists(PerunSession sess, Facility facility) throws FacilityNotExistsException;
 
   void checkHostExists(PerunSession sess, Host host) throws HostNotExistsException;
-
-  /**
-   * Check if security team is assigned to facility. Throw exception info not.
-   *
-   * @param sess
-   * @param facility
-   * @param securityTeam
-   * @throws InternalErrorException
-   * @throws SecurityTeamNotAssignedException
-   */
-  void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws SecurityTeamNotAssignedException;
-
-  /**
-   * Check if security team is <b>not</b> assigned to facility. Throw exception info is.
-   *
-   * @param sess
-   * @param facility
-   * @param securityTeam
-   * @throws InternalErrorException
-   * @throws SecurityTeamAlreadyAssignedException
-   */
-  void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws SecurityTeamAlreadyAssignedException;
 
   /**
    * Copy all attributes of the source facility to the destination facility. The attributes, that are in the destination
@@ -468,16 +432,6 @@ public interface FacilitiesManagerBl {
   List<Facility> getAssignedFacilities(PerunSession sess, Service service);
 
   /**
-   * Get facilities where the security team is assigned
-   *
-   * @param sess
-   * @param securityTeam
-   * @return
-   * @throws InternalErrorException
-   */
-  List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam);
-
-  /**
    * Returns all resources assigned to the facility.
    *
    * @param perunSession
@@ -520,16 +474,6 @@ public interface FacilitiesManagerBl {
    * @throws InternalErrorException
    */
   List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility, Service service);
-
-  /**
-   * Return all security teams which specific facility trusts
-   *
-   * @param sess
-   * @param facility specific facility
-   * @return list of assigned security teams
-   * @throws InternalErrorException
-   */
-  List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility);
 
   /**
    * Returns list of Users assigned to chosen Facility.
@@ -1084,16 +1028,6 @@ public interface FacilitiesManagerBl {
    */
   @Deprecated
   void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyRemovedException;
-
-  /**
-   * Remove (Unassign) given security team from given facility
-   *
-   * @param sess
-   * @param facility
-   * @param securityTeam
-   * @throws InternalErrorException
-   */
-  void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam);
 
   /**
    * Set ban for user on facility

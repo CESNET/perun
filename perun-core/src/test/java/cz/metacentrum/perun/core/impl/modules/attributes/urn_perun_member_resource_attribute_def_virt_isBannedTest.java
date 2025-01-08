@@ -13,7 +13,7 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanRemovedForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanSetForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanUpdatedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamAssignedToFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.LastAdminRemovedFromFacility;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanRemovedForResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanSetForResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanUpdatedForResource;
@@ -59,7 +59,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
   @Test
   public void resolveVirtualAttributeValueChangeTest() throws Exception {
     System.out.println(
-        "urn_perun_user_facility_attribute_def_virt_defaultUnixGID.resolveVirtualAttributeValueChangeTest()");
+        "urn_perun_member_resource_attribute_def_virt_isBannedTest.resolveVirtualAttributeValueChangeTest()");
 
     List<AuditEvent> resolvedEvents;
 
@@ -112,7 +112,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 
   @Test
   public void resolveVirtualAttributeValueChangeTestWithWrongMatch() throws Exception {
-    System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID" +
+    System.out.println("urn_perun_member_resource_attribute_def_virt_isBannedTest" +
                        ".resolveVirtualAttributeValueChangeTestWithWrongMatch()");
 
     List<AuditEvent> resolvedEvents;
@@ -146,6 +146,6 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
     event4 = new BanSetForFacility(new BanOnFacility(), user.getId(), facility.getId());
     event5 = new BanUpdatedForFacility(new BanOnFacility(), user.getId(), facility.getId());
     event6 = new BanRemovedForFacility(new BanOnFacility(), user.getId(), facility.getId());
-    wrongEvent = new SecurityTeamAssignedToFacility();
+    wrongEvent = new LastAdminRemovedFromFacility();
   }
 }

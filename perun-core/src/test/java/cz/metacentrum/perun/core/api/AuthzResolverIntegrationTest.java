@@ -305,23 +305,6 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
-  public void authorizedSecurityTeamAdmin() throws Exception {
-    System.out.println(CLASS_NAME + "authorizedSecurityTeamAdmin");
-    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
-    final Member createdMember = createSomeMember(createdVo);
-    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
-    SecurityTeam team = new SecurityTeam();
-    team.setName("a");
-    SecurityTeam createdTeam = perun.getSecurityTeamsManager().createSecurityTeam(sess, team);
-    perun.getSecurityTeamsManager().addAdmin(sess, createdTeam, createdUser);
-
-    PerunSession session = getHisSession(createdMember);
-    AuthzResolver.refreshAuthz(session);
-    assertTrue(AuthzResolver.authorizedInternal(session, "test_security_admin", Arrays.asList(createdTeam)));
-
-  }
-
-  @Test
   public void authorizedSelf() throws Exception {
     System.out.println(CLASS_NAME + "authorizedSelf");
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
@@ -704,47 +687,6 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
     assertEquals(1, result.size());
     assertTrue(result.contains(testResource));
-  }
-
-  @Test
-  public void getSecurityTeamsWherePrincipalIsInRoles() throws Exception {
-    System.out.println(CLASS_NAME + "getSecurityTeamsWherePrincipalIsInRoles");
-
-    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
-    final SecurityTeam testSecurityTeam = perun.getSecurityTeamsManagerBl()
-        .createSecurityTeam(sess, new SecurityTeam(0, "testSecurityTeam", "testSecurityTeam"));
-    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
-    final Member testMember = createSomeMember(testVo);
-    final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
-    perun.getGroupsManager().addMember(sess, testGroup, testMember);
-
-    AuthzResolver.setRole(sess, testGroup, testSecurityTeam, Role.SECURITYADMIN);
-    List<SecurityTeam> result =
-        AuthzResolver.getSecurityTeamsWhereUserIsInRoles(sess, testUser, Collections.singletonList(Role.SECURITYADMIN));
-
-    assertEquals(1, result.size());
-    assertTrue(result.contains(testSecurityTeam));
-  }
-
-  @Test
-  public void getSecurityTeamsWhereUserIsInRoles() throws Exception {
-    System.out.println(CLASS_NAME + "getSecurityTeamsWhereUserIsInRoles");
-
-    final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
-    final SecurityTeam testSecurityTeam = perun.getSecurityTeamsManagerBl()
-        .createSecurityTeam(sess, new SecurityTeam(0, "testSecurityTeam", "testSecurityTeam"));
-    final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
-    final Member testMember = createSomeMember(testVo);
-    final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
-    sess.getPerunPrincipal().setUser(testUser);
-    perun.getGroupsManager().addMember(sess, testGroup, testMember);
-
-    AuthzResolver.setRole(sess, testGroup, testSecurityTeam, Role.SECURITYADMIN);
-    List<SecurityTeam> result =
-        AuthzResolver.getSecurityTeamsWhereUserIsInRoles(sess, null, Collections.singletonList(Role.SECURITYADMIN));
-
-    assertEquals(1, result.size());
-    assertTrue(result.contains(testSecurityTeam));
   }
 
   @Test(expected = PrivilegeException.class)
@@ -2230,23 +2172,6 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     AuthzResolver.refreshAuthz(session);
     assertTrue(AuthzResolver.authorizedInternal(session, "test_resourcebanmanager_role",
         Arrays.asList(createdResource)));
-  }
-
-  @Test
-  public void unauthorizedEmptyList() throws Exception {
-    System.out.println(CLASS_NAME + "unauthorizedEmptyList");
-    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
-    final Member createdMember = createSomeMember(createdVo);
-    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
-    SecurityTeam team = new SecurityTeam();
-    team.setName("a");
-    SecurityTeam createdTeam = perun.getSecurityTeamsManager().createSecurityTeam(sess, team);
-    perun.getSecurityTeamsManager().addAdmin(sess, createdTeam, createdUser);
-
-    PerunSession session = getHisSession(createdMember);
-    AuthzResolver.refreshAuthz(session);
-    assertFalse(AuthzResolver.authorizedInternal(session, "test_security_admin"));
-
   }
 
   @Test

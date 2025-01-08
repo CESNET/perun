@@ -22,7 +22,6 @@ import cz.metacentrum.perun.rpc.methods.RTMessagesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.RegistrarManagerMethod;
 import cz.metacentrum.perun.rpc.methods.ResourcesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.SearcherMethod;
-import cz.metacentrum.perun.rpc.methods.SecurityTeamsManagerMethod;
 import cz.metacentrum.perun.rpc.methods.ServicesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.TasksManagerMethod;
 import cz.metacentrum.perun.rpc.methods.UsersManagerMethod;
@@ -129,11 +128,6 @@ public enum PerunManager {
     @Override
     public ManagerMethod getMethod(String methodName) {
       return RegistrarManagerMethod.valueOf(methodName);
-    }
-  }, securityTeamsManager {
-    @Override
-    public ManagerMethod getMethod(String methodName) {
-      return SecurityTeamsManagerMethod.valueOf(methodName);
     }
   }, invitationsManager {
     @Override

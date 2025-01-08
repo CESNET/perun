@@ -32,7 +32,6 @@ import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -94,8 +93,6 @@ public class AuditParserTest {
   private RichFacility richFacility;
   private final ResourceTag resourceTag1 = new ResourceTag(5, "cosi", 2);
   private final ResourceTag resourceTag2 = new ResourceTag(8, null, 5);
-  private final SecurityTeam securityTeam1 = new SecurityTeam(1, "jmeno", "popis");
-  private final SecurityTeam securityTeam2 = new SecurityTeam(2, null, null);
   private final TaskResult taskResult1 = new TaskResult();
   private final BanOnResource banOnResource1 = new BanOnResource(3, new Date(), "neco", 10, 12);
   private final BanOnResource banOnResource2 = new BanOnResource(4, null, null, 10, 12);
@@ -328,13 +325,6 @@ public class AuditParserTest {
     assertEquals(candidate1.getAttributes(), ((Candidate) candidate1InList.get(0)).getAttributes());
     assertEquals(candidate2.getAttributes(), ((Candidate) candidate2InList.get(0)).getAttributes());
 
-    //FOR SECURITY TEAM
-    SecurityTeam securityTeam = new SecurityTeam(18, textMismatch, textMismatch);
-    List<PerunBean> scsInList = AuditParser.parseLog(securityTeam.serializeToString());
-    assertEquals(securityTeam.toString(), scsInList.get(0).toString());
-    assertEquals(securityTeam.getName(), ((SecurityTeam) scsInList.get(0)).getName());
-    assertEquals(securityTeam.getDescription(), ((SecurityTeam) scsInList.get(0)).getDescription());
-
     //FOR TASK RESULT
     List<PerunBean> trList = AuditParser.parseLog(taskResult1.serializeToString());
     TaskResult taskResult2 = (TaskResult) trList.get(0);
@@ -547,10 +537,6 @@ public class AuditParserTest {
         BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(userExtSource1.serializeToString())));
     assertEquals(resourceTag1.toString(),
         BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(resourceTag1.serializeToString())));
-    assertEquals(securityTeam1.toString(),
-        BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam1.serializeToString())));
-    assertEquals(securityTeam2.toString(),
-        BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam2.serializeToString())));
     assertEquals(taskResult1.toString(),
         BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(taskResult1.serializeToString())));
     assertEquals(banOnResource1.toString(),
@@ -625,14 +611,14 @@ public class AuditParserTest {
                     attribute1.serializeToString() + richMember.serializeToString() +
                     richDestination.serializeToString() + richResource.serializeToString() +
                     richUser.serializeToString() + richGroup.serializeToString() + richFacility.serializeToString() +
-                    resourceTag1.serializeToString() + securityTeam1.serializeToString() +
+                    resourceTag1.serializeToString() +
                     taskResult1.serializeToString() + banOnResource1.serializeToString() +
                     banOnResource2.serializeToString() + banOnFacility1.serializeToString() +
                     banOnFacility2.serializeToString();
 
     List<PerunBean> perunBeans = new ArrayList<PerunBean>();
     perunBeans = AuditParser.parseLog(bigLog);
-    assertEquals(28, perunBeans.size());
+    assertEquals(27, perunBeans.size());
 
     assertTrue(perunBeans.contains(user));
     assertTrue(perunBeans.contains(attribute1));
@@ -656,7 +642,6 @@ public class AuditParserTest {
     assertTrue(perunBeans.contains(richGroup));
     assertTrue(perunBeans.contains(richFacility));
     assertTrue(perunBeans.contains(resourceTag1));
-    assertTrue(perunBeans.contains(securityTeam1));
     assertTrue(perunBeans.contains(taskResult1));
   }
 

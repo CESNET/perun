@@ -40,7 +40,6 @@ use Perun::beans::NotifReceiver;
 use Perun::beans::NotifRegex;
 use Perun::beans::NotifTemplateMessage;
 use Perun::beans::NotifTemplate;
-use Perun::beans::SecurityTeam;
 use Perun::beans::BanOnResource;
 use Perun::beans::BanOnFacility;
 use Perun::beans::ApplicationForm;

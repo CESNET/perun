@@ -1031,13 +1031,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
     }
 
-    if (getPerunBl().getSecurityTeamsManagerBl().isUserBlacklisted(sess, user) && forceDelete) {
-      getPerunBl().getSecurityTeamsManagerBl().removeUserFromAllBlacklists(sess, user);
-    } else if (getPerunBl().getSecurityTeamsManagerBl().isUserBlacklisted(sess, user) && !forceDelete) {
-      throw new RelationExistsException(
-          "User is blacklisted by some security team. Deletion would cause loss of this information.");
-    }
-
     // delete all authorships of users publications
     getUsersManagerImpl().removeAllAuthorships(sess, user);
 
