@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [46.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v46.0.0...v46.1.0) (2025-01-09)
+
+
+### Features
+
+* update `groupNames` attribute in ldap on group update ([e6c7fdb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e6c7fdb11ebeb8fa1516b29987f37c8ffb147e07))
+
 ## [46.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v45.0.0...v46.0.0) (2025-01-09)
 
 
