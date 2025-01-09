@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 /**
  * Owner of resources
+ * @deprecated
  *
  * @author Michal Prochazka
  * @author Slavek Licehammer

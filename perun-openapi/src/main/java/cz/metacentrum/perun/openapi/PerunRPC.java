@@ -144,6 +144,7 @@ public class PerunRPC {
     return membersManager;
   }
 
+  @Deprecated
   public OwnersManagerApi getOwnersManager() {
     return ownersManager;
   }

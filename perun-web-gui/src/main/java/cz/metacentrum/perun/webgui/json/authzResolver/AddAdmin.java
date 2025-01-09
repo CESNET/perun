@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.SecurityTeam;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 
@@ -26,7 +25,6 @@ public class AddAdmin {
   final String VO_JSON_URL = "vosManager/addAdmin";
   final String GROUP_JSON_URL = "groupsManager/addAdmin";
   final String FACILITY_JSON_URL = "facilitiesManager/addAdmin";
-  final String SECURITY_JSON_URL = "securityTeamsManager/addAdmin";
   // web session
   private PerunWebSession session = PerunWebSession.getInstance();
   // ids
@@ -62,7 +60,7 @@ public class AddAdmin {
     String errorMsg = "";
 
     if (entityId == 0) {
-      errorMsg += "Wrong parameter <strong>VO/Group/Facility/SecurityTeam ID</strong>";
+      errorMsg += "Wrong parameter <strong>VO/Group/Facility ID</strong>";
       result = false;
     }
 
@@ -220,53 +218,6 @@ public class AddAdmin {
   }
 
   /**
-   * Attempts to add a new admin to SecurityTeam, it first tests the values and then submits them.
-   *
-   * @param securityTeam where we want to add admin
-   * @param user         User to be admin
-   */
-  public void addSecurityTeamAdmin(final SecurityTeam securityTeam, final User user) {
-
-    this.userId = (user != null) ? user.getId() : 0;
-    this.entityId = (securityTeam != null) ? securityTeam.getId() : 0;
-    this.entity = PerunEntity.SECURITY_TEAM;
-
-    // test arguments
-    if (!this.testAdding()) {
-      return;
-    }
-
-    // new events
-    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
-      public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Adding " + user.getFullName() + " as manager failed.");
-        events.onError(error); // custom events
-      }
-
-      ;
-
-      public void onFinished(JavaScriptObject jso) {
-        session.getUiElements()
-            .setLogSuccessText("User " + user.getFullName() + " added as manager of " + securityTeam.getName());
-        events.onFinished(jso);
-      }
-
-      ;
-
-      public void onLoadingStart() {
-        events.onLoadingStart();
-      }
-
-      ;
-    };
-
-    // sending data
-    JsonPostClient jspc = new JsonPostClient(newEvents);
-    jspc.sendData(SECURITY_JSON_URL, prepareJSONObject());
-
-  }
-
-  /**
    * Attempts to add a new admin group to Group, it first tests the values and then submits them.
    *
    * @param groupToAddAdminTo where we want to add admin
@@ -411,54 +362,6 @@ public class AddAdmin {
   }
 
   /**
-   * Attempts to add a new admin group to SecurityTeam, it first tests the values and then submits them.
-   *
-   * @param securityTeam where we want to add admin
-   * @param group        Group to be admin
-   */
-  public void addSecurityTeamAdminGroup(final SecurityTeam securityTeam, final Group group) {
-
-    // store group id to user id to used unified check method
-    this.userId = (group != null) ? group.getId() : 0;
-    this.entityId = (securityTeam != null) ? securityTeam.getId() : 0;
-    this.entity = PerunEntity.SECURITY_TEAM;
-
-    // test arguments
-    if (!this.testAdding()) {
-      return;
-    }
-
-    // new events
-    JsonCallbackEvents newEvents = new JsonCallbackEvents() {
-      public void onError(PerunError error) {
-        session.getUiElements().setLogErrorText("Adding group " + group.getShortName() + " as manager failed.");
-        events.onError(error); // custom events
-      }
-
-      ;
-
-      public void onFinished(JavaScriptObject jso) {
-        session.getUiElements()
-            .setLogSuccessText("Group " + group.getShortName() + " added as manager of " + securityTeam.getName());
-        events.onFinished(jso);
-      }
-
-      ;
-
-      public void onLoadingStart() {
-        events.onLoadingStart();
-      }
-
-      ;
-    };
-
-    // sending data
-    JsonPostClient jspc = new JsonPostClient(newEvents);
-    jspc.sendData(SECURITY_JSON_URL, prepareJSONObjectForGroup());
-
-  }
-
-  /**
    * Prepares a JSON object
    *
    * @return JSONObject the whole query
@@ -473,8 +376,6 @@ public class AddAdmin {
       jsonQuery.put("group", new JSONNumber(entityId));
     } else if (entity.equals(PerunEntity.FACILITY)) {
       jsonQuery.put("facility", new JSONNumber(entityId));
-    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-      jsonQuery.put("securityTeam", new JSONNumber(entityId));
     }
     jsonQuery.put("user", new JSONNumber(userId));
 
@@ -496,8 +397,6 @@ public class AddAdmin {
       jsonQuery.put("group", new JSONNumber(entityId));
     } else if (entity.equals(PerunEntity.FACILITY)) {
       jsonQuery.put("facility", new JSONNumber(entityId));
-    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-      jsonQuery.put("securityTeam", new JSONNumber(entityId));
     }
     jsonQuery.put("authorizedGroup", new JSONNumber(userId));
 

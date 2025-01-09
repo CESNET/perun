@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -210,12 +209,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Returns owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @return List<Owner> Facility owners
    */
   /*#
    * Returns owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @return List<Owner> Facility owners
    */
@@ -229,24 +230,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Add owner of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param ownerName String Owner name
    */
   /*#
    * Add owner of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param owner int Owner <code>id</code>
    */
   /*#
    * Add owner of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param ownerName String Owner name
    */
   /*#
    * Add owner of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param owner int Owner <code>id</code>
    */
@@ -268,24 +273,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Add owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param ownerNames List<String> Owner name
    */
   /*#
    * Add owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param owners List<int> Owner <code>id</code>
    */
   /*#
    * Add owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param ownerNames List<String> Owner name
    */
   /*#
    * Add owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param owners List<int> Owner <code>id</code>
    */
@@ -311,24 +320,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Remove owner of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param ownerName String Owner name
    */
   /*#
    * Remove owner of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param ownerName String Owner name
    */
   /*#
    * Remove owner of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param owner int Owner <code>id</code>
    */
   /*#
    * Remove owner of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param owner int Owner <code>id</code>
    */
@@ -350,24 +363,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   /*#
    * Remove owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param ownerNames List<String> Owner name
    */
   /*#
    * Remove owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param ownerNames List<String> Owner name
    */
   /*#
    * Remove owners of a facility.
    *
+   * @deprecated
    * @param facilityName String Facility name
    * @param owners List<int> Owner <code>id</code>
    */
   /*#
    * Remove owners of a facility.
    *
+   * @deprecated
    * @param facility int Facility <code>id</code>
    * @param owners List<int> Owner <code>id</code>
    */
@@ -724,6 +741,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
   /*#
    * Returns list of all facilities owned by the owner.
+   *
+   * @deprecated
    * @param owner int Owner <code>id</code>
    * @return List<Facility> Owner's facilities
    */
@@ -1383,6 +1402,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * Copy owners from source facility to destination facility.
    * You must be facility manager of both.
    *
+   * @deprecated
    * @param srcFacilityName String facility name
    * @param destFacilityName String facility name
    */
@@ -1390,6 +1410,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * Copy owners from source facility to destination facility.
    * You must be facility manager of both.
    *
+   * @deprecated
    * @param srcFacility int facility <code>id</code>
    * @param destFacilityName String facility name
    */
@@ -1397,6 +1418,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * Copy owners from source facility to destination facility.
    * You must be facility manager of both.
    *
+   * @deprecated
    * @param srcFacilityName String facility name
    * @param destFacility int facility <code>id</code>
    */
@@ -1404,6 +1426,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * Copy owners from source facility to destination facility.
    * You must be facility manager of both.
    *
+   * @deprecated
    * @param srcFacility int facility <code>id</code>
    * @param destFacility int facility <code>id</code>
    */
@@ -1538,81 +1561,6 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
       return null;
 
-    }
-  },
-
-  /*#
-   * Return assigned security teams for specific facility
-   *
-   * @param facilityName String Facility name
-   * @return List<SecurityTeam> assigned security teams fot given facility
-   * @throw FacilityNotExistsException When Facility with given name doesn't exists.
-   */
-  /*#
-   * Return assigned security teams for specific facility
-   *
-   * @param facility int Facility <code>id</code>
-   * @return List<SecurityTeam> assigned security teams fot given facility
-   * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
-   */
-  getAssignedSecurityTeams {
-    @Override
-    public List<SecurityTeam> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getFacilitiesManager().getAssignedSecurityTeams(ac.getSession(), getFacility(ac, parms));
-    }
-  },
-
-  /*#
-   * Assign given security team to given facility (means the facility trusts the security team)
-   *
-   * @param facilityName String Facility name
-   * @param securityTeam int SecurityTeam <code>id</code>
-   * @throw SecurityTeamAlreadyAssignedException When SecurityTeam with given <code>id</code> is already assigned.
-   * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
-   * @throw FacilityNotExistsException When Facility with given name doesn't exists.
-   */
-  /*#
-   * Assign given security team to given facility (means the facility trusts the security team)
-   *
-   * @param facility int Facility <code>id</code>
-   * @param securityTeam int SecurityTeam <code>id</code>
-   * @throw SecurityTeamAlreadyAssignedException When SecurityTeam with given <code>id</code> is already assigned.
-   * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
-   * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
-   */
-  assignSecurityTeam {
-    @Override
-    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getFacilitiesManager().assignSecurityTeam(ac.getSession(), getFacility(ac, parms),
-          ac.getSecurityTeamById(parms.readInt("securityTeam")));
-      return null;
-    }
-  },
-
-  /*#
-   * Remove (Unassign) given security team from given facility
-   *
-   * @param facilityName String Facility name
-   * @param securityTeam int SecurityTeam <code>id</code>
-   * @throw SecurityTeamNotAssignedException When SecurityTeam with given <code>id</code> is not assigned.
-   * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
-   * @throw FacilityNotExistsException When Facility with given name doesn't exists.
-   */
-  /*#
-   * Remove (Unassign) given security team from given facility
-   *
-   * @param facility int Facility <code>id</code>
-   * @param securityTeam int SecurityTeam <code>id</code>
-   * @throw SecurityTeamNotAssignedException When SecurityTeam with given <code>id</code> is not assigned.
-   * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
-   * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
-   */
-  removeSecurityTeam {
-    @Override
-    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      ac.getFacilitiesManager().removeSecurityTeam(ac.getSession(), getFacility(ac, parms),
-          ac.getSecurityTeamById(parms.readInt("securityTeam")));
-      return null;
     }
   },
 

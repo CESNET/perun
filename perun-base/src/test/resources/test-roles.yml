@@ -99,11 +99,6 @@ perun_policies:
         TOPGROUPCREATOR:
     include_policies: [ ]
 
-  test_security_admin:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies: [ ]
-
   test_group_or_vo:
     policy_roles:
       - GROUPADMIN: Group

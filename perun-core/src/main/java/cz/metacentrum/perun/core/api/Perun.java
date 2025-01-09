@@ -87,6 +87,7 @@ public interface Perun {
    *
    * @return Owners manager
    */
+  @Deprecated
   OwnersManager getOwnersManager();
 
   /**
@@ -119,13 +120,6 @@ public interface Perun {
    * @return Searcher
    */
   Searcher getSearcher();
-
-  /**
-   * Gets a Security teams manager.
-   *
-   * @return Security teams manager
-   */
-  SecurityTeamsManager getSecurityTeamsManager();
 
   /**
    * Gets a Services manager.

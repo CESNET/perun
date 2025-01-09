@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
  *
  * @author Martin Kuba makub@ics.muni.cz
  */
+@Deprecated
 @SuppressWarnings("unused")
 public class GetOwnerFacilities extends PerunCommand {
 

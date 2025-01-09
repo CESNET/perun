@@ -503,7 +503,6 @@ components:
         - "Resource"
         - "User"
         - "Member"
-        - "SecurityTeam"
 
     AttributePolicy:
       type: object
@@ -1322,15 +1321,6 @@ components:
               type: array
               items:
                 type: integer
-
-    SecurityTeam:
-      allOf:
-        - $ref: '#/components/schemas/Auditable'
-      properties:
-        name: { type: string }
-        description: { type: string }
-      discriminator:
-        propertyName: beanName
 
     Ban:
       allOf:
@@ -2595,15 +2585,6 @@ components:
             items:
               $ref: "#/components/schemas/ServiceForGUI"
 
-    ListOfSecurityTeamsResponse:
-      description: "returns List<SecurityTeam>"
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/SecurityTeam"
-
     ListOfCandidatesResponse:
       description: "return List<Candidate>"
       content:
@@ -3539,7 +3520,7 @@ components:
 
     complementaryObjectName:
       name: complementaryObjectName
-      description: "Property beanName of complementaryObject, meaning object type (supported object types: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+      description: "Property beanName of complementaryObject, meaning object type (supported object types: Group | RichGroup | Vo | Resource | Facility)"
       schema:
         type: string
       in: query
@@ -4170,7 +4151,7 @@ paths:
           application/json:
             schema:
               title: setRoleWithUserComplementaryObject
-              description: "input to setRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+              description: "input to setRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility)"
               type: object
               required:
                 - role
@@ -4212,7 +4193,7 @@ paths:
                 user: { type: integer, description: "user id", nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility)"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4234,7 +4215,7 @@ paths:
           application/json:
             schema:
               title: unsetRoleWithUserComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility)"
               type: object
               required:
                 - role
@@ -4276,7 +4257,7 @@ paths:
                 user: { type: integer, description: "user id", nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility)"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4350,7 +4331,7 @@ paths:
           application/json:
             schema:
               title: setRoleWithGroupComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility)"
               type: object
               required:
                 - role
@@ -4392,7 +4373,7 @@ paths:
                 authorizedGroup: { type: integer, nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility)"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4414,7 +4395,7 @@ paths:
           application/json:
             schema:
               title: unsetRoleWithGroupComplementaryObject
-              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+              description: "input to unsetRoleWithUserComplementaryObject (supported objects: Group | RichGroup | Vo | Resource | Facility)"
               type: object
               required:
                 - role
@@ -4456,7 +4437,7 @@ paths:
                 authorizedGroup: { type: integer, nullable: false }
                 complementaryObjects:
                   type: array
-                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility | SecurityTeam )"
+                  description: "List of complementary objects (supported objects: Group | RichGroup | Vo | Resource | Facility)"
                   nullable: false
                   items:
                     $ref: "#/components/schemas/PerunBean"
@@ -4826,22 +4807,6 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfMembersResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/authzResolver/getSecurityTeamsWhereUserIsInRoles:
-    get:
-      tags:
-        - AuthzResolver
-      operationId: getSecurityTeamsWhereUserIsInRoles
-      summary: Get all SecurityTeams where the given user (principal if user not sent) has set one of the given roles
-        or the given user is a member of an authorized group with such roles.
-      parameters:
-        - $ref: '#/components/parameters/optionalUserId'
-        - $ref: '#/components/parameters/ListOfRoles'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -9971,7 +9936,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/userManager/getUnanonymizedUsersBySpecificUser:
+  /json/usersManager/getUnanonymizedUsersBySpecificUser:
     get:
       tags:
         - UsersManager
@@ -12085,6 +12050,7 @@ paths:
 
   /json/facilitiesManager/getOwners:
     get:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: getFacilityOwners
@@ -12099,6 +12065,7 @@ paths:
 
   /json/facilitiesManager/getOwners/f-name:
     get:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: getFacilityOwnersByFacilityName
@@ -12113,6 +12080,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwner:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwner
@@ -12128,6 +12096,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwners:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwners
@@ -12143,6 +12112,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwner/f-o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnerByFacilityNameOwnerName
@@ -12158,6 +12128,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwners/f-o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnersByFacilityNameOwnerName
@@ -12173,6 +12144,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwner/f-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnerByFacilityName
@@ -12188,6 +12160,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwners/f-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnersByFacilityName
@@ -12203,6 +12176,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwner/o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnerByOwnerName
@@ -12218,6 +12192,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/addOwners/o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: addFacilityOwnersByOwnerName
@@ -12233,6 +12208,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwner:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwner
@@ -12248,6 +12224,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwners:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwners
@@ -12263,6 +12240,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwner/f-o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnerByFacilityNameOwnerName
@@ -12278,6 +12256,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwners/f-o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnersByFacilityNameOwnerName
@@ -12293,6 +12272,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwner/f-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnerByFacilityName
@@ -12308,6 +12288,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwners/f-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnersByFacilityName
@@ -12323,6 +12304,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwner/o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnerByOwnerName
@@ -12338,6 +12320,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/removeOwners/o-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: removeFacilityOwnersByOwnerName
@@ -12601,6 +12584,7 @@ paths:
 
   /json/facilitiesManager/getOwnerFacilities:
     get:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: getOwnerFacilities
@@ -13155,6 +13139,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/copyOwners:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: copyOwners
@@ -13170,6 +13155,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/copyOwners/src-dest-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: copyOwnersBySourceDestinationNames
@@ -13185,6 +13171,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/copyOwners/src-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: copyOwnersBySourceName
@@ -13200,6 +13187,7 @@ paths:
 
   /urlinjsonout/facilitiesManager/copyOwners/dest-name:
     post:
+      deprecated: true
       tags:
         - FacilitiesManager
       operationId: copyOwnersByDestinationName
@@ -13327,94 +13315,6 @@ paths:
       parameters:
         - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id" }
         - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name" }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/facilitiesManager/getAssignedSecurityTeams:
-    get:
-      tags:
-        - FacilitiesManager
-      operationId: getAssignedSecurityTeams
-      summary: Return assigned security teams for specific facility
-      parameters:
-        - $ref: '#/components/parameters/facilityId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/facilitiesManager/getAssignedSecurityTeams/f-name:
-    get:
-      tags:
-        - FacilitiesManager
-      operationId: getAssignedSecurityTeamsByFacilityName
-      summary: Return assigned security teams for specific facility
-      parameters:
-        - $ref: '#/components/parameters/facilityName'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/facilitiesManager/assignSecurityTeam:
-    post:
-      tags:
-        - FacilitiesManager
-      operationId: assignSecurityTeam
-      summary: Assign given security team to given facility (means the facility trusts the security team)
-      parameters:
-        - $ref: '#/components/parameters/facilityId'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/facilitiesManager/assignSecurityTeam/f-name:
-    post:
-      tags:
-        - FacilitiesManager
-      operationId: assignSecurityTeamByFacilityName
-      summary: Assign given security team to given facility (means the facility trusts the security team)
-      parameters:
-        - $ref: '#/components/parameters/facilityName'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/facilitiesManager/removeSecurityTeam:
-    post:
-      tags:
-        - FacilitiesManager
-      operationId: removeSecurityTeam
-      summary: Remove (Unassign) given security team from given facility
-      parameters:
-        - $ref: '#/components/parameters/facilityId'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/facilitiesManager/removeSecurityTeam/f-name:
-    post:
-      tags:
-        - FacilitiesManager
-      operationId: removeSecurityTeamByFacilityName
-      summary: Remove (Unassign) given security team from given facility
-      parameters:
-        - $ref: '#/components/parameters/facilityName'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -13598,6 +13498,7 @@ paths:
 
   /json/ownersManager/createOwner:
     post:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: createOwner
@@ -13629,6 +13530,7 @@ paths:
 
   /urlinjsonout/ownersManager/deleteOwner:
     post:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: deleteOwner
@@ -13644,6 +13546,7 @@ paths:
 
   /urlinjsonout/ownersManager/deleteOwners:
     post:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: deleteOwners
@@ -13659,6 +13562,7 @@ paths:
 
   /json/ownersManager/getOwnerById:
     get:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: getOwnerById
@@ -13673,6 +13577,7 @@ paths:
 
   /json/ownersManager/getOwnerByName:
     get:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: getOwnerByName
@@ -13687,6 +13592,7 @@ paths:
 
   /json/ownersManager/getOwners:
     get:
+      deprecated: true
       tags:
         - OwnersManager
       operationId: getAllOwners
@@ -14718,7 +14624,7 @@ paths:
 
   #################################################
   #                                               #
-  # ResourceManager                               #
+  # ResourcesManager                               #
   #                                               #
   #################################################
 

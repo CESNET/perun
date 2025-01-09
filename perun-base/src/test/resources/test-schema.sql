@@ -1,4 +1,4 @@
--- database version 3.2.26 (don't forget to update insert statement at the end of file)
+-- database version 3.2.28 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -337,8 +337,7 @@ create type role_object as enum (
 	'Facility',
 	'Resource',
 	'User',
-	'Member',
-	'SecurityTeam'
+	'Member'
 	);
 
 -- ATTRIBUTE_POLICIES - controls permissions for access to attributes
@@ -1359,18 +1358,6 @@ create table auditer_log
     constraint audlog_pk primary key (id)
 );
 
--- RESERVED_LOGINS - reserved lognames, actually is not used. Prepared for reservation by core.
-create table reserved_logins
-(
-    login           varchar, --logname
-    namespace       varchar, --namespace in which is logname using
-    application     varchar, --relation to application if any
-    id              varchar,
-    created_by_uid  integer,
-    modified_by_uid integer,
-    constraint reservlogins_pk primary key (login, namespace)
-);
-
 -- PN_AUDIT_MESSAGE - Contains all messages retrieved from the auditer log, since the notification module is auditer consumer. These messages are waiting to be processed by the notification module
 create table pn_audit_message
 (
@@ -1598,51 +1585,6 @@ create table pwdreset
     constraint pwdreset_u_fk foreign key (user_id) references users (id)
 );
 
-create table security_teams
-(
-    id              integer                                 not null,
-    name            varchar                                 not null,
-    description     varchar,
-    created_at      timestamp default statement_timestamp() not null,
-    created_by      varchar   default user                  not null,
-    modified_at     timestamp default statement_timestamp() not null,
-    modified_by     varchar   default user                  not null,
-    created_by_uid  integer,
-    modified_by_uid integer,
-    constraint security_teams_pk primary key (id)
-);
-
-create table security_teams_facilities
-(
-    security_team_id integer                                 not null,
-    facility_id      integer                                 not null,
-    created_at       timestamp default statement_timestamp() not null,
-    created_by       varchar   default user                  not null,
-    modified_at      timestamp default statement_timestamp() not null,
-    modified_by      varchar   default user                  not null,
-    created_by_uid   integer,
-    modified_by_uid  integer,
-    constraint security_teams_facilities_pk primary key (security_team_id, facility_id),
-    constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams (id),
-    constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities (id)
-);
-
-create table blacklists
-(
-    security_team_id integer                                 not null,
-    user_id          integer                                 not null,
-    description      varchar,
-    created_at       timestamp default statement_timestamp() not null,
-    created_by       varchar   default user                  not null,
-    modified_at      timestamp default statement_timestamp() not null,
-    modified_by      varchar   default user                  not null,
-    created_by_uid   integer,
-    modified_by_uid  integer,
-    constraint bllist_pk primary key (security_team_id, user_id),
-    constraint bllist_secteam_fk foreign key (security_team_id) references security_teams (id),
-    constraint bllist_user_fk foreign key (user_id) references users (id)
-);
-
 create table vos_bans
 (
     id              integer                                 not null,
@@ -1758,7 +1700,6 @@ create table authz
     created_by_uid      integer,
     modified_by_uid     integer,
     authorized_group_id integer,                                          --identifier of whole authorized group
-    security_team_id    integer,                                          --identifier of security team
     created_at          timestamp default statement_timestamp() not null,
     created_by          varchar   default user                  not null,
     constraint authz_role_fk foreign key (role_id) references roles (id),
@@ -1771,7 +1712,6 @@ create table authz
     constraint authz_service_fk foreign key (service_id) references services (id),
     constraint authz_res_fk foreign key (resource_id) references resources (id),
     constraint authz_sponsu_fk foreign key (sponsored_user_id) references users (id),
-    constraint authz_sec_team_fk foreign key (security_team_id) references security_teams (id),
     constraint authz_user_autgrp_chk check
         ((user_id is not null and authorized_group_id is null) or (user_id is null and authorized_group_id is not null))
 );
@@ -1895,7 +1835,6 @@ create sequence "action_types_seq";
 create sequence "res_tags_seq";
 create sequence "mailchange_id_seq";
 create sequence "pwdreset_id_seq";
-create sequence "security_teams_id_seq";
 create sequence "resources_bans_id_seq";
 create sequence "facilities_bans_id_seq";
 create sequence "vos_bans_id_seq";
@@ -1978,7 +1917,7 @@ create index idx_fk_cabpub_cat on cabinet_publications (categoryid);
 create unique index idx_authz_u ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), role_id,
                                           COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'),
                                           COALESCE(member_id, '0'), COALESCE(resource_id, '0'),
-                                          COALESCE(service_id, '0'), COALESCE(security_team_id, '0'),
+                                          COALESCE(service_id, '0'),
                                           COALESCE(sponsored_user_id, '0'));
 create index idx_fk_authz_role on authz (role_id);
 create index idx_fk_authz_user on authz (user_id);
@@ -1989,7 +1928,6 @@ create index idx_fk_authz_mem on authz (member_id);
 create index idx_fk_authz_group on authz (group_id);
 create index idx_fk_authz_service on authz (service_id);
 create index idx_fk_authz_res on authz (resource_id);
-create index idx_fk_authz_sec_team on authz (security_team_id);
 create index idx_fk_authz_sponsu on authz (sponsored_user_id);
 create index idx_fk_grres_gr on groups_resources (group_id);
 create index idx_fk_grres_res on groups_resources (resource_id);
@@ -2040,10 +1978,6 @@ create index idx_fk_tags_res_tags on tags_resources (tag_id);
 create index idx_fk_tags_res_res on tags_resources (resource_id);
 create index idx_fk_mailchange_user_id on mailchange (user_id);
 create index idx_fk_pwdreset_user_id on pwdreset (user_id);
-create index idx_fk_security_teams_facilities_security_team on security_teams_facilities (security_team_id);
-create index idx_fk_security_teams_facilities_facilities on security_teams_facilities (facility_id);
-create index idx_fk_bllist_user on blacklists (user_id);
-create index idx_fk_bllist_secteam on blacklists (security_team_id);
 create index idx_fk_res_ban_member on resources_bans (member_id);
 create index idx_fk_res_ban_res on resources_bans (resource_id);
 create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id);
@@ -2082,7 +2016,7 @@ create index idx_fk_inv_usr on invitations(sender_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.26');
+values ('DATABASE VERSION', '3.2.28');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations
@@ -2148,8 +2082,6 @@ insert into roles (created_by_uid, modified_by_uid, id, name)
 values (null, null, 41, 'notifications');
 insert into roles (created_by_uid, modified_by_uid, id, name)
 values (null, null, 61, 'serviceuser');
-insert into roles (created_by_uid, modified_by_uid, id, name)
-values (null, null, 20, 'securityadmin');
 insert into roles (created_by_uid, modified_by_uid, id, name)
 values (null, null, 19, 'sponsor');
 insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,

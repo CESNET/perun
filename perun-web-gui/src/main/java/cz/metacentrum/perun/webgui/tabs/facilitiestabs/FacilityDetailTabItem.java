@@ -198,8 +198,6 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl {
     tabPanel.add(new FacilityDestinationsTabItem(facility), "Services destinations");
     tabPanel.add(new FacilityHostsTabItem(facility), "Hosts");
     tabPanel.add(new FacilityManagersTabItem(facility), "Managers");
-    tabPanel.add(new FacilitySecurityTeamsTabItem(facility), "Security teams");
-    tabPanel.add(new FacilityBlacklistTabItem(facility), "Blacklist");
     tabPanel.add(new FacilityOwnersTabItem(facility), "Owners");
 
     // Resize must be called after page fully displays

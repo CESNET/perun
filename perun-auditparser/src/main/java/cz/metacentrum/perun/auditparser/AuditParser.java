@@ -28,7 +28,6 @@ import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -120,8 +119,6 @@ public class AuditParser {
           perunBean = createAuthorship(p.getRight());
         } else if (p.getLeft().equals("ResourceTag")) {
           perunBean = createResourceTag(p.getRight());
-        } else if (p.getLeft().equals("SecurityTeam")) {
-          perunBean = createSecurityTeam(p.getRight());
         } else if (p.getLeft().equals("TaskResult")) {
           perunBean = createTaskResult(p.getRight());
         } else if (p.getLeft().equals("BanOnResource")) {
@@ -627,17 +624,6 @@ public class AuditParser {
     resourceTag.setVoId(Integer.valueOf(beanAttr.get("voId")));
     resourceTag.setTagName(BeansUtils.eraseEscaping(beanAttr.get("tagName")));
     return resourceTag;
-  }
-
-  private static SecurityTeam createSecurityTeam(Map<String, String> beanAttr) {
-    if (beanAttr == null) {
-      return null;
-    }
-    SecurityTeam securityTeam = new SecurityTeam();
-    securityTeam.setId(Integer.valueOf(beanAttr.get("id")));
-    securityTeam.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
-    securityTeam.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
-    return securityTeam;
   }
 
   private static TaskResult createTaskResult(Map<String, String> beanAttr) {

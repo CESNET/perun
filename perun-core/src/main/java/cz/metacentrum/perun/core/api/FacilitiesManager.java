@@ -24,9 +24,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -98,6 +95,7 @@ public interface FacilitiesManager {
   /**
    * Add owner of the facility
    */
+  @Deprecated
   void addOwner(PerunSession perunSession, Facility facility, Owner owner)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException;
 
@@ -112,17 +110,9 @@ public interface FacilitiesManager {
    * @throws FacilityNotExistsException    when facility does not exist
    * @throws OwnerAlreadyAssignedException when owner was already assigned to the facility
    */
+  @Deprecated
   void addOwners(PerunSession sess, Facility facility, List<Owner> owners)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException;
-
-  /**
-   * Assign given security team to given facility (means the facility trusts the security team)
-   *
-   * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
-   */
-  void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException,
-      SecurityTeamAlreadyAssignedException;
 
   /**
    * Copy all attributes of the source facility to the destination facility. The attributes, that are in the destination
@@ -150,6 +140,7 @@ public interface FacilitiesManager {
    * facility and aren't in the source facility, are retained. The common owners are replaced with owners from source
    * facility.
    */
+  @Deprecated
   void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility)
       throws FacilityNotExistsException, PrivilegeException;
 
@@ -296,12 +287,6 @@ public interface FacilitiesManager {
       throws PrivilegeException, ServiceNotExistsException;
 
   /**
-   * Get facilities where security team is assigned.
-   */
-  List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam)
-      throws PrivilegeException, SecurityTeamNotExistsException;
-
-  /**
    * Returns all resources assigned to the facility.
    *
    * @return list of resources assigned to the facility
@@ -337,15 +322,6 @@ public interface FacilitiesManager {
    */
   List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility, Service service)
       throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;
-
-  /**
-   * return assigned security teams for specific facility
-   *
-   * @return assigned security teams fot given facility
-   * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
-   */
-  List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility)
-      throws PrivilegeException, FacilityNotExistsException;
 
   /**
    * Returns list of Users, assigned with chosen Facility.
@@ -611,6 +587,7 @@ public interface FacilitiesManager {
    *
    * @return owners of specified facility
    */
+  @Deprecated
   List<Owner> getOwners(PerunSession perunSession, Facility facility)
       throws PrivilegeException, FacilityNotExistsException;
 
@@ -734,6 +711,7 @@ public interface FacilitiesManager {
   /**
    * Remove owner of the facility
    */
+  @Deprecated
   void removeOwner(PerunSession perunSession, Facility facility, Owner owner)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
 
@@ -748,17 +726,9 @@ public interface FacilitiesManager {
    * @throws FacilityNotExistsException   when facility does not exist
    * @throws OwnerAlreadyRemovedException when owner was already removed from the facility
    */
+  @Deprecated
   void removeOwners(PerunSession sess, Facility facility, List<Owner> owners)
       throws PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException;
-
-  /**
-   * Remove (Unassign) given security team from given facility
-   *
-   * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
-   */
-  void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam)
-      throws PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException,
-      SecurityTeamNotAssignedException;
 
   /**
    * Set ban for user on facility.

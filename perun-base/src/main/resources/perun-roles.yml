@@ -104,11 +104,6 @@
 # users and groups of users. The only roles which have a right to set this role are the Perun administrator and the
 # VO administrator.
 #
-# SECURITYADMIN role has the privilege to put users on a blacklist in a facility. The blacklist is associated
-# with a security team, and the team is associated with the facility. Security administrators are members
-# of at least one security team, either directly, or indirectly as members of another group.
-# Together with Perun administrators, they can add other administrators to the team.
-#
 # CABINETADMIN role is able to manage users’ publications in the cabinet module.
 # Cabinet administrators and Perun administrators are able to delegate this role to other users,
 # but the role cannot be set to groups.
@@ -162,7 +157,6 @@ perun_roles:
   - VOOBSERVER
   - VOBANMANAGER
   - TOPGROUPCREATOR
-  - SECURITYADMIN
   - CABINETADMIN
   - AUDITCONSUMERADMIN
   - SPONSORSHIP
@@ -508,12 +502,6 @@ perun_policies:
       - default_policy
 
   getMembersWhereUserIsInRoles_User_List<String>_policy:
-    policy_roles:
-      - SELF: User
-    include_policies:
-      - default_policy
-
-  getSecurityTeamsWhereUserIsInRoles_User_List<String>_policy:
     policy_roles:
       - SELF: User
     include_policies:
@@ -1109,24 +1097,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getAssignedFacilities_SecurityTeam_policy:
-    policy_roles:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
-      - PERUNOBSERVER:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  filter-getAssignedFacilities_SecurityTeam_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - PERUNOBSERVER:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
   getHosts_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -1328,30 +1298,6 @@ perun_policies:
       - FACILITYOBSERVER: Facility
     include_policies:
       - default_policy
-
-  getAssignedSecurityTeams_Facility_policy:
-    policy_roles:
-      - PERUNOBSERVER:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-    include_policies:
-      - default_policy
-
-  assignSecurityTeam_Facility_SecurityTeam_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-    mfa_rules:
-      - MFA: Facility
-
-  removeSecurityTeam_Facility_SecurityTeam_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-    mfa_rules:
-      - MFA: Facility
 
   setBan_BanOnFacility_policy:
     policy_roles:
@@ -5555,124 +5501,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  #SecurityTeamsManagerEntry
-  getSecurityTeams_policy:
-    policy_roles:
-      - SECURITYADMIN:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  filter-getSecurityTeams_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getAllSecurityTeams_policy:
-    policy_roles:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
-      - SECURITYADMIN:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  createSecurityTeam_SecurityTeam_policy:
-    policy_roles:
-      - SECURITYADMIN:
-    include_policies:
-      - default_policy
-
-  updateSecurityTeam_SecurityTeam_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  deleteSecurityTeam_SecurityTeam__boolean_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  getSecurityTeamById_int_policy:
-    policy_roles:
-      - RPC:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
-      - SECURITYADMIN:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getSecurityTeamByName_String_policy:
-    policy_roles:
-      - RPC:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
-      - SECURITYADMIN:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getAdmins_SecurityTeam_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getAdminGroups_SecurityTeam_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  addUserToBlacklist_SecurityTeam_User_String_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  removeUserFromBlacklist_SecurityTeam_User_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-    include_policies:
-      - default_policy
-
-  getBlacklist_SecurityTeam_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getBlacklist_Facility_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getBlacklistWithDescription_SecurityTeam_policy:
-    policy_roles:
-      - SECURITYADMIN: SecurityTeam
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getBlacklistWithDescription_Facility_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
   #ServicesManagerEntry
   blockServiceOnFacility_Service_Facility_policy:
     policy_roles:
@@ -7141,7 +6969,6 @@ perun_policies:
 
   findRichUsersWithAttributes_String_List<String>_policy:
     policy_roles:
-      - SECURITYADMIN:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
       - RESOURCEADMIN:
@@ -7164,7 +6991,6 @@ perun_policies:
 
   filter-findRichUsersWithAttributes_policy:
     policy_roles:
-      - SECURITYADMIN:
       - FACILITYADMIN:
       - FACILITYOBSERVER:
       - RESOURCEADMIN:
@@ -9904,28 +9730,6 @@ perun_roles_management:
     associated_read_roles: [ ]
     assignable_to_attributes: true
     display_name: "Topgroup creator"
-
-  SECURITYADMIN:
-    primary_object: SecurityTeam
-    assign_to_objects:
-      SecurityTeam: security_team_id
-    assignment_check:
-      - MFA:
-    entities_to_manage:
-      User: user_id
-      Group: authorized_group_id
-    privileged_roles_to_manage:
-      - PERUNADMIN:
-      - PERUNADMINBA:
-      - SECURITYADMIN: SecurityTeam
-    privileged_roles_to_read:
-      - PERUNADMIN:
-      - PERUNADMINBA:
-      - PERUNOBSERVER:
-      - SECURITYADMIN: SecurityTeam
-    associated_read_roles: [ ]
-    assignable_to_attributes: true
-    display_name: "Security admin"
 
   CABINETADMIN:
     primary_object:

@@ -38,13 +38,10 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
   private static final String GROUP_JSON_URL = "groupsManager/getRichAdminsWithSpecificAttributes";
   private static final String VO_JSON_URL = "vosManager/getRichAdminsWithSpecificAttributes";
   private static final String FACILITY_JSON_URL = "facilitiesManager/getRichAdminsWithSpecificAttributes";
-  private static final String SECURITY_JSON_URL = "securityTeamsManager/getRichAdminsWithSpecificAttributes";
   // JSON URL TO LIST ONLY DIRECT ADMINISTRATORS (NOT ASSIGNED BY GROUP)
   private static final String GROUP_DIRECT_JSON_URL = "groupsManager/getDirectRichAdminsWithSpecificAttributes";
   private static final String VO_DIRECT_JSON_URL = "vosManager/getDirectRichAdminsWithSpecificAttributes";
   private static final String FACILITY_DIRECT_JSON_URL = "facilitiesManager/getDirectRichAdminsWithSpecificAttributes";
-  private static final String SECURITY_DIRECT_JSON_URL =
-      "securityTeamsManager/getDirectRichAdminsWithSpecificAttributes";
   // Selection model for the table
   final MultiSelectionModel<User> selectionModel = new MultiSelectionModel<User>(new GeneralKeyProvider<User>());
   // Session
@@ -159,21 +156,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
       } else {
         js.retrieveData(FACILITY_DIRECT_JSON_URL, param, this);
       }
-    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-      param = "securityTeam=" + entityId;
-      if (!attributes.isEmpty()) {
-        // parse lists
-        for (String attribute : attributes) {
-          param += "&specificAttributes[]=" + attribute;
-        }
-      }
-      if (showAllAdmins) {
-        js.retrieveData(SECURITY_JSON_URL, param, this);
-      } else {
-        js.retrieveData(SECURITY_DIRECT_JSON_URL, param, this);
-      }
     }
-
   }
 
   /**
@@ -212,8 +195,6 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
       loaderImage.setEmptyResultMessage("Group has no managers (try to switch to 'Groups' view).");
     } else if (entity.equals(PerunEntity.FACILITY)) {
       loaderImage.setEmptyResultMessage("Facility has no managers (try to switch to 'Groups' view).");
-    } else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
-      loaderImage.setEmptyResultMessage("SecurityTeam has no members (try to switch to 'Groups' view).");
     }
 
     // Sorting

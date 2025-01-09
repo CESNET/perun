@@ -7,5 +7,5 @@ package cz.metacentrum.perun.core.api;
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
 public enum RoleObject {
-  None, Group, Vo, Facility, Resource, User, Member, SecurityTeam
+  None, Group, Vo, Facility, Resource, User, Member
 }

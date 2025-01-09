@@ -557,34 +557,6 @@ public class AuthzResolver {
   }
 
   /**
-   * Get all SecurityTeams where the given user has set one of the given roles or the given user is a member of an
-   * authorized group with such roles. If user parameter is null then SecurityTeams are retrieved for the given
-   * principal.
-   *
-   * @param sess  Perun session
-   * @param user  for who SecurityTeams are retrieved
-   * @param roles for which SecurityTeams are retrieved
-   * @return List of SecurityTeams
-   * @throws PrivilegeException when the principal is not authorized.
-   */
-  public static List<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(PerunSession sess, User user, List<String> roles)
-      throws PrivilegeException {
-    Utils.checkPerunSession(sess);
-    Utils.notNull(roles, "roles");
-
-    if (user == null) {
-      user = sess.getPerunPrincipal().getUser();
-    } else {
-      //Authorization
-      if (!authorizedInternal(sess, "getSecurityTeamsWhereUserIsInRoles_User_List<String>_policy", user)) {
-        throw new PrivilegeException(sess, "getSecurityTeamsWhereUserIsInRoles");
-      }
-    }
-
-    return AuthzResolverBlImpl.getSecurityTeamsWhereUserIsInRoles(sess, user, roles);
-  }
-
-  /**
    * Get all user role names. Does not include membership and sponsorship role.
    *
    * @param sess perun session
@@ -913,16 +885,6 @@ public class AuthzResolver {
   //   */
   //  public static boolean isResourceAdmin(PerunSession sess) {
   //    return AuthzResolverBlImpl.isResourceAdmin(sess);
-  //  }
-  //
-  //  /**
-  //   * Returns true if the perun principal inside the perun session is security admin.
-  //   *
-  //   * @param sess perun session
-  //   * @return true if the perun principal is security admin.
-  //   */
-  //  public static boolean isSecurityAdmin(PerunSession sess) {
-  //    return AuthzResolverBlImpl.isSecurityAdmin(sess);
   //  }
   //
   //  /**

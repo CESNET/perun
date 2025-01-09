@@ -113,8 +113,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.addHost(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
-                     pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.assignSecurityTeam(..))"/>
-        <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.setBan(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.updateBan(..))"/>
@@ -158,13 +156,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
                      pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.setBan(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.updateBan(..))"/>
-        <!-- SecurityTeamsManagerImpl -->
-        <aop:advisor advice-ref="txAdviceNestedTransaction"
-                     pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.createSecurityTeam(..))"/>
-        <aop:advisor advice-ref="txAdviceNestedTransaction"
-                     pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.updateSecurityTeam(..))"/>
-        <aop:advisor advice-ref="txAdviceNestedTransaction"
-                     pointcut="execution(* cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.addUserToBlacklist(..))"/>
         <!-- ServicesManagerImpl -->
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.createService(..))"/>
@@ -314,7 +305,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="ownersManagerBl" ref="ownersManagerBl"/>
         <property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
         <property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
-        <property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
         <property name="searcherBl" ref="searcherBl"/>
         <property name="modulesUtilsBl" ref="modulesUtilsBl"/>
         <property name="tasksManagerBl" ref="tasksManagerBl"/>
@@ -334,7 +324,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="ownersManager" ref="ownersManager"/>
         <property name="auditMessagesManager" ref="auditMessagesManager"/>
         <property name="RTMessagesManager" ref="RTMessagesManager"/>
-        <property name="securityTeamsManager" ref="securityTeamsManager"/>
         <property name="searcher" ref="searcher"/>
         <property name="attributesManagerImpl" ref="attributesManagerImpl"/>
         <property name="databaseManager" ref="databaseManager"/>
@@ -420,11 +409,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
           depends-on="databaseManagerBl">
         <property name="perunBl" ref="perun"/>
         <property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
-    </bean>
-    <bean id="securityTeamsManager" class="cz.metacentrum.perun.core.entry.SecurityTeamsManagerEntry" scope="singleton"
-          depends-on="databaseManagerBl">
-        <property name="perunBl" ref="perun"/>
-        <property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
     </bean>
     <bean id="searcher" class="cz.metacentrum.perun.core.entry.SearcherEntry" scope="singleton"
           depends-on="databaseManagerBl">
@@ -517,11 +501,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <constructor-arg name="rtURL" value="#{coreConfig.rtUrl}"/>
         <constructor-arg name="rtDefaultQueue" value="#{coreConfig.rtDefaultQueue}"/>
     </bean>
-    <bean id="securityTeamsManagerBl" class="cz.metacentrum.perun.core.blImpl.SecurityTeamsManagerBlImpl"
-          scope="singleton" depends-on="databaseManagerBl">
-        <property name="perunBl" ref="perun"/>
-        <constructor-arg ref="securityTeamsManagerImpl"/>
-    </bean>
     <bean id="authzResolverBl" class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" scope="singleton"
           depends-on="databaseManagerBl">
     </bean>
@@ -589,10 +568,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     </bean>
     <bean id="ownersManagerImpl" class="cz.metacentrum.perun.core.impl.OwnersManagerImpl" scope="singleton"
           depends-on="databaseManagerBl">
-        <constructor-arg ref="dataSource"/>
-    </bean>
-    <bean id="securityTeamsManagerImpl" class="cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl"
-          scope="singleton" depends-on="databaseManagerBl">
         <constructor-arg ref="dataSource"/>
     </bean>
     <bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton"

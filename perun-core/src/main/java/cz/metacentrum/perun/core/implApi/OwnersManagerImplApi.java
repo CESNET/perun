@@ -12,6 +12,7 @@ import java.util.List;
  *
  * @author Slavek Licehammer
  */
+@Deprecated
 public interface OwnersManagerImplApi {
 
   /**

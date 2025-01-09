@@ -60,10 +60,12 @@ public class EnrichedFacility {
     this.hosts = hosts;
   }
 
+  @Deprecated
   public List<Owner> getOwners() {
     return owners;
   }
 
+  @Deprecated
   public void setOwners(List<Owner> owners) {
     this.owners = owners;
   }

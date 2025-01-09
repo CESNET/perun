@@ -115,16 +115,6 @@ public class FacilitiesTabs {
       return true;
     }
 
-    if (tab.equals(FacilitySecurityTeamsTabItem.URL)) {
-      session.getTabManager().addTab(FacilitySecurityTeamsTabItem.load(parameters), open);
-      return true;
-    }
-
-    if (tab.equals(FacilityBlacklistTabItem.URL)) {
-      session.getTabManager().addTab(FacilityBlacklistTabItem.load(parameters), open);
-      return true;
-    }
-
     return false;
 
   }

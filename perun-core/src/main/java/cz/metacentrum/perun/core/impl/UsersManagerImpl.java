@@ -134,17 +134,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
           resultSet.getBoolean("users_sponsored_acc"),
           resultSet.getInt("users_created_by_uid") == 0 ? null : resultSet.getInt("users_created_by_uid"),
           resultSet.getInt("users_modified_by_uid") == 0 ? null : resultSet.getInt("users_modified_by_uid"));
-  protected static final ResultSetExtractor<List<Pair<User, String>>> USERBLACKLIST_EXTRACTOR = resultSet -> {
-    List<Pair<User, String>> result = new ArrayList<>();
-
-    int row = 0;
-    while (resultSet.next()) {
-      result.add(new Pair<>(USER_MAPPER.mapRow(resultSet, row), resultSet.getString("description")));
-      row++;
-    }
-
-    return result;
-  };
   private static final Logger LOG = LoggerFactory.getLogger(UsersManagerImpl.class);
   // time window size for mail validation if not taken from peruns configuration file
   private static final int VALIDATION_ALLOWED_HOURS = 6;

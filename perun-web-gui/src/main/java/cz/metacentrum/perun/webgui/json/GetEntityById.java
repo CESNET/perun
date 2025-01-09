@@ -32,7 +32,6 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
   static private final String URL_TASK = "tasksManager/getTaskById";
   static private final String URL_APP_MAIL = "registrarManager/getApplicationMailById";
   static private final String URL_APP = "registrarManager/getApplicationById";
-  static private final String URL_SECURITY_TEAM = "securityTeamsManager/getSecurityTeamById";
   static private final String URL_USER_EXT_SRC = "usersManager/getUserExtSourceById";
   static private final String URL_DESTINATION = "servicesManager/getDestinationById";
   static private final String URL_ATTRIBUTE_DEFINITION = "attributesManager/getAttributeDefinitionById";
@@ -129,8 +128,6 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
       js.retrieveData(URL_APP_MAIL, param, this);
     } else if (PerunEntity.APPLICATION.equals(entity)) {
       js.retrieveData(URL_APP, param, this);
-    } else if (PerunEntity.SECURITY_TEAM.equals(entity)) {
-      js.retrieveData(URL_SECURITY_TEAM, param, this);
     } else if (PerunEntity.USER_EXT_SOURCE.equals(entity)) {
       param = "userExtSource=" + entityId;
       js.retrieveData(URL_USER_EXT_SRC, param, this);
