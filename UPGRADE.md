@@ -1,5 +1,41 @@
 Upgrade notes
 
+## [46.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v45.0.0...v46.0.0) (2025-01-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **openapi:** Owner object is deprecated. Do not use.
+* removed security teams and all related functionality. Removed role SECURITYADMIN.
+Removed user_facility virt_blacklisted attribute.
+All of the related tables and data will be DELETED and DROPPED on commit deploy!
+* **core:** reserved_logins table was deleted and will be dropped
+on commit deploy
+* **gui:** removed security teams, blacklists and security admin role
+
+### Features
+
+* **core:** new regex for mail address validation ([57f7c1a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/57f7c1ae77a2a7460f4b168bba7a9494f0c915e5))
+* **registrar:** mandatory destination attribute for form item of type password ([231a75d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/231a75da420a99e60becc02f98a1482c17bd6707))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.apache.commons:commons-text to v1.13.0 ([3f075ac](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3f075ac2d8a3116ae94dfc79406c14b45bd9ae1e))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.79 ([88f7890](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/88f78901ff3c0188e46e8a8a60cfb975996bc9fe))
+* **deps:** update dependency org.json.json to 20240303 ([e9876ae](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e9876ae056029267b925d5242cbe007dc7694f59))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.4.1 ([9ab621d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9ab621d73a77a558716e096586e7685fbebf8a5c))
+* **deps:** update google-api-services-admin-directory ([fa8255d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fa8255d394416a08e83decee136b78f6bad6ad2c))
+* **openapi:** fixed typos in manager names ([3856d26](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3856d264407e248d873844fee6e58a52911d4532))
+
+
+### Others
+
+* **core:** remove reserved_logins table ([6e51381](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6e513811b600e8f594611232427c39c25e5957f9))
+* **gui:** remove security teams and all related functionality ([481a03f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/481a03fdb21e205401658fe84db9e34fee485f1c))
+* **openapi:** owner deprecated ([8faf952](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8faf952c0514ef41f275902c65ecc221e9222006))
+* remove security teams and related functionality ([85b20df](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/85b20dff414ec7dfff726a3a8136ced1af0b91b7))
+
 ## [45.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v44.2.0...v45.0.0) (2024-12-16)
 
 
