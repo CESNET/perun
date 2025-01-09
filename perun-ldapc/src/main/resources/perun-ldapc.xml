@@ -277,6 +277,16 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="beansCondition">
 						<list>
 							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+						</list>
+					</property>
+					<property name="pattern" value=" changed for \[.*\]"/>
+					<property name="handlerMethodName" value="processVirtualAttributeChangedForMultipleUsers"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
 							<value>cz.metacentrum.perun.core.api.Vo</value>
 						</list>
 					</property>

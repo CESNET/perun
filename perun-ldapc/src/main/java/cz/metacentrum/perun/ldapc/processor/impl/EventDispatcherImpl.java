@@ -249,6 +249,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     private Member member;
     private Vo vo;
     private User user;
+    List<User> users = new ArrayList<>();
     private User specificUser;
     private Attribute attribute;
     private AttributeDefinition attributeDef;
@@ -285,20 +286,20 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
         presentBeans |= VO_F;
       } else if (perunBean instanceof User) {
         User u = (User) perunBean;
+        users.add(u);
         if (u.isServiceUser() || u.isSponsoredUser()) {
           if (this.specificUser == null) {
             this.specificUser = u;
-          } else {
-            throw new InternalErrorException("More than one specificUser come to method parseMessages!");
           }
         } else {
           if (this.user == null) {
             this.user = u;
-          } else {
-            throw new InternalErrorException("More than one user come to method parseMessages!");
           }
         }
-        presentBeans |= USER_F;
+        // only update flag for the first user to maintain functionality
+        if (users.size() == 1) {
+          presentBeans |= USER_F;
+        }
       } else if (perunBean instanceof AttributeDefinition &&
                  perunBean instanceof cz.metacentrum.perun.core.api.Attribute) {
         if (this.attribute == null) {
@@ -404,6 +405,11 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     @Override
     public User getUser() {
       return (user == null) ? specificUser : user;
+    }
+
+    @Override
+    public List<User> getUsers() {
+      return users;
     }
 
     @Override

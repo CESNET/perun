@@ -58,6 +58,8 @@ public interface EventDispatcher extends Runnable {
 
     public User getUser();
 
+    public List<User> getUsers();
+
     public UserExtSource getUserExtSource();
 
     public Vo getVo();
