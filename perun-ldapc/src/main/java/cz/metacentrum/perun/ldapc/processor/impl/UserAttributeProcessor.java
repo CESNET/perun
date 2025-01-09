@@ -2,6 +2,7 @@ package cz.metacentrum.perun.ldapc.processor.impl;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -159,6 +160,23 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
              NamingException e) {
       LOG.error("Error changing virtual attribute {} for user {}: {}", beans.getAttribute().getId(),
           beans.getUser().getId(), e);
+    }
+  }
+
+  public void processVirtualAttributeChangedForMultipleUsers(String msg, MessageBeans beans) {
+    if (beans.getAttribute() == null || beans.getUser() == null || beans.getUsers().isEmpty()) {
+      return;
+    }
+    for (User user : beans.getUsers()) {
+      try {
+        LOG.debug("Changing virtual attribute {} for user {}", beans.getAttribute(), user);
+        perunUser.modifyEntry(user, ((PerunBl) ldapcManager.getPerunBl()).getAttributesManagerBl()
+            .getAttribute(ldapcManager.getPerunSession(), user, beans.getAttribute().getName()));
+      } catch (WrongAttributeAssignmentException | InternalErrorException | AttributeNotExistsException |
+               NamingException e) {
+        LOG.error("Error changing virtual attribute {} for user {}: {}", beans.getAttribute().getId(),
+            user.getId(), e);
+      }
     }
   }
 }

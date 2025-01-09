@@ -4499,6 +4499,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     //we have to update group name in database
     getGroupsManagerImpl().updateGroupName(sess, movingGroup);
+    getPerunBl().getAuditer().log(sess, new GroupUpdated(movingGroup));
 
     // We have to properly set all subGroups names level by level
     setSubGroupsNames(sess, getSubGroups(sess, movingGroup), movingGroup);

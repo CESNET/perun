@@ -1,8 +1,10 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForMultipleUsers;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupUpdated;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedToGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
@@ -24,6 +26,7 @@ import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
@@ -105,6 +108,18 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
     return new AttributeChangedForUser(new Attribute(attributeDefinition), user);
   }
 
+  private AuditEvent resolveEventGroupUpdated(PerunSessionImpl sess, List<Member> members) throws
+      AttributeNotExistsException {
+    List<User> users = new ArrayList<>();
+    UsersManagerBl usersManagerBl = sess.getPerunBl().getUsersManagerBl();
+    for (Member member : members) {
+      users.add(usersManagerBl.getUserByMember(sess, member));
+    }
+    AttributeDefinition attributeDefinition =
+        sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_GROUP_NAMES);
+    return new AttributeChangedForMultipleUsers(new Attribute(attributeDefinition), users);
+  }
+
   @Override
   public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message)
       throws AttributeNotExistsException, WrongAttributeAssignmentException {
@@ -133,6 +148,13 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
       resolvingMessages.add(resolveEvent(sess, ((MemberDisabled) message).getMember()));
     } else if (message instanceof MemberInvalidated) {
       resolvingMessages.add(resolveEvent(sess, ((MemberInvalidated) message).getMember()));
+    } else if (message instanceof GroupUpdated) {
+      List<Member> members = sess.getPerunBl().getGroupsManagerBl()
+                                 .getGroupMembers(sess, ((GroupUpdated) message).getGroup());
+      if (!members.isEmpty()) {
+        // no need to create the event for groups with no members
+        resolvingMessages.add(resolveEventGroupUpdated(sess, members));
+      }
     }
     return resolvingMessages;
   }

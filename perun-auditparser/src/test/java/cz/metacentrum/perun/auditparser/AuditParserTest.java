@@ -800,6 +800,8 @@ public class AuditParserTest {
         "suspendedTo=<" +
         BeansUtils.getDateFormatter().format(Date.from(Instant.now())) + ">] Cokoliv:[]";
 
+    String log6 = "Attribute:[id=<3472>, friendlyName=<groupNames>, namespace=<urn:perun:user:attribute-def:virt>, type=<java.util.ArrayList>, unique=<false>, value=<\\0>] changed for [User:[id=<132911>, uuid=<27a1cf89-f758-478b-b5de-4e5dbd7d706b>, titleBefore=<\\0>, firstName=<Rastislav>, lastName=<Kruták>, middleName=<\\0>, titleAfter=<\\0>, serviceAccount=<false>, sponsoredAccount=<false>],User:[id=<124633>, uuid=<2e77b4b3-af0a-41f3-b436-5da75f30b425>, titleBefore=<\\0>, firstName=<Šárka>, lastName=<Palkovičová>, middleName=<\\0>, titleAfter=<\\0>, serviceAccount=<false>, sponsoredAccount=<false>]].";
+
     //Long start = System.currentTimeMillis();
     List<PerunBean> list = AuditParser.parseLog(log);
     //Long end = System.currentTimeMillis()-start;
@@ -815,10 +817,12 @@ public class AuditParserTest {
     //start = System.currentTimeMillis();
     List<PerunBean> list4 = AuditParser.parseLog(log4);
     //end = System.currentTimeMillis()-start;
+    List<PerunBean> list6 = AuditParser.parseLog(log6);
     assertEquals(17, list.size());
     assertEquals(1, list2.size());
     assertEquals(2, list3.size());
     assertEquals(1, list4.size());
+    assertEquals(3, list6.size());
 
     List<PerunBean> list5 = AuditParser.parseLog(log5);
   }
