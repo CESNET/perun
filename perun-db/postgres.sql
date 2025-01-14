@@ -1,4 +1,4 @@
--- database version 3.2.28 (don't forget to update insert statement at the end of file)
+-- database version 3.2.29 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -241,16 +241,6 @@ create table roles (
   constraint roles_name_u unique (name)
 );
 
--- ACTION_TYPES - possible actions for attributes
-create table action_types (
-	id integer not null,
-	action_type varchar not null,  --type of action (read/write...)
-	description varchar,         --description
-	constraint actiontyp_pk primary key (id),
-  constraint actiontyp_u unique (action_type),
-  constraint actiontyp_at_chk check (action_type in ('read', 'read_vo', 'read_public', 'write', 'write_vo', 'write_public'))
-);
-
 -- MEMBERSHIP_TYPES - possible types of membership in group
 create table membership_types (
 	id integer not null,
@@ -278,17 +268,6 @@ create table attr_names (
 	constraint attnam_pk primary key(id),
   constraint attnam_u unique (attr_name),
   constraint attfullnam_u unique (friendly_name,namespace)
-);
-
--- ATTRIBUTES_AUTHZ - controls permissions for access to attributes
-create table attributes_authz (
-	attr_id integer not null,  --identifier of attribute (attr_names.id)
-	role_id integer not null,  --identifier of role (roles.id)
-	action_type_id integer not null,  --identifier of action (action_types.id)
-	constraint attrauthz_pk primary key (attr_id,role_id,action_type_id),
-  constraint attrauthz_attr_fk foreign key (attr_id) references attr_names (id),
-  constraint attrauthz_role_fk foreign key (role_id) references roles(id),
-  constraint attrauthz_actiontyp_fk foreign key (action_type_id) references action_types(id)
 );
 
 create type attribute_action as enum (
@@ -1711,7 +1690,6 @@ create sequence "pn_audit_message_id_seq";
 create sequence "pn_template_regex_seq";
 create sequence "pn_template_message_id_seq";
 create sequence "pn_regex_object_seq";
-create sequence "action_types_seq";
 create sequence "res_tags_seq";
 create sequence "mailchange_id_seq";
 create sequence "pwdreset_id_seq";
@@ -1841,9 +1819,6 @@ create index idx_fk_specifu_u_ui on specific_user_users(user_id);
 create index idx_fk_specifu_u_sui on specific_user_users(specific_user_id);
 create index idx_fk_grp_grp_rgid on groups_groups(result_gid);
 create index idx_fk_grp_grp_ogid on groups_groups(operand_gid);
-create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
-create index idx_fk_attrauthz_role on attributes_authz(role_id);
-create index idx_fk_attrauthz_attr on attributes_authz(attr_id);
 create index idx_fk_attrpol_role on attribute_policies(role_id);
 create index idx_fk_attrpol_colid on attribute_policies(policy_collection_id);
 create index idx_fk_attrpolcol_attr on attribute_policy_collections(attr_id);
@@ -1972,8 +1947,6 @@ grant all on pn_regex_object to perun;
 grant all on specific_user_users to perun;
 grant all on groups_groups to perun;
 grant all on vos_vos to perun;
-grant all on action_types to perun;
-grant all on attributes_authz to perun;
 grant all on attribute_policies to perun;
 grant all on attribute_policy_collections to perun;
 grant all on res_tags to perun;
@@ -1999,19 +1972,11 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.28');
+insert into configurations values ('DATABASE VERSION','3.2.29');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
-
--- insert action types
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read_vo', 'Vo related can read value.');
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read_public', 'Anyone can read value.');
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write', 'Can write, rewrite and remove value.');
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_vo', 'Vo related can write, rewrite and remove value.');
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_public', 'Anyone can write, rewrite and remove value.');
 
 -- init default auditer consumers
 insert into auditer_consumers (id, name, last_processed_id) values (nextval('auditer_consumers_id_seq'), 'dispatcher', 0);

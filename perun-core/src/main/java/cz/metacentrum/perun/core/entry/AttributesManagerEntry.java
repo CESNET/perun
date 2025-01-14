@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
-import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributeRules;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -2491,22 +2490,6 @@ public class AttributesManagerEntry implements AttributesManager {
     }
 
     return getAttributesManagerBl().getAttributePolicyCollections(sess, attributeId);
-  }
-
-  @Override
-  @Deprecated
-  public List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId)
-      throws PrivilegeException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-    // so as we can check, if the attribute exists
-    getAttributeDefinitionById(sess, attributeId);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getAttributeRights_int_policy")) {
-      throw new PrivilegeException("getAttributeRights");
-    }
-
-    return getAttributesManagerBl().getAttributeRights(sess, attributeId);
   }
 
   @Override
@@ -6043,28 +6026,6 @@ public class AttributesManagerEntry implements AttributesManager {
     }
 
     getAttributesManagerBl().setAttributePolicyCollections(sess, policyCollections);
-  }
-
-  @Override
-  @Deprecated
-  public void setAttributeRights(PerunSession sess, List<AttributeRights> rights)
-      throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException {
-    Utils.checkPerunSession(sess);
-    // so as we can check, if the attributes exist
-    for (AttributeRights attributeright : rights) {
-      if (!AuthzResolver.roleExists(attributeright.getRole())) {
-        throw new RoleNotSupportedException("Role: " + attributeright.getRole() + " does not exists.",
-            attributeright.getRole());
-      }
-      getAttributeDefinitionById(sess, attributeright.getAttributeId());
-    }
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "setAttributeRights_List<AttributeRights>_policy")) {
-      throw new PrivilegeException("setAttributeRights");
-    }
-
-    getAttributesManagerBl().setAttributeRights(sess, rights);
   }
 
   @Override

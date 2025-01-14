@@ -15,13 +15,11 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
-import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.BlockedLogin;
@@ -795,38 +793,6 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
           assertEquals(Role.GROUPADMIN, ap.getRole());
           assertEquals(RoleObject.Group, ap.getObject());
         }
-      }
-    }
-  }
-
-  @Test
-  @Deprecated
-  @Ignore
-  public void getAttributeRights() throws Exception {
-    System.out.println(CLASS_NAME + "getAttributeRights");
-
-    // setting rights
-    List<ActionType> listOfActions = new ArrayList<>();
-    listOfActions.add(ActionType.WRITE);
-    listOfActions.add(ActionType.READ);
-    List<AttributeRights> rights = new ArrayList<>();
-    rights.add(new AttributeRights(1, Role.VOADMIN, listOfActions));
-    rights.add(new AttributeRights(1, Role.SELF, new ArrayList<>()));
-    perun.getAttributesManager().setAttributeRights(sess, rights);
-
-    // getting rights
-    rights.clear();
-    rights = perun.getAttributesManager().getAttributeRights(sess, 1);
-    assertTrue("list of rights should have 4 items for each role", rights.size() == 4);
-    for (AttributeRights attributeRights : rights) {
-      if (attributeRights.getRole().equals(Role.VOADMIN)) {
-        assertTrue("our attribute 1 should have right READ for VOADMIN",
-            attributeRights.getRights().contains(ActionType.READ));
-        assertTrue("our attribute 1 should have right WRITE for VOADMIN",
-            attributeRights.getRights().contains(ActionType.WRITE));
-      }
-      if (attributeRights.getRole().equals(Role.SELF)) {
-        assertTrue("our attribute 1 should not have rights for SELF", attributeRights.getRights().isEmpty());
       }
     }
   }
@@ -11690,44 +11656,6 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     assertThrows("Should throw exception when invalid role assigned", RoleObjectCombinationInvalidException.class,
         () -> perun.getAttributesManager().setAttributePolicyCollections(sess, policyCollections));
 
-  }
-
-  @Test
-  @Deprecated
-  @Ignore
-  public void setAttributeRights() throws Exception {
-    System.out.println(CLASS_NAME + "setAttributeRights");
-    List<ActionType> listOfActions = new ArrayList<>();
-    listOfActions.add(ActionType.WRITE);
-    listOfActions.add(ActionType.READ);
-    List<AttributeRights> rights = new ArrayList<>();
-    rights.add(new AttributeRights(1, Role.VOADMIN, listOfActions));
-    listOfActions.clear();
-    listOfActions.add(ActionType.READ);
-    rights.add(new AttributeRights(1, Role.SELF, listOfActions));
-    perun.getAttributesManager().setAttributeRights(sess, rights);
-
-    listOfActions.clear();
-    rights.clear();
-    listOfActions.add(ActionType.WRITE);
-    rights.add(new AttributeRights(1, Role.VOADMIN, new ArrayList<>()));
-    rights.add(new AttributeRights(1, Role.SELF, listOfActions));
-    perun.getAttributesManager().setAttributeRights(sess, rights);
-
-    rights.clear();
-    rights = perun.getAttributesManager().getAttributeRights(sess, 1);
-
-    for (AttributeRights attributeRights : rights) {
-      if (attributeRights.getRole().equals(Role.SELF)) {
-        assertTrue("our attribute 1 should not have right READ for VOADMIN",
-            !(attributeRights.getRights().contains(ActionType.READ)));
-        assertTrue("our attribute 1 should have right WRITE for VOADMIN",
-            attributeRights.getRights().contains(ActionType.WRITE));
-      }
-      if (attributeRights.getRole().equals(Role.VOADMIN)) {
-        assertTrue("our attribute 1 should not have rights for VOADMIN", attributeRights.getRights().isEmpty());
-      }
-    }
   }
 
   /**
