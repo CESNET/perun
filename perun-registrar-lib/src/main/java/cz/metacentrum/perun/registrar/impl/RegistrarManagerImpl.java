@@ -77,6 +77,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MfaPrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.MfaRoleTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.MfaTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.MissingSubmitButtonException;
 import cz.metacentrum.perun.core.api.exceptions.MultipleApplicationFormItemsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.OpenApplicationExistsException;
@@ -415,6 +416,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
   private static final RowMapper<ApplicationFormItem.ItemTexts> ITEM_TEXTS_MAPPER =
       (resultSet, i) -> new ItemTexts(new Locale(resultSet.getString("locale")), resultSet.getString("label"),
           resultSet.getString("options"), resultSet.getString("help"), resultSet.getString("error_message"));
+  private static final Set<ApplicationFormItem.Type> NON_INPUT_FORM_ITEM_TYPES =
+          Set.of(HTML_COMMENT, HEADING, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
+  private static final Set<ApplicationFormItem.Type> SUBMIT_FORM_ITEM_TYPES = Set.of(SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
   @Autowired
   PerunBl perun;
   @Autowired
@@ -1636,6 +1640,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
     Map<Integer, Integer> oldToNewIDs = new HashMap<>();
 
     if (idempotent) {
+      if (!validateSubmitButtonPresence(items)) {
+        throw new MissingSubmitButtonException(
+                "Application form contains at least one input field, but no submit or auto-submit button.");
+      }
       List<ApplicationFormItem> oldItems = getFormItems(sess, toForm);
       for (ApplicationFormItem item : oldItems) {
         item.setForDelete(true);
@@ -1644,6 +1652,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
     } else {
       List<ApplicationFormItem> bothItems = new ArrayList<>(items);
       bothItems.addAll(registrarManager.getFormItems(sess, toForm));
+      if (!validateSubmitButtonPresence(bothItems)) {
+        throw new MissingSubmitButtonException(
+                "Application form contains at least one input field, but no submit or auto-submit button.");
+      }
       if (countEmbeddedGroupFormItems(bothItems) > 1) {
         throw new MultipleApplicationFormItemsException(
             "Multiple definitions of embedded groups. Only one definition is allowed.");
@@ -1681,6 +1693,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     return counter;
+  }
+
+  /**
+   * Checks if submit or auto-submit button are either not required, or present if required.
+   *
+   * @param items list of ApplicationFormItems being checked
+   * @return true if submit or auto-submit button is either not required, or present. False otherwise
+   */
+  private boolean validateSubmitButtonPresence(List<ApplicationFormItem> items) {
+    boolean containsInputTypeItems = false;
+
+    for (ApplicationFormItem item : items) {
+      if (item.isForDelete() || (item.getDisabled() == ApplicationFormItem.Disabled.ALWAYS)) {
+        continue;
+      }
+      ApplicationFormItem.Type itemType = item.getType();
+      if (!NON_INPUT_FORM_ITEM_TYPES.contains(itemType)) {
+        containsInputTypeItems = true;
+      }
+      if (SUBMIT_FORM_ITEM_TYPES.contains(itemType) && (item.getHidden() != ApplicationFormItem.Hidden.ALWAYS)) {
+        return true;
+      }
+    }
+
+    return !containsInputTypeItems;
   }
 
   @Override
@@ -5801,6 +5838,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
     if (countEmbeddedGroupFormItems(items) > 1) {
       throw new MultipleApplicationFormItemsException(
           "Multiple definitions of embedded groups. Only one definition is allowed.");
+    }
+
+    if (!validateSubmitButtonPresence(items)) {
+      throw new MissingSubmitButtonException(
+          "Application form contains at least one input field, but no submit or auto-submit button.");
     }
 
     if (items.stream().filter(i -> i.getId() > 0)
