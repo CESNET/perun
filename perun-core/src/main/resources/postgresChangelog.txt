@@ -6,6 +6,15 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.29
+DROP TABLE IF EXISTS attributes_authz;
+DROP TABLE IF EXISTS action_types;
+DROP SEQUENCE IF EXISTS action_types_seq;
+DROP INDEX IF EXISTS idx_fk_attrauthz_actiontyp;
+DROP INDEX IF EXISTS idx_fk_attrauthz_role;
+DROP INDEX IF EXISTS idx_fk_attrauthz_attr;
+UPDATE configurations SET value='3.2.29' WHERE property='DATABASE VERSION';
+
 3.2.28
 DROP TABLE IF EXISTS blacklists;
 ALTER TABLE authz ADD COLUMN IF NOT EXISTS security_team_id INTEGER;

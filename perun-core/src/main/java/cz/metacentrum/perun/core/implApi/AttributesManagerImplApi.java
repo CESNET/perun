@@ -4,12 +4,10 @@
 
 package cz.metacentrum.perun.core.implApi;
 
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
-import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -24,7 +22,6 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -205,17 +202,6 @@ public interface AttributesManagerImplApi {
    * @throws InternalErrorException
    */
   void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute);
-
-  /**
-   * Check if actionType exists in underlaying data source.
-   *
-   * @param sess       perun session
-   * @param actionType actionType to check
-   * @throws InternalErrorException       if unexpected error occured
-   * @throws ActionTypeNotExistsException if attriobute doesn't exists
-   */
-  @Deprecated
-  void checkActionTypeExists(PerunSession sess, ActionType actionType) throws ActionTypeNotExistsException;
 
   /**
    * Check if attribute exists in underlaying data source.
@@ -638,17 +624,6 @@ public interface AttributesManagerImplApi {
    */
   List<RichMember> decorateMembersWithDefOptUserAttributes(PerunSession sess, List<RichMember> members,
                                                            List<String> userAttrNames);
-
-  /**
-   * Delete all authz for the attribute.
-   *
-   * @param sess
-   * @param attribute the attribute
-   * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in
-   *                                InternalErrorExceptions
-   */
-  @Deprecated
-  void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute);
 
   /**
    * Deletes the attribute. Definition and all values.
@@ -1209,19 +1184,6 @@ public interface AttributesManagerImplApi {
    * @throws InternalErrorException
    */
   List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId);
-
-  /**
-   * Gets attribute rights of an attribute with id given as a parameter. If the attribute has no rights for a role, it
-   * returns empty list. That means the returned list has always 4 items for each of the roles VOADMIN, FACILITYADMIN,
-   * GROUPADMIN, SELF. Info: not return rights for role VoObserver (could be same like read rights for VoAdmin)
-   *
-   * @param sess        perun session
-   * @param attributeId id of the attribute
-   * @return all rights of the attribute
-   * @throws InternalErrorException
-   */
-  @Deprecated
-  List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId);
 
   /**
    * Get all <b>non-empty</b> attributes associated with the facility.
@@ -2772,18 +2734,6 @@ public interface AttributesManagerImplApi {
    * @throws InternalErrorException
    */
   void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections);
-
-  /**
-   * Sets attribute right given as a parameter. The method sets the rights for attribute and role exactly as it is given
-   * in the list of action types. That means it can remove a right, if the right is missing in the list. Info: If there
-   * is role VoAdmin in the list, use it for setting also VoObserver rights (only for read) automatic
-   *
-   * @param sess  perun session
-   * @param right attribute right
-   * @throws InternalErrorException
-   */
-  @Deprecated
-  void setAttributeRight(PerunSession sess, AttributeRights right);
 
   /**
    * Set entityless attribute with null value (for key and attribute). Shouldn't be called from upper layer !!!

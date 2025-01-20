@@ -13,8 +13,6 @@ import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_MAPPING_SELEC
 import static cz.metacentrum.perun.core.impl.VosManagerImpl.VO_MAPPER;
 import static cz.metacentrum.perun.core.impl.VosManagerImpl.VO_MAPPING_SELECT_QUERY;
 
-import cz.metacentrum.perun.core.api.ActionType;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -56,7 +54,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
@@ -177,38 +174,6 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
       }
     }
     return nameBuilder.toString();
-  }
-
-  @Deprecated
-  public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(ActionType actionType,
-                                                                               AttributeDefinition attrDef) {
-    String actType = actionType.getActionType().toLowerCase() + "%";
-    try {
-      List<Pair<String, ActionType>> pairs = jdbc.query(
-          "select distinct roles.name, action_types.action_type from attributes_authz " +
-              "join roles on attributes_authz.role_id=roles.id " +
-              "join action_types on attributes_authz.action_type_id=action_types.id " +
-              "where attributes_authz.attr_id=? and action_types.action_type like ?",
-          (rs, arg1) -> new Pair<>(rs.getString("name").toUpperCase(),
-              ActionType.valueOf(rs.getString("action_type").toUpperCase())), attrDef.getId(), actType);
-
-      Map<String, Set<ActionType>> result = new HashMap<>();
-      for (Pair<String, ActionType> pair : pairs) {
-        if (result.containsKey(pair.getLeft())) {
-          result.get(pair.getLeft()).add(pair.getRight());
-        } else {
-          Set<ActionType> rights = new HashSet<>();
-          rights.add(pair.getRight());
-          result.put(pair.getLeft(), rights);
-        }
-      }
-      return result;
-
-    } catch (EmptyResultDataAccessException e) {
-      return new HashMap<>();
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
   }
 
   /**

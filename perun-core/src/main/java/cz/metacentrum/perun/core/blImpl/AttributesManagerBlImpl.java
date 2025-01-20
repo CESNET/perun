@@ -31,7 +31,6 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllGroupResourc
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllMemberResourceAttributesRemovedForMembers;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllUserFacilityAttributesRemoved;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllUserFacilityAttributesRemovedForFacilitiesAndUser;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeAuthzDeleted;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeCreated;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeDeleted;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributePolicyCollectionSet;
@@ -48,7 +47,6 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemove
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUes;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForVo;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRightsSet;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForFacility;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForFacilityAndUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForGroup;
@@ -64,13 +62,11 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetFor
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForVo;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeUpdated;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.FacilityAllAttributesRemoved;
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
-import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributeRules;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -94,7 +90,6 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
@@ -247,12 +242,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       attributes.add(new Attribute(attributeDefinition));
     }
     return attributes;
-  }
-
-  @Override
-  @Deprecated
-  public void checkActionTypeExists(PerunSession sess, ActionType actionType) throws ActionTypeNotExistsException {
-    getAttributesManagerImpl().checkActionTypeExists(sess, actionType);
   }
 
   public void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler)
@@ -1946,13 +1935,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   }
 
   @Override
-  @Deprecated
-  public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) {
-    getPerunBl().getAuditer().log(sess, new AttributeAuthzDeleted(attribute));
-    getAttributesManagerImpl().deleteAllAttributeAuthz(sess, attribute);
-  }
-
-  @Override
   public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws RelationExistsException {
     //Check relation to services' required attributes
     List<Service> relatedServices =
@@ -1984,9 +1966,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
                                             })
                                                 .toList());
     }
-
-    // Remove all values
-    this.deleteAllAttributeAuthz(sess, attribute);
     // Free logins for login-namespace attribute
     if (attribute.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
       // Free blocked logins
@@ -1994,7 +1973,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
       // Free reserved logins
       getPerunBl().getUsersManagerBl().deleteReservedLoginsForNamespace(sess, attribute.getFriendlyNameParameter());
     }
-    // Delete attribute
+    // Delete attribute along with related authorization records (attribute policies)
     getAttributesManagerImpl().deleteAttribute(sess, attribute);
     getPerunBl().getAuditer().log(sess, new AttributeDeleted(attribute));
 
@@ -3055,19 +3034,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   @Override
   public List<AttributePolicyCollection> getAttributePolicyCollections(PerunSession sess, int attributeId) {
     return getAttributesManagerImpl().getAttributePolicyCollections(sess, attributeId);
-  }
-
-  @Override
-  @Deprecated
-  public List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) {
-    List<AttributeRights> listOfAr = getAttributesManagerImpl().getAttributeRights(sess, attributeId);
-
-    //Do not return VoObsever rights by this method
-    if (listOfAr != null) {
-      listOfAr.removeIf(ar -> ar.getRole().equals(Role.VOOBSERVER));
-    }
-
-    return listOfAr;
   }
 
   @Override
@@ -12118,28 +12084,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     getAttributesManagerImpl().setAttributePolicyCollections(sess, policyCollections);
     for (AttributePolicyCollection apc : policyCollections) {
       getPerunBl().getAuditer().log(sess, new AttributePolicyCollectionSet(apc));
-    }
-  }
-
-  @Override
-  @Deprecated
-  public void setAttributeRights(PerunSession sess, List<AttributeRights> rights) {
-    for (AttributeRights right : rights) {
-      getAttributesManagerImpl().setAttributeRight(sess, right);
-      getPerunBl().getAuditer().log(sess, new AttributeRightsSet(right));
-
-      //If these rights are for VoAdmin, do the same for VoObserver but only for READ privilegies
-      if (right.getRole().equals(Role.VOADMIN)) {
-        List<ActionType> onlyReadActionType = new ArrayList<>();
-        if (right.getRights().contains(ActionType.READ)) {
-          onlyReadActionType.add(ActionType.READ);
-        }
-        right.setRights(onlyReadActionType);
-        right.setRole(Role.VOOBSERVER);
-        //Rights are now set for VoObserver with read privilegies on the same attribute like VoAdmin
-        getAttributesManagerImpl().setAttributeRight(sess, right);
-        getPerunBl().getAuditer().log(sess, new AttributeRightsSet(right));
-      }
     }
   }
 
