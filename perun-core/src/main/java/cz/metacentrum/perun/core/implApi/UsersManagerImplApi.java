@@ -953,6 +953,16 @@ public interface UsersManagerImplApi {
   UUID requestPreferredEmailChange(PerunSession sess, User user, String email);
 
   /**
+   * Similarity substring search in all users based on fullname, login attributes and optionally ID
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @param includeIDs whether to search in IDs as well, used for PERUNADMINs
+   * @return list of matched users
+   */
+  List<User> searchForUsers(PerunSession sess, String searchString, boolean includeIDs);
+
+  /**
    * Set flag for specific user type for the user.
    *
    * @param sess

@@ -20,6 +20,7 @@
         <property name="userDeletionForced" value="${perun.user.deletion.forced}"/>
         <property name="forceConsents" value="${perun.force.consents}"/>
         <property name="archiveSpool" value="${perun.archiveSpool}"/>
+        <property name="globalSearchLimit" value="${perun.globalSearchLimit}"/>
         <property name="requestUserInfoEndpoint" value="${perun.requestUserInfoEndpoint}"/>
         <property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
         <property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
@@ -132,6 +133,7 @@
                 <prop key="perun.user.deletion.forced">false</prop>
                 <prop key="perun.force.consents">false</prop>
                 <prop key="perun.archiveSpool">false</prop>
+                <prop key="perun.globalSearchLimit">4</prop>
                 <prop key="perun.requestUserInfoEndpoint">false</prop>
                 <prop key="perun.group.synchronization.interval">1</prop>
                 <prop key="perun.group.synchronization.timeout">10</prop>

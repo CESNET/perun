@@ -1301,6 +1301,16 @@ public class VosManagerBlImpl implements VosManagerBl {
   }
 
   @Override
+  public List<Vo> searchForVos(PerunSession sess, String searchString, boolean includeIDs) {
+    return vosManagerImpl.searchForVos(sess, searchString, includeIDs);
+  }
+
+  @Override
+  public List<Vo> searchForVos(PerunSession sess, String searchString, Set<Integer> voIds, boolean includeIDs) {
+    return vosManagerImpl.searchForVos(sess, searchString, voIds, includeIDs);
+  }
+
+  @Override
   public BanOnVo setBan(PerunSession sess, BanOnVo banOnVo) throws MemberNotExistsException, BanAlreadyExistsException {
     Utils.notNull(banOnVo, "banOnVo");
 

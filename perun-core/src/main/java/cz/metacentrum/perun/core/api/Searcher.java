@@ -233,4 +233,31 @@ public interface Searcher {
   List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues)
       throws AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException,
                  WrongAttributeValueException;
+
+  /**
+   * Similarity substring search in users, VOs, groups and facilities.
+   * The amount of results is limited bt the globalSearchLimit CoreConfig property
+   * Searches in the following priority by the following fields:
+   *    Users - fullname, logins   PERUNADMIN ONLY
+   *    Vos - shortname, name
+   *    Groups - name, description
+   *    Facilities - name, descriptin
+   * If called by PERUNADMIN, also searches by id in each entity
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @return map with lists of matched entities. The keys are `users`, `vos`, `groups`, `facilities`
+   *      and values are lists containing the matched objects
+   */
+  Map<String, List<PerunBean>> globalSearch(PerunSession sess, String searchString) throws PrivilegeException;
+
+  /**
+   * Performs exact match on ID for user, VO, group and facility.
+   * Use this method only when the search string is shorter than 3 digits, use other globalSearch methods otherwise.
+   * @param sess session
+   * @param searchId id to search for
+   * @return map with lists of matched entities. The keys are `users`, `vos`, `groups`, `facilities`
+   *     and values are lists containing the matched objects
+   */
+  Map<String, List<PerunBean>> globalSearchIDOnly(PerunSession sess, int searchId) throws PrivilegeException;
 }

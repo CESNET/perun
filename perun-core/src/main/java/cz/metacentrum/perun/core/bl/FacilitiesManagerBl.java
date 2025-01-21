@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
@@ -1028,6 +1029,28 @@ public interface FacilitiesManagerBl {
    */
   @Deprecated
   void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyRemovedException;
+
+  /**
+   * Similarity substring search in all facilities based on name, description and optionally ID
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @param includeIDs whether to search in IDs as well, used for PERUNADMINs
+   * @return list of matched facilities
+   */
+  List<Facility> searchForFacilities(PerunSession sess, String searchString, boolean includeIDs);
+
+  /**
+   * Similarity substring search in provided facilities based on name, description and optionally ID
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @param facilityIds IDs of facilities to perform the search in
+   * @param includeIDs whether to search in IDs as well, used for PERUNADMINs
+   * @return list of matched facilities
+   */
+  List<Facility> searchForFacilities(PerunSession sess, String searchString, Set<Integer> facilityIds,
+                                     boolean includeIDs);
 
   /**
    * Set ban for user on facility

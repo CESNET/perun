@@ -20026,6 +20026,21 @@ paths:
                   additionalProperties:
                     type: string
 
+  /json/searcher/globalSearch:
+    get:
+      tags:
+        - Searcher
+      operationId: globalSearch
+      summary: Performs global search
+      parameters:
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringListOfPerunBeanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   #################################################
   #                                               #
   # ConsentsManager                               #

@@ -3,22 +3,31 @@ package cz.metacentrum.perun.core.blImpl;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -457,6 +466,115 @@ public class SearcherBlImpl implements SearcherBl {
   @Override
   public List<Integer> getVosIdsForAppAutoRejection() {
     return getSearcherImpl().getVosIdsForAppAutoRejection();
+  }
+
+  @Override
+  public Map<String, List<PerunBean>> globalSearch(PerunSession sess, String searchString) {
+    Map<String, List<PerunBean>> result = new HashMap<>();
+    Map<String, Set<Integer>> idsMap;
+    try {
+      // retrieve ids of VOs user has access to
+      // idsMap = AuthzResolverBlImpl.getObjectsForGlobalSearch(sess, "getVoById_int_policy");
+      idsMap = AuthzResolverBlImpl.getObjectsForGlobalSearch(sess, "filter-getVos_policy");
+    } catch (PolicyNotExistsException e) {
+      throw new InternalErrorException("filter-getVos_policy should exist");
+    }
+    // null means user has role which has access to any VO, search in all VOs
+    if (idsMap == null) {
+      result.put("vos", perunBl.getVosManagerBl().searchForVos(sess, searchString, false)
+                            .stream().map(PerunBean.class::cast).toList());
+    } else {
+      Set<Integer> voIds = idsMap.get("Vo");
+      if (voIds != null && !voIds.isEmpty()) {
+        // search only in VOs user has access to
+        result.put("vos", perunBl.getVosManagerBl().searchForVos(sess, searchString, voIds, false)
+                              .stream().map(PerunBean.class::cast).toList());
+      }
+    }
+
+    try {
+      // retrieve ids of Groups user has access to and VOs of which user has access to groups
+      idsMap = AuthzResolverBlImpl.getObjectsForGlobalSearch(sess, "filter-getGroups_Vo_policy");
+    } catch (PolicyNotExistsException e) {
+      throw new InternalErrorException("filter-getGroups_Vo_policy should exist");
+    }
+    // null means user has role which has access to any Group, search in all Groups
+    if (idsMap == null) {
+      result.put("groups", perunBl.getGroupsManagerBl().searchForGroups(sess, searchString, false)
+                               .stream().map(PerunBean.class::cast).toList());
+    } else {
+      Set<Integer> voIds = idsMap.get("Vo");
+      Set<Integer> groupIds = idsMap.get("Group");
+      if ((voIds != null && !voIds.isEmpty()) || (groupIds != null && !groupIds.isEmpty())) {
+        // search only in Groups user has access to
+        result.put("groups", perunBl.getGroupsManagerBl().searchForGroups(sess, searchString,  groupIds, voIds, false)
+                                 .stream().map(PerunBean.class::cast).toList());
+      }
+    }
+
+    try {
+      // retrieve ids of Facilities user has access to
+      idsMap = AuthzResolverBlImpl.getObjectsForGlobalSearch(sess, "filter-getFacilities_policy");
+    } catch (PolicyNotExistsException e) {
+      throw new InternalErrorException("filter-getFacilities_policy should exist");
+    }
+    // null means user has role which has access to any Facility, search in all Facilities
+    if (idsMap == null) {
+      result.put("facilities", perunBl.getFacilitiesManagerBl().searchForFacilities(sess, searchString, false)
+                                   .stream().map(PerunBean.class::cast).toList());
+    } else {
+      Set<Integer> facilityIds = idsMap.get("Facility");
+      if (facilityIds != null && !facilityIds.isEmpty()) {
+        // search only in VOs user has access to
+        result.put("facilities", perunBl.getFacilitiesManagerBl().searchForFacilities(sess, searchString, facilityIds,
+            false).stream().map(PerunBean.class::cast).toList());
+      }
+    }
+
+    return result;
+  }
+
+  public Map<String, List<PerunBean>> globalSearchIDOnly(PerunSession sess, int searchId) {
+    Map<String, List<PerunBean>> result = new HashMap<>();
+
+    try {
+      result.put("users", List.of(perunBl.getUsersManagerBl().getUserById(sess, searchId)));
+    } catch (UserNotExistsException e) {
+      result.put("users", new ArrayList<>());
+    }
+
+    try {
+      result.put("vos", List.of(perunBl.getVosManagerBl().getVoById(sess, searchId)));
+    } catch (VoNotExistsException e) {
+      result.put("vos", new ArrayList<>());
+    }
+
+    try {
+      result.put("groups", List.of(perunBl.getGroupsManagerBl().getGroupById(sess, searchId)));
+    } catch (GroupNotExistsException e) {
+      result.put("groups", new ArrayList<>());
+    }
+
+    try {
+      result.put("facilities", List.of(perunBl.getFacilitiesManagerBl().getFacilityById(sess, searchId)));
+    } catch (FacilityNotExistsException e) {
+      result.put("facilities", new ArrayList<>());
+    }
+    return result;
+  }
+
+  @Override
+  public Map<String, List<PerunBean>> globalSearchPerunAdmin(PerunSession sess, String searchString) {
+    Map<String, List<PerunBean>> result = new HashMap<>();
+    result.put("users", perunBl.getUsersManagerBl().searchForUsers(sess, searchString, true)
+                            .stream().map(PerunBean.class::cast).toList());
+    result.put("vos", perunBl.getVosManagerBl().searchForVos(sess, searchString, true)
+                          .stream().map(PerunBean.class::cast).toList());
+    result.put("groups", perunBl.getGroupsManagerBl().searchForGroups(sess, searchString, true)
+                             .stream().map(PerunBean.class::cast).toList());
+    result.put("facilities", perunBl.getFacilitiesManagerBl().searchForFacilities(sess, searchString, true)
+                                .stream().map(PerunBean.class::cast).toList());
+    return result;
   }
 
   /**

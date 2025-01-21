@@ -154,6 +154,8 @@ public class Utils {
   public static final Pattern S3_PATTERN = Pattern.compile(
       "^(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;()*$']+)/([-a-zA-Z0-9+&@#%?=~_|!:,.;()*$'']+)$");
   public static final Pattern URL_JSON_PATTERN = URL_PATTERN;
+  // set this to +1 than the displayed amount in GUI
+  public static final int GLOBAL_SEARCH_LIMIT = BeansUtils.getCoreConfig().getGlobalSearchLimit();
 
   /**
    * Integer row mapper

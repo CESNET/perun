@@ -2,9 +2,11 @@ package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -15,6 +17,7 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public enum SearcherMethod implements ManagerMethod {
 
@@ -197,6 +200,37 @@ public enum SearcherMethod implements ManagerMethod {
         return ac.getSearcher()
             .getResources(ac.getSession(), parms.read("attributesWithSearchingValues", LinkedHashMap.class), false);
       }
+    }
+  },
+
+  /*#
+   * Similarity substring search in users, VOs, groups and facilities.
+   * The amount of results is limited bt the globalSearchLimit CoreConfig property
+   * Searches in the following priority by the following fields:
+   *    Users - fullname, logins   PERUNADMIN ONLY
+   *    Vos - shortname, name
+   *    Groups - name, description
+   *    Facilities - name, descriptin
+   *
+   * If called by PERUNADMIN, also searches by id in each entity. The ids are exact matched
+   * Should the string be shorter than 3 characters and is a number solely an ID search will be executed
+   *
+   * @param searchString Text to search by
+   * @return map with lists of matched entities. The keys are `users`, `vos`, `groups`, `facilities`
+   *      and values are lists containing the matched objects
+   */
+  globalSearch {
+    @Override
+    public Map<String, List<PerunBean>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      String searchString = parms.readString("searchString");
+      if (searchString.length() < 3) {
+        try {
+          return ac.getSearcher().globalSearchIDOnly(ac.getSession(), Integer.parseInt(searchString));
+        } catch (NumberFormatException e) {
+          throw new IllegalArgumentException("searchString has to be an integer when searching under 3 characters");
+        }
+      }
+      return ac.getSearcher().globalSearch(ac.getSession(), parms.readString("searchString"));
     }
   };
 }

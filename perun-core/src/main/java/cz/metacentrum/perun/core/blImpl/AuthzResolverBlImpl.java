@@ -890,6 +890,48 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     return new ArrayList<>(members);
   }
 
+  public static Map<String, Set<Integer>> getObjectsForGlobalSearch(PerunSession sess, String filterPolicy)
+      throws PolicyNotExistsException {
+    refreshAuthz(sess);
+    List<PerunPolicy> allPolicies = AuthzResolverImpl.fetchPolicyWithAllIncludedPolicies(filterPolicy);
+
+    List<Map<String, String>> policyRoles = new ArrayList<>();
+    for (PerunPolicy policy : allPolicies) {
+      policyRoles.addAll(policy.getPerunRoles());
+    }
+    return extractObjectIDsMatchingPolicy(sess, policyRoles);
+  }
+
+  private static Map<String, Set<Integer>> extractObjectIDsMatchingPolicy(PerunSession sess,
+                                                                          List<Map<String, String>> policyRoles) {
+    AuthzRoles userRoles = sess.getPerunPrincipal().getRoles();
+    Map<String, Set<Integer>> objectIDs = new HashMap<>();
+    for (Map<String, String> roleArray : policyRoles) {
+      //Traverse through inner role list which works like logical AND
+      Set<String> roleArrayKeys = roleArray.keySet();
+      for (String role : roleArrayKeys) {
+        //fetch the object which is connected with the role
+        String roleObject = roleArray.get(role);
+        // If policy role is not connected to any object
+        if (roleObject == null) {
+          if (userRoles.hasRole(role)) {
+            // Has access to any object, no need to list accessible
+            return null;
+          }
+        } else {
+          // add the IDs to a map which will then be used to retrieve objects
+          // only policy with multiple object types should be getGroupById
+          // make sure to include VO join in the search query
+          String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(roleObject);
+          if (userRoles.containsKey(role) && userRoles.get(role).containsKey(convertedBeanName)) {
+            objectIDs.put(roleObject, userRoles.get(role).get(convertedBeanName));
+          }
+        }
+      }
+    }
+    return objectIDs;
+  }
+
   private static PerunBl getPerunBl() {
     return perunBl;
   }

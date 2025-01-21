@@ -58,6 +58,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>Groups manager can do all work about groups in VOs.</p>
@@ -1973,6 +1974,31 @@ public interface GroupsManagerBl {
    * @throws InternalErrorException
    */
   boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group);
+
+  /**
+   * Similarity substring search in all groups based on name, shortname, description and optionally ID
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @param includeIDs whether to search in IDs as well, used for PERUNADMINs
+   * @return list of matched groups
+   */
+  List<Group> searchForGroups(PerunSession sess, String searchString, boolean includeIDs);
+
+  /**
+   * Similarity substring search in provided groups based on name, shortname, description and optionally ID.
+   * Performs the search also in all groups of the provided VOs.
+   * Returns an empty list if both groups/vo IDs are null or empty.
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @param groupIds IDs of groups to perform the search in. Ignore if empty
+   * @param voIds IDs of VOs to perform the search in. Ignore if empty
+   * @param includeIDs whether to search in IDs as well, used for PERUNADMINs
+   * @return list of matched groups
+   */
+  List<Group> searchForGroups(PerunSession sess, String searchString, Set<Integer> groupIds, Set<Integer> voIds,
+                              boolean includeIDs);
 
   /**
    * Suspend synchronizing groups and their structures.

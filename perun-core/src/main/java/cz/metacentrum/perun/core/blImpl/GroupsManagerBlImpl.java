@@ -6520,6 +6520,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   }
 
   @Override
+  public List<Group> searchForGroups(PerunSession sess, String searchString, boolean includeIDs) {
+    return groupsManagerImpl.searchForGroups(sess, searchString, includeIDs);
+  }
+
+  @Override
+  public List<Group> searchForGroups(PerunSession sess, String searchString, Set<Integer> groupIds, Set<Integer> voIds,
+                                     boolean includeIDs) {
+    return groupsManagerImpl.searchForGroups(sess, searchString, groupIds, voIds, includeIDs);
+  }
+
+  @Override
   public void suspendGroupSynchronization(PerunSession sess, boolean suspend) {
     groupsManagerImpl.suspendGroupSynchronization(sess, suspend);
   }
