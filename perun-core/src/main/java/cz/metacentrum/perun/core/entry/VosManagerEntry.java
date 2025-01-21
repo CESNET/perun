@@ -460,6 +460,8 @@ public class VosManagerEntry implements VosManager {
 
     getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
+    searchString = searchString.trim();
+
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "getCompleteCandidates_Vo_List<String>_String_policy", vo)) {
       throw new PrivilegeException(sess, "getCompleteCandidates");
@@ -482,6 +484,8 @@ public class VosManagerEntry implements VosManager {
     Utils.notNull(attrNames, "attrNames");
 
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+    searchString = searchString.trim();
 
     List<ExtSource> extSources;
 

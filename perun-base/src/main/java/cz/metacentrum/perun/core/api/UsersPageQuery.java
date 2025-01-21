@@ -31,7 +31,7 @@ public class UsersPageQuery extends PageQuery {
                         String searchString) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public UsersPageQuery(int pageSize, int offset, SortingOrder order, UsersOrderColumn sortColumn, boolean withoutVo) {
@@ -44,7 +44,7 @@ public class UsersPageQuery extends PageQuery {
                         boolean withoutVo) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.withoutVo = withoutVo;
   }
 
@@ -52,7 +52,7 @@ public class UsersPageQuery extends PageQuery {
                         Integer facilityId) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.facilityId = facilityId;
   }
 
@@ -60,7 +60,7 @@ public class UsersPageQuery extends PageQuery {
                         Integer facilityId, boolean onlyAllowed) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.facilityId = facilityId;
     this.onlyAllowed = onlyAllowed;
   }
@@ -69,7 +69,7 @@ public class UsersPageQuery extends PageQuery {
                         Integer facilityId, Integer voId, Integer serviceId, Integer resourceId) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.facilityId = facilityId;
     this.serviceId = serviceId;
     this.voId = voId;
@@ -80,7 +80,7 @@ public class UsersPageQuery extends PageQuery {
                         Integer facilityId, Integer voId, Integer serviceId, Integer resourceId, boolean onlyAllowed) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.facilityId = facilityId;
     this.serviceId = serviceId;
     this.voId = voId;
@@ -93,7 +93,7 @@ public class UsersPageQuery extends PageQuery {
                         List<ConsentStatus> consentStatuses) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.facilityId = facilityId;
     this.serviceId = serviceId;
     this.voId = voId;
@@ -178,7 +178,7 @@ public class UsersPageQuery extends PageQuery {
   }
 
   public void setSearchString(String searchString) {
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public Integer getServiceId() {

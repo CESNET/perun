@@ -805,6 +805,8 @@ public class MembersManagerEntry implements MembersManager {
 
     perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
+    searchString = searchString.trim();
+
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Vo_List<String>_String_policy", vo)) {
       throw new PrivilegeException(sess, "findCompleteRichMembers");
@@ -822,6 +824,8 @@ public class MembersManagerEntry implements MembersManager {
 
     perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
+    searchString = searchString.trim();
+
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Vo_List<String>_List<String>_String_policy",
         vo)) {
@@ -837,6 +841,8 @@ public class MembersManagerEntry implements MembersManager {
                                                   List<String> allowedStatuses, String searchString)
       throws PrivilegeException {
     Utils.checkPerunSession(sess);
+
+    searchString = searchString.trim();
 
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_List<String>_List<String>_String_policy")) {
@@ -882,6 +888,8 @@ public class MembersManagerEntry implements MembersManager {
 
     perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
+    searchString = searchString.trim();
+
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_String_boolean_policy",
         group)) {
@@ -901,6 +909,8 @@ public class MembersManagerEntry implements MembersManager {
     Utils.checkPerunSession(sess);
 
     perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+
+    searchString = searchString.trim();
 
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess,

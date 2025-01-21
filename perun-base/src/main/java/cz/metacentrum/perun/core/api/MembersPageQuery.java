@@ -27,14 +27,14 @@ public class MembersPageQuery extends PageQuery {
                           String searchString) {
     super(pageSize, offset, sortingOrder);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public MembersPageQuery(int pageSize, int offset, SortingOrder sortingOrder, MembersOrderColumn sortColumn,
                           String searchString, List<Status> statuses) {
     super(pageSize, offset, sortingOrder);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.statuses = statuses;
   }
 
@@ -50,7 +50,7 @@ public class MembersPageQuery extends PageQuery {
                           List<MemberGroupStatus> groupStatuses) {
     super(pageSize, offset, sortingOrder);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.statuses = statuses;
     this.groupId = groupId;
     this.groupStatuses = groupStatuses;
@@ -112,7 +112,7 @@ public class MembersPageQuery extends PageQuery {
   }
 
   public void setSearchString(String searchString) {
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public MembersOrderColumn getSortColumn() {
