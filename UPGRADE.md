@@ -1,5 +1,28 @@
 Upgrade notes
 
+## [47.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v46.1.0...v47.0.0) (2025-01-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** attributes_authz and action_types tables will be dropped on commit deploy.
+Removed all deprecated atttributes authorizaton methods.
+
+### Features
+
+* **registrar:** add application form submit button presence validation ([f901d51](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f901d51fe4a9c71e5a745f7f232d060263b3690c))
+
+
+### Bug Fixes
+
+* **core:** trim search string ([21f102d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/21f102d3e20796c821666d71cc07ee4e52055873))
+* support also remote DBs in scripts for v45.0.0 deployment ([b72b4a0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b72b4a0582cd6cef401d8285451855ca7bb92b3a))
+
+
+### Others
+
+* **core:** remove deprecated attributes authz logic ([bfe327f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bfe327f9d4dc8e3c6646a2ed2f586095a9ca2632))
+
 ## [46.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v46.0.0...v46.1.0) (2025-01-09)
 
 
