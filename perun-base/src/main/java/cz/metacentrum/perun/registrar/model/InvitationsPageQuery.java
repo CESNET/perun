@@ -30,7 +30,7 @@ public class InvitationsPageQuery extends PageQuery {
                               String searchString) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public InvitationsPageQuery(int pageSize, int offset, SortingOrder order, InvitationsOrderColumn sortColumn,
@@ -52,7 +52,7 @@ public class InvitationsPageQuery extends PageQuery {
                               String searchString, List<InvitationStatus> statuses) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.statuses = statuses;
   }
 
@@ -60,7 +60,7 @@ public class InvitationsPageQuery extends PageQuery {
                               String searchString, LocalDate expirationFrom, LocalDate expirationTo) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.expirationFrom = expirationFrom;
     this.expirationTo = expirationTo;
   }
@@ -80,7 +80,7 @@ public class InvitationsPageQuery extends PageQuery {
                               LocalDate expirationFrom, LocalDate expirationTo) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.statuses = statuses;
     this.expirationFrom = expirationFrom;
     this.expirationTo = expirationTo;
@@ -99,7 +99,7 @@ public class InvitationsPageQuery extends PageQuery {
   }
 
   public void setSearchString(String searchString) {
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public List<InvitationStatus> getStatuses() {

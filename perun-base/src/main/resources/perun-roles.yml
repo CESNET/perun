@@ -310,17 +310,6 @@ perun_policies:
       - MFA: Member
       - MFA: User
 
-  getAttributeRights_int_policy:
-    policy_roles:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  setAttributeRights_List<AttributeRights>_policy:
-    policy_roles: [ ]
-    include_policies:
-      - default_policy
-
   getAttributePolicyCollections_int_policy:
     policy_roles:
       - PERUNOBSERVER:

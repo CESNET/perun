@@ -32,14 +32,14 @@ public class BlockedLoginsPageQuery extends PageQuery {
                                 String searchString) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public BlockedLoginsPageQuery(int pageSize, int offset, SortingOrder order, BlockedLoginsOrderColumn sortColumn,
                                 String searchString, List<String> namespaces) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.namespaces = namespaces;
   }
 
@@ -82,7 +82,7 @@ public class BlockedLoginsPageQuery extends PageQuery {
   }
 
   public void setSearchString(String searchString) {
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public BlockedLoginsOrderColumn getSortColumn() {

@@ -28,7 +28,7 @@ public class GroupsPageQuery extends PageQuery {
                          String searchString) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public GroupsPageQuery(int pageSize, int offset, SortingOrder order, GroupsOrderColumn sortColumn,
@@ -122,7 +122,7 @@ public class GroupsPageQuery extends PageQuery {
   }
 
   public void setSearchString(String searchString) {
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public GroupsOrderColumn getSortColumn() {

@@ -181,6 +181,8 @@ public class SearcherEntry implements Searcher {
       return perunBl.getMembersManagerBl().getMembers(sess, vo);
     }
 
+    attributesWithSearchingValues.replaceAll((attribute, value) -> value.trim());
+
     Set<String> attrNames = attributesWithSearchingValues.keySet();
     for (String attrName : attrNames) {
       if (attrName == null || attrName.isEmpty()) {

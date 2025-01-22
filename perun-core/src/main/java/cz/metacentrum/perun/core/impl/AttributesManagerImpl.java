@@ -14,13 +14,11 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_FACILITY_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
 
-import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicy;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
-import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Auditable;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -35,13 +33,11 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleObject;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -94,7 +90,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -205,9 +200,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
       Arrays.asList("user", "member", "facility", "vo", "host", "group", "resource", "user_ext_source");
   private static final List<String> DOUBLE_BEAN_ATTRIBUTES =
       Arrays.asList("member_resource", "member_group", "user_facility", "group_resource");
-  private static final String ATTRIBUTE_RIGHT_SELECT_QUERY =
-      "attributes_authz.attr_id as attr_name_id," + "roles.name as role_name," +
-      "action_types.action_type as action_type";
   private static final String ATTRIBUTE_POLICY_COLLECTION_MAPPING_SELECT_QUERY =
       "attribute_policy_collections.id as attribute_policy_collections_id, " +
       "attribute_policy_collections.attr_id as attribute_policy_collections_attr_id, " +
@@ -355,18 +347,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
    */
   private static String attributeToTablePrefix(AttributeDefinition attributeDefinition) {
     return ENTITIES_TO_BEANS_MAP.get(attributeDefinition.getNamespace().split(":")[2]);
-  }
-
-  private boolean actionTypeExists(ActionType actionType) {
-    Utils.notNull(actionType, "actionType");
-    Utils.notNull(actionType.getActionType(), "actionType.actionType");
-
-    try {
-      return 1 ==
-             jdbc.queryForInt("select count('x') from action_types where action_type=?", actionType.getActionType());
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
   }
 
   @Override
@@ -549,14 +529,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
       return;
     }
     uesModule.changedAttributeHook((PerunSessionImpl) sess, ues, attribute);
-  }
-
-  @Override
-  @Deprecated
-  public void checkActionTypeExists(PerunSession sess, ActionType actionType) throws ActionTypeNotExistsException {
-    if (!actionTypeExists(actionType)) {
-      throw new ActionTypeNotExistsException("ActionType: " + actionType);
-    }
   }
 
   private void checkAttributeExists(PerunSession sess, AttributeDefinition attribute, String expectedNamespace)
@@ -1142,18 +1114,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
       }
     }
     return membersToReturn;
-  }
-
-  @Override
-  @Deprecated
-  public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) {
-    try {
-      if (0 < jdbc.update("DELETE FROM attributes_authz WHERE attr_id=?", attribute.getId())) {
-        LOG.debug("All attribute_authz were deleted for {}.", attribute);
-      }
-    } catch (RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
   }
 
   @Override
@@ -1917,52 +1877,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
     }
 
     return attributePolicyCollections;
-  }
-
-  @Override
-  @Deprecated
-  public List<AttributeRights> getAttributeRights(PerunSession sess, final int attributeId) {
-
-    List<AttributeRights> rights;
-    try {
-      rights = jdbc.query("SELECT " + ATTRIBUTE_RIGHT_SELECT_QUERY + " FROM attributes_authz JOIN roles ON " +
-                          "attributes_authz.role_id=roles.id JOIN action_types ON attributes_authz" +
-                          ".action_type_id=action_types.id " + "WHERE " + "attributes_authz.attr_id=?",
-          new AttributeRightsExtractor(attributeId), attributeId);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-
-    if (rights == null) {
-      throw new InternalErrorException("The attribute rights for the attribute with id " + attributeId + " were null.");
-    }
-    // set also empty rights for other roles (not present in DB)
-
-    boolean roleExists;
-
-    List<String> listOfRoles = new ArrayList<>();
-    listOfRoles.add(Role.FACILITYADMIN);
-    listOfRoles.add(Role.GROUPADMIN);
-    listOfRoles.add(Role.SELF);
-    listOfRoles.add(Role.VOADMIN);
-
-    for (String roleToTry : listOfRoles) {
-      roleExists = false;
-
-      Iterator itr = rights.iterator();
-      while ((itr.hasNext()) && (!roleExists)) {
-        AttributeRights right = (AttributeRights) itr.next();
-        if (right.getRole().equals(roleToTry)) {
-          roleExists = true;
-        }
-      }
-      if (!roleExists) {
-        rights.add(new AttributeRights(attributeId, roleToTry, new ArrayList<>()));
-      }
-    }
-
-    return rights;
-
   }
 
   @Override
@@ -4910,44 +4824,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
   }
 
   @Override
-  @Deprecated
-  public void setAttributeRight(PerunSession sess, AttributeRights rights) {
-    try {
-      // get action types of the attribute and role from the database
-      List<ActionType> dbActionTypes = jdbc.query(
-          "SELECT action_types.action_type AS action_type FROM attributes_authz JOIN action_types " +
-          "ON attributes_authz.action_type_id=action_types.id WHERE attr_id=? AND " +
-          "role_id=(SELECT id FROM roles WHERE name=?)",
-          (rs, rowNum) -> ActionType.valueOf(rs.getString("action_type").toUpperCase()), rights.getAttributeId(),
-          rights.getRole().toLowerCase());
-
-      // inserting
-      List<ActionType> actionTypesToInsert = new ArrayList<>(rights.getRights());
-      actionTypesToInsert.removeAll(dbActionTypes);
-      for (ActionType actionType : actionTypesToInsert) {
-        jdbc.update("INSERT INTO attributes_authz (attr_id, role_id, action_type_id) VALUES " +
-                    "(?, (SELECT id FROM roles WHERE name=?), (SELECT id FROM action_types WHERE action_type=?))",
-            rights.getAttributeId(), rights.getRole().toLowerCase(), actionType.getActionType());
-      }
-      // deleting
-      List<ActionType> actionTypesToDelete = new ArrayList<>(dbActionTypes);
-      actionTypesToDelete.removeAll(rights.getRights());
-      for (ActionType actionType : actionTypesToDelete) {
-        if (0 == jdbc.update(
-            "DELETE FROM attributes_authz WHERE attr_id=? AND role_id=(SELECT id FROM roles WHERE name=?) AND " +
-            "action_type_id=(SELECT id FROM action_types WHERE action_type=?)", rights.getAttributeId(),
-            rights.getRole().toLowerCase(), actionType.getActionType())) {
-          throw new ConsistencyErrorException(
-              "Trying to delete non existing row : AttributeRight={ attributeId=" + rights.getAttributeId() + " role=" +
-              rights.getRole().toLowerCase() + " actionType=" + actionType.getActionType());
-        }
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
   public boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) {
     try {
       jdbc.update(
@@ -5837,45 +5713,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
         }
       }
       return map;
-    }
-  }
-
-  /**
-   * Result Set Extractor for AttributeRights object
-   */
-  private class AttributeRightsExtractor implements ResultSetExtractor<List<AttributeRights>> {
-
-    private final int attributeId;
-
-    AttributeRightsExtractor(int attributeId) {
-      this.attributeId = attributeId;
-    }
-
-    @Override
-    public List<AttributeRights> extractData(ResultSet rs) throws SQLException {
-
-      Map<String, List<ActionType>> map = new HashMap<>();
-
-      while (rs.next()) {
-
-        String role = rs.getString("role_name").toUpperCase();
-        ActionType actionType = ActionType.valueOf(rs.getString("action_type").toUpperCase());
-
-        if (map.get(role) != null) {
-          map.get(role).add(actionType);
-        } else {
-          map.put(role, new ArrayList<>(Collections.singletonList(actionType)));
-        }
-
-      }
-
-      List<AttributeRights> rights = new ArrayList<>();
-      for (String r : map.keySet()) {
-        rights.add(new AttributeRights(attributeId, r, map.get(r)));
-      }
-
-      return rights;
-
     }
   }
 }

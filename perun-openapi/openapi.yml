@@ -460,31 +460,6 @@ components:
         - order
         - selectedEvents
 
-    ActionType:
-      type: string
-      description: "Action types for attributes."
-      enum:
-        - "WRITE"
-        - "WRITE_VO"
-        - "WRITE_PUBLIC"
-        - "READ"
-        - "READ_VO"
-        - "READ_PUBLIC"
-
-    AttributeRights:
-      type: object
-      required:
-        - attributeId
-        - rights
-        - role
-      properties:
-        attributeId: { type: integer }
-        role: { type: string }
-        rights:
-          type: array
-          items:
-            $ref: '#/components/schemas/ActionType'
-
     AttributeAction:
       type: string
       description: "Represents types of actions that users can perform upon attributes."
@@ -2103,15 +2078,6 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/AttributeDefinition"
-
-    ListOfAttributeRightsResponse:
-      description: "returns List<AttributeRights>"
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/AttributeRights"
 
     ListOfAttributePolicyCollectionResponse:
       description: "returns List<AttributePolicyCollection>"
@@ -7853,50 +7819,6 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
 
   #TODO doTheMagic
-
-  /json/attributesManager/getAttributeRights:
-    get:
-      tags:
-        - AttributesManager
-      operationId: getAttributeRights
-      summary: "Gets AttributeRights for specified Attribute. Rights specify which
-      Role can do particular actions (read / write) with Attribute. Method always
-      return rights for following roles: VOADMIN, GROUPADMIN, FACILITYADMIN, SELF."
-      parameters:
-        - $ref: '#/components/parameters/attributeId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfAttributeRightsResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/attributesManager/setAttributeRights:
-    post:
-      tags:
-        - AttributesManager
-      operationId: setAttributeRights
-      summary: "Sets all AttributeRights in the list given as a parameter. Allowed
-       Roles to set rights for are: VOADMIN, GROUPADMIN, FACILITYADMIN, SELF."
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              title: InputAttributeRights
-              description: Input to setAttributeRights
-              type: object
-              required:
-                - rights
-              properties:
-                rights:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/AttributeRights'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
 
   /json/attributesManager/getAttributePolicyCollections:
     get:

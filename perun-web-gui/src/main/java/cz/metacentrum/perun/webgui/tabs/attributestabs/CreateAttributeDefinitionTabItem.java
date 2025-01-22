@@ -4,8 +4,15 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
@@ -13,13 +20,10 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.attributesManager.CreateAttribute;
-import cz.metacentrum.perun.webgui.model.AttributeRights;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
-import java.util.ArrayList;
 
 /**
  * Create attribute definition form
@@ -43,7 +47,6 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
    */
   private Label titleWidget = new Label("Create attribute definition");
   private ButtonTranslation buttonTranslation = ButtonTranslation.INSTANCE;
-  private ArrayList<AttributeRights> rights = new ArrayList<AttributeRights>();
 
   /**
    * Creates a tab instance
@@ -251,24 +254,6 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 
   public ImageResource getIcon() {
     return SmallIcons.INSTANCE.addIcon();
-  }
-
-  private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, AttributeRights right) {
-
-    right.setRights(read.getValue(), write.getValue());
-
-    return right;
-
-  }
-
-  private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, CheckBox readPublic, CheckBox writePublic,
-                                               CheckBox readVo, CheckBox writeVo, AttributeRights right) {
-
-    right.setSelfRights(read.getValue(), write.getValue(), readPublic.getValue(), writePublic.getValue(),
-        readVo.getValue(), writeVo.getValue());
-
-    return right;
-
   }
 
   @Override

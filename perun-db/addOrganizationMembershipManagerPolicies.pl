@@ -20,21 +20,28 @@ sub help {
 
         --user      | -u Username for Perun DB (required)
         --password  | -w Password for Perun DB (required)
+        --host      | -h Specify remote host for Perun DB (connection requires SSL)
         --overwrite | -o removes all existing COLLECTIONS! containing policy with Organizationmembershipmanager role
         };
 }
 
-my ($user, $pwd, $overwrite);
+my ($user, $pwd, $host, $overwrite);
 
 GetOptions ("help|h" => sub { print help(); exit 0;},
     "user|u=s" => \$user,
     "password|w=s" => \$pwd,
+    "host|h=s" => \$host,
     "overwrite|o" => \$overwrite) || die help();
 
 if (!defined $user) { print "[ERROR] Username for Perun DB is required! Use --help | -h to print help.\n"; exit 1; }
 if (!defined $pwd) { print "[ERROR] Password for Perun DB is required! Use --help | -h to print help.\n"; exit 1; }
 
-my $dbh = DBI->connect('dbi:Pg:dbname=perun',$user,$pwd,{RaiseError=>1,AutoCommit=>0,pg_enable_utf8=>1}) or die EPERM," Connect";
+my $hoststring = "";
+if (defined($host) and length($host) > 0) {
+    $hoststring = ";host=$host;sslmode=require";
+}
+
+my $dbh = DBI->connect("dbi:Pg:dbname=perun$hoststring",$user,$pwd,{RaiseError=>1,AutoCommit=>0,pg_enable_utf8=>1}) or die EPERM," Connect";
 
 # additional (not in GROUPMEMBERSHIPMANAGER) attributes for reading
 my @readAttributes = (

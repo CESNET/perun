@@ -2,7 +2,6 @@ package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Member;

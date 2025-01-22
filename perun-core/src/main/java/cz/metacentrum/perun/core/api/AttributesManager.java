@@ -1959,19 +1959,6 @@ public interface AttributesManager {
       throws PrivilegeException, AttributeNotExistsException;
 
   /**
-   * Gets attribute rights of an attribute with id given as a parameter. If the attribute has no rights for a role, it
-   * returns empty list. That means the returned list has always 4 items for each of the roles VOADMIN, FACILITYADMIN,
-   * GROUPADMIN, SELF. Info: not return rights for role VoObserver (could be same like read rights for VoAdmin)
-   *
-   * @param sess        perun session
-   * @param attributeId id of the attribute
-   * @return all rights of the attribute
-   */
-  @Deprecated
-  List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId)
-      throws PrivilegeException, AttributeNotExistsException;
-
-  /**
    * Gets attribute rules containing policy collections and critical actions for an attribute definition with given id
    *
    * @param sess        perun session
@@ -4490,21 +4477,6 @@ public interface AttributesManager {
   void setAttributePolicyCollections(PerunSession sess, List<AttributePolicyCollection> policyCollections)
       throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException,
       RoleObjectCombinationInvalidException;
-
-  /**
-   * Sets all attribute rights in the list given as a parameter. The method sets the rights for attribute and role
-   * exactly as it is given in the list of action types. That means it can remove a right, if the right is missing in
-   * the list. Info: If there is role VoAdmin in the list, use it for setting also VoObserver rights (only for read)
-   * automatic
-   *
-   * @param sess   perun session
-   * @param rights list of attribute rights
-   * @throws AttributeNotExistsException when attribute IDs in rights don't refer to existing attributes
-   * @throws RoleNotSupportedException   when some of the AttributeRights does have a role which does not exist
-   */
-  @Deprecated
-  void setAttributeRights(PerunSession sess, List<AttributeRights> rights)
-      throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
 
   /**
    * Store the attributes associated with the facility. If an attribute is core attribute then the attribute isn't

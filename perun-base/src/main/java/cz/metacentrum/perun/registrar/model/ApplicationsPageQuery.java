@@ -51,7 +51,7 @@ public class ApplicationsPageQuery extends PageQuery {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.includeGroupApplications = includeGroupApplications;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.states = states;
   }
 
@@ -61,7 +61,7 @@ public class ApplicationsPageQuery extends PageQuery {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.includeGroupApplications = includeGroupApplications;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.states = states;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
@@ -107,7 +107,7 @@ public class ApplicationsPageQuery extends PageQuery {
                                Integer groupId) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.states = states;
     this.userId = userId;
     this.groupId = groupId;
@@ -130,7 +130,7 @@ public class ApplicationsPageQuery extends PageQuery {
                                LocalDate dateTo, Integer groupId) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.states = states;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
@@ -141,7 +141,7 @@ public class ApplicationsPageQuery extends PageQuery {
                                String searchString, List<Application.AppState> states, Integer groupId) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.states = states;
     this.groupId = groupId;
   }
@@ -151,7 +151,7 @@ public class ApplicationsPageQuery extends PageQuery {
                                LocalDate dateTo, Integer userId, Integer groupId) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.states = states;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
@@ -163,7 +163,7 @@ public class ApplicationsPageQuery extends PageQuery {
                                String searchString, List<Application.AppState> states) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.states = states;
   }
 
@@ -172,7 +172,7 @@ public class ApplicationsPageQuery extends PageQuery {
                                LocalDate dateTo) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
     this.states = states;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
@@ -271,7 +271,7 @@ public class ApplicationsPageQuery extends PageQuery {
   }
 
   public void setSearchString(String searchString) {
-    this.searchString = searchString;
+    this.searchString = searchString.trim();
   }
 
   public ApplicationsOrderColumn getSortColumn() {

@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributePolicyCollection;
-import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributeRules;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -3750,45 +3749,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       ac.getAttributesManager().doTheMagic(ac.getSession(), ac.getMemberById(parms.readInt("member")));
-      return null;
-    }
-  },
-
-  /*#
-   * Gets AttributeRights for specified Attribute. Rights specify which Role can do particular actions
-   * (read / write) with Attribute. Method always return rights for following roles:
-   * VOADMIN, GROUPADMIN, FACILITYADMIN, SELF.
-   *
-   * @deprecated
-   *
-   * @param attributeId int Attribute <code>id</code>
-   * @return List<AttributeRights> all rights of the attribute
-   * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
-   */
-  getAttributeRights {
-    @Override
-    @Deprecated
-    public List<AttributeRights> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getAttributesManager().getAttributeRights(ac.getSession(), parms.readInt("attributeId"));
-    }
-  },
-
-  /*#
-   * Sets all AttributeRights in the list given as a parameter. Allowed Roles to set
-   * rights for are: VOADMIN, GROUPADMIN, FACILITYADMIN, SELF.
-   *
-   * @deprecated
-   *
-   * @param rights List<AttributeRights> List of AttributeRights to set.
-   * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
-   */
-  setAttributeRights {
-    @Override
-    @Deprecated
-    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      parms.stateChangingCheck();
-
-      ac.getAttributesManager().setAttributeRights(ac.getSession(), parms.readList("rights", AttributeRights.class));
       return null;
     }
   },
