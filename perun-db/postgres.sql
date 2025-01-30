@@ -166,7 +166,7 @@ create table resources (
 -- DESTINATIONS - targets of services
 create table destinations (
 	id integer not null,
-	destination varchar not null, --value of destination (hostname,email,URL...)
+	destination varchar not null, --value of destination (hostname,URL...)
 	type varchar not null, --type (host,URL...)
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,

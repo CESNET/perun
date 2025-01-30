@@ -8,8 +8,6 @@ package cz.metacentrum.perun.core.api;
 public class Destination extends Auditable implements Comparable<PerunBean> {
 
   public static final String DESTINATIONHOSTTYPE = "host";
-  public static final String DESTINATIONEMAILTYPE = "email";
-  public static final String DESTINATIONSEMAILTYPE = "semail";
   public static final String DESTINATIONURLTYPE = "url";
   public static final String DESTINATIONUSERHOSTTYPE = "user@host";
   public static final String DESTINATIONUSERHOSTPORTTYPE = "user@host:port";

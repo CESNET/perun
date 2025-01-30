@@ -1071,8 +1071,6 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
       type.addItem("USER@HOST", "user@host");
       type.addItem("USER@HOST:PORT", "user@host:port");
       type.addItem("URL", "url");
-      type.addItem("MAIL", "email");
-      type.addItem("SIGNED MAIL", "semail");
       type.addItem("SERVICE SPECIFIC", "service-specific");
       type.addItem("S3", "s3");
       type.addItem("URL-JSON", "url-json");
