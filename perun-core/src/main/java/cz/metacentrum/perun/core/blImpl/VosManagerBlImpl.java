@@ -42,6 +42,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -1381,6 +1382,17 @@ public class VosManagerBlImpl implements VosManagerBl {
   @Override
   public Vo updateVo(PerunSession sess, Vo vo) {
     getPerunBl().getAuditer().log(sess, new VoUpdated(vo));
+
+    try {
+      String voName = vo.getName();
+      Group membersGroup = perunBl.getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
+      membersGroup.setDescription("Group containing VO members for VO ".concat(voName));
+      getPerunBl().getGroupsManagerBl().updateGroup(sess, membersGroup);
+
+    } catch (GroupExistsException | GroupNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+
     return getVosManagerImpl().updateVo(sess, vo);
   }
 
