@@ -39,27 +39,41 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     if (userLogin == null) {
       throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Value can't be null");
     }
-    List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute, true);
-    usersWithSameLogin.remove(user);
 
-    if (!usersWithSameLogin.isEmpty()) {
-      if (usersWithSameLogin.size() > 1) {
-        throw new ConsistencyErrorException(
-            "FATAL ERROR: Duplicated Login detected." + attribute + " " + usersWithSameLogin);
+    Attribute namespaceAttribute = attribute;
+    for (String namespaceUsername : List.of(attribute.getName(), elixirUsername, bbmriUsername)) {
+      try {
+        AttributeDefinition attrDefinition = sess.getPerunBl().getAttributesManagerBl()
+                                                     .getAttributeDefinition(sess, namespaceUsername);
+        namespaceAttribute = new Attribute(attrDefinition, userLogin);
+        String namespace = namespaceAttribute.getFriendlyNameParameter();
+
+        // Check duplicity
+        List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl()
+                                                           .getUsersByAttribute(sess, namespaceAttribute, true);
+        usersWithSameLogin.remove(user);
+        if (!usersWithSameLogin.isEmpty()) {
+          if (usersWithSameLogin.size() > 1) {
+            throw new ConsistencyErrorException(
+                    "FATAL ERROR: Duplicated Login detected." + namespaceAttribute + " " + usersWithSameLogin);
+          }
+          throw new WrongReferenceAttributeValueException(
+                  namespaceAttribute, namespaceAttribute, user, null, usersWithSameLogin.get(0), null,
+                  "This login " + namespaceAttribute.getValue() + " is already occupied.");
+        }
+
+        sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, namespace, userLogin, true);
+
+        sess.getPerunBl().getUsersManagerBl().checkBlockedLogins(sess, namespace, userLogin, true);
+
+      } catch (AlreadyReservedLoginException ex) {
+        throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null,
+                "Login in specific namespace already reserved.", ex);
+      } catch (LoginIsAlreadyBlockedException ex) {
+        throw new WrongReferenceAttributeValueException(attribute, null, "Login is blocked.", ex);
+      } catch (AttributeNotExistsException ex) {
+        // Ignore
       }
-      throw new WrongReferenceAttributeValueException(attribute, attribute, user, null, usersWithSameLogin.get(0), null,
-          "This login " + attribute.getValue() + " is already occupied.");
-    }
-
-    try {
-      String namespace = attribute.getFriendlyNameParameter();
-      sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, namespace, userLogin, true);
-      sess.getPerunBl().getUsersManagerBl().checkBlockedLogins(sess, namespace, userLogin, true);
-    } catch (AlreadyReservedLoginException ex) {
-      throw new WrongReferenceAttributeValueException(attribute, null, user, null, null, null,
-          "Login in specific namespace already reserved.", ex);
-    } catch (LoginIsAlreadyBlockedException ex) {
-      throw new WrongReferenceAttributeValueException(attribute, null, "Login is blocked.", ex);
     }
   }
 
