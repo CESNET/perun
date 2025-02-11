@@ -535,6 +535,16 @@ public interface ModulesUtilsBl {
       throws AttributeNotExistsException, WrongAttributeAssignmentException;
 
   /**
+   * Checks whether the generation of CUID for a login namespace is disabled.
+   * Disabled namespaces are kept in entityless-def-disableIDGeneration
+   *
+   * @param sess
+   * @param namespace
+   * @return
+   */
+  boolean isNamespaceIDGenerationDisabled(PerunSessionImpl sess, String namespace);
+
+  /**
    * Check if value of login is permitted within the namespace. Returns FALSE, if login value is not permitted within
    * the namespace (eg. matches system user)
    * <p>

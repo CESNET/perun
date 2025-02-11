@@ -40,7 +40,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent
   }
 
   @Before
-  public void SetUp() {
+  public void SetUp() throws Exception {
     classInstance = new urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent_shadow();
     session = mock(PerunSessionImpl.class);
     user = new User();

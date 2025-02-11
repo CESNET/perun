@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_login_namespace;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,17 +54,19 @@ public abstract class UserPersistentShadowAttribute extends urn_perun_user_attri
    */
   @Override
   public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
-
     Attribute filledAttribute = new Attribute(attribute);
 
-    if (attribute.getFriendlyName().equals(getFriendlyName())) {
+    boolean generationDisabled = perunSession.getPerunBl().getModulesUtilsBl()
+                                     .isNamespaceIDGenerationDisabled(perunSession,
+                                         StringUtils.removeEnd(filledAttribute.getFriendlyNameParameter(),
+                                             "-persistent-shadow"));
+
+    if (!generationDisabled && attribute.getFriendlyName().equals(getFriendlyName())) {
       String domain = "@" + getDomainName();
       filledAttribute.setValue(sha1HashCount(user, domain).toString() + domain);
-      return filledAttribute;
-    } else {
-      // without value
-      return filledAttribute;
     }
+
+    return filledAttribute;
   }
 
   @Override
