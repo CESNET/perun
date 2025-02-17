@@ -12,18 +12,20 @@ sub help {
 	--------------------------------------
 	Available options:
 	--userId     | -u user id
+	--force      | -f delete also all dependent data (removes user from all VOs etc.)
 	--batch      | -b batch
 	--help       | -h prints this help
 
 	};
 }
 
-my ($userId, $batch);
+my ($userId, $batch, $force);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
 	}, "batch|b"     => \$batch,
-	"userId|u=i"     => \$userId) || die help();
+	"userId|u=i"     => \$userId,
+	"force|f"         => \$force) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -31,6 +33,10 @@ unless (defined($userId)) { die "ERROR: userId is required \n";}
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
 
-$usersAgent->anonymizeUser( user => $userId);
+if (defined($force)) {
+	$usersAgent->anonymizeUser( user => $userId , force => 1);
+} else {
+	$usersAgent->anonymizeUser( user => $userId );
+}
 
 printMessage("User Id:$userId successfully anonymized", $batch);
