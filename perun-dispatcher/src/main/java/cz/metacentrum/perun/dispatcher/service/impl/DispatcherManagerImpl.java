@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.bl.TasksManagerBl;
-import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
+import cz.metacentrum.perun.dispatcher.activemq.PerunActiveMQServer;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProcessor;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerFactory;
 import cz.metacentrum.perun.dispatcher.processing.AuditerListener;
@@ -34,7 +34,7 @@ public class DispatcherManagerImpl implements DispatcherManager {
 
   private static final Logger LOG = LoggerFactory.getLogger(DispatcherManagerImpl.class);
 
-  private PerunHornetQServer perunHornetQServer;
+  private PerunActiveMQServer perunActiveMQServer;
   private EngineMessageProcessor engineMessageProcessor;
   private EventProcessor eventProcessor;
   private SchedulingPool schedulingPool;
@@ -86,7 +86,7 @@ public class DispatcherManagerImpl implements DispatcherManager {
     stopTaskScheduling();
     stopPropagationMaintaining();
     stopProcessingSystemMessages();
-    stopPerunHornetQServer();
+    stopPerunActiveMQServer();
   }
 
   public AuditerListener getAuditerListener() {
@@ -109,8 +109,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
     return eventProcessor;
   }
 
-  public PerunHornetQServer getPerunHornetQServer() {
-    return perunHornetQServer;
+  public PerunActiveMQServer getPerunActiveMQServer() {
+    return perunActiveMQServer;
   }
 
   public PropagationMaintainer getPropagationMaintainer() {
@@ -140,7 +140,7 @@ public class DispatcherManagerImpl implements DispatcherManager {
 
     String dispatcherEnabled = dispatcherProperties.getProperty("dispatcher.enabled");
 
-    // skip start of HornetQ and other dispatcher jobs if dispatcher is disabled
+    // skip start of ActiveMQ and other dispatcher jobs if dispatcher is disabled
     if (dispatcherEnabled != null && !Boolean.parseBoolean(dispatcherEnabled)) {
       cleanTaskResultsJobEnabled = false;
       LOG.info("Perun-Dispatcher startup disabled by configuration.");
@@ -151,8 +151,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
 
     try {
 
-      // Start HornetQ server
-      startPerunHornetQServer();
+      // Start ActiveMQ server
+      startPerunActiveMQServer();
       // Start System Queue Processor
       startProcessingSystemMessages();
       // Reload tasks from database
@@ -213,8 +213,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
   }
 
   @Autowired
-  public void setPerunHornetQServer(PerunHornetQServer perunHornetQServer) {
-    this.perunHornetQServer = perunHornetQServer;
+  public void setPerunActiveMQServer(PerunActiveMQServer perunActiveMQServer) {
+    this.perunActiveMQServer = perunActiveMQServer;
   }
 
   @Autowired
@@ -255,8 +255,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
   }
 
   @Override
-  public void startPerunHornetQServer() {
-    perunHornetQServer.startServer();
+  public void startPerunActiveMQServer() {
+    perunActiveMQServer.startServer();
   }
 
   @Override
@@ -297,8 +297,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
   }
 
   @Override
-  public void stopPerunHornetQServer() {
-    perunHornetQServer.stopServer();
+  public void stopPerunActiveMQServer() {
+    perunActiveMQServer.stopServer();
   }
 
   @Override

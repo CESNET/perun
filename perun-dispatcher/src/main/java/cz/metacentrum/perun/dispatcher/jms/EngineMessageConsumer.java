@@ -2,12 +2,11 @@ package cz.metacentrum.perun.dispatcher.jms;
 
 import cz.metacentrum.perun.dispatcher.exceptions.MessageFormatException;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import org.hornetq.api.jms.HornetQJMSClient;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.Queue;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +63,7 @@ public class EngineMessageConsumer extends AbstractRunner {
 
       // Step 1. Directly instantiate the JMS Queue object.
       LOG.debug("Creating queue...");
-      Queue queue = HornetQJMSClient.createQueue(queueName);
+      Queue queue = session.createQueue(queueName);
 
       // Step 9. Create a JMS Message Consumer
       LOG.debug("Creating consumer...");
@@ -144,10 +143,10 @@ public class EngineMessageConsumer extends AbstractRunner {
   }
 
   /**
-   * Set QueueName and HornetQ session in order to create correct message consumer.
+   * Set QueueName and ActiveMQ session in order to create correct message consumer.
    *
    * @param queueName Name of the JMS queue
-   * @param session   HornetQ session
+   * @param session   ActiveMQ session
    */
   public void setUp(String queueName, Session session) {
     this.queueName = queueName;

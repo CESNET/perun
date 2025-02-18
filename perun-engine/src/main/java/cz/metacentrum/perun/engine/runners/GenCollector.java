@@ -10,9 +10,9 @@ import cz.metacentrum.perun.engine.scheduling.impl.BlockingGenExecutorCompletion
 import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
+import jakarta.jms.JMSException;
 import java.time.ZoneId;
 import java.util.concurrent.BlockingDeque;
-import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
