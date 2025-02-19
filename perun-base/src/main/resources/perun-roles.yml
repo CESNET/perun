@@ -5490,6 +5490,36 @@ perun_policies:
     include_policies:
       - default_policy
 
+  globalSearch_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+#  globalSearch_String_policy:
+#    policy_roles:
+#      - PERUNOBSERVER:
+#      - VOADMIN:
+#      - VOOBSERVER:
+#      - ORGANIZATIONMEMBERSHIPMANAGER:
+#      - SPONSOR:
+#      - SPONSORNOCREATERIGHTS:
+#      - TOPGROUPCREATOR:
+#      - TRUSTEDFACILITYADMIN:
+#      - FACILITYADMIN:
+#      - FACILITYOBSERVER:
+#      - GROUPADMIN:
+#      - GROUPOBSERVER:
+#      - GROUPMEMBERSHIPMANAGER:
+#    include_policies:
+#      - default_policy
+
+  ids-globalSearch_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   #ServicesManagerEntry
   blockServiceOnFacility_Service_Facility_policy:
     policy_roles:

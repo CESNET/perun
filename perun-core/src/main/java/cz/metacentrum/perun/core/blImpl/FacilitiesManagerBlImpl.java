@@ -1091,6 +1091,17 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
   }
 
   @Override
+  public List<Facility> searchForFacilities(PerunSession sess, String searchString, boolean includeIDs) {
+    return facilitiesManagerImpl.searchForFacilities(sess, searchString, includeIDs);
+  }
+
+  @Override
+  public List<Facility> searchForFacilities(PerunSession sess, String searchString, Set<Integer> facilityIds,
+                                            boolean includeIDs) {
+    return facilitiesManagerImpl.searchForFacilities(sess, searchString, facilityIds, includeIDs);
+  }
+
+  @Override
   public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws BanAlreadyExistsException {
     if (this.banExists(sess, banOnFacility.getUserId(), banOnFacility.getFacilityId())) {
       throw new BanAlreadyExistsException(banOnFacility);

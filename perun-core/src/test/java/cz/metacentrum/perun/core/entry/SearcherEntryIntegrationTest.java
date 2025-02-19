@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -41,8 +42,7 @@ import org.junit.Test;
 public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
   private static final String CLASS_NAME = "Searcher.";
-  final String extLogin = "aaa";              // his login in external source
-  final String extLogin2 = "bbb";
+
   final String extSourceName = "SearcherEntryIntegrationTest";
   final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
   // these are in DB only when needed and must be setUp"type"() in right order before use !!
@@ -921,15 +921,42 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
     assertTrue("user2 have to be found", users.contains(user2));
   }
 
+  @Test
+  public void globalSearch() throws Exception {
+    System.out.println(CLASS_NAME + "globalSearch");
+
+    Vo vo1 = perun.getVosManagerBl().createVo(sess, new Vo(0, "globalTestVo1", "globalTestVo1"));
+    Vo vo2 = perun.getVosManagerBl().createVo(sess, new Vo(0, "globalTestVo2", "globalTestVo2"));
+
+    Group group1 = setUpGroupInVo("globalTestGroup1", vo1);
+    Group group2 = setUpGroupInVo("globalTestGroup2", vo2);
+
+    Facility facility1 = setUpFacility("globalTestFacility1");
+    Facility facility2 = setUpFacility("globalTestFacility2");
+
+    User user1 = setUpUser("Global", "Test1", "user1");
+    User user2 = setUpUser("Global", "Test2", "user2");
+
+    Map<String, List<PerunBean>> results = searcherBl.globalSearchPerunAdmin(sess, "global");
+
+    assertThat(results.get("users")).containsExactlyInAnyOrder(user1, user2);
+    assertThat(results.get("facilities")).containsExactlyInAnyOrder(facility1, facility2);
+    // will also include created Members groups
+    assertThat(results.get("groups")).contains(group1, group2);
+    assertThat(results.get("groups").size()).isEqualTo(4);
+    assertThat(results.get("vos")).containsExactlyInAnyOrder(vo1, vo2);
+
+  }
+
   @Before
   public void setUp() throws Exception {
     searcherBl = perun.getSearcherBl();
     vo = setUpVo();
-    candidate1 = setUpCandidate1();
-    candidate2 = setUpCandidate2();
+    candidate1 = setUpCandidate("aaa1", "bbb1", "aaa");
+    candidate2 = setUpCandidate("aaa2", "bbb2", "bbb");
     setUpUser1();
     setUpUser2();
-    group = setUpGroupInVo(group, vo);
+    group = setUpGroupInVo("test group", vo);
     perun.getGroupsManagerBl().addMember(sess, group, member1);
     perun.getGroupsManagerBl().addMember(sess, group, member2);
     memberStringAttribute = setUpMemberAttributeWithStringValue();
@@ -958,36 +985,18 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
     return perun.getAttributesManagerBl().createAttribute(sess, attr);
   }
 
-  private Candidate setUpCandidate1() {
-
+  private Candidate setUpCandidate(String firstName, String lastName, String extLogin) {
     Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
-    candidate.setFirstName("aaa1");
+    candidate.setFirstName(firstName);
     candidate.setId(0);
     candidate.setMiddleName("");
-    candidate.setLastName("bbb1");
+    candidate.setLastName(lastName);
     candidate.setTitleBefore("");
     candidate.setTitleAfter("");
     final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
     candidate.setUserExtSource(userExtSource);
     candidate.setAttributes(new HashMap<>());
     return candidate;
-
-  }
-
-  private Candidate setUpCandidate2() {
-
-    Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
-    candidate.setFirstName("aaa2");
-    candidate.setId(0);
-    candidate.setMiddleName("");
-    candidate.setLastName("bbb2");
-    candidate.setTitleBefore("");
-    candidate.setTitleAfter("");
-    final UserExtSource userExtSource = new UserExtSource(extSource, extLogin2);
-    candidate.setUserExtSource(userExtSource);
-    candidate.setAttributes(new HashMap<>());
-    return candidate;
-
   }
 
   private Facility setUpFacility(String name) throws Exception {
@@ -1000,9 +1009,9 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
     return setUpAttribute(name, type, AttributesManager.NS_FACILITY_ATTR_DEF);
   }
 
-  private Group setUpGroupInVo(Group group, Vo vo) throws Exception {
+  private Group setUpGroupInVo(String name, Vo vo) throws Exception {
     group = new Group();
-    group.setName("test group");
+    group.setName(name);
     group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
 
     return group;
@@ -1073,6 +1082,12 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
     attr.setValue("MemberStringAttribute test value");
     assertNotNull("unable to create member attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
     return attr;
+  }
+
+  private User setUpUser(String firstName, String lastName, String login) throws Exception {
+    Candidate candidate = setUpCandidate(firstName, lastName, login);
+    Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    return perun.getUsersManagerBl().getUserByMember(sess, member);
   }
 
   private void setUpUser1() throws Exception {

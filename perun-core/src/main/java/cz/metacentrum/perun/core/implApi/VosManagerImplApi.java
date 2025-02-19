@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>VOs manager can create, delete, update and find VO.</p>
@@ -302,6 +303,28 @@ public interface VosManagerImplApi {
    * @throws RelationNotExistsException if member vo is not a member of the vo
    */
   void removeMemberVo(PerunSession sess, Vo vo, Vo memberVo) throws RelationNotExistsException;
+
+  /**
+   * Similarity substring search in all VOs based on shortname and description
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @param includeIDs whether to search in IDs as well, used for PERUNADMINs
+   * @return list of matched vos
+   */
+  List<Vo> searchForVos(PerunSession sess, String searchString, boolean includeIDs);
+
+  /**
+   * Similarity substring search in provided VOs based on shortname and description
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @param voIds VO IDs in which to perform the search
+   * @param includeIDs whether to search in IDs as well, used for PERUNADMINs
+   * @return list of matched vos
+   */
+  List<Vo> searchForVos(PerunSession sess, String searchString, Set<Integer> voIds, boolean includeIDs);
+
 
   /**
    * Set given ban.

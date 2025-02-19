@@ -49,6 +49,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -147,10 +149,14 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
   };
   // http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
   private static JdbcPerunTemplate jdbc;
+  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
 
   public FacilitiesManagerImpl(DataSource perunPool) {
     jdbc = new JdbcPerunTemplate(perunPool);
+    this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
     jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+    this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
   }
 
   @Override
@@ -1013,6 +1019,70 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
       LOG.info("Owner was removed from facility owners. Owner: {} facility:{}", owner, facility);
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<Facility> searchForFacilities(PerunSession sess, String searchString, boolean includeIDs) {
+    MapSqlParameterSource namedParams = new MapSqlParameterSource();
+    namedParams.addValue("searchString", searchString);
+    // String idSearch = includeIDs ? "OR id::varchar(255) ILIKE '%' || (:searchString) || '%'" : "";
+    String idSearch = "";
+    if (includeIDs) {
+      try {
+        namedParams.addValue("searchId", Integer.parseInt(searchString));
+        idSearch = " OR id = (:searchId) ";
+      } catch (NumberFormatException e) {
+        // ignore
+      }
+    }
+    try {
+      return namedParameterJdbcTemplate.query(
+          "SELECT " + FACILITY_MAPPING_SELECT_QUERY + " FROM facilities " +
+              "WHERE unaccent(name) ILIKE '%' || unaccent((:searchString)) || '%'" +
+              " OR unaccent(dsc) ILIKE '%' || unaccent((:searchString)) || '%' " + idSearch +
+              " LIMIT " + Utils.GLOBAL_SEARCH_LIMIT,
+          namedParams, FACILITY_MAPPER);
+    } catch (EmptyResultDataAccessException ex) {
+      // Return empty list
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Facility> searchForFacilities(PerunSession sess, String searchString, Set<Integer> facilityIds,
+                                            boolean includeIDs) {
+    if (facilityIds == null || facilityIds.isEmpty()) {
+      return new ArrayList<>();
+    }
+    MapSqlParameterSource namedParams = new MapSqlParameterSource();
+    namedParams.addValue("searchString", searchString);
+    namedParams.addValue("facilityIds", facilityIds);
+    // String idSearch = includeIDs ? " OR id::varchar(255) ILIKE '%' || (:searchString) || '%' " : "";
+    String idSearch = "";
+    if (includeIDs) {
+      try {
+        namedParams.addValue("searchId", Integer.parseInt(searchString));
+        idSearch = " OR id = (:searchId) ";
+      } catch (NumberFormatException e) {
+        // ignore
+      }
+    }
+    try {
+      return namedParameterJdbcTemplate.query(
+          "SELECT " + FACILITY_MAPPING_SELECT_QUERY + " FROM facilities " +
+              "WHERE id IN (:facilityIds) AND " +
+              "(unaccent(name) ILIKE '%' || unaccent((:searchString)) || '%'" +
+              " OR unaccent(dsc) ILIKE '%' || unaccent((:searchString)) || '%' " + idSearch +
+              ") LIMIT " + Utils.GLOBAL_SEARCH_LIMIT,
+          namedParams, FACILITY_MAPPER);
+    } catch (EmptyResultDataAccessException ex) {
+      // Return empty list
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
     }
   }
 
