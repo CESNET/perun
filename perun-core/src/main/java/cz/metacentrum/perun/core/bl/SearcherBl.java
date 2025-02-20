@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
@@ -248,4 +249,38 @@ public interface SearcherBl {
    * @return VOs ids
    */
   List<Integer> getVosIdsForAppAutoRejection();
+
+  /**
+   * Similarity substring search in VOs, groups and facilities.
+   * The amount of results is limited, based on the globalSearchLimit CoreConfig property
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @return map with lists of matched entities. The keys are `users`, `vos`, `groups`, `facilities`
+   *      and values are lists containing the matched objects
+   */
+  Map<String, List<PerunBean>> globalSearch(PerunSession sess, String searchString);
+
+  /**
+   * Performs exact match on ID for user, VO, group and facility.
+   * Use this method only when the search string is shorter than 3 digits, use other globalSearch methods otherwise.
+   * The amount of results is limited, based on the globalSearchLimit CoreConfig property
+   * @param sess session
+   * @param searchId id to search for
+   * @return map with lists of matched entities. The keys are `users`, `vos`, `groups`, `facilities`
+   *       and values are lists containing the matched objects
+   */
+  Map<String, List<PerunBean>> globalSearchIDOnly(PerunSession sess, int searchId);
+
+  /**
+   * Similarity substring search in users, VOs, groups and facilities. Performs also an exact match for IDs should the
+   * search string be a number.
+   * The amount of results is limited, based on the globalSearchLimit CoreConfig property
+   *
+   * @param sess session
+   * @param searchString string to search for
+   * @return map with lists of matched entities. The keys are `users`, `vos`, `groups`, `facilities`
+   *    and values are lists containing the matched objects
+   */
+  Map<String, List<PerunBean>> globalSearchPerunAdmin(PerunSession sess, String searchString);
 }

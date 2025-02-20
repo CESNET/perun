@@ -24,6 +24,7 @@ public class CoreConfig {
   private String defaultLoaIdP;
   private boolean dbInitializatorEnabled;
   private boolean readOnlyPerun;
+  private int globalSearchLimit;
   private int groupSynchronizationInterval;
   private int groupSynchronizationTimeout;
   private int groupMaxConcurentGroupsToSynchronize;
@@ -424,6 +425,14 @@ public class CoreConfig {
 
   public void setForceHtmlSanitization(boolean forceHtmlSanitization) {
     this.forceHtmlSanitization = forceHtmlSanitization;
+  }
+
+  public int getGlobalSearchLimit() {
+    return globalSearchLimit;
+  }
+
+  public void setGlobalSearchLimit(int globalSearchLimit) {
+    this.globalSearchLimit = globalSearchLimit;
   }
 
   public List<String> getGeneratedLoginNamespaces() {

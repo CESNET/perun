@@ -1940,6 +1940,41 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   }
 
   @Override
+  public List<User> searchForUsers(PerunSession sess, String searchString, boolean includeIDs) {
+    MapSqlParameterSource namedParams = new MapSqlParameterSource();
+    namedParams.addValue("searchString", searchString);
+    // String idSearch = includeIDs ? "OR id::varchar(255) ILIKE '%' || (:searchString) || '%'" : "";
+    String idSearch = "";
+    if (includeIDs) {
+      try {
+        namedParams.addValue("searchId", Integer.parseInt(searchString));
+        idSearch = " OR id = (:searchId) ";
+      } catch (NumberFormatException e) {
+        // ignore
+      }
+    }
+    try {
+      return namedParameterJdbcTemplate.query(
+          "SELECT " + USER_MAPPING_SELECT_QUERY + " FROM users" +
+              " WHERE unaccent(concat_ws(' ', first_name, middle_name, last_name))" +
+                            " ILIKE unaccent((:searchString)) || '%' " +
+              " OR unaccent(concat_ws(' ', last_name, middle_name, first_name))" +
+                            " ILIKE unaccent((:searchString)) || '%' " +
+              " OR unaccent(concat_ws(' ', last_name, first_name))" +
+                            " ILIKE unaccent((:searchString)) || '%' " +
+              " OR unaccent(concat_ws(' ', first_name, last_name))" +
+                            " ILIKE unaccent((:searchString)) || '%' " +
+              idSearch + " LIMIT " + Utils.GLOBAL_SEARCH_LIMIT,
+          namedParams, USER_MAPPER);
+    } catch (EmptyResultDataAccessException ex) {
+      // Return empty list
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
   public User setSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType) {
     try {
       if (specificUserType.equals(SpecificUserType.SERVICE)) {

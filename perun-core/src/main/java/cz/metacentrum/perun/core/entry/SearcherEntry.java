@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Searcher;
@@ -246,6 +247,28 @@ public class SearcherEntry implements Searcher {
     }
 
     return searcherBl.getUsersForCoreAttributes(sess, coreAttributesWithSearchingValues);
+  }
+
+  @Override
+  public Map<String, List<PerunBean>> globalSearch(PerunSession sess, String searchString)
+      throws PrivilegeException {
+    // Authorization
+    if (AuthzResolver.authorizedInternal(sess, "ids-globalSearch_String_policy")) {
+      // Perun admin performs the search in IDs as well (also includes all entities in the search by default)
+      return searcherBl.globalSearchPerunAdmin(sess, searchString);
+    }
+    if (!AuthzResolver.authorizedInternal(sess, "globalSearch_String_policy")) {
+      throw new PrivilegeException(sess, "globalSearch");
+    }
+    return searcherBl.globalSearch(sess, searchString);
+  }
+
+  @Override
+  public Map<String, List<PerunBean>> globalSearchIDOnly(PerunSession sess, int searchId) throws PrivilegeException {
+    if (!AuthzResolver.authorizedInternal(sess, "ids-globalSearch_String_policy")) {
+      throw new PrivilegeException(sess, "globalSearch");
+    }
+    return searcherBl.globalSearchIDOnly(sess, searchId);
   }
 
   public void setPerunBl(PerunBl perunBl) {

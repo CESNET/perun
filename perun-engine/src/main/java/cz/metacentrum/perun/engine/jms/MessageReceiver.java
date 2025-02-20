@@ -3,17 +3,16 @@ package cz.metacentrum.perun.engine.jms;
 import cz.metacentrum.perun.engine.exceptions.UnknownMessageTypeException;
 import cz.metacentrum.perun.engine.processing.CommandProcessor;
 import cz.metacentrum.perun.engine.processing.EventProcessor;
+import jakarta.jms.DeliveryMode;
+import jakarta.jms.InvalidDestinationException;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Queue;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
-import javax.jms.DeliveryMode;
-import javax.jms.InvalidDestinationException;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import org.hornetq.api.jms.HornetQJMSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +75,7 @@ public class MessageReceiver implements Runnable {
         try {
           LOG.debug("Creating new JMS queue " + queueName);
           // Step 1. Directly instantiate the JMS Queue object.
-          queue = HornetQJMSClient.createQueue(queueName);
+          queue = session.createQueue(queueName);
           // Step 9. Create a JMS Message Consumer
           LOG.debug("Creating JMS consumer");
           messageConsumer = session.createConsumer(queue);

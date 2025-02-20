@@ -1482,6 +1482,21 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
   }
 
   @Override
+  public boolean isNamespaceIDGenerationDisabled(PerunSessionImpl sess, String namespace) {
+    boolean disableIDGeneration = false;
+    Attribute disableIDGenAttr;
+    try {
+      disableIDGenAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess,
+          namespace, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":disableIDGeneration");
+      disableIDGeneration = disableIDGenAttr.getValue() != null ? disableIDGenAttr.valueAsBoolean() : false;
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+      LOG.debug("Not disabling ID generation for  {}", namespace, e);
+      // ignore for backwards compatibility
+    }
+    return disableIDGeneration;
+  }
+
+  @Override
   public boolean isUserLoginPermitted(String namespace, String login) {
     Utils.notNull(namespace, "namespace to check unpermited logins in");
     if (login == null) {

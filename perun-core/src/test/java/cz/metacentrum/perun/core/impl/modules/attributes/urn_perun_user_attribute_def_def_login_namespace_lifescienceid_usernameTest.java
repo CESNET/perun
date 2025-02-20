@@ -5,12 +5,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -32,6 +34,10 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
   private static Attribute attributeToCheck;
   private static CoreConfig originalCoreConfig;
 
+  private static final String lifescienceidUsername = "login-namespace:lifescienceid-username";
+  private static final String elixirUsername = "login-namespace:elixir";
+  private static final String bbmriUsername = "login-namespace:bbmri";
+
   @BeforeClass
   public static void setUpCoreConfig() {
     originalCoreConfig = BeansUtils.getCoreConfig();
@@ -50,13 +56,15 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     session = mock(PerunSessionImpl.class);
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    attributeToCheck.setFriendlyName("login-namespace:lifescienceid-username");
+    attributeToCheck.setFriendlyName(lifescienceidUsername);
     attributeToCheck.setValue("test");
 
     PerunBl perunBl = mock(PerunBl.class);
     when(session.getPerunBl()).thenReturn(perunBl);
     UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
     when(session.getPerunBl().getUsersManagerBl()).thenReturn(usersManagerBl);
+    AttributesManagerBl attributesManagerBl = mock(AttributesManagerBl.class);
+    when(session.getPerunBl().getAttributesManagerBl()).thenReturn(attributesManagerBl);
     PasswordManagerModule module = mock(LifescienceidusernamePasswordManagerModule.class);
     when(session.getPerunBl().getUsersManagerBl()
         .getPasswordManagerModule(session, "lifescienceid-username")).thenReturn(module);
@@ -65,6 +73,22 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
   @Test
   public void testCheckAttributeSemanticsCorrectValue() throws Exception {
     System.out.println("testCheckAttributeSemanticsCorrectValue()");
+
+    AttributeDefinition lifescienceAttrDefinition = new AttributeDefinition();
+    lifescienceAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    lifescienceAttrDefinition.setFriendlyName(lifescienceidUsername);
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, lifescienceAttrDefinition.getName())).thenReturn(lifescienceAttrDefinition);
+
+    AttributeDefinition elixirAttrDefinition = new AttributeDefinition();
+    elixirAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    elixirAttrDefinition.setFriendlyName(elixirUsername);
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, elixirAttrDefinition.getName())).thenReturn(elixirAttrDefinition);
+
+    AttributeDefinition bbmriAttrDefinition = new AttributeDefinition();
+    bbmriAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    bbmriAttrDefinition.setFriendlyName(bbmriUsername);
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, bbmriAttrDefinition.getName())).thenReturn(bbmriAttrDefinition);
+
     when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck, true)).thenReturn(
         new ArrayList<>(List.of(user)));
 
@@ -76,6 +100,21 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     System.out.println("testCheckAttributeSemanticsDuplicateDetected()");
     when(session.getPerunBl().getUsersManagerBl().getUsersByAttribute(session, attributeToCheck, true)).thenReturn(
         new ArrayList<>(List.of(user, user2)));
+
+    AttributeDefinition lifescienceAttrDefinition = new AttributeDefinition();
+    lifescienceAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    lifescienceAttrDefinition.setFriendlyName(lifescienceidUsername);
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, lifescienceAttrDefinition.getName())).thenReturn(lifescienceAttrDefinition);
+
+    AttributeDefinition elixirAttrDefinition = new AttributeDefinition();
+    elixirAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    elixirAttrDefinition.setFriendlyName(elixirUsername);
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, elixirAttrDefinition.getName())).thenReturn(elixirAttrDefinition);
+
+    AttributeDefinition bbmriAttrDefinition = new AttributeDefinition();
+    bbmriAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    bbmriAttrDefinition.setFriendlyName(bbmriUsername);
+    when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, bbmriAttrDefinition.getName())).thenReturn(bbmriAttrDefinition);
 
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }

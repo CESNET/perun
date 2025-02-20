@@ -35,6 +35,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**
  * VosManager implementation.
@@ -104,6 +106,7 @@ public class VosManagerImpl implements VosManagerImplApi {
   private static final Logger LOG = LoggerFactory.getLogger(VosManagerImpl.class);
   // http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
   private final JdbcPerunTemplate jdbc;
+  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   /**
    * Constructor.
@@ -112,7 +115,9 @@ public class VosManagerImpl implements VosManagerImplApi {
    */
   public VosManagerImpl(DataSource perunPool) {
     this.jdbc = new JdbcPerunTemplate(perunPool);
+    this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
     this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+    this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
   }
 
   @Override
@@ -500,6 +505,68 @@ public class VosManagerImpl implements VosManagerImplApi {
         throw new RelationNotExistsException(
             "Relation between " + vo + " and member vo " + memberVo + " does not exist.");
       }
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Vo> searchForVos(PerunSession sess, String searchString, boolean includeIDs) {
+    MapSqlParameterSource namedParams = new MapSqlParameterSource();
+    namedParams.addValue("searchString", searchString);
+    // String idSearch = includeIDs ? "OR id::varchar(255) ILIKE '%' || (:searchString) || '%'" : "";
+    String idSearch = "";
+    if (includeIDs) {
+      try {
+        namedParams.addValue("searchId", Integer.parseInt(searchString));
+        idSearch = " OR id = (:searchId) ";
+      } catch (NumberFormatException e) {
+        // ignore
+      }
+    }
+
+    try {
+      return namedParameterJdbcTemplate.query(
+          "SELECT " + VO_MAPPING_SELECT_QUERY + " FROM vos " +
+              "WHERE unaccent(name) ILIKE '%' || unaccent((:searchString)) || '%'" +
+              " OR unaccent(short_name) ILIKE '%' || unaccent((:searchString)) || '%' " + idSearch +
+              " LIMIT " + Utils.GLOBAL_SEARCH_LIMIT,
+          namedParams, VO_MAPPER);
+    } catch (EmptyResultDataAccessException ex) {
+      // Return empty list
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Vo> searchForVos(PerunSession sess, String searchString, Set<Integer> voIds, boolean includeIDs) {
+    MapSqlParameterSource namedParams = new MapSqlParameterSource();
+    namedParams.addValue("searchString", searchString);
+    namedParams.addValue("voIds", voIds);
+    // String idSearch = includeIDs ? " OR id::varchar(255) ILIKE '%' || (:searchString) || '%' " : "";
+    String idSearch = "";
+    if (includeIDs) {
+      try {
+        namedParams.addValue("searchId", Integer.parseInt(searchString));
+        idSearch = " OR id = (:searchId) ";
+      } catch (NumberFormatException e) {
+        // ignore
+      }
+    }
+
+    try {
+      return namedParameterJdbcTemplate.query(
+          "SELECT " + VO_MAPPING_SELECT_QUERY + " FROM vos " +
+              "WHERE id IN (:voIds) AND " +
+              " (unaccent(name) ILIKE '%' || unaccent((:searchString)) || '%'" +
+              " OR unaccent(short_name) ILIKE '%' || unaccent((:searchString)) || '%' " + idSearch +
+              ") LIMIT " + Utils.GLOBAL_SEARCH_LIMIT,
+          namedParams, VO_MAPPER);
+    } catch (EmptyResultDataAccessException ex) {
+      // Return empty list
+      return new ArrayList<>();
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }

@@ -2522,6 +2522,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
+  public List<User> searchForUsers(PerunSession sess, String searchString, boolean includeIDs) {
+    return usersManagerImpl.searchForUsers(sess, searchString, includeIDs);
+  }
+
+
+  @Override
   public User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner)
       throws RelationExistsException {
     if (specificUserType.equals(SpecificUserType.SPONSORED)) {

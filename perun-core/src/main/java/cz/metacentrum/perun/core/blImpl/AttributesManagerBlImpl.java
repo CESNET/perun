@@ -113,6 +113,7 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_disableIDGeneration;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
@@ -9700,6 +9701,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     attr = new AttributeDefinition(
         (new urn_perun_entityless_attribute_def_def_namespace_GIDRanges()).getAttributeDefinition());
     //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn_perun_entityless_attribute_def_def_disableIDGeneration
+    attr = new AttributeDefinition((new urn_perun_entityless_attribute_def_def_disableIDGeneration())
+                                       .getAttributeDefinition());
     policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 

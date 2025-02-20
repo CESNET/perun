@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.1</version>
+		<version>3.4.2</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -70,12 +70,9 @@
 		<dom4j.version>2.1.4</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
-		<flying-saucer-pdf.version>9.11.2</flying-saucer-pdf.version>
-		<bouncycastle.version>1.79</bouncycastle.version>
+		<flying-saucer-pdf.version>9.11.3</flying-saucer-pdf.version>
+		<bouncycastle.version>1.80</bouncycastle.version>
 		<google-api-services-admin-directory.version>directory_v1-rev20241210-2.0.0</google-api-services-admin-directory.version>
-		<hornetq.version>2.2.21.Final</hornetq.version>
-		<netty3.version>3.2.10.Final</netty3.version><!-- needed for HornetQ -->
-		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20240303</json.version>
@@ -223,7 +220,7 @@
 						<dependency>
 						  <groupId>com.puppycrawl.tools</groupId>
 						  <artifactId>checkstyle</artifactId>
-						  <version>10.21.1</version>
+						  <version>10.21.2</version>
 						</dependency>
 					  </dependencies>
 			  	</plugin>
@@ -298,48 +295,6 @@
 				<groupId>dumbster</groupId>
 				<artifactId>dumbster</artifactId>
 				<version>${dumbster.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.hornetq</groupId>
-				<artifactId>hornetq-core</artifactId>
-				<version>${hornetq.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.hornetq</groupId>
-				<artifactId>hornetq-jms</artifactId>
-				<version>${hornetq.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.hornetq</groupId>
-				<artifactId>hornetq-logging</artifactId>
-				<version>${hornetq.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.hornetq</groupId>
-				<artifactId>hornetq-core-client</artifactId>
-				<version>${hornetq.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.hornetq</groupId>
-				<artifactId>hornetq-jms-client</artifactId>
-				<version>${hornetq.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.jboss.netty</groupId>
-				<artifactId>netty</artifactId>
-				<version>${netty3.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.jboss.javaee</groupId>
-				<artifactId>jboss-jms-api</artifactId>
-				<version>${jboss-jms-api.version}</version>
 			</dependency>
 
 			<dependency>

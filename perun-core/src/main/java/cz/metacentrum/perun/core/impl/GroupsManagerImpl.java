@@ -1536,6 +1536,74 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
   }
 
   @Override
+  public List<Group> searchForGroups(PerunSession sess, String searchString, boolean includeIDs) {
+    MapSqlParameterSource namedParams = new MapSqlParameterSource();
+    namedParams.addValue("searchString", searchString);
+    // String idSearch = includeIDs ? " OR id::varchar(255) ILIKE '%' || (:searchString) || '%'" : "";
+    String idSearch = "";
+    if (includeIDs) {
+      try {
+        namedParams.addValue("searchId", Integer.parseInt(searchString));
+        idSearch = " OR id = (:searchId) ";
+      } catch (NumberFormatException e) {
+        // ignore
+      }
+    }
+    try {
+      return namedParameterJdbcTemplate.query(
+          "SELECT " + GROUP_MAPPING_SELECT_QUERY + " FROM groups " +
+              "WHERE unaccent(name) ILIKE '%' || unaccent((:searchString)) || '%'" +
+              " OR unaccent(dsc) ILIKE '%' || unaccent((:searchString)) || '%'" + idSearch +
+              " LIMIT " + Utils.GLOBAL_SEARCH_LIMIT,
+          namedParams, GROUP_MAPPER);
+    } catch (EmptyResultDataAccessException ex) {
+      // Return empty list
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Group> searchForGroups(PerunSession sess, String searchString, Set<Integer> groupIds, Set<Integer> voIds,
+                                     boolean includeIDs) {
+    if ((groupIds == null || groupIds.isEmpty()) && (voIds == null || voIds.isEmpty())) {
+      // at least some IDs have to be provided
+      return new ArrayList<>();
+    }
+    MapSqlParameterSource namedParams = new MapSqlParameterSource();
+    namedParams.addValue("searchString", searchString);
+    // String idSearch = includeIDs ? " OR id::varchar(255) ILIKE '%' || (:searchString) || '%' " : "";
+    String idSearch = "";
+    if (includeIDs) {
+      try {
+        namedParams.addValue("searchId", Integer.parseInt(searchString));
+        idSearch = " OR id = (:searchId) ";
+      } catch (NumberFormatException e) {
+        // ignore
+      }
+    }
+    namedParams.addValue("groupIds", groupIds);
+    String groupSearch = (groupIds != null && !groupIds.isEmpty()) ? " id IN (:groupIds) AND " : "";
+    namedParams.addValue("voIds", voIds);
+    String voSearch = (voIds != null && !voIds.isEmpty()) ? " vo_id IN (:voIds) AND " : "";
+
+    try {
+      return namedParameterJdbcTemplate.query(
+          "SELECT " + GROUP_MAPPING_SELECT_QUERY + " FROM groups WHERE " + groupSearch + voSearch +
+              " (unaccent(name) ILIKE '%' || unaccent((:searchString)) || '%'" +
+              " OR unaccent(dsc) ILIKE '%' || unaccent((:searchString)) || '%'" + idSearch +
+              ") LIMIT " + Utils.GLOBAL_SEARCH_LIMIT,
+          namedParams, GROUP_MAPPER);
+    } catch (EmptyResultDataAccessException ex) {
+      // Return empty list
+      return new ArrayList<>();
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
   public void suspendGroupSynchronization(PerunSession sess, boolean suspend) {
     try {
       jdbc.update("UPDATE configurations SET value=? where property='suspendGroupSync'", suspend);
