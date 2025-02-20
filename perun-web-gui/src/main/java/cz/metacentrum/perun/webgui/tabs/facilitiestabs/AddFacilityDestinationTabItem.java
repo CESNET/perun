@@ -104,8 +104,6 @@ public class AddFacilityDestinationTabItem implements TabItem {
     type.addItem("USER@HOST-WINDOWS", "user@host-windows");
     type.addItem("HOST-WINDOWS-PROXY", "host-windows-proxy");
     type.addItem("URL", "url");
-    type.addItem("MAIL", "email");
-    type.addItem("SIGNED MAIL", "semail");
     type.addItem("SERVICE SPECIFIC", "service-specific");
     type.addItem("S3", "s3");
     type.addItem("URL-JSON", "url-json");

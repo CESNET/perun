@@ -1674,8 +1674,6 @@ public class Utils {
     }
     String destinationType = destination.getType();
     if ((!Objects.equals(destinationType, Destination.DESTINATIONHOSTTYPE) &&
-         (!Objects.equals(destinationType, Destination.DESTINATIONEMAILTYPE)) &&
-         (!Objects.equals(destinationType, Destination.DESTINATIONSEMAILTYPE)) &&
          (!Objects.equals(destinationType, Destination.DESTINATIONURLTYPE)) &&
          (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTTYPE)) &&
          (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTPORTTYPE)) &&
@@ -1705,10 +1703,6 @@ public class Utils {
     if (destinationType.equals(Destination.DESTINATIONHOSTTYPE) ||
         destinationType.equals(Destination.DESTINATIONWINDOWSPROXY)) {
       matcher = HOST_PATTERN.matcher(destination.getDestination());
-    }
-    if (destinationType.equals(Destination.DESTINATIONEMAILTYPE) ||
-        destinationType.equals(Destination.DESTINATIONSEMAILTYPE)) {
-      matcher = EMAIL_PATTERN.matcher(destination.getDestination());
     }
     if (destinationType.equals(Destination.DESTINATIONURLTYPE)) {
       matcher = URL_PATTERN.matcher(destination.getDestination());

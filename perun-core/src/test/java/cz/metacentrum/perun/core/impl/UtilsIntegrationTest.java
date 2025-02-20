@@ -320,17 +320,6 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
-  public void checkMailDestination() throws Exception {
-    System.out.println("Utils.checkMailDestination");
-
-    Destination destination = new Destination();
-    destination.setType(Destination.DESTINATIONEMAILTYPE);
-
-    destination.setDestination("testing@host.test");
-    Utils.checkDestination(destination);
-  }
-
-  @Test
   public void checkServiceSpecificDestination() throws Exception {
     System.out.println("Utils.checkServiceSpecificDestination");
 

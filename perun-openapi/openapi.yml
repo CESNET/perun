@@ -983,8 +983,6 @@ components:
       description: 'type of destination, i.e. way of delivery of service settings'
       enum:
         - "host"
-        - "email"
-        - "semail"
         - "url"
         - "user@host"
         - "user@host:port"
