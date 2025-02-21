@@ -1,5 +1,31 @@
 Upgrade notes
 
+## [47.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.0.0...v47.1.0) (2025-02-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** new `globalSearchLimit` config property, default value is 4
+* **core:** Should use same host/port for JMS broker including persistent storage (this will probably need deletion during the deployment).
+* **core:** auto generation in all persistent shadow login attributes can now be disabled via the new disableIDGeneration entityless attribute
+
+### Features
+
+* **cli:** support force flag in user anonymization tool ([4448793](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/44487937aa8c7588836c4b5f13ff19965c7f6dc2))
+* **core:** configurable CUID generation for persistent-shadow attributes ([21314b6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/21314b6c17ceff2ea67179b6ddbd9e88b51d3701))
+* **core:** global search ([d3474f4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d3474f4af70ad543e563b690988b86855955b4fb))
+* **core:** new name of vo propagates to member group description ([4be5d2f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4be5d2fd9e8dc13a6cb46dfa122258524cfa01d9))
+
+
+### Bug Fixes
+
+* **core:** lifescienceid username attribute module ([e86fd75](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e86fd75e9eb401dc32bc6740c330c3ec5a5f2ecb))
+* **core:** migrate jms queue from hornetq to activemq ([7f6a719](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7f6a7198394ba87a29a561cb901f583f0b7ca8d1))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.80 ([1e9bf7b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1e9bf7b8ca7bd7fff37fe8022f05c0676a27fc11))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.4.2 ([39b87c6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/39b87c61c0c7c8444d74c5271b93407dc21521ef))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.11.3 ([701def8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/701def89a09da57a3d72b09306ae900050788858))
+* **openapi:** remove two instances of mail/email destination type ([d0589d4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d0589d495e34fcbbc804c783add3fefeec8d73c6))
+
 ## [47.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v46.1.0...v47.0.0) (2025-01-22)
 
 
