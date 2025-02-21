@@ -70,7 +70,7 @@
 		<dom4j.version>2.1.4</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
-		<flying-saucer-pdf.version>9.11.3</flying-saucer-pdf.version>
+		<flying-saucer-pdf.version>9.11.4</flying-saucer-pdf.version>
 		<bouncycastle.version>1.80</bouncycastle.version>
 		<google-api-services-admin-directory.version>directory_v1-rev20250217-2.0.0</google-api-services-admin-directory.version>
 		<jcip.version>1.0</jcip.version>
