@@ -14,6 +14,7 @@ import java.util.Objects;
 public class ApplicationsPageQuery extends PageQuery {
   private ApplicationsOrderColumn sortColumn;
   private Boolean includeGroupApplications = true;
+  private Boolean includeSubGroupApplications = false;
   private Boolean getDetails = false;
   private String searchString = "";
   private List<Application.AppState> states;
@@ -75,47 +76,53 @@ public class ApplicationsPageQuery extends PageQuery {
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
-                               List<Application.AppState> states, Integer groupId) {
+                               List<Application.AppState> states, Integer groupId,
+                               Boolean includeSubGroupApplications) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
     this.groupId = groupId;
+    this.includeSubGroupApplications = includeSubGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
-                               List<Application.AppState> states, Integer userId, Integer groupId) {
+                               List<Application.AppState> states, Integer userId, Integer groupId,
+                               Boolean includeSubGroupApplications) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
     this.userId = userId;
     this.groupId = groupId;
+    this.includeSubGroupApplications = includeSubGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                List<Application.AppState> states, LocalDate dateFrom, LocalDate dateTo,
-                               Integer groupId) {
+                               Integer groupId, Boolean includeSubGroupApplications) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
     this.groupId = groupId;
+    this.includeSubGroupApplications = includeSubGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, Integer userId,
-                               Integer groupId) {
+                               Integer groupId, Boolean includeSubGroupApplications) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString.trim();
     this.states = states;
     this.userId = userId;
     this.groupId = groupId;
+    this.includeSubGroupApplications = includeSubGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                List<Application.AppState> states, LocalDate dateFrom, LocalDate dateTo, Integer userId,
-                               Integer groupId) {
+                               Integer groupId, Boolean includeSubGroupApplications) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.states = states;
@@ -123,11 +130,12 @@ public class ApplicationsPageQuery extends PageQuery {
     this.dateTo = dateTo;
     this.userId = userId;
     this.groupId = groupId;
+    this.includeSubGroupApplications = includeSubGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, LocalDate dateFrom,
-                               LocalDate dateTo, Integer groupId) {
+                               LocalDate dateTo, Integer groupId, Boolean includeSubGroupApplications) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString.trim();
@@ -135,20 +143,23 @@ public class ApplicationsPageQuery extends PageQuery {
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
     this.groupId = groupId;
+    this.includeSubGroupApplications = includeSubGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
-                               String searchString, List<Application.AppState> states, Integer groupId) {
+                               String searchString, List<Application.AppState> states, Integer groupId,
+                               Boolean includeSubGroupApplications) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString.trim();
     this.states = states;
     this.groupId = groupId;
+    this.includeSubGroupApplications = includeSubGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
                                String searchString, List<Application.AppState> states, LocalDate dateFrom,
-                               LocalDate dateTo, Integer userId, Integer groupId) {
+                               LocalDate dateTo, Integer userId, Integer groupId, Boolean includeSubGroupApplications) {
     super(pageSize, offset, order);
     this.sortColumn = sortColumn;
     this.searchString = searchString.trim();
@@ -157,6 +168,7 @@ public class ApplicationsPageQuery extends PageQuery {
     this.dateTo = dateTo;
     this.userId = userId;
     this.groupId = groupId;
+    this.includeSubGroupApplications = includeSubGroupApplications;
   }
 
   public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
@@ -260,6 +272,10 @@ public class ApplicationsPageQuery extends PageQuery {
 
   public Boolean getIncludeGroupApplications() {
     return includeGroupApplications;
+  }
+
+  public Boolean getIncludeSubGroupApplications() {
+    return includeSubGroupApplications;
   }
 
   public void setIncludeGroupApplications(Boolean includeGroupApplications) {

@@ -2736,6 +2736,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     String searchQuery = getSQLWhereForApplicationsPage(query, namedParams);
 
+    String subgroups = " OR a.group_id in (WITH RECURSIVE subgroups AS (" +
+                           "    SELECT id, parent_group_id FROM groups WHERE parent_group_id = (:groupId)" +
+                           "    UNION ALL" +
+                           "    SELECT g.id, g.parent_group_id FROM groups g" +
+                           "    INNER JOIN subgroups sg ON g.parent_group_id = sg.id" +
+                           ")" +
+                           " SELECT id FROM subgroups)";
+
     Paginated<RichApplication> applications = namedJdbc.query(APP_SELECT_PAGE + " WHERE a.vo_id=(:voId)" +
                                                               (query.getStates() == null ||
                                                                query.getStates().isEmpty() ? "" :
@@ -2747,6 +2755,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
                                                                   "  AND a.user_id=(:userId)") +
                                                               (query.getGroupId() == null ? "" :
                                                                   "  AND a.group_id=(:groupId)") +
+                                                              (query.getIncludeSubGroupApplications() != null &&
+                                                                query.getIncludeSubGroupApplications() ? subgroups
+                                                                  : "") +
                                                               " AND (:dateFrom) <= a.created_at::date AND a" +
                                                                ".created_at::date <= (:dateTo)" +
                                                               searchQuery +
