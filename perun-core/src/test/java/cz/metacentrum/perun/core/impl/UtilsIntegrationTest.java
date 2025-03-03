@@ -473,6 +473,112 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
+  public void checkS3JsonDestination() throws Exception {
+    System.out.println("Utils.checkS3JsonDestination");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONS3JSON);
+
+    destination.setDestination("https://www.s3endpoint.test/test-bucket");
+    Utils.checkDestination(destination);
+  }
+
+  @Test
+  public void checkS3JsonDestinationIp() throws Exception {
+    System.out.println("Utils.checkS3JsonDestinationIp");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONS3JSON);
+
+    destination.setDestination("https://42.42.1.1:8080/test-bucket");
+    Utils.checkDestination(destination);
+  }
+
+  @Test
+  public void checkS3JsonDestinationProtocols() throws Exception {
+    System.out.println("Utils.checkS3JsonDestinationProtocols");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONS3JSON);
+
+    destination.setDestination("https://custom.endpoint/test-bucket");
+    Utils.checkDestination(destination);
+
+    destination.setDestination("http://custom.endpoint/test-bucket");
+    Utils.checkDestination(destination);
+  }
+
+  @Test
+  public void checkS3JsonDestinationSpecialCharacters() throws Exception {
+    System.out.println("Utils.checkS3JsonDestinationSpecialCharacters");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONS3JSON);
+
+    destination.setDestination("https://aA0123456789/+&@#%?=~_|!:,.;()*$/zZ9876543210+&@#%?=~_|!:,.;()*$");
+    Utils.checkDestination(destination);
+  }
+
+  @Test
+  public void checkS3JsonDestinationInvalidSpaces() {
+    System.out.println("Utils.checkS3JsonDestinationInvalidSpaces");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONS3JSON);
+
+    destination.setDestination("https:// endpoint.url/bucket-name");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+  }
+
+  @Test
+  public void checkS3JsonDestinationInvalidMissingBucketName() {
+    System.out.println("Utils.checkS3JsonDestinationInvalidMissingBucketName");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONS3JSON);
+
+    destination.setDestination("https://endpoint.url");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+    destination.setDestination("https://endpoint.url/");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+  }
+
+  @Test
+  public void checkS3JsonDestinationInvalidIncompleteUrl() {
+    System.out.println("Utils.checkS3JsonDestinationInvalidIncompleteUrl");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONS3JSON);
+
+    destination.setDestination("https:///bucket-name");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+    destination.setDestination("https://bucket-name");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+    destination.setDestination("https://");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+    destination.setDestination("https//custom.endpoint/bucket-name");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+
+    destination.setDestination("custom.endpoint/bucket-name");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+  }
+
+  @Test
+  public void checkS3JsonDestinationInvalidTrailingSlash() {
+    System.out.println("Utils.checkS3JsonDestinationInvalidTrailingSlash");
+
+    Destination destination = new Destination();
+    destination.setType(Destination.DESTINATIONS3JSON);
+
+    destination.setDestination("https://custom.endpoint/bucket-name/");
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> Utils.checkDestination(destination));
+  }
+
+  @Test
   public void checkUrlJsonDestination() {
     System.out.println("Utils.checkUrlJsonDestination");
 

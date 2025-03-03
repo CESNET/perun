@@ -68,7 +68,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    * @param service int Service <code>id</code>
    * @param destinationName String Destination name (like hostnames)
    * @param destinationType String Destination type (like host, user@host, user@host:port, service-specific,
-   * s3, url-json
+   * s3, s3-json, url-json
    * ...)
    */
   blockServiceOnDestination {
@@ -131,7 +131,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    *
    * @param destinationName String Destination name (like hostnames)
    * @param destinationType String Destination type (like host, user@host, user@host:port, service-specific,
-   * s3, url-json
+   * s3, s3-json, url-json
    * ...)
    */
   blockAllServicesOnDestination {
@@ -241,7 +241,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    *
    * @param destinationName String Destination name (like hostnames)
    * @param destinationType String Destination type (like host, user@host, user@host:port, service-specific,
-   * s3, url-json
+   * s3, s3-json, url-json
    * ...)
    */
   unblockAllServicesOnDestination {
@@ -324,7 +324,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    * @param service int Service <code>id</code>
    * @param destinationName String Destination name (like hostnames)
    * @param destinationType String Destination type (like host, user@host, user@host:port, service-specific,
-   * s3, url-json
+   * s3, s3-json, url-json
    * ...)
    */
   unblockServiceOnDestination {
@@ -1202,7 +1202,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    * @param service int Service <code>id</code>
    * @param facility int Facility <code>id</code>
    * @param destination String Destination
-   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,url-json)
+   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,s3-json,url-json)
    * @return Destination Created destination.
    */
   /*#
@@ -1211,7 +1211,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    * @param services List<Service> Services
    * @param facility int Facility <code>id</code>
    * @param destination String Destination
-   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,url-json)
+   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,s3-json,url-json)
    * @return Destination Created destination.
    */
   /*#
@@ -1220,7 +1220,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    * @param service int Service <code>id</code>
    * @param facility int Facility <code>id</code>
    * @param destination String Destination
-   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,url-json)
+   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,s3-json,url-json)
    * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
    * @return Destination Created destination.
    */
@@ -1230,7 +1230,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    * @param services List<Service> Services
    * @param facility int Facility <code>id</code>
    * @param destination String Destination
-   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,url-json)
+   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,s3-json,url-json)
    * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
    * @return Destination Created destination.
    */
@@ -1268,7 +1268,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    *
    * @param facility int Facility <code>id</code>
    * @param destination String Destination
-   * @param type String String Destination type (host,user@host,user@host:port,url,service-specific,s3,url-json)
+   * @param type String String Destination type (host,user@host,user@host:port,url,service-specific,s3,s3-json,url-json)
    * @return List<Destinations> Added destinations
    */
   /*#
@@ -1276,7 +1276,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
    *
    * @param facility int Facility <code>id</code>
    * @param destination String Destination
-   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,url-json)
+   * @param type String Destination type (host,user@host,user@host:port,url,service-specific,s3,s3-json,url-json)
    * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
    * @return List<Destinations> Added destinations
    */
