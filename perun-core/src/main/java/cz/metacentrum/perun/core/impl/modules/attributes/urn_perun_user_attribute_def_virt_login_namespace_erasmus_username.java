@@ -12,6 +12,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 
+/**
+ * Module used to generate login value based on users name.
+ * Has defined counterpart attribute to actually generate/store its value.
+ * DEPRECATED - login was supposed to be used as EPPN on MyAcademicID instance, but that is no longer needed.
+ */
+@Deprecated
 public class urn_perun_user_attribute_def_virt_login_namespace_erasmus_username
     extends UserVirtualAttributesModuleAbstract {
 
