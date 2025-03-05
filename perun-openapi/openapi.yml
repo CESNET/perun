@@ -1161,6 +1161,7 @@ components:
         sortColumn: { $ref: '#/components/schemas/ApplicationsOrderColumn' }
         searchString: { type: string }
         includeGroupApplications: { type: boolean }
+        includeSubGroupApplications: { type: boolean }
         getDetails: { type: boolean }
         states: { type: array, items: { $ref: '#/components/schemas/AppState' } }
         dateFrom: { type: string, format: date }

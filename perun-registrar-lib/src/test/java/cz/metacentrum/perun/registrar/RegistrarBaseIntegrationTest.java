@@ -1234,7 +1234,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationsPageQuery query =
         new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE,
-            List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), group1.getId());
+            List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), group1.getId(), false);
 
     Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
@@ -1243,6 +1243,83 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     List<Integer> returnedIds = returnedGroups.stream().map(Group::getId).toList();
 
     assertThat(returnedIds).containsExactly(group1.getId());
+  }
+
+  @Test
+  public void getApplicationsPageForGroupWithSubgroups() throws Exception {
+    System.out.println("getApplicationsPageForGroupWithSubgroups");
+
+    // create groups
+    Group group1 = setUpGroup("Group1", "Cool folks");
+    Group group2 = setUpGroup("Group2", "Cooler folks");
+
+    // create subgroups
+    Group subGroup1 = setUpSubgroup("Subgroup1", "Cool folks but less cool", group1);
+    Group subGroup2 = setUpSubgroup("Subgroup2", "Cool folks but a bit less cool", group2);
+    // create users
+    User user1 = setUpUser("Joe", "Doe");
+    User user2 = setUpUser("Barney", "Stinson");
+    User user3 = setUpUser("Joe", "Doey");
+    User user4 = setUpUser("Barney", "Stinsonson");
+
+    Application application1 = setUpApplicationGroup(user1, group1);
+    Application application2 = setUpApplicationGroup(user2, group2);
+    Application application3 = setUpApplicationGroup(user3, subGroup1);
+    Application application4 = setUpApplicationGroup(user4, subGroup2);
+
+    ApplicationsPageQuery query =
+        new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE,
+            List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), group1.getId(), true);
+
+    Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
+
+    List<Group> returnedGroups = result.getData().stream().map(Application::getGroup).toList();
+
+    List<Integer> returnedIds = returnedGroups.stream().map(Group::getId).toList();
+
+    assertThat(returnedIds).containsExactly(group1.getId(), subGroup1.getId());
+  }
+  @Test
+  public void getApplicationsPageForGroupWithSubgroupsRecursive() throws Exception {
+    System.out.println("getApplicationsPageForGroupWithSubgroupsRecursive");
+
+    // create groups
+    Group group1 = setUpGroup("Group1", "Cool folks");
+    Group group2 = setUpGroup("Group2", "Cooler folks");
+
+    // create subgroups
+    Group subGroup1 = setUpSubgroup("Subgroup1", "Cool folks but less cool", group1);
+    Group subGroup2 = setUpSubgroup("Subgroup2", "Cool folks but a bit less cool", group2);
+
+    // create recursive subgroups
+    Group subsubGroup1 = setUpSubgroup("Subsubgroup1", "Cool subfolks but less cool", subGroup1);
+    Group subsubGroup2 = setUpSubgroup("Subsubgroup2", "Cool subfolks but a bit less cool", subGroup2);
+    // create users
+    User user1 = setUpUser("Joe", "Doe");
+    User user2 = setUpUser("Barney", "Stinson");
+    User user3 = setUpUser("Joe", "Doey");
+    User user4 = setUpUser("Barney", "Stinsonson");
+    User user5 = setUpUser("Joe", "Doeyefdsaf");
+    User user6 = setUpUser("Barney", "vcxzvxz ");
+
+    Application application1 = setUpApplicationGroup(user1, group1);
+    Application application2 = setUpApplicationGroup(user2, group2);
+    Application application3 = setUpApplicationGroup(user3, subGroup1);
+    Application application4 = setUpApplicationGroup(user4, subGroup2);
+    Application application5 = setUpApplicationGroup(user5, subsubGroup1);
+    Application application6 = setUpApplicationGroup(user6, subsubGroup2);
+
+    ApplicationsPageQuery query =
+        new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE,
+            List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), group1.getId(), true);
+
+    Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
+
+    List<Group> returnedGroups = result.getData().stream().map(Application::getGroup).toList();
+
+    List<Integer> returnedIds = returnedGroups.stream().map(Group::getId).toList();
+
+    assertThat(returnedIds).containsExactly(group1.getId(), subGroup1.getId(), subsubGroup1.getId());
   }
 
   @Test
@@ -1261,7 +1338,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationsPageQuery query =
         new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE,
-            List.of(Application.AppState.VERIFIED), user1.getId(), group1.getId());
+            List.of(Application.AppState.VERIFIED), user1.getId(), group1.getId(), false);
 
     Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
@@ -1284,7 +1361,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationsPageQuery query =
         new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE,
-            List.of(Application.AppState.VERIFIED), user1.getId(), group2.getId());
+            List.of(Application.AppState.VERIFIED), user1.getId(), group2.getId(), false);
 
     Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
 
@@ -1889,6 +1966,21 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     // create group in VO, generate group application form
     Group group = new Group(name, desc);
     group = groupsManager.createGroup(session, vo, group);
+
+    registrarManager.createApplicationFormInGroup(session, group);
+    ApplicationForm groupForm = registrarManager.getFormForGroup(group);
+    groupForm.setAutomaticApproval(true);
+    registrarManager.updateForm(session, groupForm);
+
+    return group;
+  }
+
+  private Group setUpSubgroup(String name, String desc, Group parentGroup) throws Exception {
+    GroupsManager groupsManager = perun.getGroupsManager();
+
+    // create group in VO, generate group application form
+    Group group = new Group(name, desc);
+    group = groupsManager.createGroup(session, parentGroup, group);
 
     registrarManager.createApplicationFormInGroup(session, group);
     ApplicationForm groupForm = registrarManager.getFormForGroup(group);
