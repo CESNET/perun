@@ -1073,6 +1073,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
       type.addItem("URL", "url");
       type.addItem("SERVICE SPECIFIC", "service-specific");
       type.addItem("S3", "s3");
+      type.addItem("S3-JSON", "s3-json");
       type.addItem("URL-JSON", "url-json");
 
       final ListBox propTypeSelect = new ListBox();

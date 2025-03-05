@@ -990,6 +990,7 @@ components:
         - "user@host-windows"
         - "host-windows-proxy"
         - "s3"
+        - "s3-json"
         - "url-json"
 
     DestinationPropagationType:
@@ -19124,7 +19125,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/destinationName'
-        - { name: type, description: "Destination type (host,user@host,user@host:port,url,service-specific, s3, url-json)", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
+        - { name: type, description: "Destination type (host,user@host,user@host:port,url,service-specific, s3, s3-json, url-json)", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
         - { name: propagationType, description: "propagation type (PARALLEL, DUMMY - doesn't send data)", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: false }
       responses:
         '200':
