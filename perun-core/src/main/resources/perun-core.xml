@@ -80,8 +80,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttributeDefinition(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
-                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeRight(..))"/>
-        <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributePolicyCollections(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeActionCriticality(..))"/>
