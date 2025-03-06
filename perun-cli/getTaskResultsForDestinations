@@ -13,7 +13,7 @@ sub help {
 	Returns state of the GEN and SEND services on the defined destinations
 	---------------------------------------------------------------
 	Available options:
-	--destinations   | -d destinations separated by space
+	--destinations   | -d destination names separated by space
 	--batch          | -b batch
 	--help           | -h prints this help
 
