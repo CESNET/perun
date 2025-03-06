@@ -6351,7 +6351,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   }
 
   /**
-   * Update member status if not VALID nor SUSPENDED to EXPIRED or VALID based on membership expiration attribute.
+   * Updates member status to either VALID or EXPIRED based on membership expiration attribute.
+   * This method is used during group synchronization process to re-activate the member
+   * and works only on members with INVALID, DISABLED or EXPIRED status.
    *
    * @param sess           perun session
    * @param memberToUpdate member to update
