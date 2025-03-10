@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -57,6 +58,11 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
     }
 
     if (attribute.valueAsBoolean()) {
+
+      if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+        throw new WrongReferenceAttributeValueException(attribute,
+            "Synchronization cannot be enabled for members groups.");
+      }
 
       if (perunSession.getPerunBl().getGroupsManagerBl().isGroupSynchronizedFromExternallSource(perunSession, group)) {
         throw new InternalErrorException("Synchronization is already enabled for one of the parent groups.");
