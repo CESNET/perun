@@ -1,5 +1,29 @@
 Upgrade notes
 
+## [47.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.1.0...v47.2.0) (2025-03-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* New configuration options in perun-dispatcher.properties: `dispatcher.task.poll.wait` and `dispatcher.task.reschedule`.
+
+### Features
+
+* **core:** add s3-json destination ([722b10d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/722b10d4a596c1f0495b69f02a31b47ddb340872))
+* **core:** disable group synchronization for members groups ([6a23651](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6a23651dcafff78d50206462f33c19fad84b6a3f))
+* **gui:** prevent preferred email change if disabled in config ([2d0fa6c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2d0fa6cdbea67124d756a11582f9117bfd508af8))
+* make more provisioning process timeouts configurable ([c794a09](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c794a0979b82d3062e62dde3c60a8a0f9062ff70))
+* **registrar:** enable to return applications to subgroups of group in getApplicationsPage ([4b807b3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4b807b3c1bde21cf67a52c304ea17d0876f3410a))
+
+
+### Bug Fixes
+
+* **core:** removed unused nested transaction config ([702490d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/702490da1089b34509f8cf79cb49ac2b6c1bb8eb))
+* delete reserved logins only when deleting def login-namespace ([6b7719e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6b7719e1261e02cc8bb6308fd7fea39ae454a39c))
+* **deps:** update dependency google-api-services-admin-directory ([e2da89d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e2da89d1649fa44e1158547bf736bb308f26eaa5))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.4.3 ([4148512](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4148512a6cdf39e326fe13f9cf6e95863f2bfc0e))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.11.4 ([39dd214](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/39dd214c191efd5ee19223208d2bededbfac912a))
+
 ## [47.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.0.0...v47.1.0) (2025-02-21)
 
 
