@@ -1968,7 +1968,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
                                                 .toList());
     }
     // Free logins for login-namespace attribute
-    if (attribute.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
+    if (attribute.getNamespace().equalsIgnoreCase(AttributesManager.NS_USER_ATTR_DEF) &&
+            attribute.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
       // Free blocked logins
       getPerunBl().getUsersManagerBl().unblockLoginsForNamespace(sess, attribute.getFriendlyNameParameter());
       // Free reserved logins

@@ -245,6 +245,8 @@ public class PropagationMaintainer extends AbstractRunner {
       return;
     }
 
+    long timeout = Long.parseLong(dispatcherProperties.getProperty("dispatcher.task.reschedule", "10000"));
+
     while (!shouldStop()) {
 
       rescheduleDoneTasks();
@@ -254,7 +256,7 @@ public class PropagationMaintainer extends AbstractRunner {
       endStuckTasks();
 
       try {
-        Thread.sleep(10000);
+        Thread.sleep(timeout);
       } catch (InterruptedException ex) {
         LOG.error("Error in PropagationMaintainer", ex);
         throw new RuntimeException("Somebody has interrupted us...", ex);

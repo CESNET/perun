@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -38,6 +39,10 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
         if (sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)) {
           throw new WrongReferenceAttributeValueException(attribute,
               "Synchronization cannot be enabled for groups in auto registration.");
+        }
+        if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+          throw new WrongReferenceAttributeValueException(attribute,
+              "Synchronization cannot be enabled for members groups.");
         }
 
         Attribute conflictingAttribute = sess.getPerunBl().getAttributesManagerBl()
