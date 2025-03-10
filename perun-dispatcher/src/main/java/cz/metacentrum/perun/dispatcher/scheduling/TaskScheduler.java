@@ -106,18 +106,19 @@ public class TaskScheduler extends AbstractRunner {
    * Internal method which chooses next Task that will be processed, we try to take forced Task first, and if none is
    * available, then we wait for a normal Task for a few seconds.
    *
-   * @return Once one of the Queues returns non null TaskSchedule, we return it.
+   * @return Once one of the Queues returns non-null TaskSchedule, we return it.
    * @throws InterruptedException When blocking queue polling was interrupted.
    */
   private TaskSchedule getWaitingTaskSchedule() throws InterruptedException {
     TaskSchedule taskSchedule = null;
+    long timeout = Long.parseLong(dispatcherProperties.getProperty("dispatcher.task.poll.wait", "10000"));
     while (!shouldStop()) {
       LOG.debug(schedulingPool.getReport());
       LOG.debug("WaitingTasksQueue has {} normal Tasks and {} forced Tasks.", waitingTasksQueue.size(),
           waitingForcedTasksQueue.size());
       taskSchedule = waitingForcedTasksQueue.poll();
       if (taskSchedule == null) {
-        taskSchedule = waitingTasksQueue.poll(10, TimeUnit.SECONDS);
+        taskSchedule = waitingTasksQueue.poll(timeout, TimeUnit.MILLISECONDS);
       }
       if (taskSchedule != null) {
         break;

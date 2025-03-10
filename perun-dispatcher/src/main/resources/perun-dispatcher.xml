@@ -65,6 +65,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
                 <prop key="dispatcher.port">6071</prop>
                 <prop key="dispatcher.task.delay.time">30000</prop>
                 <prop key="dispatcher.task.delay.count">4</prop>
+                <prop key="dispatcher.task.poll.wait">10000</prop>
+                <prop key="dispatcher.task.reschedule">10000</prop>
                 <prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
                 <prop key="dispatcher.propagation.timeout">190</prop>
                 <prop key="dispatcher.rescheduleInterval">48</prop>
