@@ -29,6 +29,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
+import cz.metacentrum.perun.webgui.json.configManager.GetPersonalDataChangeConfig;
 import cz.metacentrum.perun.webgui.json.usersManager.GetPendingPreferredEmailChanges;
 import cz.metacentrum.perun.webgui.json.usersManager.RequestPreferredEmailChange;
 import cz.metacentrum.perun.webgui.model.Attribute;
@@ -47,6 +48,7 @@ import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Tab with user's personal settings (personal info, contacts)
@@ -157,6 +159,16 @@ public class SelfPersonalTabItem implements TabItem {
     final ExtendedTextBox preferredEmail = new ExtendedTextBox();
     preferredEmail.getTextBox().setWidth("300px");
     preferredEmail.setWidth("300px");
+
+    GetPersonalDataChangeConfig config = new GetPersonalDataChangeConfig(new JsonCallbackEvents() {
+      public void onFinished(JavaScriptObject jso) {
+        Map<String,String> result = JsonUtils.parseJsonToMapString(jso);
+        if (!Objects.equals(result.get("enableCustomEmail"), "true")) {
+          preferredEmail.getTextBox().setEnabled(false);
+        }
+      }
+    });
+    config.retrieveData();
 
     final ListBox preferredLanguage = new ListBox();
 
