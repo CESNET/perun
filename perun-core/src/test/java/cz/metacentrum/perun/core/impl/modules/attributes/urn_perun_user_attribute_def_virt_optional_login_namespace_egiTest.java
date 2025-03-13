@@ -28,7 +28,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_egiTest 
   private static ExtSource extSource;
   private static UserExtSource ues1;
   private static UserExtSource ues2;
-  private final String EXTSOURCE_EGI = "https://aai.egi.eu/proxy/saml2/idp/metadata.php";
+  private final String EXTSOURCE_EGI = "https://aai.egi.eu/auth/realms/egi";
 
   @Before
   public void setUp() throws Exception {
