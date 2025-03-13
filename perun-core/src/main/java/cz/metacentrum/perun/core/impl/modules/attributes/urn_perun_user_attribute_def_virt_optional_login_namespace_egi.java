@@ -22,7 +22,7 @@ import java.util.List;
 public class urn_perun_user_attribute_def_virt_optional_login_namespace_egi
         extends urn_perun_user_attribute_def_virt_optional_login_namespace {
 
-  private static final String EXTSOURCE_CHECKIN = "https://aai.egi.eu/proxy/saml2/idp/metadata.php";
+  private static final String EXTSOURCE_CHECKIN = "https://aai.egi.eu/auth/realms/egi";
 
   @Override
   public AttributeDefinition getAttributeDefinition() {
