@@ -909,17 +909,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
               //we can skip this one, because he is already in group, and remove him from the map
               //but first we need to also validate him if he was disabled before (invalidate and then validate)
               RichMember richMember = idsOfUsersInGroup.get(user.getId());
-              if (richMember != null && Status.DISABLED.equals(richMember.getStatus())) {
-                getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
-                try {
-                  getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
-                } catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-                  LOG.info("Switching member id {} into INVALID state from DISABLED, because there was problem with " +
-                           "attributes {}.", richMember.getId(), e);
-                }
+              if (richMember != null) {
+                // also synchronize the group status
+                synchronizeGroupStatus(sess, richMember, subjectFromLoginSource.get("status"), group);
+                updateMemberStatus(sess, richMember);
               }
-              // also synchronize the group status
-              synchronizeGroupStatus(sess, richMember, subjectFromLoginSource.get("status"), group);
               idsOfUsersInGroup.remove(user.getId());
             } else {
               //he is not yet in group, so we need to create a candidate
