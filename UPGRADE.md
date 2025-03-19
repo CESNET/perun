@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [47.2.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.2.0...v47.2.1) (2025-03-19)
+
+
+### Bug Fixes
+
+* **core:** entity id of CheckIn proxy has changed ([85ac46e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/85ac46e8e957d13a4cfa7cf7ed884937df3cea6b))
+
 ## [47.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.1.0...v47.2.0) (2025-03-10)
 
 
