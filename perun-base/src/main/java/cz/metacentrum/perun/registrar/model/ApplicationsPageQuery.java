@@ -190,6 +190,14 @@ public class ApplicationsPageQuery extends PageQuery {
     this.dateTo = dateTo;
   }
 
+  public ApplicationsPageQuery(int pageSize, int offset, SortingOrder order, ApplicationsOrderColumn sortColumn,
+                               List<Application.AppState> states, Integer userId) {
+    super(pageSize, offset, order);
+    this.sortColumn = sortColumn;
+    this.states = states;
+    this.userId = userId;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
