@@ -16959,7 +16959,6 @@ paths:
               description: "input to getPaginatedApplications"
               type: object
               required:
-                - vo
                 - query
               properties:
                 vo: { type: integer }

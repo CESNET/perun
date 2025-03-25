@@ -681,7 +681,11 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   getApplicationsPage {
     @Override
     public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-      return ac.getRegistrarManager().getApplicationsPage(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+      Vo vo = null;
+      if (parms.contains("vo")) {
+        vo = ac.getVoById(parms.readInt("vo"));
+      }
+      return ac.getRegistrarManager().getApplicationsPage(ac.getSession(), vo,
           parms.read("query", ApplicationsPageQuery.class));
     }
 

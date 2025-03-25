@@ -8518,6 +8518,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getApplicationsForUser_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   vo-getFormItems_ApplicationForm_AppType_policy:
     policy_roles:
       - VOADMIN: Vo
