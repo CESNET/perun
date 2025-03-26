@@ -78,6 +78,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.changedAttributeHook(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.deletedEntityHook(..))"/>
+        <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttributeDefinition(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributePolicyCollections(..))"/>

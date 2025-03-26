@@ -56,6 +56,15 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
       throws WrongAttributeValueException;
 
   /**
+   * Triggers for attributes connected to a user entity being deleted
+   *
+   * @param perunSession session
+   * @param user User
+   * @param attribute Attribute of the user
+   */
+  void deletedEntityHook(PerunSessionImpl perunSession, User user, Attribute attribute);
+
+  /**
    * Tries to fill an attribute to the specified user.
    *
    * @param perunSession PerunSession

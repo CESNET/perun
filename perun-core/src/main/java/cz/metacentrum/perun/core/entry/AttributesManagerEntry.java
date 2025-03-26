@@ -5156,7 +5156,7 @@ public class AttributesManagerEntry implements AttributesManager {
   @Override
   public void removeAllAttributes(PerunSession sess, User user)
       throws PrivilegeException, UserNotExistsException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException {
+                 WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
     Utils.checkPerunSession(sess);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
     //Choose if principal has access to remove all attributes
