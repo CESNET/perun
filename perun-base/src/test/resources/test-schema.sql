@@ -1,4 +1,4 @@
--- database version 3.2.29 (don't forget to update insert statement at the end of file)
+-- database version 3.2.30 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -441,7 +441,8 @@ create table services
     enabled                boolean   default true                  not null,
     script                 varchar                                 not null,
     use_expired_members    boolean   default true                  not null,
-    use_expired_vo_members boolean   default true                  not null,
+    use_expired_vo_members boolean   default false                 not null,
+    use_banned_members     boolean   default true                  not null,
     created_at             timestamp default statement_timestamp() not null,
     created_by             varchar   default user                  not null,
     modified_at            timestamp default statement_timestamp() not null,
@@ -1988,7 +1989,7 @@ create index idx_fk_inv_usr on invitations(sender_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.29');
+values ('DATABASE VERSION', '3.2.30');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations

@@ -50,6 +50,7 @@ public class Synchronizer {
     }
 
     try {
+      getPerun().getVosManagerBl().removeAllExpiredBansOnVos(sess);
       getPerun().getResourcesManagerBl().removeAllExpiredBansOnResources(sess);
       getPerun().getFacilitiesManagerBl().removeAllExpiredBansOnFacilities(sess);
     } catch (InternalErrorException ex) {

@@ -15,6 +15,7 @@ public class Service extends Auditable implements Comparable<PerunBean> {
 
   private boolean useExpiredMembers = true;
   private boolean useExpiredVoMembers = false;
+  private boolean useBannedMembers = true;
 
   public Service() {
     super();
@@ -149,6 +150,14 @@ public class Service extends Auditable implements Comparable<PerunBean> {
     this.useExpiredVoMembers = useExpiredVoMembers;
   }
 
+  public boolean isUseBannedMembers() {
+    return useBannedMembers;
+  }
+
+  public void setUseBannedMembers(boolean useBannedMembers) {
+    this.useBannedMembers = useBannedMembers;
+  }
+
   @Override
   public String serializeToString() {
     StringBuilder str = new StringBuilder();
@@ -161,7 +170,8 @@ public class Service extends Auditable implements Comparable<PerunBean> {
         .append(">").append(", enabled=<").append(this.isEnabled()).append(">").append(", script=<")
         .append(getScript() == null ? "\\0" : BeansUtils.createEscaping(getScript())).append(">")
         .append(", useExpiredMembers=<").append(isUseExpiredMembers()).append(">")
-        .append(", useExpiredVoMembers=<").append(isUseExpiredVoMembers()).append(">").append(']').toString();
+        .append(", useExpiredVoMembers=<").append(isUseExpiredVoMembers()).append(">")
+        .append(", useBannedMembers=<").append(isUseBannedMembers()).append(">").append(']').toString();
   }
 
   @Override
@@ -171,7 +181,7 @@ public class Service extends Auditable implements Comparable<PerunBean> {
         .append("', description='").append(getDescription()).append("', delay='").append(getDelay())
         .append("', recurrence='").append(getRecurrence()).append("', enabled='").append(isEnabled())
         .append("', script='").append(getScript()).append("', useExpiredMembers='").append(isUseExpiredMembers())
-        .append("', useExpiredVoMembers='").append(isUseExpiredVoMembers())
-        .append("']").toString();
+        .append("', useExpiredVoMembers='").append(isUseExpiredVoMembers()).append("', useBannedMembers='")
+        .append(isUseBannedMembers()).append("']").toString();
   }
 }

@@ -17,13 +17,14 @@ sub help {
 	--enabled      | -e enabled (default 'true')
 	--expired      | -x use expired group members (default 'true')
 	--expiredVo    | -v use expired VO members (default 'false')
+	--banned       | -B use banned members (default 'true')
 	--batch        | -b batch
 	--help         | -h prints this help
 
 	};
 }
 
-my ($name, $description, $script, $enabled, $batch, $expired, $expiredVo);
+my ($name, $description, $script, $enabled, $batch, $expired, $expiredVo, $bannedMembers);
 GetOptions ("help|h"  => sub {
 		print help();
 		exit 0;
@@ -35,6 +36,7 @@ GetOptions ("help|h"  => sub {
 	"enabled|e=s" => \$enabled,
 	"expired|x=s" => \$expired,
 	"expiredVo|v=s" => \$expiredVo,
+	"banned|B=s" => \$bannedMembers,
 ) || die help();
 
 # Check options
@@ -52,6 +54,7 @@ unless ($script) {
 $service->setScript($script);
 $service->setUseExpiredMembers($expired);
 $service->setUseExpiredVoMembers($expiredVo);
+$service->setUseBannedMembers($bannedMembers);
 $service->setEnabled($enabled);
 $service->setRecurrence(2);
 $service->setDelay(10);

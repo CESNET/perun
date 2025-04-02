@@ -255,6 +255,7 @@ public class AuditParserTest {
     assertEquals(service.getScript(), ((Service) serviceInList.get(0)).getScript());
     assertEquals(service.isUseExpiredMembers(), ((Service) serviceInList.get(0)).isUseExpiredMembers());
     assertEquals(service.isUseExpiredVoMembers(), ((Service) serviceInList.get(0)).isUseExpiredVoMembers());
+    assertEquals(service.isUseBannedMembers(), ((Service) serviceInList.get(0)).isUseBannedMembers());
 
     //FOR ATTRIBUTE DEFINITION
     AttributeDefinition attributeDefinition1 = new AttributeDefinition(getAttributeDefinition1());

@@ -7,6 +7,7 @@ package cz.metacentrum.perun.core.api;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  */
+@Deprecated
 public class Owner extends Auditable implements Comparable<PerunBean> {
 
 

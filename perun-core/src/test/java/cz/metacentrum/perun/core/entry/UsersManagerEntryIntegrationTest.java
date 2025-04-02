@@ -2931,8 +2931,20 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		perun.getResourcesManager().assignGroupToResource(sess, g1, r, false, false, false);
 		perun.getResourcesManager().assignGroupToResource(sess, g2, r, false, false, false);
 
-		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManagerBl().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
-		Consent consent2 = new Consent(-11, user2.getId(), perun.getConsentsManagerBl().getConsentHubByName(sess, facility.getName()), new ArrayList<>());
+        // again why does an ENTRY INTERGRATION level test just not care about correct consent logic goes beyond me
+        Service service = new Service();
+        service.setName("ServicesManagerTestService");
+        service = perun.getServicesManager().createService(sess, service);
+
+        Attribute userAttr = perun.getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:core:id");
+
+        perun.getServicesManagerBl().addRequiredAttribute(sess, service, userAttr);
+        perun.getResourcesManagerBl().assignService(sess, r, service);
+
+
+
+		Consent consent1 = new Consent(-1, user.getId(), perun.getConsentsManagerBl().getConsentHubByName(sess, facility.getName()), List.of(userAttr));
+		Consent consent2 = new Consent(-11, user2.getId(), perun.getConsentsManagerBl().getConsentHubByName(sess, facility.getName()), List.of(userAttr));
 
 		perun.getConsentsManagerBl().createConsent(sess, consent1);
 		perun.getConsentsManagerBl().createConsent(sess, consent2);

@@ -667,6 +667,48 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
     assertThat(voBans).containsOnly(ban);
   }
 
+    @Test
+  public void removeExpiredBansIfExist() throws Exception {
+    System.out.println(CLASS_NAME + "removeExpiredBansIfExist");
+    Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+    Member member = createMemberFromExtSource(createdVo);
+    Date now = new Date();
+    Date yesterday = new Date(now.getTime() - (1000 * 60 * 60 * 24));
+    BanOnVo ban = new BanOnVo(0, member.getId(), createdVo.getId(), yesterday, null);
+
+    vosManagerEntry.setBan(sess, ban);
+
+    List<BanOnVo> bansOnVo = vosManagerEntry.getBansForVo(sess, ban.getVoId());
+    assertEquals(1, bansOnVo.size());
+
+    perun.getVosManagerBl().removeAllExpiredBansOnVos(sess);
+
+    bansOnVo = vosManagerEntry.getBansForVo(sess, ban.getVoId());
+
+    assertTrue(bansOnVo.isEmpty());
+  }
+
+  @Test
+  public void removeExpiredBansIfNotExist() throws Exception {
+    System.out.println(CLASS_NAME + "removeExpiredBansIfNotExist");
+    Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+    Member member = createMemberFromExtSource(createdVo);
+    Date now = new Date();
+    Date tommorow = new Date(now.getTime() + (1000 * 60 * 60 * 24));
+    BanOnVo ban = new BanOnVo(0, member.getId(), createdVo.getId(), tommorow, null);
+
+
+    vosManagerEntry.setBan(sess, ban);
+
+    List<BanOnVo> bansOnVo = vosManagerEntry.getBansForVo(sess, ban.getVoId());
+    assertEquals(1, bansOnVo.size());
+
+    perun.getVosManagerBl().removeAllExpiredBansOnVos(sess);
+
+    bansOnVo = vosManagerEntry.getBansForVo(sess, ban.getVoId());
+    assertEquals(1, bansOnVo.size());
+  }
+
   @Test
   public void getCompleteCandidatesFromGroup() throws Exception {
     System.out.println(CLASS_NAME + "getCompleteCandidatesFromGroup");

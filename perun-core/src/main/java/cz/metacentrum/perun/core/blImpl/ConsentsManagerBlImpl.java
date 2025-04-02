@@ -149,9 +149,13 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
             group -> getPerunBl().getGroupsManagerBl().getTotalMemberGroupStatus(sess, member, group)
                 .equals(MemberGroupStatus.EXPIRED));
         boolean isExpiredInVo = member.getStatus().equals(Status.EXPIRED);
+        boolean isBannedOnVo = getPerunBl().getVosManagerBl().isMemberBanned(sess, member.getId());
+        boolean isBannedOnResource = getPerunBl().getResourcesManagerBl().banExists(sess, member.getId(),
+            resource.getId());
         for (Service service : perunBl.getResourcesManagerBl().getAssignedServices(sess, resource)) {
           if ((!service.isUseExpiredMembers() && isExpiredInResource) ||
-                  (!service.isUseExpiredVoMembers() && isExpiredInVo)) {
+                  (!service.isUseExpiredVoMembers() && isExpiredInVo) ||
+                  (!service.isUseBannedMembers() && (isBannedOnVo || isBannedOnResource))) {
             continue;
           }
           for (AttributeDefinition attr : perunBl.getAttributesManagerBl()
@@ -164,11 +168,13 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
       }
     }
     consent.setAttributes(filter.stream().toList());
-
-    consent = getConsentsManagerImpl().createConsent(sess, consent);
-    getPerunBl().getAuditer().log(sess, new ConsentCreated(consent));
-
-    return consent;
+    if (!consent.getAttributes().isEmpty()) {
+      // No need to create a consent without attributes, what data am I consenting to?
+      consent = getConsentsManagerImpl().createConsent(sess, consent);
+      getPerunBl().getAuditer().log(sess, new ConsentCreated(consent));
+      return consent;
+    }
+    return null;
   }
 
   @Override

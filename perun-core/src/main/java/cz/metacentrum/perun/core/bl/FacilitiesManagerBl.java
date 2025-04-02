@@ -315,7 +315,7 @@ public interface FacilitiesManagerBl {
   /**
    * Return all members, which are "allowed" on facility through any resource assigned to the given service.
    * Service settings decide whether expired group and expired VO members are returned as well. Disabled and invalid VO
-   * members are always ignored.
+   * members are always ignored. Users banned on the facility are filtered out as well
    *
    * @param sess
    * @param facility
