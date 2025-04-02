@@ -1,5 +1,21 @@
 Upgrade notes
 
+## [47.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.2.1...v47.3.0) (2025-04-02)
+
+
+### Features
+
+* **registrar:** allow `getApplicationsPage` to return apps for user unbound by vo ([1cbc88c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1cbc88c8d1c42414dccd9f327b46df4dc4206292))
+
+
+### Bug Fixes
+
+* **core:** entity id of CheckIn proxy has changed ([9e80000](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9e8000030dc0876701823edb2f4fcf5d44774873))
+* **deps:** update dependency google-api-services-admin-directory ([8cd0af3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8cd0af397127ff8090a7a8161b73334fc5ad8f32))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.4.4 ([134e32e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/134e32ed4f72447f993fc9fffc0606e33f25f3ad))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.11.5 ([398363f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/398363ffe382e1fa0f1b06a0f6adee2399b140a4))
+* **deps:** update gwtversion to v2.12.2 ([84ba4a4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/84ba4a44a9622055f71bb76816ff709b34757480))
+
 ## [47.2.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.2.0...v47.2.1) (2025-03-19)
 
 
