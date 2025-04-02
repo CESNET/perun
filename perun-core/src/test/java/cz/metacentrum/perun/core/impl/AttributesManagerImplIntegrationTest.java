@@ -147,8 +147,8 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
 
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    attr.setFriendlyName("IPAddresses");
-    attr.setType(ArrayList.class.getName());
+    attr.setFriendlyName("mailaliasesGenericMail");
+    attr.setType(String.class.getName());
 
     assertNotNull(attributesManager.getUninitializedAttributesModule(sess, attr));
 
@@ -175,8 +175,8 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
 
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    attr.setFriendlyName("IPAddresses");
-    attr.setType(ArrayList.class.getName());
+    attr.setFriendlyName("mailaliasesGenericMail");
+    attr.setType(String.class.getName());
 
     perun.getAttributesManagerBl().createAttribute(sess, attr);
     assertNull(attributesManager.getUninitializedAttributesModule(sess, attr));

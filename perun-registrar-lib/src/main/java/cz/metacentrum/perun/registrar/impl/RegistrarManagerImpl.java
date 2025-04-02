@@ -2707,23 +2707,37 @@ public class RegistrarManagerImpl implements RegistrarManager {
   @Override
   public Paginated<RichApplication> getApplicationsPage(PerunSession userSession, Vo vo, ApplicationsPageQuery query)
       throws PerunException {
-    vosManager.checkVoExists(userSession, vo);
-    MapSqlParameterSource namedParams = new MapSqlParameterSource();
-
-    //Authorization
-    if (query.getGroupId() != null) {
-      if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_policy",
-          Collections.singletonList(groupsManager.getGroupById(userSession, query.getGroupId())))) {
+    if (vo == null) {
+      User user = new User();
+      if (query.getUserId() == null) {
+        throw new IllegalArgumentException("User has to be included in the query when not providing VO");
+      }
+      user.setId(query.getUserId());
+      if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForUser_User_policy",
+          Collections.singletonList(user))) {
         throw new PrivilegeException(userSession, "getApplicationsPage");
       }
     } else {
-      if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_Boolean_policy",
-          Collections.singletonList(vo))) {
-        throw new PrivilegeException(userSession, "getApplicationsPage");
+      vosManager.checkVoExists(userSession, vo);
+
+      //Authorization
+      if (query.getGroupId() != null) {
+        if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_policy",
+            Collections.singletonList(groupsManager.getGroupById(userSession, query.getGroupId())))) {
+          throw new PrivilegeException(userSession, "getApplicationsPage");
+        }
+      } else {
+        if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_Boolean_policy",
+            Collections.singletonList(vo))) {
+          throw new PrivilegeException(userSession, "getApplicationsPage");
+        }
       }
     }
 
-    namedParams.addValue("voId", vo.getId());
+    MapSqlParameterSource namedParams = new MapSqlParameterSource();
+    if (vo != null) {
+      namedParams.addValue("voId", vo.getId());
+    }
     if (query.getStates() != null) {
       namedParams.addValue("states", query.getStates().stream().map(Enum::toString).toList());
     }
@@ -2744,9 +2758,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
                            ")" +
                            " SELECT id FROM subgroups)";
 
-    Paginated<RichApplication> applications = namedJdbc.query(APP_SELECT_PAGE + " WHERE a.vo_id=(:voId)" +
-                                                              (query.getStates() == null ||
-                                                               query.getStates().isEmpty() ? "" :
+    Paginated<RichApplication> applications = namedJdbc.query(APP_SELECT_PAGE + " WHERE a.id IS NOT NULL " +
+                                                                  (vo != null ? " AND a.vo_id=(:voId) " : "") +
+                                                                  (query.getStates() == null ||
+                                                                       query.getStates().isEmpty() ? "" :
                                                                   " AND a.state IN (:states) ") +
                                                               (query.getIncludeGroupApplications() != null &&
                                                                query.getIncludeGroupApplications() ? "" :

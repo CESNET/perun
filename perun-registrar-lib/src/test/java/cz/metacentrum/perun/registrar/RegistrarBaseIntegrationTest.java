@@ -1485,6 +1485,65 @@ System.out.println("APPS ["+result.size()+"]:" + result);
   }
 
   @Test
+  public void getApplicationsPageForUser() throws Exception {
+    System.out.println("getApplicationsPageForUser");
+
+    // create users
+    User user1 = setUpUser("Joe", "Doe");
+
+    Vo vo2 = new Vo(1, "registrarTestVO2", "regTestVO2");
+    vo2 = perun.getVosManagerBl().createVo(session, vo2);
+
+    // create also vo app
+    Application application = prepareApplicationToVo(user1);
+    application.setVo(vo2);
+    registrarManager.submitApplication(session, application, new ArrayList<>());
+
+
+    // create group in another vo
+    Group group1 = setUpGroup("Group1", "Cool folks");
+
+    Application voApplication1 = setUpApplicationGroup(user1, group1);
+
+
+    ApplicationsPageQuery query = new ApplicationsPageQuery(10, 0, SortingOrder.ASCENDING, ApplicationsOrderColumn.ID,
+        null, user1.getId());
+
+    Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, null, query);
+
+    // 3 since initial application for the group app is included
+    assertThat(result.getData().size()).isEqualTo(3);
+  }
+
+  @Test (expected = IllegalArgumentException.class)
+  public void getApplicationsPageForUserNoUserInQuery() throws Exception {
+    System.out.println("getApplicationsPageForUser");
+
+    // create users
+    User user1 = setUpUser("Joe", "Doe");
+
+    Vo vo2 = new Vo(1, "registrarTestVO2", "regTestVO2");
+    vo2 = perun.getVosManagerBl().createVo(session, vo2);
+
+    // create also vo app
+    Application application = prepareApplicationToVo(user1);
+    application.setVo(vo2);
+    registrarManager.submitApplication(session, application, new ArrayList<>());
+
+
+    // create group in another vo
+    Group group1 = setUpGroup("Group1", "Cool folks");
+
+    Application voApplication1 = setUpApplicationGroup(user1, group1);
+
+
+    ApplicationsPageQuery query = new ApplicationsPageQuery(1, 0, SortingOrder.ASCENDING, ApplicationsOrderColumn.ID,
+        List.of(Application.AppState.APPROVED), true);
+
+    Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, null, query);
+  }
+
+  @Test
   public void invitationFormExistsForGroup() throws Exception {
     Group groupWithInvitation =
         perun.getGroupsManagerBl().createGroup(session, vo, new Group("group1", "group with form"));
