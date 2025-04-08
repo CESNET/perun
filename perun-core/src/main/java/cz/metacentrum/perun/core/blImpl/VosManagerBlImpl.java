@@ -814,6 +814,19 @@ public class VosManagerBlImpl implements VosManagerBl {
   }
 
   @Override
+  public void removeAllExpiredBansOnVos(PerunSession sess) {
+    List<BanOnVo> expiredBans = vosManagerImpl.getAllExpiredBansOnVos(sess);
+    for (BanOnVo expiredBan : expiredBans) {
+      try {
+        this.removeBan(sess, expiredBan.getId());
+      } catch (BanNotExistsException e) {
+        LOG.warn("Ban {} can't be removed because it not exists yet.", expiredBan);
+        //Skip this, probably already removed
+      }
+    }
+  }
+
+  @Override
   public BanOnVo getBanById(PerunSession sess, int banId) throws BanNotExistsException {
     return vosManagerImpl.getBanById(sess, banId);
   }

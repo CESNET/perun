@@ -19,6 +19,7 @@ sub toString {
 	my $enabled = $self->{_enabled};
 	my $useExpiredMembers = $self->{_useExpiredMembers};
 	my $useExpiredVoMembers = $self->{_useExpiredVoMembers};
+	my $useBannedMembers = $self->{_useBannedMembers};
 	my $script = $self->{_script};
 
 	my $str = 'Service (';
@@ -30,6 +31,7 @@ sub toString {
 	$str .= "enabled: $enabled, ";
 	$str .= "useExpiredMembers: $useExpiredMembers, ";
 	$str .= "useExpiredVoMembers: $useExpiredVoMembers, ";
+	$str .= "useBannedMembers: $useBannedMembers, ";
 	$str .= "script: $script, ";
 	$str .= ')';
 
@@ -96,10 +98,17 @@ sub TO_JSON
 	if (defined($self->{_useExpiredVoMembers})) {
 		$useExpiredVoMembers = "$self->{_useExpiredVoMembers}";
 	} else {
-		$useExpiredVoMembers = "true";
+		$useExpiredVoMembers = "false";
 	}
 
-	return { id => $id, name => $name, beanName => "Service", description => $description, script => $script, enabled => $enabled, useExpiredMembers => $useExpiredMembers , useExpiredVoMembers => $useExpiredVoMembers };
+	my $useBannedMembers;
+	if (defined($self->{_useBannedMembers})) {
+		$useBannedMembers = "$self->{_useBannedMembers}";
+	} else {
+		$useBannedMembers = "true";
+	}
+
+	return { id => $id, name => $name, beanName => "Service", description => $description, script => $script, enabled => $enabled, useExpiredMembers => $useExpiredMembers, useExpiredVoMembers => $useExpiredVoMembers, useBannedMembers => $useBannedMembers };
 }
 
 sub getId
@@ -217,6 +226,19 @@ sub setUseExpiredVoMembers
 	return;
 }
 
+sub getUseBannedMembers
+{
+	my $self = shift;
+
+	return $self->{_useBannedMembers};
+}
+sub setUseBannedMembers
+{
+	my $self = shift;
+	$self->{_useBannedMembers} = shift;
+	return;
+}
+
 sub getScript
 {
 	my $self = shift;
@@ -234,11 +256,11 @@ sub setScript
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_name}, $self->{_delay}, $self->{_recurrence}, $self->{_enabled}, $self->{_script}, $self->{_description}, $self->{_useExpiredMembers}, $self->{_useExpiredVoMembers});
+	return ($self->{_id}, $self->{_name}, $self->{_delay}, $self->{_recurrence}, $self->{_enabled}, $self->{_script}, $self->{_description}, $self->{_useExpiredMembers}, $self->{_useExpiredVoMembers}, $self->{_useBannedMembers});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Delay','Recurrence','Enaled','Script','Description', 'UseExpiredMembers', 'UseExpiredVoMembers');
+	return ('ID', 'Name', 'Delay','Recurrence','Enaled','Script','Description', 'UseExpiredMembers', 'UseExpiredVoMembers', 'UseBannedMembers');
 }
 
 

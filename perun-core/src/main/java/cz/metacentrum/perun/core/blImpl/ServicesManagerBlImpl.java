@@ -612,7 +612,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     HashedDataGenerator hashedDataGenerator =
         new GroupsHashedDataGenerator.Builder().sess((PerunSessionImpl) sess).service(service).facility(facility)
             .filterExpiredGroupMembers(!service.isUseExpiredMembers())
-            .filterExpiredVoMembers(!service.isUseExpiredVoMembers()).consentEval(consentEval).taskRunId(taskRunId)
+            .filterExpiredVoMembers(!service.isUseExpiredVoMembers()).filterBannedMembers(!service.isUseBannedMembers())
+            .consentEval(consentEval).taskRunId(taskRunId)
             .build();
 
     return hashedDataGenerator.generateData();
@@ -624,7 +625,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     HashedDataGenerator hashedDataGenerator =
         new HierarchicalHashedDataGenerator.Builder().sess((PerunSessionImpl) sess).service(service).facility(facility)
             .filterExpiredGroupMembers(!service.isUseExpiredMembers())
-            .filterExpiredVoMembers(!service.isUseExpiredVoMembers()).consentEval(consentEval).taskRunId(taskRunId)
+            .filterExpiredVoMembers(!service.isUseExpiredVoMembers()).filterBannedMembers(!service.isUseBannedMembers())
+            .consentEval(consentEval).taskRunId(taskRunId)
             .build();
 
     return hashedDataGenerator.generateData();

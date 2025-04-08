@@ -457,7 +457,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
   @Override
   public List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service) {
-    return getFacilitiesManagerImpl().getAllowedMembers(sess, facility, service);
+    List<Member> members =  getFacilitiesManagerImpl().getAllowedMembers(sess, facility, service);
+    members.removeIf(member -> banExists(sess, member.getUserId(), facility.getId()));
+    return members;
   }
 
   @Override
