@@ -1,4 +1,4 @@
--- database version 3.2.30 (don't forget to update insert statement at the end of file)
+-- database version 3.2.31 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -901,6 +901,7 @@ create table groups_members
     created_by_uid      integer,
     modified_by_uid     integer,
     membership_type     integer                                 not null, --identifier of membership type (membersip_types.id)
+    dual_membership     boolean   default false,                          -- whether user is both direct and indirect member
     source_group_id     integer                                 not null, --identifier of parent group (groups.id) if any
     constraint grpmem_pk primary key (member_id, group_id, source_group_id),
     constraint grpmem_gr_fk foreign key (group_id) references groups (id),
@@ -1989,7 +1990,7 @@ create index idx_fk_inv_usr on invitations(sender_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.30');
+values ('DATABASE VERSION', '3.2.31');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations
