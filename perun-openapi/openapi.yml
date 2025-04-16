@@ -172,6 +172,7 @@ components:
         voId: { type: integer }
         status: { type: string }
         membershipType: { type: string }
+        dualMembership: { type: boolean }
         sourceGroupId: { type: integer, nullable: true }
         sponsored: { type: boolean }
         groupStatus: { type: string }

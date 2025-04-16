@@ -64,12 +64,14 @@ public interface GroupsManagerImplApi {
    * @param group
    * @param member
    * @param type
+   * @param dualMember whether member is going to be both direct and indirect after the operation
    * @param sourceGroupId
    * @return Member with specific MembershipType
    * @throws InternalErrorException
    * @throws AlreadyMemberException
    */
-  Member addMember(PerunSession perunSession, Group group, Member member, MembershipType type, int sourceGroupId)
+  Member addMember(PerunSession perunSession, Group group, Member member, MembershipType type, boolean dualMember,
+                   int sourceGroupId)
       throws AlreadyMemberException;
 
   /**

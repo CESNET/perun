@@ -236,7 +236,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     Map<Integer, Map<Integer, MemberGroupStatus>> previousStatuses = getPreviousStatuses(sess, group, List.of(member));
 
-    member = getGroupsManagerImpl().addMember(sess, group, member, MembershipType.DIRECT, group.getId());
+    member = getGroupsManagerImpl().addMember(sess, group, member, MembershipType.DIRECT, memberWasIndirectInGroup,
+        group.getId());
     getPerunBl().getAuditer().log(sess, new DirectMemberAddedToGroup(member, group));
 
     //If member was indirect in group before, we don't need to change anything in other groups
@@ -366,12 +367,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     lockGroupMembership(group, members);
 
     List<Member> newMembers = new ArrayList<>();
+    boolean dualMember = false;
     for (Member member : members) {
       //we want to process only newly added members
-      if (!isGroupMember(sess, group, member)) {
+      if (isDirectGroupMember(sess, group, member)) {
+        // check whether user is already a direct member so that we can determine dual membership
+        dualMember = true;
+      } else if (!isGroupMember(sess, group, member)) {
+        // also check for indirect membership
         newMembers.add(member);
       }
-      groupsManagerImpl.addMember(sess, group, member, MembershipType.INDIRECT, sourceGroupId);
+      groupsManagerImpl.addMember(sess, group, member, MembershipType.INDIRECT, dualMember, sourceGroupId);
     }
 
     for (Member member : newMembers) {
@@ -2099,7 +2105,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     List<Member> directMembers =
         members.stream().filter(m -> m.getMembershipType().equals(MembershipType.DIRECT)).distinct()
-            .map(m -> addGroupStatuses(m, indirectMembersById.get(m.getId()))).collect(toList());
+            .map(m -> {
+              addGroupStatuses(m, indirectMembersById.get(m.getId()));
+              if (indirectMembersById.get(m.getId()) != null) {
+                m.setDualMembership(true);
+              }
+              return m;
+            }).collect(toList());
 
     directMembers.forEach(directMember -> indirectMembersById.remove(directMember.getId()));
 

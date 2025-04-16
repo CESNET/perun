@@ -16,6 +16,7 @@ public class Member extends Auditable {
   private int voId;
   private Status status;
   private MembershipType membershipType;
+  private boolean dualMembership = false;
   private Integer sourceGroupId;
   private boolean sponsored = false;
   private Map<Integer, MemberGroupStatus> groupsStatuses = new HashMap<>();
@@ -117,6 +118,14 @@ public class Member extends Auditable {
     }
   }
 
+  public boolean isDualMembership() {
+    return dualMembership;
+  }
+
+  public void setDualMembership(boolean dualMembership) {
+    this.dualMembership = dualMembership;
+  }
+
   public Integer getSourceGroupId() {
     return sourceGroupId;
   }
@@ -210,6 +219,7 @@ public class Member extends Auditable {
            ", voId=<" + getVoId() + ">" + ", status=<" +
            (getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())) + ">" + ", type=<" +
            (getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
+           ", dualMembership=<" + dualMembership + ">" +
            ", sourceGroupId=<" + (getSourceGroupId() == null ? "\\0" : getSourceGroupId().toString()) + ">" +
            ", sponsored=<" + sponsored + ">" + ']';
   }
@@ -224,6 +234,7 @@ public class Member extends Auditable {
   @Override
   public String toString() {
     return "Member:[id='" + getId() + "', userId='" + userId + "', voId='" + voId + "', status='" + status +
-           "', type='" + membershipType + "', sourceGroupId='" + sourceGroupId + "', sponsored='" + sponsored + "']";
+           "', type='" + membershipType + "', dualMembership='" + dualMembership + "', sourceGroupId='" +
+               sourceGroupId + "', sponsored='" + sponsored + "']";
   }
 }
