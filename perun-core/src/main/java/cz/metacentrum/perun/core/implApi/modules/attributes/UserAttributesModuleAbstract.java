@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -32,6 +33,11 @@ public abstract class UserAttributesModuleAbstract extends AttributesModuleAbstr
 
   public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute)
       throws WrongAttributeValueException {
+
+  }
+
+  public void deletedEntityHook(PerunSessionImpl perunSession, User user, Attribute attribute) {
+
 
   }
 

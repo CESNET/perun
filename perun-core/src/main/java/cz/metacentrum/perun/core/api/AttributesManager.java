@@ -3580,7 +3580,7 @@ public interface AttributesManager {
    */
   void removeAllAttributes(PerunSession sess, User user)
       throws PrivilegeException, UserNotExistsException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException;
+                 WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
   /**
    * Unset all attributes for the host

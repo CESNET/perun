@@ -34,6 +34,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongModuleTypeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -58,6 +59,14 @@ public interface AttributesManagerImplApi {
    * @throws InternalErrorException if unexpected error occured
    */
   boolean attributeExists(PerunSession sess, AttributeDefinition attribute);
+
+  /**
+   * Blocks the attribute value for future use (optionally in the attribute namespace)
+   *
+   * @param session
+   * @param attribute
+   */
+  void blockAttributeValue(PerunSession session, Attribute attribute);
 
   /**
    * If you need to do some further work with other modules, this method do that
@@ -640,6 +649,15 @@ public interface AttributesManagerImplApi {
    * => 'domain/?vo=vo+name'
    */
   String escapeQueryParameters(String value);
+
+  /**
+   * Executes extra logic for attribute module connected to a user entity being deleted
+   *
+   * @param sess
+   * @param user
+   * @param attribute
+   */
+  void deletedEntityHook(PerunSession sess, User user, Attribute attribute);
 
   /**
    * This method try to fill a value of the resource attribute. Value may be copied from some facility attribute.
@@ -2135,6 +2153,17 @@ public interface AttributesManagerImplApi {
    * @return true if action is globally critical, false otherwise
    */
   boolean isAttributeActionGloballyCritical(PerunSession sess, int attrId, AttributeAction action);
+
+  /**
+   * Checks whether the value of the passed attribute (checks separate key-value pairs and list items as well) is
+   * blocked (in namespace if the attribute is namespace based). Throws exception with details if blocked
+   *
+   * @param session
+   * @param attribute
+   * @return pair, the left being a boolean - true if value blocked, right being a string providing further information,
+   * mainly for the complex attribute types (e.g. which key-value pair is blocked, etc.)
+   */
+  Pair<Boolean, String> isAttributeValueBlocked(PerunSession session, Attribute attribute);
 
   /**
    * Check if this attribute is currently required on this facility. Attribute can be from any namespace.

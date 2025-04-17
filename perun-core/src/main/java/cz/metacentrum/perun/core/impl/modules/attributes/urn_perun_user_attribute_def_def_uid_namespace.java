@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Checks and fills at specified facility users UID.
@@ -33,6 +35,9 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
   private static final String A_E_namespace_namespace_uid_policy =
       AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-uid-policy";
   private static final String UID_POLICY_INCREMENT = "increment";
+  private static final String UID_POLICY_RECYCLE = "recycle";
+  private static final Logger LOG = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_uid_namespace.class);
+
 
   /**
    * Checks the new UID of the user. The new UID must not be lower than the min UID or greater than the max UID. Also no
@@ -41,55 +46,58 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
   @Override
   public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute)
       throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-    Integer uid = attribute.valueAsInteger();
-    String uidNamespace = attribute.getFriendlyNameParameter();
-
-    if (uid == null) {
-      throw new WrongReferenceAttributeValueException(attribute,
-          "Attribute was not filled, therefore there is nothing to be checked.");
-    }
-
-    Attribute minUidAttribute;
-    Attribute maxUidAttribute;
     try {
+      Integer uid = attribute.valueAsInteger();
+      String uidNamespace = attribute.getFriendlyNameParameter();
+
+      if (uid == null) {
+        throw new WrongReferenceAttributeValueException(attribute,
+            "Attribute was not filled, therefore there is nothing to be checked.");
+      }
+
+      Attribute minUidAttribute;
+      Attribute maxUidAttribute;
       minUidAttribute =
           sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
       maxUidAttribute =
           sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);
-    } catch (AttributeNotExistsException e) {
-      throw new ConsistencyErrorException("minUid and maxUid attributes are required", e);
-    }
 
-    Integer min = minUidAttribute.valueAsInteger();
-    Integer max = maxUidAttribute.valueAsInteger();
-    if (min == null) {
-      throw new WrongReferenceAttributeValueException(attribute, minUidAttribute);
-    }
-    if (max == null) {
-      throw new WrongReferenceAttributeValueException(attribute, maxUidAttribute);
-    }
-    //uid is in proper range
-    if (uid < min) {
-      throw new WrongReferenceAttributeValueException(attribute, minUidAttribute, user, null, uidNamespace, null,
-          "UID " + uid + " is lesser than min " + min);
-    }
 
-    if (uid > max) {
-      throw new WrongReferenceAttributeValueException(attribute, maxUidAttribute, user, null, uidNamespace, null,
-          "UID " + uid + " is higher than max " + max);
-    }
-
-    // Get all users who have set attribute urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], with
-    // the value.
-    List<User> usersWithUid = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
-    usersWithUid.remove(user); //remove self
-    if (!usersWithUid.isEmpty()) {
-      if (usersWithUid.size() > 1) {
-        throw new ConsistencyErrorException("FATAL ERROR: Duplicated UID detected." + attribute + " " + usersWithUid);
+      Integer min = minUidAttribute.valueAsInteger();
+      Integer max = maxUidAttribute.valueAsInteger();
+      if (min == null) {
+        throw new WrongReferenceAttributeValueException(attribute, minUidAttribute);
       }
-      throw new WrongReferenceAttributeValueException(attribute,
-          "UID " + attribute.getValue() + " is already occupied by " + usersWithUid.get(0) + ". We can't set it for " +
-          user + ".");
+      if (max == null) {
+        throw new WrongReferenceAttributeValueException(attribute, maxUidAttribute);
+      }
+      //uid is in proper range
+      if (uid < min) {
+        throw new WrongReferenceAttributeValueException(attribute, minUidAttribute, user, null, uidNamespace, null,
+            "UID " + uid + " is lesser than min " + min);
+      }
+
+      if (uid > max) {
+        throw new WrongReferenceAttributeValueException(attribute, maxUidAttribute, user, null, uidNamespace, null,
+            "UID " + uid + " is higher than max " + max);
+      }
+
+      // Get all users who have set attribute urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], with
+      // the value.
+      List<User> usersWithUid = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
+      usersWithUid.remove(user); //remove self
+      if (!usersWithUid.isEmpty()) {
+        if (usersWithUid.size() > 1) {
+          throw new ConsistencyErrorException("FATAL ERROR: Duplicated UID detected." + attribute + " " + usersWithUid);
+        }
+        throw new WrongReferenceAttributeValueException(attribute,
+            "UID " + attribute.getValue() + " is already occupied by " + usersWithUid.get(0) +
+                ". We can't set it for " +
+                user + ".");
+      }
+
+    } catch (AttributeNotExistsException ex) {
+      throw new ConsistencyErrorException(ex);
     }
   }
 
@@ -121,7 +129,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 
     SortedSet<Integer> values = new TreeSet<>();
 
-    // Get all attributes urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], then we can get the new UID
+    // Get all attributes urn:perun:user:attribute-def:def:uid-namespace:[uid-namespace], then we can get the new UID
     List<Attribute> uidAttributes =
         sess.getPerunBl().getAttributesManagerBl().getAttributesByAttributeDefinition(sess, attribute);
     for (Attribute uidAttribute : uidAttributes) {
@@ -144,7 +152,12 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
       if (values.isEmpty()) {
         atr.setValue(min);
       } else {
-        atr.setValue(Collections.max(values) + 1);
+        // increment until an unblocked uid value is found
+        int maxValue = Collections.max(values);
+        do {
+          maxValue++;
+          atr.setValue(maxValue);
+        } while (sess.getPerunBl().getAttributesManagerBl().isAttributeValueBlocked(sess, atr).getLeft());
       }
       return atr;
     } else {
@@ -163,6 +176,30 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
         return atr;
       }
     }
+  }
+
+  @Override
+  public void deletedEntityHook(PerunSessionImpl sess, User user, Attribute attribute) {
+    LOG.debug("Blocking value " + attribute.getValue() + " for attribute " + attribute.getName());
+
+    String uidNamespace = attribute.getFriendlyNameParameter();
+    String uidPolicy;
+    try {
+      uidPolicy = (String) sess.getPerunBl().getAttributesManagerBl()
+          .getAttribute(sess, uidNamespace, A_E_namespace_namespace_uid_policy).getValue();
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+      throw new InternalErrorException(e);
+    }
+    if (!UID_POLICY_INCREMENT.equals(uidPolicy)) {
+      return;
+    }
+    try {
+      LOG.debug("Blocking value " + attribute.getValue() + " for attribute " + attribute.getName());
+      sess.getPerunBl().getAttributesManagerBl().blockAttributeValue(sess, attribute);
+    } catch (AttributeNotExistsException e) {
+      throw new ConsistencyErrorException(e);
+    }
+
   }
 
   @Override

@@ -1116,6 +1116,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
             getPerunBl().getAttributesManagerBl().setAttribute(sess, user, anonymized);
           } else {
             // Delete remaining attributes
+            getPerunBl().getAttributesManagerBl().deletedEntityHook(sess, user, attribute);
             getPerunBl().getAttributesManagerBl().removeAttribute(sess, user, attribute);
           }
         }

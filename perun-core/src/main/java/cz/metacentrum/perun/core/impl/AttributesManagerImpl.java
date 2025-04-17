@@ -397,6 +397,50 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
   }
 
   @Override
+  public void blockAttributeValue(PerunSession session, Attribute attribute) {
+    try {
+      switch (attribute.getType()) {
+        case "java.lang.Integer":
+          jdbc.update(
+                "INSERT INTO blocked_attr_values (attr_id, attr_value, created_by_uid, modified_by_uid)" +
+                    " VALUES (?,?,?,?)",
+                        attribute.getId(), attribute.valueAsInteger().toString(),
+              session.getPerunPrincipal().getUserId(), session.getPerunPrincipal().getUserId());
+          break;
+        case "java.lang.String":
+          jdbc.update(
+                "INSERT INTO blocked_attr_values (attr_id, attr_value, created_by_uid, modified_by_uid)" +
+                    " VALUES (?,?,?,?)",
+                        attribute.getId(), attribute.valueAsString(),
+              session.getPerunPrincipal().getUserId(), session.getPerunPrincipal().getUserId());
+          break;
+        case "java.util.ArrayList":
+          for (String s : attribute.valueAsList()) {
+            jdbc.update(
+                "INSERT INTO blocked_attr_values (attr_id, attr_value, created_by_uid, modified_by_uid)" +
+                    " VALUES (?,?,?,?)",
+                        attribute.getId(), s, session.getPerunPrincipal().getUserId(),
+                session.getPerunPrincipal().getUserId());
+          }
+          break;
+        case "java.util.LinkedHashMap":
+          for (Map.Entry<String, String> entry : attribute.valueAsMap().entrySet()) {
+            jdbc.update(
+                "INSERT INTO blocked_attr_values (attr_id, attr_value, created_by_uid, modified_by_uid)" +
+                    " VALUES (?,?,?,?)",
+                  attribute.getId(), entry.getKey() + "=" + entry.getValue(),
+                session.getPerunPrincipal().getUserId(), session.getPerunPrincipal().getUserId());
+          }
+          break;
+        default:
+          break;
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
   public void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) {
     //Call attribute module
     FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
@@ -1154,6 +1198,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
     }
 
     return result;
+  }
+
+  @Override
+  public void deletedEntityHook(PerunSession sess, User user, Attribute attribute) {
+    UserAttributesModuleImplApi attributeModule = getUserAttributeModule(sess, attribute);
+    if (attributeModule == null) {
+      return;
+    }
+    LOG.debug("Called deletedEntityHook in module for user " + user + " and attr " + attribute);
+    attributeModule.deletedEntityHook((PerunSessionImpl) sess, user, attribute);
   }
 
   @Override
@@ -3952,6 +4006,57 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
     }
+  }
+
+  @Override
+  public Pair<Boolean, String> isAttributeValueBlocked(PerunSession session, Attribute attribute) {
+    String namespace = attribute.getFriendlyNameParameter();
+    String namespaceExceptionString = namespace.isBlank() ? "" : " for namespace " + namespace;
+    try {
+      switch (attribute.getType()) {
+        case "java.lang.Integer":
+          if (0 < jdbc.queryForInt(
+                "select count(*) from blocked_attr_values where attr_id=? and attr_value=?",
+                        attribute.getId(), attribute.valueAsInteger().toString())) {
+            return new Pair<>(true, "The attribute value '" + attribute.valueAsInteger() + "' is blocked" +
+                                                namespaceExceptionString);
+          }
+          break;
+        case "java.lang.String":
+          if (0 < jdbc.queryForInt(
+                "select count(*) from blocked_attr_values where attr_id=? and attr_value=?",
+                        attribute.getId(), attribute.valueAsString())) {
+            return new Pair<>(true, "The attribute value '" + attribute.valueAsString() + "' is blocked" +
+                                                namespaceExceptionString);
+          }
+          break;
+        case "java.util.ArrayList":
+          for (String s : attribute.valueAsList()) {
+            if (0 < jdbc.queryForInt(
+                "select count(*) from blocked_attr_values where attr_id=? and attr_value=?",
+                        attribute.getId(), s)) {
+              return new Pair<>(true, "One of the values from the list is blocked: " + s +
+                                                   namespaceExceptionString);
+            }
+          }
+          break;
+        case "java.util.LinkedHashMap":
+          for (Map.Entry<String, String> entry : attribute.valueAsMap().entrySet()) {
+            if (0 < jdbc.queryForInt(
+                "select count(*) from blocked_attr_values where attr_id=? and attr_value=?",
+                  attribute.getId(), entry.getKey() + "=" + entry.getValue())) {
+              return new Pair<>(true, "One of the key value pairs is blocked: " + entry.getKey() + "=" +
+                                                   entry.getValue() + namespaceExceptionString);
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+    return new Pair<>(false, "");
   }
 
   @Override
