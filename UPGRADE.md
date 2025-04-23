@@ -1,5 +1,27 @@
 Upgrade notes
 
+## [48.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.3.0...v48.0.0) (2025-04-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** db update
+* **core:** db update
+* **core:** db update
+
+### Features
+
+* **core:** add a table to track blocked/depleted attribute values ([b7233e1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b7233e1b4af791ae2f050da4425b65a3356fd31b))
+* **core:** allow the choice to not propagate banned members ([f48a242](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f48a242cf96af88e99eb82dfa208c365a6a7bcd9))
+* **core:** ensure both lightweight and regular synchronizations handle vo membership the same way ([48378d4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/48378d40fc93ece577ad3bdaac1c6a5c3d6b0624))
+* **core:** member dual membership flag ([729bbc6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/729bbc6d8ab78a98a166efd80403e973995fe0c8))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.apache.commons:commons-text to v1.13.1 ([ef51f3f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ef51f3f51598647518bee9ce29c3b4ab6cd40449))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.11.6 ([b1fcf0c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b1fcf0c0f65b2f30b661ba108578689320cfa797))
+
 ## [47.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.2.1...v47.3.0) (2025-04-02)
 
 
