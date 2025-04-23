@@ -11,6 +11,9 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BanOnFacility;
+import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
@@ -1305,6 +1308,342 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
   }
 
   @Test
+  public void getHashedHierarchicalDataWithoutBannedMembersFacility() throws Exception {
+    System.out.println(CLASS_NAME + "getHashedHierarchicalDataWithoutBannedMembersFacility");
+
+    vo = setUpVo();
+    facility = setUpFacility();
+    resource = setUpResource();
+    service = setUpService();
+    member = setUpMember();
+    Member bannedMember = setUpMember();
+
+    group = setUpGroup();
+    perun.getGroupsManager().addMember(sess, group, member);
+    perun.getGroupsManager().addMember(sess, group, bannedMember);
+    perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
+
+    // ban member
+    perun.getFacilitiesManagerBl().setBan(sess, new BanOnFacility(0, null, null,
+        bannedMember.getUserId(), facility.getId()));
+
+//    perun.getResourcesManager().setBan(sess, new BanOnResource(0, null, null, bannedMember.getId(), resource.getId()));
+//    perun.getVosManagerBl().setBan(sess, new BanOnVo(0, bannedMember.getId(), vo.getId(), null, null));
+
+    // set member's id as required attribute
+    Attribute reqMemAttr;
+    reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+    perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+    // finally assign service
+    perun.getResourcesManager().assignService(sess, resource, service);
+
+    HashedGenData data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+    assertThat(data.getAttributes()).isNotEmpty();
+
+    Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+    String memberAttrsHash = "m-" + member.getId();
+    String bannedMemberAttrsHash = "m-" + bannedMember.getId();
+
+    // Verify that the list of all attributes contains correct attributes
+    assertThat(attributes).containsOnlyKeys(memberAttrsHash, bannedMemberAttrsHash);
+
+    // set serivce to not use banned members
+    service.setUseBannedMembers(false);
+    perun.getServicesManagerBl().updateService(sess, service);
+    data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+
+    // verify only active member's attribute are present
+    assertThat(data.getAttributes()).containsOnlyKeys(memberAttrsHash);
+
+    // verify only active member is present
+    GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+    assertThat(facilityNode.getMembers()).hasSize(1);
+    assertThat(facilityNode.getMembers()).containsKey(member.getId());
+    assertThat(facilityNode.getChildren()).hasSize(1);
+
+    GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
+    assertThat(res1Node.getMembers().keySet()).hasSize(1);
+    assertThat(res1Node.getMembers()).containsKey(member.getId());
+    assertThat(((GenResourceDataNode) res1Node).getVoId()).isEqualTo(vo.getId());
+    assertThat(res1Node.getChildren()).isEmpty();
+  }
+
+  @Test
+  public void getHashedHierarchicalDataWithoutBannedMembersVo() throws Exception {
+    System.out.println(CLASS_NAME + "getHashedHierarchicalDataWithoutBannedMembersVo");
+
+    vo = setUpVo();
+    facility = setUpFacility();
+    resource = setUpResource();
+    service = setUpService();
+    member = setUpMember();
+    Member bannedMember = setUpMember();
+
+    group = setUpGroup();
+    perun.getGroupsManager().addMember(sess, group, member);
+    perun.getGroupsManager().addMember(sess, group, bannedMember);
+    perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
+
+    // ban member
+    perun.getVosManagerBl().setBan(sess, new BanOnVo(0, bannedMember.getId(), vo.getId(), null, null));
+
+    // set member's id as required attribute
+    Attribute reqMemAttr;
+    reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+    perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+    // finally assign service
+    perun.getResourcesManager().assignService(sess, resource, service);
+
+    HashedGenData data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+    assertThat(data.getAttributes()).isNotEmpty();
+
+    Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+    String memberAttrsHash = "m-" + member.getId();
+    String bannedMemberAttrsHash = "m-" + bannedMember.getId();
+
+    // Verify that the list of all attributes contains correct attributes
+    assertThat(attributes).containsOnlyKeys(memberAttrsHash, bannedMemberAttrsHash);
+
+    // set serivce to not use banned members
+    service.setUseBannedMembers(false);
+    perun.getServicesManagerBl().updateService(sess, service);
+    data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+
+    // verify only active member's attribute are present
+    assertThat(data.getAttributes()).containsOnlyKeys(memberAttrsHash);
+
+    // verify only active member is present
+    GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+    assertThat(facilityNode.getMembers()).hasSize(1);
+    assertThat(facilityNode.getMembers()).containsKey(member.getId());
+    assertThat(facilityNode.getChildren()).hasSize(1);
+
+    GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
+    assertThat(res1Node.getMembers().keySet()).hasSize(1);
+    assertThat(res1Node.getMembers()).containsKey(member.getId());
+    assertThat(((GenResourceDataNode) res1Node).getVoId()).isEqualTo(vo.getId());
+    assertThat(res1Node.getChildren()).isEmpty();
+  }
+
+  @Test
+  public void getHashedHierarchicalDataWithoutBannedMembersVoButPropagatesThroughUnrelatedResources() throws Exception {
+    System.out.println(CLASS_NAME + "getHashedHierarchicalDataWithoutBannedMembersVoButPropagatesThroughUnrelatedResources");
+    //
+    vo = setUpVo();
+    facility = setUpFacility();
+    resource = setUpResource();
+    service = setUpService();
+    member = setUpMember();
+    Member bannedMember = setUpMember();
+
+    group = setUpGroup();
+    perun.getGroupsManager().addMember(sess, group, member);
+    perun.getGroupsManager().addMember(sess, group, bannedMember);
+    perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
+
+
+
+    // create another vo and resoure on it
+    Vo vo2 = new Vo(-1, "ServicesManagerTestVo2", "RMTestVo2");
+    vo2 = perun.getVosManager().createVo(sess, vo2);
+    Member bannedMemberOnOtherVo = perun.getMembersManagerBl().createMember(sess, vo2, perun.getUsersManagerBl().getUserByMember(sess,bannedMember));
+    Resource resource2 = new Resource();
+    resource2.setName("ServicesManagerTestResource22");
+    resource2.setDescription("Testovac2i");
+    resource2 = perun.getResourcesManager().createResource(sess, resource2, vo2, facility);
+    Group group2 = setUpGroup("testGroup2", vo2);
+    perun.getGroupsManagerBl().addMember(sess, group2, bannedMemberOnOtherVo);
+    perun.getGroupsManagerBl().validateMemberInGroup(sess, bannedMemberOnOtherVo, group2);
+    perun.getMembersManagerBl().validateMember(sess, bannedMemberOnOtherVo);
+    perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2, false, false, false);
+
+
+    // ban member
+    perun.getVosManagerBl().setBan(sess, new BanOnVo(0, bannedMember.getId(), vo.getId(), null, null));
+
+    // set member's id as required attribute
+    Attribute reqMemAttr;
+    reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+    perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+    // finally assign service
+    perun.getResourcesManager().assignService(sess, resource, service);
+    perun.getResourcesManager().assignService(sess, resource2, service);
+
+    HashedGenData data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+    assertThat(data.getAttributes()).isNotEmpty();
+
+    Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+    String memberAttrsHash = "m-" + member.getId();
+    String bannedMemberAttrsHash = "m-" + bannedMember.getId();
+    String bannedMemberOnOtherVoAttrsHash = "m-" + bannedMemberOnOtherVo.getId();
+
+
+    // Verify that the list of all attributes contains correct attributes
+    assertThat(attributes).containsOnlyKeys(memberAttrsHash, bannedMemberAttrsHash, bannedMemberOnOtherVoAttrsHash);
+
+    // set serivce to not use banned members
+    service.setUseBannedMembers(false);
+    perun.getServicesManagerBl().updateService(sess, service);
+    data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+
+    // both members' attributes should be present since banned on only one VO
+    assertThat(data.getAttributes()).containsOnlyKeys(memberAttrsHash, bannedMemberOnOtherVoAttrsHash);
+
+    // verify only correct members are present
+    GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+    assertThat(facilityNode.getMembers()).hasSize(2);
+    assertThat(facilityNode.getMembers()).containsKey(member.getId());
+    assertThat(facilityNode.getMembers()).containsKey(bannedMemberOnOtherVo.getId());
+    assertThat(facilityNode.getChildren()).hasSize(2);
+
+    GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
+    assertThat(res1Node.getMembers().keySet()).hasSize(1);
+    assertThat(res1Node.getMembers()).containsKey(member.getId());
+    assertThat(((GenResourceDataNode) res1Node).getVoId()).isEqualTo(vo.getId());
+    assertThat(res1Node.getChildren()).isEmpty();
+  }
+
+  @Test
+  public void getHashedHierarchicalDataWithoutBannedMembersResource() throws Exception {
+    System.out.println(CLASS_NAME + "getHashedHierarchicalDataWithoutBannedMembersResource");
+
+    vo = setUpVo();
+    facility = setUpFacility();
+    resource = setUpResource();
+    service = setUpService();
+    member = setUpMember();
+    Member bannedMember = setUpMember();
+
+    group = setUpGroup();
+    perun.getGroupsManager().addMember(sess, group, member);
+    perun.getGroupsManager().addMember(sess, group, bannedMember);
+    perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
+
+    // ban member
+    perun.getResourcesManagerBl().setBan(sess, new BanOnResource(0, null, null, bannedMember.getId(),
+        resource.getId()));
+
+    // set member's id as required attribute
+    Attribute reqMemAttr;
+    reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+    perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+    // finally assign service
+    perun.getResourcesManager().assignService(sess, resource, service);
+
+    HashedGenData data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+    assertThat(data.getAttributes()).isNotEmpty();
+
+    Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+    String memberAttrsHash = "m-" + member.getId();
+    String bannedMemberAttrsHash = "m-" + bannedMember.getId();
+
+    // Verify that the list of all attributes contains correct attributes
+    assertThat(attributes).containsOnlyKeys(memberAttrsHash, bannedMemberAttrsHash);
+
+    // set serivce to not use banned members
+    service.setUseBannedMembers(false);
+    perun.getServicesManagerBl().updateService(sess, service);
+    data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+
+    // verify only active member's attribute are present
+    assertThat(data.getAttributes()).containsOnlyKeys(memberAttrsHash);
+
+    // verify only active member is present
+    GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+    assertThat(facilityNode.getMembers()).hasSize(1);
+    assertThat(facilityNode.getMembers()).containsKey(member.getId());
+    assertThat(facilityNode.getChildren()).hasSize(1);
+
+    GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
+    assertThat(res1Node.getMembers().keySet()).hasSize(1);
+    assertThat(res1Node.getMembers()).containsKey(member.getId());
+    assertThat(((GenResourceDataNode) res1Node).getVoId()).isEqualTo(vo.getId());
+    assertThat(res1Node.getChildren()).isEmpty();
+  }
+
+  @Test
+  public void getHashedHierarchicalDataWithoutBannedMembersResourceButOnOtherResources() throws Exception {
+    System.out.println(CLASS_NAME + "getHashedHierarchicalDataWithoutBannedMembersResource");
+
+    vo = setUpVo();
+    facility = setUpFacility();
+    resource = setUpResource();
+    service = setUpService();
+    member = setUpMember();
+    Member bannedMember = setUpMember();
+
+    group = setUpGroup();
+    perun.getGroupsManager().addMember(sess, group, member);
+    perun.getGroupsManager().addMember(sess, group, bannedMember);
+    perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
+
+    // create second (but same) resource
+    Group group2 = setUpGroup("group2", vo);
+    perun.getGroupsManager().addMember(sess, group2, bannedMember);
+
+    Resource resource2 = new Resource();
+    resource2.setName("HierarchDataResource");
+    resource2 = perun.getResourcesManager().createResource(sess, resource2, vo, facility);
+    perun.getResourcesManager().assignGroupToResource(sess, group2, resource2, false, false, false);
+    perun.getResourcesManager().assignService(sess, resource2, service);
+
+
+    // ban member
+    perun.getResourcesManagerBl().setBan(sess, new BanOnResource(0, null, null,
+        bannedMember.getId(), resource.getId()));
+
+    // set member's id as required attribute
+    Attribute reqMemAttr;
+    reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+    perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+    // finally assign service
+    perun.getResourcesManager().assignService(sess, resource, service);
+
+    HashedGenData data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+    assertThat(data.getAttributes()).isNotEmpty();
+
+    Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+    String memberAttrsHash = "m-" + member.getId();
+    String bannedMemberAttrsHash = "m-" + bannedMember.getId();
+
+    // Verify that the list of all attributes contains correct attributes
+    assertThat(attributes).containsOnlyKeys(memberAttrsHash, bannedMemberAttrsHash);
+
+    // set serivce to not use banned members
+    service.setUseBannedMembers(false);
+    perun.getServicesManagerBl().updateService(sess, service);
+    data = perun.getServicesManager().getHashedHierarchicalData(sess, service, facility, false, -1);
+
+    // verify only even though member is banned on one of the resources, data still propagates
+    assertThat(data.getAttributes()).containsOnlyKeys(memberAttrsHash, bannedMemberAttrsHash);
+
+    // verify only both members
+    GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+    assertThat(facilityNode.getMembers()).hasSize(2);
+    assertThat(facilityNode.getMembers()).containsKey(member.getId());
+    assertThat(facilityNode.getMembers()).containsKey(bannedMember.getId());
+    assertThat(facilityNode.getChildren()).hasSize(2);
+
+    GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
+    assertThat(res1Node.getMembers().keySet()).hasSize(1);
+    assertThat(res1Node.getMembers()).containsKey(member.getId());
+    assertThat(((GenResourceDataNode) res1Node).getVoId()).isEqualTo(vo.getId());
+    assertThat(res1Node.getChildren()).isEmpty();
+  }
+
+
+
+  @Test
   public void getRichDestinations() throws Exception {
     System.out.println(CLASS_NAME + "getRichDestinations");
     service = setUpService();
@@ -1911,6 +2250,13 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
     return facility;
 
+  }
+
+  private Group setUpGroup(String name, Vo vo) throws Exception {
+    Group group = new Group(name, "testovaci1");
+    Group returnedGroup = perun.getGroupsManager().createGroup(sess, vo, group);
+    assertNotNull("unable to create a group", returnedGroup);
+    return returnedGroup;
   }
 
   private Group setUpGroup() throws Exception {

@@ -87,6 +87,20 @@ sub isSponsored
 	return ($self->{_sponsored}) ? 1 : 0;
 }
 
+sub isDualMembershipToPrint
+{
+	my $self = shift;
+
+	return ($self->{_dualMembership}) ? 'true' : 'false';
+}
+
+sub isDualMembership
+{
+	my $self = shift;
+
+	return ($self->{_dualMembership}) ? 1 : 0;
+}
+
 sub getCommonName
 {
 	return shift->getUser()->getCommonName();
@@ -129,11 +143,11 @@ sub getGroupStatus {
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status}, $self->{_groupStatus}, $self->{_membershipType}, $self->isSponsoredToPrint);
+	return($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status}, $self->{_groupStatus}, $self->{_membershipType}, $self->isSponsoredToPrint, $self->isDualMembershipToPrint);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return('Member Id', 'User Id', 'Name', 'VO Status', 'Group Status', 'Membership type', 'Sponsored');
+	return('Member Id', 'User Id', 'Name', 'VO Status', 'Group Status', 'Membership type', 'Sponsored', 'DualMembership');
 }
 
 1;

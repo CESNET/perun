@@ -40,6 +40,7 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
   private final GenDataProvider dataProvider;
   private final boolean filterExpiredGroupMembers;
   private final boolean filterExpiredVoMembers;
+  private final boolean filterBannedMembers;
   private final Set<Member> membersWithConsent = new HashSet<>();
   private final boolean consentEval;
   private final int taskRunId;
@@ -47,12 +48,14 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 
   private GroupsHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
                                     boolean filterExpiredGroupMembers,
-                                    boolean filterExpiredVoMembers, boolean consentEval, int taskRunId) {
+                                    boolean filterExpiredVoMembers, boolean filterBannedMembers,
+                                    boolean consentEval, int taskRunId) {
     this.sess = sess;
     this.service = service;
     this.facility = facility;
     this.filterExpiredGroupMembers = filterExpiredGroupMembers;
     this.filterExpiredVoMembers = filterExpiredVoMembers;
+    this.filterBannedMembers = filterBannedMembers;
     this.consentEval = consentEval;
     this.taskRunId = taskRunId;
     dataProvider = new GenDataProviderImpl(sess, service, facility);
@@ -102,6 +105,14 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
     } else {
       members = sess.getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
     }
+    if (filterBannedMembers) {
+      // still have to filter facility bans here since they get filtered through `getAllowedMembers` only with consents
+      members.removeIf(member -> sess.getPerunBl().getFacilitiesManagerBl().banExists(sess, member.getUserId(),
+          facility.getId()));
+      members.removeIf(member -> sess.getPerunBl().getVosManagerBl().isMemberBanned(sess, member.getId()));
+      members.removeIf(member -> sess.getPerunBl().getResourcesManagerBl().banExists(sess, member.getId(),
+          resource.getId()));
+    }
     members.removeIf(
           member -> filterExpiredVoMembers && member.getStatus().equals(Status.EXPIRED));
     if (BeansUtils.getCoreConfig().getForceConsents()) {
@@ -138,6 +149,13 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
     } else {
       members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
     }
+    if (filterBannedMembers) {
+      members.removeIf(member -> sess.getPerunBl().getFacilitiesManagerBl().banExists(sess, member.getUserId(),
+          facility.getId()));
+      members.removeIf(member -> sess.getPerunBl().getVosManagerBl().isMemberBanned(sess, member.getId()));
+      members.removeIf(member -> sess.getPerunBl().getResourcesManagerBl().banExists(sess, member.getId(),
+          resource.getId()));
+    }
     members.removeIf(
           member -> filterExpiredVoMembers && member.getStatus().equals(Status.EXPIRED));
     if (BeansUtils.getCoreConfig().getForceConsents()) {
@@ -173,13 +191,14 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
     private Facility facility;
     private boolean filterExpiredGroupMembers = false;
     private boolean filterExpiredVoMembers = false;
+    private boolean filterBannedMembers = false;
     private boolean consentEval = false;
     private int taskRunId;
 
 
     public GroupsHashedDataGenerator build() {
       return new GroupsHashedDataGenerator(sess, service, facility, filterExpiredGroupMembers,
-          filterExpiredVoMembers, consentEval, taskRunId);
+          filterExpiredVoMembers, filterBannedMembers, consentEval, taskRunId);
     }
 
     public Builder consentEval(boolean consentEval) {
@@ -199,6 +218,11 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 
     public Builder filterExpiredVoMembers(boolean filterExpiredVoMembers) {
       this.filterExpiredVoMembers = filterExpiredVoMembers;
+      return this;
+    }
+
+    public Builder filterBannedMembers(boolean filterBannedMembers) {
+      this.filterBannedMembers = filterBannedMembers;
       return this;
     }
 

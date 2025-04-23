@@ -245,6 +245,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     return attributes;
   }
 
+  @Override
+  public void blockAttributeValue(PerunSession session, Attribute attribute) throws AttributeNotExistsException {
+    checkAttributeExists(session, attribute);
+    LOG.debug("Blocking value: {} for attribute: {} in namespace {}", attribute.getValue(), attribute.getName(),
+        attribute.getFriendlyNameParameter());
+    attributesManagerImpl.blockAttributeValue(session, attribute);
+  }
+
   public void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler)
       throws WrongAttributeAssignmentException {
     checkAttributeAssignment(sess, attributeDefinition, handler, null);
@@ -2020,6 +2028,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   @Override
   public void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition, boolean force) {
     throw new InternalErrorException("Not implemented yet!");
+  }
+
+  @Override
+  public void deletedEntityHook(PerunSession sess, User user, Attribute attribute)
+      throws WrongAttributeAssignmentException {
+    getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
+
+    LOG.debug("About to call deleteEntityHook for user " + user + " and attr " + attribute);
+
+    if (attribute.getValue() == null) {
+      return;
+    }
+
+    LOG.debug("Called deleteEntityHook for user " + user + " and attr " + attribute);
+
+    getAttributesManagerImpl().deletedEntityHook(sess, user, attribute);
   }
 
   @Override
@@ -10178,6 +10202,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   }
 
   @Override
+  public Pair<Boolean, String> isAttributeValueBlocked(PerunSession session, Attribute attribute) {
+    if (attribute.getValue() == null) {
+      return new Pair<>(false, "");
+    }
+    return getAttributesManagerImpl().isAttributeValueBlocked(session, attribute);
+  }
+
+  @Override
   public boolean isAttributeActionGloballyCritical(PerunSession sess, AttributeDefinition attr,
                                                    AttributeAction action) {
     return getAttributesManagerImpl().isAttributeActionGloballyCritical(sess, attr.getId(), action);
@@ -10782,7 +10814,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
   @Override
   public void removeAllAttributes(PerunSession sess, User user)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException {
+      throws WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
     List<Attribute> attributes = getAttributes(sess, user);
     if (getAttributesManagerImpl().removeAllAttributes(sess, user)) {
       getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForUser(user));
@@ -10790,6 +10822,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     LOG.info("{} removed all attributes from  user {}.", sess.getLogId(), user.getId());
 
     for (Attribute attribute : attributes) {
+      deletedEntityHook(sess, user, attribute);
       attribute.setValue(null);
     }
     try {

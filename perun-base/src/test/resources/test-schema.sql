@@ -1,4 +1,4 @@
--- database version 3.2.29 (don't forget to update insert statement at the end of file)
+-- database version 3.2.32 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -441,7 +441,8 @@ create table services
     enabled                boolean   default true                  not null,
     script                 varchar                                 not null,
     use_expired_members    boolean   default true                  not null,
-    use_expired_vo_members boolean   default true                  not null,
+    use_expired_vo_members boolean   default false                 not null,
+    use_banned_members     boolean   default true                  not null,
     created_at             timestamp default statement_timestamp() not null,
     created_by             varchar   default user                  not null,
     modified_at            timestamp default statement_timestamp() not null,
@@ -740,6 +741,17 @@ create table blocked_logins
     constraint blocked_logins_u unique (login, namespace)
 );
 
+-- BLOCKED_ATTR_VALUES - values of attributes which have either been depleted or blocked and or not to be used again
+create table blocked_attr_values (
+    attr_id integer not null,
+    attr_value varchar not null,
+    created_at timestamp default statement_timestamp() not null,
+    created_by_uid integer,
+    modified_by_uid integer,
+    constraint fk_attr_names foreign key (attr_id) references attr_names(id) ON DELETE CASCADE,
+    constraint blocked_attr_values_u unique (attr_id, attr_value)
+);
+
 -- FACILITY_SERVICE_DESTINATIONS - destinations of services assigned to the facility
 create table facility_service_destinations
 (
@@ -900,6 +912,7 @@ create table groups_members
     created_by_uid      integer,
     modified_by_uid     integer,
     membership_type     integer                                 not null, --identifier of membership type (membersip_types.id)
+    dual_membership     boolean   default false,                          -- whether user is both direct and indirect member
     source_group_id     integer                                 not null, --identifier of parent group (groups.id) if any
     constraint grpmem_pk primary key (member_id, group_id, source_group_id),
     constraint grpmem_gr_fk foreign key (group_id) references groups (id),
@@ -1985,10 +1998,12 @@ create index app_state_idx ON application (state);
 create index idx_fk_inv_grps on invitations(group_id);
 create index idx_fk_inv_vos on invitations(vo_id);
 create index idx_fk_inv_usr on invitations(sender_id);
+create index idx_fk_blk_attr_attr_names on blocked_attr_values(attr_id);
+
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.29');
+values ('DATABASE VERSION', '3.2.32');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations

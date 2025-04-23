@@ -1803,6 +1803,101 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
 	}
 
+    @Test
+    public void dualMembershipSetCorrectlyOnGroupUnion() throws Exception {
+      System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnion");
+
+      Vo vo = setUpVo();
+      Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+      groupsManagerBl.createGroup(sess, vo, group);
+      groupsManagerBl.createGroup(sess, vo, group2);
+
+      groupsManagerBl.addMember(sess, group, member1);
+      groupsManagerBl.addMember(sess, group2, member1);
+
+      groupsManagerBl.createGroupUnion(sess, group, group2, false);
+
+      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+
+      assertTrue(member1.isDualMembership());
+    }
+
+    @Test
+    public void dualMembershipSetCorrectlyOnGroupUnionRemoval() throws Exception {
+      System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemoval");
+
+      Vo vo = setUpVo();
+      Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+      groupsManagerBl.createGroup(sess, vo, group);
+      groupsManagerBl.createGroup(sess, vo, group2);
+
+      groupsManagerBl.addMember(sess, group, member1);
+      groupsManagerBl.addMember(sess, group2, member1);
+
+      groupsManagerBl.createGroupUnion(sess, group, group2, false);
+
+      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+
+      assertTrue(member1.isDualMembership());
+
+      groupsManagerBl.removeGroupUnion(sess, group, group2, false);
+      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+      assertFalse(member1.isDualMembership());
+    }
+
+    @Test
+    public void dualMembershipSetCorrectlyOnDirectRemoval() throws Exception {
+      System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemoval");
+
+      Vo vo = setUpVo();
+      Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+      groupsManagerBl.createGroup(sess, vo, group);
+      groupsManagerBl.createGroup(sess, vo, group2);
+
+      groupsManagerBl.addMember(sess, group, member1);
+      groupsManagerBl.addMember(sess, group2, member1);
+
+      groupsManagerBl.createGroupUnion(sess, group, group2, false);
+
+      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+
+      assertTrue(member1.isDualMembership());
+
+      groupsManagerBl.removeMember(sess, group, member1);
+      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+      assertFalse(member1.isDualMembership());
+    }
+
+    @Test
+    public void dualMembershipSetCorrectlyOnGroupUnionRemovalSomeLeft() throws Exception {
+      System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemovalSomeLeft");
+
+      Vo vo = setUpVo();
+      Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+      groupsManagerBl.createGroup(sess, vo, group);
+      groupsManagerBl.createGroup(sess, vo, group2);
+      groupsManagerBl.createGroup(sess, vo, group3);
+
+      groupsManagerBl.addMember(sess, group, member1);
+      groupsManagerBl.addMember(sess, group2, member1);
+      groupsManagerBl.addMember(sess, group3, member1);
+
+      groupsManagerBl.createGroupUnion(sess, group, group2, false);
+      groupsManagerBl.createGroupUnion(sess, group, group3, false);
+
+      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+
+      assertTrue(member1.isDualMembership());
+
+      groupsManagerBl.removeGroupUnion(sess, group, group2, false);
+      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+      assertTrue(member1.isDualMembership());
+    }
+
 	@Test
 	public void createGroupUnionCorrectMemberGroupStatusesAreSet() throws Exception {
 		System.out.println(CLASS_NAME + "createGroupUnionCorrectMemberGroupStatusesAreSet");

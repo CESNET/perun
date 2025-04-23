@@ -201,6 +201,17 @@ public interface VosManagerBl {
   List<User> getAdmins(PerunSession perunSession, Vo vo);
 
   /**
+   * Remove all expired bans on vos to now date.
+   * <p>
+   * Get all expired bans and remove them one by one with auditing process. This method is for purpose of removing
+   * expired bans using some cron tool.
+   *
+   * @param sess
+   * @throws InternalErrorException
+   */
+  void removeAllExpiredBansOnVos(PerunSession sess);
+
+  /**
    * Get ban by its id.
    *
    * @param sess  session

@@ -53,6 +53,15 @@ import java.util.Set;
 public interface AttributesManagerBl {
 
   /**
+   * Blocks the attribute value for future use (optionally in the attribute namespace)
+   *
+   * @param session
+   * @param attribute
+   * @throws AttributeNotExistsException when the attribute does not exist
+   */
+  void blockAttributeValue(PerunSession session, Attribute attribute) throws AttributeNotExistsException;
+
+  /**
    * Check if attribute is from the same namespace as it's handler
    *
    * @param sess
@@ -991,6 +1000,16 @@ public interface AttributesManagerBl {
    * @throws InternalErrorException
    */
   void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition, boolean force);
+
+  /**
+   * Executes extra logic for attribute module connected to a user entity being deleted
+   *
+   * @param sess
+   * @param user
+   * @param attribute
+   * @throws WrongAttributeAssignmentException if the attribute isn't user attribute
+   */
+  void deletedEntityHook(PerunSession sess, User user, Attribute attribute) throws WrongAttributeAssignmentException;
 
   /**
    * Same as doTheMagic(sess, member, false);
@@ -3290,6 +3309,17 @@ public interface AttributesManagerBl {
   boolean isAttributeActionCritical(PerunSession sess, AttributeDefinition attr, AttributeAction action);
 
   /**
+   * Checks whether the value of the passed attribute (checks separate key-value pairs and list items as well) is
+   * blocked (in namespace if the attribute is namespace based). Throws exception with details if blocked
+   *
+   * @param session
+   * @param attribute
+   * @return pair, the left being a boolean - true if value blocked, right being a string providing further information,
+   * mainly for the complex attribute types (e.g. which key-value pair is blocked, etc.)
+   */
+  Pair<Boolean, String> isAttributeValueBlocked(PerunSession session, Attribute attribute);
+
+  /**
    * Checks if the action is critical on given attribute for all objects.
    *
    * @param sess   session
@@ -3727,7 +3757,7 @@ public interface AttributesManagerBl {
    *                                InternalErrorException
    */
   void removeAllAttributes(PerunSession sess, User user)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException;
+      throws WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
   /**
    * Unset all attributes for the host.

@@ -2365,6 +2365,38 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
   }
 
   @Test
+  public void getGroupsMembersPageCorrectDualMembership() throws Exception {
+    System.out.println(CLASS_NAME + "getGroupsMembersPageCorrectDualMembership");
+
+    Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testPagination", "tp"));
+
+    Group group = new Group("testPaginationGroup", "Group for testing pagination of members");
+    group = groupsManagerEntry.createGroup(sess, vo, group);
+
+    Group group2 = new Group("testPaginationGroup2", "Group for testing pagination of members");
+    group2 = groupsManagerEntry.createGroup(sess, vo, group2);
+
+    Member member1 = setUpMember(vo, "Doe", "John");
+    Member member2 = setUpMember(vo, "Stinson", "John");
+
+    groupsManagerEntry.addMember(sess, group, member1);
+    groupsManagerEntry.addMember(sess, group2, member1);
+    groupsManagerEntry.addMember(sess, group, member2);
+
+    groupsManagerEntry.createGroupUnion(sess, group, group2);
+
+
+    MembersPageQuery query = new MembersPageQuery(5, 0, SortingOrder.ASCENDING, MembersOrderColumn.ORGANIZATION, "John",
+        List.of(Status.VALID, Status.INVALID, Status.EXPIRED, Status.DISABLED), group.getId(),
+        List.of(MemberGroupStatus.VALID, MemberGroupStatus.EXPIRED));
+    Paginated<RichMember> result = perun.getMembersManager()
+        .getMembersPage(sess, vo, query, List.of());
+
+    assertThat(result.getData()).hasSize(2);
+    assertTrue(result.getData().get(0).isDualMembership());
+  }
+
+  @Test
   public void getMemberByExtAuth() throws Exception {
     System.out.println(CLASS_NAME + "getMemberByExtAuth");
 

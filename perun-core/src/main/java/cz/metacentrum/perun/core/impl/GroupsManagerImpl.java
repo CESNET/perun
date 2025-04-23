@@ -218,18 +218,20 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
   }
 
   @Override
-  public Member addMember(PerunSession sess, Group group, Member member, MembershipType type, int sourceGroupId)
+  public Member addMember(PerunSession sess, Group group, Member member, MembershipType type, boolean dualMember,
+                          int sourceGroupId)
       throws AlreadyMemberException {
     member.setMembershipType(type);
     member.setSourceGroupId(sourceGroupId);
     try {
       jdbc.update(
           "insert into groups_members (group_id, member_id, created_by, created_at, modified_by, modified_at, " +
-              "created_by_uid, modified_by_uid, membership_type, source_group_id) " + "values (?,?,?," +
-              Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?,?,?)", group.getId(),
-          member.getId(),
+              "created_by_uid, modified_by_uid, membership_type, dual_membership, source_group_id) " +
+              "values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?,?,?,?)",
+          group.getId(), member.getId(),
           sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-          sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(), type.getCode(), sourceGroupId);
+          sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(), type.getCode(), dualMember,
+          sourceGroupId);
     } catch (DuplicateKeyException ex) {
       throw new AlreadyMemberException(member);
     } catch (RuntimeException ex) {
@@ -1659,10 +1661,30 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
     }
     if (ret == 0) {
       throw new NotGroupMemberException(group, member);
-    } else if (ret < 1) {
-      throw new ConsistencyErrorException(member + " and " + group + " have " + ret + " rows in groups_members table");
     }
+    updateDualMembershipForMember(sess, group, member);
+  }
 
+  /**
+   * After removing member - be it directly or through a removal of group relation, check whether member is still in the
+   * group through any connection, set dual_membership flag accordingly
+   *
+   * @param sess
+   * @param group
+   * @param member
+   */
+  private void updateDualMembershipForMember(PerunSession sess, Group group, Member member) {
+    if (member.getSourceGroupId() == null) {
+      throw new InternalErrorException("sourceGroupId not set for member object");
+    }
+    try {
+      jdbc.update("UPDATE groups_members gm SET dual_membership = false WHERE gm.member_id = ? AND gm.group_id = ?" +
+                      " AND (SELECT COUNT(DISTINCT membership_type) FROM groups_members" +
+                      " WHERE member_id = gm.member_id AND group_id = gm.group_id) = 1;",
+          member.getId(), group.getId());
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
   }
 
   @Override

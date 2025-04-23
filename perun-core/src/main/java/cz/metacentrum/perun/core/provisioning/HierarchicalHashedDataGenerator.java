@@ -40,18 +40,21 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
   private final Set<Member> membersWithConsent = new HashSet<>();
   private final boolean filterExpiredGroupMembers;
   private final boolean filterExpiredVoMembers;
+  private final boolean filterBannedMembers;
   private final boolean consentEval;
   private final int taskRunId;
   private static final Logger LOG = LoggerFactory.getLogger(HierarchicalHashedDataGenerator.class);
 
   private HierarchicalHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
                                           boolean filterExpiredGroupMembers,
-                                          boolean filetExpiredVoMembers, boolean consentEval, int taskRunId) {
+                                          boolean filterExpiredVoMembers, boolean filterBannedMembers,
+                                          boolean consentEval, int taskRunId) {
     this.sess = sess;
     this.service = service;
     this.facility = facility;
     this.filterExpiredGroupMembers = filterExpiredGroupMembers;
-    this.filterExpiredVoMembers = filetExpiredVoMembers;
+    this.filterExpiredVoMembers = filterExpiredVoMembers;
+    this.filterBannedMembers = filterBannedMembers;
     this.consentEval = consentEval;
     this.taskRunId = taskRunId;
     dataProvider = new GenDataProviderImpl(sess, service, facility);
@@ -101,6 +104,14 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
     } else {
       members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
     }
+    if (filterBannedMembers) {
+      // still have to filter facility bans here since they get filtered through `getAllowedMembers` only with consents
+      members.removeIf(member -> sess.getPerunBl().getFacilitiesManagerBl().banExists(sess, member.getUserId(),
+          facility.getId()));
+      members.removeIf(member -> sess.getPerunBl().getResourcesManagerBl().banExists(sess, member.getId(),
+          resource.getId()));
+      members.removeIf(member -> sess.getPerunBl().getVosManagerBl().isMemberBanned(sess, member.getId()));
+    }
     members.removeIf(
           member -> filterExpiredVoMembers && member.getStatus().equals(Status.EXPIRED));
     if (BeansUtils.getCoreConfig().getForceConsents()) {
@@ -128,12 +139,13 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
     private Facility facility;
     private boolean filterExpiredGroupMembers = false;
     private boolean filterExpiredVoMembers = false;
+    private boolean filterBannedMembers = false;
     private boolean consentEval = false;
     private int taskRunId;
 
     public HierarchicalHashedDataGenerator build() {
       return new HierarchicalHashedDataGenerator(sess, service, facility, filterExpiredGroupMembers,
-          filterExpiredVoMembers, consentEval, taskRunId);
+          filterExpiredVoMembers, filterBannedMembers, consentEval, taskRunId);
     }
 
     public Builder consentEval(boolean consentEval) {
@@ -158,6 +170,11 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 
     public Builder filterExpiredVoMembers(boolean filterExpiredVoMembers) {
       this.filterExpiredVoMembers = filterExpiredVoMembers;
+      return this;
+    }
+
+    public Builder filterBannedMembers(boolean filterBannedMembers) {
+      this.filterBannedMembers = filterBannedMembers;
       return this;
     }
 

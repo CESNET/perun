@@ -94,7 +94,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
   static final String GROUPS_MEMBERS_MAPPING_SELECT_QUERY =
       MEMBER_MAPPING_SELECT_QUERY + ", groups_members.membership_type as membership_type, " +
       "groups_members.source_group_id as source_group_id, groups_members.source_group_status as " +
-      "source_group_status, groups_members.group_id as group_id";
+      "source_group_status, groups_members.dual_membership as dual_membership, groups_members.group_id as group_id";
 
   static final String GROUPS_ASSIGNED_MEMBERS_MAPPING_SELECT_QUERY =
       GROUPS_MEMBERS_MAPPING_SELECT_QUERY + ", groups_resources_state.status as group_resource_status";
@@ -141,6 +141,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
           MemberGroupStatus.getMemberGroupStatus(rs.getInt("source_group_status")));
       member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
       member.setSourceGroupId(rs.getInt("source_group_id"));
+      member.setDualMembership(rs.getBoolean("dual_membership"));
     }
     return member;
   };
@@ -640,7 +641,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
     groupByQuery += query.getSortColumn().getSqlGroupBy();
     if (query.getGroupId() != null) {
       groupByQuery += ", users.last_name, users.first_name, groups_members.group_id, groups_members.source_group_id, " +
-                      "groups_members.membership_type, groups_members.source_group_status";
+                      "groups_members.membership_type, groups_members.source_group_status," +
+                          " groups_members.dual_membership";
     }
 
     return namedParameterJdbcTemplate.query(
@@ -676,7 +678,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
     String groupSelect = "SELECT " + GROUPS_MEMBERS_MAPPING_SELECT_QUERY + " ,count(*) OVER() AS total_count" +
                          query.getSortColumn().getSqlSelect() + "       FROM" +
                          "            (SELECT group_id, member_id, min(source_group_status) as source_group_status," +
-                         "    min(membership_type) as membership_type, null as source_group_id" +
+                         "    min(membership_type) as membership_type, BOOL_OR(dual_membership) as dual_membership," +
+                             " null as source_group_id" +
                          "    FROM groups_members" + "    WHERE group_id = (:groupId)" +
                          "    GROUP BY group_id, member_id) groups_members" +
                          "               LEFT JOIN members on groups_members.member_id = members.id" +

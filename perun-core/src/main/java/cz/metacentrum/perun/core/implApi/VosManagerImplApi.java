@@ -127,6 +127,14 @@ public interface VosManagerImplApi {
   List<User> getAdmins(PerunSession sess, Vo vo);
 
   /**
+   * Returns expired bans across all vos
+   *
+   * @param sess
+   * @return all expired bans
+   */
+  List<BanOnVo> getAllExpiredBansOnVos(PerunSession sess);
+
+  /**
    * Get ban by its id.
    *
    * @param sess  session

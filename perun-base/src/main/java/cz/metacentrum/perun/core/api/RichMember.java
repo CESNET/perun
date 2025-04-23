@@ -23,6 +23,7 @@ public class RichMember extends Member implements Comparable<PerunBean> {
         member.getCreatedBy(), member.getModifiedAt(), member.getModifiedBy(), member.getCreatedByUid(),
         member.getModifiedByUid());
     setMembershipType(member.getMembershipType());
+    setDualMembership(member.isDualMembership());
     setSponsored(member.isSponsored());
     this.setGroupsStatuses(member.getGroupStatuses());
     this.user = user;
@@ -154,6 +155,7 @@ public class RichMember extends Member implements Comparable<PerunBean> {
            ", voId=<" + getVoId() + ">" + ", status=<" +
            (getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())) + ">" + ", type=<" +
            (getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
+           ", dualMembership=<" + isDualMembership() + ">" +
            ", sourceGroupId=<" + (getSourceGroupId() == null ? "\\0" : getSourceGroupId().toString()) + ">" +
            ", sponsored=<" + isSponsored() + ">" + ", user=<" +
            (getUser() == null ? "\\0" : getUser().serializeToString()) + ">" + ", userExtSources=<" + stringUserESNew +
@@ -165,7 +167,8 @@ public class RichMember extends Member implements Comparable<PerunBean> {
   public String toString() {
 
     return "RichMember:[id='" + getId() + "', userId='" + getUserId() + "', voId='" + getVoId() + "', status='" +
-           getStatus() + "', type='" + getMembershipType() + "', sourceGroupId='" + getSourceGroupId() +
+           getStatus() + "', type='" + getMembershipType() + "', dualMembership='" + isDualMembership() +
+               "', sourceGroupId='" + getSourceGroupId() +
            "', sponsored='" + isSponsored() + "', user='" + user + "', userExtSources='" + userExtSources +
            "', userAttributes='" + userAttributes + "', memberAttributes='" + memberAttributes + "']";
   }

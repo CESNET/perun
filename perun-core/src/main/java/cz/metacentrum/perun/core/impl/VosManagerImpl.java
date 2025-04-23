@@ -30,6 +30,7 @@ import java.util.UUID;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -288,6 +289,18 @@ public class VosManagerImpl implements VosManagerImplApi {
 
       return new ArrayList(setOfAdmins);
 
+    } catch (EmptyResultDataAccessException ex) {
+      return new ArrayList<>();
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public List<BanOnVo> getAllExpiredBansOnVos(PerunSession sess) {
+    try {
+      return jdbc.query("select " + BAN_ON_VO_MAPPING_SELECT_QUERY + " from vos_bans where banned_to < " +
+                           Compatibility.getSysdate(), BAN_ON_VO_MAPPER);
     } catch (EmptyResultDataAccessException ex) {
       return new ArrayList<>();
     } catch (RuntimeException ex) {
