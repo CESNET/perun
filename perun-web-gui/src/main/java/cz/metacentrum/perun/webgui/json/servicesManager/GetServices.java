@@ -173,6 +173,19 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
       }
     });
 
+    Column<Service, String> bannedMembersColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Service, String>() {
+      public String getValue(Service serv) {
+        return serv.getUseBannedMembers() ? "YES" : "NO";
+      }
+    }, tableFieldUpdater);
+
+    bannedMembersColumn.setSortable(true);
+    columnSortHandler.setComparator(bannedMembersColumn, new Comparator<Service>() {
+      public int compare(Service o1, Service o2) {
+        return (o1.getUseBannedMembers() ? "YES" : "NO").compareToIgnoreCase((o2.getUseBannedMembers() ? "YES" : "NO"));
+      }
+    });
+
     Column<Service, String> scriptColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Service, String>() {
       public String getValue(Service serv) {
         return serv.getScriptPath();
@@ -193,6 +206,7 @@ public class GetServices implements JsonCallback, JsonCallbackTable<Service>, Js
     table.addColumn(scriptColumn, "Script");
     table.addColumn(expiredVoMembersColumn, "Provision expired VO members");
     table.addColumn(expiredGroupMembersColumn, "Provision expired group members");
+    table.addColumn(bannedMembersColumn, "Provision banned members");
     table.addDescriptionColumn(tableFieldUpdater);
 
     return table;

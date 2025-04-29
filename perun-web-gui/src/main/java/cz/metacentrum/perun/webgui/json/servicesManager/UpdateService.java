@@ -122,6 +122,7 @@ public class UpdateService {
     newService.put("script", new JSONString(service.getScriptPath()));
     newService.put("useExpiredMembers", JSONBoolean.getInstance(service.getUseExpiredMembers()));
     newService.put("useExpiredVoMembers", JSONBoolean.getInstance(service.getUseExpiredVoMembers()));
+    newService.put("useBannedMembers", JSONBoolean.getInstance(service.getUseBannedMembers()));
 
     // whole JSON query
     JSONObject jsonQuery = new JSONObject();
