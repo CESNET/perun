@@ -2005,3 +2005,7 @@ insert into user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) value
 -- init 'perunadmin' role and give it to the 'Master Perun' user
 insert into roles (id, name) values (nextval('roles_id_seq'), 'perunadmin');
 insert into authz (user_id, role_id) values (currval('users_id_seq'), currval('roles_id_seq'));
+
+-- init global tasks switching config properties
+insert into configurations (property, value) values ('suspendGroupSync', 'false');
+insert into configurations (property, value) values ('suspendTasksProp', 'false');
