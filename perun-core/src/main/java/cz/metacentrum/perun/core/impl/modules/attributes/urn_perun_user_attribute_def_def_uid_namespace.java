@@ -180,22 +180,9 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 
   @Override
   public void deletedEntityHook(PerunSessionImpl sess, User user, Attribute attribute) {
-    LOG.debug("Blocking value " + attribute.getValue() + " for attribute " + attribute.getName());
-
-    String uidNamespace = attribute.getFriendlyNameParameter();
-    String uidPolicy;
     try {
-      uidPolicy = (String) sess.getPerunBl().getAttributesManagerBl()
-          .getAttribute(sess, uidNamespace, A_E_namespace_namespace_uid_policy).getValue();
-    } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
-      throw new InternalErrorException(e);
-    }
-    if (!UID_POLICY_INCREMENT.equals(uidPolicy)) {
-      return;
-    }
-    try {
-      LOG.debug("Blocking value " + attribute.getValue() + " for attribute " + attribute.getName());
       sess.getPerunBl().getAttributesManagerBl().blockAttributeValue(sess, attribute);
+      LOG.debug("Blocking value " + attribute.getValue() + " for attribute " + attribute.getName());
     } catch (AttributeNotExistsException e) {
       throw new ConsistencyErrorException(e);
     }
