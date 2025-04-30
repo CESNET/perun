@@ -117,6 +117,14 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_at
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapBaseDN;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapBaseDNGroup;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapDeactivate;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapGroupAttrMap;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapGroupObjectClasses;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapUserAttrMap;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapUserDNAttribute;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapUserObjectClasses;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_unixGID_namespace;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_virt_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAffiliationRegex;
@@ -9477,6 +9485,78 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
     policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+
+    // LDAP generic service attributes
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapBaseDN().getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapBaseDNGroup()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapGroupAttrMap()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapUserAttrMap()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapUserDNAttribute()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapGroupObjectClasses()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapUserObjectClasses()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapDeactivate()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:facility:attribute-def:def:ldapUserFilter
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("ldapUserFilter");
+    attr.setDisplayName("LDAP User filter");
+    attr.setDescription("LDAP filter string to search user entries by. E.g. `(objectClass=person)`");
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:facility:attribute-def:def:ldapGroupFilter
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("ldapGroupFilter");
+    attr.setDisplayName("LDAP Group filter");
+    attr.setDescription("LDAP filter string to search group entries by.  E.g. `(objectClass=groupOfNames)`");
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:facility:attribute-def:def:ldapDeactivateAttributeName
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("ldapDeactivateAttributeName");
+    attr.setDisplayName("LDAP deactivate attribute name");
+    attr.setDescription("Name of the LDAP attribute to set instead of removing entry when `ldapDeactivate` is true");
+    policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:resource:attribute-def:def:userSettingsName
