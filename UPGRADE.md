@@ -1,5 +1,20 @@
 Upgrade notes
 
+## [48.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.0.0...v48.1.0) (2025-05-07)
+
+
+### Features
+
+* **core:** assignment policy is no longer checked when blocked user uid namespace attribute value ([d22e6fa](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d22e6fabca0f527c4d43ba78570aa88a47257aec))
+
+
+### Bug Fixes
+
+* **core:** insert missing configuration properties in empty perun db ([4eb0541](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4eb0541f697d12c6de43686fe049242f3bcb0d7c))
+* **deps:** update dependency google-api-services-admin-directory ([f3d4d86](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f3d4d860a56ddb13c400575cf620c07cd8c5138d))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.4.5 ([26bb10c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/26bb10c6767d3c57467c53495c5d4ba0d1440953))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.12.0 ([b92903a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b92903a370e906d32b3da46eb34cb8f41d1998c8))
+
 ## [48.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v47.3.0...v48.0.0) (2025-04-23)
 
 
