@@ -82,6 +82,13 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
             "UID " + uid + " is higher than max " + max);
       }
 
+      // Check whether the attribute value for this namespace is blocked - this can possibly not be enough in case
+      // someone sets the attribute manually to a user for which this attribute is not required, and hence this whole
+      // method will not be called
+      if (sess.getPerunBl().getAttributesManagerBl().isAttributeValueBlocked(sess, attribute).getLeft()) {
+        throw new WrongReferenceAttributeValueException(attribute, "UID " + attribute.getValue() + " is blocked.");
+      }
+
       // Get all users who have set attribute urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], with
       // the value.
       List<User> usersWithUid = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
@@ -170,7 +177,9 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
         for (int i = min; i < max; i++) {
           if (!values.contains(i)) {
             atr.setValue(i);
-            return atr;
+            if (!sess.getPerunBl().getAttributesManagerBl().isAttributeValueBlocked(sess, atr).getLeft()) {
+              return atr;
+            }
           }
         }
         return atr;

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
@@ -45,6 +46,8 @@ public class urn_perun_user_attribute_def_def_uid_namespaceTest {
     when(session.getPerunBl().getAttributesManagerBl()
         .getAttribute(session, "param", AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID")).thenReturn(
         maxUid);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .isAttributeValueBlocked(session, attributeToCheck)).thenReturn(new Pair<>(false, ""));
 
     UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
     when(session.getPerunBl().getUsersManagerBl()).thenReturn(usersManagerBl);
@@ -120,6 +123,17 @@ public class urn_perun_user_attribute_def_def_uid_namespaceTest {
     maxUid.setValue(6);
     attributeToCheck.setValue(5);
 
+    classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+  }
+
+  @Test(expected = WrongReferenceAttributeValueException.class)
+  public void testCheckAttributeBlocked() throws Exception {
+    System.out.println("testCheckAttributeBlocked()");
+    minUid.setValue(2);
+    maxUid.setValue(6);
+    attributeToCheck.setValue(5);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .isAttributeValueBlocked(session, attributeToCheck)).thenReturn(new Pair<>(true, ""));
     classInstance.checkAttributeSemantics(session, user, attributeToCheck);
   }
 }
