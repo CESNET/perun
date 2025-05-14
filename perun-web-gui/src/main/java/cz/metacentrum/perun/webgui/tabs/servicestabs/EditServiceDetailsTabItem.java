@@ -92,6 +92,7 @@ public class EditServiceDetailsTabItem implements TabItem {
     final CheckBox enabled = new CheckBox();
     final CheckBox useExpiredVoMembers = new CheckBox();
     final CheckBox useExpiredGroupMembers = new CheckBox();
+    final CheckBox useBannedMembers = new CheckBox();
     final ExtendedTextBox delay = new ExtendedTextBox();
     final ExtendedTextBox recurrence = new ExtendedTextBox();
 
@@ -103,6 +104,7 @@ public class EditServiceDetailsTabItem implements TabItem {
     recurrence.getTextBox().setText(String.valueOf(service.getRecurrence()));
     useExpiredVoMembers.setValue(service.getUseExpiredVoMembers());
     useExpiredGroupMembers.setValue(service.getUseExpiredMembers());
+    useBannedMembers.setValue(service.getUseBannedMembers());
 
     final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
       @Override
@@ -127,6 +129,7 @@ public class EditServiceDetailsTabItem implements TabItem {
     enabled.setText("Enabled / Disabled");
     useExpiredVoMembers.setText("Expired VO Members");
     useExpiredGroupMembers.setText("Expired Group Members");
+    useBannedMembers.setText("Banned Members");
 
     final ExtendedTextBox.TextBoxValidator delayValidator = new ExtendedTextBox.TextBoxValidator() {
       @Override
@@ -198,8 +201,9 @@ public class EditServiceDetailsTabItem implements TabItem {
           serv.setRecurrence(Integer.parseInt(recurrence.getTextBox().getText().trim()));
           serv.setEnabled(enabled.getValue());
           serv.setScriptPath(scriptPath.getTextBox().getText().trim());
-          serv.setUseExpiredMembers(service.getUseExpiredMembers());
-          serv.setUseExpiredVoMembers(service.getUseExpiredVoMembers());
+          serv.setUseExpiredMembers(useExpiredGroupMembers.getValue());
+          serv.setUseExpiredVoMembers(useExpiredVoMembers.getValue());
+          serv.setUseBannedMembers(useBannedMembers.getValue());
           UpdateService request =
               new UpdateService(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
           request.updateService(serv);
@@ -223,18 +227,20 @@ public class EditServiceDetailsTabItem implements TabItem {
     layout.setHTML(2, 0, "Status:");
     layout.setHTML(3, 0, "Provision:");
     layout.setHTML(4, 0, "");
-    layout.setHTML(5, 0, "Delay:");
-    layout.setHTML(6, 0, "Recurrence:");
-    layout.setHTML(7, 0, "Script path:");
+    layout.setHTML(5, 0, "");
+    layout.setHTML(6, 0, "Delay:");
+    layout.setHTML(7, 0, "Recurrence:");
+    layout.setHTML(8, 0, "Script path:");
 
     layout.setWidget(0, 1, serviceName);
     layout.setWidget(1, 1, serviceDescription);
     layout.setWidget(2, 1, enabled);
     layout.setWidget(3, 1, useExpiredVoMembers);
     layout.setWidget(4, 1, useExpiredGroupMembers);
-    layout.setWidget(5, 1, delay);
-    layout.setWidget(6, 1, recurrence);
-    layout.setWidget(7, 1, scriptPath);
+    layout.setWidget(5, 1, useBannedMembers);
+    layout.setWidget(6, 1, delay);
+    layout.setWidget(7, 1, recurrence);
+    layout.setWidget(8, 1, scriptPath);
 
     for (int i = 0; i < layout.getRowCount(); i++) {
       cellFormatter.addStyleName(i, 0, "itemName");

@@ -231,4 +231,22 @@ public class Service extends JavaScriptObject {
     this.useExpiredVoMembers = useExpiredVoMembers;
   }-*/;
 
+  /**
+   * Get useBannedMembers of service
+   *
+   * @return useBannedMembers of service
+   */
+  public final native boolean getUseBannedMembers() /*-{
+      return this.useBannedMembers;
+  }-*/;
+
+  /**
+   * Set useBannedMembers of service
+   *
+   * @param useBannedMembers of service
+   */
+  public final native void setUseBannedMembers(boolean useBannedMembers) /*-{
+      this.useBannedMembers = useBannedMembers;
+  }-*/;
+
 }
