@@ -1,5 +1,14 @@
 Upgrade notes
 
+## [48.1.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.1.0...v48.1.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* **core:** user uid check fixes ([bdb2f99](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bdb2f994bdd89ffc4cb837c6b00ee124c0e5bc20))
+* **deps:** update dependency google-api-services-admin-directory ([c99d2e6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c99d2e6f629ab97ce64d2a7f1a4dec66fb20e39d))
+* **gui:** allow to set use banned members flag during service creation ([cf880ba](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cf880baba82a532fdc64ff276477138c2022c5a7))
+
 ## [48.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.0.0...v48.1.0) (2025-05-07)
 
 
