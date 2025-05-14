@@ -30,6 +30,7 @@ public class CreateService {
   private boolean enabled = true;
   private boolean useExpiredVoMembers = false;
   private boolean useExpiredGroupMembers = true;
+  private boolean useBannedMembers = true;
   private int delay = 10;
   private int recurrence = 2;
   // custom events
@@ -93,7 +94,7 @@ public class CreateService {
    */
   public void createService(final String name, final String description, final int delay, final int recurrence,
                             final boolean enabled, final String script, final boolean useExpiredVoMembers,
-                            final boolean useExpiredGroupMembers) {
+                            final boolean useExpiredGroupMembers, final boolean useBannedMembers) {
 
     this.serviceName = name;
     this.description = description;
@@ -103,6 +104,7 @@ public class CreateService {
     this.script = script;
     this.useExpiredVoMembers = useExpiredVoMembers;
     this.useExpiredGroupMembers = useExpiredGroupMembers;
+    this.useBannedMembers = useBannedMembers;
 
     // test arguments
     if (!this.testCreating()) {
@@ -149,6 +151,7 @@ public class CreateService {
     jsonObject.put("enabled", JSONBoolean.getInstance(enabled));
     jsonObject.put("useExpiredMembers", JSONBoolean.getInstance(useExpiredGroupMembers));
     jsonObject.put("useExpiredVoMembers", JSONBoolean.getInstance(useExpiredVoMembers));
+    jsonObject.put("useBannedMembers", JSONBoolean.getInstance(useBannedMembers));
 
     JSONObject jsonQuery = new JSONObject();
     jsonQuery.put("service", jsonObject);
