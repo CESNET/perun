@@ -3333,6 +3333,75 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     assertThat(returnedMemberIds).containsExactly(member3.getId(), member4.getId(), member2.getId(), member1.getId());
   }
 
+  @Test
+  public void expireMemberSetsLifecycleTimestamp() throws Exception {
+    System.out.println(CLASS_NAME + "expireMemberSetsLifecycleTimestamp");
+
+    Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testLifecycle", "tp"));
+
+    Member member = setUpMember(vo, "Doe", "John");
+    perun.getMembersManagerBl().validateMember(sess, member);
+
+    Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    assertNull(lifecycleAttr.getValue());
+    perun.getMembersManagerBl().expireMember(sess, member);
+    lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    Map<String, String> lifecycleValues = lifecycleAttr.valueAsMap();
+    assertNotNull(lifecycleValues);
+    assertEquals(BeansUtils.getDateFormatterWithoutTime().format(new Date()), lifecycleValues.get("expiredAt"));
+  }
+
+  @Test
+  public void archiveMemberSetsLifecycleTimestamps() throws Exception {
+    System.out.println(CLASS_NAME + "archiveMemberSetsLifecycleTimestamps");
+
+    Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testLifecycle", "tp"));
+
+    Member member = setUpMember(vo, "Doe", "John");
+    perun.getMembersManagerBl().validateMember(sess, member);
+
+    Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    assertNull(lifecycleAttr.getValue());
+    perun.getMembersManagerBl().expireMember(sess, member);
+    perun.getMembersManagerBl().disableMember(sess, member);
+    lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    Map<String, String> lifecycleValues = lifecycleAttr.valueAsMap();
+    assertNotNull(lifecycleValues);
+    assertEquals(BeansUtils.getDateFormatterWithoutTime().format(new Date()), lifecycleValues.get("expiredAt"));
+    assertEquals(BeansUtils.getDateFormatterWithoutTime().format(new Date()), lifecycleValues.get("archivedAt"));
+  }
+
+  @Test
+  public void validateMemberResetsLifecycleTimestamps() throws Exception {
+    System.out.println(CLASS_NAME + "validateMemberResetsLifecycleTimestamps");
+
+    Vo vo = perun.getVosManager().createVo(sess, new Vo(0, "testLifecycle", "tp"));
+
+    Member member = setUpMember(vo, "Doe", "John");
+    perun.getMembersManagerBl().validateMember(sess, member);
+
+    Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    assertNull(lifecycleAttr.getValue());
+    perun.getMembersManagerBl().expireMember(sess, member);
+    perun.getMembersManagerBl().disableMember(sess, member);
+    lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    Map<String, String> lifecycleValues = lifecycleAttr.valueAsMap();
+    assertNotNull(lifecycleValues);
+    assertEquals(BeansUtils.getDateFormatterWithoutTime().format(new Date()), lifecycleValues.get("expiredAt"));
+    assertEquals(BeansUtils.getDateFormatterWithoutTime().format(new Date()), lifecycleValues.get("archivedAt"));
+
+    perun.getMembersManagerBl().validateMember(sess, member);
+    lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    assertNull(lifecycleAttr.getValue());
+  }
+
   @Test(expected = VoNotExistsException.class)
   public void getMembersWhenVoNotExists() throws Exception {
     System.out.println(CLASS_NAME + "getMembersWhenVoNotExists");

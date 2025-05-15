@@ -156,8 +156,9 @@ public class AttributesManagerEntry implements AttributesManager {
 
   @Override
   public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute)
-      throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException,
-      AttributeNotExistsException, MemberGroupMismatchException {
+      throws PrivilegeException, GroupNotExistsException, MemberNotExistsException,
+                 AttributeNotExistsException, MemberGroupMismatchException, WrongAttributeAssignmentException,
+                 WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getAttributesManagerBl().checkAttributeExists(sess, attribute);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);

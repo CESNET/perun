@@ -203,7 +203,7 @@ public interface AttributesManagerBl {
    * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
    */
   void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute)
-      throws WrongAttributeAssignmentException, MemberGroupMismatchException;
+      throws WrongAttributeAssignmentException, MemberGroupMismatchException, WrongReferenceAttributeValueException;
 
   /**
    * Check if value of this member attribute has valid semantics.
