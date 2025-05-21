@@ -766,7 +766,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
     mail = sess.getPerunPrincipal().getAdditionalInformations().get("mail");
 
-    if (mail != null) {
+    if (mail != null && !mail.isEmpty()) {
       if (mail.contains(";")) {
         String[] mailSearch = mail.split(";");
         for (String m : mailSearch) {

@@ -131,6 +131,7 @@ public interface MembersManagerImplApi {
    * member, users and userExtSource attributes specified by perun.properties. All searches are case insensitive. If
    * parameter onlySponsored is true, it will return only sponsored members by searchString. If vo is null, looking for
    * any members in whole Perun. If vo is not null, looking only in specific VO.
+   * If the searchString is empty, VO null and onlySponsored false, return an empty list. Use `getAllMembers` instead
    *
    * @param sess
    * @param vo            for which searching will be filtered, if null there is no filter for vo

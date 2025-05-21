@@ -563,12 +563,18 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   /**
    * Returns list of users who matches the searchString, searching name, id, uuid, member attributes, user attributes
    * and userExtSource attributes (listed in CoreConfig).
+   * Returns an empty list if the searchString is empty. Use `getAllUsers` instead.
    *
    * @param searchString string used to search by
    * @param exactMatch   if true, searches name only by exact match
    * @return list of users
    */
   private List<User> findUsers(String searchString, boolean exactMatch) {
+    if (searchString == null || searchString.isEmpty()) {
+      LOG.debug("Searching users by empty searchString, returning empty list");
+      return new ArrayList<>();
+    }
+
     Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
     MapSqlParameterSource namedParams =
         Utils.getMapSqlParameterSourceToSearchUsersOrMembers(searchString, attributesToSearchBy);
