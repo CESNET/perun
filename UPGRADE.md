@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [48.1.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.1.1...v48.1.2) (2025-05-22)
+
+
+### Bug Fixes
+
+* **core:** correctly validate mail string input in `findSimilarRichUsers` ([f045fca](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f045fca181f880a183c8cf1feb6042ed178792f3))
+
 ## [48.1.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.1.0...v48.1.1) (2025-05-14)
 
 
