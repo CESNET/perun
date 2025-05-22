@@ -395,6 +395,12 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       sponsoredQueryString += " members.sponsored=true and ";
     }
 
+    if (voIdQueryString.isEmpty() && sponsoredQueryString.isEmpty() &&
+            (searchString == null || searchString.isEmpty())) {
+      LOG.debug("findMembers would return all members due to empty searchString and null VO. Returning empty list.");
+      return new ArrayList<>();
+    }
+
     Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
     MapSqlParameterSource namedParams =
         Utils.getMapSqlParameterSourceToSearchUsersOrMembers(searchString, attributesToSearchBy);
