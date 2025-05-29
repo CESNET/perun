@@ -78,7 +78,7 @@
 		<json.version>20240303</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
 		<reflections.version>0.9.12</reflections.version>
-		<testcontainers.version>1.21.0</testcontainers.version>
+		<testcontainers.version>1.21.1</testcontainers.version>
         <httpmime.version>4.5.14</httpmime.version>
         <angus-mail.version>2.0.3</angus-mail.version>
 	</properties>
