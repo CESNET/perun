@@ -27,8 +27,12 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
     implements GroupVirtualAttributesModuleImplApi {
 
   private static final String ELIXIR_PERSISTENT = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
+  private static final String LIFESCIENCE_PERSISTENT =
+          "urn:perun:user:attribute-def:virt:login-namespace:lifescienceid-persistent";
   private static final String PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
   private static final String ELIXIR_LOGIN = "urn:perun:user:attribute-def:def:login-namespace:elixir";
+  private static final String LIFESCIENCE_LOGIN =
+          "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-username";
 
   @Override
   public AttributeDefinition getAttributeDefinition() {
@@ -62,7 +66,8 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
       JSONObject jsonUser = new JSONObject();
       try {
         List<Attribute> attributes = perunSession.getPerunBl().getAttributesManagerBl()
-            .getAttributes(perunSession, user, Arrays.asList(ELIXIR_PERSISTENT, ELIXIR_LOGIN, PREFERRED_MAIL));
+            .getAttributes(perunSession, user, Arrays.asList(ELIXIR_PERSISTENT, ELIXIR_LOGIN,
+                    LIFESCIENCE_PERSISTENT, LIFESCIENCE_LOGIN, PREFERRED_MAIL));
         jsonUser.put("id", user.getId());
         for (Attribute attr : attributes) {
           jsonUser.put(attr.getFriendlyName(), attr.getValue());
