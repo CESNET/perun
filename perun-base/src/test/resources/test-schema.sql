@@ -1,4 +1,4 @@
--- database version 3.2.33 (don't forget to update insert statement at the end of file)
+-- database version 3.2.34 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -1968,7 +1968,7 @@ create index idx_fk_blk_attr_attr_names on blocked_attr_values(attr_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.33');
+values ('DATABASE VERSION', '3.2.34');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations

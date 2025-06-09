@@ -368,6 +368,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       if (membershipExpirationRules == null) {
         return true;
       }
+      // If membership lifecycle is not enabled, silently exit
+      if (!"true".equals(membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED))) {
+        return true;
+      }
     } catch (AttributeNotExistsException e) {
       // No rules set, so leave it as it is
       return true;
@@ -2502,6 +2506,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       if (membershipExpirationRules == null) {
         return null;
       }
+      // If membership lifecycle is not enabled, silently exit
+      if (!"true".equals(membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED))) {
+        return null;
+      }
     } catch (AttributeNotExistsException e) {
       // No rules set, so leave it as it is
       return null;
@@ -2582,7 +2590,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
           if (m.matches()) {
             LocalDate gracePeriodDate;
             try {
-              Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareGracePeriodDate(m);
+              Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareTimePeriodAmount(m);
               gracePeriodDate = localDate.minus(fieldAmount.getLeft(), fieldAmount.getRight());
             } catch (InternalErrorException e) {
               throw new InternalErrorException(
@@ -3077,6 +3085,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       if (membershipExpirationRules == null) {
         return new Pair<>(true, null);
       }
+      // If membership lifecycle is not enabled, silently exit
+      if (!"true".equals(membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED))) {
+        return new Pair<>(true, null);
+      }
     } catch (VoNotExistsException e) {
       throw new ConsistencyErrorException("Member " + member + " of non-existing VO id=" + member.getVoId());
     } catch (AttributeNotExistsException e) {
@@ -3117,6 +3129,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       isServiceUser = user.isServiceUser();
     } catch (UserNotExistsException ex) {
       throw new ConsistencyErrorException("User must exists for " + member + " when checking expiration rules.");
+    }
+
+    if (isServiceUser && "true".equals(membershipExpirationRules
+            .get(AbstractMembershipExpirationRulesModule.EXCLUDE_SERVICE_ACCOUNTS))) {
+      // service accounts are excluded from lifecycle, silently exit
+      return new Pair<>(true, null);
     }
 
     // Which LOA we won't extend?
@@ -3246,7 +3264,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
           m = p.matcher(gracePeriod);
           if (m.matches()) {
             Pair<Integer, TemporalUnit> fieldAmount;
-            fieldAmount = Utils.prepareGracePeriodDate(m);
+            fieldAmount = Utils.prepareTimePeriodAmount(m);
             LocalDate gracePeriodDate = localDate.minus(fieldAmount.getLeft(), fieldAmount.getRight());
             // Check if we are in grace period
             if (gracePeriodDate.isEqual(LocalDate.now()) || gracePeriodDate.isBefore(LocalDate.now())) {
@@ -4004,6 +4022,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
   @Override
   public Member setStatus(PerunSession sess, Member member, Status status)
       throws WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
+    if (!AuthzResolver.isPerunAdmin(sess) && this.haveStatus(sess, member, Status.DISABLED) &&
+            !status.equals(Status.VALID)) {
+      throw new IllegalArgumentException("Member cannot be manually set from " + Status.DISABLED + " to another" +
+                                             " status than " + Status.VALID);
+    }
     switch (status) {
       case VALID:
         return validateMember(sess, member);

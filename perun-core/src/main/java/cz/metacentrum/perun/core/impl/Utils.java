@@ -2218,16 +2218,16 @@ public class Utils {
   }
 
   /**
-   * Prepares grace period date by values from given matcher.
+   * Prepares period of time (e.g. amount of days/months/years) by values from given matcher.
    *
    * @param matcher matcher
    * @return pair of field(ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS) and amount
    * @throws InternalErrorException   when given matcher contains invalid data
-   * @throws IllegalArgumentException when matcher does not match gracePeriod format
+   * @throws IllegalArgumentException when matcher does not match time period format of membership attribute (e.g, '5d')
    */
-  public static Pair<Integer, TemporalUnit> prepareGracePeriodDate(Matcher matcher) {
+  public static Pair<Integer, TemporalUnit> prepareTimePeriodAmount(Matcher matcher) {
     if (!matcher.matches()) {
-      throw new IllegalArgumentException("Wrong format of gracePeriod.");
+      throw new IllegalArgumentException("Wrong format of time period.");
     }
     String countString = matcher.group(1);
     int amount = Integer.valueOf(countString);
@@ -2245,7 +2245,7 @@ public class Utils {
         field = ChronoUnit.YEARS;
         break;
       default:
-        throw new InternalErrorException("Wrong format of gracePeriod.");
+        throw new InternalErrorException("Wrong format of time period.");
     }
 
     return new Pair<>(amount, field);

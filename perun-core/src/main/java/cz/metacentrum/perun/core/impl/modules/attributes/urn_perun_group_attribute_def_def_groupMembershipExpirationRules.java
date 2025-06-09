@@ -78,6 +78,7 @@ public class urn_perun_group_attribute_def_def_groupMembershipExpirationRules
     }
     return parameter.equals(MEMBERSHIP_PERIOD_KEY_NAME) || parameter.equals(MEMBERSHIP_DO_NOT_EXTEND_LOA_KEY_NAME) ||
            parameter.equals(MEMBERSHIP_GRACE_PERIOD_KEY_NAME) || parameter.equals(MEMBERSHIP_PERIOD_LOA_KEY_NAME) ||
-           parameter.equals(MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME);
+           parameter.equals(MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME) || parameter.equals(LIFECYCLE_ENABLED) ||
+           parameter.equals(REMOVE_AFTER) || parameter.equals(EXCLUDE_SERVICE_ACCOUNTS);
   }
 }

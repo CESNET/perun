@@ -54,6 +54,8 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules
     return parameter.equals(MEMBERSHIP_PERIOD_KEY_NAME) || parameter.equals(MEMBERSHIP_DO_NOT_EXTEND_LOA_KEY_NAME) ||
            parameter.equals(MEMBERSHIP_GRACE_PERIOD_KEY_NAME) || parameter.equals(MEMBERSHIP_PERIOD_LOA_KEY_NAME) ||
            parameter.equals(MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME) || parameter.equals(AUTO_EXTENSION_EXT_SOURCES) ||
-           parameter.equals(AUTO_EXTENSION_LAST_LOGIN_PERIOD) || parameter.equals(EXPIRE_SPONSORED_MEMBERS);
+           parameter.equals(AUTO_EXTENSION_LAST_LOGIN_PERIOD) || parameter.equals(EXPIRE_SPONSORED_MEMBERS) ||
+           parameter.equals(LIFECYCLE_ENABLED) || parameter.equals(REMOVE_AFTER) || parameter.equals(ARCHIVE_AFTER) ||
+           parameter.equals(EXCLUDE_SERVICE_ACCOUNTS);
   }
 }
