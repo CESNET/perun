@@ -119,6 +119,7 @@ import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptExc
 import cz.metacentrum.perun.registrar.exceptions.FormItemSetupException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataCertException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataException;
 import cz.metacentrum.perun.registrar.exceptions.NoPrefilledUneditableRequiredDataException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
@@ -3406,15 +3407,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
           noPrefilledUneditableRequiredItems);
     }
 
-    if (!itemsWithMissingData.isEmpty() && extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
-      // throw exception only if user is logged-in by Federation IDP
+    if (!itemsWithMissingData.isEmpty()) {
       LOG.error(
           "[REGISTRAR] Unable to prefill following disabled/hidden form items from their respective Perun/Federation " +
               "attributes: {}", itemsWithMissingData);
-      throw new MissingRequiredDataException(
-          "Some form items that are disabled or hidden could not be prefilled from their source Perun/Federation " +
-              "attributes:",
-          itemsWithMissingData);
+      // throw exception only if user is logged-in by Federation IDP/certificate
+      if (extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
+        throw new MissingRequiredDataException(
+            "Some form items that are disabled or hidden could not be prefilled from their source Perun/Federation " +
+                "attributes:",
+            itemsWithMissingData);
+      } else if (extSourceType.equals(ExtSourcesManager.EXTSOURCE_X509)) {
+        throw new MissingRequiredDataCertException(
+            "Some form items that are disabled or hidden could not be prefilled from their source Perun/Certificate " +
+                "attributes:",
+            itemsWithMissingData);
+      }
     }
 
     Iterator<ApplicationFormItemWithPrefilledValue> itemsIt = itemsWithValues.iterator();
@@ -3788,6 +3796,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
       } catch (MissingRequiredDataException ex) {
         // can't display form
         result.put("voFormInitialException", ex);
+      } catch (MissingRequiredDataCertException ex) {
+        // can't display form
+        result.put("voFormInitialException", ex);
       } catch (CantBeSubmittedException ex) {
         // can't display form / become member by some custom rules
         result.put("voFormInitialException", ex);
@@ -3815,6 +3826,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
           // can't display form
           result.put("voFormExtensionException", ex);
         } catch (MissingRequiredDataException ex) {
+          // can't display form
+          result.put("voFormExtensionException", ex);
+        } catch (MissingRequiredDataCertException ex) {
           // can't display form
           result.put("voFormExtensionException", ex);
         } catch (CantBeSubmittedException ex) {
@@ -3852,6 +3866,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
         } catch (MissingRequiredDataException ex) {
           // can't display form
           result.put("groupFormInitialException", ex);
+        } catch (MissingRequiredDataCertException ex) {
+          // can't display form
+          result.put("groupFormInitialException", ex);
         } catch (CantBeSubmittedException ex) {
           // can't display form / become member by some custom rules
           result.put("groupFormInitialException", ex);
@@ -3884,6 +3901,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
           // can't display form
           result.put("groupFormExtensionException", ex);
         } catch (MissingRequiredDataException ex) {
+          // can't display form
+          result.put("groupFormExtensionException", ex);
+        } catch (MissingRequiredDataCertException ex) {
           // can't display form
           result.put("groupFormExtensionException", ex);
         } catch (CantBeSubmittedException ex) {
