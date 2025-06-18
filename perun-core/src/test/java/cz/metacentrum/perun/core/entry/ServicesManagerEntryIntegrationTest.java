@@ -784,6 +784,55 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
   }
 
   @Test
+  public void getAllRichDestinationsAndTheirLastAttemptedPropagation() throws Exception {
+    System.out.println(CLASS_NAME + "getAllRichDestinationsAndTheirLastAttemptedPropagation");
+
+    Timestamp success_at = new Timestamp(System.currentTimeMillis() - 3600_000L);
+    Timestamp fail_at = new Timestamp(System.currentTimeMillis());
+
+    service = setUpService();
+    facility = setUpFacility();
+    destination = setUpDestination();
+    perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
+
+    // Create task
+    Task task = new Task();
+    task.setFacility(facility);
+    task.setService(service);
+    task.setSchedule(0L);
+    task.setStatus(Task.TaskStatus.WARNING);
+    task.setDestinations(List.of(destination));
+    task.setId(perun.getTasksManagerBl().insertTask(sess, task));
+
+    // Task results - successful and unsuccessful
+    TaskResult result_successful = new TaskResult();
+    result_successful.setDestination(destination);
+    result_successful.setDestinationId(destination.getId());
+    result_successful.setService(service);
+    result_successful.setTaskId(task.getId());
+    result_successful.setStatus(TaskResult.TaskResultStatus.DONE);
+    result_successful.setTimestamp(success_at);
+    result_successful.setId(perun.getTasksManagerBl().insertNewTaskResult(sess, result_successful));
+
+    TaskResult result_unsuccessful = new TaskResult();
+    result_unsuccessful.setDestination(destination);
+    result_unsuccessful.setDestinationId(destination.getId());
+    result_unsuccessful.setService(service);
+    result_unsuccessful.setTaskId(task.getId());
+    result_unsuccessful.setStatus(TaskResult.TaskResultStatus.ERROR);
+    result_unsuccessful.setTimestamp(fail_at);
+    result_unsuccessful.setId(perun.getTasksManagerBl().insertNewTaskResult(sess, result_unsuccessful));
+
+
+    List<RichDestination> richDestinations = perun.getServicesManager().getAllRichDestinations(sess, facility);
+    assertEquals("There should be one destination", 1, richDestinations.size());
+
+    RichDestination richDestination = richDestinations.get(0);
+
+    assertEquals(fail_at.getTime() / 1000, richDestination.getLastAttemptedPropagation().getTime() / 1000);
+  }
+
+  @Test
   public void getAllRichDestinationsWithFacility() throws Exception {
     System.out.println(CLASS_NAME + "getAllRichDestinationsWithFacility");
     service = setUpService();
