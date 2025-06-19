@@ -1387,7 +1387,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
           return sess.getPerunPrincipal().getRoles()
                      .hasRole(role, Resource.class.getSimpleName(), complementaryObject.getId());
         }
-      } else if (role.equals(Role.GROUPADMIN) || role.equals(Role.TOPGROUPCREATOR)) {
+      } else if (role.equals(Role.GROUPADMIN) || role.equals(Role.GROUPCREATOR) || role.equals(Role.TOPGROUPCREATOR)) {
         // Group admin can see some of the date of the VO
         if (beanName.equals(Vo.class.getSimpleName())) {
           return sess.getPerunPrincipal().getRoles()

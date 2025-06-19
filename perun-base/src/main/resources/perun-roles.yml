@@ -104,6 +104,10 @@
 # users and groups of users. The only roles which have a right to set this role are the Perun administrator and the
 # VO administrator.
 #
+# GROUPCREATOR role is able to create a new subgroup in the given group. This role can also be assigned to
+# users and groups of users. The only roles which have a right to set this role are the Perun administrator and the
+# VO administrator.
+#
 # CABINETADMIN role is able to manage users’ publications in the cabinet module.
 # Cabinet administrators and Perun administrators are able to delegate this role to other users,
 # but the role cannot be set to groups.
@@ -157,6 +161,7 @@ perun_roles:
   - VOOBSERVER
   - VOBANMANAGER
   - TOPGROUPCREATOR
+  - GROUPCREATOR
   - CABINETADMIN
   - AUDITCONSUMERADMIN
   - SPONSORSHIP
@@ -1390,6 +1395,7 @@ perun_policies:
   createGroup_Group_Group_policy:
     policy_roles:
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - VOADMIN: Vo
       - SPREGAPPLICATION:
       - PROXY:
@@ -1480,6 +1486,7 @@ perun_policies:
       - PERUNOBSERVER:
       - RPC:
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - GROUPOBSERVER: Group
       - VOOBSERVER: Vo
@@ -1496,8 +1503,10 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Group
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - GROUPOBSERVER: Group
       - VOADMIN: Vo
@@ -1516,6 +1525,7 @@ perun_policies:
       - PERUNOBSERVER:
       - RPC:
       - GROUPADMIN:
+      - GROUPCREATOR: Group
       - GROUPMEMBERSHIPMANAGER:
       - GROUPOBSERVER:
       - VOOBSERVER:
@@ -1534,6 +1544,7 @@ perun_policies:
       - PERUNOBSERVER:
       - RPC:
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOOBSERVER: Vo
@@ -1952,6 +1963,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - PERUNOBSERVER:
+      - GROUPCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -1980,6 +1992,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - PERUNOBSERVER:
+      - GROUPCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -1991,6 +2004,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
+      - GROUPCREATOR: Group
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - TRUSTEDFACILITYADMIN: Vo
@@ -2005,6 +2019,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
+      - GROUPCREATOR: Vo
       - GROUPOBSERVER: Vo
       - GROUPMEMBERSHIPMANAGER: Vo
       - VOADMIN: Vo
@@ -2021,6 +2036,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
@@ -2041,6 +2057,7 @@ perun_policies:
       - VOADMIN: Vo
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
@@ -2052,6 +2069,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
@@ -2116,6 +2134,7 @@ perun_policies:
       - VOADMIN: Vo
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
@@ -2127,6 +2146,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
@@ -2154,6 +2174,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - VOADMIN: Vo
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
@@ -2169,6 +2190,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - GROUPCREATOR: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - VOADMIN: Vo
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
@@ -2403,22 +2425,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getAllRichGroupsWithAttributesByNames_Vo_List<String>_List<String>_List<RoleAssignmentType>_policy:
-    policy_roles:
-      - RESOURCEADMIN: Vo
-      - RESOURCEOBSERVER: Vo
-      - GROUPADMIN: Vo
-      - GROUPOBSERVER: Vo
-      - GROUPMEMBERSHIPMANAGER: Vo
-      - PERUNOBSERVER:
-      - VOOBSERVER: Vo
-      - VOADMIN: Vo
-      - ORGANIZATIONMEMBERSHIPMANAGER: Vo
-      - TOPGROUPCREATOR: Vo
-      - TRUSTEDFACILITYADMIN: Vo
-    include_policies:
-      - default_policy
-
   getMemberRichGroupsWithAttributesByNames_Member_List<String>_policy:
     policy_roles:
       - GROUPADMIN: Vo
@@ -2479,6 +2485,7 @@ perun_policies:
       - VOADMIN: Vo
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
@@ -2495,6 +2502,24 @@ perun_policies:
       - VOADMIN: Vo
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
       - TRUSTEDFACILITYADMIN: Vo
+      - GROUPCREATOR: Group
+    include_policies:
+      - default_policy
+
+  getAllRichGroupsWithAttributesByNames_Vo_List<String>_List<String>_List<RoleAssignmentType>_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - ORGANIZATIONMEMBERSHIPMANAGER: Vo
+      - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -2503,6 +2528,7 @@ perun_policies:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
@@ -2518,6 +2544,7 @@ perun_policies:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
@@ -2533,6 +2560,7 @@ perun_policies:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
@@ -2548,6 +2576,7 @@ perun_policies:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
@@ -2563,6 +2592,7 @@ perun_policies:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
@@ -2578,6 +2608,7 @@ perun_policies:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
@@ -2593,6 +2624,7 @@ perun_policies:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
@@ -2608,6 +2640,7 @@ perun_policies:
       - RESOURCEADMIN: Vo
       - RESOURCEOBSERVER: Vo
       - GROUPADMIN: Group
+      - GROUPCREATOR: Group
       - GROUPOBSERVER: Group
       - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
@@ -7275,6 +7308,7 @@ perun_policies:
       - ORGANIZATIONMEMBERSHIPMANAGER:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
+      - GROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
       - SPONSORNOCREATERIGHTS:
@@ -7294,6 +7328,7 @@ perun_policies:
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
       - SPONSORNOCREATERIGHTS: Vo
@@ -7316,6 +7351,7 @@ perun_policies:
       - VOCREATOR:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
+      - GROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
       - SERVICEACCOUNTCREATOR:
@@ -7338,6 +7374,7 @@ perun_policies:
       - VOBANMANAGER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
       - SPONSORNOCREATERIGHTS: Vo
@@ -7360,6 +7397,7 @@ perun_policies:
       - ORGANIZATIONMEMBERSHIPMANAGER:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
+      - GROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
       - SPONSORNOCREATERIGHTS:
@@ -7401,6 +7439,7 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - ENGINE:
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
       - GROUPMEMBERSHIPMANAGER: Vo
@@ -7433,6 +7472,7 @@ perun_policies:
       - VOBANMANAGER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
       - SPONSORNOCREATERIGHTS: Vo
@@ -7456,6 +7496,7 @@ perun_policies:
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
       - SPONSORNOCREATERIGHTS: Vo
@@ -7479,6 +7520,7 @@ perun_policies:
       - VOBANMANAGER:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
+      - GROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
       - SPONSOR:
       - SPONSORNOCREATERIGHTS:
@@ -7502,6 +7544,7 @@ perun_policies:
       - VOBANMANAGER: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
+      - GROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
       - SPONSOR: Vo
       - SPONSORNOCREATERIGHTS: Vo
@@ -8140,7 +8183,6 @@ perun_policies:
   vo-sendInvitation_Vo_Group_String_String_String_policy:
     policy_roles:
       - VOADMIN: Vo
-      - TOPGROUPCREATOR: Vo
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo
     include_policies:
       - default_policy
@@ -9731,6 +9773,37 @@ perun_roles_management:
     assignable_to_attributes: true
     display_name: "Organization ban manager"
 
+  GROUPCREATOR:
+    primary_object: Group
+    assign_to_objects:
+      Group: group_id
+      Vo: vo_id
+    assignment_check:
+      - MFA: Vo
+      - MFA: Group
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles_to_manage:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNADMINBA:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - GROUPMEMBERSHIPMANAGER: Group
+      - ORGANIZATIONMEMBERSHIPMANAGER: Vo
+      - ENGINE:
+    associated_read_roles: [ ]
+    assignable_to_attributes: true
+    display_name: "Group creator (Group)"
+
   TOPGROUPCREATOR:
     primary_object: Vo
     assign_to_objects:
@@ -9754,7 +9827,7 @@ perun_roles_management:
       - ENGINE:
     associated_read_roles: [ ]
     assignable_to_attributes: true
-    display_name: "Topgroup creator"
+    display_name: "Group creator (VO)"
 
   CABINETADMIN:
     primary_object:
