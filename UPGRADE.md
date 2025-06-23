@@ -1,5 +1,29 @@
 Upgrade notes
 
+## [48.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.1.2...v48.2.0) (2025-06-23)
+
+
+### Features
+
+* **core:** add last attempted propagation to RichDestination ([022806b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/022806bd2c35b4e894be4d68c197026590b0a45c))
+
+
+### Bug Fixes
+
+* **core:** include lifescience ids in denbi project members group attribute ([c205c15](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c205c1596a1cf8b8aba3eb70dea5345cbe217bd1))
+* **deps:** update dependency google-api-services-admin-directory ([eeb0b5c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/eeb0b5c75d2bbea4363bf5c47cfad1b2998f3493))
+* **deps:** update dependency google-api-services-admin-directory ([7846a76](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7846a76bb146cb96b208b006a01a72152bb1458b))
+* **deps:** update dependency google-api-services-admin-directory ([3e44f13](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3e44f137a54f25af71a9d1d0163be0dc2e36dada))
+* **deps:** update dependency google-api-services-admin-directory ([00cde6e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/00cde6e8bcb16c88cd08c4eef2a05b736237ba17))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.81 ([d893121](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d893121f6f37ce4d43ac1ef20bb7e40dee0079a1))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.4.6 ([7a33133](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7a331339adf154c71722cc75efa5817ebf4d3433))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.0 ([5b35071](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5b35071c7cac9f820b63bd9f48f72ff597c00b0b))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.2 ([e87eb28](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e87eb2800abb5a69f311f5e94b500b00c51e5392))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.3 ([5aec6a8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5aec6a84f67088f43202a21b0acf722370b2279d))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.12.1 ([863992a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/863992a6e9312124f54c56d5ed2449f27294e723))
+* **gui:** do not overwrite script path for new services with generic gen scripts ([a417b9c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a417b9c83d20cca37fd6802435cad9a0a8369da8))
+* **registrar:** correctly handle empty prefilled required fed form items acquired from certificates ([56483e9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/56483e986b1537bdb4c91bbb7e9ca831c3b77e4a))
+
 ## [48.1.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.1.1...v48.1.2) (2025-05-22)
 
 
