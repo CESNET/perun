@@ -1018,6 +1018,7 @@ components:
         service: { $ref: '#/components/schemas/Service' }
         facility: { $ref: '#/components/schemas/Facility' }
         lastSuccessfulPropagation: { type: string }
+        lastAttemptedPropagation: { type: string }
       discriminator:
         propertyName: beanName
 

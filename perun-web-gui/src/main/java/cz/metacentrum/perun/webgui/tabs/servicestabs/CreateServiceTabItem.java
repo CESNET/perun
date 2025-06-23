@@ -93,9 +93,12 @@ public class CreateServiceTabItem implements TabItem {
           return false;
         } else {
           serviceName.setOk();
-          // fill script path on service name change
-          scriptPath.getTextBox().setValue("./" + serviceName.getTextBox().getText().trim().toLowerCase()
-              .replaceAll(Utils.SERVICE_NAME_TO_SCRIP_PATH_MATCHER, "_"));
+          // fill script path on service name change, but keep ./generic_json_gen and ./generic_ldap_gen
+          String currentScriptPath = scriptPath.getTextBox().getText().trim();
+          if (!currentScriptPath.equals("./generic_json_gen") && !currentScriptPath.equals("./generic_ldap_gen")) {
+            scriptPath.getTextBox().setValue("./" + serviceName.getTextBox().getText().trim().toLowerCase()
+                    .replaceAll(Utils.SERVICE_NAME_TO_SCRIP_PATH_MATCHER, "_"));
+          }
           return true;
         }
       }

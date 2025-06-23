@@ -114,7 +114,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
                                                                      SERVICE_DENIAL_MAPPING_SELECT_QUERY + ", " +
                                                                  "facility_service_destinations.propagation_type as " +
                                                                  "f_s_des_propagation_type ";
-  public static final String RICH_DESTINATION_WITH_LAST_SUCCESSFUL_PROPAGATION_MAPPING_SELECT_QUERY =
+  public static final String RICH_DESTINATION_WITH_LAST_PROPAGATION_MAPPING_SELECT_QUERY =
       " " + DESTINATION_MAPPING_SELECT_QUERY + ", " +
       "facilities.id as facilities_id, facilities.uu_id as facilities_uu_id, facilities.name as facilities_name, " +
       "facilities.dsc as facilities_dsc, " +
@@ -123,7 +123,8 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
       "facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as " +
       "facilities_created_by_uid, " + SERVICE_MAPPING_SELECT_QUERY + ", " + SERVICE_DENIAL_MAPPING_SELECT_QUERY + ", " +
       "facility_service_destinations.propagation_type as f_s_des_propagation_type, " +
-      "last_success.success_at as success_at ";
+      "last_propagation.success_at as success_at, " +
+      "last_propagation.attempt_at as attempt_at";
   public static final RowMapper<Service> SERVICE_MAPPER = (resultSet, i) -> {
     Service service = new Service();
     service.setId(resultSet.getInt("services_id"));
@@ -269,15 +270,22 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
     ServiceDenial serviceDenial = SERVICE_DENIAL_MAPPER.mapRow(resultSet, i);
 
-    // if success_at column is missing in results, use null value
+    // if success_at or attempt_at column is missing in results, use null value
     Timestamp lastSuccessfulPropagation;
+    Timestamp lastAttemptedPropagation;
     try {
       lastSuccessfulPropagation = resultSet.getTimestamp("success_at");
     } catch (SQLException ex) {
       lastSuccessfulPropagation = null;
     }
+    try {
+      lastAttemptedPropagation = resultSet.getTimestamp("attempt_at");
+    } catch (SQLException ex) {
+      lastAttemptedPropagation = null;
+    }
 
-    return new RichDestination(destination, facility, service, serviceDenial != null, lastSuccessfulPropagation);
+    return new RichDestination(destination, facility, service, serviceDenial != null,
+                               lastSuccessfulPropagation, lastAttemptedPropagation);
   };
   static final Logger LOG = LoggerFactory.getLogger(ServicesManagerImpl.class);
   // http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
@@ -552,7 +560,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
   @Override
   public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) {
     try {
-      return jdbc.query("select " + RICH_DESTINATION_WITH_LAST_SUCCESSFUL_PROPAGATION_MAPPING_SELECT_QUERY +
+      return jdbc.query("select " + RICH_DESTINATION_WITH_LAST_PROPAGATION_MAPPING_SELECT_QUERY +
                         " from facility_service_destinations " +
                         "join destinations on destinations.id=facility_service_destinations.destination_id " +
                         "join services on services.id=facility_service_destinations.service_id " +
@@ -561,16 +569,15 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
                         "                        destinations.id = service_denials.destination_id " +
 
                         "left join (select destination_id, services.id as service_id, facilities.id as facility_id, " +
-                        "max" +
-                        "(timestamp) as success_at from tasks_results " +
+                        "max(timestamp) as attempt_at, " +
+                        "max(case when status = 'DONE' then timestamp end) as success_at from tasks_results " +
                         "join services on services.id = (select service_id from tasks where id = tasks_results" +
                         ".task_id) " +
                         "join facilities on facilities.id = (select facility_id from tasks where id = tasks_results" +
                         ".task_id) " +
-                        "where status = 'DONE' group by destination_id, services.id, facilities.id) as last_success " +
-                        "on last_success.destination_id = facility_service_destinations.destination_id and" +
-                        " " +
-                        "last_success" + ".service_id = services.id and last_success.facility_id = facilities.id " +
+                        "group by destination_id, services.id, facilities.id) as last_propagation " +
+                        "on last_propagation.destination_id = facility_service_destinations.destination_id and" +
+                        " last_propagation.service_id = services.id and last_propagation.facility_id = facilities.id " +
 
                         "where facility_service_destinations.facility_id=? order by destinations.destination",
           RICH_DESTINATION_MAPPER, facility.getId());
