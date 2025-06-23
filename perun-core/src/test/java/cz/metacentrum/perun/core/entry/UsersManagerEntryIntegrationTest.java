@@ -644,6 +644,38 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void deleteUserAfterAnonymization() throws Exception {
+		System.out.println(CLASS_NAME + "deleteUserAfterAnonymization");
+
+		boolean originalUserDeletionForced = BeansUtils.getCoreConfig().getUserDeletionForced();
+
+		BeansUtils.getCoreConfig().setUserDeletionForced(false);
+
+		// Create login
+		Attribute attrLogin = new Attribute();
+		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin.setFriendlyName("login-namespace:namespace1");
+		attrLogin.setType(String.class.getName());
+		attrLogin = new Attribute(perun.getAttributesManager().createAttribute(sess, attrLogin));
+		attrLogin.setValue("login1");
+		perun.getAttributesManager().setAttribute(sess, user, attrLogin);
+
+		// Anonymize user
+		usersManager.anonymizeUser(sess, user, true);
+
+		try {
+			// Enable deletion of users
+			BeansUtils.getCoreConfig().setUserDeletionForced(true);
+			usersManager.deleteUser(sess, user, false);
+			assertThatExceptionOfType(UserNotExistsException.class).isThrownBy(
+					() -> usersManager.getUserById(sess, user.getId()));
+		} finally {
+			// set userDeletionForced back to the original value
+			BeansUtils.getCoreConfig().setUserDeletionForced(originalUserDeletionForced);
+		}
+	}
+
+	@Test
 	public void blockedLoginsAndRelatedUserIds() throws Exception {
 		System.out.println(CLASS_NAME + "blockedLoginsAndRelatedUserIds");
 
