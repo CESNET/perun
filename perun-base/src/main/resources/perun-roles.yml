@@ -7745,6 +7745,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -7752,6 +7753,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
