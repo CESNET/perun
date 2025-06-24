@@ -187,6 +187,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
       int row = 0;
       while (resultSet.next()) {
         totalCount = resultSet.getInt("total_count");
+        if (totalCount == 0) {
+          break;
+        }
         groups.add(GROUP_MAPPER.mapRow(resultSet, row));
         row++;
       }
@@ -1013,7 +1016,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
             (includeIndirectRoles ? "or members.user_id=:uid) " : ") ") +
             (!query.getRoles().isEmpty() ? " AND (authz.role_id IN (SELECT id FROM roles WHERE name IN (:roles))) " :
                  "") +
-            searchQuery + ")" + "SELECT *" + "FROM (" + "TABLE cte" + " ORDER BY " +
+            searchQuery + ") SELECT * FROM ( TABLE cte ORDER BY " +
             query.getSortColumn().getSqlOrderBy(query) + " OFFSET (:offset)" +
             " LIMIT (:limit)) sub RIGHT JOIN (SELECT count(*) FROM cte) c(total_count) on true;", namedParams,
         getPaginatedGroupsExtractor(query));
