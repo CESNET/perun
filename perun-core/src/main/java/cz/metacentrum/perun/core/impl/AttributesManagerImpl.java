@@ -661,7 +661,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
   }
 
   @Override
-  public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) {
+  public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
     //Call attribute module
     MemberGroupAttributesModuleImplApi memberGroupAttributeModule = getMemberGroupAttributeModule(sess, attribute);
     if (memberGroupAttributeModule == null) {

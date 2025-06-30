@@ -217,13 +217,14 @@ public interface AttributesManager {
    *                                           wrapped in InternalErrorException
    * @throws PrivilegeException                if privileges are not given
    * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
+   * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
    * @throws GroupNotExistsException           if specified group does not exist
    * @throws MemberNotExistsException          if specified member does not exist
    * @throws AttributeNotExistsException       if given attribute does not exist
    */
   void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute)
       throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException,
-      AttributeNotExistsException, MemberGroupMismatchException;
+                 AttributeNotExistsException, MemberGroupMismatchException, WrongReferenceAttributeValueException;
 
   /**
    * Check if value of this member attribute has valid semantics.

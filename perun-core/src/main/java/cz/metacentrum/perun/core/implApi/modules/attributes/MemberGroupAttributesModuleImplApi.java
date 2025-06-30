@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
@@ -34,7 +35,8 @@ public interface MemberGroupAttributesModuleImplApi extends AttributesModuleImpl
    * @param group        Group
    * @param attribute    Attribute to be checked.
    */
-  void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute);
+  void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws
+      WrongReferenceAttributeValueException;
 
   /**
    * This method checks syntax of Member's attribute value in a specified group.

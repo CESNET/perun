@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,6 +23,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateSync;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -57,6 +59,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -479,6 +482,55 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
     groupsManagerBl.synchronizeGroup(sess, group);
     assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
+  }
+
+  @Test
+  public void lightweightSynchronizationAddExpiredGroupMemberSetsLifecycleTimestamp() throws Exception {
+    System.out.println(CLASS_NAME + "lightweightSynchronizationAddExpiredGroupMemberSetsLifecycleTimestamp");
+
+    String synchronizedUserLogin = "metodej";
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute lightweightSynchronizationAttr =
+        attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+    lightweightSynchronizationAttr.setValue(true);
+    attributesManagerBl.setAttribute(sess, group, lightweightSynchronizationAttr);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", synchronizedUserLogin);
+    attributes.put("status", "EXPIRED");
+    // add the ues to additional ueses to get the user in the lightweight synchronization
+    String uesName = "additionalUesName";
+    attributes.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING,
+        uesName + "|NonEmptyString|" + synchronizedUserLogin + ";;");
+    subjects.add(attributes);
+
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+    UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, synchronizedUserLogin);
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    user.setFirstName(synchronizedUserLogin);
+    perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+
+    when(extSourceManagerBl.getExtSourceByName(sess, "additionalUesName")).thenReturn(userExtSource.getExtSource());
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, group);
+    Member foundMember = groupsManagerBl.getGroupMembers(sess, group).get(0);
+    assertEquals(MemberGroupStatus.EXPIRED, foundMember.getGroupStatus());
+
+    Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group,
+            AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+    assertEquals(lifecycleAttr.valueAsMap().get("expiredAt"),
+        BeansUtils.getDateFormatterWithoutTime().format(new Date()));
   }
 
   @Test
@@ -1246,6 +1298,39 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
   }
 
   @Test
+  public void synchronizeExpiredGroupStatusMemberNotInVOSetsLifecycleTimestamps() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeExpiredGroupStatusMemberNotInVOSetsLifecycleTimestamps");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    attributes.put("status", "EXPIRED");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+    candidate.setExpectedSyncGroupStatus("EXPIRED");
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    groupsManagerBl.synchronizeGroup(sess, group);
+    Member foundMember = groupsManagerBl.getGroupMembers(sess, group).get(0);
+    assertEquals(MemberGroupStatus.EXPIRED, foundMember.getGroupStatus());
+
+    Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group,
+            AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+    assertEquals(lifecycleAttr.valueAsMap().get("expiredAt"),
+        BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+  }
+
+  @Test
   public void synchronizeGroupAddMissingMember() throws Exception {
     System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMember");
 
@@ -1442,6 +1527,49 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
     groupsManagerBl.synchronizeGroup(sess, group);
     assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+  }
+
+  @Test
+  public void synchronizeGroupUpdateLifecycleTimestampAttribute() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupUpdateLifecycleTimestampAttribute");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    attributesManagerBl.setAttribute(sess, group, attr);
+
+    List<Map<String, String>> subjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    subjects.add(attributes);
+    Candidate candidate = setUpCandidate();
+
+    member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+    perun.getMembersManagerBl().setStatus(sess, member, Status.DISABLED);
+
+    groupsManagerBl.addMember(sess, group, member);
+
+    when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap) essa, "metodej")).thenReturn(
+        new CandidateSync(candidate));
+    when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+    Member foundMember = groupsManagerBl.getGroupMembers(sess, group).get(0);
+
+    assertEquals(Status.DISABLED, foundMember.getStatus());
+    Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
+            AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    assertEquals(lifecycleAttr.valueAsMap().get("archivedAt"),
+        BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+
+
+    groupsManagerBl.synchronizeGroup(sess, group);
+    foundMember = groupsManagerBl.getGroupMembers(sess, group).get(0);
+    assertEquals(Status.VALID, foundMember.getStatus());
+    lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember,
+            AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+    assertNull(lifecycleAttr.getValue());
   }
 
   @Test

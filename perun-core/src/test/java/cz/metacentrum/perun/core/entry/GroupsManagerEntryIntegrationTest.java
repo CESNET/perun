@@ -61,8 +61,10 @@ import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
 
 import java.time.LocalDate;
@@ -84,6 +86,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -178,6 +181,31 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void expireMemberInGroupSetsTimestamp() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInGroupSetsTimestamp");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+
+		String expiredAtTimestamp = lifecycleAttr.valueAsMap().get("expiredAt");
+		assertNotNull("Member's expiredAt timestamp was null.", expiredAtTimestamp);
+		assertEquals(expiredAtTimestamp, BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+
+	}
+
+	@Test
 	public void expireMemberInGroupWithActiveInSubGroup() throws Exception {
 		System.out.println(CLASS_NAME + "expireMemberInGroupWithActiveInSubGroup");
 
@@ -205,6 +233,39 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 				foundMember.getGroupStatuses().containsKey(group.getId()));
 		assertEquals("Member's status for specific group was not VALID",
 				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+	}
+
+	@Test
+	public void expiredMemberActiveInSubgroupLifecycleTimestampNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "expiredMemberActiveInSubgroupLifecycleTimestampNotExists");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being VALID in subgroup
+		assertSame("Member does not have VALID group status", foundMember.getGroupStatus(), MemberGroupStatus.VALID);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not VALID",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+		Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		assertNull(lifecycleAttr.getValue());
 	}
 
 	@Test
@@ -238,6 +299,43 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void expiredInSubgroupActiveInLifecycleTimestampsCorrect() throws Exception {
+		System.out.println(CLASS_NAME + "expiredInSubgroupActiveInLifecycleTimestampsCorrect");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being expired in subgroup
+		assertSame("Member does not have VALID group status", foundMember.getGroupStatus(), MemberGroupStatus.VALID);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not VALID",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+		Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		assertNull(lifecycleAttr.getValue());
+		lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group2,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		assertEquals(lifecycleAttr.valueAsMap().get("expiredAt"),
+			BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+	}
+
+	@Test
 	public void expireMemberInSubGroupAndInUpperGroup() throws Exception {
 		System.out.println(CLASS_NAME + "expireMemberInSubGroupAndInUpperGroup");
 
@@ -266,6 +364,45 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 				foundMember.getGroupStatuses().containsKey(group.getId()));
 		assertEquals("Member's status for specific group was not EXPIRED",
 				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.EXPIRED);
+	}
+
+	@Test
+	public void expireMemberInSubGroupAndInUpperGroupLifecycleTimestampsCorrect() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInSubGroupAndInUpperGroupLifecycleTimestampsCorrect");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being expired in subgroup
+		assertSame("Member does not have EXPIRED group status", foundMember.getGroupStatus(), MemberGroupStatus.EXPIRED);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not EXPIRED",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.EXPIRED);
+		Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		assertEquals(lifecycleAttr.valueAsMap().get("expiredAt"),
+			BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+		lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group2,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		assertEquals(lifecycleAttr.valueAsMap().get("expiredAt"),
+			BeansUtils.getDateFormatterWithoutTime().format(new Date()));
 	}
 
 	@Test (expected=GroupRelationNotAllowed.class)
@@ -1803,100 +1940,100 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
 	}
 
-    @Test
-    public void dualMembershipSetCorrectlyOnGroupUnion() throws Exception {
-      System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnion");
+	@Test
+	public void dualMembershipSetCorrectlyOnGroupUnion() throws Exception {
+	  System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnion");
 
-      Vo vo = setUpVo();
-      Member member1 = setUpMemberWithDifferentParam(vo, 111);
+	  Vo vo = setUpVo();
+	  Member member1 = setUpMemberWithDifferentParam(vo, 111);
 
-      groupsManagerBl.createGroup(sess, vo, group);
-      groupsManagerBl.createGroup(sess, vo, group2);
+	  groupsManagerBl.createGroup(sess, vo, group);
+	  groupsManagerBl.createGroup(sess, vo, group2);
 
-      groupsManagerBl.addMember(sess, group, member1);
-      groupsManagerBl.addMember(sess, group2, member1);
+	  groupsManagerBl.addMember(sess, group, member1);
+	  groupsManagerBl.addMember(sess, group2, member1);
 
-      groupsManagerBl.createGroupUnion(sess, group, group2, false);
+	  groupsManagerBl.createGroupUnion(sess, group, group2, false);
 
-      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+	  member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
 
-      assertTrue(member1.isDualMembership());
-    }
+	  assertTrue(member1.isDualMembership());
+	}
 
-    @Test
-    public void dualMembershipSetCorrectlyOnGroupUnionRemoval() throws Exception {
-      System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemoval");
+	@Test
+	public void dualMembershipSetCorrectlyOnGroupUnionRemoval() throws Exception {
+	  System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemoval");
 
-      Vo vo = setUpVo();
-      Member member1 = setUpMemberWithDifferentParam(vo, 111);
+	  Vo vo = setUpVo();
+	  Member member1 = setUpMemberWithDifferentParam(vo, 111);
 
-      groupsManagerBl.createGroup(sess, vo, group);
-      groupsManagerBl.createGroup(sess, vo, group2);
+	  groupsManagerBl.createGroup(sess, vo, group);
+	  groupsManagerBl.createGroup(sess, vo, group2);
 
-      groupsManagerBl.addMember(sess, group, member1);
-      groupsManagerBl.addMember(sess, group2, member1);
+	  groupsManagerBl.addMember(sess, group, member1);
+	  groupsManagerBl.addMember(sess, group2, member1);
 
-      groupsManagerBl.createGroupUnion(sess, group, group2, false);
+	  groupsManagerBl.createGroupUnion(sess, group, group2, false);
 
-      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+	  member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
 
-      assertTrue(member1.isDualMembership());
+	  assertTrue(member1.isDualMembership());
 
-      groupsManagerBl.removeGroupUnion(sess, group, group2, false);
-      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
-      assertFalse(member1.isDualMembership());
-    }
+	  groupsManagerBl.removeGroupUnion(sess, group, group2, false);
+	  member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+	  assertFalse(member1.isDualMembership());
+	}
 
-    @Test
-    public void dualMembershipSetCorrectlyOnDirectRemoval() throws Exception {
-      System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemoval");
+	@Test
+	public void dualMembershipSetCorrectlyOnDirectRemoval() throws Exception {
+	  System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemoval");
 
-      Vo vo = setUpVo();
-      Member member1 = setUpMemberWithDifferentParam(vo, 111);
+	  Vo vo = setUpVo();
+	  Member member1 = setUpMemberWithDifferentParam(vo, 111);
 
-      groupsManagerBl.createGroup(sess, vo, group);
-      groupsManagerBl.createGroup(sess, vo, group2);
+	  groupsManagerBl.createGroup(sess, vo, group);
+	  groupsManagerBl.createGroup(sess, vo, group2);
 
-      groupsManagerBl.addMember(sess, group, member1);
-      groupsManagerBl.addMember(sess, group2, member1);
+	  groupsManagerBl.addMember(sess, group, member1);
+	  groupsManagerBl.addMember(sess, group2, member1);
 
-      groupsManagerBl.createGroupUnion(sess, group, group2, false);
+	  groupsManagerBl.createGroupUnion(sess, group, group2, false);
 
-      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+	  member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
 
-      assertTrue(member1.isDualMembership());
+	  assertTrue(member1.isDualMembership());
 
-      groupsManagerBl.removeMember(sess, group, member1);
-      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
-      assertFalse(member1.isDualMembership());
-    }
+	  groupsManagerBl.removeMember(sess, group, member1);
+	  member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+	  assertFalse(member1.isDualMembership());
+	}
 
-    @Test
-    public void dualMembershipSetCorrectlyOnGroupUnionRemovalSomeLeft() throws Exception {
-      System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemovalSomeLeft");
+	@Test
+	public void dualMembershipSetCorrectlyOnGroupUnionRemovalSomeLeft() throws Exception {
+	  System.out.println(CLASS_NAME + "dualMembershipSetCorrectlyOnGroupUnionRemovalSomeLeft");
 
-      Vo vo = setUpVo();
-      Member member1 = setUpMemberWithDifferentParam(vo, 111);
+	  Vo vo = setUpVo();
+	  Member member1 = setUpMemberWithDifferentParam(vo, 111);
 
-      groupsManagerBl.createGroup(sess, vo, group);
-      groupsManagerBl.createGroup(sess, vo, group2);
-      groupsManagerBl.createGroup(sess, vo, group3);
+	  groupsManagerBl.createGroup(sess, vo, group);
+	  groupsManagerBl.createGroup(sess, vo, group2);
+	  groupsManagerBl.createGroup(sess, vo, group3);
 
-      groupsManagerBl.addMember(sess, group, member1);
-      groupsManagerBl.addMember(sess, group2, member1);
-      groupsManagerBl.addMember(sess, group3, member1);
+	  groupsManagerBl.addMember(sess, group, member1);
+	  groupsManagerBl.addMember(sess, group2, member1);
+	  groupsManagerBl.addMember(sess, group3, member1);
 
-      groupsManagerBl.createGroupUnion(sess, group, group2, false);
-      groupsManagerBl.createGroupUnion(sess, group, group3, false);
+	  groupsManagerBl.createGroupUnion(sess, group, group2, false);
+	  groupsManagerBl.createGroupUnion(sess, group, group3, false);
 
-      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+	  member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
 
-      assertTrue(member1.isDualMembership());
+	  assertTrue(member1.isDualMembership());
 
-      groupsManagerBl.removeGroupUnion(sess, group, group2, false);
-      member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
-      assertTrue(member1.isDualMembership());
-    }
+	  groupsManagerBl.removeGroupUnion(sess, group, group2, false);
+	  member1 = groupsManagerBl.getGroupMemberById(sess, group, member1.getId());
+	  assertTrue(member1.isDualMembership());
+	}
 
 	@Test
 	public void createGroupUnionCorrectMemberGroupStatusesAreSet() throws Exception {
@@ -2747,6 +2884,70 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void groupUnionStatusChangeUpdatesLifecycleTimestamps() throws Exception {
+		System.out.println("GroupsManager.groupUnionStatusChangeUpdatesLifecycleTimestamps");
+
+		vo = setUpVo();
+		Group resultGroup = setUpGroup(vo);
+
+		Vo memberVo = setUpVo("Member Test VO", "member_vo");
+		Group operandGroup = setUpGroup(memberVo);
+		Member member = setUpMember(memberVo);
+		perun.getGroupsManagerBl().addMember(sess, operandGroup, member);
+
+		perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
+		groupsManager.allowGroupToHierarchicalVo(sess, operandGroup, vo);
+		groupsManager.createGroupUnion(sess, resultGroup, operandGroup);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.VALID);
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+		// lifecycle attribute should be null since member is now valid
+		Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, members.get(0), resultGroup,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		assertNull(lifecycleAttr.getValue());
+
+		// add the member to result group directly as EXPIRED
+		Member resultMember = members.get(0);
+		perun.getGroupsManagerBl().addMember(sess, resultGroup, resultMember);
+		groupsManagerBl.expireMemberInGroup(sess, resultMember, resultGroup);
+		// directly is EXPIRED, indirectly VALID
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.VALID);
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+		// should still be null since total group status is valid
+		lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, members.get(0), resultGroup,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		assertNull(lifecycleAttr.getValue());
+
+		groupsManagerBl.expireMemberInGroup(sess, member, operandGroup);
+		// directly is EXPIRED, indirectly EXPIRED
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.EXPIRED);
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+		// timestamp should finally be set since total group status is now expired
+		lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, members.get(0), resultGroup,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		String expiredAtTimestamp = lifecycleAttr.valueAsMap().get("expiredAt");
+		assertNotNull("Member's expiredAt timestamp was null.", expiredAtTimestamp);
+		assertEquals(expiredAtTimestamp, BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+
+		groupsManagerBl.validateMemberInGroup(sess, resultMember, resultGroup);
+		// directly is VALID, indirectly EXPIRED
+		members = groupsManagerBl.getGroupMembers(sess, resultGroup);
+		assertEquals(members.get(0).getGroupStatus(), MemberGroupStatus.VALID);
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID,
+			groupsManagerBl.getTotalMemberGroupStatus(sess, members.get(0), resultGroup));
+		// ensure that lifecycle timestamp gets removed once validated again
+		lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, members.get(0), resultGroup,
+			AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+		assertNull(lifecycleAttr.getValue());
+	}
+
+	@Test
 	public void transitiveGroupMembershipCheck() throws Exception {
 		System.out.println(CLASS_NAME + "transitiveGroupMembershipCheck");
 
@@ -3001,21 +3202,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	}
 
-    @Test
-    public void suspendGroupSynchronization() throws Exception {
-      System.out.println(CLASS_NAME + "suspendGroupSynchronization");
+	@Test
+	public void suspendGroupSynchronization() throws Exception {
+	  System.out.println(CLASS_NAME + "suspendGroupSynchronization");
 
-      assertFalse("Should be enabled in test-schema.sql",
-          groupsManager.isSuspendedGroupSynchronization(sess));
+	  assertFalse("Should be enabled in test-schema.sql",
+		  groupsManager.isSuspendedGroupSynchronization(sess));
 
 
-      groupsManager.suspendGroupSynchronization(sess, true);
+	  groupsManager.suspendGroupSynchronization(sess, true);
 
-      assertTrue(groupsManager.isSuspendedGroupSynchronization(sess));
+	  assertTrue(groupsManager.isSuspendedGroupSynchronization(sess));
 
-      groupsManager.suspendGroupSynchronization(sess, false);
+	  groupsManager.suspendGroupSynchronization(sess, false);
 
-      assertFalse(groupsManager.isSuspendedGroupSynchronization(sess));
+	  assertFalse(groupsManager.isSuspendedGroupSynchronization(sess));
 
   }
 
@@ -6139,7 +6340,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		assertThat(foundRichGroup.getAttributes())
 			.anyMatch(attr -> attrName.equals(attr.getFriendlyName()) &&
-		                      attrValue.equals(attr.getValue()));
+							  attrValue.equals(attr.getValue()));
 	}
 
 	@Test

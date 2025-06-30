@@ -131,9 +131,11 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribu
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupSynchronizationFilename;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_lifecycleTimestamps;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isLifecycleAlterable;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isSuspended;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_def_lifecycleTimestamps;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_virt_isBanned;
@@ -386,7 +388,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
   @Override
   public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute)
-      throws WrongAttributeAssignmentException, MemberGroupMismatchException {
+      throws WrongAttributeAssignmentException, MemberGroupMismatchException, WrongReferenceAttributeValueException {
     this.checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
     getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_GROUP_ATTR);
 
@@ -8825,6 +8827,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
+    //urn:perun:member:attribute-def:def:lifecycleTimestamps
+    attr = new AttributeDefinition((new urn_perun_member_attribute_def_def_lifecycleTimestamps())
+                                       .getAttributeDefinition());
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
     //urn:perun:member:attribute-def:def:sponzoredMember
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
@@ -8970,6 +8979,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:member_group:attribute-def:def:lifecycleTimestamps
+    attr = new AttributeDefinition((new urn_perun_member_group_attribute_def_def_lifecycleTimestamps())
+                                       .getAttributeDefinition());
+    policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:vo:attribute-def:def:blockManualMemberAdding
