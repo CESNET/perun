@@ -954,6 +954,7 @@ components:
         - "GROUPOBSERVER"
         - "GROUPMEMBERSHIPMANAGER"
         - "GROUPADMIN"
+        - "GROUPCREATOR"
 
     VoMemberStatuses:
       type: string

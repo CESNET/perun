@@ -274,5 +274,15 @@ perun_policies:
       - ORGANIZATIONMEMBERSHIPMANAGER:
     include_policies: [ ]
 
+  test_groupcreator:
+    policy_roles:
+      - GROUPCREATOR: Group
+    include_policies: [ ]
+
+  test_groupcreator_vo:
+    policy_roles:
+      - GROUPCREATOR: Vo
+    include_policies: [ ]
+
 perun_roles_management: { }
 ...

@@ -263,6 +263,40 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
+  public void authorizedGroupcreator() throws Exception {
+    System.out.println(CLASS_NAME + "authorizedGroupcreator");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+    final Group createdGroup = perun.getGroupsManager().createGroup(sess, createdVo, new Group("testGroup", "testDesc"));
+
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    PerunSession session = getHisSession(createdMember);
+    AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPCREATOR);
+
+
+    AuthzResolver.refreshAuthz(session);
+    assertTrue(
+            AuthzResolver.authorizedInternal(session, "test_groupcreator", Arrays.asList(createdGroup)));
+  }
+
+  @Test
+  public void authorizedGroupcreatorVo() throws Exception {
+    System.out.println(CLASS_NAME + "authorizedGroupcreatorVo");
+    final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
+    final Group createdGroup = perun.getGroupsManager().createGroup(sess, createdVo, new Group("testGroup", "testDesc"));
+
+    final Member createdMember = createSomeMember(createdVo);
+    final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+    PerunSession session = getHisSession(createdMember);
+    AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPCREATOR);
+
+
+    AuthzResolver.refreshAuthz(session);
+    assertTrue(
+            AuthzResolver.authorizedInternal(session, "test_groupcreator_vo", Arrays.asList(createdVo)));
+  }
+
+  @Test
   public void authorizedResourceAdminAndFacilityAdmin() throws Exception {
     System.out.println(CLASS_NAME + "authorizedResourceAdminAndFacilityAdmin");
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));

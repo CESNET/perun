@@ -1492,6 +1492,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     getPerunBl().getAuditer().log(sess, new GroupCreatedAsSubgroup(group, vo, parentGroup));
 
+    // set creator as group admin unless he already has rights on the group (Perun, VO or parent group admin)
+    User user = sess.getPerunPrincipal().getUser();
+    if (user != null) {
+      if (!AuthzResolverBlImpl.isPerunAdmin(sess) && !sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN, vo) &&
+              !sess.getPerunPrincipal().getRoles().hasRole(Role.GROUPADMIN, parentGroup)) {
+        try {
+          AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
+        } catch (AlreadyAdminException e) {
+          throw new ConsistencyErrorException("Newly created group already has an admin.", e);
+        } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
+          throw new InternalErrorException(e);
+        }
+      }
+    }
+
     // check if new subgroup should be automatically assigned to resources
     List<AssignedResource> assignedResources =
         getPerunBl().getResourcesManagerBl().getResourceAssignments(sess, parentGroup, null).stream()
