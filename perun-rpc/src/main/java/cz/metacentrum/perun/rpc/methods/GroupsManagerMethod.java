@@ -989,7 +989,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns subgroups of a group.
+   * Returns direct subgroups of a group (single level)
    *
    * @throw GroupNotExistsException When the group doesn't exist
    *
@@ -1004,11 +1004,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns subgroups of a group.
+   * Returns all subgroups of a group (the whole subtree)
    *
    * @throw GroupNotExistsException When the group doesn't exist
    *
-   * @param parentGroup int Group id
+   * @param group int Group id
    * @return List<Group> Child groups
    */
   getAllSubGroups {
