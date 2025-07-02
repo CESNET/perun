@@ -143,6 +143,8 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribut
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAffiliationRegex;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_expirationDate;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_lastCheckDate;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
@@ -8852,7 +8854,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
-    //urn:perun:vo:attribute-def:def:memberOrganizations
+    //urn:perun:member:attribute-def:def:memberOrganizations
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     attr.setType(ArrayList.class.getName());
@@ -8865,7 +8867,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
-    //urn:perun:vo:attribute-def:def:memberOrganizationsHistory
+    //urn:perun:member:attribute-def:def:memberOrganizationsHistory
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     attr.setType(ArrayList.class.getName());
@@ -8876,6 +8878,65 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:voPurpose
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("voPurpose");
+    attr.setDisplayName("VO purpose");
+    attr.setDescription("The purpose for which the VO was established.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:expirationDate
+    attr = (new urn_perun_vo_attribute_def_def_expirationDate()).getAttributeDefinition();
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:lastCheckDate
+    attr = (new urn_perun_vo_attribute_def_def_lastCheckDate()).getAttributeDefinition();
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:owner
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("owner");
+    attr.setDisplayName("VO owner");
+    attr.setDescription("Description of the VO owner (eg. CESNET + department number," +
+                            " ITI4, CERIT-SC, community etc.).");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:tags
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(ArrayList.class.getName());
+    attr.setFriendlyName("tags");
+    attr.setDisplayName("VO tags");
+    attr.setDescription("Custom tags for the VO. Can represent eg. relations to projects and similar stuff " +
+                            "and can be later used for filtering.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:adminContact
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("adminContact");
+    attr.setDisplayName("VO administrative contact");
+    attr.setDescription("Contact (email) of the person or group responsible for the VO administrative tasks " +
+                            "like confirmation of VO deletion.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:vo:attribute-def:def:membershipExpirationRules
