@@ -9321,6 +9321,42 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getRichGroupsWhereUserIsActive/facility:
+    get:
+      tags:
+        - UsersManager
+      operationId: getRichGroupsForFacilityWhereUserIsActive
+      summary: Get list of groups of user on specified facility where use is active.
+      description: |
+        That means User is a VALID in the VO and the Group and groups are assigned to the facility.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getRichGroupsWhereUserIsActive/resource:
+    get:
+      tags:
+        - UsersManager
+      operationId: getRichGroupsForResourceWhereUserIsActive
+      summary: Get list of groups of user on specified resource where use is active.
+      description: |
+        That means User is a VALID in the VO and the Group and groups are assigned to the resource.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/findUsers:
     get:
       tags:
@@ -10579,6 +10615,21 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getAllowedResources:
+    get:
+      tags:
+        - UsersManager
+      operationId: getAllowedResourcesOnFacility
+      summary: Get all resources on given facility which the user has access to.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
