@@ -117,15 +117,25 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_at
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapBaseDN;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapBaseDNGroup;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapDeactivate;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapGroupAttrMap;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapGroupObjectClasses;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapUserAttrMap;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapUserDNAttribute;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_ldapUserObjectClasses;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_def_unixGID_namespace;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_virt_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAffiliationRegex;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupSynchronizationFilename;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_lifecycleTimestamps;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isLifecycleAlterable;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isSuspended;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_def_lifecycleTimestamps;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_virt_isBanned;
@@ -133,6 +143,8 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribut
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAffiliationRegex;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_expirationDate;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_lastCheckDate;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
@@ -378,7 +390,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
   @Override
   public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute)
-      throws WrongAttributeAssignmentException, MemberGroupMismatchException {
+      throws WrongAttributeAssignmentException, MemberGroupMismatchException, WrongReferenceAttributeValueException {
     this.checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
     getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_GROUP_ATTR);
 
@@ -8817,6 +8829,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
+    //urn:perun:member:attribute-def:def:lifecycleTimestamps
+    attr = new AttributeDefinition((new urn_perun_member_attribute_def_def_lifecycleTimestamps())
+                                       .getAttributeDefinition());
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
     //urn:perun:member:attribute-def:def:sponzoredMember
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
@@ -8835,7 +8854,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
-    //urn:perun:vo:attribute-def:def:memberOrganizations
+    //urn:perun:member:attribute-def:def:memberOrganizations
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     attr.setType(ArrayList.class.getName());
@@ -8848,7 +8867,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
-    //urn:perun:vo:attribute-def:def:memberOrganizationsHistory
+    //urn:perun:member:attribute-def:def:memberOrganizationsHistory
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     attr.setType(ArrayList.class.getName());
@@ -8859,6 +8878,65 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:voPurpose
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("voPurpose");
+    attr.setDisplayName("VO purpose");
+    attr.setDescription("The purpose for which the VO was established.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:expirationDate
+    attr = (new urn_perun_vo_attribute_def_def_expirationDate()).getAttributeDefinition();
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:lastCheckDate
+    attr = (new urn_perun_vo_attribute_def_def_lastCheckDate()).getAttributeDefinition();
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:owner
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("owner");
+    attr.setDisplayName("VO owner");
+    attr.setDescription("Description of the VO owner (eg. CESNET + department number," +
+                            " ITI4, CERIT-SC, community etc.).");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:tags
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(ArrayList.class.getName());
+    attr.setFriendlyName("tags");
+    attr.setDisplayName("VO tags");
+    attr.setDescription("Custom tags for the VO. Can represent eg. relations to projects and similar stuff " +
+                            "and can be later used for filtering.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:adminContact
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("adminContact");
+    attr.setDisplayName("VO administrative contact");
+    attr.setDescription("Contact (email) of the person or group responsible for the VO administrative tasks " +
+                            "like confirmation of VO deletion.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:vo:attribute-def:def:membershipExpirationRules
@@ -8962,6 +9040,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:member_group:attribute-def:def:lifecycleTimestamps
+    attr = new AttributeDefinition((new urn_perun_member_group_attribute_def_def_lifecycleTimestamps())
+                                       .getAttributeDefinition());
+    policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:vo:attribute-def:def:blockManualMemberAdding
@@ -9477,6 +9561,78 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.FACILITYADMIN, READ, RoleObject.Facility));
     policies.add(Triple.of(Role.FACILITYADMIN, WRITE, RoleObject.Facility));
     policies.add(Triple.of(Role.PROXY, READ, RoleObject.None));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+
+    // LDAP generic service attributes
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapBaseDN().getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapBaseDNGroup()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapGroupAttrMap()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapUserAttrMap()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapUserDNAttribute()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapGroupObjectClasses()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapUserObjectClasses()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    attr = new AttributeDefinition((new urn_perun_facility_attribute_def_def_ldapDeactivate()
+                                        .getAttributeDefinition()));
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:facility:attribute-def:def:ldapUserFilter
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("ldapUserFilter");
+    attr.setDisplayName("LDAP User filter");
+    attr.setDescription("LDAP filter string to search user entries by. E.g. `(objectClass=person)`");
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:facility:attribute-def:def:ldapGroupFilter
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("ldapGroupFilter");
+    attr.setDisplayName("LDAP Group filter");
+    attr.setDescription("LDAP filter string to search group entries by.  E.g. `(objectClass=groupOfNames)`");
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:facility:attribute-def:def:ldapDeactivateAttributeName
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("ldapDeactivateAttributeName");
+    attr.setDisplayName("LDAP deactivate attribute name");
+    attr.setDescription("Name of the LDAP attribute to set instead of removing entry when `ldapDeactivate` is true");
+    policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:resource:attribute-def:def:userSettingsName

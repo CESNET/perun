@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
@@ -22,7 +23,8 @@ public abstract class MemberGroupAttributesModuleAbstract extends AttributesModu
 
   }
 
-  public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) {
+  public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException {
 
   }
 

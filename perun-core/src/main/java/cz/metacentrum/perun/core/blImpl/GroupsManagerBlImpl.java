@@ -184,6 +184,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
       AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureResources";
   private static final String A_MG_D_MEMBERSHIP_EXPIRATION =
       AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
+  private static final String LIFECYCLE_TIMESTAMPS = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +
+                                                         ":lifecycleTimestamps";
   private static final String A_U_V_LOA = AttributesManager.NS_USER_ATTR_VIRT + ":loa";
   private static final List<Status> STATUSES_AFFECTED_BY_SYNCHRONIZATION =
       Arrays.asList(Status.DISABLED, Status.EXPIRED, Status.INVALID);
@@ -1490,6 +1492,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     getPerunBl().getAuditer().log(sess, new GroupCreatedAsSubgroup(group, vo, parentGroup));
 
+    // set creator as group admin unless he already has rights on the group (Perun, VO or parent group admin)
+    User user = sess.getPerunPrincipal().getUser();
+    if (user != null) {
+      if (!AuthzResolverBlImpl.isPerunAdmin(sess) && !sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN, vo) &&
+              !sess.getPerunPrincipal().getRoles().hasRole(Role.GROUPADMIN, parentGroup)) {
+        try {
+          AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
+        } catch (AlreadyAdminException e) {
+          throw new ConsistencyErrorException("Newly created group already has an admin.", e);
+        } catch (RoleCannotBeManagedException | RoleCannotBeSetException e) {
+          throw new InternalErrorException(e);
+        }
+      }
+    }
+
     // check if new subgroup should be automatically assigned to resources
     List<AssignedResource> assignedResources =
         getPerunBl().getResourcesManagerBl().getResourceAssignments(sess, parentGroup, null).stream()
@@ -1929,6 +1946,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     if (MemberGroupStatus.EXPIRED.equals(previousStatus)) {
       LOG.warn("Expiring member in group where is already expired. Member: {}, Group: {}", member, group);
+      // no reason to update timestamp if member was already expired
     }
 
     Map<Integer, Map<Integer, MemberGroupStatus>> previousIndirectStatuses =
@@ -4854,8 +4872,35 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
           !newStatus.equals(previousStatus.get(group.getId()).get(member.getId()))) {
         if (newStatus.equals(MemberGroupStatus.EXPIRED)) {
           getPerunBl().getAuditer().log(sess, new MemberExpiredInGroup(member, group));
+          try {
+            // set expiration timestamp
+            Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, member,
+                group, LIFECYCLE_TIMESTAMPS);
+            if (expiration.getValue() == null) {
+              // if the attribute does not yet exist, create the map
+              expiration.setValue(new LinkedHashMap<>());
+            }
+            expiration.valueAsMap().put("expiredAt", BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+            getPerunBl().getAttributesManagerBl().setAttribute(sess, member, group, expiration);
+          } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+                 WrongReferenceAttributeValueException | MemberGroupMismatchException e) {
+            throw new InternalErrorException(
+                "cannot set expiration timestamp for member " + member.getId() + " in group " + group, e);
+          }
         } else if (newStatus.equals(MemberGroupStatus.VALID)) {
           getPerunBl().getAuditer().log(sess, new MemberValidatedInGroup(member, group));
+          try {
+            // remove expiration timestamp now that the member is valid again
+            AttributeDefinition lifecycleTimestamps = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess,
+                LIFECYCLE_TIMESTAMPS);
+            getPerunBl().getAttributesManagerBl().removeAttribute(sess, member, group, lifecycleTimestamps);
+          } catch (AttributeNotExistsException e) {
+            throw new ConsistencyErrorException(
+                "LifecycleTimestamp attribute does not exist.", e);
+          } catch (WrongAttributeAssignmentException | WrongAttributeValueException |
+                   WrongReferenceAttributeValueException | MemberGroupMismatchException e) {
+            throw new InternalErrorException("Could not remove lifecycle attribute for member: " + member, e);
+          }
         }
       }
     }

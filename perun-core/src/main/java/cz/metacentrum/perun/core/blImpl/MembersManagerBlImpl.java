@@ -151,6 +151,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
   private static final String ATTR_PREFIX = "urn:perun:";
   private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
+  private static final String LIFECYCLE_TIMESTAMPS = AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps";
   private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
   public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS =
       Arrays.asList("firstname", "lastname", A_U_PREF_MAIL);
@@ -1691,6 +1692,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
     getMembersManagerImpl().setStatus(sess, member, Status.DISABLED);
     member.setStatus(Status.DISABLED);
+    try {
+      // set lifecycle timestamp
+      Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, LIFECYCLE_TIMESTAMPS);
+      if (expiration.getValue() == null) {
+        expiration.setValue(new LinkedHashMap<>());
+      }
+      expiration.valueAsMap().put("archivedAt", BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+      getPerunBl().getAttributesManagerBl().setAttribute(sess, member, expiration);
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+             WrongReferenceAttributeValueException e) {
+      throw new InternalErrorException(
+          "cannot set expiration timestamp for member " + member.getId(), e);
+    }
     removeMemberFromParentVos(sess, member);
     getPerunBl().getAuditer().log(sess, new MemberDisabled(member));
     return member;
@@ -1708,6 +1722,20 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     Status oldStatus = member.getStatus();
     getMembersManagerImpl().setStatus(sess, member, Status.EXPIRED);
     member.setStatus(Status.EXPIRED);
+    try {
+      // set lifecycle timestamp
+      Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, LIFECYCLE_TIMESTAMPS);
+      if (expiration.getValue() == null) {
+        // if the attribute does not yet exist, create the map
+        expiration.setValue(new LinkedHashMap<>());
+      }
+      expiration.valueAsMap().put("expiredAt", BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+      getPerunBl().getAttributesManagerBl().setAttribute(sess, member, expiration);
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+             WrongReferenceAttributeValueException e) {
+      throw new InternalErrorException(
+          "cannot set expiration timestamp for member " + member.getId(), e);
+    }
     // if member went from invalid/disabled to expired, they might not exist in some parentVos - create them and set
     // MemberOrganizations to empty list
     if (oldStatus == Status.INVALID || oldStatus == Status.DISABLED) {
@@ -4137,6 +4165,20 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         // expired member will have the attributes already filled and set
         if (!oldStatus.equals(Status.EXPIRED)) {
           getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
+        }
+        if (!oldStatus.equals(Status.INVALID)) {
+          // member went from archived/expired to valid, timestamps have to be removed
+          try {
+            AttributeDefinition lifecycleTimestamps = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess,
+                LIFECYCLE_TIMESTAMPS);
+            getPerunBl().getAttributesManagerBl().removeAttribute(sess, member, lifecycleTimestamps);
+          } catch (AttributeNotExistsException e) {
+            throw new ConsistencyErrorException(
+                "LifecycleTimestamp attribute does not exist.", e);
+          } catch (WrongAttributeAssignmentException | WrongAttributeValueException |
+                   WrongReferenceAttributeValueException e) {
+            throw new InternalErrorException("Could not remove lifecycle attribute for member: " + member, e);
+          }
         }
         addMemberToParentVos(sess, member);
         addMemberToParentVosGroups(sess, member);

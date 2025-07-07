@@ -2757,7 +2757,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
                            "    SELECT g.id, g.parent_group_id FROM groups g" +
                            "    INNER JOIN subgroups sg ON g.parent_group_id = sg.id" +
                            ")" +
-                           " SELECT id FROM subgroups)";
+                           " SELECT id FROM subgroups))";
 
     Paginated<RichApplication> applications = namedJdbc.query(APP_SELECT_PAGE + " WHERE a.id IS NOT NULL " +
                                                                   (vo != null ? " AND a.vo_id=(:voId) " : "") +
@@ -2770,10 +2770,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
                                                               (query.getUserId() == null ? "" :
                                                                   "  AND a.user_id=(:userId)") +
                                                               (query.getGroupId() == null ? "" :
-                                                                  "  AND a.group_id=(:groupId)") +
-                                                              (query.getIncludeSubGroupApplications() != null &&
-                                                                query.getIncludeSubGroupApplications() ? subgroups
-                                                                  : "") +
+                                                                  ("  AND (a.group_id=(:groupId)" +
+                                                                    (query.getIncludeSubGroupApplications() != null &&
+                                                                     query.getIncludeSubGroupApplications() ? subgroups
+                                                                     : ")"))) +
                                                               " AND (:dateFrom) <= a.created_at::date AND a" +
                                                                ".created_at::date <= (:dateTo)" +
                                                               searchQuery +

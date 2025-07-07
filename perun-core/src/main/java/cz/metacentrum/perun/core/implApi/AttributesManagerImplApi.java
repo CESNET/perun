@@ -297,8 +297,10 @@ public interface AttributesManagerImplApi {
    * @param attribute attribute to check
    * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in
    *                                InternalErrorException
+   * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
    */
-  void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute);
+  void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute)
+      throws WrongReferenceAttributeValueException;
 
   /**
    * Check if value of this user-facility attribute has valid semantics.

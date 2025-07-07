@@ -1069,22 +1069,24 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     getUsersManagerImpl().deleteUsersReservedLogins(user);
 
     // Remove all possible passwords associated with logins (stored in attributes)
-    for (Attribute loginAttribute : getPerunBl().getAttributesManagerBl().getLogins(sess, user)) {
-      try {
-        this.deletePassword(sess, (String) loginAttribute.getValue(), loginAttribute.getFriendlyNameParameter());
-      } catch (LoginNotExistsException e) {
-        // OK - User hasn't assigned any password with this login
-      } catch (InvalidLoginException e) {
-        throw new InternalErrorException(
-            "We are deleting login of user, but its syntax is not allowed by namespace configuration.", e);
-      } catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
-        if (forceDelete) {
-          LOG.error("Error during deletion of the account at {} for user {} with login {}.",
-              loginAttribute.getFriendlyNameParameter(), user, loginAttribute.getValue());
-        } else {
-          throw new RelationExistsException(
-              "Error during deletion of the account at " + loginAttribute.getFriendlyNameParameter() + " for user " +
-              user + " with login " + loginAttribute.getValue() + ".");
+    if (!isUserAnonymized(sess, user)) {
+      for (Attribute loginAttribute : getPerunBl().getAttributesManagerBl().getLogins(sess, user)) {
+        try {
+          this.deletePassword(sess, (String) loginAttribute.getValue(), loginAttribute.getFriendlyNameParameter());
+        } catch (LoginNotExistsException e) {
+          // OK - User hasn't assigned any password with this login
+        } catch (InvalidLoginException e) {
+          throw new InternalErrorException(
+                  "We are deleting login of user, but its syntax is not allowed by namespace configuration.", e);
+        } catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
+          if (forceDelete) {
+            LOG.error("Error during deletion of the account at {} for user {} with login {}.",
+                    loginAttribute.getFriendlyNameParameter(), user, loginAttribute.getValue());
+          } else {
+            throw new RelationExistsException(
+                    "Error during deletion of the account at " + loginAttribute.getFriendlyNameParameter() +
+                            " for user " + user + " with login " + loginAttribute.getValue() + ".");
+          }
         }
       }
     }
