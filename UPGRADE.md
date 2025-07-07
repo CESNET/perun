@@ -1,5 +1,27 @@
 Upgrade notes
 
+## [48.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.2.0...v48.3.0) (2025-07-07)
+
+
+### Features
+
+* **core:** add new VO def attributes ([b6ce9c8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b6ce9c8a60ec8a59969b727f75b97f7a1aab723e))
+* **core:** attribute modules for LDAP generic service ([4c8d0fb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4c8d0fb998a0cdd8f48ac2e2ff2a3e47792cac6d))
+* **core:** groupcreator role ([f60b0fe](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f60b0fea63612983765db669ce165858988d0301))
+* **core:** lifecycleTimestamp attributes ([6822ef0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6822ef0a7fc4fe1a8702d7305b6cc588bcfbe49e))
+* **openapi:** getAllowedResources, getRichGroupsWhereUserIsActive specs ([7d4a765](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7d4a765e14388dff8a6ae455406fa271a855675f))
+
+
+### Bug Fixes
+
+* **core:** add PERUNOBSERVER to missing `get` hierarchical VOs method policies ([fbf6de1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fbf6de1f13766416b44f1d88af5a42af3c229057))
+* **core:** fix anonymized user deletion ([b89de81](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b89de819c84d22438d8fc83813cdc05c026aaf41))
+* **core:** getGroupsPage failed when role in query with empty result ([a049697](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a0496979867cf97ab270606d741d8a58e0510a33))
+* **deps:** update dependency google-api-services-admin-directory ([f0c5ad2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f0c5ad227d2773e08b0e9497beeda9579c2de524))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.13.0 ([60673eb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/60673ebbeb3a57e3e7548f662aa97a360bf71082))
+* **registrar:** filter subgroup applications by state ([4b55cbd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4b55cbdc11aa547c3a50caa72330f6fc7d7c665e))
+* replace SELF roles with MEMBERSHIP on chosen rules ([0459241](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/04592413262833b082e4b348ddd712c03f605bf7))
+
 ## [48.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.1.2...v48.2.0) (2025-06-23)
 
 
