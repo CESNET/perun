@@ -71,10 +71,10 @@ Client library can be then generated with the command
 ```bash
 java -jar openapi-generator-cli-$GENERATOR_VERSION.jar generate \
   --input-spec https://gitlab.ics.muni.cz/perun/perun-idm/perun/-/raw/main/perun-openapi/openapi.yml \
-  --generator-name python 
+  --generator-name php 
  ```
 
 where the value of the --generator-name option should be the name of the language from the generators list.
 For detailed documentation see [generator usage](https://openapi-generator.tech/docs/usage#generate).
 
-An example of generating Python client is available in [generate.sh](../perun-cli-python/generate.sh)  
+An example of generating PHP client is available in [generate.sh](../perun-cli-php/generate.sh)  
