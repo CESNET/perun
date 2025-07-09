@@ -67,7 +67,7 @@
 		<commons-text.version>1.13.1</commons-text.version>
 		<commons-lang3.version>3.14.0</commons-lang3.version> <!-- newer commons-text requires also newer commons-lang3 than provided by current spring-boot-parent -->
 		<docker-java.version>3.5.3</docker-java.version>
-		<dom4j.version>2.1.4</dom4j.version>
+		<dom4j.version>2.2.0</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
 		<flying-saucer-pdf.version>9.13.0</flying-saucer-pdf.version>
