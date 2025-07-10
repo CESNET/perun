@@ -1377,6 +1377,24 @@ public class ResourcesManagerEntry implements ResourcesManager {
   }
 
   @Override
+  public List<Service> isResourceLastAssignedServices(PerunSession sess, Resource resource, List<Service> services)
+      throws FacilityNotExistsException, ResourceNotExistsException, PrivilegeException, ServiceNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    resourcesManagerBl.checkResourceExists(sess, resource);
+
+    for (Service service : services) {
+      getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+    }
+
+    if (!AuthzResolver.authorizedInternal(sess,
+        "isResourceLastAssignedServices_Resource_List<Service>_policy", resource)) {
+      throw new PrivilegeException(sess, "isResourceLastAssignedServices");
+    }
+    return resourcesManagerBl.isResourceLastAssignedServices(sess, resource, services);
+  }
+
+  @Override
   public void removeAdmin(PerunSession sess, Resource resource, User user)
       throws UserNotExistsException, PrivilegeException, UserNotAdminException, ResourceNotExistsException,
       RoleCannotBeManagedException {
@@ -1636,8 +1654,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
   }
 
   @Override
-  public void removeServices(PerunSession sess, Resource resource, List<Service> services)
-      throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException {
+  public void removeServices(PerunSession sess, Resource resource, List<Service> services, boolean removeTasks,
+                      boolean removeTaskResults, boolean removeDestinations)
+      throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException,
+                 FacilityNotExistsException {
     Utils.checkPerunSession(sess);
     getResourcesManagerBl().checkResourceExists(sess, resource);
 
@@ -1652,7 +1672,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
       }
     }
 
-    getResourcesManagerBl().removeServices(sess, resource, services);
+    getResourcesManagerBl().removeServices(sess, resource, services, removeTasks, removeTaskResults,
+        removeDestinations);
   }
 
   @Override
