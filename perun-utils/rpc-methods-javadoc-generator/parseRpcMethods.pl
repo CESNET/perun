@@ -529,7 +529,7 @@ sub buildVersion {
 	<meta name="msapplication-TileImage" content="$importPathImg/favicons/favicon-white-144.png">
 		<meta name="msapplication-TileColor" content="#00569c">
 
-		<script src="$importPathJs/jquery-1.10.2.min.js"></script>
+		<script src="$importPathJs/jquery-3.7.1.min.js"></script>
 		<script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
 </head>
 
@@ -743,7 +743,7 @@ API: perun-api.&ltdomain&gt.cz
 	<meta name="msapplication-TileImage" content="$importPathImg/favicons/favicon-white-144.png">
 		<meta name="msapplication-TileColor" content="#00569c">
 
-		<script src="$importPathJs/jquery-1.10.2.min.js"></script>
+		<script src="$importPathJs/jquery-3.7.1.min.js"></script>
 		<script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
 </head>
 
