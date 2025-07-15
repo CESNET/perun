@@ -19,7 +19,7 @@ public class urn_perun_member_resource_attribute_def_virt_groupStatusTest {
   private static Resource resource;
 
   @Before
-  public void SetUp() throws Exception {
+  public void setUp() throws Exception {
     classInstance = new urn_perun_member_resource_attribute_def_virt_groupStatus();
     attributeToCheck = new Attribute();
     member = new Member();

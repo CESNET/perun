@@ -164,118 +164,118 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   private String key;
 
   //for testing attribute dependencies logic (no. 13) - VOs
-  private AttributeDefinition vo_toEmail_def;
-  private AttributeDefinition vo_fromEmail_def;
-  private Attribute vo1_toEmail_attribute;
-  private Attribute vo2_toEmail_attribute;
-  private Attribute vo2_fromEmail_attribute;
+  private AttributeDefinition voToEmailDef;
+  private AttributeDefinition voFromEmailDef;
+  private Attribute vo1ToEmailAttribute;
+  private Attribute vo2ToEmailAttribute;
+  private Attribute vo2FromEmailAttribute;
   private AttributesManagerBlImpl attributesManagerBl;
 
   //for testing attribute dependencies logic (no. 13) - USERs
-  private AttributeDefinition user_phone_atr_def;
-  private AttributeDefinition user_email_atr_def;
-  private Attribute user1_phone_attribute;
-  private Attribute user2_phone_attribute;
-  private Attribute user2_email_attribute;
-  private Attribute user3_email_attribute;
+  private AttributeDefinition userPhoneAtrDef;
+  private AttributeDefinition userEmailAtrDef;
+  private Attribute user1PhoneAttribute;
+  private Attribute user2PhoneAttribute;
+  private Attribute user2EmailAttribute;
+  private Attribute user3EmailAttribute;
 
   //for testing attribute dependencies logic (no. 13) - MEMBERs
-  private AttributeDefinition member_phone_atr_def;
-  private AttributeDefinition member_email_atr_def;
-  private Attribute member1OfUser1_phone_attribute;
-  private Attribute member1OfUser2_phone_attribute;
-  private Attribute member1OfUser2_mail_attribute;
-  private Attribute member1OfUser3_mail_attribute;
-  private Attribute member2OfUser1_phone_attribute;
-  private Attribute member2OfUser2_phone_attribute;
-  private Attribute member2OfUser2_mail_attribute;
-  private Attribute member2OfUser3_mail_attribute;
+  private AttributeDefinition memberPhoneAtrDef;
+  private AttributeDefinition memberEmailAtrDef;
+  private Attribute member1OfUser1PhoneAttribute;
+  private Attribute member1OfUser2PhoneAttribute;
+  private Attribute member1OfUser2MailAttribute;
+  private Attribute member1OfUser3MailAttribute;
+  private Attribute member2OfUser1PhoneAttribute;
+  private Attribute member2OfUser2PhoneAttribute;
+  private Attribute member2OfUser2MailAttribute;
+  private Attribute member2OfUser3MailAttribute;
 
   //for testing attribute dependencies logic (no. 13) - GROUPS
-  private AttributeDefinition group_fromEmail_atr_def;
-  private Attribute group1InVo1_email_atr;
-  private Attribute group2InVo1_email_atr;
-  private Attribute group1InVo2_email_atr;
-  private Attribute group2InVo2_email_atr;
-  private Attribute membersGroupOfVo1_email_atr;
-  private Attribute membersGroupOfVo2_email_atr;
+  private AttributeDefinition groupFromEmailAtrDef;
+  private Attribute group1InVo1EmailAtr;
+  private Attribute group2InVo1EmailAtr;
+  private Attribute group1InVo2EmailAtr;
+  private Attribute group2InVo2EmailAtr;
+  private Attribute membersGroupOfVo1EmailAtr;
+  private Attribute membersGroupOfVo2EmailAtr;
 
   //for testing attribute dependencies logic (no. 13) - RESOURCEs
-  private AttributeDefinition resource_test_atr_def;
-  private Attribute resource1InVo1_test_atr;
-  private Attribute resource2InVo1_test_atr;
-  private Attribute resource1InVo2_test_atr;
-  private Attribute resource2InVo2_test_atr;
+  private AttributeDefinition resourceTestAtrDef;
+  private Attribute resource1InVo1TestAtr;
+  private Attribute resource2InVo1TestAtr;
+  private Attribute resource1InVo2TestAtr;
+  private Attribute resource2InVo2TestAtr;
 
   //for testing attribute dependencies logic (no. 13) - FACILITIES
-  private AttributeDefinition facility_test_atr_def;
-  private Attribute facility1_test_atr;
-  private Attribute facility2_test_atr;
-  private Attribute facility3_test_atr;
+  private AttributeDefinition facilityTestAtrDef;
+  private Attribute facility1TestAtr;
+  private Attribute facility2TestAtr;
+  private Attribute facility3TestAtr;
 
   //for testing attribute dependencies logic (no. 13) - HOSTS
-  private AttributeDefinition host_test_atr_def;
-  private Attribute host1F1_test_atr;
-  private Attribute host2F1_test_atr;
-  private Attribute host1F2_test_atr;
-  private Attribute host1F3_test_atr;
-  private Attribute host2F2_test_atr;
-  private Attribute host2F3_test_atr;
+  private AttributeDefinition hostTestAtrDef;
+  private Attribute host1F1TestAtr;
+  private Attribute host2F1TestAtr;
+  private Attribute host1F2TestAtr;
+  private Attribute host1F3TestAtr;
+  private Attribute host2F2TestAtr;
+  private Attribute host2F3TestAtr;
 
   //for testing attribute dependencies logic (no. 13) - UESs
-  private AttributeDefinition ues_test_atr_def;
-  private Attribute ues1_test_atr;
-  private Attribute ues2_test_atr;
-  private Attribute ues3_test_atr;
-  private Attribute internal_ues_atr;
+  private AttributeDefinition uesTestAtrDef;
+  private Attribute ues1TestAtr;
+  private Attribute ues2TestAtr;
+  private Attribute ues3TestAtr;
+  private Attribute internalUesAtr;
 
   //for testing attribute dependencies logic (no. 13) - GROUP-RESOURCEs
-  private AttributeDefinition groupResource_test_atr_def;
-  private Attribute group1VO1Res1VO1_test_attribute;
-  private Attribute group2VO1Res1VO1_test_attribute;
-  private Attribute group2VO1Res2VO1_test_attribute;
-  private Attribute group1VO2Res1VO2_test_attribute;
-  private Attribute group2VO2Res2VO2_test_attribute;
-  private Attribute group2VO2Res1VO2_test_attribute;
+  private AttributeDefinition groupResourceTestAtrDef;
+  private Attribute group1VO1Res1VO1TestAttribute;
+  private Attribute group2VO1Res1VO1TestAttribute;
+  private Attribute group2VO1Res2VO1TestAttribute;
+  private Attribute group1VO2Res1VO2TestAttribute;
+  private Attribute group2VO2Res2VO2TestAttribute;
+  private Attribute group2VO2Res1VO2TestAttribute;
 
   //for testing attribute dependencies logic (no. 13) - MEMBER-GROUPs
-  private AttributeDefinition memberGroup_test_atr_def;
-  private Attribute member1U1Group1Vo1_test_attribute;
-  private Attribute member1U1Group2Vo1_test_attribute;
-  private Attribute member2U1Group1Vo2_test_attribute;
-  private Attribute member2U1Group2Vo2_test_attribute;
-  private Attribute member1U2Group1Vo2_test_attribute;
-  private Attribute member1U2Group2Vo2_test_attribute;
-  private Attribute member2U2Group1Vo1_test_attribute;
-  private Attribute member2U2Group2Vo1_test_attribute;
-  private Attribute member1U3Group1Vo1_test_attribute;
-  private Attribute member2U3Group2Vo2_test_attribute;
+  private AttributeDefinition memberGroupTestAtrDef;
+  private Attribute member1U1Group1Vo1TestAttribute;
+  private Attribute member1U1Group2Vo1TestAttribute;
+  private Attribute member2U1Group1Vo2TestAttribute;
+  private Attribute member2U1Group2Vo2TestAttribute;
+  private Attribute member1U2Group1Vo2TestAttribute;
+  private Attribute member1U2Group2Vo2TestAttribute;
+  private Attribute member2U2Group1Vo1TestAttribute;
+  private Attribute member2U2Group2Vo1TestAttribute;
+  private Attribute member1U3Group1Vo1TestAttribute;
+  private Attribute member2U3Group2Vo2TestAttribute;
 
   //for testing attribute dependencies logic (no. 13) - MEMBER-RESOURCEs
-  private AttributeDefinition memberResource_test_atr_def;
-  private Attribute member1U1Res1Vo1_test_attribute;
-  private Attribute member1U1Res2Vo1_test_attribute;
-  private Attribute member1U2Res1Vo2_test_attribute;
-  private Attribute member1U2Res2Vo2_test_attribute;
-  private Attribute member1U3Res1Vo1_test_attribute;
-  private Attribute member2U3Res1Vo2_test_attribute;
-  private Attribute member2U3Res2Vo2_test_attribute;
+  private AttributeDefinition memberResourceTestAtrDef;
+  private Attribute member1U1Res1Vo1TestAttribute;
+  private Attribute member1U1Res2Vo1TestAttribute;
+  private Attribute member1U2Res1Vo2TestAttribute;
+  private Attribute member1U2Res2Vo2TestAttribute;
+  private Attribute member1U3Res1Vo1TestAttribute;
+  private Attribute member2U3Res1Vo2TestAttribute;
+  private Attribute member2U3Res2Vo2TestAttribute;
 
   //for testing attribute dependencies logic (no. 13) - USER-FACILITYs
-  private AttributeDefinition userFacility_test_atr_def;
-  private Attribute user1Facility1_test_attribute;
-  private Attribute user1Facility2_test_attribute;
-  private Attribute user2Facility2_test_attribute;
-  private Attribute user2Facility3_test_attribute;
-  private Attribute user3Facility3_test_attribute;
-  private Attribute user3Facility1_test_attribute;
-  private Attribute user3Facility2_test_attribute;
+  private AttributeDefinition userFacilityTestAtrDef;
+  private Attribute user1Facility1TestAttribute;
+  private Attribute user1Facility2TestAttribute;
+  private Attribute user2Facility2TestAttribute;
+  private Attribute user2Facility3TestAttribute;
+  private Attribute user3Facility3TestAttribute;
+  private Attribute user3Facility1TestAttribute;
+  private Attribute user3Facility2TestAttribute;
 
   //for testing attribute dependencies logic (no. 13) - ENTITYLESS
-  private AttributeDefinition entityless_test_atr_def;
-  private Attribute entityless_test_attribute1;
-  private Attribute entityless_test_attribute2;
-  private Attribute entityless_test_attribute3;
+  private AttributeDefinition entitylessTestAtrDef;
+  private Attribute entitylessTestAttribute1;
+  private Attribute entitylessTestAttribute2;
+  private Attribute entitylessTestAttribute3;
 
   @Test
   public void checkAttributesSyntaxVo() throws Exception {
@@ -325,7 +325,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   public void createAndDeleteEntitylessAttribute() throws Exception {
 
     setAttributesForEntitylessTest();
-    perun.getAttributesManager().deleteAttribute(sess, entityless_test_attribute1);
+    perun.getAttributesManager().deleteAttribute(sess, entitylessTestAttribute1);
 
   }
 
@@ -735,8 +735,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     for (AttributeDefinition ad : attrDefs) {
       assertTrue(attributesManager.isFromNamespace(sess, ad, NS_MEMBER_ATTR) ||
-                 attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_RESOURCE_ATTR) ||
-                 attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_MEMBER_RESOURCE_ATTR));
+                     attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_RESOURCE_ATTR) ||
+                     attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_MEMBER_RESOURCE_ATTR));
       assertTrue(ad.getWritable());
     }
 
@@ -951,11 +951,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     assertTrue("Attributes are the same", attr2.equals(attributes.get(0)));
   }
 
-    /*@Test
-        public void checkAttributeDependenciesForAllAttributesInMap() throws Exception {
-        System.out.println(CLASS_NAME + "checkAttributeDependenciesForAllAttributesInMap");
-        AttributesManagerBlImpl attributesManagerBlImpl = mock(AttributesManagerBlImpl.class, RETURNS_DEEP_STUBS);
-        //RETURNS_DEEP_STUBS = budeme mockovat nekolik vnorenych volani metod
+  /*@Test
+      public void checkAttributeDependenciesForAllAttributesInMap() throws Exception {
+      System.out.println(CLASS_NAME + "checkAttributeDependenciesForAllAttributesInMap");
+      AttributesManagerBlImpl attributesManagerBlImpl = mock(AttributesManagerBlImpl.class, RETURNS_DEEP_STUBS);
+      //RETURNS_DEEP_STUBS = budeme mockovat nekolik vnorenych volani metod
 //spy(attributesManagerBlImpl).checkAttributeSemantics(sess, resource, null);
 //when(attributesManagerBlImpl.checkAttributeSemantics(any(PerunSession.class), any(Resource.class), any(Attribute
 .class)))
@@ -985,15 +985,15 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Method testedMethod =
         getPrivateMethodFromAtrManager("getEntitylessAttributes", PerunSession.class, AttributeDefinition.class);
 
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, entityless_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, entitylessTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_all.size());
-    assertTrue(attrs_all.contains(entityless_test_attribute1));
-    assertTrue(attrs_all.contains(entityless_test_attribute2));
-    assertTrue(attrs_all.contains(entityless_test_attribute3));
+    assertEquals("Invalid number of attributes found", 3, attrsAll.size());
+    assertTrue(attrsAll.contains(entitylessTestAttribute1));
+    assertTrue(attrsAll.contains(entitylessTestAttribute2));
+    assertTrue(attrsAll.contains(entitylessTestAttribute3));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1004,21 +1004,21 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Method testedMethod = getPrivateMethodFromAtrManager("getEntitylessAttributes", PerunSession.class, String.class,
         AttributeDefinition.class);
 
-    List<RichAttribute> ra_key1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, "1", entityless_test_atr_def);
-    List<Attribute> attrs_key1 = new ArrayList<>();
-    ra_key1.forEach(ra -> attrs_key1.add(ra.getAttribute()));
+    List<RichAttribute> raKey1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, "1", entitylessTestAtrDef);
+    List<Attribute> attrsKey1 = new ArrayList<>();
+    raKey1.forEach(ra -> attrsKey1.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 1 <= attrs_key1.size());
-    assertTrue(attrs_key1.contains(entityless_test_attribute1));
+    assertTrue("Invalid number of attributes found", 1 <= attrsKey1.size());
+    assertTrue(attrsKey1.contains(entitylessTestAttribute1));
 
-    List<RichAttribute> ra_key3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, "3", entityless_test_atr_def);
-    List<Attribute> attrs_key3 = new ArrayList<>();
-    ra_key3.forEach(ra -> attrs_key3.add(ra.getAttribute()));
+    List<RichAttribute> raKey3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, "3", entitylessTestAtrDef);
+    List<Attribute> attrsKey3 = new ArrayList<>();
+    raKey3.forEach(ra -> attrsKey3.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 1 <= attrs_key3.size());
-    assertTrue(attrs_key3.contains(entityless_test_attribute3));
+    assertTrue("Invalid number of attributes found", 1 <= attrsKey3.size());
+    assertTrue(attrsKey3.contains(entitylessTestAttribute3));
   }
 
   @Test
@@ -1164,22 +1164,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for facility1
-    List<RichAttribute> ra_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, facility_test_atr_def);
-    List<Attribute> attrs_facility1 = new ArrayList<>();
-    ra_facility1.forEach(ra -> attrs_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, facilityTestAtrDef);
+    List<Attribute> attrsFacility1 = new ArrayList<>();
+    raFacility1.forEach(ra -> attrsFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_facility1.size());
-    assertTrue(attrs_facility1.contains(facility1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsFacility1.size());
+    assertTrue(attrsFacility1.contains(facility1TestAtr));
 
     //find test resource attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, facility_test_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, facilityTestAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(facility2TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1193,31 +1193,31 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for group2InVo1
-    List<RichAttribute> ra_group2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, facility_test_atr_def);
-    List<Attribute> attrs_group2InVo1 = new ArrayList<>();
-    ra_group2InVo1.forEach(ra -> attrs_group2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, facilityTestAtrDef);
+    List<Attribute> attrsGroup2InVo1 = new ArrayList<>();
+    raGroup2InVo1.forEach(ra -> attrsGroup2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2InVo1.size());
-    assertTrue(attrs_group2InVo1.contains(facility1_test_atr));
-    assertTrue(attrs_group2InVo1.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2InVo1.size());
+    assertTrue(attrsGroup2InVo1.contains(facility1TestAtr));
+    assertTrue(attrsGroup2InVo1.contains(facility2TestAtr));
 
     //find test resource attributes for group1InVo2
-    List<RichAttribute> ra_group1InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, facility_test_atr_def);
-    List<Attribute> attrs_group1InVo2 = new ArrayList<>();
-    ra_group1InVo2.forEach(ra -> attrs_group1InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, facilityTestAtrDef);
+    List<Attribute> attrsGroup1InVo2 = new ArrayList<>();
+    raGroup1InVo2.forEach(ra -> attrsGroup1InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group1InVo2.size());
-    assertTrue(attrs_group1InVo2.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup1InVo2.size());
+    assertTrue(attrsGroup1InVo2.contains(facility2TestAtr));
 
     //find test resource attributes for membersGroupOfVo1
-    List<RichAttribute> ra_membersGroupOfVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, membersGroupOfVo1, facility_test_atr_def);
-    List<Attribute> attrs_membersGroupOfVo1 = new ArrayList<>();
-    ra_membersGroupOfVo1.forEach(ra -> attrs_membersGroupOfVo1.add(ra.getAttribute()));
+    List<RichAttribute> raMembersGroupOfVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, membersGroupOfVo1, facilityTestAtrDef);
+    List<Attribute> attrsMembersGroupOfVo1 = new ArrayList<>();
+    raMembersGroupOfVo1.forEach(ra -> attrsMembersGroupOfVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_membersGroupOfVo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMembersGroupOfVo1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1231,22 +1231,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for host1OnFacility1
-    List<RichAttribute> ra_host1OnFacility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, facility_test_atr_def);
-    List<Attribute> attrs_host1OnFacility1 = new ArrayList<>();
-    ra_host1OnFacility1.forEach(ra -> attrs_host1OnFacility1.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, facilityTestAtrDef);
+    List<Attribute> attrsHost1OnFacility1 = new ArrayList<>();
+    raHost1OnFacility1.forEach(ra -> attrsHost1OnFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_host1OnFacility1.size());
-    assertTrue(attrs_host1OnFacility1.contains(facility1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsHost1OnFacility1.size());
+    assertTrue(attrsHost1OnFacility1.contains(facility1TestAtr));
 
     //find test resource attributes for host1OnFacility2
-    List<RichAttribute> ra_host1OnFacility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, facility_test_atr_def);
-    List<Attribute> attrs_host1OnFacility2 = new ArrayList<>();
-    ra_host1OnFacility2.forEach(ra -> attrs_host1OnFacility2.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, facilityTestAtrDef);
+    List<Attribute> attrsHost1OnFacility2 = new ArrayList<>();
+    raHost1OnFacility2.forEach(ra -> attrsHost1OnFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_host1OnFacility2.size());
-    assertTrue(attrs_host1OnFacility2.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsHost1OnFacility2.size());
+    assertTrue(attrsHost1OnFacility2.contains(facility2TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1260,15 +1260,15 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getFacilityAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all test resource attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facilityTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 3 <= attrs_all.size());
-    assertTrue(attrs_all.contains(facility1_test_atr));
-    assertTrue(attrs_all.contains(facility2_test_atr));
-    assertTrue(attrs_all.contains(facility3_test_atr));
+    assertTrue("Invalid number of attributes found", 3 <= attrsAll.size());
+    assertTrue(attrsAll.contains(facility1TestAtr));
+    assertTrue(attrsAll.contains(facility2TestAtr));
+    assertTrue(attrsAll.contains(facility3TestAtr));
   }
 
   @Test
@@ -1304,22 +1304,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for member1OfUser1
-    List<RichAttribute> ra_member1OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, facility_test_atr_def);
-    List<Attribute> attrs_member1OfUser1 = new ArrayList<>();
-    ra_member1OfUser1.forEach(ra -> attrs_member1OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember1OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, facilityTestAtrDef);
+    List<Attribute> attrsMember1OfUser1 = new ArrayList<>();
+    raMember1OfUser1.forEach(ra -> attrsMember1OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1OfUser1.size());
-    assertTrue(attrs_member1OfUser1.contains(facility1_test_atr));
-    assertTrue(attrs_member1OfUser1.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1OfUser1.size());
+    assertTrue(attrsMember1OfUser1.contains(facility1TestAtr));
+    assertTrue(attrsMember1OfUser1.contains(facility2TestAtr));
 
     //find test resource attributes for member2OfUser2
-    List<RichAttribute> ra_member2OfUser2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser2, facility_test_atr_def);
-    List<Attribute> attrs_member2OfUser2 = new ArrayList<>();
-    ra_member2OfUser2.forEach(ra -> attrs_member2OfUser2.add(ra.getAttribute()));
+    List<RichAttribute> raMember2OfUser2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser2, facilityTestAtrDef);
+    List<Attribute> attrsMember2OfUser2 = new ArrayList<>();
+    raMember2OfUser2.forEach(ra -> attrsMember2OfUser2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2OfUser2.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2OfUser2.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1334,34 +1334,34 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test resource attributes for member1OfUser1 group2InVo1
-    List<RichAttribute> ra_member1U1_group2Vo1 =
+    List<RichAttribute> raMember1U1Group2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, group2InVo1,
-            facility_test_atr_def);
-    List<Attribute> attrs_member1U1_group2Vo1 = new ArrayList<>();
-    ra_member1U1_group2Vo1.forEach(ra -> attrs_member1U1_group2Vo1.add(ra.getAttribute()));
+            facilityTestAtrDef);
+    List<Attribute> attrsMember1U1Group2Vo1 = new ArrayList<>();
+    raMember1U1Group2Vo1.forEach(ra -> attrsMember1U1Group2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1U1_group2Vo1.size());
-    assertTrue(attrs_member1U1_group2Vo1.contains(facility1_test_atr));
-    assertTrue(attrs_member1U1_group2Vo1.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1U1Group2Vo1.size());
+    assertTrue(attrsMember1U1Group2Vo1.contains(facility1TestAtr));
+    assertTrue(attrsMember1U1Group2Vo1.contains(facility2TestAtr));
 
     //find test resource attributes for member1OfUser2 group1InVo2
-    List<RichAttribute> ra_member1U2_group1Vo2 =
+    List<RichAttribute> raMember1U2Group1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser2, group1InVo2,
-            facility_test_atr_def);
-    List<Attribute> attrs_member1U2_group1Vo2 = new ArrayList<>();
-    ra_member1U2_group1Vo2.forEach(ra -> attrs_member1U2_group1Vo2.add(ra.getAttribute()));
+            facilityTestAtrDef);
+    List<Attribute> attrsMember1U2Group1Vo2 = new ArrayList<>();
+    raMember1U2Group1Vo2.forEach(ra -> attrsMember1U2Group1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U2_group1Vo2.size());
-    assertTrue(attrs_member1U2_group1Vo2.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U2Group1Vo2.size());
+    assertTrue(attrsMember1U2Group1Vo2.contains(facility2TestAtr));
 
     //find test resource attributes for member2OfUser1 group1InVo2
-    List<RichAttribute> ra_member2U1_group1Vo2 =
+    List<RichAttribute> raMember2U1Group1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, group1InVo2,
-            facility_test_atr_def);
-    List<Attribute> attrs_member2U1_group1Vo2 = new ArrayList<>();
-    ra_member2U1_group1Vo2.forEach(ra -> attrs_member2U1_group1Vo2.add(ra.getAttribute()));
+            facilityTestAtrDef);
+    List<Attribute> attrsMember2U1Group1Vo2 = new ArrayList<>();
+    raMember2U1Group1Vo2.forEach(ra -> attrsMember2U1Group1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U1_group1Vo2.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U1Group1Vo2.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1376,33 +1376,33 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test resource attributes for member1OfUser1 resource2InVo1
-    List<RichAttribute> ra_member1U1_res2Vo1 =
+    List<RichAttribute> raMember1U1Res2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resource2InVo1,
-            facility_test_atr_def);
-    List<Attribute> attrs_member1U1_res2Vo1 = new ArrayList<>();
-    ra_member1U1_res2Vo1.forEach(ra -> attrs_member1U1_res2Vo1.add(ra.getAttribute()));
+            facilityTestAtrDef);
+    List<Attribute> attrsMember1U1Res2Vo1 = new ArrayList<>();
+    raMember1U1Res2Vo1.forEach(ra -> attrsMember1U1Res2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U1_res2Vo1.size());
-    assertTrue(attrs_member1U1_res2Vo1.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U1Res2Vo1.size());
+    assertTrue(attrsMember1U1Res2Vo1.contains(facility2TestAtr));
 
     //find test resource attributes for member1OfUser2 resource2InVo2
-    List<RichAttribute> ra_member1U2_res2Vo2 =
+    List<RichAttribute> raMember1U2Res2Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser2, resource2InVo2,
-            facility_test_atr_def);
-    List<Attribute> attrs_member1U2_res2Vo2 = new ArrayList<>();
-    ra_member1U2_res2Vo2.forEach(ra -> attrs_member1U2_res2Vo2.add(ra.getAttribute()));
+            facilityTestAtrDef);
+    List<Attribute> attrsMember1U2Res2Vo2 = new ArrayList<>();
+    raMember1U2Res2Vo2.forEach(ra -> attrsMember1U2Res2Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U2_res2Vo2.size());
-    assertTrue(attrs_member1U2_res2Vo2.contains(facility3_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U2Res2Vo2.size());
+    assertTrue(attrsMember1U2Res2Vo2.contains(facility3TestAtr));
 
     //find test resource attributes for member2OfUser1 resource1InVo2
-    List<RichAttribute> ra_member2U1_res1Vo2 =
+    List<RichAttribute> raMember2U1Res1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, resource1InVo2,
-            facility_test_atr_def);
-    List<Attribute> attrs_member2U1_res1Vo2 = new ArrayList<>();
-    ra_member2U1_res1Vo2.forEach(ra -> attrs_member2U1_res1Vo2.add(ra.getAttribute()));
+            facilityTestAtrDef);
+    List<Attribute> attrsMember2U1Res1Vo2 = new ArrayList<>();
+    raMember2U1Res1Vo2.forEach(ra -> attrsMember2U1Res1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U1_res1Vo2.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U1Res1Vo2.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1416,22 +1416,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for resource1InVo1
-    List<RichAttribute> ra_resource1InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, facility_test_atr_def);
-    List<Attribute> attrs_resource1InVo1 = new ArrayList<>();
-    ra_resource1InVo1.forEach(ra -> attrs_resource1InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raResource1InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, facilityTestAtrDef);
+    List<Attribute> attrsResource1InVo1 = new ArrayList<>();
+    raResource1InVo1.forEach(ra -> attrsResource1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_resource1InVo1.size());
-    assertTrue(attrs_resource1InVo1.contains(facility1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsResource1InVo1.size());
+    assertTrue(attrsResource1InVo1.contains(facility1TestAtr));
 
     //find test resource attributes for resource2InVo2
-    List<RichAttribute> ra_resource2InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo2, facility_test_atr_def);
-    List<Attribute> attrs_resource2InVo2 = new ArrayList<>();
-    ra_resource2InVo2.forEach(ra -> attrs_resource2InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raResource2InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo2, facilityTestAtrDef);
+    List<Attribute> attrsResource2InVo2 = new ArrayList<>();
+    raResource2InVo2.forEach(ra -> attrsResource2InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_resource2InVo2.size());
-    assertTrue(attrs_resource2InVo2.contains(facility3_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsResource2InVo2.size());
+    assertTrue(attrsResource2InVo2.contains(facility3TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1445,25 +1445,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility_test_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facilityTestAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user1.size());
-    assertTrue(attrs_user1.contains(facility1_test_atr));
-    assertTrue(attrs_user1.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsUser1.size());
+    assertTrue(attrsUser1.contains(facility1TestAtr));
+    assertTrue(attrsUser1.contains(facility2TestAtr));
 
     //find test resource attributes for user3
-    List<RichAttribute> ra_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility_test_atr_def);
-    List<Attribute> attrs_user3 = new ArrayList<>();
-    ra_user3.forEach(ra -> attrs_user3.add(ra.getAttribute()));
+    List<RichAttribute> raUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facilityTestAtrDef);
+    List<Attribute> attrsUser3 = new ArrayList<>();
+    raUser3.forEach(ra -> attrsUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_user3.size());
-    assertTrue(attrs_user3.contains(facility1_test_atr));
-    assertTrue(attrs_user3.contains(facility2_test_atr));
-    assertTrue(attrs_user3.contains(facility3_test_atr));
+    assertEquals("Invalid number of attributes found", 3, attrsUser3.size());
+    assertTrue(attrsUser3.contains(facility1TestAtr));
+    assertTrue(attrsUser3.contains(facility2TestAtr));
+    assertTrue(attrsUser3.contains(facility3TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1478,25 +1478,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test resource attributes for userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, facility_test_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
-    ra_userExtSource1.forEach(ra -> attrs_userExtSource1.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, facilityTestAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
+    raUserExtSource1.forEach(ra -> attrsUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(facility1_test_atr));
-    assertTrue(attrs_userExtSource1.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(facility1TestAtr));
+    assertTrue(attrsUserExtSource1.contains(facility2TestAtr));
 
     //find test resource attributes for userExtSource3
-    List<RichAttribute> ra_userExtSource3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, facility_test_atr_def);
-    List<Attribute> attrs_userExtSource3 = new ArrayList<>();
-    ra_userExtSource3.forEach(ra -> attrs_userExtSource3.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, facilityTestAtrDef);
+    List<Attribute> attrsUserExtSource3 = new ArrayList<>();
+    raUserExtSource3.forEach(ra -> attrsUserExtSource3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_userExtSource3.size());
-    assertTrue(attrs_userExtSource3.contains(facility1_test_atr));
-    assertTrue(attrs_userExtSource3.contains(facility2_test_atr));
-    assertTrue(attrs_userExtSource3.contains(facility3_test_atr));
+    assertEquals("Invalid number of attributes found", 3, attrsUserExtSource3.size());
+    assertTrue(attrsUserExtSource3.contains(facility1TestAtr));
+    assertTrue(attrsUserExtSource3.contains(facility2TestAtr));
+    assertTrue(attrsUserExtSource3.contains(facility3TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1511,21 +1511,21 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test resource attributes for user2 facility2
-    List<RichAttribute> ra_user2_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility2, facility_test_atr_def);
-    List<Attribute> attrs_user2_facility2 = new ArrayList<>();
-    ra_user2_facility2.forEach(ra -> attrs_user2_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raUser2Facility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility2, facilityTestAtrDef);
+    List<Attribute> attrsUser2Facility2 = new ArrayList<>();
+    raUser2Facility2.forEach(ra -> attrsUser2Facility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user2_facility2.size());
-    assertTrue(attrs_user2_facility2.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsUser2Facility2.size());
+    assertTrue(attrsUser2Facility2.contains(facility2TestAtr));
 
     //find test resource attributes for user2 facility1
-    List<RichAttribute> ra_user2_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility1, facility_test_atr_def);
-    List<Attribute> attrs_user2_facility1 = new ArrayList<>();
-    ra_user2_facility1.forEach(ra -> attrs_user2_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raUser2Facility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility1, facilityTestAtrDef);
+    List<Attribute> attrsUser2Facility1 = new ArrayList<>();
+    raUser2Facility1.forEach(ra -> attrsUser2Facility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_user2_facility1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsUser2Facility1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1539,24 +1539,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, facility_test_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, facilityTestAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(facility1_test_atr));
-    assertTrue(attrs_vo1.contains(facility2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsVo1.size());
+    assertTrue(attrsVo1.contains(facility1TestAtr));
+    assertTrue(attrsVo1.contains(facility2TestAtr));
 
     //find test resource attributes for vo2
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, facility_test_atr_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
-    ra_vo2.forEach(ra -> attrs_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, facilityTestAtrDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
+    raVo2.forEach(ra -> attrsVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(facility2_test_atr));
-    assertTrue(attrs_vo2.contains(facility3_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsVo2.size());
+    assertTrue(attrsVo2.contains(facility2TestAtr));
+    assertTrue(attrsVo2.contains(facility3TestAtr));
   }
 
   @Test(expected = FacilityNotExistsException.class)
@@ -1860,25 +1860,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find email group attributes by facility1
-    List<RichAttribute> ra_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, group_fromEmail_atr_def);
-    List<Attribute> attrs_facility1 = new ArrayList<>();
-    ra_facility1.forEach(ra -> attrs_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, groupFromEmailAtrDef);
+    List<Attribute> attrsFacility1 = new ArrayList<>();
+    raFacility1.forEach(ra -> attrsFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility1.size());
-    assertTrue(attrs_facility1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_facility1.contains(group2InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility1.size());
+    assertTrue(attrsFacility1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsFacility1.contains(group2InVo1EmailAtr));
 
     //find email group attributes by facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, group_fromEmail_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, groupFromEmailAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(group2InVo1_email_atr));
-    assertTrue(attrs_facility2.contains(group1InVo2_email_atr));
-    assertTrue(attrs_facility2.contains(group2InVo2_email_atr));
+    assertEquals("Invalid number of attributes found", 3, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(group2InVo1EmailAtr));
+    assertTrue(attrsFacility2.contains(group1InVo2EmailAtr));
+    assertTrue(attrsFacility2.contains(group2InVo2EmailAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1892,22 +1892,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find email group attributes by group1InVo1
-    List<RichAttribute> ra_group1InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, group_fromEmail_atr_def);
-    List<Attribute> attrs_group1InVo1 = new ArrayList<>();
-    ra_group1InVo1.forEach(ra -> attrs_group1InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, groupFromEmailAtrDef);
+    List<Attribute> attrsGroup1InVo1 = new ArrayList<>();
+    raGroup1InVo1.forEach(ra -> attrsGroup1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group1InVo1.size());
-    assertTrue(attrs_group1InVo1.contains(group1InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup1InVo1.size());
+    assertTrue(attrsGroup1InVo1.contains(group1InVo1EmailAtr));
 
     //find email group attributes by group1InVo2
-    List<RichAttribute> ra_group1InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, group_fromEmail_atr_def);
-    List<Attribute> attrs_group1InVo2 = new ArrayList<>();
-    ra_group1InVo2.forEach(ra -> attrs_group1InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, groupFromEmailAtrDef);
+    List<Attribute> attrsGroup1InVo2 = new ArrayList<>();
+    raGroup1InVo2.forEach(ra -> attrsGroup1InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group1InVo2.size());
-    assertTrue(attrs_group1InVo2.contains(group1InVo2_email_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup1InVo2.size());
+    assertTrue(attrsGroup1InVo2.contains(group1InVo2EmailAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1921,25 +1921,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getGroupAttributes", PerunSession.class, Host.class, AttributeDefinition.class);
 
     //find email group attributes by host1OnFacility1
-    List<RichAttribute> ra_host1OnFacility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, group_fromEmail_atr_def);
-    List<Attribute> attrs_host1OnFacility1 = new ArrayList<>();
-    ra_host1OnFacility1.forEach(ra -> attrs_host1OnFacility1.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, groupFromEmailAtrDef);
+    List<Attribute> attrsHost1OnFacility1 = new ArrayList<>();
+    raHost1OnFacility1.forEach(ra -> attrsHost1OnFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_host1OnFacility1.size());
-    assertTrue(attrs_host1OnFacility1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_host1OnFacility1.contains(group2InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsHost1OnFacility1.size());
+    assertTrue(attrsHost1OnFacility1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsHost1OnFacility1.contains(group2InVo1EmailAtr));
 
     //find email group attributes by host1OnFacility2
-    List<RichAttribute> ra_host1OnFacility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, group_fromEmail_atr_def);
-    List<Attribute> attrs_host1OnFacility2 = new ArrayList<>();
-    ra_host1OnFacility2.forEach(ra -> attrs_host1OnFacility2.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, groupFromEmailAtrDef);
+    List<Attribute> attrsHost1OnFacility2 = new ArrayList<>();
+    raHost1OnFacility2.forEach(ra -> attrsHost1OnFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_host1OnFacility2.size());
-    assertTrue(attrs_host1OnFacility2.contains(group2InVo1_email_atr));
-    assertTrue(attrs_host1OnFacility2.contains(group1InVo2_email_atr));
-    assertTrue(attrs_host1OnFacility2.contains(group2InVo2_email_atr));
+    assertEquals("Invalid number of attributes found", 3, attrsHost1OnFacility2.size());
+    assertTrue(attrsHost1OnFacility2.contains(group2InVo1EmailAtr));
+    assertTrue(attrsHost1OnFacility2.contains(group1InVo2EmailAtr));
+    assertTrue(attrsHost1OnFacility2.contains(group2InVo2EmailAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1953,18 +1953,18 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getGroupAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all email group attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group_fromEmail_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, groupFromEmailAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 6 <= attrs_all.size());
-    assertTrue(attrs_all.contains(group1InVo1_email_atr));
-    assertTrue(attrs_all.contains(group2InVo1_email_atr));
-    assertTrue(attrs_all.contains(group1InVo2_email_atr));
-    assertTrue(attrs_all.contains(group2InVo2_email_atr));
-    assertTrue(attrs_all.contains(membersGroupOfVo1_email_atr));
-    assertTrue(attrs_all.contains(membersGroupOfVo2_email_atr));
+    assertTrue("Invalid number of attributes found", 6 <= attrsAll.size());
+    assertTrue(attrsAll.contains(group1InVo1EmailAtr));
+    assertTrue(attrsAll.contains(group2InVo1EmailAtr));
+    assertTrue(attrsAll.contains(group1InVo2EmailAtr));
+    assertTrue(attrsAll.contains(group2InVo2EmailAtr));
+    assertTrue(attrsAll.contains(membersGroupOfVo1EmailAtr));
+    assertTrue(attrsAll.contains(membersGroupOfVo2EmailAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -1978,23 +1978,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find email group attributes by member1OfUser1
-    List<RichAttribute> ra_member1OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, group_fromEmail_atr_def);
-    List<Attribute> attrs_member1OfUser1 = new ArrayList<>();
-    ra_member1OfUser1.forEach(ra -> attrs_member1OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember1OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, groupFromEmailAtrDef);
+    List<Attribute> attrsMember1OfUser1 = new ArrayList<>();
+    raMember1OfUser1.forEach(ra -> attrsMember1OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_member1OfUser1.size());
-    assertTrue(attrs_member1OfUser1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_member1OfUser1.contains(group2InVo1_email_atr));
-    assertTrue(attrs_member1OfUser1.contains(membersGroupOfVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 3, attrsMember1OfUser1.size());
+    assertTrue(attrsMember1OfUser1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsMember1OfUser1.contains(group2InVo1EmailAtr));
+    assertTrue(attrsMember1OfUser1.contains(membersGroupOfVo1EmailAtr));
 
     //find email group attributes by member2OfUser1
-    List<RichAttribute> ra_member2OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, group_fromEmail_atr_def);
-    List<Attribute> attrs_member2OfUser1 = new ArrayList<>();
-    ra_member2OfUser1.forEach(ra -> attrs_member2OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember2OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, groupFromEmailAtrDef);
+    List<Attribute> attrsMember2OfUser1 = new ArrayList<>();
+    raMember2OfUser1.forEach(ra -> attrsMember2OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2OfUser1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2OfUser1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2009,23 +2009,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find email group attributes by group1InVo1 and member1OfUser1
-    List<RichAttribute> ra_group1Vo1_mem1U1 =
+    List<RichAttribute> raGroup1Vo1Mem1U1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, group1InVo1,
-            group_fromEmail_atr_def);
-    List<Attribute> attrs_group1Vo1_mem1U1 = new ArrayList<>();
-    ra_group1Vo1_mem1U1.forEach(ra -> attrs_group1Vo1_mem1U1.add(ra.getAttribute()));
+            groupFromEmailAtrDef);
+    List<Attribute> attrsGroup1Vo1Mem1U1 = new ArrayList<>();
+    raGroup1Vo1Mem1U1.forEach(ra -> attrsGroup1Vo1Mem1U1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group1Vo1_mem1U1.size());
-    assertTrue(attrs_group1Vo1_mem1U1.contains(group1InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup1Vo1Mem1U1.size());
+    assertTrue(attrsGroup1Vo1Mem1U1.contains(group1InVo1EmailAtr));
 
     //find email group attributes by group1InVo2 and member2OfUser1
-    List<RichAttribute> ra_group1Vo2_mem2U1 =
+    List<RichAttribute> raGroup1Vo2Mem2U1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, group1InVo2,
-            group_fromEmail_atr_def);
-    List<Attribute> attrs_group1Vo2_mem2U1 = new ArrayList<>();
-    ra_group1Vo2_mem2U1.forEach(ra -> attrs_group1Vo2_mem2U1.add(ra.getAttribute()));
+            groupFromEmailAtrDef);
+    List<Attribute> attrsGroup1Vo2Mem2U1 = new ArrayList<>();
+    raGroup1Vo2Mem2U1.forEach(ra -> attrsGroup1Vo2Mem2U1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_group1Vo2_mem2U1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsGroup1Vo2Mem2U1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2040,34 +2040,34 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find email group attributes by member1OfUser1 and resource1InVo1
-    List<RichAttribute> ra_member1U1_res1Vo1 =
+    List<RichAttribute> raMember1U1Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resource1InVo1,
-            group_fromEmail_atr_def);
-    List<Attribute> attrs_member1U1_res1Vo1 = new ArrayList<>();
-    ra_member1U1_res1Vo1.forEach(ra -> attrs_member1U1_res1Vo1.add(ra.getAttribute()));
+            groupFromEmailAtrDef);
+    List<Attribute> attrsMember1U1Res1Vo1 = new ArrayList<>();
+    raMember1U1Res1Vo1.forEach(ra -> attrsMember1U1Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1U1_res1Vo1.size());
-    assertTrue(attrs_member1U1_res1Vo1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_member1U1_res1Vo1.contains(group2InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1U1Res1Vo1.size());
+    assertTrue(attrsMember1U1Res1Vo1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsMember1U1Res1Vo1.contains(group2InVo1EmailAtr));
 
     //find email group attributes by member1OfUser3 and resource1InVo1
-    List<RichAttribute> ra_member1U3_res1Vo1 =
+    List<RichAttribute> raMember1U3Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser3, resource1InVo1,
-            group_fromEmail_atr_def);
-    List<Attribute> attrs_member1U3_res1Vo1 = new ArrayList<>();
-    ra_member1U3_res1Vo1.forEach(ra -> attrs_member1U3_res1Vo1.add(ra.getAttribute()));
+            groupFromEmailAtrDef);
+    List<Attribute> attrsMember1U3Res1Vo1 = new ArrayList<>();
+    raMember1U3Res1Vo1.forEach(ra -> attrsMember1U3Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U3_res1Vo1.size());
-    assertTrue(attrs_member1U3_res1Vo1.contains(group1InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U3Res1Vo1.size());
+    assertTrue(attrsMember1U3Res1Vo1.contains(group1InVo1EmailAtr));
 
     //find email group attributes by member2OfUser2 and resource1InVo1
-    List<RichAttribute> ra_member2U2_res1Vo1 =
+    List<RichAttribute> raMember2U2Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser2, resource1InVo1,
-            group_fromEmail_atr_def);
-    List<Attribute> attrs_member2U2_res1Vo1 = new ArrayList<>();
-    ra_member2U2_res1Vo1.forEach(ra -> attrs_member2U2_res1Vo1.add(ra.getAttribute()));
+            groupFromEmailAtrDef);
+    List<Attribute> attrsMember2U2Res1Vo1 = new ArrayList<>();
+    raMember2U2Res1Vo1.forEach(ra -> attrsMember2U2Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U2_res1Vo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U2Res1Vo1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2081,23 +2081,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find email group attributes by resource1InVo1
-    List<RichAttribute> ra_resource1InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, group_fromEmail_atr_def);
-    List<Attribute> attrs_resource1InVo1 = new ArrayList<>();
-    ra_resource1InVo1.forEach(ra -> attrs_resource1InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raResource1InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, groupFromEmailAtrDef);
+    List<Attribute> attrsResource1InVo1 = new ArrayList<>();
+    raResource1InVo1.forEach(ra -> attrsResource1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_resource1InVo1.size());
-    assertTrue(attrs_resource1InVo1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_resource1InVo1.contains(group2InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsResource1InVo1.size());
+    assertTrue(attrsResource1InVo1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsResource1InVo1.contains(group2InVo1EmailAtr));
 
     //find email group attributes by resource2InVo2
-    List<RichAttribute> ra_resource2InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo2, group_fromEmail_atr_def);
-    List<Attribute> attrs_resource2InVo2 = new ArrayList<>();
-    ra_resource2InVo2.forEach(ra -> attrs_resource2InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raResource2InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo2, groupFromEmailAtrDef);
+    List<Attribute> attrsResource2InVo2 = new ArrayList<>();
+    raResource2InVo2.forEach(ra -> attrsResource2InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_resource2InVo2.size());
-    assertTrue(attrs_resource2InVo2.contains(group2InVo2_email_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsResource2InVo2.size());
+    assertTrue(attrsResource2InVo2.contains(group2InVo2EmailAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2111,15 +2111,15 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getGroupAttributes", PerunSession.class, User.class, AttributeDefinition.class);
 
     //find email group attributes by user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, group_fromEmail_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, groupFromEmailAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_user1.size());
-    assertTrue(attrs_user1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_user1.contains(group2InVo1_email_atr));
-    assertTrue(attrs_user1.contains(membersGroupOfVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 3, attrsUser1.size());
+    assertTrue(attrsUser1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsUser1.contains(group2InVo1EmailAtr));
+    assertTrue(attrsUser1.contains(membersGroupOfVo1EmailAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2133,15 +2133,15 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find email group attributes by userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, group_fromEmail_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
-    ra_userExtSource1.forEach(ra -> attrs_userExtSource1.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, groupFromEmailAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
+    raUserExtSource1.forEach(ra -> attrsUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_userExtSource1.contains(group2InVo1_email_atr));
-    assertTrue(attrs_userExtSource1.contains(membersGroupOfVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 3, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsUserExtSource1.contains(group2InVo1EmailAtr));
+    assertTrue(attrsUserExtSource1.contains(membersGroupOfVo1EmailAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2156,32 +2156,32 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find email group attributes by user1 and facility2
-    List<RichAttribute> ra_user1_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility2, group_fromEmail_atr_def);
-    List<Attribute> attrs_user1_facility2 = new ArrayList<>();
-    ra_user1_facility2.forEach(ra -> attrs_user1_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raUser1Facility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility2, groupFromEmailAtrDef);
+    List<Attribute> attrsUser1Facility2 = new ArrayList<>();
+    raUser1Facility2.forEach(ra -> attrsUser1Facility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user1_facility2.size());
-    assertTrue(attrs_user1_facility2.contains(group2InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsUser1Facility2.size());
+    assertTrue(attrsUser1Facility2.contains(group2InVo1EmailAtr));
 
     //find email group attributes by user2 and facility3
-    List<RichAttribute> ra_user2_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility3, group_fromEmail_atr_def);
-    List<Attribute> attrs_user2_facility3 = new ArrayList<>();
-    ra_user2_facility3.forEach(ra -> attrs_user2_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raUser2Facility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility3, groupFromEmailAtrDef);
+    List<Attribute> attrsUser2Facility3 = new ArrayList<>();
+    raUser2Facility3.forEach(ra -> attrsUser2Facility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user2_facility3.size());
-    assertTrue(attrs_user2_facility3.contains(group2InVo2_email_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsUser2Facility3.size());
+    assertTrue(attrsUser2Facility3.contains(group2InVo2EmailAtr));
 
     //find email group attributes by user1 and facility1
-    List<RichAttribute> ra_user1_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility1, group_fromEmail_atr_def);
-    List<Attribute> attrs_user1_facility1 = new ArrayList<>();
-    ra_user1_facility1.forEach(ra -> attrs_user1_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1Facility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility1, groupFromEmailAtrDef);
+    List<Attribute> attrsUser1Facility1 = new ArrayList<>();
+    raUser1Facility1.forEach(ra -> attrsUser1Facility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user1_facility1.size());
-    assertTrue(attrs_user1_facility1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_user1_facility1.contains(group2InVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsUser1Facility1.size());
+    assertTrue(attrsUser1Facility1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsUser1Facility1.contains(group2InVo1EmailAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2195,15 +2195,15 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getGroupAttributes", PerunSession.class, Vo.class, AttributeDefinition.class);
 
     //find email group attributes by vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, group_fromEmail_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, groupFromEmailAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(group1InVo1_email_atr));
-    assertTrue(attrs_vo1.contains(group2InVo1_email_atr));
-    assertTrue(attrs_vo1.contains(membersGroupOfVo1_email_atr));
+    assertEquals("Invalid number of attributes found", 3, attrsVo1.size());
+    assertTrue(attrsVo1.contains(group1InVo1EmailAtr));
+    assertTrue(attrsVo1.contains(group2InVo1EmailAtr));
+    assertTrue(attrsVo1.contains(membersGroupOfVo1EmailAtr));
   }
 
   @Test
@@ -2460,25 +2460,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test group-resource attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, groupResource_test_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, groupResourceTestAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(group1VO2Res1VO2_test_attribute));
-    assertTrue(attrs_facility2.contains(group2VO2Res1VO2_test_attribute));
-    assertTrue(attrs_facility2.contains(group2VO1Res2VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(group1VO2Res1VO2TestAttribute));
+    assertTrue(attrsFacility2.contains(group2VO2Res1VO2TestAttribute));
+    assertTrue(attrsFacility2.contains(group2VO1Res2VO1TestAttribute));
 
     //find test group-resource attributes for facility1
-    List<RichAttribute> ra_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, groupResource_test_atr_def);
-    List<Attribute> attrs_facility1 = new ArrayList<>();
-    ra_facility1.forEach(ra -> attrs_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, groupResourceTestAtrDef);
+    List<Attribute> attrsFacility1 = new ArrayList<>();
+    raFacility1.forEach(ra -> attrsFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility1.size());
-    assertTrue(attrs_facility1.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_facility1.contains(group2VO1Res1VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility1.size());
+    assertTrue(attrsFacility1.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsFacility1.contains(group2VO1Res1VO1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2492,32 +2492,32 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test group-resource attributes for group2InVo1
-    List<RichAttribute> ra_group2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, groupResource_test_atr_def);
-    List<Attribute> attrs_group2InVo1 = new ArrayList<>();
-    ra_group2InVo1.forEach(ra -> attrs_group2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, groupResourceTestAtrDef);
+    List<Attribute> attrsGroup2InVo1 = new ArrayList<>();
+    raGroup2InVo1.forEach(ra -> attrsGroup2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2InVo1.size());
-    assertTrue(attrs_group2InVo1.contains(group2VO1Res1VO1_test_attribute));
-    assertTrue(attrs_group2InVo1.contains(group2VO1Res2VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2InVo1.size());
+    assertTrue(attrsGroup2InVo1.contains(group2VO1Res1VO1TestAttribute));
+    assertTrue(attrsGroup2InVo1.contains(group2VO1Res2VO1TestAttribute));
 
     //find test group-resource attributes for group1InVo2
-    List<RichAttribute> ra_group1InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, groupResource_test_atr_def);
-    List<Attribute> attrs_group1InVo2 = new ArrayList<>();
-    ra_group1InVo2.forEach(ra -> attrs_group1InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, groupResourceTestAtrDef);
+    List<Attribute> attrsGroup1InVo2 = new ArrayList<>();
+    raGroup1InVo2.forEach(ra -> attrsGroup1InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group1InVo2.size());
-    assertTrue(attrs_group1InVo2.contains(group1VO2Res1VO2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup1InVo2.size());
+    assertTrue(attrsGroup1InVo2.contains(group1VO2Res1VO2TestAttribute));
 
     //find test group-resource attributes for membersGroupOfVo1
-    List<RichAttribute> ra_membersGroupOfVo1 =
+    List<RichAttribute> raMembersGroupOfVo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, membersGroupOfVo1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_membersGroupOfVo1 = new ArrayList<>();
-    ra_membersGroupOfVo1.forEach(ra -> attrs_membersGroupOfVo1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsMembersGroupOfVo1 = new ArrayList<>();
+    raMembersGroupOfVo1.forEach(ra -> attrsMembersGroupOfVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_membersGroupOfVo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMembersGroupOfVo1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2532,14 +2532,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test group-resource attributes for group1InVo1 and resource1InVo1
-    List<RichAttribute> ra_group1Vo1_res1Vo1 =
+    List<RichAttribute> raGroup1Vo1Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, resource1InVo1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_group1Vo1_res1Vo1 = new ArrayList<>();
-    ra_group1Vo1_res1Vo1.forEach(ra -> attrs_group1Vo1_res1Vo1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsGroup1Vo1Res1Vo1 = new ArrayList<>();
+    raGroup1Vo1Res1Vo1.forEach(ra -> attrsGroup1Vo1Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group1Vo1_res1Vo1.size());
-    assertTrue(attrs_group1Vo1_res1Vo1.contains(group1VO1Res1VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup1Vo1Res1Vo1.size());
+    assertTrue(attrsGroup1Vo1Res1Vo1.contains(group1VO1Res1VO1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2553,27 +2553,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test group-resource attributes for host1OnFacility2
-    List<RichAttribute> ra_host1OnFacility2 =
+    List<RichAttribute> raHost1OnFacility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_host1OnFacility2 = new ArrayList<>();
-    ra_host1OnFacility2.forEach(ra -> attrs_host1OnFacility2.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsHost1OnFacility2 = new ArrayList<>();
+    raHost1OnFacility2.forEach(ra -> attrsHost1OnFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_host1OnFacility2.size());
-    assertTrue(attrs_host1OnFacility2.contains(group1VO2Res1VO2_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(group2VO2Res1VO2_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(group2VO1Res2VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsHost1OnFacility2.size());
+    assertTrue(attrsHost1OnFacility2.contains(group1VO2Res1VO2TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(group2VO2Res1VO2TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(group2VO1Res2VO1TestAttribute));
 
     //find test group-resource attributes for host1OnFacility1
-    List<RichAttribute> ra_host1OnFacility1 =
+    List<RichAttribute> raHost1OnFacility1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_host1OnFacility1 = new ArrayList<>();
-    ra_host1OnFacility1.forEach(ra -> attrs_host1OnFacility1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsHost1OnFacility1 = new ArrayList<>();
+    raHost1OnFacility1.forEach(ra -> attrsHost1OnFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_host1OnFacility1.size());
-    assertTrue(attrs_host1OnFacility1.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_host1OnFacility1.contains(group2VO1Res1VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsHost1OnFacility1.size());
+    assertTrue(attrsHost1OnFacility1.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsHost1OnFacility1.contains(group2VO1Res1VO1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2587,18 +2587,18 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getGroupResourceAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all test group-resource attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, groupResource_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, groupResourceTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 6 <= attrs_all.size());
-    assertTrue(attrs_all.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_all.contains(group2VO1Res1VO1_test_attribute));
-    assertTrue(attrs_all.contains(group2VO1Res2VO1_test_attribute));
-    assertTrue(attrs_all.contains(group1VO2Res1VO2_test_attribute));
-    assertTrue(attrs_all.contains(group2VO2Res1VO2_test_attribute));
-    assertTrue(attrs_all.contains(group2VO2Res2VO2_test_attribute));
+    assertTrue("Invalid number of attributes found", 6 <= attrsAll.size());
+    assertTrue(attrsAll.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsAll.contains(group2VO1Res1VO1TestAttribute));
+    assertTrue(attrsAll.contains(group2VO1Res2VO1TestAttribute));
+    assertTrue(attrsAll.contains(group1VO2Res1VO2TestAttribute));
+    assertTrue(attrsAll.contains(group2VO2Res1VO2TestAttribute));
+    assertTrue(attrsAll.contains(group2VO2Res2VO2TestAttribute));
   }
 
   @Test
@@ -2648,36 +2648,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test group-resource attributes for member2OfUser3
-    List<RichAttribute> ra_member2OfUser3 =
+    List<RichAttribute> raMember2OfUser3 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_member2OfUser3 = new ArrayList<>();
-    ra_member2OfUser3.forEach(ra -> attrs_member2OfUser3.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsMember2OfUser3 = new ArrayList<>();
+    raMember2OfUser3.forEach(ra -> attrsMember2OfUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member2OfUser3.size());
-    assertTrue(attrs_member2OfUser3.contains(group2VO2Res1VO2_test_attribute));
-    assertTrue(attrs_member2OfUser3.contains(group2VO2Res2VO2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember2OfUser3.size());
+    assertTrue(attrsMember2OfUser3.contains(group2VO2Res1VO2TestAttribute));
+    assertTrue(attrsMember2OfUser3.contains(group2VO2Res2VO2TestAttribute));
 
     //find test group-resource attributes for member1OfUser2
-    List<RichAttribute> ra_member1OfUser2 =
+    List<RichAttribute> raMember1OfUser2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser2,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_member1OfUser2 = new ArrayList<>();
-    ra_member1OfUser2.forEach(ra -> attrs_member1OfUser2.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsMember1OfUser2 = new ArrayList<>();
+    raMember1OfUser2.forEach(ra -> attrsMember1OfUser2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_member1OfUser2.size());
-    assertTrue(attrs_member1OfUser2.contains(group1VO2Res1VO2_test_attribute));
-    assertTrue(attrs_member1OfUser2.contains(group2VO2Res1VO2_test_attribute));
-    assertTrue(attrs_member1OfUser2.contains(group2VO2Res2VO2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsMember1OfUser2.size());
+    assertTrue(attrsMember1OfUser2.contains(group1VO2Res1VO2TestAttribute));
+    assertTrue(attrsMember1OfUser2.contains(group2VO2Res1VO2TestAttribute));
+    assertTrue(attrsMember1OfUser2.contains(group2VO2Res2VO2TestAttribute));
 
     //find test group-resource attributes for member2OfUser1
-    List<RichAttribute> ra_member2OfUser1 =
+    List<RichAttribute> raMember2OfUser1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_member2OfUser1 = new ArrayList<>();
-    ra_member2OfUser1.forEach(ra -> attrs_member2OfUser1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsMember2OfUser1 = new ArrayList<>();
+    raMember2OfUser1.forEach(ra -> attrsMember2OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2OfUser1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2OfUser1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2692,24 +2692,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test group-resource attributes for member1OfUser1 and group2InVo1
-    List<RichAttribute> ra_member1U1_group2Vo1 =
+    List<RichAttribute> raMember1U1Group2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, group2InVo1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_member1U1_group2Vo1 = new ArrayList<>();
-    ra_member1U1_group2Vo1.forEach(ra -> attrs_member1U1_group2Vo1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsMember1U1Group2Vo1 = new ArrayList<>();
+    raMember1U1Group2Vo1.forEach(ra -> attrsMember1U1Group2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1U1_group2Vo1.size());
-    assertTrue(attrs_member1U1_group2Vo1.contains(group2VO1Res1VO1_test_attribute));
-    assertTrue(attrs_member1U1_group2Vo1.contains(group2VO1Res2VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1U1Group2Vo1.size());
+    assertTrue(attrsMember1U1Group2Vo1.contains(group2VO1Res1VO1TestAttribute));
+    assertTrue(attrsMember1U1Group2Vo1.contains(group2VO1Res2VO1TestAttribute));
 
     //find test group-resource attributes for member2OfUser1 group1InVo2
-    List<RichAttribute> ra_member2U1_group2Vo1 =
+    List<RichAttribute> raMember2U1Group2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, group1InVo2,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_member2U1_group2Vo1 = new ArrayList<>();
-    ra_member2U1_group2Vo1.forEach(ra -> attrs_member2U1_group2Vo1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsMember2U1Group2Vo1 = new ArrayList<>();
+    raMember2U1Group2Vo1.forEach(ra -> attrsMember2U1Group2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U1_group2Vo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U1Group2Vo1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2724,24 +2724,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test group-resource attributes for member1OfUser1 and resource1InVo1
-    List<RichAttribute> ra_member1U1_res1Vo1 =
+    List<RichAttribute> raMember1U1Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resource1InVo1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_member1U1_res1Vo1 = new ArrayList<>();
-    ra_member1U1_res1Vo1.forEach(ra -> attrs_member1U1_res1Vo1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsMember1U1Res1Vo1 = new ArrayList<>();
+    raMember1U1Res1Vo1.forEach(ra -> attrsMember1U1Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1U1_res1Vo1.size());
-    assertTrue(attrs_member1U1_res1Vo1.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_member1U1_res1Vo1.contains(group2VO1Res1VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1U1Res1Vo1.size());
+    assertTrue(attrsMember1U1Res1Vo1.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsMember1U1Res1Vo1.contains(group2VO1Res1VO1TestAttribute));
 
     //find test group-resource attributes for member2OfUser1 and resource1InVo2
-    List<RichAttribute> ra_member2U1_res1Vo2 =
+    List<RichAttribute> raMember2U1Res1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, resource1InVo2,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_member2U1_res1Vo2 = new ArrayList<>();
-    ra_member2U1_res1Vo2.forEach(ra -> attrs_member2U1_res1Vo2.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsMember2U1Res1Vo2 = new ArrayList<>();
+    raMember2U1Res1Vo2.forEach(ra -> attrsMember2U1Res1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U1_res1Vo2.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U1Res1Vo2.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2756,25 +2756,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test group-resource attributes for resource1InVo1
-    List<RichAttribute> ra_resource1InVo1 =
+    List<RichAttribute> raResource1InVo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_resource1InVo1 = new ArrayList<>();
-    ra_resource1InVo1.forEach(ra -> attrs_resource1InVo1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsResource1InVo1 = new ArrayList<>();
+    raResource1InVo1.forEach(ra -> attrsResource1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_resource1InVo1.size());
-    assertTrue(attrs_resource1InVo1.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_resource1InVo1.contains(group2VO1Res1VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsResource1InVo1.size());
+    assertTrue(attrsResource1InVo1.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsResource1InVo1.contains(group2VO1Res1VO1TestAttribute));
 
     //find test group-resource attributes for resource2InVo2
-    List<RichAttribute> ra_resource2InVo2 =
+    List<RichAttribute> raResource2InVo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo2,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_resource2InVo2 = new ArrayList<>();
-    ra_resource2InVo2.forEach(ra -> attrs_resource2InVo2.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsResource2InVo2 = new ArrayList<>();
+    raResource2InVo2.forEach(ra -> attrsResource2InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_resource2InVo2.size());
-    assertTrue(attrs_resource2InVo2.contains(group2VO2Res2VO2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsResource2InVo2.size());
+    assertTrue(attrsResource2InVo2.contains(group2VO2Res2VO2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2788,26 +2788,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test group-resource attributes for user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, groupResource_test_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, groupResourceTestAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_user1.size());
-    assertTrue(attrs_user1.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_user1.contains(group2VO1Res1VO1_test_attribute));
-    assertTrue(attrs_user1.contains(group2VO1Res2VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsUser1.size());
+    assertTrue(attrsUser1.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsUser1.contains(group2VO1Res1VO1TestAttribute));
+    assertTrue(attrsUser1.contains(group2VO1Res2VO1TestAttribute));
 
     //find test group-resource attributes for user3
-    List<RichAttribute> ra_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, groupResource_test_atr_def);
-    List<Attribute> attrs_user3 = new ArrayList<>();
-    ra_user3.forEach(ra -> attrs_user3.add(ra.getAttribute()));
+    List<RichAttribute> raUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, groupResourceTestAtrDef);
+    List<Attribute> attrsUser3 = new ArrayList<>();
+    raUser3.forEach(ra -> attrsUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_user3.size());
-    assertTrue(attrs_user3.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_user3.contains(group2VO2Res1VO2_test_attribute));
-    assertTrue(attrs_user3.contains(group2VO2Res2VO2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsUser3.size());
+    assertTrue(attrsUser3.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsUser3.contains(group2VO2Res1VO2TestAttribute));
+    assertTrue(attrsUser3.contains(group2VO2Res2VO2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2822,28 +2822,28 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test group-resource attributes for userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
+    List<RichAttribute> raUserExtSource1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
-    ra_userExtSource1.forEach(ra -> attrs_userExtSource1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
+    raUserExtSource1.forEach(ra -> attrsUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_userExtSource1.contains(group2VO1Res1VO1_test_attribute));
-    assertTrue(attrs_userExtSource1.contains(group2VO1Res2VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsUserExtSource1.contains(group2VO1Res1VO1TestAttribute));
+    assertTrue(attrsUserExtSource1.contains(group2VO1Res2VO1TestAttribute));
 
     //find test group-resource attributes for userExtSource3
-    List<RichAttribute> ra_userExtSource3 =
+    List<RichAttribute> raUserExtSource3 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_userExtSource3 = new ArrayList<>();
-    ra_userExtSource3.forEach(ra -> attrs_userExtSource3.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsUserExtSource3 = new ArrayList<>();
+    raUserExtSource3.forEach(ra -> attrsUserExtSource3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_userExtSource3.size());
-    assertTrue(attrs_userExtSource3.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_userExtSource3.contains(group2VO2Res1VO2_test_attribute));
-    assertTrue(attrs_userExtSource3.contains(group2VO2Res2VO2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsUserExtSource3.size());
+    assertTrue(attrsUserExtSource3.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsUserExtSource3.contains(group2VO2Res1VO2TestAttribute));
+    assertTrue(attrsUserExtSource3.contains(group2VO2Res2VO2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2858,34 +2858,34 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test group-resource attributes for user1 and facility2
-    List<RichAttribute> ra_user1_facility2 =
+    List<RichAttribute> raUser1Facility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility2,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_user1_facility2 = new ArrayList<>();
-    ra_user1_facility2.forEach(ra -> attrs_user1_facility2.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsUser1Facility2 = new ArrayList<>();
+    raUser1Facility2.forEach(ra -> attrsUser1Facility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user1_facility2.size());
-    assertTrue(attrs_user1_facility2.contains(group2VO1Res2VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser1Facility2.size());
+    assertTrue(attrsUser1Facility2.contains(group2VO1Res2VO1TestAttribute));
 
     //find test group-resource attributes for user3 and facility1
-    List<RichAttribute> ra_user3_facility1 =
+    List<RichAttribute> raUser3Facility1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility1,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_user3_facility1 = new ArrayList<>();
-    ra_user3_facility1.forEach(ra -> attrs_user3_facility1.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsUser3Facility1 = new ArrayList<>();
+    raUser3Facility1.forEach(ra -> attrsUser3Facility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user3_facility1.size());
-    assertTrue(attrs_user3_facility1.contains(group1VO1Res1VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser3Facility1.size());
+    assertTrue(attrsUser3Facility1.contains(group1VO1Res1VO1TestAttribute));
 
     //find test group-resource attributes for user3 and facility2
-    List<RichAttribute> ra_user3_facility2 =
+    List<RichAttribute> raUser3Facility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility2,
-            groupResource_test_atr_def);
-    List<Attribute> attrs_user3_facility2 = new ArrayList<>();
-    ra_user3_facility2.forEach(ra -> attrs_user3_facility2.add(ra.getAttribute()));
+            groupResourceTestAtrDef);
+    List<Attribute> attrsUser3Facility2 = new ArrayList<>();
+    raUser3Facility2.forEach(ra -> attrsUser3Facility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user3_facility2.size());
-    assertTrue(attrs_user3_facility2.contains(group2VO2Res1VO2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser3Facility2.size());
+    assertTrue(attrsUser3Facility2.contains(group2VO2Res1VO2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -2899,26 +2899,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test group-resource attributes for vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, groupResource_test_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, groupResourceTestAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(group1VO1Res1VO1_test_attribute));
-    assertTrue(attrs_vo1.contains(group2VO1Res1VO1_test_attribute));
-    assertTrue(attrs_vo1.contains(group2VO1Res2VO1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsVo1.size());
+    assertTrue(attrsVo1.contains(group1VO1Res1VO1TestAttribute));
+    assertTrue(attrsVo1.contains(group2VO1Res1VO1TestAttribute));
+    assertTrue(attrsVo1.contains(group2VO1Res2VO1TestAttribute));
 
     //find test group-resource attributes for vo2
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, groupResource_test_atr_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
-    ra_vo2.forEach(ra -> attrs_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, groupResourceTestAtrDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
+    raVo2.forEach(ra -> attrsVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(group1VO2Res1VO2_test_attribute));
-    assertTrue(attrs_vo2.contains(group2VO2Res1VO2_test_attribute));
-    assertTrue(attrs_vo2.contains(group2VO2Res2VO2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsVo2.size());
+    assertTrue(attrsVo2.contains(group1VO2Res1VO2TestAttribute));
+    assertTrue(attrsVo2.contains(group2VO2Res1VO2TestAttribute));
+    assertTrue(attrsVo2.contains(group2VO2Res2VO2TestAttribute));
   }
 
   @Test(expected = GroupNotExistsException.class)
@@ -3074,24 +3074,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test host attributes for facility1
-    List<RichAttribute> ra_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, host_test_atr_def);
-    List<Attribute> attrs_facility1 = new ArrayList<>();
-    ra_facility1.forEach(ra -> attrs_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, hostTestAtrDef);
+    List<Attribute> attrsFacility1 = new ArrayList<>();
+    raFacility1.forEach(ra -> attrsFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility1.size());
-    assertTrue(attrs_facility1.contains(host1F1_test_atr));
-    assertTrue(attrs_facility1.contains(host2F1_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility1.size());
+    assertTrue(attrsFacility1.contains(host1F1TestAtr));
+    assertTrue(attrsFacility1.contains(host2F1TestAtr));
 
     //find test host attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, host_test_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, hostTestAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(host1F2_test_atr));
-    assertTrue(attrs_facility2.contains(host2F2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(host1F2TestAtr));
+    assertTrue(attrsFacility2.contains(host2F2TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3105,26 +3105,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getHostAttributes", PerunSession.class, Group.class, AttributeDefinition.class);
 
     //find test host attributes for group1InVo2
-    List<RichAttribute> ra_group1InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, host_test_atr_def);
-    List<Attribute> attrs_group1InVo2 = new ArrayList<>();
-    ra_group1InVo2.forEach(ra -> attrs_group1InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, hostTestAtrDef);
+    List<Attribute> attrsGroup1InVo2 = new ArrayList<>();
+    raGroup1InVo2.forEach(ra -> attrsGroup1InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group1InVo2.size());
-    assertTrue(attrs_group1InVo2.contains(host1F2_test_atr));
-    assertTrue(attrs_group1InVo2.contains(host2F2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup1InVo2.size());
+    assertTrue(attrsGroup1InVo2.contains(host1F2TestAtr));
+    assertTrue(attrsGroup1InVo2.contains(host2F2TestAtr));
 
     //find test host attributes for group2InVo2
-    List<RichAttribute> ra_group2InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, host_test_atr_def);
-    List<Attribute> attrs_group2InVo2 = new ArrayList<>();
-    ra_group2InVo2.forEach(ra -> attrs_group2InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, hostTestAtrDef);
+    List<Attribute> attrsGroup2InVo2 = new ArrayList<>();
+    raGroup2InVo2.forEach(ra -> attrsGroup2InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_group2InVo2.size());
-    assertTrue(attrs_group2InVo2.contains(host1F2_test_atr));
-    assertTrue(attrs_group2InVo2.contains(host2F2_test_atr));
-    assertTrue(attrs_group2InVo2.contains(host1F3_test_atr));
-    assertTrue(attrs_group2InVo2.contains(host2F3_test_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsGroup2InVo2.size());
+    assertTrue(attrsGroup2InVo2.contains(host1F2TestAtr));
+    assertTrue(attrsGroup2InVo2.contains(host2F2TestAtr));
+    assertTrue(attrsGroup2InVo2.contains(host1F3TestAtr));
+    assertTrue(attrsGroup2InVo2.contains(host2F3TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3138,22 +3138,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getHostAttributes", PerunSession.class, Host.class, AttributeDefinition.class);
 
     //find test host attributes for host1OnFacility1
-    List<RichAttribute> ra_host1OnFacility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, host_test_atr_def);
-    List<Attribute> attrs_host1OnFacility1 = new ArrayList<>();
-    ra_host1OnFacility1.forEach(ra -> attrs_host1OnFacility1.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, hostTestAtrDef);
+    List<Attribute> attrsHost1OnFacility1 = new ArrayList<>();
+    raHost1OnFacility1.forEach(ra -> attrsHost1OnFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_host1OnFacility1.size());
-    assertTrue(attrs_host1OnFacility1.contains(host1F1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsHost1OnFacility1.size());
+    assertTrue(attrsHost1OnFacility1.contains(host1F1TestAtr));
 
     //find test host attributes for host2OnFacility3
-    List<RichAttribute> ra_host2OnFacility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host2OnFacility3, host_test_atr_def);
-    List<Attribute> attrs_host2OnFacility3 = new ArrayList<>();
-    ra_host2OnFacility3.forEach(ra -> attrs_host2OnFacility3.add(ra.getAttribute()));
+    List<RichAttribute> raHost2OnFacility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host2OnFacility3, hostTestAtrDef);
+    List<Attribute> attrsHost2OnFacility3 = new ArrayList<>();
+    raHost2OnFacility3.forEach(ra -> attrsHost2OnFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_host2OnFacility3.size());
-    assertTrue(attrs_host2OnFacility3.contains(host2F3_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsHost2OnFacility3.size());
+    assertTrue(attrsHost2OnFacility3.contains(host2F3TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3167,18 +3167,18 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getHostAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all test host attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, hostTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 6 <= attrs_all.size());
-    assertTrue(attrs_all.contains(host1F1_test_atr));
-    assertTrue(attrs_all.contains(host2F1_test_atr));
-    assertTrue(attrs_all.contains(host1F2_test_atr));
-    assertTrue(attrs_all.contains(host2F2_test_atr));
-    assertTrue(attrs_all.contains(host1F3_test_atr));
-    assertTrue(attrs_all.contains(host2F3_test_atr));
+    assertTrue("Invalid number of attributes found", 6 <= attrsAll.size());
+    assertTrue(attrsAll.contains(host1F1TestAtr));
+    assertTrue(attrsAll.contains(host2F1TestAtr));
+    assertTrue(attrsAll.contains(host1F2TestAtr));
+    assertTrue(attrsAll.contains(host2F2TestAtr));
+    assertTrue(attrsAll.contains(host1F3TestAtr));
+    assertTrue(attrsAll.contains(host2F3TestAtr));
   }
 
   @Test
@@ -3217,36 +3217,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test host attributes for member1OfUser1
-    List<RichAttribute> ra_member1OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, host_test_atr_def);
-    List<Attribute> attrs_member1OfUser1 = new ArrayList<>();
-    ra_member1OfUser1.forEach(ra -> attrs_member1OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember1OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, hostTestAtrDef);
+    List<Attribute> attrsMember1OfUser1 = new ArrayList<>();
+    raMember1OfUser1.forEach(ra -> attrsMember1OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_member1OfUser1.size());
-    assertTrue(attrs_member1OfUser1.contains(host1F1_test_atr));
-    assertTrue(attrs_member1OfUser1.contains(host2F1_test_atr));
-    assertTrue(attrs_member1OfUser1.contains(host1F2_test_atr));
-    assertTrue(attrs_member1OfUser1.contains(host2F2_test_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsMember1OfUser1.size());
+    assertTrue(attrsMember1OfUser1.contains(host1F1TestAtr));
+    assertTrue(attrsMember1OfUser1.contains(host2F1TestAtr));
+    assertTrue(attrsMember1OfUser1.contains(host1F2TestAtr));
+    assertTrue(attrsMember1OfUser1.contains(host2F2TestAtr));
 
     //find test host attributes for member2OfUser2
-    List<RichAttribute> ra_member2OfUser2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser2, host_test_atr_def);
-    List<Attribute> attrs_member2OfUser2 = new ArrayList<>();
-    ra_member2OfUser2.forEach(ra -> attrs_member2OfUser2.add(ra.getAttribute()));
+    List<RichAttribute> raMember2OfUser2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser2, hostTestAtrDef);
+    List<Attribute> attrsMember2OfUser2 = new ArrayList<>();
+    raMember2OfUser2.forEach(ra -> attrsMember2OfUser2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2OfUser2.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2OfUser2.size());
 
     //find test host attributes for member2OfUser3
-    List<RichAttribute> ra_member2OfUser3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3, host_test_atr_def);
-    List<Attribute> attrs_member2OfUser3 = new ArrayList<>();
-    ra_member2OfUser3.forEach(ra -> attrs_member2OfUser3.add(ra.getAttribute()));
+    List<RichAttribute> raMember2OfUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3, hostTestAtrDef);
+    List<Attribute> attrsMember2OfUser3 = new ArrayList<>();
+    raMember2OfUser3.forEach(ra -> attrsMember2OfUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_member2OfUser3.size());
-    assertTrue(attrs_member2OfUser3.contains(host1F2_test_atr));
-    assertTrue(attrs_member2OfUser3.contains(host2F2_test_atr));
-    assertTrue(attrs_member2OfUser3.contains(host1F3_test_atr));
-    assertTrue(attrs_member2OfUser3.contains(host2F3_test_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsMember2OfUser3.size());
+    assertTrue(attrsMember2OfUser3.contains(host1F2TestAtr));
+    assertTrue(attrsMember2OfUser3.contains(host2F2TestAtr));
+    assertTrue(attrsMember2OfUser3.contains(host1F3TestAtr));
+    assertTrue(attrsMember2OfUser3.contains(host2F3TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3261,37 +3261,37 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test host attributes for member1OfUser2 and group1InVo2
-    List<RichAttribute> ra_member1U2_group1Vo2 =
+    List<RichAttribute> raMember1U2Group1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser2, group1InVo2,
-            host_test_atr_def);
-    List<Attribute> attrs_member1U2_group1Vo2 = new ArrayList<>();
-    ra_member1U2_group1Vo2.forEach(ra -> attrs_member1U2_group1Vo2.add(ra.getAttribute()));
+            hostTestAtrDef);
+    List<Attribute> attrsMember1U2Group1Vo2 = new ArrayList<>();
+    raMember1U2Group1Vo2.forEach(ra -> attrsMember1U2Group1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1U2_group1Vo2.size());
-    assertTrue(attrs_member1U2_group1Vo2.contains(host1F2_test_atr));
-    assertTrue(attrs_member1U2_group1Vo2.contains(host2F2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1U2Group1Vo2.size());
+    assertTrue(attrsMember1U2Group1Vo2.contains(host1F2TestAtr));
+    assertTrue(attrsMember1U2Group1Vo2.contains(host2F2TestAtr));
 
     //find test host attributes for member2OfUser3 and group2InVo2
-    List<RichAttribute> ra_member2U3_group2Vo2 =
+    List<RichAttribute> raMember2U3Group2Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3, group2InVo2,
-            host_test_atr_def);
-    List<Attribute> attrs_member2U3_group2Vo2 = new ArrayList<>();
-    ra_member2U3_group2Vo2.forEach(ra -> attrs_member2U3_group2Vo2.add(ra.getAttribute()));
+            hostTestAtrDef);
+    List<Attribute> attrsMember2U3Group2Vo2 = new ArrayList<>();
+    raMember2U3Group2Vo2.forEach(ra -> attrsMember2U3Group2Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_member2U3_group2Vo2.size());
-    assertTrue(attrs_member2U3_group2Vo2.contains(host1F2_test_atr));
-    assertTrue(attrs_member2U3_group2Vo2.contains(host2F2_test_atr));
-    assertTrue(attrs_member2U3_group2Vo2.contains(host1F3_test_atr));
-    assertTrue(attrs_member2U3_group2Vo2.contains(host2F3_test_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsMember2U3Group2Vo2.size());
+    assertTrue(attrsMember2U3Group2Vo2.contains(host1F2TestAtr));
+    assertTrue(attrsMember2U3Group2Vo2.contains(host2F2TestAtr));
+    assertTrue(attrsMember2U3Group2Vo2.contains(host1F3TestAtr));
+    assertTrue(attrsMember2U3Group2Vo2.contains(host2F3TestAtr));
 
     //find test host attributes for member2OfUser1 and group2InVo2
-    List<RichAttribute> ra_member2U1_group2Vo2 =
+    List<RichAttribute> raMember2U1Group2Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, group2InVo2,
-            host_test_atr_def);
-    List<Attribute> attrs_member2U1_group2Vo2 = new ArrayList<>();
-    ra_member2U1_group2Vo2.forEach(ra -> attrs_member2U1_group2Vo2.add(ra.getAttribute()));
+            hostTestAtrDef);
+    List<Attribute> attrsMember2U1Group2Vo2 = new ArrayList<>();
+    raMember2U1Group2Vo2.forEach(ra -> attrsMember2U1Group2Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U1_group2Vo2.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U1Group2Vo2.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3306,24 +3306,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test host attributes for member1OfUser1 and resource1InVo1
-    List<RichAttribute> ra_mem1U1_res1Vo1 =
+    List<RichAttribute> raMem1U1Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resource1InVo1,
-            host_test_atr_def);
-    List<Attribute> attrs_mem1U1_res1Vo1 = new ArrayList<>();
-    ra_mem1U1_res1Vo1.forEach(ra -> attrs_mem1U1_res1Vo1.add(ra.getAttribute()));
+            hostTestAtrDef);
+    List<Attribute> attrsMem1U1Res1Vo1 = new ArrayList<>();
+    raMem1U1Res1Vo1.forEach(ra -> attrsMem1U1Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_mem1U1_res1Vo1.size());
-    assertTrue(attrs_mem1U1_res1Vo1.contains(host1F1_test_atr));
-    assertTrue(attrs_mem1U1_res1Vo1.contains(host2F1_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsMem1U1Res1Vo1.size());
+    assertTrue(attrsMem1U1Res1Vo1.contains(host1F1TestAtr));
+    assertTrue(attrsMem1U1Res1Vo1.contains(host2F1TestAtr));
 
     //find test host attributes for member2OfUser2 and resource2InVo1
-    List<RichAttribute> ra_mem2U2_res2Vo1 =
+    List<RichAttribute> raMem2U2Res2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser2, resource2InVo1,
-            host_test_atr_def);
-    List<Attribute> attrs_mem2U2_res2Vo1 = new ArrayList<>();
-    ra_mem2U2_res2Vo1.forEach(ra -> attrs_mem2U2_res2Vo1.add(ra.getAttribute()));
+            hostTestAtrDef);
+    List<Attribute> attrsMem2U2Res2Vo1 = new ArrayList<>();
+    raMem2U2Res2Vo1.forEach(ra -> attrsMem2U2Res2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_mem2U2_res2Vo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMem2U2Res2Vo1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3337,24 +3337,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test host attributes for resource1InVo1
-    List<RichAttribute> ra_resource1InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, host_test_atr_def);
-    List<Attribute> attrs_resource1InVo1 = new ArrayList<>();
-    ra_resource1InVo1.forEach(ra -> attrs_resource1InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raResource1InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, hostTestAtrDef);
+    List<Attribute> attrsResource1InVo1 = new ArrayList<>();
+    raResource1InVo1.forEach(ra -> attrsResource1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_resource1InVo1.size());
-    assertTrue(attrs_resource1InVo1.contains(host1F1_test_atr));
-    assertTrue(attrs_resource1InVo1.contains(host2F1_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsResource1InVo1.size());
+    assertTrue(attrsResource1InVo1.contains(host1F1TestAtr));
+    assertTrue(attrsResource1InVo1.contains(host2F1TestAtr));
 
     //find test host attributes for resource2InVo1
-    List<RichAttribute> ra_resource2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1, host_test_atr_def);
-    List<Attribute> attrs_resource2InVo1 = new ArrayList<>();
-    ra_resource2InVo1.forEach(ra -> attrs_resource2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raResource2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1, hostTestAtrDef);
+    List<Attribute> attrsResource2InVo1 = new ArrayList<>();
+    raResource2InVo1.forEach(ra -> attrsResource2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_resource2InVo1.size());
-    assertTrue(attrs_resource2InVo1.contains(host1F2_test_atr));
-    assertTrue(attrs_resource2InVo1.contains(host2F2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsResource2InVo1.size());
+    assertTrue(attrsResource2InVo1.contains(host1F2TestAtr));
+    assertTrue(attrsResource2InVo1.contains(host2F2TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3368,30 +3368,30 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getHostAttributes", PerunSession.class, User.class, AttributeDefinition.class);
 
     //find test host attributes for user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, host_test_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, hostTestAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_user1.size());
-    assertTrue(attrs_user1.contains(host1F1_test_atr));
-    assertTrue(attrs_user1.contains(host2F1_test_atr));
-    assertTrue(attrs_user1.contains(host1F2_test_atr));
-    assertTrue(attrs_user1.contains(host2F2_test_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsUser1.size());
+    assertTrue(attrsUser1.contains(host1F1TestAtr));
+    assertTrue(attrsUser1.contains(host2F1TestAtr));
+    assertTrue(attrsUser1.contains(host1F2TestAtr));
+    assertTrue(attrsUser1.contains(host2F2TestAtr));
 
     //find test host attributes for user3
-    List<RichAttribute> ra_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, host_test_atr_def);
-    List<Attribute> attrs_user3 = new ArrayList<>();
-    ra_user3.forEach(ra -> attrs_user3.add(ra.getAttribute()));
+    List<RichAttribute> raUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, hostTestAtrDef);
+    List<Attribute> attrsUser3 = new ArrayList<>();
+    raUser3.forEach(ra -> attrsUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 6, attrs_user3.size());
-    assertTrue(attrs_user3.contains(host1F1_test_atr));
-    assertTrue(attrs_user3.contains(host2F1_test_atr));
-    assertTrue(attrs_user3.contains(host1F2_test_atr));
-    assertTrue(attrs_user3.contains(host2F2_test_atr));
-    assertTrue(attrs_user3.contains(host1F3_test_atr));
-    assertTrue(attrs_user3.contains(host2F3_test_atr));
+    assertEquals("Invalid number of attributes found", 6, attrsUser3.size());
+    assertTrue(attrsUser3.contains(host1F1TestAtr));
+    assertTrue(attrsUser3.contains(host2F1TestAtr));
+    assertTrue(attrsUser3.contains(host1F2TestAtr));
+    assertTrue(attrsUser3.contains(host2F2TestAtr));
+    assertTrue(attrsUser3.contains(host1F3TestAtr));
+    assertTrue(attrsUser3.contains(host2F3TestAtr));
   }
 
 
@@ -3410,30 +3410,30 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test host attributes for userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, host_test_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
-    ra_userExtSource1.forEach(ra -> attrs_userExtSource1.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, hostTestAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
+    raUserExtSource1.forEach(ra -> attrsUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(host1F1_test_atr));
-    assertTrue(attrs_userExtSource1.contains(host2F1_test_atr));
-    assertTrue(attrs_userExtSource1.contains(host1F2_test_atr));
-    assertTrue(attrs_userExtSource1.contains(host2F2_test_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(host1F1TestAtr));
+    assertTrue(attrsUserExtSource1.contains(host2F1TestAtr));
+    assertTrue(attrsUserExtSource1.contains(host1F2TestAtr));
+    assertTrue(attrsUserExtSource1.contains(host2F2TestAtr));
 
     //find test host attributes for userExtSource3
-    List<RichAttribute> ra_userExtSource3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, host_test_atr_def);
-    List<Attribute> attrs_userExtSource3 = new ArrayList<>();
-    ra_userExtSource3.forEach(ra -> attrs_userExtSource3.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, hostTestAtrDef);
+    List<Attribute> attrsUserExtSource3 = new ArrayList<>();
+    raUserExtSource3.forEach(ra -> attrsUserExtSource3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 6, attrs_userExtSource3.size());
-    assertTrue(attrs_userExtSource3.contains(host1F1_test_atr));
-    assertTrue(attrs_userExtSource3.contains(host2F1_test_atr));
-    assertTrue(attrs_userExtSource3.contains(host1F2_test_atr));
-    assertTrue(attrs_userExtSource3.contains(host2F2_test_atr));
-    assertTrue(attrs_userExtSource3.contains(host1F3_test_atr));
-    assertTrue(attrs_userExtSource3.contains(host2F3_test_atr));
+    assertEquals("Invalid number of attributes found", 6, attrsUserExtSource3.size());
+    assertTrue(attrsUserExtSource3.contains(host1F1TestAtr));
+    assertTrue(attrsUserExtSource3.contains(host2F1TestAtr));
+    assertTrue(attrsUserExtSource3.contains(host1F2TestAtr));
+    assertTrue(attrsUserExtSource3.contains(host2F2TestAtr));
+    assertTrue(attrsUserExtSource3.contains(host1F3TestAtr));
+    assertTrue(attrsUserExtSource3.contains(host2F3TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3447,28 +3447,28 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getHostAttributes", PerunSession.class, Vo.class, AttributeDefinition.class);
 
     //find test host attributes for vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, host_test_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, hostTestAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(host1F1_test_atr));
-    assertTrue(attrs_vo1.contains(host2F1_test_atr));
-    assertTrue(attrs_vo1.contains(host1F2_test_atr));
-    assertTrue(attrs_vo1.contains(host2F2_test_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsVo1.size());
+    assertTrue(attrsVo1.contains(host1F1TestAtr));
+    assertTrue(attrsVo1.contains(host2F1TestAtr));
+    assertTrue(attrsVo1.contains(host1F2TestAtr));
+    assertTrue(attrsVo1.contains(host2F2TestAtr));
 
     //find test host attributes for vo2
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, host_test_atr_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
-    ra_vo2.forEach(ra -> attrs_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, hostTestAtrDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
+    raVo2.forEach(ra -> attrsVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(host1F2_test_atr));
-    assertTrue(attrs_vo2.contains(host2F2_test_atr));
-    assertTrue(attrs_vo2.contains(host1F3_test_atr));
-    assertTrue(attrs_vo2.contains(host2F3_test_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsVo2.size());
+    assertTrue(attrsVo2.contains(host1F2TestAtr));
+    assertTrue(attrsVo2.contains(host2F2TestAtr));
+    assertTrue(attrsVo2.contains(host1F3TestAtr));
+    assertTrue(attrsVo2.contains(host2F3TestAtr));
   }
 
   @Test(expected = HostNotExistsException.class)
@@ -3640,27 +3640,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone member attributes for facility1
-    List<RichAttribute> ra_phone_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, member_phone_atr_def);
-    List<Attribute> attrs_phone_facility1 = new ArrayList<>();
-    ra_phone_facility1.forEach(ra -> attrs_phone_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneFacility1 = new ArrayList<>();
+    raPhoneFacility1.forEach(ra -> attrsPhoneFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_facility1.size());
-    assertTrue(attrs_phone_facility1.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneFacility1.size());
+    assertTrue(attrsPhoneFacility1.contains(member1OfUser1PhoneAttribute));
     //contains an empty attribute from member1OfUser3
-    assertTrue(attrs_phone_facility1.contains(new Attribute(member_phone_atr_def)));
+    assertTrue(attrsPhoneFacility1.contains(new Attribute(memberPhoneAtrDef)));
 
     //find email member attributes for facility2
-    List<RichAttribute> ra_phone_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, member_email_atr_def);
-    List<Attribute> attrs_phone_facility2 = new ArrayList<>();
-    ra_phone_facility2.forEach(ra -> attrs_phone_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, memberEmailAtrDef);
+    List<Attribute> attrsPhoneFacility2 = new ArrayList<>();
+    raPhoneFacility2.forEach(ra -> attrsPhoneFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_phone_facility2.size());
-    assertTrue(attrs_phone_facility2.contains(member1OfUser2_mail_attribute));
-    assertTrue(attrs_phone_facility2.contains(member2OfUser3_mail_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsPhoneFacility2.size());
+    assertTrue(attrsPhoneFacility2.contains(member1OfUser2MailAttribute));
+    assertTrue(attrsPhoneFacility2.contains(member2OfUser3MailAttribute));
     //contains an empty attribute from member1OfUser1
-    assertTrue(attrs_phone_facility2.contains(new Attribute(member_email_atr_def)));
+    assertTrue(attrsPhoneFacility2.contains(new Attribute(memberEmailAtrDef)));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3674,25 +3674,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone member attributes for group1InVo1
-    List<RichAttribute> ra_phone_group1Vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, member_phone_atr_def);
-    List<Attribute> attrs_phone_group1Vo1 = new ArrayList<>();
-    ra_phone_group1Vo1.forEach(ra -> attrs_phone_group1Vo1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneGroup1Vo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneGroup1Vo1 = new ArrayList<>();
+    raPhoneGroup1Vo1.forEach(ra -> attrsPhoneGroup1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_group1Vo1.size());
-    assertTrue(attrs_phone_group1Vo1.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneGroup1Vo1.size());
+    assertTrue(attrsPhoneGroup1Vo1.contains(member1OfUser1PhoneAttribute));
     //contains an empty attribute from member1OfUser3
-    assertTrue(attrs_phone_group1Vo1.contains(new Attribute(member_phone_atr_def)));
+    assertTrue(attrsPhoneGroup1Vo1.contains(new Attribute(memberPhoneAtrDef)));
 
     //find email member attributes for group2InVo2
-    List<RichAttribute> ra_phone_group2Vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, member_email_atr_def);
-    List<Attribute> attrs_phone_group2Vo2 = new ArrayList<>();
-    ra_phone_group2Vo2.forEach(ra -> attrs_phone_group2Vo2.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneGroup2Vo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, memberEmailAtrDef);
+    List<Attribute> attrsPhoneGroup2Vo2 = new ArrayList<>();
+    raPhoneGroup2Vo2.forEach(ra -> attrsPhoneGroup2Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_group2Vo2.size());
-    assertTrue(attrs_phone_group2Vo2.contains(member1OfUser2_mail_attribute));
-    assertTrue(attrs_phone_group2Vo2.contains(member2OfUser3_mail_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneGroup2Vo2.size());
+    assertTrue(attrsPhoneGroup2Vo2.contains(member1OfUser2MailAttribute));
+    assertTrue(attrsPhoneGroup2Vo2.contains(member2OfUser3MailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3706,27 +3706,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone member attributes for host1OnFacility1
-    List<RichAttribute> ra_phone_host1F1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, member_phone_atr_def);
-    List<Attribute> attrs_phone_host1F1 = new ArrayList<>();
-    ra_phone_host1F1.forEach(ra -> attrs_phone_host1F1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneHost1F1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneHost1F1 = new ArrayList<>();
+    raPhoneHost1F1.forEach(ra -> attrsPhoneHost1F1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_host1F1.size());
-    assertTrue(attrs_phone_host1F1.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneHost1F1.size());
+    assertTrue(attrsPhoneHost1F1.contains(member1OfUser1PhoneAttribute));
     //contains an empty attribute from member1OfUser3
-    assertTrue(attrs_phone_host1F1.contains(new Attribute(member_phone_atr_def)));
+    assertTrue(attrsPhoneHost1F1.contains(new Attribute(memberPhoneAtrDef)));
 
     //find email member attributes for host1OnFacility2
-    List<RichAttribute> ra_phone_host1F2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, member_email_atr_def);
-    List<Attribute> attrs_phone_host1F2 = new ArrayList<>();
-    ra_phone_host1F2.forEach(ra -> attrs_phone_host1F2.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneHost1F2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, memberEmailAtrDef);
+    List<Attribute> attrsPhoneHost1F2 = new ArrayList<>();
+    raPhoneHost1F2.forEach(ra -> attrsPhoneHost1F2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_phone_host1F2.size());
-    assertTrue(attrs_phone_host1F2.contains(member1OfUser2_mail_attribute));
-    assertTrue(attrs_phone_host1F2.contains(member2OfUser3_mail_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsPhoneHost1F2.size());
+    assertTrue(attrsPhoneHost1F2.contains(member1OfUser2MailAttribute));
+    assertTrue(attrsPhoneHost1F2.contains(member2OfUser3MailAttribute));
     //contains an empty attribute from member1OfUser1
-    assertTrue(attrs_phone_host1F2.contains(new Attribute(member_email_atr_def)));
+    assertTrue(attrsPhoneHost1F2.contains(new Attribute(memberEmailAtrDef)));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3740,16 +3740,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getMemberAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all phone member attributes
-    List<RichAttribute> ra_phone_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member_phone_atr_def);
-    List<Attribute> attrs_phone_all = new ArrayList<>();
-    ra_phone_all.forEach(ra -> attrs_phone_all.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneAll = new ArrayList<>();
+    raPhoneAll.forEach(ra -> attrsPhoneAll.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 4 <= attrs_phone_all.size());
-    assertTrue(attrs_phone_all.contains(member1OfUser1_phone_attribute));
-    assertTrue(attrs_phone_all.contains(member1OfUser2_phone_attribute));
+    assertTrue("Invalid number of attributes found", 4 <= attrsPhoneAll.size());
+    assertTrue(attrsPhoneAll.contains(member1OfUser1PhoneAttribute));
+    assertTrue(attrsPhoneAll.contains(member1OfUser2PhoneAttribute));
     //contains 2 empty attributes from member1OfUser3 and member2OfUser3
-    assertTrue(attrs_phone_all.contains(new Attribute(member_phone_atr_def)));
+    assertTrue(attrsPhoneAll.contains(new Attribute(memberPhoneAtrDef)));
   }
 
   @Test
@@ -3816,21 +3816,21 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone member attributes for member1OfUser1
-    List<RichAttribute> ra_phone_member1U1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, member_phone_atr_def);
-    List<Attribute> attrs_phone_member1U1 = new ArrayList<>();
-    ra_phone_member1U1.forEach(ra -> attrs_phone_member1U1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneMember1U1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneMember1U1 = new ArrayList<>();
+    raPhoneMember1U1.forEach(ra -> attrsPhoneMember1U1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_phone_member1U1.size());
-    assertTrue(attrs_phone_member1U1.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsPhoneMember1U1.size());
+    assertTrue(attrsPhoneMember1U1.contains(member1OfUser1PhoneAttribute));
 
     //find email member attributes for member2OfUser1
-    List<RichAttribute> ra_email_member2U1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, member_email_atr_def);
-    List<Attribute> attrs_email_user3 = new ArrayList<>();
-    ra_email_member2U1.forEach(ra -> attrs_email_user3.add(ra.getAttribute()));
+    List<RichAttribute> raEmailMember2U1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, memberEmailAtrDef);
+    List<Attribute> attrsEmailUser3 = new ArrayList<>();
+    raEmailMember2U1.forEach(ra -> attrsEmailUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_email_user3.size());
+    assertEquals("Invalid number of attributes found", 0, attrsEmailUser3.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3844,25 +3844,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone member attributes for resource1InVo1
-    List<RichAttribute> ra_phone_res1Vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, member_phone_atr_def);
-    List<Attribute> attrs_phone_res1Vo1 = new ArrayList<>();
-    ra_phone_res1Vo1.forEach(ra -> attrs_phone_res1Vo1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneRes1Vo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneRes1Vo1 = new ArrayList<>();
+    raPhoneRes1Vo1.forEach(ra -> attrsPhoneRes1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_res1Vo1.size());
-    assertTrue(attrs_phone_res1Vo1.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneRes1Vo1.size());
+    assertTrue(attrsPhoneRes1Vo1.contains(member1OfUser1PhoneAttribute));
     //contains an empty attribute from member1OfUser3
-    assertTrue(attrs_phone_res1Vo1.contains(new Attribute(member_phone_atr_def)));
+    assertTrue(attrsPhoneRes1Vo1.contains(new Attribute(memberPhoneAtrDef)));
 
     //find email member attributes for resource1InVo2
-    List<RichAttribute> ra_phone_res1Vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, member_email_atr_def);
-    List<Attribute> attrs_phone_res1Vo2 = new ArrayList<>();
-    ra_phone_res1Vo2.forEach(ra -> attrs_phone_res1Vo2.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneRes1Vo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, memberEmailAtrDef);
+    List<Attribute> attrsPhoneRes1Vo2 = new ArrayList<>();
+    raPhoneRes1Vo2.forEach(ra -> attrsPhoneRes1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_res1Vo2.size());
-    assertTrue(attrs_phone_res1Vo2.contains(member1OfUser2_mail_attribute));
-    assertTrue(attrs_phone_res1Vo2.contains(member2OfUser3_mail_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneRes1Vo2.size());
+    assertTrue(attrsPhoneRes1Vo2.contains(member1OfUser2MailAttribute));
+    assertTrue(attrsPhoneRes1Vo2.contains(member2OfUser3MailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3876,23 +3876,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone member attributes for user1
-    List<RichAttribute> ra_phone_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, member_phone_atr_def);
-    List<Attribute> attrs_phone_user1 = new ArrayList<>();
-    ra_phone_user1.forEach(ra -> attrs_phone_user1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneUser1 = new ArrayList<>();
+    raPhoneUser1.forEach(ra -> attrsPhoneUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_phone_user1.size());
-    assertTrue(attrs_phone_user1.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsPhoneUser1.size());
+    assertTrue(attrsPhoneUser1.contains(member1OfUser1PhoneAttribute));
 
     //find email member attributes for user3
-    List<RichAttribute> ra_email_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, member_email_atr_def);
-    List<Attribute> attrs_email_user3 = new ArrayList<>();
-    ra_email_user3.forEach(ra -> attrs_email_user3.add(ra.getAttribute()));
+    List<RichAttribute> raEmailUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, memberEmailAtrDef);
+    List<Attribute> attrsEmailUser3 = new ArrayList<>();
+    raEmailUser3.forEach(ra -> attrsEmailUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_email_user3.size());
-    assertTrue(attrs_email_user3.contains(member1OfUser3_mail_attribute));
-    assertTrue(attrs_email_user3.contains(member2OfUser3_mail_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsEmailUser3.size());
+    assertTrue(attrsEmailUser3.contains(member1OfUser3MailAttribute));
+    assertTrue(attrsEmailUser3.contains(member2OfUser3MailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3906,23 +3906,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone member attributes for userExtSource1
-    List<RichAttribute> ra_phone_userExtSrc1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, member_phone_atr_def);
-    List<Attribute> attrs_phone_userExtSrc1 = new ArrayList<>();
-    ra_phone_userExtSrc1.forEach(ra -> attrs_phone_userExtSrc1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneUserExtSrc1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneUserExtSrc1 = new ArrayList<>();
+    raPhoneUserExtSrc1.forEach(ra -> attrsPhoneUserExtSrc1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_phone_userExtSrc1.size());
-    assertTrue(attrs_phone_userExtSrc1.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsPhoneUserExtSrc1.size());
+    assertTrue(attrsPhoneUserExtSrc1.contains(member1OfUser1PhoneAttribute));
 
     //find email member attributes for userExtSource3
-    List<RichAttribute> ra_email_userExtSrc3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, member_email_atr_def);
-    List<Attribute> attrs_email_userExtSrc3 = new ArrayList<>();
-    ra_email_userExtSrc3.forEach(ra -> attrs_email_userExtSrc3.add(ra.getAttribute()));
+    List<RichAttribute> raEmailUserExtSrc3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, memberEmailAtrDef);
+    List<Attribute> attrsEmailUserExtSrc3 = new ArrayList<>();
+    raEmailUserExtSrc3.forEach(ra -> attrsEmailUserExtSrc3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_email_userExtSrc3.size());
-    assertTrue(attrs_email_userExtSrc3.contains(member1OfUser3_mail_attribute));
-    assertTrue(attrs_email_userExtSrc3.contains(member2OfUser3_mail_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsEmailUserExtSrc3.size());
+    assertTrue(attrsEmailUserExtSrc3.contains(member1OfUser3MailAttribute));
+    assertTrue(attrsEmailUserExtSrc3.contains(member2OfUser3MailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3937,22 +3937,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find email member attributes for user3 and facility1
-    List<RichAttribute> ra_user3_fac1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility1, member_email_atr_def);
-    List<Attribute> attrs_user3_fac1 = new ArrayList<>();
-    ra_user3_fac1.forEach(ra -> attrs_user3_fac1.add(ra.getAttribute()));
+    List<RichAttribute> raUser3Fac1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility1, memberEmailAtrDef);
+    List<Attribute> attrsUser3Fac1 = new ArrayList<>();
+    raUser3Fac1.forEach(ra -> attrsUser3Fac1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user3_fac1.size());
-    assertTrue(attrs_user3_fac1.contains(member1OfUser3_mail_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser3Fac1.size());
+    assertTrue(attrsUser3Fac1.contains(member1OfUser3MailAttribute));
 
     //find phone member attributes for user1 and facility2
-    List<RichAttribute> ra_user1_fac2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility2, member_phone_atr_def);
-    List<Attribute> attrs_user1_fac2 = new ArrayList<>();
-    ra_user1_fac2.forEach(ra -> attrs_user1_fac2.add(ra.getAttribute()));
+    List<RichAttribute> raUser1Fac2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility2, memberPhoneAtrDef);
+    List<Attribute> attrsUser1Fac2 = new ArrayList<>();
+    raUser1Fac2.forEach(ra -> attrsUser1Fac2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user1_fac2.size());
-    assertTrue(attrs_user1_fac2.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser1Fac2.size());
+    assertTrue(attrsUser1Fac2.contains(member1OfUser1PhoneAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -3966,25 +3966,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getMemberAttributes", PerunSession.class, Vo.class, AttributeDefinition.class);
 
     //find phone member attributes for vo1
-    List<RichAttribute> ra_phone_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, member_phone_atr_def);
-    List<Attribute> attrs_phone_vo1 = new ArrayList<>();
-    ra_phone_vo1.forEach(ra -> attrs_phone_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, memberPhoneAtrDef);
+    List<Attribute> attrsPhoneVo1 = new ArrayList<>();
+    raPhoneVo1.forEach(ra -> attrsPhoneVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_vo1.size());
-    assertTrue(attrs_phone_vo1.contains(member1OfUser1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneVo1.size());
+    assertTrue(attrsPhoneVo1.contains(member1OfUser1PhoneAttribute));
     //contains an empty attribute from member1OfUser3
-    assertTrue(attrs_phone_vo1.contains(new Attribute(member_phone_atr_def)));
+    assertTrue(attrsPhoneVo1.contains(new Attribute(memberPhoneAtrDef)));
 
     //find email member attributes for vo2
-    List<RichAttribute> ra_phone_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, member_email_atr_def);
-    List<Attribute> attrs_phone_vo2 = new ArrayList<>();
-    ra_phone_vo2.forEach(ra -> attrs_phone_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, memberEmailAtrDef);
+    List<Attribute> attrsPhoneVo2 = new ArrayList<>();
+    raPhoneVo2.forEach(ra -> attrsPhoneVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_vo2.size());
-    assertTrue(attrs_phone_vo2.contains(member1OfUser2_mail_attribute));
-    assertTrue(attrs_phone_vo2.contains(member2OfUser3_mail_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneVo2.size());
+    assertTrue(attrsPhoneVo2.contains(member1OfUser2MailAttribute));
+    assertTrue(attrsPhoneVo2.contains(member2OfUser3MailAttribute));
   }
 
   @Test(expected = MemberNotExistsException.class)
@@ -4168,26 +4168,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, memberGroup_test_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, memberGroupTestAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(member1U1Group2Vo1_test_attribute));
-    assertTrue(attrs_facility2.contains(member1U2Group1Vo2_test_attribute));
-    assertTrue(attrs_facility2.contains(member1U2Group2Vo2_test_attribute));
-    assertTrue(attrs_facility2.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 4, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(member1U1Group2Vo1TestAttribute));
+    assertTrue(attrsFacility2.contains(member1U2Group1Vo2TestAttribute));
+    assertTrue(attrsFacility2.contains(member1U2Group2Vo2TestAttribute));
+    assertTrue(attrsFacility2.contains(member2U3Group2Vo2TestAttribute));
 
     //find all test member-group attributes for facility3
-    List<RichAttribute> ra_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, memberGroup_test_atr_def);
-    List<Attribute> attrs_facility3 = new ArrayList<>();
-    ra_facility3.forEach(ra -> attrs_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raFacility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, memberGroupTestAtrDef);
+    List<Attribute> attrsFacility3 = new ArrayList<>();
+    raFacility3.forEach(ra -> attrsFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility3.size());
-    assertTrue(attrs_facility3.contains(member1U2Group2Vo2_test_attribute));
-    assertTrue(attrs_facility3.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility3.size());
+    assertTrue(attrsFacility3.contains(member1U2Group2Vo2TestAttribute));
+    assertTrue(attrsFacility3.contains(member2U3Group2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4201,23 +4201,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for group2InVo2
-    List<RichAttribute> ra_group2InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, memberGroup_test_atr_def);
-    List<Attribute> attrs_group2InVo2 = new ArrayList<>();
-    ra_group2InVo2.forEach(ra -> attrs_group2InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, memberGroupTestAtrDef);
+    List<Attribute> attrsGroup2InVo2 = new ArrayList<>();
+    raGroup2InVo2.forEach(ra -> attrsGroup2InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2InVo2.size());
-    assertTrue(attrs_group2InVo2.contains(member1U2Group2Vo2_test_attribute));
-    assertTrue(attrs_group2InVo2.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2InVo2.size());
+    assertTrue(attrsGroup2InVo2.contains(member1U2Group2Vo2TestAttribute));
+    assertTrue(attrsGroup2InVo2.contains(member2U3Group2Vo2TestAttribute));
 
     //find all test member-group attributes for group2InVo1
-    List<RichAttribute> ra_group2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, memberGroup_test_atr_def);
-    List<Attribute> attrs_group2InVo1 = new ArrayList<>();
-    ra_group2InVo1.forEach(ra -> attrs_group2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, memberGroupTestAtrDef);
+    List<Attribute> attrsGroup2InVo1 = new ArrayList<>();
+    raGroup2InVo1.forEach(ra -> attrsGroup2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group2InVo1.size());
-    assertTrue(attrs_group2InVo1.contains(member1U1Group2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup2InVo1.size());
+    assertTrue(attrsGroup2InVo1.contains(member1U1Group2Vo1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4231,28 +4231,28 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for host1OnFacility2
-    List<RichAttribute> ra_host1OnFacility2 =
+    List<RichAttribute> raHost1OnFacility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_host1OnFacility2 = new ArrayList<>();
-    ra_host1OnFacility2.forEach(ra -> attrs_host1OnFacility2.add(ra.getAttribute()));
+            memberGroupTestAtrDef);
+    List<Attribute> attrsHost1OnFacility2 = new ArrayList<>();
+    raHost1OnFacility2.forEach(ra -> attrsHost1OnFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_host1OnFacility2.size());
-    assertTrue(attrs_host1OnFacility2.contains(member1U1Group2Vo1_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(member1U2Group1Vo2_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(member1U2Group2Vo2_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 4, attrsHost1OnFacility2.size());
+    assertTrue(attrsHost1OnFacility2.contains(member1U1Group2Vo1TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(member1U2Group1Vo2TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(member1U2Group2Vo2TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(member2U3Group2Vo2TestAttribute));
 
     //find all test member-group attributes for host2OnFacility3
-    List<RichAttribute> ra_host2OnFacility3 =
+    List<RichAttribute> raHost2OnFacility3 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host2OnFacility3,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_host2OnFacility3 = new ArrayList<>();
-    ra_host2OnFacility3.forEach(ra -> attrs_host2OnFacility3.add(ra.getAttribute()));
+            memberGroupTestAtrDef);
+    List<Attribute> attrsHost2OnFacility3 = new ArrayList<>();
+    raHost2OnFacility3.forEach(ra -> attrsHost2OnFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_host2OnFacility3.size());
-    assertTrue(attrs_host2OnFacility3.contains(member1U2Group2Vo2_test_attribute));
-    assertTrue(attrs_host2OnFacility3.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsHost2OnFacility3.size());
+    assertTrue(attrsHost2OnFacility3.contains(member1U2Group2Vo2TestAttribute));
+    assertTrue(attrsHost2OnFacility3.contains(member2U3Group2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4266,23 +4266,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getMemberGroupAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all test member-group attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, memberGroup_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, memberGroupTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
 
     //remove attributes which are not used in test
-    List<Attribute> finalAttrs_all = attrs_all;
-    ra_all.forEach(ra -> finalAttrs_all.add(ra.getAttribute()));
-    attrs_all = attrs_all.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsAll = attrsAll;
+    raAll.forEach(ra -> finalAttrsAll.add(ra.getAttribute()));
+    attrsAll = attrsAll.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    System.out.println(attrs_all);
-    assertTrue("Invalid number of attributes found", 6 <= attrs_all.size());
-    assertTrue(attrs_all.contains(member1U1Group1Vo1_test_attribute));
-    assertTrue(attrs_all.contains(member1U1Group2Vo1_test_attribute));
-    assertTrue(attrs_all.contains(member1U2Group1Vo2_test_attribute));
-    assertTrue(attrs_all.contains(member1U2Group2Vo2_test_attribute));
-    assertTrue(attrs_all.contains(member1U3Group1Vo1_test_attribute));
-    assertTrue(attrs_all.contains(member2U3Group2Vo2_test_attribute));
+    System.out.println(attrsAll);
+    assertTrue("Invalid number of attributes found", 6 <= attrsAll.size());
+    assertTrue(attrsAll.contains(member1U1Group1Vo1TestAttribute));
+    assertTrue(attrsAll.contains(member1U1Group2Vo1TestAttribute));
+    assertTrue(attrsAll.contains(member1U2Group1Vo2TestAttribute));
+    assertTrue(attrsAll.contains(member1U2Group2Vo2TestAttribute));
+    assertTrue(attrsAll.contains(member1U3Group1Vo1TestAttribute));
+    assertTrue(attrsAll.contains(member2U3Group2Vo2TestAttribute));
   }
 
   @Test
@@ -4351,30 +4351,30 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for member1OfUser1
-    List<RichAttribute> ra_member1OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, memberGroup_test_atr_def);
-    List<Attribute> attrs_member1OfUser1 = new ArrayList<>();
+    List<RichAttribute> raMember1OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, memberGroupTestAtrDef);
+    List<Attribute> attrsMember1OfUser1 = new ArrayList<>();
 
     //remove empty attributes which are not tested
-    List<Attribute> finalAttrs_member1U1 = attrs_member1OfUser1;
-    ra_member1OfUser1.forEach(ra -> finalAttrs_member1U1.add(ra.getAttribute()));
-    attrs_member1OfUser1 = attrs_member1OfUser1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsMember1U1 = attrsMember1OfUser1;
+    raMember1OfUser1.forEach(ra -> finalAttrsMember1U1.add(ra.getAttribute()));
+    attrsMember1OfUser1 = attrsMember1OfUser1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1OfUser1.size());
-    assertTrue(attrs_member1OfUser1.contains(member1U1Group1Vo1_test_attribute));
-    assertTrue(attrs_member1OfUser1.contains(member1U1Group2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1OfUser1.size());
+    assertTrue(attrsMember1OfUser1.contains(member1U1Group1Vo1TestAttribute));
+    assertTrue(attrsMember1OfUser1.contains(member1U1Group2Vo1TestAttribute));
 
     //find all test member-group attributes for member2OfUser1
-    List<RichAttribute> ra_member2OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, memberGroup_test_atr_def);
-    List<Attribute> attrs_member2OfUser1 = new ArrayList<>();
+    List<RichAttribute> raMember2OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, memberGroupTestAtrDef);
+    List<Attribute> attrsMember2OfUser1 = new ArrayList<>();
 
     //remove empty attributes which are not tested
-    List<Attribute> finalAttrs_member2U1 = attrs_member2OfUser1;
-    ra_member2OfUser1.forEach(ra -> finalAttrs_member2U1.add(ra.getAttribute()));
-    attrs_member2OfUser1 = attrs_member2OfUser1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsMember2U1 = attrsMember2OfUser1;
+    raMember2OfUser1.forEach(ra -> finalAttrsMember2U1.add(ra.getAttribute()));
+    attrsMember2OfUser1 = attrsMember2OfUser1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2OfUser1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2OfUser1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4389,23 +4389,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributesmember1OfUser1 and group1InVo1
-    List<RichAttribute> ra_member1U1_group1Vo1 =
+    List<RichAttribute> raMember1U1Group1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, group1InVo1,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_member1U1_group1Vo1 = new ArrayList<>();
-    ra_member1U1_group1Vo1.forEach(ra -> attrs_member1U1_group1Vo1.add(ra.getAttribute()));
+            memberGroupTestAtrDef);
+    List<Attribute> attrsMember1U1Group1Vo1 = new ArrayList<>();
+    raMember1U1Group1Vo1.forEach(ra -> attrsMember1U1Group1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U1_group1Vo1.size());
-    assertTrue(attrs_member1U1_group1Vo1.contains(member1U1Group1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U1Group1Vo1.size());
+    assertTrue(attrsMember1U1Group1Vo1.contains(member1U1Group1Vo1TestAttribute));
 
     //find all test member-group attributes member2OfUser1 and group1InVo2
-    List<RichAttribute> ra_member2U1_group1Vo2 =
+    List<RichAttribute> raMember2U1Group1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, group1InVo2,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_member2U1_group1Vo2 = new ArrayList<>();
-    ra_member2U1_group1Vo2.forEach(ra -> attrs_member2U1_group1Vo2.add(ra.getAttribute()));
+            memberGroupTestAtrDef);
+    List<Attribute> attrsMember2U1Group1Vo2 = new ArrayList<>();
+    raMember2U1Group1Vo2.forEach(ra -> attrsMember2U1Group1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U1_group1Vo2.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U1Group1Vo2.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4420,34 +4420,34 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes member1OfUser1 and resource2InVo1
-    List<RichAttribute> ra_member1U1_res2Vo1 =
+    List<RichAttribute> raMember1U1Res2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resource2InVo1,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_member1U1_res2Vo1 = new ArrayList<>();
-    ra_member1U1_res2Vo1.forEach(ra -> attrs_member1U1_res2Vo1.add(ra.getAttribute()));
+            memberGroupTestAtrDef);
+    List<Attribute> attrsMember1U1Res2Vo1 = new ArrayList<>();
+    raMember1U1Res2Vo1.forEach(ra -> attrsMember1U1Res2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U1_res2Vo1.size());
-    assertTrue(attrs_member1U1_res2Vo1.contains(member1U1Group2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U1Res2Vo1.size());
+    assertTrue(attrsMember1U1Res2Vo1.contains(member1U1Group2Vo1TestAttribute));
 
     //find all test member-group attributes member1OfUser1 and resource1InVo1
-    List<RichAttribute> ra_member1U1_res1Vo1 =
+    List<RichAttribute> raMember1U1Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resource1InVo1,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_member1U1_res1Vo1 = new ArrayList<>();
-    ra_member1U1_res1Vo1.forEach(ra -> attrs_member1U1_res1Vo1.add(ra.getAttribute()));
+            memberGroupTestAtrDef);
+    List<Attribute> attrsMember1U1Res1Vo1 = new ArrayList<>();
+    raMember1U1Res1Vo1.forEach(ra -> attrsMember1U1Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1U1_res1Vo1.size());
-    assertTrue(attrs_member1U1_res1Vo1.contains(member1U1Group1Vo1_test_attribute));
-    assertTrue(attrs_member1U1_res1Vo1.contains(member1U1Group2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1U1Res1Vo1.size());
+    assertTrue(attrsMember1U1Res1Vo1.contains(member1U1Group1Vo1TestAttribute));
+    assertTrue(attrsMember1U1Res1Vo1.contains(member1U1Group2Vo1TestAttribute));
 
     //find all test member-group attributes member2OfUser2 and resource2InVo1
-    List<RichAttribute> ra_member2U2_res2Vo1 =
+    List<RichAttribute> raMember2U2Res2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser2, resource2InVo1,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_member2U2_res2Vo1 = new ArrayList<>();
-    ra_member2U2_res2Vo1.forEach(ra -> attrs_member2U2_res2Vo1.add(ra.getAttribute()));
+            memberGroupTestAtrDef);
+    List<Attribute> attrsMember2U2Res2Vo1 = new ArrayList<>();
+    raMember2U2Res2Vo1.forEach(ra -> attrsMember2U2Res2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U2_res2Vo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U2Res2Vo1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4461,26 +4461,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for resource1InVo2
-    List<RichAttribute> ra_resource1InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, memberGroup_test_atr_def);
-    List<Attribute> attrs_resource1InVo2 = new ArrayList<>();
-    ra_resource1InVo2.forEach(ra -> attrs_resource1InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raResource1InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, memberGroupTestAtrDef);
+    List<Attribute> attrsResource1InVo2 = new ArrayList<>();
+    raResource1InVo2.forEach(ra -> attrsResource1InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_resource1InVo2.size());
-    assertTrue(attrs_resource1InVo2.contains(member1U2Group2Vo2_test_attribute));
-    assertTrue(attrs_resource1InVo2.contains(member1U2Group1Vo2_test_attribute));
-    assertTrue(attrs_resource1InVo2.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsResource1InVo2.size());
+    assertTrue(attrsResource1InVo2.contains(member1U2Group2Vo2TestAttribute));
+    assertTrue(attrsResource1InVo2.contains(member1U2Group1Vo2TestAttribute));
+    assertTrue(attrsResource1InVo2.contains(member2U3Group2Vo2TestAttribute));
 
     //find all test member-group attributes for resource1InVo1
-    List<RichAttribute> ra_resource1InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, memberGroup_test_atr_def);
-    List<Attribute> attrs_resource1InVo1 = new ArrayList<>();
-    ra_resource1InVo1.forEach(ra -> attrs_resource1InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raResource1InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, memberGroupTestAtrDef);
+    List<Attribute> attrsResource1InVo1 = new ArrayList<>();
+    raResource1InVo1.forEach(ra -> attrsResource1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_resource1InVo1.size());
-    assertTrue(attrs_resource1InVo1.contains(member1U1Group1Vo1_test_attribute));
-    assertTrue(attrs_resource1InVo1.contains(member1U1Group2Vo1_test_attribute));
-    assertTrue(attrs_resource1InVo1.contains(member1U3Group1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsResource1InVo1.size());
+    assertTrue(attrsResource1InVo1.contains(member1U1Group1Vo1TestAttribute));
+    assertTrue(attrsResource1InVo1.contains(member1U1Group2Vo1TestAttribute));
+    assertTrue(attrsResource1InVo1.contains(member1U3Group1Vo1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4494,32 +4494,32 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, memberGroup_test_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, memberGroupTestAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
 
     //remove empty attributes which are not tested
-    List<Attribute> finalAttrs_user1 = attrs_user1;
-    ra_user1.forEach(ra -> finalAttrs_user1.add(ra.getAttribute()));
-    attrs_user1 = attrs_user1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsUser1 = attrsUser1;
+    raUser1.forEach(ra -> finalAttrsUser1.add(ra.getAttribute()));
+    attrsUser1 = attrsUser1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user1.size());
-    assertTrue(attrs_user1.contains(member1U1Group1Vo1_test_attribute));
-    assertTrue(attrs_user1.contains(member1U1Group2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsUser1.size());
+    assertTrue(attrsUser1.contains(member1U1Group1Vo1TestAttribute));
+    assertTrue(attrsUser1.contains(member1U1Group2Vo1TestAttribute));
 
     //find all test member-group attributes user3
-    List<RichAttribute> ra_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, memberGroup_test_atr_def);
-    List<Attribute> attrs_user3 = new ArrayList<>();
+    List<RichAttribute> raUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, memberGroupTestAtrDef);
+    List<Attribute> attrsUser3 = new ArrayList<>();
 
     //remove empty attributes which are not tested
-    List<Attribute> finalAttrs_user3 = attrs_user3;
-    ra_user3.forEach(ra -> finalAttrs_user3.add(ra.getAttribute()));
-    attrs_user3 = attrs_user3.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsUser3 = attrsUser3;
+    raUser3.forEach(ra -> finalAttrsUser3.add(ra.getAttribute()));
+    attrsUser3 = attrsUser3.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user3.size());
-    assertTrue(attrs_user3.contains(member1U3Group1Vo1_test_attribute));
-    assertTrue(attrs_user3.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsUser3.size());
+    assertTrue(attrsUser3.contains(member1U3Group1Vo1TestAttribute));
+    assertTrue(attrsUser3.contains(member2U3Group2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4534,32 +4534,32 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, memberGroup_test_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
+    List<RichAttribute> raUserExtSource1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, memberGroupTestAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
 
     //remove empty attributes which are not tested
-    List<Attribute> finalAttrs_userExtSource1 = attrs_userExtSource1;
-    ra_userExtSource1.forEach(ra -> finalAttrs_userExtSource1.add(ra.getAttribute()));
-    attrs_userExtSource1 = attrs_userExtSource1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsUserExtSource1 = attrsUserExtSource1;
+    raUserExtSource1.forEach(ra -> finalAttrsUserExtSource1.add(ra.getAttribute()));
+    attrsUserExtSource1 = attrsUserExtSource1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 2, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(member1U1Group1Vo1_test_attribute));
-    assertTrue(attrs_userExtSource1.contains(member1U1Group2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(member1U1Group1Vo1TestAttribute));
+    assertTrue(attrsUserExtSource1.contains(member1U1Group2Vo1TestAttribute));
 
     //find all test member-group attributes userExtSource3
-    List<RichAttribute> ra_userExtSource3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, memberGroup_test_atr_def);
-    List<Attribute> attrs_userExtSource3 = new ArrayList<>();
+    List<RichAttribute> raUserExtSource3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, memberGroupTestAtrDef);
+    List<Attribute> attrsUserExtSource3 = new ArrayList<>();
 
     //remove empty attributes which are not tested
-    List<Attribute> finalAttrs_userExtSource3 = attrs_userExtSource3;
-    ra_userExtSource3.forEach(ra -> finalAttrs_userExtSource3.add(ra.getAttribute()));
-    attrs_userExtSource3 = attrs_userExtSource3.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsUserExtSource3 = attrsUserExtSource3;
+    raUserExtSource3.forEach(ra -> finalAttrsUserExtSource3.add(ra.getAttribute()));
+    attrsUserExtSource3 = attrsUserExtSource3.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 2, attrs_userExtSource3.size());
-    assertTrue(attrs_userExtSource3.contains(member1U3Group1Vo1_test_attribute));
-    assertTrue(attrs_userExtSource3.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsUserExtSource3.size());
+    assertTrue(attrsUserExtSource3.contains(member1U3Group1Vo1TestAttribute));
+    assertTrue(attrsUserExtSource3.contains(member2U3Group2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4574,35 +4574,35 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes for user3 and facility2
-    List<RichAttribute> ra_user3_facility2 =
+    List<RichAttribute> raUser3Facility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility2,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_user3_facility2 = new ArrayList<>();
+            memberGroupTestAtrDef);
+    List<Attribute> attrsUser3Facility2 = new ArrayList<>();
 
     //remove attributes which are not used in test
-    List<Attribute> finalAttrs_user3_facility2 = attrs_user3_facility2;
-    ra_user3_facility2.forEach(ra -> finalAttrs_user3_facility2.add(ra.getAttribute()));
-    attrs_user3_facility2 =
-        attrs_user3_facility2.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsUser3Facility2 = attrsUser3Facility2;
+    raUser3Facility2.forEach(ra -> finalAttrsUser3Facility2.add(ra.getAttribute()));
+    attrsUser3Facility2 =
+        attrsUser3Facility2.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    System.out.println(attrs_user3_facility2);
-    assertEquals("Invalid number of attributes found", 1, attrs_user3_facility2.size());
-    assertTrue(attrs_user3_facility2.contains(member2U3Group2Vo2_test_attribute));
+    System.out.println(attrsUser3Facility2);
+    assertEquals("Invalid number of attributes found", 1, attrsUser3Facility2.size());
+    assertTrue(attrsUser3Facility2.contains(member2U3Group2Vo2TestAttribute));
 
     //find all test member-group attributes for user1 and facility2
-    List<RichAttribute> ra_user1_facility2 =
+    List<RichAttribute> raUser1Facility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility2,
-            memberGroup_test_atr_def);
-    List<Attribute> attrs_user1_facility2 = new ArrayList<>();
+            memberGroupTestAtrDef);
+    List<Attribute> attrsUser1Facility2 = new ArrayList<>();
 
     //remove attributes which are not used in test
-    List<Attribute> finalAttrs_user1_facility2 = attrs_user1_facility2;
-    ra_user1_facility2.forEach(ra -> finalAttrs_user1_facility2.add(ra.getAttribute()));
-    attrs_user1_facility2 =
-        attrs_user1_facility2.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsUser1Facility2 = attrsUser1Facility2;
+    raUser1Facility2.forEach(ra -> finalAttrsUser1Facility2.add(ra.getAttribute()));
+    attrsUser1Facility2 =
+        attrsUser1Facility2.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user1_facility2.size());
-    assertTrue(attrs_user1_facility2.contains(member1U1Group2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser1Facility2.size());
+    assertTrue(attrsUser1Facility2.contains(member1U1Group2Vo1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4616,34 +4616,34 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, memberGroup_test_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, memberGroupTestAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
 
     //remove empty attributes which are not used in test
-    List<Attribute> finalAttrs_vo1 = attrs_vo1;
-    ra_vo1.forEach(ra -> finalAttrs_vo1.add(ra.getAttribute()));
-    attrs_vo1 = attrs_vo1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsVo1 = attrsVo1;
+    raVo1.forEach(ra -> finalAttrsVo1.add(ra.getAttribute()));
+    attrsVo1 = attrsVo1.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 3, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(member1U1Group1Vo1_test_attribute));
-    assertTrue(attrs_vo1.contains(member1U1Group2Vo1_test_attribute));
-    assertTrue(attrs_vo1.contains(member1U3Group1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsVo1.size());
+    assertTrue(attrsVo1.contains(member1U1Group1Vo1TestAttribute));
+    assertTrue(attrsVo1.contains(member1U1Group2Vo1TestAttribute));
+    assertTrue(attrsVo1.contains(member1U3Group1Vo1TestAttribute));
 
     //find all test member-group attributes for vo2
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, memberGroup_test_atr_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, memberGroupTestAtrDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
 
     //remove empty attributes which are not used in test
-    List<Attribute> finalAttrs_vo2 = attrs_vo2;
-    ra_vo2.forEach(ra -> finalAttrs_vo2.add(ra.getAttribute()));
-    attrs_vo2 = attrs_vo2.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
+    List<Attribute> finalAttrsVo2 = attrsVo2;
+    raVo2.forEach(ra -> finalAttrsVo2.add(ra.getAttribute()));
+    attrsVo2 = attrsVo2.stream().filter(a -> a.getValue() != null).collect(Collectors.toList());
 
-    assertEquals("Invalid number of attributes found", 3, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(member1U2Group1Vo2_test_attribute));
-    assertTrue(attrs_vo2.contains(member1U2Group2Vo2_test_attribute));
-    assertTrue(attrs_vo2.contains(member2U3Group2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsVo2.size());
+    assertTrue(attrsVo2.contains(member1U2Group1Vo2TestAttribute));
+    assertTrue(attrsVo2.contains(member1U2Group2Vo2TestAttribute));
+    assertTrue(attrsVo2.contains(member2U3Group2Vo2TestAttribute));
   }
 
   @Test
@@ -4917,35 +4917,35 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes for facility1
-    List<RichAttribute> ra_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, memberResource_test_atr_def);
-    List<Attribute> attrs_facility1 = new ArrayList<>();
-    ra_facility1.forEach(ra -> attrs_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, memberResourceTestAtrDef);
+    List<Attribute> attrsFacility1 = new ArrayList<>();
+    raFacility1.forEach(ra -> attrsFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility1.size());
-    assertTrue(attrs_facility1.contains(member1U1Res1Vo1_test_attribute));
-    assertTrue(attrs_facility1.contains(member1U3Res1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility1.size());
+    assertTrue(attrsFacility1.contains(member1U1Res1Vo1TestAttribute));
+    assertTrue(attrsFacility1.contains(member1U3Res1Vo1TestAttribute));
 
     //find all test member-group attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, memberResource_test_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, memberResourceTestAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(member1U1Res2Vo1_test_attribute));
-    assertTrue(attrs_facility2.contains(member1U2Res1Vo2_test_attribute));
-    assertTrue(attrs_facility2.contains(member2U3Res1Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(member1U1Res2Vo1TestAttribute));
+    assertTrue(attrsFacility2.contains(member1U2Res1Vo2TestAttribute));
+    assertTrue(attrsFacility2.contains(member2U3Res1Vo2TestAttribute));
 
     //find all test member-group attributes for facility3
-    List<RichAttribute> ra_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, memberResource_test_atr_def);
-    List<Attribute> attrs_facility3 = new ArrayList<>();
-    ra_facility3.forEach(ra -> attrs_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raFacility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, memberResourceTestAtrDef);
+    List<Attribute> attrsFacility3 = new ArrayList<>();
+    raFacility3.forEach(ra -> attrsFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility3.size());
-    assertTrue(attrs_facility3.contains(member1U2Res2Vo2_test_attribute));
-    assertTrue(attrs_facility3.contains(member2U3Res2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility3.size());
+    assertTrue(attrsFacility3.contains(member1U2Res2Vo2TestAttribute));
+    assertTrue(attrsFacility3.contains(member2U3Res2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4959,26 +4959,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for group2InVo2
-    List<RichAttribute> ra_group2InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, memberResource_test_atr_def);
-    List<Attribute> attrs_group2InVo2 = new ArrayList<>();
-    ra_group2InVo2.forEach(ra -> attrs_group2InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, memberResourceTestAtrDef);
+    List<Attribute> attrsGroup2InVo2 = new ArrayList<>();
+    raGroup2InVo2.forEach(ra -> attrsGroup2InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_group2InVo2.size());
-    assertTrue(attrs_group2InVo2.contains(member1U2Res1Vo2_test_attribute));
-    assertTrue(attrs_group2InVo2.contains(member1U2Res2Vo2_test_attribute));
-    assertTrue(attrs_group2InVo2.contains(member2U3Res1Vo2_test_attribute));
-    assertTrue(attrs_group2InVo2.contains(member2U3Res2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 4, attrsGroup2InVo2.size());
+    assertTrue(attrsGroup2InVo2.contains(member1U2Res1Vo2TestAttribute));
+    assertTrue(attrsGroup2InVo2.contains(member1U2Res2Vo2TestAttribute));
+    assertTrue(attrsGroup2InVo2.contains(member2U3Res1Vo2TestAttribute));
+    assertTrue(attrsGroup2InVo2.contains(member2U3Res2Vo2TestAttribute));
 
     //find all test member-group attributes for group2InVo1
-    List<RichAttribute> ra_group2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, memberResource_test_atr_def);
-    List<Attribute> attrs_group2InVo1 = new ArrayList<>();
-    ra_group2InVo1.forEach(ra -> attrs_group2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, memberResourceTestAtrDef);
+    List<Attribute> attrsGroup2InVo1 = new ArrayList<>();
+    raGroup2InVo1.forEach(ra -> attrsGroup2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2InVo1.size());
-    assertTrue(attrs_group2InVo1.contains(member1U1Res1Vo1_test_attribute));
-    assertTrue(attrs_group2InVo1.contains(member1U1Res2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2InVo1.size());
+    assertTrue(attrsGroup2InVo1.contains(member1U1Res1Vo1TestAttribute));
+    assertTrue(attrsGroup2InVo1.contains(member1U1Res2Vo1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -4993,25 +4993,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes group2InVo1 and resource1InVo1
-    List<RichAttribute> ra_group2Vo1_res1Vo1 =
+    List<RichAttribute> raGroup2Vo1Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, resource1InVo1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_group2Vo1_res1Vo1 = new ArrayList<>();
-    ra_group2Vo1_res1Vo1.forEach(ra -> attrs_group2Vo1_res1Vo1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsGroup2Vo1Res1Vo1 = new ArrayList<>();
+    raGroup2Vo1Res1Vo1.forEach(ra -> attrsGroup2Vo1Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group2Vo1_res1Vo1.size());
-    assertTrue(attrs_group2Vo1_res1Vo1.contains(member1U1Res1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup2Vo1Res1Vo1.size());
+    assertTrue(attrsGroup2Vo1Res1Vo1.contains(member1U1Res1Vo1TestAttribute));
 
     //find all test member-group attributes group2InVo2 and resource1InVo2
-    List<RichAttribute> ra_group2Vo2_res1Vo2 =
+    List<RichAttribute> raGroup2Vo2Res1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, resource1InVo2,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_group2Vo2_res1Vo2 = new ArrayList<>();
-    ra_group2Vo2_res1Vo2.forEach(ra -> attrs_group2Vo2_res1Vo2.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsGroup2Vo2Res1Vo2 = new ArrayList<>();
+    raGroup2Vo2Res1Vo2.forEach(ra -> attrsGroup2Vo2Res1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2Vo2_res1Vo2.size());
-    assertTrue(attrs_group2Vo2_res1Vo2.contains(member1U2Res1Vo2_test_attribute));
-    assertTrue(attrs_group2Vo2_res1Vo2.contains(member2U3Res1Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2Vo2Res1Vo2.size());
+    assertTrue(attrsGroup2Vo2Res1Vo2.contains(member1U2Res1Vo2TestAttribute));
+    assertTrue(attrsGroup2Vo2Res1Vo2.contains(member2U3Res1Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5025,38 +5025,38 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for host1OnFacility1
-    List<RichAttribute> ra_host1OnFacility1 =
+    List<RichAttribute> raHost1OnFacility1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_host1OnFacility1 = new ArrayList<>();
-    ra_host1OnFacility1.forEach(ra -> attrs_host1OnFacility1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsHost1OnFacility1 = new ArrayList<>();
+    raHost1OnFacility1.forEach(ra -> attrsHost1OnFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_host1OnFacility1.size());
-    assertTrue(attrs_host1OnFacility1.contains(member1U1Res1Vo1_test_attribute));
-    assertTrue(attrs_host1OnFacility1.contains(member1U3Res1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsHost1OnFacility1.size());
+    assertTrue(attrsHost1OnFacility1.contains(member1U1Res1Vo1TestAttribute));
+    assertTrue(attrsHost1OnFacility1.contains(member1U3Res1Vo1TestAttribute));
 
     //find all test member-group attributes for host1OnFacility2
-    List<RichAttribute> ra_host1OnFacility2 =
+    List<RichAttribute> raHost1OnFacility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_host1OnFacility2 = new ArrayList<>();
-    ra_host1OnFacility2.forEach(ra -> attrs_host1OnFacility2.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsHost1OnFacility2 = new ArrayList<>();
+    raHost1OnFacility2.forEach(ra -> attrsHost1OnFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_host1OnFacility2.size());
-    assertTrue(attrs_host1OnFacility2.contains(member1U1Res2Vo1_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(member1U2Res1Vo2_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(member2U3Res1Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsHost1OnFacility2.size());
+    assertTrue(attrsHost1OnFacility2.contains(member1U1Res2Vo1TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(member1U2Res1Vo2TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(member2U3Res1Vo2TestAttribute));
 
     //find all test member-group attributes for host2OnFacility3
-    List<RichAttribute> ra_host2OnFacility3 =
+    List<RichAttribute> raHost2OnFacility3 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host2OnFacility3,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_host2OnFacility3 = new ArrayList<>();
-    ra_host2OnFacility3.forEach(ra -> attrs_host2OnFacility3.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsHost2OnFacility3 = new ArrayList<>();
+    raHost2OnFacility3.forEach(ra -> attrsHost2OnFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_host2OnFacility3.size());
-    assertTrue(attrs_host2OnFacility3.contains(member1U2Res2Vo2_test_attribute));
-    assertTrue(attrs_host2OnFacility3.contains(member2U3Res2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsHost2OnFacility3.size());
+    assertTrue(attrsHost2OnFacility3.contains(member1U2Res2Vo2TestAttribute));
+    assertTrue(attrsHost2OnFacility3.contains(member2U3Res2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5070,19 +5070,19 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getMemberResourceAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all test member-group attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, memberResource_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, memberResourceTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 7 <= attrs_all.size());
-    assertTrue(attrs_all.contains(member1U1Res1Vo1_test_attribute));
-    assertTrue(attrs_all.contains(member1U1Res2Vo1_test_attribute));
-    assertTrue(attrs_all.contains(member1U2Res1Vo2_test_attribute));
-    assertTrue(attrs_all.contains(member1U2Res2Vo2_test_attribute));
-    assertTrue(attrs_all.contains(member1U3Res1Vo1_test_attribute));
-    assertTrue(attrs_all.contains(member2U3Res1Vo2_test_attribute));
-    assertTrue(attrs_all.contains(member2U3Res2Vo2_test_attribute));
+    assertTrue("Invalid number of attributes found", 7 <= attrsAll.size());
+    assertTrue(attrsAll.contains(member1U1Res1Vo1TestAttribute));
+    assertTrue(attrsAll.contains(member1U1Res2Vo1TestAttribute));
+    assertTrue(attrsAll.contains(member1U2Res1Vo2TestAttribute));
+    assertTrue(attrsAll.contains(member1U2Res2Vo2TestAttribute));
+    assertTrue(attrsAll.contains(member1U3Res1Vo1TestAttribute));
+    assertTrue(attrsAll.contains(member2U3Res1Vo2TestAttribute));
+    assertTrue(attrsAll.contains(member2U3Res2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5097,24 +5097,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes for member2OfUser3
-    List<RichAttribute> ra_member2OfUser3 =
+    List<RichAttribute> raMember2OfUser3 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_member2OfUser3 = new ArrayList<>();
-    ra_member2OfUser3.forEach(ra -> attrs_member2OfUser3.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsMember2OfUser3 = new ArrayList<>();
+    raMember2OfUser3.forEach(ra -> attrsMember2OfUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member2OfUser3.size());
-    assertTrue(attrs_member2OfUser3.contains(member2U3Res1Vo2_test_attribute));
-    assertTrue(attrs_member2OfUser3.contains(member2U3Res2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember2OfUser3.size());
+    assertTrue(attrsMember2OfUser3.contains(member2U3Res1Vo2TestAttribute));
+    assertTrue(attrsMember2OfUser3.contains(member2U3Res2Vo2TestAttribute));
 
     //find all test member-group attributes for member2OfUser3
-    List<RichAttribute> ra_member2OfUser1 =
+    List<RichAttribute> raMember2OfUser1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_member2OfUser1 = new ArrayList<>();
-    ra_member2OfUser1.forEach(ra -> attrs_member2OfUser1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsMember2OfUser1 = new ArrayList<>();
+    raMember2OfUser1.forEach(ra -> attrsMember2OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2OfUser1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2OfUser1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5129,25 +5129,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes member1OfUser1 and group1InVo1
-    List<RichAttribute> ra_member1U1_group1Vo1 =
+    List<RichAttribute> raMember1U1Group1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, group1InVo1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_member1U1_group1Vo1 = new ArrayList<>();
-    ra_member1U1_group1Vo1.forEach(ra -> attrs_member1U1_group1Vo1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsMember1U1Group1Vo1 = new ArrayList<>();
+    raMember1U1Group1Vo1.forEach(ra -> attrsMember1U1Group1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U1_group1Vo1.size());
-    assertTrue(attrs_member1U1_group1Vo1.contains(member1U1Res1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U1Group1Vo1.size());
+    assertTrue(attrsMember1U1Group1Vo1.contains(member1U1Res1Vo1TestAttribute));
 
     //find all test member-group for attributes member1OfUser2 and group2InVo2
-    List<RichAttribute> ra_member1U2_group2Vo2 =
+    List<RichAttribute> raMember1U2Group2Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser2, group2InVo2,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_member1U2_group2Vo2 = new ArrayList<>();
-    ra_member1U2_group2Vo2.forEach(ra -> attrs_member1U2_group2Vo2.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsMember1U2Group2Vo2 = new ArrayList<>();
+    raMember1U2Group2Vo2.forEach(ra -> attrsMember1U2Group2Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1U2_group2Vo2.size());
-    assertTrue(attrs_member1U2_group2Vo2.contains(member1U2Res1Vo2_test_attribute));
-    assertTrue(attrs_member1U2_group2Vo2.contains(member1U2Res2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1U2Group2Vo2.size());
+    assertTrue(attrsMember1U2Group2Vo2.contains(member1U2Res1Vo2TestAttribute));
+    assertTrue(attrsMember1U2Group2Vo2.contains(member1U2Res2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5162,24 +5162,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes member1OfUser1 and resource1InVo1
-    List<RichAttribute> ra_member1U1_res1Vo1 =
+    List<RichAttribute> raMember1U1Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resource1InVo1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_member1U1_res1Vo1 = new ArrayList<>();
-    ra_member1U1_res1Vo1.forEach(ra -> attrs_member1U1_res1Vo1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsMember1U1Res1Vo1 = new ArrayList<>();
+    raMember1U1Res1Vo1.forEach(ra -> attrsMember1U1Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U1_res1Vo1.size());
-    assertTrue(attrs_member1U1_res1Vo1.contains(member1U1Res1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U1Res1Vo1.size());
+    assertTrue(attrsMember1U1Res1Vo1.contains(member1U1Res1Vo1TestAttribute));
 
     //find all test member-group attributes member1OfUser3 and resource1InVo1
-    List<RichAttribute> ra_member1U3_res1Vo1 =
+    List<RichAttribute> raMember1U3Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser3, resource1InVo1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_member1U3_res1Vo1 = new ArrayList<>();
-    ra_member1U3_res1Vo1.forEach(ra -> attrs_member1U3_res1Vo1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsMember1U3Res1Vo1 = new ArrayList<>();
+    raMember1U3Res1Vo1.forEach(ra -> attrsMember1U3Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U3_res1Vo1.size());
-    assertTrue(attrs_member1U3_res1Vo1.contains(member1U3Res1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U3Res1Vo1.size());
+    assertTrue(attrsMember1U3Res1Vo1.contains(member1U3Res1Vo1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5194,25 +5194,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes for resource2InVo1
-    List<RichAttribute> ra_resource2InVo1 =
+    List<RichAttribute> raResource2InVo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_resource2InVo1 = new ArrayList<>();
-    ra_resource2InVo1.forEach(ra -> attrs_resource2InVo1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsResource2InVo1 = new ArrayList<>();
+    raResource2InVo1.forEach(ra -> attrsResource2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_resource2InVo1.size());
-    assertTrue(attrs_resource2InVo1.contains(member1U1Res2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsResource2InVo1.size());
+    assertTrue(attrsResource2InVo1.contains(member1U1Res2Vo1TestAttribute));
 
     //find all test member-group attributes for resource1InVo2
-    List<RichAttribute> ra_resource1InVo21 =
+    List<RichAttribute> raResource1InVo21 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_resource1InVo2 = new ArrayList<>();
-    ra_resource1InVo21.forEach(ra -> attrs_resource1InVo2.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsResource1InVo2 = new ArrayList<>();
+    raResource1InVo21.forEach(ra -> attrsResource1InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_resource1InVo2.size());
-    assertTrue(attrs_resource1InVo2.contains(member1U2Res1Vo2_test_attribute));
-    assertTrue(attrs_resource1InVo2.contains(member2U3Res1Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsResource1InVo2.size());
+    assertTrue(attrsResource1InVo2.contains(member1U2Res1Vo2TestAttribute));
+    assertTrue(attrsResource1InVo2.contains(member2U3Res1Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5226,25 +5226,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, memberResource_test_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, memberResourceTestAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user1.size());
-    assertTrue(attrs_user1.contains(member1U1Res1Vo1_test_attribute));
-    assertTrue(attrs_user1.contains(member1U1Res2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsUser1.size());
+    assertTrue(attrsUser1.contains(member1U1Res1Vo1TestAttribute));
+    assertTrue(attrsUser1.contains(member1U1Res2Vo1TestAttribute));
 
     //find all test member-group attributes user3
-    List<RichAttribute> ra_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, memberResource_test_atr_def);
-    List<Attribute> attrs_user3 = new ArrayList<>();
-    ra_user3.forEach(ra -> attrs_user3.add(ra.getAttribute()));
+    List<RichAttribute> raUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, memberResourceTestAtrDef);
+    List<Attribute> attrsUser3 = new ArrayList<>();
+    raUser3.forEach(ra -> attrsUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_user3.size());
-    assertTrue(attrs_user3.contains(member1U3Res1Vo1_test_attribute));
-    assertTrue(attrs_user3.contains(member2U3Res1Vo2_test_attribute));
-    assertTrue(attrs_user3.contains(member2U3Res2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsUser3.size());
+    assertTrue(attrsUser3.contains(member1U3Res1Vo1TestAttribute));
+    assertTrue(attrsUser3.contains(member2U3Res1Vo2TestAttribute));
+    assertTrue(attrsUser3.contains(member2U3Res2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5259,27 +5259,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
+    List<RichAttribute> raUserExtSource1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
-    ra_userExtSource1.forEach(ra -> attrs_userExtSource1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
+    raUserExtSource1.forEach(ra -> attrsUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(member1U1Res1Vo1_test_attribute));
-    assertTrue(attrs_userExtSource1.contains(member1U1Res2Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(member1U1Res1Vo1TestAttribute));
+    assertTrue(attrsUserExtSource1.contains(member1U1Res2Vo1TestAttribute));
 
     //find all test member-group attributes userExtSource3
-    List<RichAttribute> ra_userExtSource3 =
+    List<RichAttribute> raUserExtSource3 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_userExtSource3 = new ArrayList<>();
-    ra_userExtSource3.forEach(ra -> attrs_userExtSource3.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsUserExtSource3 = new ArrayList<>();
+    raUserExtSource3.forEach(ra -> attrsUserExtSource3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_userExtSource3.size());
-    assertTrue(attrs_userExtSource3.contains(member1U3Res1Vo1_test_attribute));
-    assertTrue(attrs_userExtSource3.contains(member2U3Res1Vo2_test_attribute));
-    assertTrue(attrs_userExtSource3.contains(member2U3Res2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsUserExtSource3.size());
+    assertTrue(attrsUserExtSource3.contains(member1U3Res1Vo1TestAttribute));
+    assertTrue(attrsUserExtSource3.contains(member2U3Res1Vo2TestAttribute));
+    assertTrue(attrsUserExtSource3.contains(member2U3Res2Vo2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5294,33 +5294,33 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test member-group attributes user3 and facility2
-    List<RichAttribute> ra_user3_facility2 =
+    List<RichAttribute> raUser3Facility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility2,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_user3_facility2 = new ArrayList<>();
-    ra_user3_facility2.forEach(ra -> attrs_user3_facility2.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsUser3Facility2 = new ArrayList<>();
+    raUser3Facility2.forEach(ra -> attrsUser3Facility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user3_facility2.size());
-    assertTrue(attrs_user3_facility2.contains(member2U3Res1Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser3Facility2.size());
+    assertTrue(attrsUser3Facility2.contains(member2U3Res1Vo2TestAttribute));
 
     //find all test member-group attributes user1 and facility3
-    List<RichAttribute> ra_user1_facility3 =
+    List<RichAttribute> raUser1Facility3 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility3,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_user1_facility3 = new ArrayList<>();
-    ra_user1_facility3.forEach(ra -> attrs_user1_facility3.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsUser1Facility3 = new ArrayList<>();
+    raUser1Facility3.forEach(ra -> attrsUser1Facility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_user1_facility3.size());
+    assertEquals("Invalid number of attributes found", 0, attrsUser1Facility3.size());
 
     //find all test member-group attributes user1 and facility1
-    List<RichAttribute> ra_user1_facility1 =
+    List<RichAttribute> raUser1Facility1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility1,
-            memberResource_test_atr_def);
-    List<Attribute> attrs_user1_facility1 = new ArrayList<>();
-    ra_user1_facility1.forEach(ra -> attrs_user1_facility1.add(ra.getAttribute()));
+            memberResourceTestAtrDef);
+    List<Attribute> attrsUser1Facility1 = new ArrayList<>();
+    raUser1Facility1.forEach(ra -> attrsUser1Facility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user1_facility1.size());
-    assertTrue(attrs_user1_facility1.contains(member1U1Res1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser1Facility1.size());
+    assertTrue(attrsUser1Facility1.contains(member1U1Res1Vo1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -5334,27 +5334,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test member-group attributes for vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, memberResource_test_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, memberResourceTestAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(member1U1Res2Vo1_test_attribute));
-    assertTrue(attrs_vo1.contains(member1U1Res1Vo1_test_attribute));
-    assertTrue(attrs_vo1.contains(member1U3Res1Vo1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsVo1.size());
+    assertTrue(attrsVo1.contains(member1U1Res2Vo1TestAttribute));
+    assertTrue(attrsVo1.contains(member1U1Res1Vo1TestAttribute));
+    assertTrue(attrsVo1.contains(member1U3Res1Vo1TestAttribute));
 
     //find all test member-group attributes for vo2
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, memberResource_test_atr_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
-    ra_vo2.forEach(ra -> attrs_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, memberResourceTestAtrDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
+    raVo2.forEach(ra -> attrsVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(member1U2Res1Vo2_test_attribute));
-    assertTrue(attrs_vo2.contains(member1U2Res2Vo2_test_attribute));
-    assertTrue(attrs_vo2.contains(member2U3Res1Vo2_test_attribute));
-    assertTrue(attrs_vo2.contains(member2U3Res2Vo2_test_attribute));
+    assertEquals("Invalid number of attributes found", 4, attrsVo2.size());
+    assertTrue(attrsVo2.contains(member1U2Res1Vo2TestAttribute));
+    assertTrue(attrsVo2.contains(member1U2Res2Vo2TestAttribute));
+    assertTrue(attrsVo2.contains(member2U3Res1Vo2TestAttribute));
+    assertTrue(attrsVo2.contains(member2U3Res2Vo2TestAttribute));
   }
 
   @Test
@@ -6088,23 +6088,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for facility1
-    List<RichAttribute> ra_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, resource_test_atr_def);
-    List<Attribute> attrs_facility1 = new ArrayList<>();
-    ra_facility1.forEach(ra -> attrs_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, resourceTestAtrDef);
+    List<Attribute> attrsFacility1 = new ArrayList<>();
+    raFacility1.forEach(ra -> attrsFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_facility1.size());
-    assertTrue(attrs_facility1.contains(resource1InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsFacility1.size());
+    assertTrue(attrsFacility1.contains(resource1InVo1TestAtr));
 
     //find test resource attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, resource_test_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, resourceTestAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(resource2InVo1_test_atr));
-    assertTrue(attrs_facility2.contains(resource1InVo2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(resource2InVo1TestAtr));
+    assertTrue(attrsFacility2.contains(resource1InVo2TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6118,22 +6118,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for group2InVo1
-    List<RichAttribute> ra_group2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, resource_test_atr_def);
-    List<Attribute> attrs_group2InVo1 = new ArrayList<>();
-    ra_group2InVo1.forEach(ra -> attrs_group2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, resourceTestAtrDef);
+    List<Attribute> attrsGroup2InVo1 = new ArrayList<>();
+    raGroup2InVo1.forEach(ra -> attrsGroup2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2InVo1.size());
-    assertTrue(attrs_group2InVo1.contains(resource1InVo1_test_atr));
-    assertTrue(attrs_group2InVo1.contains(resource2InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2InVo1.size());
+    assertTrue(attrsGroup2InVo1.contains(resource1InVo1TestAtr));
+    assertTrue(attrsGroup2InVo1.contains(resource2InVo1TestAtr));
 
     //find test resource attributes for membersGroupOfVo1
-    List<RichAttribute> ra_membersGroupOfVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, membersGroupOfVo1, resource_test_atr_def);
-    List<Attribute> attrs_membersGroupOfVo1 = new ArrayList<>();
-    ra_membersGroupOfVo1.forEach(ra -> attrs_membersGroupOfVo1.add(ra.getAttribute()));
+    List<RichAttribute> raMembersGroupOfVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, membersGroupOfVo1, resourceTestAtrDef);
+    List<Attribute> attrsMembersGroupOfVo1 = new ArrayList<>();
+    raMembersGroupOfVo1.forEach(ra -> attrsMembersGroupOfVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_membersGroupOfVo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMembersGroupOfVo1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6147,23 +6147,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for host1OnFacility1
-    List<RichAttribute> ra_host1OnFacility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, resource_test_atr_def);
-    List<Attribute> attrs_host1OnFacility1 = new ArrayList<>();
-    ra_host1OnFacility1.forEach(ra -> attrs_host1OnFacility1.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, resourceTestAtrDef);
+    List<Attribute> attrsHost1OnFacility1 = new ArrayList<>();
+    raHost1OnFacility1.forEach(ra -> attrsHost1OnFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_host1OnFacility1.size());
-    assertTrue(attrs_host1OnFacility1.contains(resource1InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsHost1OnFacility1.size());
+    assertTrue(attrsHost1OnFacility1.contains(resource1InVo1TestAtr));
 
     //find test resource attributes for host1OnFacility2
-    List<RichAttribute> ra_host1OnFacility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, resource_test_atr_def);
-    List<Attribute> attrs_host1OnFacility2 = new ArrayList<>();
-    ra_host1OnFacility2.forEach(ra -> attrs_host1OnFacility2.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, resourceTestAtrDef);
+    List<Attribute> attrsHost1OnFacility2 = new ArrayList<>();
+    raHost1OnFacility2.forEach(ra -> attrsHost1OnFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_host1OnFacility2.size());
-    assertTrue(attrs_host1OnFacility2.contains(resource2InVo1_test_atr));
-    assertTrue(attrs_host1OnFacility2.contains(resource1InVo2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsHost1OnFacility2.size());
+    assertTrue(attrsHost1OnFacility2.contains(resource2InVo1TestAtr));
+    assertTrue(attrsHost1OnFacility2.contains(resource1InVo2TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6177,16 +6177,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getResourceAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all test resource attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resourceTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 4 <= attrs_all.size());
-    assertTrue(attrs_all.contains(resource1InVo1_test_atr));
-    assertTrue(attrs_all.contains(resource2InVo1_test_atr));
-    assertTrue(attrs_all.contains(resource1InVo2_test_atr));
-    assertTrue(attrs_all.contains(resource2InVo2_test_atr));
+    assertTrue("Invalid number of attributes found", 4 <= attrsAll.size());
+    assertTrue(attrsAll.contains(resource1InVo1TestAtr));
+    assertTrue(attrsAll.contains(resource2InVo1TestAtr));
+    assertTrue(attrsAll.contains(resource1InVo2TestAtr));
+    assertTrue(attrsAll.contains(resource2InVo2TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6200,23 +6200,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for member1OfUser1
-    List<RichAttribute> ra_member1OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resource_test_atr_def);
-    List<Attribute> attrs_member1OfUser1 = new ArrayList<>();
-    ra_member1OfUser1.forEach(ra -> attrs_member1OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember1OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, resourceTestAtrDef);
+    List<Attribute> attrsMember1OfUser1 = new ArrayList<>();
+    raMember1OfUser1.forEach(ra -> attrsMember1OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1OfUser1.size());
-    assertTrue(attrs_member1OfUser1.contains(resource1InVo1_test_atr));
-    assertTrue(attrs_member1OfUser1.contains(resource2InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1OfUser1.size());
+    assertTrue(attrsMember1OfUser1.contains(resource1InVo1TestAtr));
+    assertTrue(attrsMember1OfUser1.contains(resource2InVo1TestAtr));
 
     //find test resource attributes for member1OfUser3
-    List<RichAttribute> ra_member1OfUser3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser3, resource_test_atr_def);
-    List<Attribute> attrs_member1OfUser3 = new ArrayList<>();
-    ra_member1OfUser3.forEach(ra -> attrs_member1OfUser3.add(ra.getAttribute()));
+    List<RichAttribute> raMember1OfUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser3, resourceTestAtrDef);
+    List<Attribute> attrsMember1OfUser3 = new ArrayList<>();
+    raMember1OfUser3.forEach(ra -> attrsMember1OfUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1OfUser3.size());
-    assertTrue(attrs_member1OfUser3.contains(resource1InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1OfUser3.size());
+    assertTrue(attrsMember1OfUser3.contains(resource1InVo1TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6231,34 +6231,34 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test resource attributes for member2OfUser3 and group2InVo2
-    List<RichAttribute> ra_mem2U3_group2Vo2 =
+    List<RichAttribute> raMem2U3Group2Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3, group2InVo2,
-            resource_test_atr_def);
-    List<Attribute> attrs_mem2U3_group2Vo2 = new ArrayList<>();
-    ra_mem2U3_group2Vo2.forEach(ra -> attrs_mem2U3_group2Vo2.add(ra.getAttribute()));
+            resourceTestAtrDef);
+    List<Attribute> attrsMem2U3Group2Vo2 = new ArrayList<>();
+    raMem2U3Group2Vo2.forEach(ra -> attrsMem2U3Group2Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_mem2U3_group2Vo2.size());
-    assertTrue(attrs_mem2U3_group2Vo2.contains(resource1InVo2_test_atr));
-    assertTrue(attrs_mem2U3_group2Vo2.contains(resource2InVo2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsMem2U3Group2Vo2.size());
+    assertTrue(attrsMem2U3Group2Vo2.contains(resource1InVo2TestAtr));
+    assertTrue(attrsMem2U3Group2Vo2.contains(resource2InVo2TestAtr));
 
     //find test resource attributes for member2OfUser1 and group1InVo1
-    List<RichAttribute> ra_mem2U1_group1Vo1 =
+    List<RichAttribute> raMem2U1Group1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, group1InVo1,
-            resource_test_atr_def);
-    List<Attribute> attrs_mem2U1_group1Vo1 = new ArrayList<>();
-    ra_mem2U1_group1Vo1.forEach(ra -> attrs_mem2U1_group1Vo1.add(ra.getAttribute()));
+            resourceTestAtrDef);
+    List<Attribute> attrsMem2U1Group1Vo1 = new ArrayList<>();
+    raMem2U1Group1Vo1.forEach(ra -> attrsMem2U1Group1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_mem2U1_group1Vo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMem2U1Group1Vo1.size());
 
     //find test resource attributes for member1OfUser1 and group1InVo1
-    List<RichAttribute> ra_mem1U1_group1Vo1 =
+    List<RichAttribute> raMem1U1Group1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, group1InVo1,
-            resource_test_atr_def);
-    List<Attribute> attrs_mem1U1_group1Vo1 = new ArrayList<>();
-    ra_mem1U1_group1Vo1.forEach(ra -> attrs_mem1U1_group1Vo1.add(ra.getAttribute()));
+            resourceTestAtrDef);
+    List<Attribute> attrsMem1U1Group1Vo1 = new ArrayList<>();
+    raMem1U1Group1Vo1.forEach(ra -> attrsMem1U1Group1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_mem1U1_group1Vo1.size());
-    assertTrue(attrs_mem1U1_group1Vo1.contains(resource1InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsMem1U1Group1Vo1.size());
+    assertTrue(attrsMem1U1Group1Vo1.contains(resource1InVo1TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6273,23 +6273,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test resource attributes for member2OfUser3 and resource2InVo2
-    List<RichAttribute> ra_mem2U3_res2Vo2 =
+    List<RichAttribute> raMem2U3Res2Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3, resource2InVo2,
-            resource_test_atr_def);
-    List<Attribute> attrs_mem2U3_res2Vo2 = new ArrayList<>();
-    ra_mem2U3_res2Vo2.forEach(ra -> attrs_mem2U3_res2Vo2.add(ra.getAttribute()));
+            resourceTestAtrDef);
+    List<Attribute> attrsMem2U3Res2Vo2 = new ArrayList<>();
+    raMem2U3Res2Vo2.forEach(ra -> attrsMem2U3Res2Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_mem2U3_res2Vo2.size());
-    assertTrue(attrs_mem2U3_res2Vo2.contains(resource2InVo2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsMem2U3Res2Vo2.size());
+    assertTrue(attrsMem2U3Res2Vo2.contains(resource2InVo2TestAtr));
 
     //find test resource attributes for member2OfUser1 and resource1InVo1
-    List<RichAttribute> ra_mem2U1_res1Vo1 =
+    List<RichAttribute> raMem2U1Res1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, resource1InVo1,
-            resource_test_atr_def);
-    List<Attribute> attrs_mem2U1_res1Vo1 = new ArrayList<>();
-    ra_mem2U1_res1Vo1.forEach(ra -> attrs_mem2U1_res1Vo1.add(ra.getAttribute()));
+            resourceTestAtrDef);
+    List<Attribute> attrsMem2U1Res1Vo1 = new ArrayList<>();
+    raMem2U1Res1Vo1.forEach(ra -> attrsMem2U1Res1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_mem2U1_res1Vo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMem2U1Res1Vo1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6303,13 +6303,13 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for resource1InVo1
-    List<RichAttribute> ra_resource1InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, resource_test_atr_def);
-    List<Attribute> attrs_resource1InVo1 = new ArrayList<>();
-    ra_resource1InVo1.forEach(ra -> attrs_resource1InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raResource1InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, resourceTestAtrDef);
+    List<Attribute> attrsResource1InVo1 = new ArrayList<>();
+    raResource1InVo1.forEach(ra -> attrsResource1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_resource1InVo1.size());
-    assertTrue(attrs_resource1InVo1.contains(resource1InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsResource1InVo1.size());
+    assertTrue(attrsResource1InVo1.contains(resource1InVo1TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6323,14 +6323,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, resource_test_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, resourceTestAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user1.size());
-    assertTrue(attrs_user1.contains(resource1InVo1_test_atr));
-    assertTrue(attrs_user1.contains(resource2InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsUser1.size());
+    assertTrue(attrsUser1.contains(resource1InVo1TestAtr));
+    assertTrue(attrsUser1.contains(resource2InVo1TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6345,14 +6345,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test resource attributes for userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, resource_test_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
-    ra_userExtSource1.forEach(ra -> attrs_userExtSource1.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, resourceTestAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
+    raUserExtSource1.forEach(ra -> attrsUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(resource1InVo1_test_atr));
-    assertTrue(attrs_userExtSource1.contains(resource2InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(resource1InVo1TestAtr));
+    assertTrue(attrsUserExtSource1.contains(resource2InVo1TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6367,22 +6367,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test resource attributes for user3 and facility3
-    List<RichAttribute> ra_user3_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility3, resource_test_atr_def);
-    List<Attribute> attrs_user3_facility3 = new ArrayList<>();
-    ra_user3_facility3.forEach(ra -> attrs_user3_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raUser3Facility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility3, resourceTestAtrDef);
+    List<Attribute> attrsUser3Facility3 = new ArrayList<>();
+    raUser3Facility3.forEach(ra -> attrsUser3Facility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user3_facility3.size());
-    assertTrue(attrs_user3_facility3.contains(resource2InVo2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsUser3Facility3.size());
+    assertTrue(attrsUser3Facility3.contains(resource2InVo2TestAtr));
 
     //find test resource attributes for user2 and facility2
-    List<RichAttribute> ra_user2_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility2, resource_test_atr_def);
-    List<Attribute> attrs_user2_facility2 = new ArrayList<>();
-    ra_user2_facility2.forEach(ra -> attrs_user2_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raUser2Facility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility2, resourceTestAtrDef);
+    List<Attribute> attrsUser2Facility2 = new ArrayList<>();
+    raUser2Facility2.forEach(ra -> attrsUser2Facility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user2_facility2.size());
-    assertTrue(attrs_user2_facility2.contains(resource1InVo2_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsUser2Facility2.size());
+    assertTrue(attrsUser2Facility2.contains(resource1InVo2TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -6396,24 +6396,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test resource attributes for vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, resource_test_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, resourceTestAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(resource1InVo1_test_atr));
-    assertTrue(attrs_vo1.contains(resource2InVo1_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsVo1.size());
+    assertTrue(attrsVo1.contains(resource1InVo1TestAtr));
+    assertTrue(attrsVo1.contains(resource2InVo1TestAtr));
 
     //find test resource attributes for vo2
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, resource_test_atr_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
-    ra_vo2.forEach(ra -> attrs_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, resourceTestAtrDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
+    raVo2.forEach(ra -> attrsVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(resource1InVo2_test_atr));
-    assertTrue(attrs_vo2.contains(resource2InVo2_test_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsVo2.size());
+    assertTrue(attrsVo2.contains(resource1InVo2TestAtr));
+    assertTrue(attrsVo2.contains(resource2InVo2TestAtr));
   }
 
   @Test(expected = ResourceNotExistsException.class)
@@ -7327,7 +7327,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setSecondaryHolder(group2InVo2);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     //Return facilities Administrator too if exists
     assertTrue("return only one group", listOfRichAttributes.size() == 1);
@@ -7353,7 +7354,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setSecondaryHolder(member2OfUser1);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     assertTrue("Return no group.", listOfRichAttributes.size() == 0);
   }
@@ -7372,7 +7374,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setSecondaryHolder(facility2);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     assertTrue("return two groups", listOfRichAttributes.size() == 2);
     assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Group);
@@ -7399,7 +7402,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setPrimaryHolder(facility3);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     //Return facilities Administrator too if exists
     assertTrue("return at least 1 vos", listOfRichAttributes.size() >= 1);
@@ -7426,7 +7430,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setPrimaryHolder(group2InVo2);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
     assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
@@ -7449,7 +7454,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setPrimaryHolder(host1OnFacility2);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     //Return facilities Administrator too if exists
     assertTrue("return at least 2 vos", listOfRichAttributes.size() >= 2);
@@ -7476,7 +7482,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setPrimaryHolder("String");
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     //Return facilities Administrator too if exists
     assertTrue("return at least 2 vos", listOfRichAttributes.size() > 1);
@@ -7502,7 +7509,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setPrimaryHolder(member2OfUser2);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     assertTrue("Return no vo.", listOfRichAttributes.size() == 0);
   }
@@ -7519,7 +7527,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setPrimaryHolder(resource2InVo2);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
     assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
@@ -7540,7 +7549,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     RichAttribute richAttr = new RichAttribute<>(resource1InVo1, group1InVo1, null);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
     assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
     assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
     assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
@@ -7560,7 +7570,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     RichAttribute richAttr = new RichAttribute<>(resource1InVo1, member1OfUser1, null);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
     assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
     assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
     assertTrue("the Vo is vo1", vo1.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
@@ -7581,7 +7592,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setPrimaryHolder(user1);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     assertTrue("return 1 vo", listOfRichAttributes.size() == 1);
     assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
@@ -7603,7 +7615,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     RichAttribute richAttr = new RichAttribute<>(user2, facility2, null);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
     assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
@@ -7625,7 +7638,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     richAttr.setPrimaryHolder(vo2);
 
     List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl()
-        .getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
+                                                   .getRichAttributesWithHoldersForAttributeDefinition(sess,
+                                                       new AttributeDefinition(attribute), richAttr);
 
     //Return facilities Administrator too if exists
     assertTrue("return 1 specific vo", listOfRichAttributes.size() == 1);
@@ -7867,26 +7881,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find user phone attributes by facility2
-    List<RichAttribute> ra_phone_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, user_phone_atr_def);
-    List<Attribute> attrs_phone_facility2 = new ArrayList<>();
-    ra_phone_facility2.forEach(ra -> attrs_phone_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, userPhoneAtrDef);
+    List<Attribute> attrsPhoneFacility2 = new ArrayList<>();
+    raPhoneFacility2.forEach(ra -> attrsPhoneFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_phone_facility2.size());
-    assertTrue(attrs_phone_facility2.contains(user1_phone_attribute));
-    assertTrue(attrs_phone_facility2.contains(user2_phone_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsPhoneFacility2.size());
+    assertTrue(attrsPhoneFacility2.contains(user1PhoneAttribute));
+    assertTrue(attrsPhoneFacility2.contains(user2PhoneAttribute));
     //contains empty attribute value from user3 who does not have phone set
-    assertTrue(attrs_phone_facility2.contains(new Attribute(user_phone_atr_def)));
+    assertTrue(attrsPhoneFacility2.contains(new Attribute(userPhoneAtrDef)));
 
     //find user preferred email attributes by facility3
-    List<RichAttribute> ra_email_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, user_email_atr_def);
-    List<Attribute> attrs_email_facility3 = new ArrayList<>();
-    ra_email_facility3.forEach(ra -> attrs_email_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raEmailFacility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, userEmailAtrDef);
+    List<Attribute> attrsEmailFacility3 = new ArrayList<>();
+    raEmailFacility3.forEach(ra -> attrsEmailFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_email_facility3.size());
-    assertTrue(attrs_email_facility3.contains(user2_email_attribute));
-    assertTrue(attrs_email_facility3.contains(user3_email_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsEmailFacility3.size());
+    assertTrue(attrsEmailFacility3.contains(user2EmailAttribute));
+    assertTrue(attrsEmailFacility3.contains(user3EmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -7900,25 +7914,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getUserAttributes", PerunSession.class, Group.class, AttributeDefinition.class);
 
     //find user preferred email attributes in group1InVo1
-    List<RichAttribute> ra_email_group1VO1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, user_email_atr_def);
-    List<Attribute> attrs_email_group1VO1 = new ArrayList<>();
-    ra_email_group1VO1.forEach(ra -> attrs_email_group1VO1.add(ra.getAttribute()));
+    List<RichAttribute> raEmailGroup1VO1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, userEmailAtrDef);
+    List<Attribute> attrsEmailGroup1VO1 = new ArrayList<>();
+    raEmailGroup1VO1.forEach(ra -> attrsEmailGroup1VO1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_email_group1VO1.size());
-    assertTrue(attrs_email_group1VO1.contains(user3_email_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsEmailGroup1VO1.size());
+    assertTrue(attrsEmailGroup1VO1.contains(user3EmailAttribute));
     //contains empty value from user1 who does not have email set
-    assertTrue(attrs_email_group1VO1.contains(new Attribute(user_email_atr_def)));
+    assertTrue(attrsEmailGroup1VO1.contains(new Attribute(userEmailAtrDef)));
 
     //find user preferred email attributes in group2InVo2
-    List<RichAttribute> ra_email_group2VO2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, user_email_atr_def);
-    List<Attribute> attrs_email_group2VO2 = new ArrayList<>();
-    ra_email_group2VO2.forEach(ra -> attrs_email_group2VO2.add(ra.getAttribute()));
+    List<RichAttribute> raEmailGroup2VO2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, userEmailAtrDef);
+    List<Attribute> attrsEmailGroup2VO2 = new ArrayList<>();
+    raEmailGroup2VO2.forEach(ra -> attrsEmailGroup2VO2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_email_group2VO2.size());
-    assertTrue(attrs_email_group2VO2.contains(user3_email_attribute));
-    assertTrue(attrs_email_group2VO2.contains(user2_email_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsEmailGroup2VO2.size());
+    assertTrue(attrsEmailGroup2VO2.contains(user3EmailAttribute));
+    assertTrue(attrsEmailGroup2VO2.contains(user2EmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -7932,26 +7946,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getUserAttributes", PerunSession.class, Host.class, AttributeDefinition.class);
 
     //find user phone attributes by host1OnFacility2
-    List<RichAttribute> ra_phone_host1_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, user_phone_atr_def);
-    List<Attribute> attrs_phone_host1_facility2 = new ArrayList<>();
-    ra_phone_host1_facility2.forEach(ra -> attrs_phone_host1_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneHost1Facility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, userPhoneAtrDef);
+    List<Attribute> attrsPhoneHost1Facility2 = new ArrayList<>();
+    raPhoneHost1Facility2.forEach(ra -> attrsPhoneHost1Facility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_phone_host1_facility2.size());
-    assertTrue(attrs_phone_host1_facility2.contains(user1_phone_attribute));
-    assertTrue(attrs_phone_host1_facility2.contains(user2_phone_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsPhoneHost1Facility2.size());
+    assertTrue(attrsPhoneHost1Facility2.contains(user1PhoneAttribute));
+    assertTrue(attrsPhoneHost1Facility2.contains(user2PhoneAttribute));
     //contains empty attribute value from user3 who does not have phone set
-    assertTrue(attrs_phone_host1_facility2.contains(new Attribute(user_phone_atr_def)));
+    assertTrue(attrsPhoneHost1Facility2.contains(new Attribute(userPhoneAtrDef)));
 
     //find user preferred email attributes by host1OnFacility3
-    List<RichAttribute> ra_email_host1_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility3, user_email_atr_def);
-    List<Attribute> attrs_email_facility3 = new ArrayList<>();
-    ra_email_host1_facility3.forEach(ra -> attrs_email_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raEmailHost1Facility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility3, userEmailAtrDef);
+    List<Attribute> attrsEmailFacility3 = new ArrayList<>();
+    raEmailHost1Facility3.forEach(ra -> attrsEmailFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_email_facility3.size());
-    assertTrue(attrs_email_facility3.contains(user2_email_attribute));
-    assertTrue(attrs_email_facility3.contains(user3_email_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsEmailFacility3.size());
+    assertTrue(attrsEmailFacility3.contains(user2EmailAttribute));
+    assertTrue(attrsEmailFacility3.contains(user3EmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -7965,17 +7979,17 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getUserAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all phone user attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user_phone_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userPhoneAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
     //actually contains 4 user attributes because of test user John Doe
-    assertTrue("Invalid number of attributes found", 4 <= attrs_all.size());
-    assertTrue(attrs_all.contains(user1_phone_attribute));
-    assertTrue(attrs_all.contains(user2_phone_attribute));
+    assertTrue("Invalid number of attributes found", 4 <= attrsAll.size());
+    assertTrue(attrsAll.contains(user1PhoneAttribute));
+    assertTrue(attrsAll.contains(user2PhoneAttribute));
     //contains empty user3 attribute
-    assertTrue(attrs_all.contains(new Attribute(user_phone_atr_def)));
+    assertTrue(attrsAll.contains(new Attribute(userPhoneAtrDef)));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -7989,21 +8003,21 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone attributes for member2OfUser1 - disallowed member
-    List<RichAttribute> ra_phone_member2U1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, user_phone_atr_def);
-    List<Attribute> attrs_phone_member2U1 = new ArrayList<>();
-    ra_phone_member2U1.forEach(ra -> attrs_phone_member2U1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneMember2U1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, userPhoneAtrDef);
+    List<Attribute> attrsPhoneMember2U1 = new ArrayList<>();
+    raPhoneMember2U1.forEach(ra -> attrsPhoneMember2U1.add(ra.getAttribute()));
 
-    assertTrue(attrs_phone_member2U1.isEmpty());
+    assertTrue(attrsPhoneMember2U1.isEmpty());
 
     //find email attributes for member1OfUser3
-    List<RichAttribute> ra_phone_member1U3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser3, user_email_atr_def);
-    List<Attribute> attrs_phone_member1U3 = new ArrayList<>();
-    ra_phone_member1U3.forEach(ra -> attrs_phone_member1U3.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneMember1U3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser3, userEmailAtrDef);
+    List<Attribute> attrsPhoneMember1U3 = new ArrayList<>();
+    raPhoneMember1U3.forEach(ra -> attrsPhoneMember1U3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_phone_member1U3.size());
-    assertTrue(attrs_phone_member1U3.contains(user3_email_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsPhoneMember1U3.size());
+    assertTrue(attrsPhoneMember1U3.contains(user3EmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8017,23 +8031,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find user phone attributes by resource2InVo1
-    List<RichAttribute> ra_phone_res2VO1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1, user_phone_atr_def);
-    List<Attribute> attrs_phone_res2VO1 = new ArrayList<>();
-    ra_phone_res2VO1.forEach(ra -> attrs_phone_res2VO1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneRes2VO1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1, userPhoneAtrDef);
+    List<Attribute> attrsPhoneRes2VO1 = new ArrayList<>();
+    raPhoneRes2VO1.forEach(ra -> attrsPhoneRes2VO1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_phone_res2VO1.size());
-    assertTrue(attrs_phone_res2VO1.contains(user1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsPhoneRes2VO1.size());
+    assertTrue(attrsPhoneRes2VO1.contains(user1PhoneAttribute));
 
     //find user preffered email attributes by resource1InVo2
-    List<RichAttribute> ra_phone_res1VO2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, user_email_atr_def);
-    List<Attribute> attrs_phone_res1VO2 = new ArrayList<>();
-    ra_phone_res1VO2.forEach(ra -> attrs_phone_res1VO2.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneRes1VO2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, userEmailAtrDef);
+    List<Attribute> attrsPhoneRes1VO2 = new ArrayList<>();
+    raPhoneRes1VO2.forEach(ra -> attrsPhoneRes1VO2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_res1VO2.size());
-    assertTrue(attrs_phone_res1VO2.contains(user2_email_attribute));
-    assertTrue(attrs_phone_res1VO2.contains(user3_email_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneRes1VO2.size());
+    assertTrue(attrsPhoneRes1VO2.contains(user2EmailAttribute));
+    assertTrue(attrsPhoneRes1VO2.contains(user3EmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8047,22 +8061,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getUserAttributes", PerunSession.class, User.class, AttributeDefinition.class);
 
     //find phone attributes for user1
-    List<RichAttribute> ra_phone_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, user_phone_atr_def);
-    List<Attribute> attrs_phone_user1 = new ArrayList<>();
-    ra_phone_user1.forEach(ra -> attrs_phone_user1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, userPhoneAtrDef);
+    List<Attribute> attrsPhoneUser1 = new ArrayList<>();
+    raPhoneUser1.forEach(ra -> attrsPhoneUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_phone_user1.size());
-    assertTrue(attrs_phone_user1.contains(user1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsPhoneUser1.size());
+    assertTrue(attrsPhoneUser1.contains(user1PhoneAttribute));
 
     //find email attribute for user2
-    List<RichAttribute> ra_email_user2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, user_email_atr_def);
-    List<Attribute> attrs_email_user2 = new ArrayList<>();
-    ra_email_user2.forEach(ra -> attrs_email_user2.add(ra.getAttribute()));
+    List<RichAttribute> raEmailUser2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, userEmailAtrDef);
+    List<Attribute> attrsEmailUser2 = new ArrayList<>();
+    raEmailUser2.forEach(ra -> attrsEmailUser2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_email_user2.size());
-    assertTrue(attrs_email_user2.contains(user2_email_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsEmailUser2.size());
+    assertTrue(attrsEmailUser2.contains(user2EmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8076,22 +8090,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find phone attributes for userExtSource1
-    List<RichAttribute> ra_phone_userExtSource1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, user_phone_atr_def);
-    List<Attribute> attrs_phone_userExtSource1 = new ArrayList<>();
-    ra_phone_userExtSource1.forEach(ra -> attrs_phone_userExtSource1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneUserExtSource1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, userPhoneAtrDef);
+    List<Attribute> attrsPhoneUserExtSource1 = new ArrayList<>();
+    raPhoneUserExtSource1.forEach(ra -> attrsPhoneUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_phone_userExtSource1.size());
-    assertTrue(attrs_phone_userExtSource1.contains(user1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsPhoneUserExtSource1.size());
+    assertTrue(attrsPhoneUserExtSource1.contains(user1PhoneAttribute));
 
     //find email attribute for userExtSource2
-    List<RichAttribute> ra_email_userExtSource2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource2, user_email_atr_def);
-    List<Attribute> attrs_email_userExtSource2 = new ArrayList<>();
-    ra_email_userExtSource2.forEach(ra -> attrs_email_userExtSource2.add(ra.getAttribute()));
+    List<RichAttribute> raEmailUserExtSource2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource2, userEmailAtrDef);
+    List<Attribute> attrsEmailUserExtSource2 = new ArrayList<>();
+    raEmailUserExtSource2.forEach(ra -> attrsEmailUserExtSource2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_email_userExtSource2.size());
-    assertTrue(attrs_email_userExtSource2.contains(user2_email_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsEmailUserExtSource2.size());
+    assertTrue(attrsEmailUserExtSource2.contains(user2EmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8106,21 +8120,21 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find phone user attributes for user1 and facility1
-    List<RichAttribute> ra_user1_fac1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility1, user_phone_atr_def);
-    List<Attribute> attrs_user1_fac1 = new ArrayList<>();
-    ra_user1_fac1.forEach(ra -> attrs_user1_fac1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1Fac1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility1, userPhoneAtrDef);
+    List<Attribute> attrsUser1Fac1 = new ArrayList<>();
+    raUser1Fac1.forEach(ra -> attrsUser1Fac1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user1_fac1.size());
-    assertTrue(attrs_user1_fac1.contains(user1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser1Fac1.size());
+    assertTrue(attrsUser1Fac1.contains(user1PhoneAttribute));
 
     //find phone user attributes for user2 and facility1
-    List<RichAttribute> ra_user2_fac1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility1, user_phone_atr_def);
-    List<Attribute> attrs_user2_fac1 = new ArrayList<>();
-    ra_user2_fac1.forEach(ra -> attrs_user2_fac1.add(ra.getAttribute()));
+    List<RichAttribute> raUser2Fac1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility1, userPhoneAtrDef);
+    List<Attribute> attrsUser2Fac1 = new ArrayList<>();
+    raUser2Fac1.forEach(ra -> attrsUser2Fac1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_user2_fac1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsUser2Fac1.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8134,25 +8148,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getUserAttributes", PerunSession.class, Vo.class, AttributeDefinition.class);
 
     //find user phone attributes by vo1
-    List<RichAttribute> ra_phone_VO1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, user_phone_atr_def);
-    List<Attribute> attrs_phone_VO1 = new ArrayList<>();
-    ra_phone_VO1.forEach(ra -> attrs_phone_VO1.add(ra.getAttribute()));
+    List<RichAttribute> raPhoneVO1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, userPhoneAtrDef);
+    List<Attribute> attrsPhoneVO1 = new ArrayList<>();
+    raPhoneVO1.forEach(ra -> attrsPhoneVO1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_phone_VO1.size());
-    assertTrue(attrs_phone_VO1.contains(user1_phone_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsPhoneVO1.size());
+    assertTrue(attrsPhoneVO1.contains(user1PhoneAttribute));
     //contains empty attribute value from user3 who does not have phone set
-    assertTrue(attrs_phone_VO1.contains(new Attribute(user_phone_atr_def)));
+    assertTrue(attrsPhoneVO1.contains(new Attribute(userPhoneAtrDef)));
 
     //find user preferred email attributes by vo2
-    List<RichAttribute> ra_email_VO2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, user_email_atr_def);
-    List<Attribute> attrs_email_VO2 = new ArrayList<>();
-    ra_email_VO2.forEach(ra -> attrs_email_VO2.add(ra.getAttribute()));
+    List<RichAttribute> raEmailVO2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, userEmailAtrDef);
+    List<Attribute> attrsEmailVO2 = new ArrayList<>();
+    raEmailVO2.forEach(ra -> attrsEmailVO2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_email_VO2.size());
-    assertTrue(attrs_email_VO2.contains(user2_email_attribute));
-    assertTrue(attrs_email_VO2.contains(user3_email_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsEmailVO2.size());
+    assertTrue(attrsEmailVO2.contains(user2EmailAttribute));
+    assertTrue(attrsEmailVO2.contains(user3EmailAttribute));
   }
 
   @Test(expected = UserNotExistsException.class)
@@ -8284,29 +8298,29 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test UES attributes for facility1
-    List<RichAttribute> ra_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, ues_test_atr_def);
-    List<Attribute> attrs_facility1 = new ArrayList<>();
-    ra_facility1.forEach(ra -> attrs_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, uesTestAtrDef);
+    List<Attribute> attrsFacility1 = new ArrayList<>();
+    raFacility1.forEach(ra -> attrsFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_facility1.size());
+    assertEquals("Invalid number of attributes found", 4, attrsFacility1.size());
     //contains two internal_ues_atr
-    assertTrue(attrs_facility1.contains(ues1_test_atr));
-    assertTrue(attrs_facility1.contains(ues3_test_atr));
-    assertTrue(attrs_facility1.contains(internal_ues_atr));
+    assertTrue(attrsFacility1.contains(ues1TestAtr));
+    assertTrue(attrsFacility1.contains(ues3TestAtr));
+    assertTrue(attrsFacility1.contains(internalUesAtr));
 
     //find test UES attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, ues_test_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, uesTestAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 6, attrs_facility2.size());
+    assertEquals("Invalid number of attributes found", 6, attrsFacility2.size());
     //contains three internal_ues_atr
-    assertTrue(attrs_facility2.contains(ues1_test_atr));
-    assertTrue(attrs_facility2.contains(ues2_test_atr));
-    assertTrue(attrs_facility2.contains(ues3_test_atr));
-    assertTrue(attrs_facility2.contains(internal_ues_atr));
+    assertTrue(attrsFacility2.contains(ues1TestAtr));
+    assertTrue(attrsFacility2.contains(ues2TestAtr));
+    assertTrue(attrsFacility2.contains(ues3TestAtr));
+    assertTrue(attrsFacility2.contains(internalUesAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8321,26 +8335,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test UES attributes for group1InVo1
-    List<RichAttribute> ra_group1InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, ues_test_atr_def);
-    List<Attribute> attrs_group1InVo1 = new ArrayList<>();
-    ra_group1InVo1.forEach(ra -> attrs_group1InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, uesTestAtrDef);
+    List<Attribute> attrsGroup1InVo1 = new ArrayList<>();
+    raGroup1InVo1.forEach(ra -> attrsGroup1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_group1InVo1.size());
+    assertEquals("Invalid number of attributes found", 4, attrsGroup1InVo1.size());
     //contains two internal_ues_atr
-    assertTrue(attrs_group1InVo1.contains(ues1_test_atr));
-    assertTrue(attrs_group1InVo1.contains(ues3_test_atr));
-    assertTrue(attrs_group1InVo1.contains(internal_ues_atr));
+    assertTrue(attrsGroup1InVo1.contains(ues1TestAtr));
+    assertTrue(attrsGroup1InVo1.contains(ues3TestAtr));
+    assertTrue(attrsGroup1InVo1.contains(internalUesAtr));
 
     //find test UES attributes for group2InVo1
-    List<RichAttribute> ra_group2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, ues_test_atr_def);
-    List<Attribute> attrs_group2InVo1 = new ArrayList<>();
-    ra_group2InVo1.forEach(ra -> attrs_group2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, uesTestAtrDef);
+    List<Attribute> attrsGroup2InVo1 = new ArrayList<>();
+    raGroup2InVo1.forEach(ra -> attrsGroup2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2InVo1.size());
-    assertTrue(attrs_group2InVo1.contains(ues1_test_atr));
-    assertTrue(attrs_group2InVo1.contains(internal_ues_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2InVo1.size());
+    assertTrue(attrsGroup2InVo1.contains(ues1TestAtr));
+    assertTrue(attrsGroup2InVo1.contains(internalUesAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8355,29 +8369,29 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test UES attributes for host1OnFacility1
-    List<RichAttribute> ra_host1OnFacility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, ues_test_atr_def);
-    List<Attribute> attrs_host1OnFacility1 = new ArrayList<>();
-    ra_host1OnFacility1.forEach(ra -> attrs_host1OnFacility1.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1, uesTestAtrDef);
+    List<Attribute> attrsHost1OnFacility1 = new ArrayList<>();
+    raHost1OnFacility1.forEach(ra -> attrsHost1OnFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_host1OnFacility1.size());
+    assertEquals("Invalid number of attributes found", 4, attrsHost1OnFacility1.size());
     //contains two internal_ues_atr
-    assertTrue(attrs_host1OnFacility1.contains(ues1_test_atr));
-    assertTrue(attrs_host1OnFacility1.contains(ues3_test_atr));
-    assertTrue(attrs_host1OnFacility1.contains(internal_ues_atr));
+    assertTrue(attrsHost1OnFacility1.contains(ues1TestAtr));
+    assertTrue(attrsHost1OnFacility1.contains(ues3TestAtr));
+    assertTrue(attrsHost1OnFacility1.contains(internalUesAtr));
 
     //find test UES attributes for host1OnFacility2
-    List<RichAttribute> ra_host1OnFacility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, ues_test_atr_def);
-    List<Attribute> attrs_host1OnFacility2 = new ArrayList<>();
-    ra_host1OnFacility2.forEach(ra -> attrs_host1OnFacility2.add(ra.getAttribute()));
+    List<RichAttribute> raHost1OnFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2, uesTestAtrDef);
+    List<Attribute> attrsHost1OnFacility2 = new ArrayList<>();
+    raHost1OnFacility2.forEach(ra -> attrsHost1OnFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 6, attrs_host1OnFacility2.size());
+    assertEquals("Invalid number of attributes found", 6, attrsHost1OnFacility2.size());
     //contains three internal_ues_atr
-    assertTrue(attrs_host1OnFacility2.contains(ues1_test_atr));
-    assertTrue(attrs_host1OnFacility2.contains(ues2_test_atr));
-    assertTrue(attrs_host1OnFacility2.contains(ues3_test_atr));
-    assertTrue(attrs_host1OnFacility2.contains(internal_ues_atr));
+    assertTrue(attrsHost1OnFacility2.contains(ues1TestAtr));
+    assertTrue(attrsHost1OnFacility2.contains(ues2TestAtr));
+    assertTrue(attrsHost1OnFacility2.contains(ues3TestAtr));
+    assertTrue(attrsHost1OnFacility2.contains(internalUesAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8392,16 +8406,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getUserExtSourceAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all test UES attributes
-    List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, ues_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, uesTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 6, attrs_all.size());
-    assertTrue(attrs_all.contains(ues1_test_atr));
-    assertTrue(attrs_all.contains(ues2_test_atr));
-    assertTrue(attrs_all.contains(ues3_test_atr));
+    assertEquals("Invalid number of attributes found", 6, attrsAll.size());
+    assertTrue(attrsAll.contains(ues1TestAtr));
+    assertTrue(attrsAll.contains(ues2TestAtr));
+    assertTrue(attrsAll.contains(ues3TestAtr));
     //contains three internal ues attributes
-    assertTrue(attrs_all.contains(internal_ues_atr));
+    assertTrue(attrsAll.contains(internalUesAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8416,22 +8430,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test UES attributes for member1OfUser1
-    List<RichAttribute> ra_member1OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, ues_test_atr_def);
-    List<Attribute> attrs_member1OfUser1 = new ArrayList<>();
-    ra_member1OfUser1.forEach(ra -> attrs_member1OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember1OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, uesTestAtrDef);
+    List<Attribute> attrsMember1OfUser1 = new ArrayList<>();
+    raMember1OfUser1.forEach(ra -> attrsMember1OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1OfUser1.size());
-    assertTrue(attrs_member1OfUser1.contains(ues1_test_atr));
-    assertTrue(attrs_member1OfUser1.contains(internal_ues_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1OfUser1.size());
+    assertTrue(attrsMember1OfUser1.contains(ues1TestAtr));
+    assertTrue(attrsMember1OfUser1.contains(internalUesAtr));
 
     //find test UES attributes for member2OfUser1
-    List<RichAttribute> ra_member2OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, ues_test_atr_def);
-    List<Attribute> attrs_member2OfUser1 = new ArrayList<>();
-    ra_member2OfUser1.forEach(ra -> attrs_member2OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember2OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, uesTestAtrDef);
+    List<Attribute> attrsMember2OfUser1 = new ArrayList<>();
+    raMember2OfUser1.forEach(ra -> attrsMember2OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2OfUser1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2OfUser1.size());
   }
 
   // TODO - doplnit testy na:
@@ -8455,26 +8469,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test UES attributes for resource1InVo2
-    List<RichAttribute> ra_resource1InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, ues_test_atr_def);
-    List<Attribute> attrs_resource1InVo2 = new ArrayList<>();
-    ra_resource1InVo2.forEach(ra -> attrs_resource1InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raResource1InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, uesTestAtrDef);
+    List<Attribute> attrsResource1InVo2 = new ArrayList<>();
+    raResource1InVo2.forEach(ra -> attrsResource1InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_resource1InVo2.size());
+    assertEquals("Invalid number of attributes found", 4, attrsResource1InVo2.size());
     //contains two internal_ues_atr
-    assertTrue(attrs_resource1InVo2.contains(ues2_test_atr));
-    assertTrue(attrs_resource1InVo2.contains(ues3_test_atr));
-    assertTrue(attrs_resource1InVo2.contains(internal_ues_atr));
+    assertTrue(attrsResource1InVo2.contains(ues2TestAtr));
+    assertTrue(attrsResource1InVo2.contains(ues3TestAtr));
+    assertTrue(attrsResource1InVo2.contains(internalUesAtr));
 
     //find test UES attributes for resource2InVo1
-    List<RichAttribute> ra_resource2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1, ues_test_atr_def);
-    List<Attribute> attrs_resource2InVo1 = new ArrayList<>();
-    ra_resource2InVo1.forEach(ra -> attrs_resource2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raResource2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1, uesTestAtrDef);
+    List<Attribute> attrsResource2InVo1 = new ArrayList<>();
+    raResource2InVo1.forEach(ra -> attrsResource2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_resource2InVo1.size());
-    assertTrue(attrs_resource2InVo1.contains(ues1_test_atr));
-    assertTrue(attrs_resource2InVo1.contains(internal_ues_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsResource2InVo1.size());
+    assertTrue(attrsResource2InVo1.contains(ues1TestAtr));
+    assertTrue(attrsResource2InVo1.contains(internalUesAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8489,24 +8503,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test UES attributes for user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, ues_test_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, uesTestAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user1.size());
-    assertTrue(attrs_user1.contains(ues1_test_atr));
-    assertTrue(attrs_user1.contains(internal_ues_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsUser1.size());
+    assertTrue(attrsUser1.contains(ues1TestAtr));
+    assertTrue(attrsUser1.contains(internalUesAtr));
 
     //find test UES attributes for user3
-    List<RichAttribute> ra_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, ues_test_atr_def);
-    List<Attribute> attrs_user3 = new ArrayList<>();
-    ra_user3.forEach(ra -> attrs_user3.add(ra.getAttribute()));
+    List<RichAttribute> raUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, uesTestAtrDef);
+    List<Attribute> attrsUser3 = new ArrayList<>();
+    raUser3.forEach(ra -> attrsUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user3.size());
-    assertTrue(attrs_user3.contains(ues3_test_atr));
-    assertTrue(attrs_user3.contains(internal_ues_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsUser3.size());
+    assertTrue(attrsUser3.contains(ues3TestAtr));
+    assertTrue(attrsUser3.contains(internalUesAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8522,13 +8536,13 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test UES attributes for userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, ues_test_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
-    ra_userExtSource1.forEach(ra -> attrs_userExtSource1.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, uesTestAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
+    raUserExtSource1.forEach(ra -> attrsUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(ues1_test_atr));
+    assertEquals("Invalid number of attributes found", 1, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(ues1TestAtr));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8544,22 +8558,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find test UES attributes for user1 facility1
-    List<RichAttribute> ra_user1_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility1, ues_test_atr_def);
-    List<Attribute> attrs_user1_facility1 = new ArrayList<>();
-    ra_user1_facility1.forEach(ra -> attrs_user1_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1Facility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility1, uesTestAtrDef);
+    List<Attribute> attrsUser1Facility1 = new ArrayList<>();
+    raUser1Facility1.forEach(ra -> attrsUser1Facility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user1_facility1.size());
-    assertTrue(attrs_user1_facility1.contains(ues1_test_atr));
-    assertTrue(attrs_user1_facility1.contains(internal_ues_atr));
+    assertEquals("Invalid number of attributes found", 2, attrsUser1Facility1.size());
+    assertTrue(attrsUser1Facility1.contains(ues1TestAtr));
+    assertTrue(attrsUser1Facility1.contains(internalUesAtr));
 
     //find test UES attributes for user1 and facility3
-    List<RichAttribute> ra_user1_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility3, ues_test_atr_def);
-    List<Attribute> attrs_user1_facility3 = new ArrayList<>();
-    ra_user1_facility3.forEach(ra -> attrs_user1_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raUser1Facility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility3, uesTestAtrDef);
+    List<Attribute> attrsUser1Facility3 = new ArrayList<>();
+    raUser1Facility3.forEach(ra -> attrsUser1Facility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_user1_facility3.size());
+    assertEquals("Invalid number of attributes found", 0, attrsUser1Facility3.size());
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8574,27 +8588,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find test UES attributes for vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, ues_test_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, uesTestAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_vo1.size());
+    assertEquals("Invalid number of attributes found", 4, attrsVo1.size());
     //contains two internal_ues_atr
-    assertTrue(attrs_vo1.contains(ues1_test_atr));
-    assertTrue(attrs_vo1.contains(ues3_test_atr));
-    assertTrue(attrs_vo1.contains(internal_ues_atr));
+    assertTrue(attrsVo1.contains(ues1TestAtr));
+    assertTrue(attrsVo1.contains(ues3TestAtr));
+    assertTrue(attrsVo1.contains(internalUesAtr));
 
     //find test UES attributes for vo2
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, ues_test_atr_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
-    ra_vo2.forEach(ra -> attrs_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, uesTestAtrDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
+    raVo2.forEach(ra -> attrsVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(ues2_test_atr));
-    assertTrue(attrs_vo2.contains(ues3_test_atr));
-    assertTrue(attrs_vo2.contains(internal_ues_atr));
+    assertEquals("Invalid number of attributes found", 4, attrsVo2.size());
+    assertTrue(attrsVo2.contains(ues2TestAtr));
+    assertTrue(attrsVo2.contains(ues3TestAtr));
+    assertTrue(attrsVo2.contains(internalUesAtr));
   }
 
   @Test(expected = UserExtSourceNotExistsException.class)
@@ -8618,35 +8632,35 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test user-facility attributes for facility1
-    List<RichAttribute> ra_facility1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, userFacility_test_atr_def);
-    List<Attribute> attrs_facility1 = new ArrayList<>();
-    ra_facility1.forEach(ra -> attrs_facility1.add(ra.getAttribute()));
+    List<RichAttribute> raFacility1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility1, userFacilityTestAtrDef);
+    List<Attribute> attrsFacility1 = new ArrayList<>();
+    raFacility1.forEach(ra -> attrsFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility1.size());
-    assertTrue(attrs_facility1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_facility1.contains(user3Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility1.size());
+    assertTrue(attrsFacility1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsFacility1.contains(user3Facility1TestAttribute));
 
     //find all test user-facility attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, userFacility_test_atr_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, userFacilityTestAtrDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(user1Facility2_test_attribute));
-    assertTrue(attrs_facility2.contains(user2Facility2_test_attribute));
-    assertTrue(attrs_facility2.contains(user3Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(user1Facility2TestAttribute));
+    assertTrue(attrsFacility2.contains(user2Facility2TestAttribute));
+    assertTrue(attrsFacility2.contains(user3Facility2TestAttribute));
 
     //find all test user-facility attributes for facility3
-    List<RichAttribute> ra_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, userFacility_test_atr_def);
-    List<Attribute> attrs_facility3 = new ArrayList<>();
-    ra_facility3.forEach(ra -> attrs_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raFacility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, userFacilityTestAtrDef);
+    List<Attribute> attrsFacility3 = new ArrayList<>();
+    raFacility3.forEach(ra -> attrsFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_facility3.size());
-    assertTrue(attrs_facility3.contains(user2Facility3_test_attribute));
-    assertTrue(attrs_facility3.contains(user3Facility3_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsFacility3.size());
+    assertTrue(attrsFacility3.contains(user2Facility3TestAttribute));
+    assertTrue(attrsFacility3.contains(user3Facility3TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8660,36 +8674,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test user-facility attributes for group2InVo2
-    List<RichAttribute> ra_group2InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, userFacility_test_atr_def);
-    List<Attribute> attrs_group2InVo2 = new ArrayList<>();
-    ra_group2InVo2.forEach(ra -> attrs_group2InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, userFacilityTestAtrDef);
+    List<Attribute> attrsGroup2InVo2 = new ArrayList<>();
+    raGroup2InVo2.forEach(ra -> attrsGroup2InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_group2InVo2.size());
-    assertTrue(attrs_group2InVo2.contains(user2Facility2_test_attribute));
-    assertTrue(attrs_group2InVo2.contains(user2Facility3_test_attribute));
-    assertTrue(attrs_group2InVo2.contains(user3Facility2_test_attribute));
-    assertTrue(attrs_group2InVo2.contains(user3Facility3_test_attribute));
+    assertEquals("Invalid number of attributes found", 4, attrsGroup2InVo2.size());
+    assertTrue(attrsGroup2InVo2.contains(user2Facility2TestAttribute));
+    assertTrue(attrsGroup2InVo2.contains(user2Facility3TestAttribute));
+    assertTrue(attrsGroup2InVo2.contains(user3Facility2TestAttribute));
+    assertTrue(attrsGroup2InVo2.contains(user3Facility3TestAttribute));
 
     //find all test user-facility attributes for group1InVo1
-    List<RichAttribute> ra_group1InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, userFacility_test_atr_def);
-    List<Attribute> attrs_group1InVo1 = new ArrayList<>();
-    ra_group1InVo1.forEach(ra -> attrs_group1InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, userFacilityTestAtrDef);
+    List<Attribute> attrsGroup1InVo1 = new ArrayList<>();
+    raGroup1InVo1.forEach(ra -> attrsGroup1InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group1InVo1.size());
-    assertTrue(attrs_group1InVo1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_group1InVo1.contains(user3Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup1InVo1.size());
+    assertTrue(attrsGroup1InVo1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsGroup1InVo1.contains(user3Facility1TestAttribute));
 
     //find all test user-facility attributes for group2InVo1
-    List<RichAttribute> ra_group2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, userFacility_test_atr_def);
-    List<Attribute> attrs_group2InVo1 = new ArrayList<>();
-    ra_group2InVo1.forEach(ra -> attrs_group2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, userFacilityTestAtrDef);
+    List<Attribute> attrsGroup2InVo1 = new ArrayList<>();
+    raGroup2InVo1.forEach(ra -> attrsGroup2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2InVo1.size());
-    assertTrue(attrs_group2InVo1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_group2InVo1.contains(user1Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2InVo1.size());
+    assertTrue(attrsGroup2InVo1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsGroup2InVo1.contains(user1Facility2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8704,36 +8718,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test user-facility attributes for group2InVo1 and resource2InVo1
-    List<RichAttribute> ra_group2Vo1_resource2Vo1 =
+    List<RichAttribute> raGroup2Vo1Resource2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo1, resource2InVo1,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_group2Vo1_resource2Vo1 = new ArrayList<>();
-    ra_group2Vo1_resource2Vo1.forEach(ra -> attrs_group2Vo1_resource2Vo1.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsGroup2Vo1Resource2Vo1 = new ArrayList<>();
+    raGroup2Vo1Resource2Vo1.forEach(ra -> attrsGroup2Vo1Resource2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_group2Vo1_resource2Vo1.size());
-    assertTrue(attrs_group2Vo1_resource2Vo1.contains(user1Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsGroup2Vo1Resource2Vo1.size());
+    assertTrue(attrsGroup2Vo1Resource2Vo1.contains(user1Facility2TestAttribute));
 
     //find all test user-facility attributes for group1InVo1 and resource1InVo1
-    List<RichAttribute> ra_group1Vo1_resource1Vo1 =
+    List<RichAttribute> raGroup1Vo1Resource1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, resource1InVo1,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_group1Vo1_resource1Vo1 = new ArrayList<>();
-    ra_group1Vo1_resource1Vo1.forEach(ra -> attrs_group1Vo1_resource1Vo1.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsGroup1Vo1Resource1Vo1 = new ArrayList<>();
+    raGroup1Vo1Resource1Vo1.forEach(ra -> attrsGroup1Vo1Resource1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group1Vo1_resource1Vo1.size());
-    assertTrue(attrs_group1Vo1_resource1Vo1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_group1Vo1_resource1Vo1.contains(user3Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup1Vo1Resource1Vo1.size());
+    assertTrue(attrsGroup1Vo1Resource1Vo1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsGroup1Vo1Resource1Vo1.contains(user3Facility1TestAttribute));
 
     //find all test user-facility attributes for group2InVo2 and resource1InVo2
-    List<RichAttribute> ra_group2Vo2_resource1Vo2 =
+    List<RichAttribute> raGroup2Vo2Resource1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group2InVo2, resource1InVo2,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_group2Vo2_resource1Vo2 = new ArrayList<>();
-    ra_group2Vo2_resource1Vo2.forEach(ra -> attrs_group2Vo2_resource1Vo2.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsGroup2Vo2Resource1Vo2 = new ArrayList<>();
+    raGroup2Vo2Resource1Vo2.forEach(ra -> attrsGroup2Vo2Resource1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_group2Vo2_resource1Vo2.size());
-    assertTrue(attrs_group2Vo2_resource1Vo2.contains(user2Facility2_test_attribute));
-    assertTrue(attrs_group2Vo2_resource1Vo2.contains(user3Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsGroup2Vo2Resource1Vo2.size());
+    assertTrue(attrsGroup2Vo2Resource1Vo2.contains(user2Facility2TestAttribute));
+    assertTrue(attrsGroup2Vo2Resource1Vo2.contains(user3Facility2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8747,38 +8761,38 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test user-facility attributes for host1OnFacility1
-    List<RichAttribute> ra_host1OnFacility1 =
+    List<RichAttribute> raHost1OnFacility1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility1,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_host1OnFacility1 = new ArrayList<>();
-    ra_host1OnFacility1.forEach(ra -> attrs_host1OnFacility1.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsHost1OnFacility1 = new ArrayList<>();
+    raHost1OnFacility1.forEach(ra -> attrsHost1OnFacility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_host1OnFacility1.size());
-    assertTrue(attrs_host1OnFacility1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_host1OnFacility1.contains(user3Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsHost1OnFacility1.size());
+    assertTrue(attrsHost1OnFacility1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsHost1OnFacility1.contains(user3Facility1TestAttribute));
 
     //find all test user-facility attributes for host1OnFacility2
-    List<RichAttribute> ra_host1OnFacility2 =
+    List<RichAttribute> raHost1OnFacility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility2,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_host1OnFacility2 = new ArrayList<>();
-    ra_host1OnFacility2.forEach(ra -> attrs_host1OnFacility2.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsHost1OnFacility2 = new ArrayList<>();
+    raHost1OnFacility2.forEach(ra -> attrsHost1OnFacility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_host1OnFacility2.size());
-    assertTrue(attrs_host1OnFacility2.contains(user1Facility2_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(user2Facility2_test_attribute));
-    assertTrue(attrs_host1OnFacility2.contains(user3Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsHost1OnFacility2.size());
+    assertTrue(attrsHost1OnFacility2.contains(user1Facility2TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(user2Facility2TestAttribute));
+    assertTrue(attrsHost1OnFacility2.contains(user3Facility2TestAttribute));
 
     //find all test user-facility attributes for host2OnFacility3
-    List<RichAttribute> ra_host2OnFacility3 =
+    List<RichAttribute> raHost2OnFacility3 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host2OnFacility3,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_host2OnFacility3 = new ArrayList<>();
-    ra_host2OnFacility3.forEach(ra -> attrs_host2OnFacility3.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsHost2OnFacility3 = new ArrayList<>();
+    raHost2OnFacility3.forEach(ra -> attrsHost2OnFacility3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_host2OnFacility3.size());
-    assertTrue(attrs_host2OnFacility3.contains(user2Facility3_test_attribute));
-    assertTrue(attrs_host2OnFacility3.contains(user3Facility3_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsHost2OnFacility3.size());
+    assertTrue(attrsHost2OnFacility3.contains(user2Facility3TestAttribute));
+    assertTrue(attrsHost2OnFacility3.contains(user3Facility3TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8792,19 +8806,19 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getUserFacilityAttributes", PerunSession.class, AttributeDefinition.class);
 
     //find all test user-facility attributes
-    List<RichAttribute> ra_all =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userFacility_test_atr_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userFacilityTestAtrDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertTrue("Invalid number of attributes found", 7 <= attrs_all.size());
-    assertTrue(attrs_all.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_all.contains(user1Facility2_test_attribute));
-    assertTrue(attrs_all.contains(user2Facility2_test_attribute));
-    assertTrue(attrs_all.contains(user2Facility3_test_attribute));
-    assertTrue(attrs_all.contains(user3Facility3_test_attribute));
-    assertTrue(attrs_all.contains(user3Facility2_test_attribute));
-    assertTrue(attrs_all.contains(user3Facility1_test_attribute));
+    assertTrue("Invalid number of attributes found", 7 <= attrsAll.size());
+    assertTrue(attrsAll.contains(user1Facility1TestAttribute));
+    assertTrue(attrsAll.contains(user1Facility2TestAttribute));
+    assertTrue(attrsAll.contains(user2Facility2TestAttribute));
+    assertTrue(attrsAll.contains(user2Facility3TestAttribute));
+    assertTrue(attrsAll.contains(user3Facility3TestAttribute));
+    assertTrue(attrsAll.contains(user3Facility2TestAttribute));
+    assertTrue(attrsAll.contains(user3Facility1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8818,32 +8832,32 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test user-facility attributes for member2OfUser3
-    List<RichAttribute> ra_member2OfUser3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3, userFacility_test_atr_def);
-    List<Attribute> attrs_member2OfUser3 = new ArrayList<>();
-    ra_member2OfUser3.forEach(ra -> attrs_member2OfUser3.add(ra.getAttribute()));
+    List<RichAttribute> raMember2OfUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3, userFacilityTestAtrDef);
+    List<Attribute> attrsMember2OfUser3 = new ArrayList<>();
+    raMember2OfUser3.forEach(ra -> attrsMember2OfUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member2OfUser3.size());
-    assertTrue(attrs_member2OfUser3.contains(user3Facility2_test_attribute));
-    assertTrue(attrs_member2OfUser3.contains(user3Facility3_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember2OfUser3.size());
+    assertTrue(attrsMember2OfUser3.contains(user3Facility2TestAttribute));
+    assertTrue(attrsMember2OfUser3.contains(user3Facility3TestAttribute));
 
     //find all test user-facility attributes for member2OfUser1
-    List<RichAttribute> ra_member2OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, userFacility_test_atr_def);
-    List<Attribute> attrs_member2OfUser1 = new ArrayList<>();
-    ra_member2OfUser1.forEach(ra -> attrs_member2OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember2OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, userFacilityTestAtrDef);
+    List<Attribute> attrsMember2OfUser1 = new ArrayList<>();
+    raMember2OfUser1.forEach(ra -> attrsMember2OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2OfUser1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2OfUser1.size());
 
     //find all test user-facility attributes for member1OfUser1
-    List<RichAttribute> ra_member1OfUser1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, userFacility_test_atr_def);
-    List<Attribute> attrs_member1OfUser1 = new ArrayList<>();
-    ra_member1OfUser1.forEach(ra -> attrs_member1OfUser1.add(ra.getAttribute()));
+    List<RichAttribute> raMember1OfUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, userFacilityTestAtrDef);
+    List<Attribute> attrsMember1OfUser1 = new ArrayList<>();
+    raMember1OfUser1.forEach(ra -> attrsMember1OfUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1OfUser1.size());
-    assertTrue(attrs_member1OfUser1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_member1OfUser1.contains(user1Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1OfUser1.size());
+    assertTrue(attrsMember1OfUser1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsMember1OfUser1.contains(user1Facility2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8858,34 +8872,34 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test user-facility attributes for member1OfUser1 and group2InVo1
-    List<RichAttribute> ra_member1U1_group2Vo1 =
+    List<RichAttribute> raMember1U1Group2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, group2InVo1,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_member1U1_group2Vo1 = new ArrayList<>();
-    ra_member1U1_group2Vo1.forEach(ra -> attrs_member1U1_group2Vo1.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsMember1U1Group2Vo1 = new ArrayList<>();
+    raMember1U1Group2Vo1.forEach(ra -> attrsMember1U1Group2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_member1U1_group2Vo1.size());
-    assertTrue(attrs_member1U1_group2Vo1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_member1U1_group2Vo1.contains(user1Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsMember1U1Group2Vo1.size());
+    assertTrue(attrsMember1U1Group2Vo1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsMember1U1Group2Vo1.contains(user1Facility2TestAttribute));
 
     //find all test user-facility attributes for member2OfUser1 and group1InVo2
-    List<RichAttribute> ra_member2U1_group1Vo2 =
+    List<RichAttribute> raMember2U1Group1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser1, group1InVo2,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_member2U1_group1Vo2 = new ArrayList<>();
-    ra_member2U1_group1Vo2.forEach(ra -> attrs_member2U1_group1Vo2.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsMember2U1Group1Vo2 = new ArrayList<>();
+    raMember2U1Group1Vo2.forEach(ra -> attrsMember2U1Group1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member2U1_group1Vo2.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember2U1Group1Vo2.size());
 
     //find all test user-facility attributes for member1OfUser3 and group1InVo1
-    List<RichAttribute> ra_member1U3_group1Vo1 =
+    List<RichAttribute> raMember1U3Group1Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser3, group1InVo1,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_member1U3_group1Vo1 = new ArrayList<>();
-    ra_member1U3_group1Vo1.forEach(ra -> attrs_member1U3_group1Vo1.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsMember1U3Group1Vo1 = new ArrayList<>();
+    raMember1U3Group1Vo1.forEach(ra -> attrsMember1U3Group1Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U3_group1Vo1.size());
-    assertTrue(attrs_member1U3_group1Vo1.contains(user3Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U3Group1Vo1.size());
+    assertTrue(attrsMember1U3Group1Vo1.contains(user3Facility1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8900,33 +8914,33 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test user-facility attributes for member1OfUser3 and resource2InVo1
-    List<RichAttribute> ra_member1U1_res2Vo1 =
+    List<RichAttribute> raMember1U1Res2Vo1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser3, resource2InVo1,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_member1U1_res2Vo1 = new ArrayList<>();
-    ra_member1U1_res2Vo1.forEach(ra -> attrs_member1U1_res2Vo1.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsMember1U1Res2Vo1 = new ArrayList<>();
+    raMember1U1Res2Vo1.forEach(ra -> attrsMember1U1Res2Vo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 0, attrs_member1U1_res2Vo1.size());
+    assertEquals("Invalid number of attributes found", 0, attrsMember1U1Res2Vo1.size());
 
     //find all test user-facility attributes for member2OfUser3 and resource1InVo2
-    List<RichAttribute> ra_member2U3_res1Vo2 =
+    List<RichAttribute> raMember2U3Res1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member2OfUser3, resource1InVo2,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_member2U3_res1Vo2 = new ArrayList<>();
-    ra_member2U3_res1Vo2.forEach(ra -> attrs_member2U3_res1Vo2.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsMember2U3Res1Vo2 = new ArrayList<>();
+    raMember2U3Res1Vo2.forEach(ra -> attrsMember2U3Res1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member2U3_res1Vo2.size());
-    assertTrue(attrs_member2U3_res1Vo2.contains(user3Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsMember2U3Res1Vo2.size());
+    assertTrue(attrsMember2U3Res1Vo2.contains(user3Facility2TestAttribute));
 
     //find all test user-facility attributes for member1OfUser2 and resource1InVo2
-    List<RichAttribute> ra_member1U2_res1Vo2 =
+    List<RichAttribute> raMember1U2Res1Vo2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser2, resource1InVo2,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_member1U2_res1Vo2 = new ArrayList<>();
-    ra_member1U2_res1Vo2.forEach(ra -> attrs_member1U2_res1Vo2.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsMember1U2Res1Vo2 = new ArrayList<>();
+    raMember1U2Res1Vo2.forEach(ra -> attrsMember1U2Res1Vo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_member1U2_res1Vo2.size());
-    assertTrue(attrs_member1U2_res1Vo2.contains(user2Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsMember1U2Res1Vo2.size());
+    assertTrue(attrsMember1U2Res1Vo2.contains(user2Facility2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8941,23 +8955,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test user-facility attributes for resource2InVo1
-    List<RichAttribute> ra_resource2InVo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1, userFacility_test_atr_def);
-    List<Attribute> attrs_resource2InVo1 = new ArrayList<>();
-    ra_resource2InVo1.forEach(ra -> attrs_resource2InVo1.add(ra.getAttribute()));
+    List<RichAttribute> raResource2InVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource2InVo1, userFacilityTestAtrDef);
+    List<Attribute> attrsResource2InVo1 = new ArrayList<>();
+    raResource2InVo1.forEach(ra -> attrsResource2InVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_resource2InVo1.size());
-    assertTrue(attrs_resource2InVo1.contains(user1Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsResource2InVo1.size());
+    assertTrue(attrsResource2InVo1.contains(user1Facility2TestAttribute));
 
     //find all test user-facility attributes for resource1InVo2
-    List<RichAttribute> ra_resource1InVo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, userFacility_test_atr_def);
-    List<Attribute> attrs_resource1InVo2 = new ArrayList<>();
-    ra_resource1InVo2.forEach(ra -> attrs_resource1InVo2.add(ra.getAttribute()));
+    List<RichAttribute> raResource1InVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, userFacilityTestAtrDef);
+    List<Attribute> attrsResource1InVo2 = new ArrayList<>();
+    raResource1InVo2.forEach(ra -> attrsResource1InVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_resource1InVo2.size());
-    assertTrue(attrs_resource1InVo2.contains(user2Facility2_test_attribute));
-    assertTrue(attrs_resource1InVo2.contains(user3Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsResource1InVo2.size());
+    assertTrue(attrsResource1InVo2.contains(user2Facility2TestAttribute));
+    assertTrue(attrsResource1InVo2.contains(user3Facility2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -8971,25 +8985,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test user-facility attributes for user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, userFacility_test_atr_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, userFacilityTestAtrDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_user1.size());
-    assertTrue(attrs_user1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_user1.contains(user1Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsUser1.size());
+    assertTrue(attrsUser1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsUser1.contains(user1Facility2TestAttribute));
 
     //find all test user-facility attributes for user3
-    List<RichAttribute> ra_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, userFacility_test_atr_def);
-    List<Attribute> attrs_user3 = new ArrayList<>();
-    ra_user3.forEach(ra -> attrs_user3.add(ra.getAttribute()));
+    List<RichAttribute> raUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, userFacilityTestAtrDef);
+    List<Attribute> attrsUser3 = new ArrayList<>();
+    raUser3.forEach(ra -> attrsUser3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_user3.size());
-    assertTrue(attrs_user3.contains(user3Facility3_test_attribute));
-    assertTrue(attrs_user3.contains(user3Facility2_test_attribute));
-    assertTrue(attrs_user3.contains(user3Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsUser3.size());
+    assertTrue(attrsUser3.contains(user3Facility3TestAttribute));
+    assertTrue(attrsUser3.contains(user3Facility2TestAttribute));
+    assertTrue(attrsUser3.contains(user3Facility1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9004,25 +9018,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test user-facility attributes for userExtSource1
-    List<RichAttribute> ra_userExtSource1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, userFacility_test_atr_def);
-    List<Attribute> attrs_userExtSource1 = new ArrayList<>();
-    ra_userExtSource1.forEach(ra -> attrs_userExtSource1.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, userFacilityTestAtrDef);
+    List<Attribute> attrsUserExtSource1 = new ArrayList<>();
+    raUserExtSource1.forEach(ra -> attrsUserExtSource1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 2, attrs_userExtSource1.size());
-    assertTrue(attrs_userExtSource1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_userExtSource1.contains(user1Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 2, attrsUserExtSource1.size());
+    assertTrue(attrsUserExtSource1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsUserExtSource1.contains(user1Facility2TestAttribute));
 
     //find all test user-facility attributes for userExtSource3
-    List<RichAttribute> ra_userExtSource3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, userFacility_test_atr_def);
-    List<Attribute> attrs_userExtSource3 = new ArrayList<>();
-    ra_userExtSource3.forEach(ra -> attrs_userExtSource3.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSource3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource3, userFacilityTestAtrDef);
+    List<Attribute> attrsUserExtSource3 = new ArrayList<>();
+    raUserExtSource3.forEach(ra -> attrsUserExtSource3.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_userExtSource3.size());
-    assertTrue(attrs_userExtSource3.contains(user3Facility3_test_attribute));
-    assertTrue(attrs_userExtSource3.contains(user3Facility2_test_attribute));
-    assertTrue(attrs_userExtSource3.contains(user3Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsUserExtSource3.size());
+    assertTrue(attrsUserExtSource3.contains(user3Facility3TestAttribute));
+    assertTrue(attrsUserExtSource3.contains(user3Facility2TestAttribute));
+    assertTrue(attrsUserExtSource3.contains(user3Facility1TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9037,24 +9051,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //find all test user-facility attributes for user1 and facility1
-    List<RichAttribute> ra_user1_facility1 =
+    List<RichAttribute> raUser1Facility1 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, facility1,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_user1_facility1 = new ArrayList<>();
-    ra_user1_facility1.forEach(ra -> attrs_user1_facility1.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsUser1Facility1 = new ArrayList<>();
+    raUser1Facility1.forEach(ra -> attrsUser1Facility1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user1_facility1.size());
-    assertTrue(attrs_user1_facility1.contains(user1Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser1Facility1.size());
+    assertTrue(attrsUser1Facility1.contains(user1Facility1TestAttribute));
 
     //find all test user-facility attributes for user3 and facilty2
-    List<RichAttribute> ra_user3_facility2 =
+    List<RichAttribute> raUser3Facility2 =
         (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility2,
-            userFacility_test_atr_def);
-    List<Attribute> attrs_user3_facility2 = new ArrayList<>();
-    ra_user3_facility2.forEach(ra -> attrs_user3_facility2.add(ra.getAttribute()));
+            userFacilityTestAtrDef);
+    List<Attribute> attrsUser3Facility2 = new ArrayList<>();
+    raUser3Facility2.forEach(ra -> attrsUser3Facility2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 1, attrs_user3_facility2.size());
-    assertTrue(attrs_user3_facility2.contains(user3Facility2_test_attribute));
+    assertEquals("Invalid number of attributes found", 1, attrsUser3Facility2.size());
+    assertTrue(attrsUser3Facility2.contains(user3Facility2TestAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9068,27 +9082,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //find all test user-facility attributes for vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, userFacility_test_atr_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, userFacilityTestAtrDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 3, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(user1Facility1_test_attribute));
-    assertTrue(attrs_vo1.contains(user1Facility2_test_attribute));
-    assertTrue(attrs_vo1.contains(user3Facility1_test_attribute));
+    assertEquals("Invalid number of attributes found", 3, attrsVo1.size());
+    assertTrue(attrsVo1.contains(user1Facility1TestAttribute));
+    assertTrue(attrsVo1.contains(user1Facility2TestAttribute));
+    assertTrue(attrsVo1.contains(user3Facility1TestAttribute));
 
     //find all test user-facility attributes for vo2
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, userFacility_test_atr_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
-    ra_vo2.forEach(ra -> attrs_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, userFacilityTestAtrDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
+    raVo2.forEach(ra -> attrsVo2.add(ra.getAttribute()));
 
-    assertEquals("Invalid number of attributes found", 4, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(user2Facility2_test_attribute));
-    assertTrue(attrs_vo2.contains(user2Facility3_test_attribute));
-    assertTrue(attrs_vo2.contains(user3Facility2_test_attribute));
-    assertTrue(attrs_vo2.contains(user3Facility3_test_attribute));
+    assertEquals("Invalid number of attributes found", 4, attrsVo2.size());
+    assertTrue(attrsVo2.contains(user2Facility2TestAttribute));
+    assertTrue(attrsVo2.contains(user2Facility3TestAttribute));
+    assertTrue(attrsVo2.contains(user3Facility2TestAttribute));
+    assertTrue(attrsVo2.contains(user3Facility3TestAttribute));
   }
 
   @Test
@@ -9229,23 +9243,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for facility2
-    List<RichAttribute> ra_facility2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, vo_toEmail_def);
-    List<Attribute> attrs_facility2 = new ArrayList<>();
-    ra_facility2.forEach(ra -> attrs_facility2.add(ra.getAttribute()));
+    List<RichAttribute> raFacility2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility2, voToEmailDef);
+    List<Attribute> attrsFacility2 = new ArrayList<>();
+    raFacility2.forEach(ra -> attrsFacility2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 2, attrs_facility2.size());
-    assertTrue(attrs_facility2.contains(vo1_toEmail_attribute));
-    assertTrue(attrs_facility2.contains(vo2_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 2, attrsFacility2.size());
+    assertTrue(attrsFacility2.contains(vo1ToEmailAttribute));
+    assertTrue(attrsFacility2.contains(vo2ToEmailAttribute));
 
     //get vo_fromEmail_def attributes for facility3
-    List<RichAttribute> ra_facility3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, vo_fromEmail_def);
-    List<Attribute> attrs_facility3 = new ArrayList<>();
-    ra_facility3.forEach(ra -> attrs_facility3.add(ra.getAttribute()));
+    List<RichAttribute> raFacility3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, facility3, voFromEmailDef);
+    List<Attribute> attrsFacility3 = new ArrayList<>();
+    raFacility3.forEach(ra -> attrsFacility3.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_facility3.size());
-    assertTrue(attrs_facility3.contains(vo2_fromEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsFacility3.size());
+    assertTrue(attrsFacility3.contains(vo2FromEmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9259,22 +9273,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getVoAttributes", PerunSession.class, Group.class, AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for group1InVo1
-    List<RichAttribute> ra_group1_invo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, vo_toEmail_def);
-    List<Attribute> attrs_group1_invo1 = new ArrayList<>();
-    ra_group1_invo1.forEach(ra -> attrs_group1_invo1.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1Invo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo1, voToEmailDef);
+    List<Attribute> attrsGroup1Invo1 = new ArrayList<>();
+    raGroup1Invo1.forEach(ra -> attrsGroup1Invo1.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_group1_invo1.size());
-    assertTrue(attrs_group1_invo1.contains(vo1_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsGroup1Invo1.size());
+    assertTrue(attrsGroup1Invo1.contains(vo1ToEmailAttribute));
 
     //get vo_fromEmail_def attributes for group1InVo2
-    List<RichAttribute> ra_group1_invo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, vo_fromEmail_def);
-    List<Attribute> attrs_group1_invo2 = new ArrayList<>();
-    ra_group1_invo2.forEach(ra -> attrs_group1_invo2.add(ra.getAttribute()));
+    List<RichAttribute> raGroup1Invo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, group1InVo2, voFromEmailDef);
+    List<Attribute> attrsGroup1Invo2 = new ArrayList<>();
+    raGroup1Invo2.forEach(ra -> attrsGroup1Invo2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_group1_invo2.size());
-    assertTrue(attrs_group1_invo2.contains(vo2_fromEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsGroup1Invo2.size());
+    assertTrue(attrsGroup1Invo2.contains(vo2FromEmailAttribute));
   }
 
   // TODO - není metoda na získání pouze req. user atributů z 1 service
@@ -9290,23 +9304,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getVoAttributes", PerunSession.class, Host.class, AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for host2OnFacility2
-    List<RichAttribute> ra_host2_onfac2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host2OnFacility2, vo_toEmail_def);
-    List<Attribute> attrs_host2_onfac2 = new ArrayList<>();
-    ra_host2_onfac2.forEach(ra -> attrs_host2_onfac2.add(ra.getAttribute()));
+    List<RichAttribute> raHost2Onfac2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host2OnFacility2, voToEmailDef);
+    List<Attribute> attrsHost2Onfac2 = new ArrayList<>();
+    raHost2Onfac2.forEach(ra -> attrsHost2Onfac2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 2, attrs_host2_onfac2.size());
-    assertTrue(attrs_host2_onfac2.contains(vo1_toEmail_attribute));
-    assertTrue(attrs_host2_onfac2.contains(vo2_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 2, attrsHost2Onfac2.size());
+    assertTrue(attrsHost2Onfac2.contains(vo1ToEmailAttribute));
+    assertTrue(attrsHost2Onfac2.contains(vo2ToEmailAttribute));
 
     //get vo_fromEmail_def attributes for host1OnFacility3
-    List<RichAttribute> ra_host1_onfac3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility3, vo_fromEmail_def);
-    List<Attribute> attrs_host1_onfac3 = new ArrayList<>();
-    ra_host1_onfac3.forEach(ra -> attrs_host1_onfac3.add(ra.getAttribute()));
+    List<RichAttribute> raHost1Onfac3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, host1OnFacility3, voFromEmailDef);
+    List<Attribute> attrsHost1Onfac3 = new ArrayList<>();
+    raHost1Onfac3.forEach(ra -> attrsHost1Onfac3.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_host1_onfac3.size());
-    assertTrue(attrs_host1_onfac3.contains(vo2_fromEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsHost1Onfac3.size());
+    assertTrue(attrsHost1Onfac3.contains(vo2FromEmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9320,13 +9334,13 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getVoAttributes", PerunSession.class, AttributeDefinition.class);
 
     //get all vo_toEmail_def attributes
-    List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo_toEmail_def);
-    List<Attribute> attrs_all = new ArrayList<>();
-    ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
+    List<RichAttribute> raAll = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, voToEmailDef);
+    List<Attribute> attrsAll = new ArrayList<>();
+    raAll.forEach(ra -> attrsAll.add(ra.getAttribute()));
 
-    assertTrue("Found invalid number of attributes", 2 <= attrs_all.size());
-    assertTrue(attrs_all.contains(vo1_toEmail_attribute));
-    assertTrue(attrs_all.contains(vo2_toEmail_attribute));
+    assertTrue("Found invalid number of attributes", 2 <= attrsAll.size());
+    assertTrue(attrsAll.contains(vo1ToEmailAttribute));
+    assertTrue(attrsAll.contains(vo2ToEmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9340,22 +9354,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getVoAttributes", PerunSession.class, Member.class, AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for member1OfUser1
-    List<RichAttribute> ra_member1_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, vo_toEmail_def);
-    List<Attribute> attrs_member1_user1 = new ArrayList<>();
-    ra_member1_user1.forEach(ra -> attrs_member1_user1.add(ra.getAttribute()));
+    List<RichAttribute> raMember1User1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser1, voToEmailDef);
+    List<Attribute> attrsMember1User1 = new ArrayList<>();
+    raMember1User1.forEach(ra -> attrsMember1User1.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_member1_user1.size());
-    assertTrue(attrs_member1_user1.contains(vo1_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsMember1User1.size());
+    assertTrue(attrsMember1User1.contains(vo1ToEmailAttribute));
 
     //get vo_toEmail_def attributes for member member1OfUser2
-    List<RichAttribute> ra_member1_user2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser2, vo_toEmail_def);
-    List<Attribute> attrs_member1_user2 = new ArrayList<>();
-    ra_member1_user2.forEach(ra -> attrs_member1_user2.add(ra.getAttribute()));
+    List<RichAttribute> raMember1User2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, member1OfUser2, voToEmailDef);
+    List<Attribute> attrsMember1User2 = new ArrayList<>();
+    raMember1User2.forEach(ra -> attrsMember1User2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_member1_user2.size());
-    assertTrue(attrs_member1_user2.contains(vo2_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsMember1User2.size());
+    assertTrue(attrsMember1User2.contains(vo2ToEmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9369,22 +9383,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for resource1InVo1
-    List<RichAttribute> ra_res1_invo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, vo_toEmail_def);
-    List<Attribute> attrs_res1_invo1 = new ArrayList<>();
-    ra_res1_invo1.forEach(ra -> attrs_res1_invo1.add(ra.getAttribute()));
+    List<RichAttribute> raRes1Invo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo1, voToEmailDef);
+    List<Attribute> attrsRes1Invo1 = new ArrayList<>();
+    raRes1Invo1.forEach(ra -> attrsRes1Invo1.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_res1_invo1.size());
-    assertTrue(attrs_res1_invo1.contains(vo1_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsRes1Invo1.size());
+    assertTrue(attrsRes1Invo1.contains(vo1ToEmailAttribute));
 
     //get vo_fromEmail_def attributes for resource1InVo2
-    List<RichAttribute> ra_res1_invo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, vo_fromEmail_def);
-    List<Attribute> attrs_res1_invo2 = new ArrayList<>();
-    ra_res1_invo2.forEach(ra -> attrs_res1_invo2.add(ra.getAttribute()));
+    List<RichAttribute> raRes1Invo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, resource1InVo2, voFromEmailDef);
+    List<Attribute> attrsRes1Invo2 = new ArrayList<>();
+    raRes1Invo2.forEach(ra -> attrsRes1Invo2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_res1_invo2.size());
-    assertTrue(attrs_res1_invo2.contains(vo2_fromEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsRes1Invo2.size());
+    assertTrue(attrsRes1Invo2.contains(vo2FromEmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9398,32 +9412,32 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getVoAttributes", PerunSession.class, User.class, AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for user1
-    List<RichAttribute> ra_user1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, vo_toEmail_def);
-    List<Attribute> attrs_user1 = new ArrayList<>();
-    ra_user1.forEach(ra -> attrs_user1.add(ra.getAttribute()));
+    List<RichAttribute> raUser1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user1, voToEmailDef);
+    List<Attribute> attrsUser1 = new ArrayList<>();
+    raUser1.forEach(ra -> attrsUser1.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_user1.size());
-    assertTrue(attrs_user1.contains(vo1_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsUser1.size());
+    assertTrue(attrsUser1.contains(vo1ToEmailAttribute));
 
     //get attributes for user2
-    List<RichAttribute> ra_user2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, vo_fromEmail_def);
-    List<Attribute> attrs_user2 = new ArrayList<>();
-    ra_user2.forEach(ra -> attrs_user2.add(ra.getAttribute()));
+    List<RichAttribute> raUser2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, voFromEmailDef);
+    List<Attribute> attrsUser2 = new ArrayList<>();
+    raUser2.forEach(ra -> attrsUser2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_user2.size());
-    assertTrue(attrs_user2.contains(vo2_fromEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsUser2.size());
+    assertTrue(attrsUser2.contains(vo2FromEmailAttribute));
 
     //get attributes for user3
-    List<RichAttribute> ra_user3 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, vo_toEmail_def);
-    List<Attribute> attrs_user3 = new ArrayList<>();
-    ra_user3.forEach(ra -> attrs_user3.add(ra.getAttribute()));
+    List<RichAttribute> raUser3 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, voToEmailDef);
+    List<Attribute> attrsUser3 = new ArrayList<>();
+    raUser3.forEach(ra -> attrsUser3.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 2, attrs_user3.size());
-    assertTrue(attrs_user3.contains(vo2_toEmail_attribute));
-    assertTrue(attrs_user3.contains(vo1_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 2, attrsUser3.size());
+    assertTrue(attrsUser3.contains(vo2ToEmailAttribute));
+    assertTrue(attrsUser3.contains(vo1ToEmailAttribute));
   }
 
 
@@ -9446,22 +9460,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for userExtSource1
-    List<RichAttribute> ra_userExtSrc1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, vo_toEmail_def);
-    List<Attribute> attrs_userExtSrc1 = new ArrayList<>();
-    ra_userExtSrc1.forEach(ra -> attrs_userExtSrc1.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSrc1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource1, voToEmailDef);
+    List<Attribute> attrsUserExtSrc1 = new ArrayList<>();
+    raUserExtSrc1.forEach(ra -> attrsUserExtSrc1.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_userExtSrc1.size());
-    assertTrue(attrs_userExtSrc1.contains(vo1_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsUserExtSrc1.size());
+    assertTrue(attrsUserExtSrc1.contains(vo1ToEmailAttribute));
 
     //get vo_fromEmail_def attributes for userExtSource2
-    List<RichAttribute> ra_userExtSrc2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource2, vo_fromEmail_def);
-    List<Attribute> attrs_userExtSrc2 = new ArrayList<>();
-    ra_userExtSrc2.forEach(ra -> attrs_userExtSrc2.add(ra.getAttribute()));
+    List<RichAttribute> raUserExtSrc2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, userExtSource2, voFromEmailDef);
+    List<Attribute> attrsUserExtSrc2 = new ArrayList<>();
+    raUserExtSrc2.forEach(ra -> attrsUserExtSrc2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_userExtSrc2.size());
-    assertTrue(attrs_userExtSrc2.contains(vo2_fromEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsUserExtSrc2.size());
+    assertTrue(attrsUserExtSrc2.contains(vo2FromEmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9476,21 +9490,21 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for user3 and facility2
-    List<RichAttribute> ra_user3_fac2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility2, vo_toEmail_def);
-    List<Attribute> attrs_user3_fac2 = new ArrayList<>();
-    ra_user3_fac2.forEach(ra -> attrs_user3_fac2.add(ra.getAttribute()));
+    List<RichAttribute> raUser3Fac2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user3, facility2, voToEmailDef);
+    List<Attribute> attrsUser3Fac2 = new ArrayList<>();
+    raUser3Fac2.forEach(ra -> attrsUser3Fac2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_user3_fac2.size());
-    assertTrue(attrs_user3_fac2.contains(vo2_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsUser3Fac2.size());
+    assertTrue(attrsUser3Fac2.contains(vo2ToEmailAttribute));
 
-    List<RichAttribute> ra_user2_fac2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility2, vo_toEmail_def);
-    List<Attribute> attrs_user2_fac2 = new ArrayList<>();
-    ra_user2_fac2.forEach(ra -> attrs_user2_fac2.add(ra.getAttribute()));
+    List<RichAttribute> raUser2Fac2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, user2, facility2, voToEmailDef);
+    List<Attribute> attrsUser2Fac2 = new ArrayList<>();
+    raUser2Fac2.forEach(ra -> attrsUser2Fac2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_user2_fac2.size());
-    assertTrue(attrs_user2_fac2.contains(vo2_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsUser2Fac2.size());
+    assertTrue(attrsUser2Fac2.contains(vo2ToEmailAttribute));
   }
 
   @SuppressWarnings({"unchecked"})
@@ -9504,22 +9518,22 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         getPrivateMethodFromAtrManager("getVoAttributes", PerunSession.class, Vo.class, AttributeDefinition.class);
 
     //get vo_toEmail_def attributes for Vo1
-    List<RichAttribute> ra_vo1 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, vo_toEmail_def);
-    List<Attribute> attrs_vo1 = new ArrayList<>();
-    ra_vo1.forEach(ra -> attrs_vo1.add(ra.getAttribute()));
+    List<RichAttribute> raVo1 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo1, voToEmailDef);
+    List<Attribute> attrsVo1 = new ArrayList<>();
+    raVo1.forEach(ra -> attrsVo1.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_vo1.size());
-    assertTrue(attrs_vo1.contains(vo1_toEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsVo1.size());
+    assertTrue(attrsVo1.contains(vo1ToEmailAttribute));
 
     //get vo_fromEmail_def attributes for Vo1
-    List<RichAttribute> ra_vo2 =
-        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, vo_fromEmail_def);
-    List<Attribute> attrs_vo2 = new ArrayList<>();
-    ra_vo2.forEach(ra -> attrs_vo2.add(ra.getAttribute()));
+    List<RichAttribute> raVo2 =
+        (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo2, voFromEmailDef);
+    List<Attribute> attrsVo2 = new ArrayList<>();
+    raVo2.forEach(ra -> attrsVo2.add(ra.getAttribute()));
 
-    assertEquals("Found invalid number of attributes", 1, attrs_vo2.size());
-    assertTrue(attrs_vo2.contains(vo2_fromEmail_attribute));
+    assertEquals("Found invalid number of attributes", 1, attrsVo2.size());
+    assertTrue(attrsVo2.contains(vo2FromEmailAttribute));
   }
 
   @Test(expected = VoNotExistsException.class)
@@ -11454,16 +11468,16 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     User user = sess.getPerun().getUsersManager().getUserByMember(sess, member);
     resource = setUpResource();
 
-    List<Attribute> attributes_user = setUpUserAttribute();
-    List<Attribute> attributes_member = setUpMemberAttribute();
-    List<Attribute> attributes_user_facility = setUpFacilityUserAttribute();
-    List<Attribute> attributes_member_resource = setUpMemberResourceAttribute();
+    List<Attribute> attributesUser = setUpUserAttribute();
+    List<Attribute> attributesMember = setUpMemberAttribute();
+    List<Attribute> attributesUserFacility = setUpFacilityUserAttribute();
+    List<Attribute> attributesMemberResource = setUpMemberResourceAttribute();
 
     List<Attribute> attributes = new ArrayList<>();
-    attributes.addAll(attributes_user);
-    attributes.addAll(attributes_member);
-    attributes.addAll(attributes_user_facility);
-    attributes.addAll(attributes_member_resource);
+    attributes.addAll(attributesUser);
+    attributes.addAll(attributesMember);
+    attributes.addAll(attributesUserFacility);
+    attributes.addAll(attributesMemberResource);
 
     attributesManager.removeAttributes(sess, facility, resource, user, member, attributes);
     List<Attribute> retAttr = attributesManager.getAttributes(sess, facility, resource, user, member);
@@ -11665,24 +11679,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    entityless_test_atr_def = new AttributeDefinition();
-    entityless_test_atr_def.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-    entityless_test_atr_def.setDescription("entityless_test_atr_def");
-    entityless_test_atr_def.setFriendlyName("test-entityless-test-atr-def");
-    entityless_test_atr_def.setType(String.class.getName());
-    entityless_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, entityless_test_atr_def);
+    entitylessTestAtrDef = new AttributeDefinition();
+    entitylessTestAtrDef.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+    entitylessTestAtrDef.setDescription("entityless_test_atr_def");
+    entitylessTestAtrDef.setFriendlyName("test-entityless-test-atr-def");
+    entitylessTestAtrDef.setType(String.class.getName());
+    entitylessTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, entitylessTestAtrDef);
 
-    entityless_test_attribute1 = new Attribute(entityless_test_atr_def);
-    entityless_test_attribute1.setValue("154");
-    perun.getAttributesManagerBl().setAttribute(sess, "1", entityless_test_attribute1);
+    entitylessTestAttribute1 = new Attribute(entitylessTestAtrDef);
+    entitylessTestAttribute1.setValue("154");
+    perun.getAttributesManagerBl().setAttribute(sess, "1", entitylessTestAttribute1);
 
-    entityless_test_attribute2 = new Attribute(entityless_test_atr_def);
-    entityless_test_attribute2.setValue("202");
-    perun.getAttributesManagerBl().setAttribute(sess, "2", entityless_test_attribute2);
+    entitylessTestAttribute2 = new Attribute(entitylessTestAtrDef);
+    entitylessTestAttribute2.setValue("202");
+    perun.getAttributesManagerBl().setAttribute(sess, "2", entitylessTestAttribute2);
 
-    entityless_test_attribute3 = new Attribute(entityless_test_atr_def);
-    entityless_test_attribute3.setValue("362");
-    perun.getAttributesManagerBl().setAttribute(sess, "3", entityless_test_attribute3);
+    entitylessTestAttribute3 = new Attribute(entitylessTestAtrDef);
+    entitylessTestAttribute3.setValue("362");
+    perun.getAttributesManagerBl().setAttribute(sess, "3", entitylessTestAttribute3);
   }
 
   /**
@@ -11692,24 +11706,24 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    facility_test_atr_def = new AttributeDefinition();
-    facility_test_atr_def.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-    facility_test_atr_def.setDescription("facility_test_atr_def");
-    facility_test_atr_def.setFriendlyName("test-facility-test-atr-def");
-    facility_test_atr_def.setType(String.class.getName());
-    facility_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, facility_test_atr_def);
+    facilityTestAtrDef = new AttributeDefinition();
+    facilityTestAtrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    facilityTestAtrDef.setDescription("facility_test_atr_def");
+    facilityTestAtrDef.setFriendlyName("test-facility-test-atr-def");
+    facilityTestAtrDef.setType(String.class.getName());
+    facilityTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, facilityTestAtrDef);
 
-    facility1_test_atr = new Attribute(facility_test_atr_def);
-    facility1_test_atr.setValue("756");
-    perun.getAttributesManagerBl().setAttribute(sess, facility1, facility1_test_atr);
+    facility1TestAtr = new Attribute(facilityTestAtrDef);
+    facility1TestAtr.setValue("756");
+    perun.getAttributesManagerBl().setAttribute(sess, facility1, facility1TestAtr);
 
-    facility2_test_atr = new Attribute(facility_test_atr_def);
-    facility2_test_atr.setValue("0475");
-    perun.getAttributesManagerBl().setAttribute(sess, facility2, facility2_test_atr);
+    facility2TestAtr = new Attribute(facilityTestAtrDef);
+    facility2TestAtr.setValue("0475");
+    perun.getAttributesManagerBl().setAttribute(sess, facility2, facility2TestAtr);
 
-    facility3_test_atr = new Attribute(facility_test_atr_def);
-    facility3_test_atr.setValue("0000");
-    perun.getAttributesManagerBl().setAttribute(sess, facility3, facility3_test_atr);
+    facility3TestAtr = new Attribute(facilityTestAtrDef);
+    facility3TestAtr.setValue("0000");
+    perun.getAttributesManagerBl().setAttribute(sess, facility3, facility3TestAtr);
   }
 
   /**
@@ -11721,36 +11735,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    group_fromEmail_atr_def = new AttributeDefinition();
-    group_fromEmail_atr_def.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    group_fromEmail_atr_def.setDescription("group_fromEmail_atr_def");
-    group_fromEmail_atr_def.setFriendlyName("test-group-fromEmail-atr-def");
-    group_fromEmail_atr_def.setType(String.class.getName());
-    group_fromEmail_atr_def = perun.getAttributesManagerBl().createAttribute(sess, group_fromEmail_atr_def);
+    groupFromEmailAtrDef = new AttributeDefinition();
+    groupFromEmailAtrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    groupFromEmailAtrDef.setDescription("group_fromEmail_atr_def");
+    groupFromEmailAtrDef.setFriendlyName("test-group-fromEmail-atr-def");
+    groupFromEmailAtrDef.setType(String.class.getName());
+    groupFromEmailAtrDef = perun.getAttributesManagerBl().createAttribute(sess, groupFromEmailAtrDef);
 
-    group1InVo1_email_atr = new Attribute(group_fromEmail_atr_def);
-    group1InVo1_email_atr.setValue("1@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, group1InVo1, group1InVo1_email_atr);
+    group1InVo1EmailAtr = new Attribute(groupFromEmailAtrDef);
+    group1InVo1EmailAtr.setValue("1@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, group1InVo1, group1InVo1EmailAtr);
 
-    group2InVo1_email_atr = new Attribute(group_fromEmail_atr_def);
-    group2InVo1_email_atr.setValue("2@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, group2InVo1, group2InVo1_email_atr);
+    group2InVo1EmailAtr = new Attribute(groupFromEmailAtrDef);
+    group2InVo1EmailAtr.setValue("2@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, group2InVo1, group2InVo1EmailAtr);
 
-    group1InVo2_email_atr = new Attribute(group_fromEmail_atr_def);
-    group1InVo2_email_atr.setValue("3@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, group1InVo2, group1InVo2_email_atr);
+    group1InVo2EmailAtr = new Attribute(groupFromEmailAtrDef);
+    group1InVo2EmailAtr.setValue("3@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, group1InVo2, group1InVo2EmailAtr);
 
-    group2InVo2_email_atr = new Attribute(group_fromEmail_atr_def);
-    group2InVo2_email_atr.setValue("4@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, group2InVo2, group2InVo2_email_atr);
+    group2InVo2EmailAtr = new Attribute(groupFromEmailAtrDef);
+    group2InVo2EmailAtr.setValue("4@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, group2InVo2, group2InVo2EmailAtr);
 
-    membersGroupOfVo1_email_atr = new Attribute(group_fromEmail_atr_def);
-    membersGroupOfVo1_email_atr.setValue("5@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, membersGroupOfVo1, membersGroupOfVo1_email_atr);
+    membersGroupOfVo1EmailAtr = new Attribute(groupFromEmailAtrDef);
+    membersGroupOfVo1EmailAtr.setValue("5@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, membersGroupOfVo1, membersGroupOfVo1EmailAtr);
 
-    membersGroupOfVo2_email_atr = new Attribute(group_fromEmail_atr_def);
-    membersGroupOfVo2_email_atr.setValue("6@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, membersGroupOfVo2, membersGroupOfVo2_email_atr);
+    membersGroupOfVo2EmailAtr = new Attribute(groupFromEmailAtrDef);
+    membersGroupOfVo2EmailAtr.setValue("6@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, membersGroupOfVo2, membersGroupOfVo2EmailAtr);
   }
 
   /**
@@ -11763,36 +11777,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    groupResource_test_atr_def = new AttributeDefinition();
-    groupResource_test_atr_def.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-    groupResource_test_atr_def.setDescription("groupResource_test_atr_def");
-    groupResource_test_atr_def.setFriendlyName("test-groupResource-test-atr-def");
-    groupResource_test_atr_def.setType(String.class.getName());
-    groupResource_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, groupResource_test_atr_def);
+    groupResourceTestAtrDef = new AttributeDefinition();
+    groupResourceTestAtrDef.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+    groupResourceTestAtrDef.setDescription("groupResource_test_atr_def");
+    groupResourceTestAtrDef.setFriendlyName("test-groupResource-test-atr-def");
+    groupResourceTestAtrDef.setType(String.class.getName());
+    groupResourceTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, groupResourceTestAtrDef);
 
-    group1VO1Res1VO1_test_attribute = new Attribute(groupResource_test_atr_def);
-    group1VO1Res1VO1_test_attribute.setValue("G1VO1_RES1VO1");
-    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo1, group1InVo1, group1VO1Res1VO1_test_attribute);
+    group1VO1Res1VO1TestAttribute = new Attribute(groupResourceTestAtrDef);
+    group1VO1Res1VO1TestAttribute.setValue("G1VO1_RES1VO1");
+    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo1, group1InVo1, group1VO1Res1VO1TestAttribute);
 
-    group2VO1Res1VO1_test_attribute = new Attribute(groupResource_test_atr_def);
-    group2VO1Res1VO1_test_attribute.setValue("G2VO1_RES1VO1");
-    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo1, group2InVo1, group2VO1Res1VO1_test_attribute);
+    group2VO1Res1VO1TestAttribute = new Attribute(groupResourceTestAtrDef);
+    group2VO1Res1VO1TestAttribute.setValue("G2VO1_RES1VO1");
+    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo1, group2InVo1, group2VO1Res1VO1TestAttribute);
 
-    group2VO1Res2VO1_test_attribute = new Attribute(groupResource_test_atr_def);
-    group2VO1Res2VO1_test_attribute.setValue("G2VO1_RES2VO1");
-    perun.getAttributesManagerBl().setAttribute(sess, resource2InVo1, group2InVo1, group2VO1Res2VO1_test_attribute);
+    group2VO1Res2VO1TestAttribute = new Attribute(groupResourceTestAtrDef);
+    group2VO1Res2VO1TestAttribute.setValue("G2VO1_RES2VO1");
+    perun.getAttributesManagerBl().setAttribute(sess, resource2InVo1, group2InVo1, group2VO1Res2VO1TestAttribute);
 
-    group1VO2Res1VO2_test_attribute = new Attribute(groupResource_test_atr_def);
-    group1VO2Res1VO2_test_attribute.setValue("G1VO2_RES1VO2");
-    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo2, group1InVo2, group1VO2Res1VO2_test_attribute);
+    group1VO2Res1VO2TestAttribute = new Attribute(groupResourceTestAtrDef);
+    group1VO2Res1VO2TestAttribute.setValue("G1VO2_RES1VO2");
+    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo2, group1InVo2, group1VO2Res1VO2TestAttribute);
 
-    group2VO2Res1VO2_test_attribute = new Attribute(groupResource_test_atr_def);
-    group2VO2Res1VO2_test_attribute.setValue("G2VO2_RES1VO2");
-    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo2, group2InVo2, group2VO2Res1VO2_test_attribute);
+    group2VO2Res1VO2TestAttribute = new Attribute(groupResourceTestAtrDef);
+    group2VO2Res1VO2TestAttribute.setValue("G2VO2_RES1VO2");
+    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo2, group2InVo2, group2VO2Res1VO2TestAttribute);
 
-    group2VO2Res2VO2_test_attribute = new Attribute(groupResource_test_atr_def);
-    group2VO2Res2VO2_test_attribute.setValue("G2VO2_RES2VO2");
-    perun.getAttributesManagerBl().setAttribute(sess, resource2InVo2, group2InVo2, group2VO2Res2VO2_test_attribute);
+    group2VO2Res2VO2TestAttribute = new Attribute(groupResourceTestAtrDef);
+    group2VO2Res2VO2TestAttribute.setValue("G2VO2_RES2VO2");
+    perun.getAttributesManagerBl().setAttribute(sess, resource2InVo2, group2InVo2, group2VO2Res2VO2TestAttribute);
   }
 
   /**
@@ -11803,36 +11817,36 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    host_test_atr_def = new AttributeDefinition();
-    host_test_atr_def.setNamespace(AttributesManager.NS_HOST_ATTR_DEF);
-    host_test_atr_def.setDescription("host_test_atr_def");
-    host_test_atr_def.setFriendlyName("test-host-test-atr-def");
-    host_test_atr_def.setType(String.class.getName());
-    host_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, host_test_atr_def);
+    hostTestAtrDef = new AttributeDefinition();
+    hostTestAtrDef.setNamespace(AttributesManager.NS_HOST_ATTR_DEF);
+    hostTestAtrDef.setDescription("host_test_atr_def");
+    hostTestAtrDef.setFriendlyName("test-host-test-atr-def");
+    hostTestAtrDef.setType(String.class.getName());
+    hostTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, hostTestAtrDef);
 
-    host1F1_test_atr = new Attribute(host_test_atr_def);
-    host1F1_test_atr.setValue("host1F1");
-    perun.getAttributesManagerBl().setAttribute(sess, host1OnFacility1, host1F1_test_atr);
+    host1F1TestAtr = new Attribute(hostTestAtrDef);
+    host1F1TestAtr.setValue("host1F1");
+    perun.getAttributesManagerBl().setAttribute(sess, host1OnFacility1, host1F1TestAtr);
 
-    host2F1_test_atr = new Attribute(host_test_atr_def);
-    host2F1_test_atr.setValue("host2F1");
-    perun.getAttributesManagerBl().setAttribute(sess, host2OnFacility1, host2F1_test_atr);
+    host2F1TestAtr = new Attribute(hostTestAtrDef);
+    host2F1TestAtr.setValue("host2F1");
+    perun.getAttributesManagerBl().setAttribute(sess, host2OnFacility1, host2F1TestAtr);
 
-    host1F2_test_atr = new Attribute(host_test_atr_def);
-    host1F2_test_atr.setValue("host1F2");
-    perun.getAttributesManagerBl().setAttribute(sess, host1OnFacility2, host1F2_test_atr);
+    host1F2TestAtr = new Attribute(hostTestAtrDef);
+    host1F2TestAtr.setValue("host1F2");
+    perun.getAttributesManagerBl().setAttribute(sess, host1OnFacility2, host1F2TestAtr);
 
-    host2F2_test_atr = new Attribute(host_test_atr_def);
-    host2F2_test_atr.setValue("host2F2");
-    perun.getAttributesManagerBl().setAttribute(sess, host2OnFacility2, host2F2_test_atr);
+    host2F2TestAtr = new Attribute(hostTestAtrDef);
+    host2F2TestAtr.setValue("host2F2");
+    perun.getAttributesManagerBl().setAttribute(sess, host2OnFacility2, host2F2TestAtr);
 
-    host1F3_test_atr = new Attribute(host_test_atr_def);
-    host1F3_test_atr.setValue("host1F3");
-    perun.getAttributesManagerBl().setAttribute(sess, host1OnFacility3, host1F3_test_atr);
+    host1F3TestAtr = new Attribute(hostTestAtrDef);
+    host1F3TestAtr.setValue("host1F3");
+    perun.getAttributesManagerBl().setAttribute(sess, host1OnFacility3, host1F3TestAtr);
 
-    host2F3_test_atr = new Attribute(host_test_atr_def);
-    host2F3_test_atr.setValue("host2F3");
-    perun.getAttributesManagerBl().setAttribute(sess, host2OnFacility3, host2F3_test_atr);
+    host2F3TestAtr = new Attribute(hostTestAtrDef);
+    host2F3TestAtr.setValue("host2F3");
+    perun.getAttributesManagerBl().setAttribute(sess, host2OnFacility3, host2F3TestAtr);
   }
 
   /**
@@ -11845,56 +11859,56 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    member_phone_atr_def = new AttributeDefinition();
-    member_phone_atr_def.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
-    member_phone_atr_def.setDescription("member_phone_atr_def");
-    member_phone_atr_def.setFriendlyName("test-member-phone-atr-def");
-    member_phone_atr_def.setType(String.class.getName());
-    member_phone_atr_def = perun.getAttributesManagerBl().createAttribute(sess, member_phone_atr_def);
+    memberPhoneAtrDef = new AttributeDefinition();
+    memberPhoneAtrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+    memberPhoneAtrDef.setDescription("member_phone_atr_def");
+    memberPhoneAtrDef.setFriendlyName("test-member-phone-atr-def");
+    memberPhoneAtrDef.setType(String.class.getName());
+    memberPhoneAtrDef = perun.getAttributesManagerBl().createAttribute(sess, memberPhoneAtrDef);
 
-    member_email_atr_def = new AttributeDefinition();
-    member_email_atr_def.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
-    member_email_atr_def.setDescription("member_email_atr_def");
-    member_email_atr_def.setFriendlyName("test-member-email-atr-def");
-    member_email_atr_def.setType(String.class.getName());
-    member_email_atr_def = perun.getAttributesManagerBl().createAttribute(sess, member_email_atr_def);
+    memberEmailAtrDef = new AttributeDefinition();
+    memberEmailAtrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+    memberEmailAtrDef.setDescription("member_email_atr_def");
+    memberEmailAtrDef.setFriendlyName("test-member-email-atr-def");
+    memberEmailAtrDef.setType(String.class.getName());
+    memberEmailAtrDef = perun.getAttributesManagerBl().createAttribute(sess, memberEmailAtrDef);
 
 
     //set Phone attribute for member1OfUser1 and member2OfUser1
-    member1OfUser1_phone_attribute = new Attribute(member_phone_atr_def);
-    member1OfUser1_phone_attribute.setValue("+420555444222");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, member1OfUser1_phone_attribute);
+    member1OfUser1PhoneAttribute = new Attribute(memberPhoneAtrDef);
+    member1OfUser1PhoneAttribute.setValue("+420555444222");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, member1OfUser1PhoneAttribute);
 
-    member2OfUser1_phone_attribute = new Attribute(member_phone_atr_def);
-    member2OfUser1_phone_attribute.setValue("+420555444111");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser1, member2OfUser1_phone_attribute);
+    member2OfUser1PhoneAttribute = new Attribute(memberPhoneAtrDef);
+    member2OfUser1PhoneAttribute.setValue("+420555444111");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser1, member2OfUser1PhoneAttribute);
 
     //set Phone attribute for member1OfUser2 and member2OfUser2
-    member1OfUser2_phone_attribute = new Attribute(member_phone_atr_def);
-    member1OfUser2_phone_attribute.setValue("+420888555444");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, member1OfUser2_phone_attribute);
+    member1OfUser2PhoneAttribute = new Attribute(memberPhoneAtrDef);
+    member1OfUser2PhoneAttribute.setValue("+420888555444");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, member1OfUser2PhoneAttribute);
 
-    member2OfUser2_phone_attribute = new Attribute(member_phone_atr_def);
-    member2OfUser2_phone_attribute.setValue("+420888555898");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser2, member2OfUser2_phone_attribute);
+    member2OfUser2PhoneAttribute = new Attribute(memberPhoneAtrDef);
+    member2OfUser2PhoneAttribute.setValue("+420888555898");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser2, member2OfUser2PhoneAttribute);
 
     //set email attribute for member1OfUser2 and member2OfUser2
-    member1OfUser2_mail_attribute = new Attribute(member_email_atr_def);
-    member1OfUser2_mail_attribute.setValue("user2@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, member1OfUser2_mail_attribute);
+    member1OfUser2MailAttribute = new Attribute(memberEmailAtrDef);
+    member1OfUser2MailAttribute.setValue("user2@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, member1OfUser2MailAttribute);
 
-    member2OfUser2_mail_attribute = new Attribute(member_email_atr_def);
-    member2OfUser2_mail_attribute.setValue("user22@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser2, member2OfUser2_mail_attribute);
+    member2OfUser2MailAttribute = new Attribute(memberEmailAtrDef);
+    member2OfUser2MailAttribute.setValue("user22@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser2, member2OfUser2MailAttribute);
 
     //set email attribute for member1OfUser3 and member2OfUser3
-    member1OfUser3_mail_attribute = new Attribute(member_email_atr_def);
-    member1OfUser3_mail_attribute.setValue("user3@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser3, member1OfUser3_mail_attribute);
+    member1OfUser3MailAttribute = new Attribute(memberEmailAtrDef);
+    member1OfUser3MailAttribute.setValue("user3@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser3, member1OfUser3MailAttribute);
 
-    member2OfUser3_mail_attribute = new Attribute(member_email_atr_def);
-    member2OfUser3_mail_attribute.setValue("user32@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser3, member2OfUser3_mail_attribute);
+    member2OfUser3MailAttribute = new Attribute(memberEmailAtrDef);
+    member2OfUser3MailAttribute.setValue("user32@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser3, member2OfUser3MailAttribute);
   }
 
   /**
@@ -11910,52 +11924,52 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    memberGroup_test_atr_def = new AttributeDefinition();
-    memberGroup_test_atr_def.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
-    memberGroup_test_atr_def.setDescription("memberGroup_test_atr_def");
-    memberGroup_test_atr_def.setFriendlyName("test-memberGroup-test-atr-def");
-    memberGroup_test_atr_def.setType(String.class.getName());
-    memberGroup_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, memberGroup_test_atr_def);
+    memberGroupTestAtrDef = new AttributeDefinition();
+    memberGroupTestAtrDef.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+    memberGroupTestAtrDef.setDescription("memberGroup_test_atr_def");
+    memberGroupTestAtrDef.setFriendlyName("test-memberGroup-test-atr-def");
+    memberGroupTestAtrDef.setType(String.class.getName());
+    memberGroupTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, memberGroupTestAtrDef);
 
-    member1U1Group1Vo1_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member1U1Group1Vo1_test_attribute.setValue("member1U1Group1Vo1");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, group1InVo1, member1U1Group1Vo1_test_attribute);
+    member1U1Group1Vo1TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member1U1Group1Vo1TestAttribute.setValue("member1U1Group1Vo1");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, group1InVo1, member1U1Group1Vo1TestAttribute);
 
-    member1U1Group2Vo1_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member1U1Group2Vo1_test_attribute.setValue("member1U1Group2Vo1");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, group2InVo1, member1U1Group2Vo1_test_attribute);
+    member1U1Group2Vo1TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member1U1Group2Vo1TestAttribute.setValue("member1U1Group2Vo1");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, group2InVo1, member1U1Group2Vo1TestAttribute);
 
-    member2U1Group1Vo2_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member2U1Group1Vo2_test_attribute.setValue("member2U1Group1Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser1, group1InVo2, member2U1Group1Vo2_test_attribute);
+    member2U1Group1Vo2TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member2U1Group1Vo2TestAttribute.setValue("member2U1Group1Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser1, group1InVo2, member2U1Group1Vo2TestAttribute);
 
-    member2U1Group2Vo2_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member2U1Group2Vo2_test_attribute.setValue("member2U1Group2Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser1, group2InVo2, member2U1Group2Vo2_test_attribute);
+    member2U1Group2Vo2TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member2U1Group2Vo2TestAttribute.setValue("member2U1Group2Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser1, group2InVo2, member2U1Group2Vo2TestAttribute);
 
-    member1U2Group1Vo2_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member1U2Group1Vo2_test_attribute.setValue("member1U2Group1Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, group1InVo2, member1U2Group1Vo2_test_attribute);
+    member1U2Group1Vo2TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member1U2Group1Vo2TestAttribute.setValue("member1U2Group1Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, group1InVo2, member1U2Group1Vo2TestAttribute);
 
-    member1U2Group2Vo2_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member1U2Group2Vo2_test_attribute.setValue("member1U2Group2Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, group2InVo2, member1U2Group2Vo2_test_attribute);
+    member1U2Group2Vo2TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member1U2Group2Vo2TestAttribute.setValue("member1U2Group2Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, group2InVo2, member1U2Group2Vo2TestAttribute);
 
-    member2U2Group1Vo1_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member2U2Group1Vo1_test_attribute.setValue("member2U2Group1Vo1");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser2, group1InVo1, member2U2Group1Vo1_test_attribute);
+    member2U2Group1Vo1TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member2U2Group1Vo1TestAttribute.setValue("member2U2Group1Vo1");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser2, group1InVo1, member2U2Group1Vo1TestAttribute);
 
-    member2U2Group2Vo1_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member2U2Group2Vo1_test_attribute.setValue("member2U2Group2Vo1");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser2, group2InVo1, member2U2Group2Vo1_test_attribute);
+    member2U2Group2Vo1TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member2U2Group2Vo1TestAttribute.setValue("member2U2Group2Vo1");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser2, group2InVo1, member2U2Group2Vo1TestAttribute);
 
-    member1U3Group1Vo1_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member1U3Group1Vo1_test_attribute.setValue("member1U3Group1Vo1");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser3, group1InVo1, member1U3Group1Vo1_test_attribute);
+    member1U3Group1Vo1TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member1U3Group1Vo1TestAttribute.setValue("member1U3Group1Vo1");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser3, group1InVo1, member1U3Group1Vo1TestAttribute);
 
-    member2U3Group2Vo2_test_attribute = new Attribute(memberGroup_test_atr_def);
-    member2U3Group2Vo2_test_attribute.setValue("member2U3Group2Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser3, group2InVo2, member2U3Group2Vo2_test_attribute);
+    member2U3Group2Vo2TestAttribute = new Attribute(memberGroupTestAtrDef);
+    member2U3Group2Vo2TestAttribute.setValue("member2U3Group2Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser3, group2InVo2, member2U3Group2Vo2TestAttribute);
   }
 
   /**
@@ -11969,40 +11983,40 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    memberResource_test_atr_def = new AttributeDefinition();
-    memberResource_test_atr_def.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
-    memberResource_test_atr_def.setDescription("memberResource_test_atr_def");
-    memberResource_test_atr_def.setFriendlyName("test-memberResource-test-atr-def");
-    memberResource_test_atr_def.setType(String.class.getName());
-    memberResource_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, memberResource_test_atr_def);
+    memberResourceTestAtrDef = new AttributeDefinition();
+    memberResourceTestAtrDef.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
+    memberResourceTestAtrDef.setDescription("memberResource_test_atr_def");
+    memberResourceTestAtrDef.setFriendlyName("test-memberResource-test-atr-def");
+    memberResourceTestAtrDef.setType(String.class.getName());
+    memberResourceTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, memberResourceTestAtrDef);
 
-    member1U1Res1Vo1_test_attribute = new Attribute(memberResource_test_atr_def);
-    member1U1Res1Vo1_test_attribute.setValue("member1U1Res1Vo1");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, resource1InVo1, member1U1Res1Vo1_test_attribute);
+    member1U1Res1Vo1TestAttribute = new Attribute(memberResourceTestAtrDef);
+    member1U1Res1Vo1TestAttribute.setValue("member1U1Res1Vo1");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, resource1InVo1, member1U1Res1Vo1TestAttribute);
 
-    member1U1Res2Vo1_test_attribute = new Attribute(memberResource_test_atr_def);
-    member1U1Res2Vo1_test_attribute.setValue("member1U1Res2Vo1");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, resource2InVo1, member1U1Res2Vo1_test_attribute);
+    member1U1Res2Vo1TestAttribute = new Attribute(memberResourceTestAtrDef);
+    member1U1Res2Vo1TestAttribute.setValue("member1U1Res2Vo1");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser1, resource2InVo1, member1U1Res2Vo1TestAttribute);
 
-    member1U2Res1Vo2_test_attribute = new Attribute(memberResource_test_atr_def);
-    member1U2Res1Vo2_test_attribute.setValue("member1U2Res1Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, resource1InVo2, member1U2Res1Vo2_test_attribute);
+    member1U2Res1Vo2TestAttribute = new Attribute(memberResourceTestAtrDef);
+    member1U2Res1Vo2TestAttribute.setValue("member1U2Res1Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, resource1InVo2, member1U2Res1Vo2TestAttribute);
 
-    member1U2Res2Vo2_test_attribute = new Attribute(memberResource_test_atr_def);
-    member1U2Res2Vo2_test_attribute.setValue("member1U2Res2Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, resource2InVo2, member1U2Res2Vo2_test_attribute);
+    member1U2Res2Vo2TestAttribute = new Attribute(memberResourceTestAtrDef);
+    member1U2Res2Vo2TestAttribute.setValue("member1U2Res2Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser2, resource2InVo2, member1U2Res2Vo2TestAttribute);
 
-    member1U3Res1Vo1_test_attribute = new Attribute(memberResource_test_atr_def);
-    member1U3Res1Vo1_test_attribute.setValue("member1U3Res1Vo1");
-    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser3, resource1InVo1, member1U3Res1Vo1_test_attribute);
+    member1U3Res1Vo1TestAttribute = new Attribute(memberResourceTestAtrDef);
+    member1U3Res1Vo1TestAttribute.setValue("member1U3Res1Vo1");
+    perun.getAttributesManagerBl().setAttribute(sess, member1OfUser3, resource1InVo1, member1U3Res1Vo1TestAttribute);
 
-    member2U3Res1Vo2_test_attribute = new Attribute(memberResource_test_atr_def);
-    member2U3Res1Vo2_test_attribute.setValue("member2U3Res1Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser3, resource1InVo2, member2U3Res1Vo2_test_attribute);
+    member2U3Res1Vo2TestAttribute = new Attribute(memberResourceTestAtrDef);
+    member2U3Res1Vo2TestAttribute.setValue("member2U3Res1Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser3, resource1InVo2, member2U3Res1Vo2TestAttribute);
 
-    member2U3Res2Vo2_test_attribute = new Attribute(memberResource_test_atr_def);
-    member2U3Res2Vo2_test_attribute.setValue("member2U3Res2Vo2");
-    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser3, resource2InVo2, member2U3Res2Vo2_test_attribute);
+    member2U3Res2Vo2TestAttribute = new Attribute(memberResourceTestAtrDef);
+    member2U3Res2Vo2TestAttribute.setValue("member2U3Res2Vo2");
+    perun.getAttributesManagerBl().setAttribute(sess, member2OfUser3, resource2InVo2, member2U3Res2Vo2TestAttribute);
   }
 
   /**
@@ -12013,28 +12027,28 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    resource_test_atr_def = new AttributeDefinition();
-    resource_test_atr_def.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-    resource_test_atr_def.setDescription("resource_test_atr_def");
-    resource_test_atr_def.setFriendlyName("test-resource-test-atr-def");
-    resource_test_atr_def.setType(String.class.getName());
-    resource_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, resource_test_atr_def);
+    resourceTestAtrDef = new AttributeDefinition();
+    resourceTestAtrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    resourceTestAtrDef.setDescription("resource_test_atr_def");
+    resourceTestAtrDef.setFriendlyName("test-resource-test-atr-def");
+    resourceTestAtrDef.setType(String.class.getName());
+    resourceTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, resourceTestAtrDef);
 
-    resource1InVo1_test_atr = new Attribute(resource_test_atr_def);
-    resource1InVo1_test_atr.setValue("1K");
-    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo1, resource1InVo1_test_atr);
+    resource1InVo1TestAtr = new Attribute(resourceTestAtrDef);
+    resource1InVo1TestAtr.setValue("1K");
+    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo1, resource1InVo1TestAtr);
 
-    resource2InVo1_test_atr = new Attribute(resource_test_atr_def);
-    resource2InVo1_test_atr.setValue("2K");
-    perun.getAttributesManagerBl().setAttribute(sess, resource2InVo1, resource2InVo1_test_atr);
+    resource2InVo1TestAtr = new Attribute(resourceTestAtrDef);
+    resource2InVo1TestAtr.setValue("2K");
+    perun.getAttributesManagerBl().setAttribute(sess, resource2InVo1, resource2InVo1TestAtr);
 
-    resource1InVo2_test_atr = new Attribute(resource_test_atr_def);
-    resource1InVo2_test_atr.setValue("3K");
-    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo2, resource1InVo2_test_atr);
+    resource1InVo2TestAtr = new Attribute(resourceTestAtrDef);
+    resource1InVo2TestAtr.setValue("3K");
+    perun.getAttributesManagerBl().setAttribute(sess, resource1InVo2, resource1InVo2TestAtr);
 
-    resource2InVo2_test_atr = new Attribute(resource_test_atr_def);
-    resource2InVo2_test_atr.setValue("4K");
-    perun.getAttributesManagerBl().setAttribute(sess, resource2InVo2, resource2InVo2_test_atr);
+    resource2InVo2TestAtr = new Attribute(resourceTestAtrDef);
+    resource2InVo2TestAtr.setValue("4K");
+    perun.getAttributesManagerBl().setAttribute(sess, resource2InVo2, resource2InVo2TestAtr);
   }
 
   /**
@@ -12045,27 +12059,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
 
-    ues_test_atr_def = new AttributeDefinition();
-    ues_test_atr_def.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
-    ues_test_atr_def.setDescription("ues_test_atr_def");
-    ues_test_atr_def.setFriendlyName("test-ues-test-atr-def");
-    ues_test_atr_def.setType(String.class.getName());
-    ues_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, ues_test_atr_def);
+    uesTestAtrDef = new AttributeDefinition();
+    uesTestAtrDef.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+    uesTestAtrDef.setDescription("ues_test_atr_def");
+    uesTestAtrDef.setFriendlyName("test-ues-test-atr-def");
+    uesTestAtrDef.setType(String.class.getName());
+    uesTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, uesTestAtrDef);
 
     //create sample of internal attribute
-    internal_ues_atr = new Attribute(ues_test_atr_def);
+    internalUesAtr = new Attribute(uesTestAtrDef);
 
-    ues1_test_atr = new Attribute(ues_test_atr_def);
-    ues1_test_atr.setValue("ues1");
-    perun.getAttributesManagerBl().setAttribute(sess, userExtSource1, ues1_test_atr);
+    ues1TestAtr = new Attribute(uesTestAtrDef);
+    ues1TestAtr.setValue("ues1");
+    perun.getAttributesManagerBl().setAttribute(sess, userExtSource1, ues1TestAtr);
 
-    ues2_test_atr = new Attribute(ues_test_atr_def);
-    ues2_test_atr.setValue("ues2");
-    perun.getAttributesManagerBl().setAttribute(sess, userExtSource2, ues2_test_atr);
+    ues2TestAtr = new Attribute(uesTestAtrDef);
+    ues2TestAtr.setValue("ues2");
+    perun.getAttributesManagerBl().setAttribute(sess, userExtSource2, ues2TestAtr);
 
-    ues3_test_atr = new Attribute(ues_test_atr_def);
-    ues3_test_atr.setValue("ues3");
-    perun.getAttributesManagerBl().setAttribute(sess, userExtSource3, ues3_test_atr);
+    ues3TestAtr = new Attribute(uesTestAtrDef);
+    ues3TestAtr.setValue("ues3");
+    perun.getAttributesManagerBl().setAttribute(sess, userExtSource3, ues3TestAtr);
   }
 
   /**
@@ -12076,39 +12090,39 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get Impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    user_phone_atr_def = new AttributeDefinition();
-    user_phone_atr_def.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    user_phone_atr_def.setDescription("user_phone_atr_def");
-    user_phone_atr_def.setFriendlyName("test-user-phone-atr-def");
-    user_phone_atr_def.setType(String.class.getName());
-    user_phone_atr_def = perun.getAttributesManagerBl().createAttribute(sess, user_phone_atr_def);
+    userPhoneAtrDef = new AttributeDefinition();
+    userPhoneAtrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    userPhoneAtrDef.setDescription("user_phone_atr_def");
+    userPhoneAtrDef.setFriendlyName("test-user-phone-atr-def");
+    userPhoneAtrDef.setType(String.class.getName());
+    userPhoneAtrDef = perun.getAttributesManagerBl().createAttribute(sess, userPhoneAtrDef);
 
-    user_email_atr_def = new AttributeDefinition();
-    user_email_atr_def.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    user_email_atr_def.setDescription("user_email_atr_def");
-    user_email_atr_def.setFriendlyName("test-user-email-atr-def");
-    user_email_atr_def.setType(String.class.getName());
-    user_email_atr_def = perun.getAttributesManagerBl().createAttribute(sess, user_email_atr_def);
+    userEmailAtrDef = new AttributeDefinition();
+    userEmailAtrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    userEmailAtrDef.setDescription("user_email_atr_def");
+    userEmailAtrDef.setFriendlyName("test-user-email-atr-def");
+    userEmailAtrDef.setType(String.class.getName());
+    userEmailAtrDef = perun.getAttributesManagerBl().createAttribute(sess, userEmailAtrDef);
 
     //set Phone attribute for user1
-    user1_phone_attribute = new Attribute(user_phone_atr_def);
-    user1_phone_attribute.setValue("+420555444222");
-    perun.getAttributesManagerBl().setAttribute(sess, user1, user1_phone_attribute);
+    user1PhoneAttribute = new Attribute(userPhoneAtrDef);
+    user1PhoneAttribute.setValue("+420555444222");
+    perun.getAttributesManagerBl().setAttribute(sess, user1, user1PhoneAttribute);
 
     //set Phone attribute for user2
-    user2_phone_attribute = new Attribute(user_phone_atr_def);
-    user2_phone_attribute.setValue("+420888555444");
-    perun.getAttributesManagerBl().setAttribute(sess, user2, user2_phone_attribute);
+    user2PhoneAttribute = new Attribute(userPhoneAtrDef);
+    user2PhoneAttribute.setValue("+420888555444");
+    perun.getAttributesManagerBl().setAttribute(sess, user2, user2PhoneAttribute);
 
     //set Prefferred mail attribute for user2
-    user2_email_attribute = new Attribute(user_email_atr_def);
-    user2_email_attribute.setValue("user2@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, user2, user2_email_attribute);
+    user2EmailAttribute = new Attribute(userEmailAtrDef);
+    user2EmailAttribute.setValue("user2@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, user2, user2EmailAttribute);
 
     //set Preferred mail attribute for user3
-    user3_email_attribute = new Attribute(user_email_atr_def);
-    user3_email_attribute.setValue("user3@mail.com");
-    perun.getAttributesManagerBl().setAttribute(sess, user3, user3_email_attribute);
+    user3EmailAttribute = new Attribute(userEmailAtrDef);
+    user3EmailAttribute.setValue("user3@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, user3, user3EmailAttribute);
   }
 
   /**
@@ -12121,40 +12135,40 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    userFacility_test_atr_def = new AttributeDefinition();
-    userFacility_test_atr_def.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
-    userFacility_test_atr_def.setDescription("userFacility_test_atr_def");
-    userFacility_test_atr_def.setFriendlyName("test-userFacility-test-atr-def");
-    userFacility_test_atr_def.setType(String.class.getName());
-    userFacility_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, userFacility_test_atr_def);
+    userFacilityTestAtrDef = new AttributeDefinition();
+    userFacilityTestAtrDef.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+    userFacilityTestAtrDef.setDescription("userFacility_test_atr_def");
+    userFacilityTestAtrDef.setFriendlyName("test-userFacility-test-atr-def");
+    userFacilityTestAtrDef.setType(String.class.getName());
+    userFacilityTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, userFacilityTestAtrDef);
 
-    user1Facility1_test_attribute = new Attribute(userFacility_test_atr_def);
-    user1Facility1_test_attribute.setValue("user1Facility1");
-    perun.getAttributesManagerBl().setAttribute(sess, facility1, user1, user1Facility1_test_attribute);
+    user1Facility1TestAttribute = new Attribute(userFacilityTestAtrDef);
+    user1Facility1TestAttribute.setValue("user1Facility1");
+    perun.getAttributesManagerBl().setAttribute(sess, facility1, user1, user1Facility1TestAttribute);
 
-    user1Facility2_test_attribute = new Attribute(userFacility_test_atr_def);
-    user1Facility2_test_attribute.setValue("user1Facility2");
-    perun.getAttributesManagerBl().setAttribute(sess, facility2, user1, user1Facility2_test_attribute);
+    user1Facility2TestAttribute = new Attribute(userFacilityTestAtrDef);
+    user1Facility2TestAttribute.setValue("user1Facility2");
+    perun.getAttributesManagerBl().setAttribute(sess, facility2, user1, user1Facility2TestAttribute);
 
-    user2Facility2_test_attribute = new Attribute(userFacility_test_atr_def);
-    user2Facility2_test_attribute.setValue("user2Facility2");
-    perun.getAttributesManagerBl().setAttribute(sess, facility2, user2, user2Facility2_test_attribute);
+    user2Facility2TestAttribute = new Attribute(userFacilityTestAtrDef);
+    user2Facility2TestAttribute.setValue("user2Facility2");
+    perun.getAttributesManagerBl().setAttribute(sess, facility2, user2, user2Facility2TestAttribute);
 
-    user2Facility3_test_attribute = new Attribute(userFacility_test_atr_def);
-    user2Facility3_test_attribute.setValue("user2Facility3");
-    perun.getAttributesManagerBl().setAttribute(sess, facility3, user2, user2Facility3_test_attribute);
+    user2Facility3TestAttribute = new Attribute(userFacilityTestAtrDef);
+    user2Facility3TestAttribute.setValue("user2Facility3");
+    perun.getAttributesManagerBl().setAttribute(sess, facility3, user2, user2Facility3TestAttribute);
 
-    user3Facility3_test_attribute = new Attribute(userFacility_test_atr_def);
-    user3Facility3_test_attribute.setValue("user3Facility3");
-    perun.getAttributesManagerBl().setAttribute(sess, facility3, user3, user3Facility3_test_attribute);
+    user3Facility3TestAttribute = new Attribute(userFacilityTestAtrDef);
+    user3Facility3TestAttribute.setValue("user3Facility3");
+    perun.getAttributesManagerBl().setAttribute(sess, facility3, user3, user3Facility3TestAttribute);
 
-    user3Facility2_test_attribute = new Attribute(userFacility_test_atr_def);
-    user3Facility2_test_attribute.setValue("user3Facility2");
-    perun.getAttributesManagerBl().setAttribute(sess, facility2, user3, user3Facility2_test_attribute);
+    user3Facility2TestAttribute = new Attribute(userFacilityTestAtrDef);
+    user3Facility2TestAttribute.setValue("user3Facility2");
+    perun.getAttributesManagerBl().setAttribute(sess, facility2, user3, user3Facility2TestAttribute);
 
-    user3Facility1_test_attribute = new Attribute(userFacility_test_atr_def);
-    user3Facility1_test_attribute.setValue("user3Facility1");
-    perun.getAttributesManagerBl().setAttribute(sess, facility1, user3, user3Facility1_test_attribute);
+    user3Facility1TestAttribute = new Attribute(userFacilityTestAtrDef);
+    user3Facility1TestAttribute.setValue("user3Facility1");
+    perun.getAttributesManagerBl().setAttribute(sess, facility1, user3, user3Facility1TestAttribute);
   }
 
   /**
@@ -12165,34 +12179,34 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //get Impl object
     attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-    vo_toEmail_def = new AttributeDefinition();
-    vo_toEmail_def.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
-    vo_toEmail_def.setDescription("vo_toEmail_def");
-    vo_toEmail_def.setFriendlyName("test-vo-toEmail-def");
-    vo_toEmail_def.setType(String.class.getName());
-    vo_toEmail_def = perun.getAttributesManagerBl().createAttribute(sess, vo_toEmail_def);
+    voToEmailDef = new AttributeDefinition();
+    voToEmailDef.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    voToEmailDef.setDescription("vo_toEmail_def");
+    voToEmailDef.setFriendlyName("test-vo-toEmail-def");
+    voToEmailDef.setType(String.class.getName());
+    voToEmailDef = perun.getAttributesManagerBl().createAttribute(sess, voToEmailDef);
 
-    vo_fromEmail_def = new AttributeDefinition();
-    vo_fromEmail_def.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
-    vo_fromEmail_def.setDescription("vo_fromEmail_def");
-    vo_fromEmail_def.setFriendlyName("test-vo-fromEmail-def");
-    vo_fromEmail_def.setType(String.class.getName());
-    vo_fromEmail_def = perun.getAttributesManagerBl().createAttribute(sess, vo_fromEmail_def);
+    voFromEmailDef = new AttributeDefinition();
+    voFromEmailDef.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    voFromEmailDef.setDescription("vo_fromEmail_def");
+    voFromEmailDef.setFriendlyName("test-vo-fromEmail-def");
+    voFromEmailDef.setType(String.class.getName());
+    voFromEmailDef = perun.getAttributesManagerBl().createAttribute(sess, voFromEmailDef);
 
     //set vo_toEmail_def attribute to vo1
-    vo1_toEmail_attribute = new Attribute(vo_toEmail_def);
-    vo1_toEmail_attribute.setValue("vo1To@email.com");
-    perun.getAttributesManagerBl().setAttribute(sess, vo1, vo1_toEmail_attribute);
+    vo1ToEmailAttribute = new Attribute(voToEmailDef);
+    vo1ToEmailAttribute.setValue("vo1To@email.com");
+    perun.getAttributesManagerBl().setAttribute(sess, vo1, vo1ToEmailAttribute);
 
     //set vo_toEmail_def attribute to vo2
-    vo2_toEmail_attribute = new Attribute(vo_toEmail_def);
-    vo2_toEmail_attribute.setValue("vo2To@email.com");
-    perun.getAttributesManagerBl().setAttribute(sess, vo2, vo2_toEmail_attribute);
+    vo2ToEmailAttribute = new Attribute(voToEmailDef);
+    vo2ToEmailAttribute.setValue("vo2To@email.com");
+    perun.getAttributesManagerBl().setAttribute(sess, vo2, vo2ToEmailAttribute);
 
     //set vo_fromEmail_def attribute to vo2
-    vo2_fromEmail_attribute = new Attribute(vo_fromEmail_def);
-    vo2_fromEmail_attribute.setValue("vo2From@email.com");
-    perun.getAttributesManagerBl().setAttribute(sess, vo2, vo2_fromEmail_attribute);
+    vo2FromEmailAttribute = new Attribute(voFromEmailDef);
+    vo2FromEmailAttribute.setValue("vo2From@email.com");
+    perun.getAttributesManagerBl().setAttribute(sess, vo2, vo2FromEmailAttribute);
   }
 
   public void setClassName(String className) {
@@ -12212,16 +12226,18 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attribute = setUpMemberGroupAttribute().get(0);
 
     assertThrows(RelationExistsException.class, () -> perun.getAttributesManagerBl()
-        .setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true, false));
+                                                          .setAttributeActionCriticality(sess, attribute,
+                                                              AttributeAction.WRITE, true, false));
     assertThrows(RelationNotExistsException.class, () -> perun.getAttributesManagerBl()
-        .setAttributeActionCriticality(sess, attribute, AttributeAction.READ, false, false));
+                                                             .setAttributeActionCriticality(sess, attribute,
+                                                                 AttributeAction.READ, false, false));
 
     assertFalse(perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
     perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, true, false);
     assertTrue("Reading attribute should be critical",
         perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
     assertThat(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()
-        .keySet()).containsExactlyInAnyOrder(AttributeAction.WRITE, AttributeAction.READ);
+                   .keySet()).containsExactlyInAnyOrder(AttributeAction.WRITE, AttributeAction.READ);
   }
 
   @Test
@@ -12457,9 +12473,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attribute = setUpMemberGroupAttribute().get(0);
 
     assertThrows(RelationExistsException.class, () -> perun.getAttributesManagerBl()
-        .setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, true, false));
+                                                          .setAttributeActionCriticality(sess, attribute,
+                                                              AttributeAction.WRITE, true, false));
     assertThrows(RelationNotExistsException.class, () -> perun.getAttributesManagerBl()
-        .setAttributeActionCriticality(sess, attribute, AttributeAction.READ, false, false));
+                                                             .setAttributeActionCriticality(sess, attribute,
+                                                                 AttributeAction.READ, false, false));
 
     assertFalse(perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.READ));
     perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.READ, true, true);
@@ -12633,70 +12651,70 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     String namespaceBBB = "BBB";
 
     //create attribute group_name in namespace aaa
-    AttributeDefinition g_gn_AAA_def = new AttributeDefinition();
-    g_gn_AAA_def.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    g_gn_AAA_def.setDescription("groupName in namespace AAA");
-    g_gn_AAA_def.setFriendlyName("unixGroupName-namespace:" + namespaceAAA);
-    g_gn_AAA_def.setType(String.class.getName());
-    g_gn_AAA_def = perun.getAttributesManagerBl().createAttribute(sess, g_gn_AAA_def);
-    Attribute g_gn_AAA = new Attribute(g_gn_AAA_def);
-    g_gn_AAA.setValue("testGroupName");
+    AttributeDefinition groupNameAaa = new AttributeDefinition();
+    groupNameAaa.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    groupNameAaa.setDescription("groupName in namespace AAA");
+    groupNameAaa.setFriendlyName("unixGroupName-namespace:" + namespaceAAA);
+    groupNameAaa.setType(String.class.getName());
+    groupNameAaa = perun.getAttributesManagerBl().createAttribute(sess, groupNameAaa);
+    Attribute groupNameAttr = new Attribute(groupNameAaa);
+    groupNameAttr.setValue("testGroupName");
 
-    //create attribute group_name in namespace aaa
-    AttributeDefinition g_gn_BBB_def = new AttributeDefinition();
-    g_gn_BBB_def.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    g_gn_BBB_def.setDescription("groupName in namespace BBB");
-    g_gn_BBB_def.setFriendlyName("unixGroupName-namespace:" + namespaceBBB);
-    g_gn_BBB_def.setType(String.class.getName());
-    perun.getAttributesManagerBl().createAttribute(sess, g_gn_BBB_def);
-
-    //create attribute gid in namespace aaa
-    AttributeDefinition g_gid_AAA_def = new AttributeDefinition();
-    g_gid_AAA_def.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    g_gid_AAA_def.setDescription("gid in namespace AAA");
-    g_gid_AAA_def.setFriendlyName("unixGID-namespace:" + namespaceAAA);
-    g_gid_AAA_def.setType(Integer.class.getName());
-    g_gid_AAA_def = perun.getAttributesManagerBl().createAttribute(sess, g_gid_AAA_def);
-
-    //create attribute gid in namespace bbb
-    AttributeDefinition g_gid_BBB_def = new AttributeDefinition();
-    g_gid_BBB_def.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    g_gid_BBB_def.setDescription("gid in namespace BBB");
-    g_gid_BBB_def.setFriendlyName("unixGID-namespace:" + namespaceBBB);
-    g_gid_BBB_def.setType(Integer.class.getName());
-    g_gid_BBB_def = perun.getAttributesManagerBl().createAttribute(sess, g_gid_BBB_def);
-
-    //create attribute group_name in namespace aaa
-    AttributeDefinition r_gn_AAA_def = new AttributeDefinition();
-    r_gn_AAA_def.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-    r_gn_AAA_def.setDescription("groupName in namespace AAA");
-    r_gn_AAA_def.setFriendlyName("unixGroupName-namespace:" + namespaceAAA);
-    r_gn_AAA_def.setType(String.class.getName());
-    perun.getAttributesManagerBl().createAttribute(sess, r_gn_AAA_def);
-
-    //create attribute group_name in namespace aaa
-    AttributeDefinition r_gn_BBB_def = new AttributeDefinition();
-    r_gn_BBB_def.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-    r_gn_BBB_def.setDescription("groupName in namespace BBB");
-    r_gn_BBB_def.setFriendlyName("unixGroupName-namespace:" + namespaceBBB);
-    r_gn_BBB_def.setType(String.class.getName());
-    perun.getAttributesManagerBl().createAttribute(sess, r_gn_BBB_def);
+    //create attribute group_name in namespace bbb
+    AttributeDefinition groupNameBbb = new AttributeDefinition();
+    groupNameBbb.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    groupNameBbb.setDescription("groupName in namespace BBB");
+    groupNameBbb.setFriendlyName("unixGroupName-namespace:" + namespaceBBB);
+    groupNameBbb.setType(String.class.getName());
+    perun.getAttributesManagerBl().createAttribute(sess, groupNameBbb);
 
     //create attribute gid in namespace aaa
-    AttributeDefinition r_gid_AAA_def = new AttributeDefinition();
-    r_gid_AAA_def.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-    r_gid_AAA_def.setDescription("gid in namespace AAA");
-    r_gid_AAA_def.setFriendlyName("unixGID-namespace:" + namespaceAAA);
-    r_gid_AAA_def.setType(Integer.class.getName());
-    perun.getAttributesManagerBl().createAttribute(sess, r_gid_AAA_def);
+    AttributeDefinition gidAaaDef = new AttributeDefinition();
+    gidAaaDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    gidAaaDef.setDescription("gid in namespace AAA");
+    gidAaaDef.setFriendlyName("unixGID-namespace:" + namespaceAAA);
+    gidAaaDef.setType(Integer.class.getName());
+    gidAaaDef = perun.getAttributesManagerBl().createAttribute(sess, gidAaaDef);
 
     //create attribute gid in namespace bbb
-    AttributeDefinition r_gid_BBB_def = new AttributeDefinition();
-    r_gid_BBB_def.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-    r_gid_BBB_def.setDescription("gid in namespace BBB");
-    r_gid_BBB_def.setFriendlyName("unixGID-namespace:" + namespaceBBB);
-    r_gid_BBB_def.setType(Integer.class.getName());
-    perun.getAttributesManagerBl().createAttribute(sess, r_gid_BBB_def);
+    AttributeDefinition gidBbbDef = new AttributeDefinition();
+    gidBbbDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    gidBbbDef.setDescription("gid in namespace BBB");
+    gidBbbDef.setFriendlyName("unixGID-namespace:" + namespaceBBB);
+    gidBbbDef.setType(Integer.class.getName());
+    gidBbbDef = perun.getAttributesManagerBl().createAttribute(sess, gidBbbDef);
+
+    //create attribute group_name in namespace aaa
+    AttributeDefinition resGroupNameAaa = new AttributeDefinition();
+    resGroupNameAaa.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    resGroupNameAaa.setDescription("groupName in namespace AAA");
+    resGroupNameAaa.setFriendlyName("unixGroupName-namespace:" + namespaceAAA);
+    resGroupNameAaa.setType(String.class.getName());
+    perun.getAttributesManagerBl().createAttribute(sess, resGroupNameAaa);
+
+    //create attribute group_name in namespace bbb
+    AttributeDefinition resGroupNameBbb = new AttributeDefinition();
+    resGroupNameBbb.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    resGroupNameBbb.setDescription("groupName in namespace BBB");
+    resGroupNameBbb.setFriendlyName("unixGroupName-namespace:" + namespaceBBB);
+    resGroupNameBbb.setType(String.class.getName());
+    perun.getAttributesManagerBl().createAttribute(sess, resGroupNameBbb);
+
+    //create attribute gid in namespace aaa
+    AttributeDefinition resGidAaa = new AttributeDefinition();
+    resGidAaa.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    resGidAaa.setDescription("gid in namespace AAA");
+    resGidAaa.setFriendlyName("unixGID-namespace:" + namespaceAAA);
+    resGidAaa.setType(Integer.class.getName());
+    perun.getAttributesManagerBl().createAttribute(sess, resGidAaa);
+
+    //create attribute gid in namespace bbb
+    AttributeDefinition resGidBbb = new AttributeDefinition();
+    resGidBbb.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+    resGidBbb.setDescription("gid in namespace BBB");
+    resGidBbb.setFriendlyName("unixGID-namespace:" + namespaceBBB);
+    resGidBbb.setType(Integer.class.getName());
+    perun.getAttributesManagerBl().createAttribute(sess, resGidBbb);
 
     //Create special enviroment
     Vo v1 = new Vo(0, "TestingVo01", "TestingVo01");
@@ -12719,7 +12737,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     //Create attribute def entityless gidRanges
     AttributeDefinition gidRangesAttrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
+                                               .getAttributeDefinition(sess,
+                                                   AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
 
     //Create gidRanges for new namespace
     Attribute gidRangesAAA = new Attribute(gidRangesAttrDef);
@@ -12734,18 +12753,20 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     //set new namespace for facility (gid and groupName)
     AttributeDefinition groupNameNamespaceForFacilitiesAttrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, "urn:perun:facility:attribute-def:def:unixGroupName-namespace");
+                                                                     .getAttributeDefinition(sess,
+                                           "urn:perun:facility:attribute-def:def:unixGroupName-namespace");
     Attribute groupNameNamespaceForFacilities = new Attribute(groupNameNamespaceForFacilitiesAttrDef);
     groupNameNamespaceForFacilities.setValue(namespaceAAA);
     perun.getAttributesManagerBl().setAttribute(sess, f1, groupNameNamespaceForFacilities);
     perun.getAttributesManagerBl().setAttribute(sess, f2, groupNameNamespaceForFacilities);
-    AttributeDefinition GIDNamespaceForFacilitiesAttrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, "urn:perun:facility:attribute-def:def:unixGID-namespace");
-    Attribute GIDNamespaceForFacilities = new Attribute(GIDNamespaceForFacilitiesAttrDef);
-    GIDNamespaceForFacilities.setValue(namespaceAAA);
-    perun.getAttributesManagerBl().setAttribute(sess, f1, GIDNamespaceForFacilities);
-    GIDNamespaceForFacilities.setValue(namespaceBBB);
-    perun.getAttributesManagerBl().setAttribute(sess, f2, GIDNamespaceForFacilities);
+    AttributeDefinition gidNamespaceForFacilitiesAttrDef = perun.getAttributesManagerBl()
+                                                               .getAttributeDefinition(sess,
+                                                 "urn:perun:facility:attribute-def:def:unixGID-namespace");
+    Attribute gidNamespaceForFacilities = new Attribute(gidNamespaceForFacilitiesAttrDef);
+    gidNamespaceForFacilities.setValue(namespaceAAA);
+    perun.getAttributesManagerBl().setAttribute(sess, f1, gidNamespaceForFacilities);
+    gidNamespaceForFacilities.setValue(namespaceBBB);
+    perun.getAttributesManagerBl().setAttribute(sess, f2, gidNamespaceForFacilities);
 
     //create new service and assigne it to resources
     Service s1 = new Service(0, "testService01", null);
@@ -12755,24 +12776,27 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     //Create attribute virt facility gidRanges
     AttributeDefinition gidRangesVirtualAttrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_VIRT + ":GIDRanges");
+                                                      .getAttributeDefinition(sess,
+                                                          AttributesManager.NS_FACILITY_ATTR_VIRT + ":GIDRanges");
 
     //create other required attributes and add them to the service
-    AttributeDefinition g_v_gn = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, "urn:perun:group_resource:attribute-def:virt:unixGroupName");
-    AttributeDefinition g_v_gid = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, "urn:perun:group_resource:attribute-def:virt:unixGID");
+    AttributeDefinition groupVirtGroupNameDef = perun.getAttributesManagerBl()
+                                                    .getAttributeDefinition(sess,
+                                                        "urn:perun:group_resource:attribute-def:virt:unixGroupName");
+    AttributeDefinition groupVirtGidDef = perun.getAttributesManagerBl()
+                                              .getAttributeDefinition(sess,
+                                                  "urn:perun:group_resource:attribute-def:virt:unixGID");
     perun.getServicesManagerBl().addRequiredAttribute(sess, s1, groupNameNamespaceForFacilitiesAttrDef);
-    perun.getServicesManagerBl().addRequiredAttribute(sess, s1, GIDNamespaceForFacilitiesAttrDef);
+    perun.getServicesManagerBl().addRequiredAttribute(sess, s1, gidNamespaceForFacilitiesAttrDef);
     perun.getServicesManagerBl().addRequiredAttribute(sess, s1, gidRangesVirtualAttrDef);
-    perun.getServicesManagerBl().addRequiredAttribute(sess, s1, g_v_gn);
-    perun.getServicesManagerBl().addRequiredAttribute(sess, s1, g_v_gid);
+    perun.getServicesManagerBl().addRequiredAttribute(sess, s1, groupVirtGroupNameDef);
+    perun.getServicesManagerBl().addRequiredAttribute(sess, s1, groupVirtGidDef);
 
     //set group_name to group g1
-    perun.getAttributesManagerBl().setAttribute(sess, g1, g_gn_AAA);
+    perun.getAttributesManagerBl().setAttribute(sess, g1, groupNameAttr);
 
-    Attribute groupGIDInAAA = perun.getAttributesManagerBl().getAttribute(sess, g1, g_gid_AAA_def.getName());
-    Attribute groupGIDInBBB = perun.getAttributesManagerBl().getAttribute(sess, g1, g_gid_BBB_def.getName());
+    Attribute groupGIDInAAA = perun.getAttributesManagerBl().getAttribute(sess, g1, gidAaaDef.getName());
+    Attribute groupGIDInBBB = perun.getAttributesManagerBl().getAttribute(sess, g1, gidBbbDef.getName());
 
     assertEquals(100, groupGIDInAAA.getValue());
     assertEquals(100, groupGIDInBBB.getValue());
@@ -13636,12 +13660,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     System.out.println(CLASS_NAME + "setMemberWorkWithUserAttributes");
     vo = setUpVo();
     member = setUpMember();
-    List<Attribute> attributes_member = setUpMemberAttribute();
+    List<Attribute> attributesMember = setUpMemberAttribute();
     User user = sess.getPerun().getUsersManager().getUserByMember(sess, member);
-    List<Attribute> attributes_user = setUpUserAttribute();
+    List<Attribute> attributesUser = setUpUserAttribute();
     attributes = new ArrayList<>();
-    attributes.addAll(attributes_member);
-    attributes.addAll(attributes_user);
+    attributes.addAll(attributesMember);
+    attributes.addAll(attributesUser);
 
     attributesManager.setAttributes(sess, member, attributes, true);
 
@@ -13711,17 +13735,20 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     perun.getServicesManagerBl().addRequiredAttribute(sess, service, userUidNamespace);
 
     Attribute namespaceMaxUID = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID"));
+                                                  .getAttributeDefinition(sess,
+                                                      AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID"));
     namespaceMaxUID.setValue(100);
     perun.getAttributesManagerBl().setAttribute(sess, namespace, namespaceMaxUID);
 
     Attribute namespaceMinUID = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID"));
+                                                  .getAttributeDefinition(sess,
+                                                      AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID"));
     namespaceMinUID.setValue(1);
     perun.getAttributesManagerBl().setAttribute(sess, namespace, namespaceMinUID);
 
     Attribute facilityUIDNamespace = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace"));
+                                                       .getAttributeDefinition(sess,
+                                                           AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace"));
     facilityUIDNamespace.setValue(namespace);
     perun.getAttributesManagerBl().setAttribute(sess, facility, facilityUIDNamespace);
 
@@ -14467,7 +14494,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
       }
     }
     assertTrue("User has more more UserExtSources than expected. Expected 2 (PERUN, testExtSource), contains " +
-               userExtSources.size(), userExtSources.size() == 2);
+                   userExtSources.size(), userExtSources.size() == 2);
     return ues;
   }
 
@@ -14625,17 +14652,21 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     //Create resources and assing group to them
     resource1InVo1 = perun.getResourcesManagerBl()
-        .createResource(sess, new Resource(0, "testResource1InVo1", "", facility1.getId(), vo1.getId()), vo1,
-            facility1);
+                         .createResource(sess,
+                             new Resource(0, "testResource1InVo1", "", facility1.getId(), vo1.getId()), vo1,
+                             facility1);
     resource2InVo1 = perun.getResourcesManagerBl()
-        .createResource(sess, new Resource(0, "testResource2InVo1", "", facility2.getId(), vo1.getId()), vo1,
-            facility2);
+                         .createResource(sess,
+                             new Resource(0, "testResource2InVo1", "", facility2.getId(), vo1.getId()), vo1,
+                             facility2);
     resource1InVo2 = perun.getResourcesManagerBl()
-        .createResource(sess, new Resource(0, "testResource1InVo2", "", facility2.getId(), vo2.getId()), vo2,
-            facility2);
+                         .createResource(sess,
+                             new Resource(0, "testResource1InVo2", "", facility2.getId(), vo2.getId()), vo2,
+                             facility2);
     resource2InVo2 = perun.getResourcesManagerBl()
-        .createResource(sess, new Resource(0, "testResource2InVo2", "", facility3.getId(), vo2.getId()), vo2,
-            facility3);
+                         .createResource(sess,
+                             new Resource(0, "testResource2InVo2", "", facility3.getId(), vo2.getId()), vo2,
+                             facility3);
     perun.getResourcesManagerBl().assignGroupToResource(sess, group1InVo1, resource1InVo1, false, false, false);
     perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo1, resource1InVo1, false, false, false);
     perun.getResourcesManagerBl().assignGroupToResource(sess, group2InVo1, resource2InVo1, false, false, false);
@@ -15861,38 +15892,42 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
             attributesManager.setAttribute(sess, resource2InVo2, b);
             break;
           case "member_resource":
-            Pair<Integer, Integer> mId_rId =
+            Pair<Integer, Integer> memberIdToResId =
                 BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
-            assertNotNull("member_resource should not be null", mId_rId);
-            assertThat("member with duplicate value is not the one", mId_rId.getLeft(), is(member1OfUser1.getId()));
-            assertThat("resource with duplicate value is not the one", mId_rId.getRight(), is(resource1InVo1.getId()));
+            assertNotNull("member_resource should not be null", memberIdToResId);
+            assertThat("member with duplicate value is not the one", memberIdToResId.getLeft(),
+                is(member1OfUser1.getId()));
+            assertThat("resource with duplicate value is not the one", memberIdToResId.getRight(),
+                is(resource1InVo1.getId()));
             attributesManager.removeAttribute(sess, member1OfUser1, resource1InVo1, a);
             attributesManager.setAttribute(sess, member2OfUser2, resource2InVo1, b);
             break;
           case "member_group":
-            Pair<Integer, Integer> mId_gId =
+            Pair<Integer, Integer> memberIdToGid =
                 BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
-            assertNotNull("member_group should not be null", mId_gId);
-            assertThat("member with duplicate value is not the one", mId_gId.getLeft(), is(member1OfUser1.getId()));
-            assertThat("group with duplicate value is not the one", mId_gId.getRight(), is(group1InVo1.getId()));
+            assertNotNull("member_group should not be null", memberIdToGid);
+            assertThat("member with duplicate value is not the one", memberIdToGid.getLeft(),
+                is(member1OfUser1.getId()));
+            assertThat("group with duplicate value is not the one", memberIdToGid.getRight(), is(group1InVo1.getId()));
             attributesManager.removeAttribute(sess, member1OfUser1, group1InVo1, a);
             attributesManager.setAttribute(sess, member2OfUser2, group2InVo1, b);
             break;
           case "user_facility":
-            Pair<Integer, Integer> uId_fId =
+            Pair<Integer, Integer> userIdtoFacId =
                 BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
-            assertNotNull("user_facility should not be null", uId_fId);
-            assertThat("user with duplicate value is not the one", uId_fId.getLeft(), is(user1.getId()));
-            assertThat("facility with duplicate value is not the one", uId_fId.getRight(), is(facility1.getId()));
+            assertNotNull("user_facility should not be null", userIdtoFacId);
+            assertThat("user with duplicate value is not the one", userIdtoFacId.getLeft(), is(user1.getId()));
+            assertThat("facility with duplicate value is not the one", userIdtoFacId.getRight(), is(facility1.getId()));
             attributesManager.removeAttribute(sess, facility1, user1, a);
             attributesManager.setAttribute(sess, facility2, user2, b);
             break;
           case "group_resource":
-            Pair<Integer, Integer> gId_rId =
+            Pair<Integer, Integer> groupIdToResId =
                 BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
-            assertNotNull("group_resource should not be null", gId_rId);
-            assertThat("group with duplicate value is not the one", gId_rId.getLeft(), is(group1InVo1.getId()));
-            assertThat("resource with duplicate value is not the one", gId_rId.getRight(), is(resource1InVo1.getId()));
+            assertNotNull("group_resource should not be null", groupIdToResId);
+            assertThat("group with duplicate value is not the one", groupIdToResId.getLeft(), is(group1InVo1.getId()));
+            assertThat("resource with duplicate value is not the one", groupIdToResId.getRight(),
+                is(resource1InVo1.getId()));
             attributesManager.removeAttribute(sess, resource1InVo1, group1InVo1, a);
             attributesManager.setAttribute(sess, resource2InVo2, group2InVo2, b);
             break;
@@ -15921,7 +15956,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     assertTrue("Writing to attribute should be critical by default",
         perun.getAttributesManagerBl().isAttributeActionCritical(sess, attribute, AttributeAction.WRITE));
     assertTrue(perun.getAttributesManager().getAttributeRules(sess, attribute.getId()).getCriticalActions()
-        .containsKey(AttributeAction.WRITE));
+                   .containsKey(AttributeAction.WRITE));
 
     perun.getAttributesManager().setAttributeActionCriticality(sess, attribute, AttributeAction.WRITE, false, false);
     assertFalse("Writing to attribute should not be critical",

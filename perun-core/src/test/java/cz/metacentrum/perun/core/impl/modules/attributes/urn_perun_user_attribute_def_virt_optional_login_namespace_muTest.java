@@ -29,7 +29,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_muTest {
   private static ExtSource extSource;
   private static UserExtSource ues1;
   private static UserExtSource ues2;
-  private final String EXTSOURCE_MUNI_IDP2 = "https://idp2.ics.muni.cz/idp/shibboleth";
+  private static final String EXTSOURCE_MUNI_IDP2 = "https://idp2.ics.muni.cz/idp/shibboleth";
   private final String muNamespace = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
 
   @Before

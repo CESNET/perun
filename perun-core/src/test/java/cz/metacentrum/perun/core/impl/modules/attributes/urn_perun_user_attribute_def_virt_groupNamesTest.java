@@ -45,7 +45,7 @@ public class urn_perun_user_attribute_def_virt_groupNamesTest {
 
 
   @Before
-  public void SetUp() {
+  public void setUp() {
     classInstance = new urn_perun_user_attribute_def_virt_groupNames();
     session = mock(PerunSessionImpl.class);
     when(session.getPerunBl()).thenReturn(mock(PerunBl.class));

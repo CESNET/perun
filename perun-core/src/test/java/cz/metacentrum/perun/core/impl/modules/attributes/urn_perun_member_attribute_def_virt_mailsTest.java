@@ -27,7 +27,7 @@ public class urn_perun_member_attribute_def_virt_mailsTest extends AbstractPerun
   private urn_perun_member_attribute_def_virt_mails classInstance;
 
   @Before
-  public void SetUp() throws Exception {
+  public void setUp() throws Exception {
     classInstance = new urn_perun_member_attribute_def_virt_mails();
     vo = setUpVo();
     user = setUpUser();

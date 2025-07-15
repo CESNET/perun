@@ -34,9 +34,7 @@ public class urn_perun_vo_attribute_def_def_autoApproveByGroupMembershipTest {
     sess = mock(PerunSessionImpl.class);
     vo = mock(Vo.class);
     autoApproveGroup = new Group(1, "Test Group", "Test", vo.getId());
-    groupIds = new ArrayList<>() {{
-      add(String.valueOf(autoApproveGroup.getId()));
-    }};
+    groupIds = new ArrayList<>(List.of(String.valueOf(autoApproveGroup.getId())));
 
     PerunBl perunBl = mock(PerunBl.class);
     when(sess.getPerunBl()).thenReturn(perunBl);
@@ -48,9 +46,7 @@ public class urn_perun_vo_attribute_def_def_autoApproveByGroupMembershipTest {
   @Test
   public void testCheckCorrectSyntax() throws Exception {
     System.out.println("testCheckCorrectSyntax");
-    attributeToCheck.setValue(new ArrayList<>() {{
-      add("123");
-    }});
+    attributeToCheck.setValue(new ArrayList<>(List.of("123")));
 
     classInstance.checkAttributeSyntax(sess, vo, attributeToCheck);
   }
@@ -66,9 +62,7 @@ public class urn_perun_vo_attribute_def_def_autoApproveByGroupMembershipTest {
   @Test(expected = WrongAttributeValueException.class)
   public void testCheckIncorrectSyntax() throws Exception {
     System.out.println("testCheckIncorrectSyntax");
-    attributeToCheck.setValue(new ArrayList<>() {{
-      add("test");
-    }});
+    attributeToCheck.setValue(new ArrayList<>(List.of("test")));
 
     classInstance.checkAttributeSyntax(sess, vo, attributeToCheck);
   }

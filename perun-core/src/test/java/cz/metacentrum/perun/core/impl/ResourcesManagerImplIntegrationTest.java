@@ -45,7 +45,7 @@ public class ResourcesManagerImplIntegrationTest extends AbstractPerunIntegratio
 
   private Member createSomeMember(final Vo createdVo)
       throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException {
+                 WrongReferenceAttributeValueException {
     final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
     final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
     return createdMember;
@@ -156,13 +156,13 @@ public class ResourcesManagerImplIntegrationTest extends AbstractPerunIntegratio
     Facility facility = new Facility();
     facility.setName(name);
     facility = perun.getFacilitiesManager().createFacility(sess, facility);
-        /*
-             Owner owner = new Owner();
-             owner.setName("ResourcesManagerTestOwner");
-             owner.setContact("testingOwner");
-             perun.getOwnersManager().createOwner(sess, owner);
-             perun.getFacilitiesManager().addOwner(sess, facility, owner);
-             */
+    /*
+         Owner owner = new Owner();
+         owner.setName("ResourcesManagerTestOwner");
+         owner.setContact("testingOwner");
+         perun.getOwnersManager().createOwner(sess, owner);
+         perun.getFacilitiesManager().addOwner(sess, facility, owner);
+         */
     return facility;
 
   }

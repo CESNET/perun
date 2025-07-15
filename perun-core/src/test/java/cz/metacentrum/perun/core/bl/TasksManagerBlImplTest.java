@@ -62,17 +62,28 @@ public class TasksManagerBlImplTest {
   private TasksManagerBl tasksManager;
   private JdbcPerunTemplate jdbcTemplate;
   private PerunSession perunSession;
-  private Service testService1, testService2;
-  private int testDestinationId1, testDestinationId2;
-  private int testFacilityId1, testFacilityId2;
-  private Facility facility1, facility2;
-  private Destination destination1, destination2;
+  private Service testService1;
+  private Service testService2;
+  private int testDestinationId1;
+  private int testDestinationId2;
+  private int testFacilityId1;
+  private int testFacilityId2;
+  private Facility facility1;
+  private Facility facility2;
+  private Destination destination1;
+  private Destination destination2;
   private Vo vo;
   private Resource resource;
-  private Task task1, task2;
-  private int task1Id, task2Id;
-  private TaskResult result1, result2, result3;
-  private int result1Id, result2Id, result3Id;
+  private Task task1;
+  private Task task2;
+  private int task1Id;
+  private int task2Id;
+  private TaskResult result1;
+  private TaskResult result2;
+  private TaskResult result3;
+  private int result1Id;
+  private int result2Id;
+  private int result3Id;
 
   @Before
   public void setUp() throws Exception {
@@ -518,7 +529,7 @@ public class TasksManagerBlImplTest {
     System.out.println("TasksManagerBlImplTest.suspendTasksPropagationPersistently");
 
     assertFalse("Should be enabled in test-schema.sql",
-          tasksManager.isSuspendedTasksPropagationPersistently());
+        tasksManager.isSuspendedTasksPropagationPersistently());
 
     tasksManager.suspendTasksPropagation(perunSession, true, true);
 

@@ -36,7 +36,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
       AttributesManager.NS_USER_ATTR_VIRT + ":" + USER_PUBLICATIONS_ATTR_NAME;
   private static final String A_U_V_userAffiliations =
       AttributesManager.NS_USER_ATTR_VIRT + ":" + USER_AFFILIATIONS_ATTR_NAME;
-  private final String ELIXIR_KEY = "ELIXIR";
+  private static final String ELIXIR_KEY = "ELIXIR";
   private urn_perun_user_attribute_def_def_elixirBonaFideStatus classInstance;
   private PerunSessionImpl session;
   private User user;
@@ -49,7 +49,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
     classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(elixirBonaFideStatusREMS);
+             .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(elixirBonaFideStatusREMS);
 
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
         voPersonExternalAffiliation);
@@ -63,16 +63,16 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 
   @Test
   public void fillAttributeWithDependenciesHavingUnsatisfyingValues() throws Exception {
-    List<String> EPSA_FAILING_VAL = new ArrayList<>();
-    EPSA_FAILING_VAL.add("member@here.edu");
+    List<String> epsaFailingVal = new ArrayList<>();
+    epsaFailingVal.add("member@here.edu");
     Attribute voPersonExternalAffiliationNotSatisfying = new Attribute();
-    voPersonExternalAffiliation.setValue(EPSA_FAILING_VAL);
+    voPersonExternalAffiliation.setValue(epsaFailingVal);
 
-    LinkedHashMap<String, String> PUBLICATIONS_FAILING_VAL = new LinkedHashMap<>();
-    PUBLICATIONS_FAILING_VAL.put(ELIXIR_KEY, "0");
-    PUBLICATIONS_FAILING_VAL.put("KEY", "5");
+    LinkedHashMap<String, String> publicationsFailingVal = new LinkedHashMap<>();
+    publicationsFailingVal.put(ELIXIR_KEY, "0");
+    publicationsFailingVal.put("KEY", "5");
     Attribute publicationAttributeNotSatisfying = new Attribute();
-    publicationAttributeNotSatisfying.setValue(PUBLICATIONS_FAILING_VAL);
+    publicationAttributeNotSatisfying.setValue(publicationsFailingVal);
 
     Attribute elixirBonaFideStatusREMSEmpty = new Attribute();
     elixirBonaFideStatusREMSEmpty.setValue(null);
@@ -80,7 +80,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
     classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(elixirBonaFideStatusREMSEmpty);
+             .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(elixirBonaFideStatusREMSEmpty);
 
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
         voPersonExternalAffiliationNotSatisfying);
@@ -97,7 +97,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
     classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(null);
+             .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(null);
 
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
         null);
@@ -114,7 +114,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
     classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(null);
+             .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(null);
 
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
         voPersonExternalAffiliation);
@@ -131,7 +131,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
     classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(null);
+             .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(null);
 
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
         null);
@@ -149,7 +149,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
     classInstance = new urn_perun_user_attribute_def_def_elixirBonaFideStatus();
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(elixirBonaFideStatusREMS);
+             .getAttribute(session, user, A_U_D_userBonaFideStatusRems)).thenReturn(elixirBonaFideStatusREMS);
 
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_V_userAffiliations)).thenReturn(
         null);
@@ -168,17 +168,17 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
     user = new User();
     user.setId(1);
 
-    List<String> EPSA_VAL = new ArrayList<>();
-    EPSA_VAL.add("faculty@somewhere.edu");
-    EPSA_VAL.add("member@somewhere.edu");
+    List<String> epsaVal = new ArrayList<>();
+    epsaVal.add("faculty@somewhere.edu");
+    epsaVal.add("member@somewhere.edu");
     voPersonExternalAffiliation = new Attribute();
-    voPersonExternalAffiliation.setValue(EPSA_VAL);
+    voPersonExternalAffiliation.setValue(epsaVal);
 
-    LinkedHashMap<String, String> PUBLICATIONS_VAL = new LinkedHashMap<>();
-    PUBLICATIONS_VAL.put(ELIXIR_KEY, "3");
-    PUBLICATIONS_VAL.put("KEY", "9");
+    LinkedHashMap<String, String> publicationsVal = new LinkedHashMap<>();
+    publicationsVal.put(ELIXIR_KEY, "3");
+    publicationsVal.put("KEY", "9");
     publicationAttribute = new Attribute();
-    publicationAttribute.setValue(PUBLICATIONS_VAL);
+    publicationAttribute.setValue(publicationsVal);
 
     elixirBonaFideStatusREMS = new Attribute();
     elixirBonaFideStatusREMS.setValue("IS_RESEARCHER");

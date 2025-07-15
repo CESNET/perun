@@ -209,7 +209,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
 
     assertThatNoException().isThrownBy(() -> perun.getModulesUtilsBl()
-        .checkAttributeValueIsIncludedOrSubgroupId((PerunSessionImpl) sess, group, sendAsGroups));
+                                                 .checkAttributeValueIsIncludedOrSubgroupId((PerunSessionImpl) sess,
+                                                     group, sendAsGroups));
   }
 
   @Test
@@ -229,7 +230,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
 
     assertThatNoException().isThrownBy(() -> perun.getModulesUtilsBl()
-        .checkAttributeValueIsIncludedOrSubgroupId((PerunSessionImpl) sess, group, sendAsGroups));
+                                                 .checkAttributeValueIsIncludedOrSubgroupId((PerunSessionImpl) sess,
+                                                     group, sendAsGroups));
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
@@ -255,15 +257,17 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
   @Test
   public void checkAndTranferBucketQuotas() throws Exception {
     System.out.println(CLASS_NAME + "checkAndTranferBucketQuotas");
-    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    Attribute attr =
+        new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
     attr.setValue("100:200");
-    assertEquals(new Pair<>(100,200),modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null));
+    assertEquals(new Pair<>(100, 200), modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null));
   }
 
   @Test(expected = WrongAttributeValueException.class)
   public void checkAndTranferBucketQuotasNull() throws Exception {
     System.out.println(CLASS_NAME + "checkAndTranferBucketQuotasWrongFormat");
-    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    Attribute attr =
+        new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
     attr.setValue(null);
     modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null);
   }
@@ -271,7 +275,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
   @Test(expected = WrongAttributeValueException.class)
   public void checkAndTranferBucketQuotasWrongFormat() throws Exception {
     System.out.println(CLASS_NAME + "checkAndTranferBucketQuotasWrongFormat");
-    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    Attribute attr =
+        new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
     attr.setValue("100-200");
     modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null);
   }
@@ -279,7 +284,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
   @Test(expected = WrongAttributeValueException.class)
   public void checkAndTranferBucketQuotasSoftUnlimited() throws Exception {
     System.out.println(CLASS_NAME + "checkAndTranferBucketQuotasSoftUnlimited");
-    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    Attribute attr =
+        new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
     attr.setValue("0:200");
     modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null);
   }
@@ -287,7 +293,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
   @Test(expected = WrongAttributeValueException.class)
   public void checkAndTranferBucketQuotasSoftLarger() throws Exception {
     System.out.println(CLASS_NAME + "checkAndTranferBucketQuotasSoftLarger");
-    Attribute attr = new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
+    Attribute attr =
+        new Attribute((new urn_perun_member_resource_attribute_def_def_bucketQuota()).getAttributeDefinition());
     attr.setValue("200:100");
     modulesUtilsBl.checkAndTransferBucketQuota(attr, null, null);
   }
@@ -321,7 +328,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     System.out.println(CLASS_NAME + "checkIfGIDIsWithinRange");
 
     Attribute gidRanges = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+                                            .getAttributeDefinition(sess,
+                                                AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
     Map<String, String> gidRangesValue = new LinkedHashMap<>();
     gidRangesValue.put("100000", "100500");
     gidRanges.setValue(gidRangesValue);
@@ -473,7 +481,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     groups.add(group);
 
     Attribute gidRanges = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+                                            .getAttributeDefinition(sess,
+                                                AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
     Map<String, String> gidRangesValue = new LinkedHashMap<>();
     gidRangesValue.put("100", "100500");
     gidRanges.setValue(gidRangesValue);
@@ -510,7 +519,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     resources.add(resource);
 
     Attribute gidRanges = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+                                            .getAttributeDefinition(sess,
+                                                AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
     Map<String, String> gidRangesValue = new LinkedHashMap<>();
     gidRangesValue.put("100", "100500");
     gidRanges.setValue(gidRangesValue);
@@ -583,7 +593,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     group = setUpGroup();
 
     Attribute gidRanges = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+                                            .getAttributeDefinition(sess,
+                                                AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
     Map<String, String> gidRangesValue = new LinkedHashMap<>();
     gidRangesValue.put("100", "100500");
     gidRanges.setValue(gidRangesValue);
@@ -664,7 +675,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
     assertEquals(1, resourceAttr.size());
     assertTrue(resourceAttr.get(0).getName()
-        .equals(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace));
+                   .equals(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace));
   }
 
   private Attribute getMaxDataQuotasAttribute() {
@@ -761,7 +772,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
 
     assertFalse(perun.getModulesUtilsBl()
-        .getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(), sendAsGroups.getName()));
+                    .getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(),
+                        sendAsGroups.getName()));
   }
 
   @Test
@@ -779,7 +791,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     perun.getAttributesManagerBl().setAttribute(sess, member, group, sendAs);
 
     assertTrue(perun.getModulesUtilsBl()
-        .getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(), ""));
+                   .getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(), ""));
   }
 
   @Test
@@ -803,7 +815,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     perun.getAttributesManagerBl().setAttribute(sess, group, sendAsGroups);
 
     assertTrue(perun.getModulesUtilsBl()
-        .getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(), sendAsGroups.getName()));
+                   .getSendRightFromAttributes((PerunSessionImpl) sess, member, group, sendAs.getName(),
+                       sendAsGroups.getName()));
   }
 
   @Test
@@ -930,7 +943,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     System.out.println(CLASS_NAME + "haveRightToWriteAttributeInAnyGroupOrResource");
 
     Attribute gidRanges = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+                                            .getAttributeDefinition(sess,
+                                                AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
     Map<String, String> gidRangesValue = new LinkedHashMap<>();
     gidRangesValue.put("100", "100500");
     gidRanges.setValue(gidRangesValue);
@@ -1063,7 +1077,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
     group = setUpGroup();
 
     Attribute gidRanges = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+                                            .getAttributeDefinition(sess,
+                                                AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
     Map<String, String> gidRangesValue = new LinkedHashMap<>();
     gidRangesValue.put("100", "100500");
     gidRanges.setValue(gidRangesValue);
@@ -1204,7 +1219,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
     try {
       facilityGIDNamespace = new Attribute(perun.getAttributesManagerBl()
-          .getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace"));
+                                               .getAttributeDefinition(sess,
+                                                   AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace"));
       facilityGIDNamespace.setValue(namespace);
     } catch (AttributeNotExistsException ex) {
       facilityGIDNamespace.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
@@ -1218,7 +1234,9 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
     try {
       facilityGroupNameNamespace = new Attribute(perun.getAttributesManagerBl()
-          .getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace"));
+                                                     .getAttributeDefinition(sess,
+                                                         AttributesManager.NS_FACILITY_ATTR_DEF +
+                                                             ":unixGroupName-namespace"));
       facilityGroupNameNamespace.setValue(namespace);
     } catch (AttributeNotExistsException ex) {
       facilityGroupNameNamespace.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

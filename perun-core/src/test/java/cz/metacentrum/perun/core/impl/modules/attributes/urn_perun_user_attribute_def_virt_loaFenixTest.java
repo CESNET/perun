@@ -26,9 +26,9 @@ import org.junit.Test;
 public class urn_perun_user_attribute_def_virt_loaFenixTest {
 
   private static urn_perun_user_attribute_def_virt_loaFenix classInstance;
-  private final String VALUE1 = "urn:geant:eduteams.org:fenix:loa:1";
-  private final String VALUE2 = "urn:geant:eduteams.org:fenix:loa:2";
-  private final String VALUE3 = "urn:geant:eduteams.org:fenix:loa:3";
+  private static final String VALUE1 = "urn:geant:eduteams.org:fenix:loa:1";
+  private static final String VALUE2 = "urn:geant:eduteams.org:fenix:loa:2";
+  private static final String VALUE3 = "urn:geant:eduteams.org:fenix:loa:3";
   private PerunSessionImpl session;
   private User user;
   private UserExtSource ues1;

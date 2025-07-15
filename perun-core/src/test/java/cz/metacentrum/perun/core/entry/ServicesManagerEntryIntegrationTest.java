@@ -750,7 +750,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
   public void getAllRichDestinationsAndTheirLastSuccessfulPropagation() throws Exception {
     System.out.println(CLASS_NAME + "getAllRichDestinationsAndTheirLastSuccessfulPropagation");
 
-    Timestamp success_at = new Timestamp(System.currentTimeMillis());
+    Timestamp successAt = new Timestamp(System.currentTimeMillis());
 
     service = setUpService();
     facility = setUpFacility();
@@ -773,22 +773,22 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
     result.setService(service);
     result.setTaskId(task.getId());
     result.setStatus(TaskResult.TaskResultStatus.DONE);
-    result.setTimestamp(success_at);
+    result.setTimestamp(successAt);
     result.setId(perun.getTasksManagerBl().insertNewTaskResult(sess, result));
 
     List<RichDestination> richDestinations = perun.getServicesManager().getAllRichDestinations(sess, facility);
     assertTrue("There should be one destination", richDestinations.size() == 1);
 
     RichDestination richDestination = richDestinations.get(0);
-    assertEquals(success_at.getTime() / 1000, richDestination.getLastSuccessfulPropagation().getTime() / 1000);
+    assertEquals(successAt.getTime() / 1000, richDestination.getLastSuccessfulPropagation().getTime() / 1000);
   }
 
   @Test
   public void getAllRichDestinationsAndTheirLastAttemptedPropagation() throws Exception {
     System.out.println(CLASS_NAME + "getAllRichDestinationsAndTheirLastAttemptedPropagation");
 
-    Timestamp success_at = new Timestamp(System.currentTimeMillis() - 3600_000L);
-    Timestamp fail_at = new Timestamp(System.currentTimeMillis());
+    Timestamp successAt = new Timestamp(System.currentTimeMillis() - 3600_000L);
+    Timestamp failAt = new Timestamp(System.currentTimeMillis());
 
     service = setUpService();
     facility = setUpFacility();
@@ -805,23 +805,23 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
     task.setId(perun.getTasksManagerBl().insertTask(sess, task));
 
     // Task results - successful and unsuccessful
-    TaskResult result_successful = new TaskResult();
-    result_successful.setDestination(destination);
-    result_successful.setDestinationId(destination.getId());
-    result_successful.setService(service);
-    result_successful.setTaskId(task.getId());
-    result_successful.setStatus(TaskResult.TaskResultStatus.DONE);
-    result_successful.setTimestamp(success_at);
-    result_successful.setId(perun.getTasksManagerBl().insertNewTaskResult(sess, result_successful));
+    TaskResult resultSuccessful = new TaskResult();
+    resultSuccessful.setDestination(destination);
+    resultSuccessful.setDestinationId(destination.getId());
+    resultSuccessful.setService(service);
+    resultSuccessful.setTaskId(task.getId());
+    resultSuccessful.setStatus(TaskResult.TaskResultStatus.DONE);
+    resultSuccessful.setTimestamp(successAt);
+    resultSuccessful.setId(perun.getTasksManagerBl().insertNewTaskResult(sess, resultSuccessful));
 
-    TaskResult result_unsuccessful = new TaskResult();
-    result_unsuccessful.setDestination(destination);
-    result_unsuccessful.setDestinationId(destination.getId());
-    result_unsuccessful.setService(service);
-    result_unsuccessful.setTaskId(task.getId());
-    result_unsuccessful.setStatus(TaskResult.TaskResultStatus.ERROR);
-    result_unsuccessful.setTimestamp(fail_at);
-    result_unsuccessful.setId(perun.getTasksManagerBl().insertNewTaskResult(sess, result_unsuccessful));
+    TaskResult resultUnsuccessful = new TaskResult();
+    resultUnsuccessful.setDestination(destination);
+    resultUnsuccessful.setDestinationId(destination.getId());
+    resultUnsuccessful.setService(service);
+    resultUnsuccessful.setTaskId(task.getId());
+    resultUnsuccessful.setStatus(TaskResult.TaskResultStatus.ERROR);
+    resultUnsuccessful.setTimestamp(failAt);
+    resultUnsuccessful.setId(perun.getTasksManagerBl().insertNewTaskResult(sess, resultUnsuccessful));
 
 
     List<RichDestination> richDestinations = perun.getServicesManager().getAllRichDestinations(sess, facility);
@@ -829,7 +829,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
     RichDestination richDestination = richDestinations.get(0);
 
-    assertEquals(fail_at.getTime() / 1000, richDestination.getLastAttemptedPropagation().getTime() / 1000);
+    assertEquals(failAt.getTime() / 1000, richDestination.getLastAttemptedPropagation().getTime() / 1000);
   }
 
   @Test
@@ -1376,8 +1376,9 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
     perun.getFacilitiesManagerBl().setBan(sess, new BanOnFacility(0, null, null,
         bannedMember.getUserId(), facility.getId()));
 
-//    perun.getResourcesManager().setBan(sess, new BanOnResource(0, null, null, bannedMember.getId(), resource.getId()));
-//    perun.getVosManagerBl().setBan(sess, new BanOnVo(0, bannedMember.getId(), vo.getId(), null, null));
+    //    perun.getResourcesManager().setBan(sess, new BanOnResource(0, null, null, bannedMember.getId(),
+    //      resource.getId()));
+    //    perun.getVosManagerBl().setBan(sess, new BanOnVo(0, bannedMember.getId(), vo.getId(), null, null));
 
     // set member's id as required attribute
     Attribute reqMemAttr;
@@ -1480,7 +1481,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
   @Test
   public void getHashedHierarchicalDataWithoutBannedMembersVoButPropagatesThroughUnrelatedResources() throws Exception {
-    System.out.println(CLASS_NAME + "getHashedHierarchicalDataWithoutBannedMembersVoButPropagatesThroughUnrelatedResources");
+    System.out.println(
+        CLASS_NAME + "getHashedHierarchicalDataWithoutBannedMembersVoButPropagatesThroughUnrelatedResources");
     //
     vo = setUpVo();
     facility = setUpFacility();
@@ -1495,11 +1497,11 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
     perun.getResourcesManager().assignGroupToResource(sess, group, resource, false, false, false);
 
 
-
     // create another vo and resoure on it
     Vo vo2 = new Vo(-1, "ServicesManagerTestVo2", "RMTestVo2");
     vo2 = perun.getVosManager().createVo(sess, vo2);
-    Member bannedMemberOnOtherVo = perun.getMembersManagerBl().createMember(sess, vo2, perun.getUsersManagerBl().getUserByMember(sess,bannedMember));
+    Member bannedMemberOnOtherVo = perun.getMembersManagerBl().createMember(sess, vo2,
+        perun.getUsersManagerBl().getUserByMember(sess, bannedMember));
     Resource resource2 = new Resource();
     resource2.setName("ServicesManagerTestResource22");
     resource2.setDescription("Testovac2i");
@@ -1689,7 +1691,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
     assertThat(((GenResourceDataNode) res1Node).getVoId()).isEqualTo(vo.getId());
     assertThat(res1Node.getChildren()).isEmpty();
   }
-
 
 
   @Test

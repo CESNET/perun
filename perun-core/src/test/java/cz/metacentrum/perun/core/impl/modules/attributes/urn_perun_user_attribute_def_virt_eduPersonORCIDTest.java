@@ -42,17 +42,18 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
     UserExtSource ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), "login2");
     Attribute att1 = new Attribute();
     String orcidAddress = "http://orcid.org/";
-    String VALUE1 = orcidAddress + "0000-0002-0305-7446";
-    String VALUE2 = orcidAddress + "0000-0002-1111-2222";
-    att1.setValue(VALUE1 + ";" + VALUE2);
+    String value1 = orcidAddress + "0000-0002-0305-7446";
+    String value2 = orcidAddress + "0000-0002-1111-2222";
+    att1.setValue(value1 + ";" + value2);
     Attribute att2 = new Attribute();
-    String VALUE3 = orcidAddress + "0000-0002-1111-3333";
-    att2.setValue(VALUE3);
+    String value3 = orcidAddress + "0000-0002-1111-3333";
+    att2.setValue(value3);
 
     when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
         Arrays.asList(ues1, ues2));
 
-    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(new ArrayList<>());
+    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(
+        new ArrayList<>());
 
     String attributeName = classInstance.getSourceAttributeName();
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(att1);
@@ -65,14 +66,14 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 
     @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
     Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
+    List<String> expected = Arrays.asList(value1, value2, value3);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
   }
 
   @Test
   public void getAttributeValueSourceAttributeSet() throws Exception {
-    String SOURCE_ATTRIBUTE_NAME = "eduPersonDifferentOrcid";
+    String sourceAttributeName = "eduPersonDifferentOrcid";
     urn_perun_user_attribute_def_virt_eduPersonORCID classInstance =
         new urn_perun_user_attribute_def_virt_eduPersonORCID();
     PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
@@ -84,18 +85,18 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
     UserExtSource ues4 = new UserExtSource(20, new ExtSource(200, "name4", "type2"), "login2");
     Attribute att1 = new Attribute();
     String orcidAddress = "http://orcid.org/";
-    String VALUE1 = orcidAddress + "0000-0002-0305-7446";
-    String VALUE2 = orcidAddress + "0000-0002-1111-2222";
-    att1.setValue(VALUE1 + ";" + VALUE2);
+    String value1 = orcidAddress + "0000-0002-0305-7446";
+    String value2 = orcidAddress + "0000-0002-1111-2222";
+    att1.setValue(value1 + ";" + value2);
     Attribute att2 = new Attribute();
-    String VALUE3 = orcidAddress + "0000-0002-1111-3333";
-    att2.setValue(VALUE3);
+    String value3 = orcidAddress + "0000-0002-1111-3333";
+    att2.setValue(value3);
     Attribute att3 = new Attribute();
-    String VALUE4 = orcidAddress + "1111-2222-3333-4444";
-    att3.setValue(VALUE4);
+    String value4 = orcidAddress + "1111-2222-3333-4444";
+    att3.setValue(value4);
     Attribute eduPersonOrcidConfigAttribute = new Attribute();
     eduPersonOrcidConfigAttribute.setValue(new LinkedHashMap<>(Map.of(
-        urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.SOURCE_ATTRIBUTE_KEY, SOURCE_ATTRIBUTE_NAME)));
+        urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.SOURCE_ATTRIBUTE_KEY, sourceAttributeName)));
 
     when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
         Arrays.asList(ues1, ues2, ues3, ues4));
@@ -105,9 +106,15 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 
     String attributeName = classInstance.getSourceAttributeName();
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(att1);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, AttributesManager.NS_UES_ATTR_DEF + ":" + SOURCE_ATTRIBUTE_NAME)).thenReturn(att2);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues3, AttributesManager.NS_UES_ATTR_DEF + ":" + SOURCE_ATTRIBUTE_NAME)).thenReturn(att2);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues4, AttributesManager.NS_UES_ATTR_DEF + ":" + SOURCE_ATTRIBUTE_NAME)).thenReturn(att3);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .getAttribute(session, ues2, AttributesManager.NS_UES_ATTR_DEF + ":" + sourceAttributeName)).thenReturn(
+        att2);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .getAttribute(session, ues3, AttributesManager.NS_UES_ATTR_DEF + ":" + sourceAttributeName)).thenReturn(
+        att2);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .getAttribute(session, ues4, AttributesManager.NS_UES_ATTR_DEF + ":" + sourceAttributeName)).thenReturn(
+        att3);
 
     Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
     assertTrue(receivedAttr.getValue() instanceof List);
@@ -116,7 +123,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 
     @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
     Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE3, VALUE4);
+    List<String> expected = Arrays.asList(value3, value4);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
   }
@@ -134,15 +141,15 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
     UserExtSource ues4 = new UserExtSource(20, new ExtSource(200, "name4", "type2"), "login2");
     Attribute att1 = new Attribute();
     String orcidAddress = "http://orcid.org/";
-    String VALUE1 = orcidAddress + "0000-0002-0305-7446";
-    String VALUE2 = orcidAddress + "0000-0002-1111-2222";
-    att1.setValue(VALUE1 + ";" + VALUE2);
+    String value1 = orcidAddress + "0000-0002-0305-7446";
+    String value2 = orcidAddress + "0000-0002-1111-2222";
+    att1.setValue(value1 + ";" + value2);
     Attribute att2 = new Attribute();
-    String VALUE3 = orcidAddress + "0000-0002-1111-3333";
-    att2.setValue(VALUE3);
+    String value3 = orcidAddress + "0000-0002-1111-3333";
+    att2.setValue(value3);
     Attribute att3 = new Attribute();
-    String VALUE4 = orcidAddress + "1111-2222-3333-4444";
-    att3.setValue(VALUE4);
+    String value4 = orcidAddress + "1111-2222-3333-4444";
+    att3.setValue(value4);
     Attribute eduPersonOrcidConfigAttribute = new Attribute();
     eduPersonOrcidConfigAttribute.setValue(new LinkedHashMap<>(Map.of(
         urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.ES_NAME_KEY, "name1",
@@ -167,7 +174,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 
     @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
     Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE3);
+    List<String> expected = Arrays.asList(value3);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
   }
@@ -179,18 +186,18 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
     PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
     User user = new User();
     user.setId(1);
-    String LOGIN1 = "login1";
-    String LOGIN2 = "login2";
-    UserExtSource ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), LOGIN1);
-    UserExtSource ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), LOGIN2);
+    String login1 = "login1";
+    String login2 = "login2";
+    UserExtSource ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), login1);
+    UserExtSource ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), login2);
     Attribute att1 = new Attribute();
     String orcidAddress = "http://orcid.org/";
-    String VALUE1 = orcidAddress + "0000-0002-0305-7446";
-    String VALUE2 = orcidAddress + "0000-0002-1111-2222";
-    att1.setValue(VALUE1 + ";" + VALUE2);
+    String value1 = orcidAddress + "0000-0002-0305-7446";
+    String value2 = orcidAddress + "0000-0002-1111-2222";
+    att1.setValue(value1 + ";" + value2);
     Attribute att2 = new Attribute();
-    String VALUE3 = orcidAddress + "0000-0002-1111-3333";
-    att2.setValue(VALUE3);
+    String value3 = orcidAddress + "0000-0002-1111-3333";
+    att2.setValue(value3);
     Attribute eduPersonOrcidConfigAttribute = new Attribute();
     eduPersonOrcidConfigAttribute.setValue(new LinkedHashMap<>(Map.of(
         urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.GET_EXT_LOGIN_KEY, "true")));
@@ -212,7 +219,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 
     @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
     Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3, LOGIN1, LOGIN2);
+    List<String> expected = Arrays.asList(value1, value2, value3, login1, login2);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
   }
@@ -230,15 +237,15 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
     UserExtSource ues4 = new UserExtSource(20, new ExtSource(200, "name4", "type2"), "login2");
     Attribute att1 = new Attribute();
     String orcidAddress = "http://orcid.org/";
-    String VALUE1 = orcidAddress + "0000-0002-0305-7446";
-    String VALUE2 = orcidAddress + "0000-0002-1111match-2222";
-    att1.setValue(VALUE1 + ";" + VALUE2);
+    String value1 = orcidAddress + "0000-0002-0305-7446";
+    String value2 = orcidAddress + "0000-0002-1111match-2222";
+    att1.setValue(value1 + ";" + value2);
     Attribute att2 = new Attribute();
-    String VALUE3 = orcidAddress + "0000-0002-1111match-3333";
-    att2.setValue(VALUE3);
+    String value3 = orcidAddress + "0000-0002-1111match-3333";
+    att2.setValue(value3);
     Attribute att3 = new Attribute();
-    String VALUE4 = orcidAddress + "1111-2222-3333-4444";
-    att3.setValue(VALUE4);
+    String value4 = orcidAddress + "1111-2222-3333-4444";
+    att3.setValue(value4);
     Attribute eduPersonOrcidConfigAttribute = new Attribute();
     eduPersonOrcidConfigAttribute.setValue(new LinkedHashMap<>(Map.of(
         urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.VALUE_FILTER_KEY, ".*match.*")));
@@ -262,7 +269,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 
     @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
     Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE2, VALUE3);
+    List<String> expected = Arrays.asList(value2, value3);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
   }
@@ -280,17 +287,17 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
     UserExtSource ues4 = new UserExtSource(20, new ExtSource(200, "name4", "type2"), "login2");
     Attribute att1 = new Attribute();
     String orcidAddress = "http://orcid.org/";
-    String VALUE1 = orcidAddress + "0000-examplePattern-0002-0305-7446";
-    String VALUE1_MODIFIED = orcidAddress + "0000-exampleReplacement-0002-0305-7446";
-    String VALUE2 = orcidAddress + "0000-0002-1111-2222";
-    att1.setValue(VALUE1 + ";" + VALUE2);
+    String value1 = orcidAddress + "0000-examplePattern-0002-0305-7446";
+    String value1Modified = orcidAddress + "0000-exampleReplacement-0002-0305-7446";
+    String value2 = orcidAddress + "0000-0002-1111-2222";
+    att1.setValue(value1 + ";" + value2);
     Attribute att2 = new Attribute();
-    String VALUE3 = orcidAddress + "0000-examplePattern-0002-1111-3333";
-    String VALUE3_MODIFIED = orcidAddress + "0000-exampleReplacement-0002-1111-3333";
-    att2.setValue(VALUE3);
+    String value3 = orcidAddress + "0000-examplePattern-0002-1111-3333";
+    String value3Modified = orcidAddress + "0000-exampleReplacement-0002-1111-3333";
+    att2.setValue(value3);
     Attribute att3 = new Attribute();
-    String VALUE4 = orcidAddress + "1111-2222-3333-4444";
-    att3.setValue(VALUE4);
+    String value4 = orcidAddress + "1111-2222-3333-4444";
+    att3.setValue(value4);
     Attribute eduPersonOrcidConfigAttribute = new Attribute();
     eduPersonOrcidConfigAttribute.setValue(
         new LinkedHashMap<>(Map.of(
@@ -316,47 +323,47 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 
     @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
     Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE1_MODIFIED, VALUE2, VALUE3_MODIFIED, VALUE4);
+    List<String> expected = Arrays.asList(value1Modified, value2, value3Modified, value4);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
   }
 
   @Test
   public void getAttributeValueValueAllConfigAttributesSet() throws Exception {
-    String SOURCE_ATTRIBUTE_NAME = "eduPersonDifferentOrcid";
-    String WANTED_UES_TYPE = "wantedType";
+    String sourceAttributeName = "eduPersonDifferentOrcid";
+    String wantedUesType = "wantedType";
     urn_perun_user_attribute_def_virt_eduPersonORCID classInstance =
         new urn_perun_user_attribute_def_virt_eduPersonORCID();
     PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
     User user = new User();
     user.setId(1);
-    String LOGIN_TO_MATCH = "login_match_examplePattern";
-    String LOGIN_TO_MATCH_MODIFIED = "login_match_exampleReplacement";
+    String loginToMatch = "login_match_examplePattern";
+    String loginToMatchModified = "login_match_exampleReplacement";
     UserExtSource ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), "login1");
-    UserExtSource ues2 = new UserExtSource(20, new ExtSource(200, "name2", WANTED_UES_TYPE), "login2");
-    UserExtSource ues3 = new UserExtSource(10, new ExtSource(100, "name3", WANTED_UES_TYPE), LOGIN_TO_MATCH);
-    UserExtSource ues4 = new UserExtSource(20, new ExtSource(200, "name4", WANTED_UES_TYPE), "login4");
+    UserExtSource ues2 = new UserExtSource(20, new ExtSource(200, "name2", wantedUesType), "login2");
+    UserExtSource ues3 = new UserExtSource(10, new ExtSource(100, "name3", wantedUesType), loginToMatch);
+    UserExtSource ues4 = new UserExtSource(20, new ExtSource(200, "name4", wantedUesType), "login4");
     Attribute att1 = new Attribute();
     String orcidAddress = "http://orcid.org/";
-    String VALUE1 = orcidAddress + "0000-0002-1111-2222match";
-    att1.setValue(VALUE1);
+    String value1 = orcidAddress + "0000-0002-1111-2222match";
+    att1.setValue(value1);
     Attribute att2 = new Attribute();
-    String VALUE2 = orcidAddress + "0000-examplePattern-0002-0305-7446match;filter_out";
-    String VALUE2_MODIFIED = orcidAddress + "0000-exampleReplacement-0002-0305-7446match";
-    att2.setValue(VALUE2);
+    String value2 = orcidAddress + "0000-examplePattern-0002-0305-7446match;filter_out";
+    String value2Modified = orcidAddress + "0000-exampleReplacement-0002-0305-7446match";
+    att2.setValue(value2);
     Attribute att3 = new Attribute();
-    String VALUE3 = orcidAddress + "0000-examplePattern-0002-1111-3333";
-    att3.setValue(VALUE3);
+    String value3 = orcidAddress + "0000-examplePattern-0002-1111-3333";
+    att3.setValue(value3);
     Attribute att4 = new Attribute();
-    String VALUE4 = orcidAddress + "match0000-2222-1111-3333";
-    att4.setValue(VALUE4);
+    String value4 = orcidAddress + "match0000-2222-1111-3333";
+    att4.setValue(value4);
 
     Attribute eduPersonOrcidConfigAttribute = new Attribute();
     eduPersonOrcidConfigAttribute.setValue(new LinkedHashMap<>(Map.of(
-        urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.SOURCE_ATTRIBUTE_KEY, SOURCE_ATTRIBUTE_NAME,
+        urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.SOURCE_ATTRIBUTE_KEY, sourceAttributeName,
         urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.GET_EXT_LOGIN_KEY, "1",
         urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.VALUE_FILTER_KEY, ".*match.*",
-        urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.ES_TYPE_KEY, WANTED_UES_TYPE,
+        urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.ES_TYPE_KEY, wantedUesType,
         urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.PATTERN_KEY, "examplePattern",
         urn_perun_entityless_attribute_def_def_eduPersonORCIDConfig.REPLACEMENT_KEY, "exampleReplacement")));
 
@@ -366,10 +373,18 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
     when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session),
         eq(A_E_EDU_PERSON_ORCID_CONFIG_ATTRIBUTE))).thenReturn(List.of(eduPersonOrcidConfigAttribute));
 
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, AttributesManager.NS_UES_ATTR_DEF + ":" + SOURCE_ATTRIBUTE_NAME)).thenReturn(att1);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues2, AttributesManager.NS_UES_ATTR_DEF + ":" + SOURCE_ATTRIBUTE_NAME)).thenReturn(att2);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues3, AttributesManager.NS_UES_ATTR_DEF + ":" + SOURCE_ATTRIBUTE_NAME)).thenReturn(att3);
-    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues4, AttributesManager.NS_UES_ATTR_DEF + ":" + SOURCE_ATTRIBUTE_NAME)).thenReturn(att4);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .getAttribute(session, ues1, AttributesManager.NS_UES_ATTR_DEF + ":" + sourceAttributeName)).thenReturn(
+        att1);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .getAttribute(session, ues2, AttributesManager.NS_UES_ATTR_DEF + ":" + sourceAttributeName)).thenReturn(
+        att2);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .getAttribute(session, ues3, AttributesManager.NS_UES_ATTR_DEF + ":" + sourceAttributeName)).thenReturn(
+        att3);
+    when(session.getPerunBl().getAttributesManagerBl()
+             .getAttribute(session, ues4, AttributesManager.NS_UES_ATTR_DEF + ":" + sourceAttributeName)).thenReturn(
+        att4);
 
     Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
     assertTrue(receivedAttr.getValue() instanceof List);
@@ -378,7 +393,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 
     @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
     Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE2_MODIFIED, VALUE4, LOGIN_TO_MATCH_MODIFIED);
+    List<String> expected = Arrays.asList(value2Modified, value4, loginToMatchModified);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
   }

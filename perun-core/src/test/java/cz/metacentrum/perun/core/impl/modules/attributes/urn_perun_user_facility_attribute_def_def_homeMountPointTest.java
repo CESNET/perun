@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
   private static Resource resource1;
 
   @Before
-  public void SetUp() {
+  public void setUp() {
     listOfMntPts = new Attribute();
     classInstance = new urn_perun_user_facility_attribute_def_def_homeMountPoint();
     session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
@@ -76,22 +77,13 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
     attributeToCheck.setValue("/mnt/mnt1");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
-        new ArrayList<Resource>() {
-
-          {
-            add(resource);
-          }
-        });
+             .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getFacilitiesManagerBl()
-        .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>() {
-
-      {
-        add(resource);
-      }
-    });
+             .getAssignedResources(any(PerunSession.class), any(Facility.class)))
+        .thenReturn(new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
     classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck);
   }
@@ -101,10 +93,10 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
     System.out.println("testCheckAttributeSemanticsOfUnknownUser()");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
-        new ArrayList<>());
+             .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
+                new ArrayList<>());
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
     Attribute atr = new Attribute();
     atr.setValue(("/mnt/mnt1"));
@@ -122,22 +114,13 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
     System.out.println("testCheckAttributeSemanticsWithEmptyAttribute()");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
-        new ArrayList<Resource>() {
-
-          {
-            add(resource);
-          }
-        });
+             .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getFacilitiesManagerBl()
-        .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>() {
-
-      {
-        add(resource);
-      }
-    });
+             .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
     classInstance.checkAttributeSemantics(session, user, facility, new Attribute());
     fail("Empty attribute should have thrown an exception");
@@ -149,22 +132,13 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
     System.out.println("testCheckAttributeSemanticsWrongHomeMountPointFormatHomeMountPointIsDirectory()");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
-        new ArrayList<Resource>() {
-
-          {
-            add(resource);
-          }
-        });
+             .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getFacilitiesManagerBl()
-        .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>() {
-
-      {
-        add(resource);
-      }
-    });
+             .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
     Attribute attributeToCheck = new Attribute();
     attributeToCheck.setValue("/mnt/mnt1/");
@@ -185,22 +159,13 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
     attributeToCheck.setValue("/bin/\n/bash");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
-        new ArrayList<Resource>() {
-
-          {
-            add(resource);
-          }
-        });
+             .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getFacilitiesManagerBl()
-        .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>() {
-
-      {
-        add(resource);
-      }
-    });
+             .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
     classInstance.checkAttributeSyntax(session, user, facility, attributeToCheck);
     fail("Wrong homeMountPoint format should have thrown an exception");
@@ -214,22 +179,13 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
     attributeToCheck.setValue("/ok/(&^%");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
-        new ArrayList<Resource>() {
-
-          {
-            add(resource);
-          }
-        });
+             .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getFacilitiesManagerBl()
-        .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>() {
-
-      {
-        add(resource);
-      }
-    });
+             .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
     classInstance.checkAttributeSyntax(session, user, facility, attributeToCheck);
     fail("Wrong homeMountPoint format should have thrown an exception");
@@ -244,22 +200,13 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
     System.out.println("testFillAttribute()");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
-        new ArrayList<Resource>() {
-
-          {
-            add(resource);
-          }
-        });
+             .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getFacilitiesManagerBl()
-        .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>() {
-
-      {
-        add(resource);
-      }
-    });
+             .getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(
+                new ArrayList<>(List.of(resource)));
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
     Attribute filledAttribute = classInstance.fillAttribute(session, user, facility, new AttributeDefinition());
     assertTrue("A different homeMountPoint was filled than those available",
@@ -275,10 +222,10 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
     System.out.println("testFillAttributeOfUnknownUser()");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
-        new ArrayList<>());
+             .getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(
+               new ArrayList<>());
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
     Attribute atr = classInstance.fillAttribute(session, user, facility, new AttributeDefinition());
 

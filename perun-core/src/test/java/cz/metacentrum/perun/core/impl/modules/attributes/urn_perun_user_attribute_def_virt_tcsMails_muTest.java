@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -52,20 +51,20 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
   private final User user = new User(10, "Joe", "Doe", "W.", "", "");
 
   private final String email1 = "Zemail1@mail.cz";
-  Attribute preferredMailAttr = setUpUserAttribute(1, "preferredMail", String.class.getName(), email1);
   private final String email2 = "email2@mail.cz "; // to check for the trim()
-  Attribute isMailAttr = setUpUserAttribute(2, "ISMail", String.class.getName(), email2);
   private final String email3 = "email3@mail.cz";
   private final String email4 = "email4@mail.cz";
+  private final String email5 = "email5@mail.cz";
+  private final String email6 = " Email5@mail.cz"; // to check for the trim() and uniqueness
+  private final String expectedTestOfMessage = "friendlyName=<tcsMails:mu>";
+  Attribute preferredMailAttr = setUpUserAttribute(1, "preferredMail", String.class.getName(), email1);
+  Attribute isMailAttr = setUpUserAttribute(2, "ISMail", String.class.getName(), email2);
   Attribute o365MailsAttr = setUpUserAttribute(3, "o365EmailAddresses:mu", ArrayList.class.getName(),
       new ArrayList<>(Arrays.asList(email3, email4)));
-  private final String email5 = "email5@mail.cz";
   Attribute privateMailsAttr = setUpUserAttribute(5, "privateAliasMails", ArrayList.class.getName(),
       new ArrayList<>(Arrays.asList(email1, email3, email5)));
-  private final String email6 = " Email5@mail.cz"; // to check for the trim() and uniqueness
   Attribute publicMailsAttr = setUpUserAttribute(4, "publicAliasMails", ArrayList.class.getName(),
       new ArrayList<>(Arrays.asList(email4, email5, email6)));
-  private final String expectedTestOfMessage = "friendlyName=<tcsMails:mu>";
   private PerunSessionImpl sess;
 
   @Test
@@ -84,7 +83,8 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
   }
 
   @Test
-  public void getAttributeValueWithAllowedMailDomains() throws WrongAttributeAssignmentException, AttributeNotExistsException {
+  public void getAttributeValueWithAllowedMailDomains()
+      throws WrongAttributeAssignmentException, AttributeNotExistsException {
     Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
     allowedMailDomainsAttr.setValue(new ArrayList<>(List.of("/[@|\\.]mail\\.cz/i")));
     when(
@@ -107,46 +107,49 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
   }
 
   @Test
-  public void getAttributeValueWithAllowedMailDomainsNoMatch() throws WrongAttributeAssignmentException, AttributeNotExistsException {
-      Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
-      allowedMailDomainsAttr.setValue(new ArrayList<>(List.of("/[@|\\.]example\\.com/i")));
-      Map<String, Attribute> map = new HashMap<>();
-      map.put("tcsMails:mu", allowedMailDomainsAttr);
-      when(
-          sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(
-              sess, allowedMailDomainsAttr.getName(), Collections.singletonList("tcsMails:mu"))
-      ).thenReturn(map);
-      Attribute attr = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef);
-      ArrayList<String> attributeValue = attr.valueAsList();
+  public void getAttributeValueWithAllowedMailDomainsNoMatch()
+      throws WrongAttributeAssignmentException, AttributeNotExistsException {
+    Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
+    allowedMailDomainsAttr.setValue(new ArrayList<>(List.of("/[@|\\.]example\\.com/i")));
+    Map<String, Attribute> map = new HashMap<>();
+    map.put("tcsMails:mu", allowedMailDomainsAttr);
+    when(
+        sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(
+            sess, allowedMailDomainsAttr.getName(), Collections.singletonList("tcsMails:mu"))
+    ).thenReturn(map);
+    Attribute attr = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef);
+    ArrayList<String> attributeValue = attr.valueAsList();
 
-      assertNotNull(attributeValue);
-      assertEquals(0, attributeValue.size());
+    assertNotNull(attributeValue);
+    assertEquals(0, attributeValue.size());
   }
 
   @Test
-  public void getAttributeValueWithAllowedMailDomainsEmpty() throws WrongAttributeAssignmentException, AttributeNotExistsException {
-      Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
-      allowedMailDomainsAttr.setValue(new ArrayList<>());
-      Map<String, Attribute> map = new HashMap<>();
-      map.put("tcsMails:mu", allowedMailDomainsAttr);
-      when(
-          sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(
-              sess, allowedMailDomainsAttr.getName(), Collections.singletonList("tcsMails:mu"))
-      ).thenReturn(map);
-      Attribute attr = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef);
-      ArrayList<String> attributeValue = attr.valueAsList();
+  public void getAttributeValueWithAllowedMailDomainsEmpty()
+      throws WrongAttributeAssignmentException, AttributeNotExistsException {
+    Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
+    allowedMailDomainsAttr.setValue(new ArrayList<>());
+    Map<String, Attribute> map = new HashMap<>();
+    map.put("tcsMails:mu", allowedMailDomainsAttr);
+    when(
+        sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributesWithKeys(
+            sess, allowedMailDomainsAttr.getName(), Collections.singletonList("tcsMails:mu"))
+    ).thenReturn(map);
+    Attribute attr = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef);
+    ArrayList<String> attributeValue = attr.valueAsList();
 
-      assertNotNull(attributeValue);
-      assertEquals(0, attributeValue.size());
-      assertFalse(attributeValue.contains(email1));
-      assertFalse(attributeValue.contains(email2.trim()));
-      assertFalse(attributeValue.contains(email3));
-      assertFalse(attributeValue.contains(email4));
-      assertFalse(attributeValue.contains(email5));
+    assertNotNull(attributeValue);
+    assertEquals(0, attributeValue.size());
+    assertFalse(attributeValue.contains(email1));
+    assertFalse(attributeValue.contains(email2.trim()));
+    assertFalse(attributeValue.contains(email3));
+    assertFalse(attributeValue.contains(email4));
+    assertFalse(attributeValue.contains(email5));
   }
 
   @Test
-  public void getAttributeValueWithAllowedMailDomainsFiltered() throws WrongAttributeAssignmentException, AttributeNotExistsException {
+  public void getAttributeValueWithAllowedMailDomainsFiltered()
+      throws WrongAttributeAssignmentException, AttributeNotExistsException {
     Attribute allowedMailDomainsAttr = new Attribute(allowedMailDomainsAttrDef);
     allowedMailDomainsAttr.setValue(new ArrayList<>(List.of("/[@|\\.]example\\.com/i")));
     Map<String, Attribute> map = new HashMap<>();

@@ -438,7 +438,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
   private String getLoginNameForBaseGroup(Group baseGroup) throws Exception {
     return attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME)
-        .valueAsString();
+               .valueAsString();
   }
 
   @Test
@@ -528,7 +528,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     assertEquals(MemberGroupStatus.EXPIRED, foundMember.getGroupStatus());
 
     Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group,
-            AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+        AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
     assertEquals(lifecycleAttr.valueAsMap().get("expiredAt"),
         BeansUtils.getDateFormatterWithoutTime().format(new Date()));
   }
@@ -1148,19 +1148,20 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     extSourceManagerBl.addExtSource(sess, baseGroup, extSource);
 
     Attribute membersQuery = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
-        .getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+                                               .getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
     membersQuery.setValue("SELECT * from members where groupName='?';");
     attributesManagerBl.setAttribute(sess, baseGroup, membersQuery);
 
     Attribute interval = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
-        .getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+                                           .getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
     interval.setValue("1");
     attributesManagerBl.setAttribute(sess, baseGroup, interval);
 
     AttributeDefinition loginAttrDef = setGroupAttribute("groupLogin");
 
     Attribute structureLoginName = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl()
-        .getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME));
+                                                     .getAttributeDefinition(sess,
+                                                         GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME));
     structureLoginName.setValue(loginAttrDef.getName());
     attributesManagerBl.setAttribute(sess, baseGroup, structureLoginName);
 
@@ -1234,7 +1235,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
   private void setUpGroupWithExpiration(Group groupWithExpiration)
       throws AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,
-      WrongReferenceAttributeValueException {
+                 WrongReferenceAttributeValueException {
     Attribute expirationRulesAttribute = new Attribute(attributesManagerBl.getAttributeDefinition(sess,
         AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules"));
     Map<String, String> values = new LinkedHashMap<>();
@@ -1325,7 +1326,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     assertEquals(MemberGroupStatus.EXPIRED, foundMember.getGroupStatus());
 
     Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember, group,
-            AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
+        AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lifecycleTimestamps");
     assertEquals(lifecycleAttr.valueAsMap().get("expiredAt"),
         BeansUtils.getDateFormatterWithoutTime().format(new Date()));
   }
@@ -1474,7 +1475,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     groupsManagerBl.addMember(sess, group, member);
 
     Attribute attribute = perun.getAttributesManagerBl()
-        .getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup");
+                              .getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup");
     attribute.setValue(1);
     attributesManagerBl.setAttribute(sess, group, attribute);
 
@@ -1559,7 +1560,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
     assertEquals(Status.DISABLED, foundMember.getStatus());
     Attribute lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, member,
-            AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
     assertEquals(lifecycleAttr.valueAsMap().get("archivedAt"),
         BeansUtils.getDateFormatterWithoutTime().format(new Date()));
 
@@ -1568,7 +1569,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     foundMember = groupsManagerBl.getGroupMembers(sess, group).get(0);
     assertEquals(Status.VALID, foundMember.getStatus());
     lifecycleAttr = perun.getAttributesManagerBl().getAttribute(sess, foundMember,
-            AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
+        AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps");
     assertNull(lifecycleAttr.getValue());
   }
 
@@ -1594,8 +1595,8 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     candidate.setFirstName("metodej");
 
     Attribute attribute = perun.getAttributesManagerBl()
-        .getAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member),
-            AttributesManager.NS_USER_ATTR_CORE + ":firstName");
+                              .getAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member),
+                                  AttributesManager.NS_USER_ATTR_CORE + ":firstName");
 
     Map<String, String> candidateAttrs = new HashMap<>();
     candidateAttrs.put(attribute.getName(), attribute.valueAsString());
@@ -1645,24 +1646,28 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
 
     Attribute memberOrganizations = perun.getAttributesManager()
-        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+                                        .getAttribute(sess, newMember,
+                                            AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
     ArrayList<String> currentMemberOrganizations = memberOrganizations.valueAsList();
     assertThat(currentMemberOrganizations).containsOnly(memberVo.getShortName());
 
     Attribute memberOrganizationsHistory = perun.getAttributesManager()
-        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+                                               .getAttribute(sess, newMember,
+                                                   AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
     ArrayList<String> currentMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
     assertThat(currentMemberOrganizationsHistory).containsOnly(memberVo.getShortName());
 
     groupsManagerBl.synchronizeGroup(sess, group);
 
     memberOrganizations = perun.getAttributesManager()
-        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+                              .getAttribute(sess, newMember,
+                                  AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
     currentMemberOrganizations = memberOrganizations.valueAsList();
     assertThat(currentMemberOrganizations).containsOnly(vo.getShortName(), memberVo.getShortName());
 
     memberOrganizationsHistory = perun.getAttributesManager()
-        .getAttribute(sess, newMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
+                                     .getAttribute(sess, newMember,
+                                         AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations");
     currentMemberOrganizationsHistory = memberOrganizationsHistory.valueAsList();
     assertThat(currentMemberOrganizationsHistory).containsOnly(vo.getShortName(), memberVo.getShortName());
   }
@@ -1753,7 +1758,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
   @Test
   public void synchronizeGroupUpdateMembershipStatusToExpired() throws Exception {
     System.out.println(CLASS_NAME + "synchronizeGroupUpdateMembershipStatusToExpired");
-    String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
+    String groupMembershipExpirationAttr = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
 
     when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
         extSourceForUserCreation);
@@ -1780,7 +1785,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     groupsManagerBl.synchronizeGroup(sess, group);
     assertEquals(MemberGroupStatus.EXPIRED, groupsManagerBl.getGroupMembers(sess, group).get(0).getGroupStatus());
     assertEquals(LocalDate.now().toString(),
-        attributesManagerBl.getAttribute(sess, member, group, A_MG_D_MEMBERSHIP_EXPIRATION).getValue());
+        attributesManagerBl.getAttribute(sess, member, group, groupMembershipExpirationAttr).getValue());
   }
 
   @Test
@@ -1836,12 +1841,12 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
   public void addMissingMemberWhileSynchronizationRollsBackCorrectly() throws Exception {
     System.out.println("GroupsManager.addMissingMemberWhileSynchronizationRollsBackCorrectly");
 
-    Group group2 = new Group("GroupsManagerTestGroup2","testovaci2");
-    Group group3 = new Group("GroupsManagerTestGroup3","testovaci3");
-    Group group4 = new Group("GroupsManagerTestGroup4","testovaci4");
-    Group group5 = new Group("GroupsManagerTestGroup5","testovaci5");
-    Group group6 = new Group("GroupsManagerTestGroup6","testovaci6");
-    Group group7 = new Group("GroupsManagerTestGroup7","testovaci7");
+    Group group2 = new Group("GroupsManagerTestGroup2", "testovaci2");
+    Group group3 = new Group("GroupsManagerTestGroup3", "testovaci3");
+    Group group4 = new Group("GroupsManagerTestGroup4", "testovaci4");
+    Group group5 = new Group("GroupsManagerTestGroup5", "testovaci5");
+    Group group6 = new Group("GroupsManagerTestGroup6", "testovaci6");
+    Group group7 = new Group("GroupsManagerTestGroup7", "testovaci7");
     groupsManagerBl.createGroup(sess, vo, group2);
     groupsManagerBl.createGroup(sess, vo, group3);
     groupsManagerBl.createGroup(sess, vo, group4);

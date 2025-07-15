@@ -78,7 +78,8 @@ public class urn_perun_resource_attribute_def_def_defaultBucketQuotaTest extends
 
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void checkAttributeSemanticSoftLarger() throws Exception {
-    System.out.println("urn_perun_resource_attribute_def_def_defaultBucketQuotaTest.checkAttributeSemanticSoftLarger()");
+    System.out.println(
+        "urn_perun_resource_attribute_def_def_defaultBucketQuotaTest.checkAttributeSemanticSoftLarger()");
     maxAttr.setValue("10:200");
     attributeToCheck.setValue("100:200");
 
@@ -92,7 +93,8 @@ public class urn_perun_resource_attribute_def_def_defaultBucketQuotaTest extends
 
   @Test(expected = WrongReferenceAttributeValueException.class)
   public void checkAttributeSemanticHardLarger() throws Exception {
-    System.out.println("urn_perun_resource_attribute_def_def_defaultBucketQuotaTest.checkAttributeSemanticHardLarger()");
+    System.out.println(
+        "urn_perun_resource_attribute_def_def_defaultBucketQuotaTest.checkAttributeSemanticHardLarger()");
     maxAttr.setValue("1:200");
     attributeToCheck.setValue("100:2000");
 
