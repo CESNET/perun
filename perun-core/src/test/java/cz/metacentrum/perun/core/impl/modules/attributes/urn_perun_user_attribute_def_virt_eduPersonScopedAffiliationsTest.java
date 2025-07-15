@@ -51,16 +51,16 @@ import org.mockito.internal.matchers.Any;
  */
 public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
+  private static final String VALUE1 = "11aff11@somewhere.edu";
+  private static final String VALUE2 = "22aff22@somewhere.edu";
+  private static final String VALUE3 = "33aff33@somewhere.edu";
+  private static final String VALUE4 = "44aff44@somewhere.edu";
+  private static final String VALUE5 = "55aff55@somewhere.edu";
+  private static final String VALUE6 = "66aff66@somewhere.edu";
+  private static final String VALUE7 = "77aff77@somewhere.edu";
+  private static final int gId1 = 1;
+  private static final int gId2 = 2;
   private static urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance;
-  private final String VALUE1 = "11aff11@somewhere.edu";
-  private final String VALUE2 = "22aff22@somewhere.edu";
-  private final String VALUE3 = "33aff33@somewhere.edu";
-  private final String VALUE4 = "44aff44@somewhere.edu";
-  private final String VALUE5 = "55aff55@somewhere.edu";
-  private final String VALUE6 = "66aff66@somewhere.edu";
-  private final String VALUE7 = "77aff77@somewhere.edu";
-  private final int gId1 = 1;
-  private final int gId2 = 2;
   private PerunSessionImpl session;
   private User user;
   private UserExtSource ues1;
@@ -99,9 +99,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
     when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
         Arrays.asList(ues1, ues2));
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, ues1, primarySourceAttributeName)).thenReturn(uesAtt1);
+             .getAttribute(session, ues1, primarySourceAttributeName)).thenReturn(uesAtt1);
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, ues2, primarySourceAttributeName)).thenReturn(uesAtt2);
+             .getAttribute(session, ues2, primarySourceAttributeName)).thenReturn(uesAtt2);
 
     // MANUALLY_ASSIGNED_AFFILIATIONS
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, secondarySourceAttrName)).thenReturn(
@@ -138,7 +138,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, secondarySourceAttrName)).thenReturn(
         userAtt1);
 
-    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(new ArrayList<>());
+    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(
+        new ArrayList<>());
     when(session.getPerunBl().getUsersManagerBl().getUserExtSources(eq(session), any())).thenReturn(new ArrayList<>());
 
     Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
@@ -196,7 +197,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
         session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
         groupAtt1);
 
-    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(new ArrayList<>());
+    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(
+        new ArrayList<>());
     when(session.getPerunBl().getUsersManagerBl().getUserExtSources(eq(session), any())).thenReturn(new ArrayList<>());
 
     Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
@@ -217,7 +219,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
     ues1.getExtSource().setType(ExtSourcesManager.EXTSOURCE_IDP);
     ues1.setLastAccess(LocalDateTime.now().minusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity() + 1)
-        .format(Utils.LAST_ACCESS_FORMATTER));
+                           .format(Utils.LAST_ACCESS_FORMATTER));
 
     urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance =
         new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();
@@ -258,7 +260,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
     ues1.getExtSource().setType(ExtSourcesManager.EXTSOURCE_IDP);
     ues1.setLastAccess(LocalDateTime.now().minusMonths(BeansUtils.getCoreConfig().getIdpLoginValidity() + 1)
-        .format(Utils.LAST_ACCESS_FORMATTER));
+                           .format(Utils.LAST_ACCESS_FORMATTER));
 
     urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance =
         new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();

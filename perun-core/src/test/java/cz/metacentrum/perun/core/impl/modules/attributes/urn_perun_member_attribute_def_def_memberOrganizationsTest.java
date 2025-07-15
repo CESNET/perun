@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,9 +35,7 @@ public class urn_perun_member_attribute_def_def_memberOrganizationsTest {
     session = mock(PerunSessionImpl.class);
     member = mock(Member.class);
     vo = new Vo(0, "Test VO", "test");
-    memberOrganizations = new ArrayList<>() {{
-      add(vo.getShortName());
-    }};
+    memberOrganizations = new ArrayList<>(List.of(vo.getShortName()));
 
     PerunBl perunBl = mock(PerunBl.class);
     when(session.getPerunBl()).thenReturn(perunBl);

@@ -18,7 +18,7 @@ import org.junit.Test;
 public class DatabaseManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
   final Pattern versionPatter = Pattern.compile("^[1-9][0-9]*[.][1-9][0-9]*[.][1-9][0-9]*");
-  private final String DATABASE_MANAGER = "DatabaseManager";
+  private static final String DATABASE_MANAGER = "DatabaseManager";
 
   @Test
   public void createProperty() throws Exception {

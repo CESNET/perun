@@ -61,13 +61,13 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuotaTest extend
     overrideQuotaAttr.setValue("0:0");
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(defaultQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100,200));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100, 200));
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(memberQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(200,400));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(200, 400));
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(overrideQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(0,0));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(0, 0));
 
     Attribute testAttr = classInstance.getAttributeValue(session, member, resource,
         session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
@@ -85,10 +85,10 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuotaTest extend
     overrideQuotaAttr.setValue(null);
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(defaultQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100,200));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100, 200));
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(memberQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(200,400));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(200, 400));
 
     Attribute testAttr = classInstance.getAttributeValue(session, member, resource,
         session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
@@ -97,16 +97,17 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuotaTest extend
     assertEquals(memberQuotaAttr.getValue(), testAttr.getValue());
   }
 
-    @Test
+  @Test
   public void getAttributeValueOverrideAndMemberNull() throws Exception {
-    System.out.println("urn_perun_member_resource_attribute_def_virt_bucketQuota.getAttributeValueOverrideAndMemberNull()");
+    System.out.println(
+        "urn_perun_member_resource_attribute_def_virt_bucketQuota.getAttributeValueOverrideAndMemberNull()");
 
     defaultQuotaAttr.setValue("100:200");
     memberQuotaAttr.setValue(null);
     overrideQuotaAttr.setValue(null);
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(defaultQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100,200));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100, 200));
 
     Attribute testAttr = classInstance.getAttributeValue(session, member, resource,
         session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
@@ -117,7 +118,8 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuotaTest extend
 
   @Test
   public void getAttributeValueBlockNewBucketCreation() throws Exception {
-    System.out.println("urn_perun_member_resource_attribute_def_virt_bucketQuota.getAttributeValueBlockNewBucketCreation()");
+    System.out.println(
+        "urn_perun_member_resource_attribute_def_virt_bucketQuota.getAttributeValueBlockNewBucketCreation()");
 
     defaultQuotaAttr.setValue("100:200");
     memberQuotaAttr.setValue("200:400");
@@ -129,13 +131,13 @@ public class urn_perun_member_resource_attribute_def_virt_bucketQuotaTest extend
         eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":blockBucketCreation"))).thenReturn(blockBucketCreationAttr);
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(defaultQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100,200));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(100, 200));
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(memberQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(200,400));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(200, 400));
 
     when(session.getPerunBl().getModulesUtilsBl().checkAndTransferBucketQuota(eq(overrideQuotaAttr),
-        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(0,0));
+        any(PerunBean.class), nullable(PerunBean.class))).thenReturn(new Pair<>(0, 0));
 
     Attribute testAttr = classInstance.getAttributeValue(session, member, resource,
         session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,

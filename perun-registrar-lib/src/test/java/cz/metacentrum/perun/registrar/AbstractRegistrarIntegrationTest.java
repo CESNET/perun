@@ -24,38 +24,38 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-registrar-lib.xml"})
 @Transactional(transactionManager = "perunTransactionManager")
 public abstract class AbstractRegistrarIntegrationTest {
-	@Autowired
-	PerunBl perun;
-	@Autowired
-	RegistrarManager registrarManager;
-	@Autowired
-	MailManager mailManager;
-	@Autowired
-	InvitationsManagerImpl invitationsManager;
-	PerunSession session;
-	Vo vo;
+  @Autowired
+  PerunBl perun;
+  @Autowired
+  RegistrarManager registrarManager;
+  @Autowired
+  MailManager mailManager;
+  @Autowired
+  InvitationsManagerImpl invitationsManager;
+  PerunSession session;
+  Vo vo;
 
-	@Before
-	public void setupTest() throws Exception {
+  @Before
+  public void setupTest() throws Exception {
 
-		if (vo == null || session == null) {
+    if (vo == null || session == null) {
 
-			session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
-					ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
+      session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
+          ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 
-			// create test VO
-			vo = new Vo(0, "registrarTestVO", "regTestVO");
-			vo = perun.getVosManagerBl().createVo(session, vo);
+      // create test VO
+      vo = new Vo(0, "registrarTestVO", "regTestVO");
+      vo = perun.getVosManagerBl().createVo(session, vo);
 
-		}
+    }
 
-	}
+  }
 
-	@After
-	public void cleanTest() throws Exception {
+  @After
+  public void cleanTest() throws Exception {
 
-		//perun.getVosManagerBl().deleteVo(session, vo, true);
+    //perun.getVosManagerBl().deleteVo(session, vo, true);
 
-	}
+  }
 
 }

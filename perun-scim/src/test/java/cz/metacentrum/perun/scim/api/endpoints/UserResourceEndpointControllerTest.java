@@ -9,10 +9,10 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.scim.AbstractSCIMTest;
 import cz.metacentrum.perun.scim.api.entities.UserSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 

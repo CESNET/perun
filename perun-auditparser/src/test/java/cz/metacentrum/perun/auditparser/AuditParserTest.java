@@ -86,11 +86,6 @@ public class AuditParserTest {
   private final AttributeDefinition attributeDefinition4 = new AttributeDefinition(getAttributeDefinition4());
   private final Attribute attribute4 = new Attribute(attributeDefinition4);
   private final AuditMessage createdAuditMessage = new AuditMessage();
-  private Candidate candidate;
-  private RichMember richMember;
-  private RichUser richUser;
-  private RichGroup richGroup;
-  private RichFacility richFacility;
   private final ResourceTag resourceTag1 = new ResourceTag(5, "cosi", 2);
   private final ResourceTag resourceTag2 = new ResourceTag(8, null, 5);
   private final TaskResult taskResult1 = new TaskResult();
@@ -98,6 +93,11 @@ public class AuditParserTest {
   private final BanOnResource banOnResource2 = new BanOnResource(4, null, null, 10, 12);
   private final BanOnFacility banOnFacility1 = new BanOnFacility(5, new Date(), "neco", 10, 12);
   private final BanOnFacility banOnFacility2 = new BanOnFacility(6, null, null, 10, 12);
+  private Candidate candidate;
+  private RichMember richMember;
+  private RichUser richUser;
+  private RichGroup richGroup;
+  private RichFacility richFacility;
 
   private AttributeDefinition getAttributeDefinition1() {
     AttributeDefinition attr = new AttributeDefinition();
@@ -605,17 +605,18 @@ public class AuditParserTest {
     System.out.println(CLASS_NAME + ":testParseLogCreatedBeans()");
     richMember.setMembershipType(MembershipType.INDIRECT);
     String bigLog = user.serializeToString() + extSource.serializeToString() + userExtSource1.serializeToString() +
-                    vo.serializeToString() + facility.serializeToString() + resource.serializeToString() +
-                    group.serializeToString() + member.serializeToString() + candidate.serializeToString() +
-                    destination.serializeToString() + host.serializeToString() + owner.serializeToString() +
-                    service.serializeToString() + attributeDefinition1.serializeToString() +
-                    attribute1.serializeToString() + richMember.serializeToString() +
-                    richDestination.serializeToString() + richResource.serializeToString() +
-                    richUser.serializeToString() + richGroup.serializeToString() + richFacility.serializeToString() +
-                    resourceTag1.serializeToString() +
-                    taskResult1.serializeToString() + banOnResource1.serializeToString() +
-                    banOnResource2.serializeToString() + banOnFacility1.serializeToString() +
-                    banOnFacility2.serializeToString();
+                        vo.serializeToString() + facility.serializeToString() + resource.serializeToString() +
+                        group.serializeToString() + member.serializeToString() + candidate.serializeToString() +
+                        destination.serializeToString() + host.serializeToString() + owner.serializeToString() +
+                        service.serializeToString() + attributeDefinition1.serializeToString() +
+                        attribute1.serializeToString() + richMember.serializeToString() +
+                        richDestination.serializeToString() + richResource.serializeToString() +
+                        richUser.serializeToString() + richGroup.serializeToString() +
+                        richFacility.serializeToString() +
+                        resourceTag1.serializeToString() +
+                        taskResult1.serializeToString() + banOnResource1.serializeToString() +
+                        banOnResource2.serializeToString() + banOnFacility1.serializeToString() +
+                        banOnFacility2.serializeToString();
 
     List<PerunBean> perunBeans = new ArrayList<PerunBean>();
     perunBeans = AuditParser.parseLog(bigLog);
@@ -651,22 +652,22 @@ public class AuditParserTest {
     System.out.println(CLASS_NAME + ":testParseLogOnExamples()");
 
     String log = "Hosts [" + "Host:[id=<982>, hostname=<konos37.fav.zcu.cz>], " +
-                 "Host:[id=<981>, hostname=<konos36.fav.zcu.cz>], " +
-                 "Host:[id=<980>, hostname=<konos34.fav.zcu.cz>], " +
-                 "Host:[id=<979>, hostname=<konos33.fav.zcu.cz>], " +
-                 "Host:[id=<978>, hostname=<konos30.fav.zcu.cz>], " +
-                 "Host:[id=<977>, hostname=<konos28.fav.zcu.cz>], " +
-                 "Host:[id=<976>, hostname=<konos27.fav.zcu.cz>], " +
-                 "Host:[id=<975>, hostname=<konos26.fav.zcu.cz>], " +
-                 "Host:[id=<974>, hostname=<konos24.fav.zcu.cz>], " +
-                 "Host:[id=<973>, hostname=<konos22.fav.zcu.cz>], " +
-                 "Host:[id=<972>, hostname=<konos20.fav.zcu.cz>], " +
-                 "Host:[id=<971>, hostname=<konos19.fav.zcu.cz>], " +
-                 "Host:[id=<970>, hostname=<konos18.fav.zcu.cz>], " +
-                 "Host:[id=<969>, hostname=<konos17.fav.zcu.cz>], " +
-                 "Host:[id=<968>, hostname=<konos16.fav.zcu.cz>], " +
-                 "Host:[id=<967>, hostname=<konos15.fav.zcu.cz>]] " + "removed from cluster " +
-                 "Facility:[id=<371>, name=<konos.fav.zcu.cz>, type=<cluster>]";
+                     "Host:[id=<981>, hostname=<konos36.fav.zcu.cz>], " +
+                     "Host:[id=<980>, hostname=<konos34.fav.zcu.cz>], " +
+                     "Host:[id=<979>, hostname=<konos33.fav.zcu.cz>], " +
+                     "Host:[id=<978>, hostname=<konos30.fav.zcu.cz>], " +
+                     "Host:[id=<977>, hostname=<konos28.fav.zcu.cz>], " +
+                     "Host:[id=<976>, hostname=<konos27.fav.zcu.cz>], " +
+                     "Host:[id=<975>, hostname=<konos26.fav.zcu.cz>], " +
+                     "Host:[id=<974>, hostname=<konos24.fav.zcu.cz>], " +
+                     "Host:[id=<973>, hostname=<konos22.fav.zcu.cz>], " +
+                     "Host:[id=<972>, hostname=<konos20.fav.zcu.cz>], " +
+                     "Host:[id=<971>, hostname=<konos19.fav.zcu.cz>], " +
+                     "Host:[id=<970>, hostname=<konos18.fav.zcu.cz>], " +
+                     "Host:[id=<969>, hostname=<konos17.fav.zcu.cz>], " +
+                     "Host:[id=<968>, hostname=<konos16.fav.zcu.cz>], " +
+                     "Host:[id=<967>, hostname=<konos15.fav.zcu.cz>]] " + "removed from cluster " +
+                     "Facility:[id=<371>, name=<konos.fav.zcu.cz>, type=<cluster>]";
 
     String log2 =
         "RichMember:[id=<12521>, userId=<9181>, voId=<21>, status=<DISABLED>, sourceGroupId=<\\0>, sponsored=<true>, " +
@@ -794,14 +795,20 @@ public class AuditParserTest {
 
     String log4 =
         "Attribute:[id=<146>, friendlyName=<login-namespace:einfra>, namespace=<urn:perun:user:attribute-def:def>, " +
-        "type=<java.lang.String>, value=<tejral>]";
+            "type=<java.lang.String>, value=<tejral>]";
 
     String log5 =
         "Member:[id=<3899>, userId=<3199>, voId=<21>, status=<VALID>, sourceGroupId=<\\0>, sponsored=<true>, " +
-        "suspendedTo=<" +
-        BeansUtils.getDateFormatter().format(Date.from(Instant.now())) + ">] Cokoliv:[]";
+            "suspendedTo=<" +
+            BeansUtils.getDateFormatter().format(Date.from(Instant.now())) + ">] Cokoliv:[]";
 
-    String log6 = "Attribute:[id=<3472>, friendlyName=<groupNames>, namespace=<urn:perun:user:attribute-def:virt>, type=<java.util.ArrayList>, unique=<false>, value=<\\0>] changed for [User:[id=<132911>, uuid=<27a1cf89-f758-478b-b5de-4e5dbd7d706b>, titleBefore=<\\0>, firstName=<Rastislav>, lastName=<Kruták>, middleName=<\\0>, titleAfter=<\\0>, serviceAccount=<false>, sponsoredAccount=<false>],User:[id=<124633>, uuid=<2e77b4b3-af0a-41f3-b436-5da75f30b425>, titleBefore=<\\0>, firstName=<Šárka>, lastName=<Palkovičová>, middleName=<\\0>, titleAfter=<\\0>, serviceAccount=<false>, sponsoredAccount=<false>]].";
+    String log6 = "Attribute:[id=<3472>, friendlyName=<groupNames>, namespace=<urn:perun:user:attribute-def:virt>," +
+                      " type=<java.util.ArrayList>, unique=<false>, value=<\\0>] changed for [User:[id=<132911>," +
+                      " uuid=<27a1cf89-f758-478b-b5de-4e5dbd7d706b>, titleBefore=<\\0>, firstName=<Rastislav>," +
+                      " lastName=<Kruták>, middleName=<\\0>, titleAfter=<\\0>, serviceAccount=<false>," +
+                      " sponsoredAccount=<false>],User:[id=<124633>, uuid=<2e77b4b3-af0a-41f3-b436-5da75f30b425>," +
+                      " titleBefore=<\\0>, firstName=<Šárka>, lastName=<Palkovičová>, middleName=<\\0>," +
+                      " titleAfter=<\\0>, serviceAccount=<false>, sponsoredAccount=<false>]].";
 
     //Long start = System.currentTimeMillis();
     List<PerunBean> list = AuditParser.parseLog(log);

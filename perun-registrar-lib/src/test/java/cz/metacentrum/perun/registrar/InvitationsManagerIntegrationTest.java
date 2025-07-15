@@ -97,7 +97,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     invitation = invitationsManager.createInvitation(session, invitation);
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+    applicationToGroup =
+        registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
 
     invitation = invitationsManager.getInvitationById(session, invitation.getId());
     assertEquals(invitation, invitationsManager.getInvitationByApplication(session, applicationToGroup));
@@ -210,8 +211,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     System.out.println(CLASS_NAME + "expireInvitation");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
-    "receiver name", "receiver@email.com", Locale.ENGLISH,
-    LocalDate.now().plusDays(1));
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
     assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
 
@@ -224,8 +225,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     System.out.println(CLASS_NAME + "expireExpiredInvitation");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
-    "receiver name", "receiver@email.com", Locale.ENGLISH,
-    LocalDate.now().plusDays(1));
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
     invitation1.setStatus(InvitationStatus.EXPIRED);
 
@@ -237,8 +238,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     System.out.println(CLASS_NAME + "revokeInvitationById");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
-    "receiver name", "receiver@email.com", Locale.ENGLISH,
-    LocalDate.now().plusDays(1));
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
     assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
 
@@ -251,8 +252,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     System.out.println(CLASS_NAME + "revokeInvitationByUuid");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
-    "receiver name", "receiver@email.com", Locale.ENGLISH,
-    LocalDate.now().plusDays(1));
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
     assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
 
@@ -265,8 +266,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     System.out.println(CLASS_NAME + "revokeRevokedInvitation");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
-    "receiver name", "receiver@email.com", Locale.ENGLISH,
-    LocalDate.now().plusDays(1));
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
     invitation1.setStatus(InvitationStatus.REVOKED);
 
     invitation1 = invitationsManager.createInvitation(session, invitation1);
@@ -279,8 +280,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     System.out.println(CLASS_NAME + "acceptInvitation");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
-    "receiver name", "receiver@email.com", Locale.ENGLISH,
-    LocalDate.now().plusDays(1));
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
     assertEquals(InvitationStatus.PENDING, invitation1.getStatus());
 
@@ -293,8 +294,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     System.out.println(CLASS_NAME + "acceptAcceptedInvitation");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
-    "receiver name", "receiver@email.com", Locale.ENGLISH,
-    LocalDate.now().plusDays(1));
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
     invitation1.setStatus(InvitationStatus.ACCEPTED);
 
@@ -306,8 +307,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     System.out.println(CLASS_NAME + "createInvitationUrl");
 
     Invitation invitation1 = new Invitation(0, vo.getId(), group.getId(), sender.getId(),
-    "receiver name", "receiver@email.com", Locale.ENGLISH,
-    LocalDate.now().plusDays(1));
+        "receiver name", "receiver@email.com", Locale.ENGLISH,
+        LocalDate.now().plusDays(1));
     invitation1 = invitationsManager.createInvitation(session, invitation1);
 
     Attribute authTypeAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(session,
@@ -317,7 +318,7 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
 
 
     String url = invitationsManagerBl.createInvitationUrl(session, invitation1.getToken().toString());
-    assertEquals("perun-dev/krb/registrar/?vo=" + vo.getShortName() +"&group=" + group.getShortName() +
+    assertEquals("perun-dev/krb/registrar/?vo=" + vo.getShortName() + "&group=" + group.getShortName() +
                      "&token=" + invitation1.getToken(), url);
   }
 
@@ -337,7 +338,7 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
 
       verify(spyMailSender, times(1)).send(any(MimeMessage.class));
     } finally {
-        ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
+      ReflectionTestUtils.setField(mailManager, "mailSender", mailSender);
     }
 
   }
@@ -524,6 +525,7 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
 
     invitationsManagerBl.canInvitationBeAccepted(session, invitation1.getToken(), wrongGroup);
   }
+
   @Test
   public void extendInvitationExpiration() throws Exception {
     System.out.println(CLASS_NAME + "extendInvitationExpiration");
@@ -568,11 +570,18 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
   public void getInvitationsPageBasic() throws Exception {
     System.out.println(CLASS_NAME + "getInvitationsPageBasic");
 
-    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
-    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
-    Invitation invitation3 = invitationsManager.createInvitation(session, new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver3", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation1 = invitationsManager.createInvitation(session,
+        new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session,
+        new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
+    Invitation invitation3 = invitationsManager.createInvitation(session,
+        new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver3", "test3@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
 
-    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "",
+        List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
 
     Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
 
@@ -584,15 +593,20 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
   public void getInvitationsPageByStatus() throws Exception {
     System.out.println(CLASS_NAME + "getInvitationsPageByStatus");
 
-    Invitation invitation1 = new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
-    Invitation invitation2 = new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
+    Invitation invitation1 =
+        new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1));
+    Invitation invitation2 =
+        new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1));
 
     invitation1.setStatus(InvitationStatus.ACCEPTED);
 
     invitation1 = invitationsManager.createInvitation(session, invitation1);
     invitation2 = invitationsManager.createInvitation(session, invitation2);
 
-    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "", List.of(InvitationStatus.ACCEPTED), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "",
+        List.of(InvitationStatus.ACCEPTED), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
 
     Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
 
@@ -604,9 +618,15 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
   public void getInvitationsPageSortedByStatus() throws Exception {
     System.out.println(CLASS_NAME + "getInvitationsPageSortedByStatus");
 
-    Invitation invitation1 = new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
-    Invitation invitation2 = new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
-    Invitation invitation3 = new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1));
+    Invitation invitation1 =
+        new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1));
+    Invitation invitation2 =
+        new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1));
+    Invitation invitation3 =
+        new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1));
 
     invitation1.setStatus(InvitationStatus.REVOKED);
     invitation2.setStatus(InvitationStatus.ACCEPTED);
@@ -616,7 +636,8 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     invitation2 = invitationsManager.createInvitation(session, invitation2);
     invitation3 = invitationsManager.createInvitation(session, invitation3);
 
-    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.STATUS, "", new ArrayList<>());
+    InvitationsPageQuery query =
+        new InvitationsPageQuery(3, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.STATUS, "", new ArrayList<>());
 
     Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
 
@@ -628,10 +649,15 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
   public void getInvitationsPageByExpiration() throws Exception {
     System.out.println(CLASS_NAME + "getInvitationsPageByExpiration");
 
-    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(5)));
-    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation1 = invitationsManager.createInvitation(session,
+        new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(5)));
+    Invitation invitation2 = invitationsManager.createInvitation(session,
+        new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test3@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
 
-    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(2), LocalDate.now().plusDays(2));
+    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "",
+        List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(2), LocalDate.now().plusDays(2));
 
     Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
 
@@ -643,11 +669,19 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
   public void getInvitationsPageByReceiverName() throws Exception {
     System.out.println(CLASS_NAME + "getInvitationsPageByReceiverName");
 
-    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
-    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
-    Invitation invitation3 = invitationsManager.createInvitation(session, new Invitation(3, vo.getId(), group.getId(), sender.getId(), "other", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation1 = invitationsManager.createInvitation(session,
+        new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session,
+        new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
+    Invitation invitation3 = invitationsManager.createInvitation(session,
+        new Invitation(3, vo.getId(), group.getId(), sender.getId(), "other", "test3@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
 
-    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.DESCENDING, InvitationsOrderColumn.RECEIVER_NAME, "receiver", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+    InvitationsPageQuery query =
+        new InvitationsPageQuery(3, 0, SortingOrder.DESCENDING, InvitationsOrderColumn.RECEIVER_NAME, "receiver",
+            List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
 
     Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
 
@@ -659,11 +693,19 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
   public void getInvitationsPageByReceiverEmail() throws Exception {
     System.out.println(CLASS_NAME + "getInvitationsPageByReceiverEmail");
 
-    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
-    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
-    Invitation invitation3 = invitationsManager.createInvitation(session, new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver3", "other@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation1 = invitationsManager.createInvitation(session,
+        new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session,
+        new Invitation(2, vo.getId(), group.getId(), sender.getId(), "receiver2", "test2@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
+    Invitation invitation3 = invitationsManager.createInvitation(session,
+        new Invitation(3, vo.getId(), group.getId(), sender.getId(), "receiver3", "other@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
 
-    InvitationsPageQuery query = new InvitationsPageQuery(3, 0, SortingOrder.DESCENDING, InvitationsOrderColumn.RECEIVER_EMAIL, "test", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+    InvitationsPageQuery query =
+        new InvitationsPageQuery(3, 0, SortingOrder.DESCENDING, InvitationsOrderColumn.RECEIVER_EMAIL, "test",
+            List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
 
     Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
 
@@ -677,10 +719,16 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
 
     User otherSender = setUpUser("Other", "Sender", "otherPreferredMail@mail.com");
 
-    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
-    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), otherSender.getId(), "receiver3", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation1 = invitationsManager.createInvitation(session,
+        new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session,
+        new Invitation(2, vo.getId(), group.getId(), otherSender.getId(), "receiver3", "test3@email.com",
+            Locale.ENGLISH, LocalDate.now().plusDays(1)));
 
-    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "other", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+    InvitationsPageQuery query =
+        new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "other",
+            List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
 
     Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
 
@@ -694,10 +742,16 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
 
     User otherSender = setUpUser("Other", "Sender", "otherPreferredMail@mail.com");
 
-    Invitation invitation1 = invitationsManager.createInvitation(session, new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
-    Invitation invitation2 = invitationsManager.createInvitation(session, new Invitation(2, vo.getId(), group.getId(), otherSender.getId(), "receiver3", "test3@email.com", Locale.ENGLISH, LocalDate.now().plusDays(1)));
+    Invitation invitation1 = invitationsManager.createInvitation(session,
+        new Invitation(1, vo.getId(), group.getId(), sender.getId(), "receiver1", "test1@email.com", Locale.ENGLISH,
+            LocalDate.now().plusDays(1)));
+    Invitation invitation2 = invitationsManager.createInvitation(session,
+        new Invitation(2, vo.getId(), group.getId(), otherSender.getId(), "receiver3", "test3@email.com",
+            Locale.ENGLISH, LocalDate.now().plusDays(1)));
 
-    InvitationsPageQuery query = new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "otherPreferredMail", List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
+    InvitationsPageQuery query =
+        new InvitationsPageQuery(2, 0, SortingOrder.ASCENDING, InvitationsOrderColumn.ID, "otherPreferredMail",
+            List.of(InvitationStatus.PENDING), LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));
 
     Paginated<InvitationWithSender> result = invitationsManager.getInvitationsPage(session, group, query);
 
@@ -739,8 +793,10 @@ public class InvitationsManagerIntegrationTest extends AbstractRegistrarIntegrat
     groupForm.setAutomaticApproval(true);
     registrarManager.updateForm(session, groupForm);
 
-    ApplicationMail mail = new ApplicationMail(0, INITIAL, groupForm.getId(), ApplicationMail.MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new ApplicationMail.MailText(Locale.ENGLISH, "test","Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
+    ApplicationMail mail =
+        new ApplicationMail(0, INITIAL, groupForm.getId(), ApplicationMail.MailType.USER_PRE_APPROVED_INVITE, true);
+    mail.getMessage().put(Locale.ENGLISH, new ApplicationMail.MailText(Locale.ENGLISH, "test",
+        "Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
 
     mailManager.addMail(session, groupForm, mail);
 

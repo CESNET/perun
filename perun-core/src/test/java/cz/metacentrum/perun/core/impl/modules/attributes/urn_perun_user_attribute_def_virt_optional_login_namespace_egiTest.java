@@ -1,5 +1,10 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -9,16 +14,10 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class urn_perun_user_attribute_def_virt_optional_login_namespace_egiTest {
 
@@ -28,7 +27,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_egiTest 
   private static ExtSource extSource;
   private static UserExtSource ues1;
   private static UserExtSource ues2;
-  private final String EXTSOURCE_EGI = "https://aai.egi.eu/auth/realms/egi";
+  private static final String EXTSOURCE_EGI = "https://aai.egi.eu/auth/realms/egi";
 
   @Before
   public void setUp() throws Exception {
@@ -77,7 +76,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_egiTest 
     attr.setFriendlyName("optional-login-namespace:egi");
     // should return EGI identity with lowest UES ID
     assertEquals("53358466014af3010b88afe55786aa6249c257049b8526c702f104d344e4d1c8@egi.eu",
-            classInstance.getAttributeValue(session, user, attr).getValue());
+        classInstance.getAttributeValue(session, user, attr).getValue());
   }
 
 }

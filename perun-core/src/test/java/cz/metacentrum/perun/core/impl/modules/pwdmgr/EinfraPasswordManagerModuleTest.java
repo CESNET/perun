@@ -16,7 +16,7 @@ import org.junit.Test;
 public class EinfraPasswordManagerModuleTest extends AbstractPerunIntegrationTest {
 
   private final int randomPasswordLength = 12;
-  private final Pattern EinfraPasswordContainsNotAllowedChars =
+  private static final Pattern EINFRA_PASSWORD_CONTAINS_NOT_ALLOWED_CHARS =
       Pattern.compile(".*[^ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,._-].*");
   private EinfraPasswordManagerModule module;
 
@@ -28,7 +28,7 @@ public class EinfraPasswordManagerModuleTest extends AbstractPerunIntegrationTes
   @Before
   public void setUp() {
     this.module = (EinfraPasswordManagerModule) ((PerunBl) sess.getPerun()).getUsersManagerBl()
-        .getPasswordManagerModule(sess, "einfra");
+                                                    .getPasswordManagerModule(sess, "einfra");
   }
 
   @Test
@@ -43,7 +43,7 @@ public class EinfraPasswordManagerModuleTest extends AbstractPerunIntegrationTes
 
     // test that password does not contain any invalid character
     Assert.assertFalse(
-        EinfraPasswordContainsNotAllowedChars.matcher(module.generateRandomPassword(sess, null)).matches());
+        EINFRA_PASSWORD_CONTAINS_NOT_ALLOWED_CHARS.matcher(module.generateRandomPassword(sess, null)).matches());
   }
 
   @Test

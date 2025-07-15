@@ -35,15 +35,13 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
   public void testGetValueSourceWithMultipleScopes() throws Exception {
     System.out.println("testGetValueSourceWithMultipleScopes()");
 
+    Attribute attribute = new Attribute();
+    attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attribute.setFriendlyName("login-namespace:einfraid-persistent-shadow");
+    attribute.setType("def");
+    attribute.setValue("test@test@test@scope");
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(new Attribute() {
-      {
-        setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-        setFriendlyName("login-namespace:einfraid-persistent-shadow");
-        setType("def");
-        setValue("test@test@test@scope");
-      }
-    });
+        .getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(attribute);
 
     Attribute output = classInstance.getAttributeValue(session, user, attributeDefinitionToCheck);
     assertEquals("test@test@test", output.getValue());
@@ -53,15 +51,13 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
   public void testGetValueSourceWithScope() throws Exception {
     System.out.println("testGetValueSourceWithScope()");
 
+    Attribute attribute = new Attribute();
+    attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attribute.setFriendlyName("login-namespace:einfraid-persistent-shadow");
+    attribute.setType("def");
+    attribute.setValue("test@scope");
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(new Attribute() {
-      {
-        setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-        setFriendlyName("login-namespace:einfraid-persistent-shadow");
-        setType("def");
-        setValue("test@scope");
-      }
-    });
+        .getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(attribute);
 
     Attribute output = classInstance.getAttributeValue(session, user, attributeDefinitionToCheck);
     assertEquals("test", output.getValue());
@@ -71,15 +67,13 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
   public void testGetValueSourceWithoutScope() throws Exception {
     System.out.println("testGetValueSourceWithoutScope()");
 
+    Attribute attribute = new Attribute();
+    attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attribute.setFriendlyName("login-namespace:einfraid-persistent-shadow");
+    attribute.setType("def");
+    attribute.setValue("test");
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(new Attribute() {
-      {
-        setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-        setFriendlyName("login-namespace:einfraid-persistent-shadow");
-        setType("def");
-        setValue("test");
-      }
-    });
+        .getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(attribute);
 
     Attribute output = classInstance.getAttributeValue(session, user, attributeDefinitionToCheck);
     assertEquals("test", output.getValue());
@@ -89,15 +83,13 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
   public void testGetValueSourceWithoutValue() throws Exception {
     System.out.println("testGetValueSourceWithoutValue()");
 
+    Attribute attribute = new Attribute();
+    attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attribute.setFriendlyName("login-namespace:einfraid-persistent-shadow");
+    attribute.setType("def");
+    attribute.setValue(null);
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(new Attribute() {
-      {
-        setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-        setFriendlyName("login-namespace:einfraid-persistent-shadow");
-        setType("def");
-        setValue(null);
-      }
-    });
+        .getAttribute(any(PerunSession.class), any(User.class), any(String.class))).thenReturn(attribute);
 
     Attribute output = classInstance.getAttributeValue(session, user, attributeDefinitionToCheck);
     assertNull(output.getValue());

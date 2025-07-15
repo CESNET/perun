@@ -298,7 +298,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     List<AssignedGroup> assignedGroups = resourcesManager.getGroupAssignments(sess, resource, null);
     assertEquals("one group should be assigned to our Resource", 1, assignedGroups.size());
     assertTrue("our group should be assigned to resource Expected: " + group.getName() + ", Actual: " +
-               assignedGroups.get(0).getEnrichedGroup().getGroup().getName(), assignedGroups.contains(expectedGroup));
+                   assignedGroups.get(0).getEnrichedGroup().getGroup().getName(),
+        assignedGroups.contains(expectedGroup));
     assertEquals("our group should be assigned to resource as inactive", assignedGroups.get(0).getStatus(),
         GroupResourceStatus.INACTIVE);
   }
@@ -1858,10 +1859,10 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     Resource resource = setUpResource();
 
-    EnrichedResource eResource = resourcesManager.getEnrichedResourceById(sess, resource.getId(), null);
+    EnrichedResource enrichedResource = resourcesManager.getEnrichedResourceById(sess, resource.getId(), null);
 
-    assertThat(eResource.getResource()).isEqualTo(resource);
-    assertThat(eResource.getAttributes()).isNotEmpty();
+    assertThat(enrichedResource.getResource()).isEqualTo(resource);
+    assertThat(enrichedResource.getAttributes()).isNotEmpty();
   }
 
   @Test
@@ -1872,12 +1873,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     Resource resource = setUpResource();
 
-    EnrichedResource eResource =
+    EnrichedResource enrichedResource =
         resourcesManager.getEnrichedResourceById(sess, resource.getId(), Collections.singletonList(A_R_C_ID));
 
-    assertThat(eResource.getResource()).isEqualTo(resource);
-    assertThat(eResource.getAttributes()).hasSize(1);
-    assertThat(eResource.getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+    assertThat(enrichedResource.getResource()).isEqualTo(resource);
+    assertThat(enrichedResource.getAttributes()).hasSize(1);
+    assertThat(enrichedResource.getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
   }
 
   @Test
@@ -1888,11 +1889,11 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     Resource resource = setUpResource();
 
-    List<EnrichedResource> eResources = resourcesManager.getEnrichedResourcesForFacility(sess, facility, null);
+    List<EnrichedResource> enrichedResources = resourcesManager.getEnrichedResourcesForFacility(sess, facility, null);
 
-    assertThat(eResources).hasSize(1);
-    assertThat(eResources.get(0).getResource()).isEqualTo(resource);
-    assertThat(eResources.get(0).getAttributes()).isNotEmpty();
+    assertThat(enrichedResources).hasSize(1);
+    assertThat(enrichedResources.get(0).getResource()).isEqualTo(resource);
+    assertThat(enrichedResources.get(0).getAttributes()).isNotEmpty();
   }
 
   @Test
@@ -1903,12 +1904,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     setUpResource();
 
-    List<EnrichedResource> eResources =
+    List<EnrichedResource> enrichedResources =
         resourcesManager.getEnrichedResourcesForFacility(sess, facility, Collections.singletonList(A_R_C_ID));
 
-    assertThat(eResources).hasSize(1);
-    assertThat(eResources.get(0).getAttributes()).hasSize(1);
-    assertThat(eResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+    assertThat(enrichedResources).hasSize(1);
+    assertThat(enrichedResources.get(0).getAttributes()).hasSize(1);
+    assertThat(enrichedResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
   }
 
   @Test
@@ -1919,11 +1920,11 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     Resource resource = setUpResource();
 
-    List<EnrichedResource> eResources = resourcesManager.getEnrichedResourcesForVo(sess, vo, null);
+    List<EnrichedResource> enrichedResources = resourcesManager.getEnrichedResourcesForVo(sess, vo, null);
 
-    assertThat(eResources).hasSize(1);
-    assertThat(eResources.get(0).getResource()).isEqualTo(resource);
-    assertThat(eResources.get(0).getAttributes()).isNotEmpty();
+    assertThat(enrichedResources).hasSize(1);
+    assertThat(enrichedResources.get(0).getResource()).isEqualTo(resource);
+    assertThat(enrichedResources.get(0).getAttributes()).isNotEmpty();
   }
 
   @Test
@@ -1934,12 +1935,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     setUpResource();
 
-    List<EnrichedResource> eResources =
+    List<EnrichedResource> enrichedResources =
         resourcesManager.getEnrichedResourcesForVo(sess, vo, Collections.singletonList(A_R_C_ID));
 
-    assertThat(eResources).hasSize(1);
-    assertThat(eResources.get(0).getAttributes()).hasSize(1);
-    assertThat(eResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+    assertThat(enrichedResources).hasSize(1);
+    assertThat(enrichedResources.get(0).getAttributes()).hasSize(1);
+    assertThat(enrichedResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
   }
 
   @Test
@@ -2278,24 +2279,24 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     resourcesManager.assignGroupToResource(sess, group, resource, false, false, false);
 
     List<Resource> resources = perun.getResourcesManagerBl()
-        .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
-            List.of(GroupResourceStatus.ACTIVE));
+                                   .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
+                                       List.of(GroupResourceStatus.ACTIVE));
     assertThat(resources).containsOnly(resource);
 
     resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
 
     resources = perun.getResourcesManagerBl()
-        .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
-            List.of(GroupResourceStatus.INACTIVE));
+                    .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
+                        List.of(GroupResourceStatus.INACTIVE));
     assertThat(resources).containsOnly(resource);
 
     resources = perun.getResourcesManagerBl()
-        .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), null);
+                    .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), null);
     assertThat(resources).containsOnly(resource);
 
     resources = perun.getResourcesManagerBl()
-        .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
-            List.of(GroupResourceStatus.ACTIVE));
+                    .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
+                        List.of(GroupResourceStatus.ACTIVE));
     assertThat(resources).doesNotContain(resource);
   }
 
@@ -3064,13 +3065,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     Facility facility = new Facility();
     facility.setName("ResourcesManagerTestFacility");
     facility = perun.getFacilitiesManager().createFacility(sess, facility);
-        /*
-             Owner owner = new Owner();
-             owner.setName("ResourcesManagerTestOwner");
-             owner.setContact("testingOwner");
-             perun.getOwnersManager().createOwner(sess, owner);
-             perun.getFacilitiesManager().addOwner(sess, facility, owner);
-             */
+    /*
+         Owner owner = new Owner();
+         owner.setName("ResourcesManagerTestOwner");
+         owner.setContact("testingOwner");
+         perun.getOwnersManager().createOwner(sess, owner);
+         perun.getFacilitiesManager().addOwner(sess, facility, owner);
+         */
     return facility;
 
   }
@@ -3103,7 +3104,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
   private Attribute setUpMailingListAttribute() throws Exception {
     Attribute attribute = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":optOutMailingList"));
+                                            .getAttributeDefinition(sess,
+                                                AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":optOutMailingList"));
     attribute.setValue("Testing value for mailing list attribute");
     return attribute;
   }

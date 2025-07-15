@@ -20,7 +20,7 @@ import org.junit.Test;
  */
 public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-  private final String CLASS_NAME = "OwnersManager.";
+  private static final String CLASS_NAME = "OwnersManager.";
   private OwnersManager ownersManagerEntry;
   private Owner createdOwner;
 

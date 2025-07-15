@@ -19,7 +19,7 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpirationT
   private static Attribute attributeToCheck;
 
   @Before
-  public void SetUp() {
+  public void setUp() {
     classInstance = new urn_perun_member_group_attribute_def_def_groupMembershipExpiration();
     session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
     attributeToCheck = new Attribute(classInstance.getAttributeDefinition());

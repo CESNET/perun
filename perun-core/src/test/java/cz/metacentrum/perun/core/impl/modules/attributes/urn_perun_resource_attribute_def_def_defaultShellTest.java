@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,14 +41,12 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 
     final Attribute attrToReturn = new Attribute();
     final String shellName = "mujShell";
-    attrToReturn.setValue(new ArrayList<String>() {{
-      add(shellName);
-    }});
+    attrToReturn.setValue(new ArrayList<String>(List.of(shellName)));
 
 
     // chceme najit atribut attrToReturn
     when(ps.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
 
     // parametr pro hledani
     final Attribute attribute = new Attribute();
@@ -64,8 +63,8 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 
     // hledame neexistujici atribut, proto ocekavame vyjimku
     when(ps.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(
-        new AttributeNotExistsException("neexistuje"));
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(
+               new AttributeNotExistsException("neexistuje"));
 
     final Attribute attribute = new Attribute();
     attribute.setValue("mujShell");
@@ -85,7 +84,7 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 
     final Attribute toReturn = new Attribute();
     when(ps.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(toReturn);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(toReturn);
 
     final Attribute attribute = new Attribute();
     attribute.setValue("mujShell");
@@ -107,13 +106,11 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
     //tento objekt ocekavame, ze se nam vrati po zavolani fillAttribute()
     final Attribute attrToReturn = new Attribute();
     final String shellName = "mujShell";
-    attrToReturn.setValue(new ArrayList<String>() {{
-      add(shellName);
-    }});
+    attrToReturn.setValue(new ArrayList<String>(List.of(shellName)));
 
     //a tady si nastavime pozadovane chovani
     when(ps.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
 
     // ideal scenario
     final Attribute result = defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
@@ -127,8 +124,8 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 
     //testujeme scenar, kdy budeme hledat neexistujici atribut a proto ocekavame vyjimku AttrNotExists..
     when(ps.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(
-        new AttributeNotExistsException("neexistuje"));
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(
+               new AttributeNotExistsException("neexistuje"));
 
     try {
       defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
@@ -145,7 +142,7 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 
     final Attribute attrToReturn = new Attribute();
     when(ps.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
+             .getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(attrToReturn);
 
 
     final Attribute attrResult = defShellAttr.fillAttribute(ps, new Resource(), new Attribute());

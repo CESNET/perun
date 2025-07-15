@@ -19,7 +19,7 @@ public class urn_perun_member_attribute_def_def_lifecycleTimestampsTest {
   private static PerunSessionImpl session;
   private static Attribute attributeToCheck;
 
-    @Before
+  @Before
   public void setUp() throws Exception {
     classInstance = new urn_perun_member_attribute_def_def_lifecycleTimestamps();
     session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);

@@ -22,7 +22,7 @@ public class urn_perun_member_attribute_def_def_membershipExpirationTest {
   private static Attribute attributeToCheck;
 
   @Before
-  public void SetUp() {
+  public void setUp() {
     classInstance = new urn_perun_member_attribute_def_def_membershipExpiration();
     session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
     attributeToCheck = new Attribute();

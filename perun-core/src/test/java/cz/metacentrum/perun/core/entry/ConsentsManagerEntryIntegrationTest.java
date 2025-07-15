@@ -49,7 +49,7 @@ import org.junit.Test;
  * @author Jakub Hejda <Jakub.Hejda@cesnet.cz>
  */
 public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
-  private final String CLASS_NAME = "ConsentsManager.";
+  private static final String CLASS_NAME = "ConsentsManager.";
 
   private ConsentsManager consentsManagerEntry;
   private User user;
@@ -1225,35 +1225,35 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
     assertEquals(service, assignedServicesToFacility.get(0));
   }
 
-// I'll just go ahead and comment this whole test since it makes no sense. `createConsent` should not create a consent
-// disregarding the fact that the connected user is in no way connected to the consentHub - unless we're talking about
-// impl layer methods. This whole refactoring of Consent logic made me furious so I'm done with it as it is.
-// Most of the tests I had to modify had no reason to exist and/or were written wrong to begin with.
-//  @Test
-//  public void getConsentsForConsentHub() throws Exception {
-//    System.out.println(CLASS_NAME + "getConsentsForConsentHub");
-//
-//    User user2 = setUpUser("Donald", "Trump");
-//
-//    Consent consent1 =
-//        new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()),
-//            new ArrayList<>(List.of(attrDef)));
-//    Consent consent2 =
-//        new Consent(-11, user2.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()),
-//            new ArrayList<>(List.of(attrDef)));
-//
-//    perun.getConsentsManagerBl().createConsent(sess, consent1);
-//    perun.getConsentsManagerBl().createConsent(sess, consent2);
-//
-//    assertEquals(2, consentsManagerEntry.getConsentsForConsentHub(sess,
-//        perun.getConsentsManager().getConsentHubByName(sess, facility.getName()).getId()).size());
-//    assertEquals(2, consentsManagerEntry.getConsentsForConsentHub(sess,
-//            perun.getConsentsManager().getConsentHubByName(sess, facility.getName()).getId(), ConsentStatus.UNSIGNED)
-//        .size());
-//    assertEquals(0, consentsManagerEntry.getConsentsForConsentHub(sess,
-//            perun.getConsentsManager().getConsentHubByName(sess, facility.getName()).getId(), ConsentStatus.GRANTED)
-//        .size());
-//  }
+  // I'll just go ahead and comment this whole test since it makes no sense. `createConsent` should not create a consent
+  // disregarding the fact that the connected user is in no way connected to the consentHub - unless we're talking about
+  // impl layer methods. This whole refactoring of Consent logic made me furious so I'm done with it as it is.
+  // Most of the tests I had to modify had no reason to exist and/or were written wrong to begin with.
+  //  @Test
+  //  public void getConsentsForConsentHub() throws Exception {
+  //    System.out.println(CLASS_NAME + "getConsentsForConsentHub");
+  //
+  //    User user2 = setUpUser("Donald", "Trump");
+  //
+  //    Consent consent1 =
+  //        new Consent(-1, user.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()),
+  //            new ArrayList<>(List.of(attrDef)));
+  //    Consent consent2 =
+  //        new Consent(-11, user2.getId(), perun.getConsentsManager().getConsentHubByName(sess, facility.getName()),
+  //            new ArrayList<>(List.of(attrDef)));
+  //
+  //    perun.getConsentsManagerBl().createConsent(sess, consent1);
+  //    perun.getConsentsManagerBl().createConsent(sess, consent2);
+  //
+  //    assertEquals(2, consentsManagerEntry.getConsentsForConsentHub(sess,
+  //        perun.getConsentsManager().getConsentHubByName(sess, facility.getName()).getId()).size());
+  //    assertEquals(2, consentsManagerEntry.getConsentsForConsentHub(sess,
+  //            perun.getConsentsManager().getConsentHubByName(sess, facility.getName()).getId(),
+  //              ConsentStatus.UNSIGNED).size());
+  //    assertEquals(0, consentsManagerEntry.getConsentsForConsentHub(sess,
+  //            perun.getConsentsManager().getConsentHubByName(sess, facility.getName()).getId(), ConsentStatus.GRANTED)
+  //        .size());
+  //  }
 
   @Test
   public void getConsentsForConsentHubByResource() throws Exception {
