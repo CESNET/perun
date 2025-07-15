@@ -174,7 +174,7 @@ public class PerunRolesLoader {
     } catch (RuntimeException e) {
       throw new RolesConfigurationException("One of the roles configuration file has invalid syntax." +
           " Configuration files: " + configurationPath.getFilename() +
-          (secondaryConfigurationPath == null ? " secondary file not defined" :
+          (secondaryConfigurationPath == null ? ", secondary file not defined" :
               ", " + secondaryConfigurationPath.getFilename()), e);
     }
 
@@ -227,8 +227,8 @@ public class PerunRolesLoader {
     } catch (RuntimeException e) {
       throw new InternalErrorException("One of the roles configuration file has invalid syntax. Configuration files: " +
                                        configurationPath.getFilename() +
-                                       (secondaryConfigurationPath == null ? "not defined" :
-                                           secondaryConfigurationPath.getFilename()), e);
+                                       (secondaryConfigurationPath == null ? ", secondary file not defined" :
+                                               ", " + secondaryConfigurationPath.getFilename()), e);
     }
   }
 

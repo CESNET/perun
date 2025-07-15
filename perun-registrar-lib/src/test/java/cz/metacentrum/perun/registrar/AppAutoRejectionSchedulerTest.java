@@ -418,7 +418,7 @@ public class AppAutoRejectionSchedulerTest extends AbstractRegistrarIntegrationT
       applicationForm = registrarManager.getFormForVo(vo);
     }
     List<ApplicationFormItemData> data =
-        registrarManager.getFormItemsWithPrefilledValues(session, INITIAL, applicationForm).stream()
+        registrarManager.getFormItemsWithPrefilledValues(session, INITIAL, applicationForm, null).stream()
             .map(item -> convertAppFormItemWithPrefValToAppFormItemData(item, lang)).collect(Collectors.toList());
 
     application.setUser(user);

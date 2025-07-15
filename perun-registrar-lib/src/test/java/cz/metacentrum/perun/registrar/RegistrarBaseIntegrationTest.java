@@ -115,7 +115,7 @@ public class RegistrarBaseIntegrationTest extends AbstractRegistrarIntegrationTe
     application.setFedInfo(feder.toString());
     application.setVo(vo);
     List<ApplicationFormItemWithPrefilledValue> prefilledForm =
-        registrarManager.getFormItemsWithPrefilledValues(user, INITIAL, registrarManager.getFormForVo(vo));
+        registrarManager.getFormItemsWithPrefilledValues(user, INITIAL, registrarManager.getFormForVo(vo), null);
     List<ApplicationFormItemData> data = new ArrayList<>();
     for (ApplicationFormItemWithPrefilledValue itemW : prefilledForm) {
       ApplicationFormItem item = itemW.getFormItem();
@@ -1980,7 +1980,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     perun.getGroupsManagerBl().addGroupsToAutoRegistration(session, List.of(groupA), groupCheckboxItem);
 
-    Map<String, Object> data = registrarManager.initRegistrar(session, vo.getShortName(), null);
+    Map<String, Object> data = registrarManager.initRegistrar(session, vo.getShortName(), null, null);
     var items = (List<ApplicationFormItemWithPrefilledValue>) data.get("voFormInitial");
 
     String expectedOptions = groupA.getId() + "#A#ENABLED";

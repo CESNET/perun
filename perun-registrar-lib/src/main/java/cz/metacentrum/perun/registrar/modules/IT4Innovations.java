@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.model.Application;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,8 @@ public class IT4Innovations extends DefaultRegistrarModule {
   }
 
   @Override
-  public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params)
+  public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params,
+                             Map<String, List<String>> externalParams)
       throws PerunException {
     if (isBlockedUser(session, session.getPerunPrincipal().getUser())) {
       throw new CantBeSubmittedException(
