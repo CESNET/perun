@@ -654,6 +654,29 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Checks whether the resource is the last one on the facility to have the provided services assigned.
+   * Returns the services where this is the case.
+   *
+   * @param resource int Resource <code>id</code>
+   * @param services List<Integer> list of services IDs
+   * @return List<Service> list of services which the resource is the last to have assigned on its facility
+   */
+  isResourceLastAssignedServices {
+    @Override
+    public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+      List<Integer> ids = parms.readList("services", Integer.class);
+      List<Service> services = new ArrayList<>();
+
+      for (Integer id : ids) {
+        services.add(ac.getServiceById(id));
+      }
+
+      return ac.getResourcesManager().isResourceLastAssignedServices(ac.getSession(),
+          ac.getResourceById(parms.readInt("resource")), services);
+    }
+  },
+
+  /*#
    * Removes a Resource admin.
    *
    * @param resource int Resource <code>id</code>
@@ -910,6 +933,18 @@ public enum ResourcesManagerMethod implements ManagerMethod {
    * @param resource int Resource <code>id</code>
    * @param services List<Integer> list of services IDs
    */
+
+  /*#
+   * Removes services from resource. Optionally also removes tasks, their results or destinations associated with the
+   * services on the resource's facility. This only happens for services which are not assigned to other resources on
+   * the facility.
+   *
+   * @param resource int Resource <code>id</code>
+   * @param services List<Integer> list of services IDs
+   * @param removeTasks boolean whether to also remove tasks (and results) associated with the services on the facility
+   * @param removeTaskResults boolean whether to also remove task results associated with the services on the facility
+   * @param removeDestinations boolean whether to also remove destinations associated with the services on the facility
+   */
   removeServices {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -922,7 +957,24 @@ public enum ResourcesManagerMethod implements ManagerMethod {
         services.add(ac.getServiceById(id));
       }
 
-      ac.getResourcesManager().removeServices(ac.getSession(), ac.getResourceById(parms.readInt("resource")), services);
+      boolean removeTasks = false;
+      boolean removeTaskResults = false;
+      boolean removeDestinations = false;
+
+      if (parms.contains("removeTasks")) {
+        removeTasks = parms.readBoolean("removeTasks");
+      }
+
+      if (parms.contains("removeTaskResults")) {
+        removeTaskResults = parms.readBoolean("removeTaskResults");
+      }
+
+      if (parms.contains("removeDestinations")) {
+        removeDestinations = parms.readBoolean("removeDestinations");
+      }
+
+      ac.getResourcesManager().removeServices(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
+          services, removeTasks, removeTaskResults, removeDestinations);
       return null;
     }
   },

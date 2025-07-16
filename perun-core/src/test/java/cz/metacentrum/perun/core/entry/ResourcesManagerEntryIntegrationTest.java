@@ -2509,6 +2509,25 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
   }
 
   @Test
+  public void isResourceLastAssignedServices() throws Exception {
+    System.out.println(CLASS_NAME + "isResourceLastAssignedServices");
+
+    vo = setUpVo();
+    facility = setUpFacility();
+    resource = setUpResource();
+    service = setUpService();
+    Resource anotherResource = setUpResource2();
+
+    resourcesManager.assignService(sess, resource, service);
+    resourcesManager.assignService(sess, anotherResource, service);
+
+    assertEquals(0, resourcesManager.isResourceLastAssignedServices(sess, resource, List.of(service)).size());
+
+    resourcesManager.removeService(sess, anotherResource, service);
+    assertEquals(service, resourcesManager.isResourceLastAssignedServices(sess, resource, List.of(service)).get(0));
+  }
+
+  @Test
   public void removeAdmin() throws Exception {
     System.out.println(CLASS_NAME + "removeAdmin");
     vo = setUpVo();

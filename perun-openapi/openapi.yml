@@ -14846,6 +14846,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/resourcesManager/isResourceLastAssignedServices:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: isResourceLastAssignedServices
+      summary: Returns the services where the resource is the last one on the facility to have them assigned.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/serviceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/resourcesManager/assignGroupToResource:
     post:
       tags:
@@ -15445,10 +15460,13 @@ paths:
       tags:
         - ResourcesManager
       operationId: removeServices
-      summary: Removes services from a resource.
+      summary: Removes services from a resource. Optionally also removes tasks, their results or destinations associated with the services on the resource's facility. This only happens for services which are not assigned to other resources on the facility.
       parameters:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/serviceIds'
+        - { name: removeTasks, required: false, schema: { type: boolean }, in: query, description: 'whether to also remove associated tasks. This will also remove task results' }
+        - { name: removeTaskResults, required: false, schema: { type: boolean }, in: query, description: 'whether to also remove associated task results' }
+        - { name: removeDestinations, required: false, schema: { type: boolean }, in: query, description: 'whether to also remove associated destinations' }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

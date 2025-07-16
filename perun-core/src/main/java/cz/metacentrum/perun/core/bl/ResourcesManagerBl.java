@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -35,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceExcepti
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -43,6 +45,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -1184,6 +1187,20 @@ public interface ResourcesManagerBl {
   boolean isGroupManuallyAssigned(PerunSession sess, Group group, Resource resource);
 
   /**
+   * Checks whether the resource is the last one on the facility to have the provided services assigned.
+   * Returns the services where this is the case.
+   *
+   * @param sess
+   * @param resource
+   * @param services
+   * @return list of services where the provided resource is last to have them assigned on its facility.
+   * @throws FacilityNotExistsException
+   * @throws ServiceNotExistsException
+   */
+  List<Service> isResourceLastAssignedServices(PerunSession sess, Resource resource, List<Service> services)
+      throws FacilityNotExistsException, ResourceNotExistsException;
+
+  /**
    * Returns true if the user is allowed to the current resource, false otherwise.
    *
    * @param sess
@@ -1372,16 +1389,22 @@ public interface ResourcesManagerBl {
   void removeService(PerunSession perunSession, Resource resource, Service service) throws ServiceNotAssignedException;
 
   /**
-   * Remove services from resource.
+   * Remove services from resource. Optionally also removes tasks, their results or destinations associated with the
+   * services on the resource's facility. This only happens for services which are not assigned to other resources on
+   * the facility.
    *
    * @param perunSession
    * @param resource
    * @param services
+   * @param removeTasks
+   * @param removeTaskResults
+   * @param removeDestinations
    * @throws InternalErrorException
    * @throws ServiceNotAssignedException
    */
-  void removeServices(PerunSession perunSession, Resource resource, List<Service> services)
-      throws ServiceNotAssignedException;
+  void removeServices(PerunSession perunSession, Resource resource, List<Service> services, boolean removeTasks,
+                      boolean removeTaskResults, boolean removeDestinations)
+      throws ServiceNotAssignedException, FacilityNotExistsException;
 
   /**
    * Remove from resource all services from services package.

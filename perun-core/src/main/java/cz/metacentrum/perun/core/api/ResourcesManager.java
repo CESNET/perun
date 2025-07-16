@@ -1125,6 +1125,22 @@ public interface ResourcesManager {
   Vo getVo(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, PrivilegeException;
 
   /**
+   * Checks whether the resource is the last one on the facility to have the provided services assigned.
+   * Returns the services where this is the case.
+   *
+   * @param sess
+   * @param resource
+   * @param services
+   * @return list of services where the provided resource is last to have them assigned on its facility.
+   * @throws FacilityNotExistsException
+   * @throws ResourceNotExistsException
+   * @throws ServiceNotExistsException
+   * @throws PrivilegeException
+   */
+  List<Service> isResourceLastAssignedServices(PerunSession sess, Resource resource, List<Service> services)
+      throws FacilityNotExistsException, ResourceNotExistsException, ServiceNotExistsException, PrivilegeException;
+
+  /**
    * Remove role resource admin from user for the selected resource.
    *
    * @param sess
@@ -1338,19 +1354,27 @@ public interface ResourcesManager {
       FacilityNotExistsException, FacilityMismatchException;
 
   /**
-   * Remove services from resource.
+   * Remove services from resource. Optionally also removes tasks, their results or destinations associated with the
+   * services on the resource's facility. This only happens for services which are not assigned to other resources on
+   * the facility.
    *
    * @param perunSession
    * @param resource
    * @param services
+   * @param removeTasks
+   * @param removeTaskResults
+   * @param removeDestinations
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
    * @throws ServiceNotExistsException
    * @throws ServiceNotAssignedException
+   * @throws FacilityNotExistsException
    */
-  void removeServices(PerunSession perunSession, Resource resource, List<Service> services)
-      throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException;
+  void removeServices(PerunSession perunSession, Resource resource, List<Service> services, boolean removeTasks,
+                      boolean removeTaskResults, boolean removeDestinations)
+      throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException,
+                 FacilityNotExistsException;
 
   /**
    * Remove from resource all services from services package.

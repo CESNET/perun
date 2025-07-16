@@ -59,6 +59,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -69,6 +70,7 @@ import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -80,6 +82,7 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
+import cz.metacentrum.perun.taskslib.model.Task;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1187,6 +1190,22 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   }
 
   @Override
+  public List<Service> isResourceLastAssignedServices(PerunSession sess, Resource resource, List<Service> services)
+      throws FacilityNotExistsException {
+    Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
+    List<Service> result = new ArrayList<>();
+
+    for (Service service : services) {
+      List<RichResource> assignedResources = getPerunBl().getFacilitiesManagerBl()
+                                                             .getAssignedRichResources(sess, facility, service);
+      if (assignedResources.size() == 1 && assignedResources.get(0).getId() == resource.getId()) {
+        result.add(service);
+      }
+    }
+    return result;
+  }
+
+  @Override
   public boolean isUserAllowed(PerunSession sess, User user, Resource resource) {
     return getResourcesManagerImpl().isUserAllowed(sess, user, resource);
   }
@@ -1464,9 +1483,23 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   }
 
   @Override
-  public void removeServices(PerunSession sess, Resource resource, List<Service> services)
-      throws ServiceNotAssignedException {
+  public void removeServices(PerunSession sess, Resource resource, List<Service> services, boolean removeTasks,
+                      boolean removeTaskResults, boolean removeDestinations)
+      throws ServiceNotAssignedException, FacilityNotExistsException {
+    Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
     for (Service service : services) {
+      boolean isLastAssignedToResource = isResourceLastAssignedServices(sess, resource, List.of(service)).size() == 1;
+      if (isLastAssignedToResource) {
+        Task task = getPerunBl().getTasksManagerBl().getTask(sess, service, facility);
+        if (removeTasks && task != null) {
+          getPerunBl().getTasksManagerBl().deleteTask(sess, task);
+        } else if (removeTaskResults && task != null) {
+          getPerunBl().getTasksManagerBl().deleteTaskResults(sess, task.getId());
+        }
+        if (removeDestinations) {
+          getPerunBl().getServicesManagerBl().removeAllDestinations(sess, service, facility);
+        }
+      }
       removeService(sess, resource, service);
     }
   }
