@@ -566,7 +566,7 @@ public class SearcherBlImpl implements SearcherBl {
   @Override
   public Map<String, List<PerunBean>> globalSearchPerunAdmin(PerunSession sess, String searchString) {
     Map<String, List<PerunBean>> result = new HashMap<>();
-    result.put("users", perunBl.getUsersManagerBl().searchForUsers(sess, searchString, true)
+    result.put("users", perunBl.getUsersManagerBl().searchForUsers(sess, searchString)
                             .stream().map(PerunBean.class::cast).toList());
     result.put("vos", perunBl.getVosManagerBl().searchForVos(sess, searchString, true)
                           .stream().map(PerunBean.class::cast).toList());

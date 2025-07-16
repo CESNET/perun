@@ -2525,8 +2525,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
-  public List<User> searchForUsers(PerunSession sess, String searchString, boolean includeIDs) {
-    return usersManagerImpl.searchForUsers(sess, searchString, includeIDs);
+  public List<User> searchForUsers(PerunSession sess, String searchString) {
+    return usersManagerImpl.searchForUsers(sess, searchString);
   }
 
 
