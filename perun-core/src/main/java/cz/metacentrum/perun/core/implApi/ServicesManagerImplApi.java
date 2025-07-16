@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
@@ -19,9 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import java.util.List;
 
 /**
@@ -69,20 +66,6 @@ public interface ServicesManagerImplApi {
       throws AttributeAlreadyAssignedException;
 
   /**
-   * Add the service to the package
-   *
-   * @param perunSession
-   * @param servicesPackage services package to which the service supposed to be added
-   * @param service         service to be added to the services package
-   * @throws InternalErrorException
-   * @throws ServicesPackageNotExistsException
-   * @throws ServiceNotExistsException
-   * @throws ServiceAlreadyAssignedException
-   */
-  void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service)
-      throws ServiceAlreadyAssignedException;
-
-  /**
    * Block Service on specific Destination. Service still can be propagated to other facility Destinations.
    *
    * @param session
@@ -113,17 +96,6 @@ public interface ServicesManagerImplApi {
    */
   void checkServiceExists(PerunSession perunSession, Service service) throws ServiceNotExistsException;
 
-  /**
-   * Check if services package exists in underlaying data source.
-   *
-   * @param perunSession    perun session
-   * @param servicesPackage services package to check
-   * @throws InternalErrorException            if unexpected error occur
-   * @throws ServicesPackageNotExistsException if service doesn't exists
-   */
-  void checkServicesPackageExists(PerunSession perunSession, ServicesPackage servicesPackage)
-      throws ServicesPackageNotExistsException;
-
   Destination createDestination(PerunSession sess, Destination destination);
 
   /**
@@ -134,16 +106,6 @@ public interface ServicesManagerImplApi {
    * @return new service
    */
   Service createService(PerunSession perunSession, Service service);
-
-  /**
-   * Insert a new package
-   *
-   * @param servicesPackage package to be inserted
-   * @param perunSession
-   * @return ServicesPackage object completely filled (including Id)
-   * @throws InternalErrorException
-   */
-  ServicesPackage createServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 
   /**
    * Deletes destination.
@@ -165,15 +127,6 @@ public interface ServicesManagerImplApi {
    * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
    */
   void deleteService(PerunSession perunSession, Service service) throws ServiceAlreadyRemovedException;
-
-  /**
-   * Remove the package
-   *
-   * @param perunSession
-   * @param servicesPackage services package to be removed.
-   * @throws ServicesPackageNotExistsException
-   */
-  void deleteServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 
   /**
    * Determine if destination exists for specified facility and service.
@@ -393,48 +346,6 @@ public interface ServicesManagerImplApi {
   List<Service> getServicesFromDestination(int destinationId);
 
   /**
-   * List services stored in the packages
-   *
-   * @param servicesPackage the package from which we want to list the services
-   * @return list consisting services
-   * @throws InternalErrorException
-   * @throws ServicesPackageNotExistsException
-   */
-  List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
-
-  /**
-   * Get package by Id
-   *
-   * @param servicesPackageId id of the package we want to retrieve
-   * @param perunSession
-   * @return package
-   * @throws InternalErrorException
-   * @throws ServicesPackageNotExistsException
-   */
-  ServicesPackage getServicesPackageById(PerunSession perunSession, int servicesPackageId)
-      throws ServicesPackageNotExistsException;
-
-  /**
-   * Get services package by name.
-   *
-   * @param sess
-   * @param name
-   * @return package
-   * @throws InternalErrorException
-   * @throws ServicesPackageNotExistsException
-   */
-  ServicesPackage getServicesPackageByName(PerunSession sess, String name) throws ServicesPackageNotExistsException;
-
-  /**
-   * List packages
-   *
-   * @param perunSession
-   * @return list of packages in the DB
-   * @throws InternalErrorException
-   */
-  List<ServicesPackage> getServicesPackages(PerunSession perunSession);
-
-  /**
    * Checks whether given service is assigned to given facility (through some resource).
    *
    * @param sess     session
@@ -530,33 +441,6 @@ public interface ServicesManagerImplApi {
                                 List<? extends AttributeDefinition> attributes) throws AttributeNotAssignedException;
 
   /**
-   * Remove Service from all Services Packages
-   *
-   * @param perunSession
-   * @param service      service that will be removed from the services package
-   * @throws InternalErrorException
-   * @throws ServiceNotExistsException
-   * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from service
-   *                                                          package in DB
-   */
-  void removeServiceFromAllServicesPackages(PerunSession sess, Service service);
-
-  /**
-   * Remove Service from Services Package
-   *
-   * @param perunSession
-   * @param servicesPackage services package from which the service supposed to be removed
-   * @param service         service that will be removed from the services package
-   * @throws InternalErrorException
-   * @throws ServicesPackageNotExistsException
-   * @throws ServiceNotExistsException
-   * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from service
-   *                                                          package in DB
-   */
-  void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service)
-      throws ServiceAlreadyRemovedFromServicePackageException;
-
-  /**
    * Check if service exists in underlaying data source.
    *
    * @param perunSession perun session
@@ -565,16 +449,6 @@ public interface ServicesManagerImplApi {
    * @throws InternalErrorException if unexpected error occured
    */
   boolean serviceExists(PerunSession perunSession, Service service);
-
-  /**
-   * Check if services package exists in underlaying data source.
-   *
-   * @param perunSession    perun session
-   * @param servicesPackage services package to check
-   * @return true if services package exists in underlaying data source, false otherwise
-   * @throws InternalErrorException if unexpected error occur
-   */
-  boolean servicesPackageExists(PerunSession perunSession, ServicesPackage servicesPackage);
 
   /**
    * Unblock all blocked Services on specified Destination.
@@ -621,13 +495,4 @@ public interface ServicesManagerImplApi {
    */
   void updateService(PerunSession perunSession, Service service);
 
-  /**
-   * Update package
-   *
-   * @param servicesPackage with which is the old one supposed to be updated :-)
-   * @param perunSession
-   * @throws InternalErrorException
-   * @throws ServicesPackageNotExistsException
-   */
-  void updateServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 }

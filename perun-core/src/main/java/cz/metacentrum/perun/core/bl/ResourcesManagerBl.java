@@ -20,7 +20,6 @@ import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -36,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceExcepti
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -231,19 +229,6 @@ public interface ResourcesManagerBl {
    */
   void assignServices(PerunSession perunSession, Resource resource, List<Service> services)
       throws ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-
-  /**
-   * Assign all services from services package to resource.
-   *
-   * @param perunSession
-   * @param resource
-   * @param servicesPackage
-   * @throws WrongReferenceAttributeValueException
-   * @throws WrongAttributeValueException
-   * @throws InternalErrorException
-   */
-  void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Get true if any ban for member and resource exists.
@@ -1405,16 +1390,6 @@ public interface ResourcesManagerBl {
   void removeServices(PerunSession perunSession, Resource resource, List<Service> services, boolean removeTasks,
                       boolean removeTaskResults, boolean removeDestinations)
       throws ServiceNotAssignedException, FacilityNotExistsException;
-
-  /**
-   * Remove from resource all services from services package.
-   *
-   * @param perunSession
-   * @param resource
-   * @param servicesPackage
-   * @throws InternalErrorException
-   */
-  void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage);
 
   /**
    * Set ban for member on resource

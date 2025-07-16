@@ -740,10 +740,6 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
       // header
       title.setText("Create facility " + selectedPage + " of " + numberOfPages + ": Select services");
 
-      // SPLIT
-      FlexTable hp = new FlexTable();
-      hp.setSize("100%", "100%");
-
       // create widget for the whole page
       VerticalPanel mainTab = new VerticalPanel();
       mainTab.setSize("100%", "100%");
@@ -777,71 +773,6 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
       sp.addStyleName("perun-tableScrollPanel");
       mainTab.add(sp);
 
-      final VerticalPanel helpWidget = new VerticalPanel();
-      helpWidget.setSpacing(5);
-      final FlowPanel fw = new FlowPanel();
-
-      CustomButton clearButton =
-          new CustomButton("Clear selection", "Clear services selection.", SmallIcons.INSTANCE.deleteIcon());
-      clearButton.addClickHandler(new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) {
-          services.clearTableSelectedSet();
-        }
-      });
-      clearButton.addStyleName("margin");
-      fw.add(clearButton);
-      fw.add(new AjaxLoaderImage(true));
-
-      GetServicesPackages packs = new GetServicesPackages(new JsonCallbackEvents() {
-        @Override
-        public void onFinished(JavaScriptObject jso) {
-          // remove loader
-          fw.remove(1);
-          // fill buttons based on packages
-          ArrayList<ServicesPackage> packages = JsonUtils.jsoAsList(jso);
-          for (final ServicesPackage pack : packages) {
-            final CustomButton button =
-                new CustomButton(pack.getName(), pack.getDescription(), SmallIcons.INSTANCE.addIcon());
-            button.addStyleName("margin");
-            fw.add(button);
-            button.addClickHandler(new ClickHandler() {
-              @Override
-              public void onClick(ClickEvent event) {
-                GetServicesFromServicesPackage serv = new GetServicesFromServicesPackage(pack.getId(),
-                    JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
-                      @Override
-                      public void onFinished(JavaScriptObject jso) {
-                        for (Service s : JsonUtils.<Service>jsoAsList(jso)) {
-                          // select services from pack in table
-                          services.getSelectionModel().setSelected(s, true);
-                        }
-                      }
-                    }));
-                serv.retrieveData();
-              }
-            });
-          }
-          if (packages == null || packages.isEmpty()) {
-            fw.add(new HTML("There are no services packages defined in Perun. Use manual selection."));
-          }
-        }
-
-        @Override
-        public void onError(PerunError error) {
-          // remove loader
-          fw.remove(1);
-          fw.add(new HTML("Error when loading services packages defined in Perun. Use manual selection."));
-        }
-      });
-      packs.retrieveData();
-
-      HTML helpText = new HTML(
-          "Please select set of services, which will be managed by Perun. You can use buttons below to help you select proper set of services.");
-      helpText.setStyleName("inputFormInlineComment");
-      helpWidget.add(helpText);
-      helpWidget.add(fw);
-
       // select by source if not already set
       if (sourceFacility != null && (selectedServices == null || selectedServices.isEmpty())) {
 
@@ -860,13 +791,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 
       }
 
-      hp.setWidget(0, 0, helpWidget);
-      hp.setWidget(0, 1, mainTab);
-      hp.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
-      hp.getFlexCellFormatter().setWidth(0, 0, "350px");
-      hp.getFlexCellFormatter().setStyleName(0, 0, "border-right");
-
-      content.setWidget(hp);
+      content.setWidget(mainTab);
 
       next.addClickHandler(new ClickHandler() {
         @Override

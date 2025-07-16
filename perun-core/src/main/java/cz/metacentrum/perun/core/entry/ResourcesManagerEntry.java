@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -50,7 +49,6 @@ import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -304,24 +302,6 @@ public class ResourcesManagerEntry implements ResourcesManager {
     }
 
     getResourcesManagerBl().assignServices(sess, resource, services);
-  }
-
-  @Override
-  public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage)
-      throws PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException,
-      WrongAttributeValueException, WrongReferenceAttributeValueException {
-    Utils.checkPerunSession(sess);
-
-    getResourcesManagerBl().checkResourceExists(sess, resource);
-    getPerunBl().getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "assignServicesPackage_Resource_ServicesPackage_policy",
-        Arrays.asList(resource, servicesPackage))) {
-      throw new PrivilegeException(sess, "assignServicesPackage");
-    }
-
-    getResourcesManagerBl().assignServicesPackage(sess, resource, servicesPackage);
   }
 
   @Override
@@ -1674,23 +1654,6 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
     getResourcesManagerBl().removeServices(sess, resource, services, removeTasks, removeTaskResults,
         removeDestinations);
-  }
-
-  @Override
-  public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage)
-      throws PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    getResourcesManagerBl().checkResourceExists(sess, resource);
-    getPerunBl().getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "removeServicesPackage_Resource_ServicesPackage_policy",
-        Arrays.asList(resource, servicesPackage))) {
-      throw new PrivilegeException(sess, "removeServicesPackage");
-    }
-
-    getResourcesManagerBl().removeServicesPackage(sess, resource, servicesPackage);
   }
 
   @Override

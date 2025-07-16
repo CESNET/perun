@@ -38,7 +38,6 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -59,7 +58,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceStatusException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -70,7 +68,6 @@ import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -266,20 +263,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
              AttributeNotExistsException e) {
       throw new ConsistencyErrorException(e);
     }
-  }
-
-  @Override
-  public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException {
-    for (Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
-      try {
-        this.assignService(sess, resource, service);
-      } catch (ServiceAlreadyAssignedException e) {
-        // FIXME a co delat tady? Pravdepodobne muzeme tise ignorovat
-      }
-    }
-    LOG.info("All services from service package was assigned to the resource. servicesPackage={}, resource={}",
-        servicesPackage, resource);
   }
 
   @Override
@@ -1501,18 +1484,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
         }
       }
       removeService(sess, resource, service);
-    }
-  }
-
-  @Override
-  public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) {
-    for (Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
-      try {
-        //FIXME odstranit pouze v pripade ze tato service neni v jinem servicesPackage prirazenem na resource
-        this.removeService(sess, resource, service);
-      } catch (ServiceNotAssignedException e) {
-        // FIXME a co delat tady? Pravdepodobne muzeme tise ignorovat
-      }
     }
   }
 

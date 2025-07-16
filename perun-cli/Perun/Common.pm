@@ -23,7 +23,6 @@ use Perun::beans::Facility;
 use Perun::beans::Owner;
 use Perun::beans::Resource;
 use Perun::beans::Service;
-use Perun::beans::ServicesPackage;
 use Perun::beans::HashedGenData;
 use Perun::beans::Candidate;
 use Perun::beans::RichMember;

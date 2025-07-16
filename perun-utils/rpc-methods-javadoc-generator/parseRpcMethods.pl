@@ -148,10 +148,6 @@ $objectExamples{"Service"} = "{ \"id\" : 290 , \"name\" : \"passwd\" , \"descrip
 $objectExamples{"List&lt;Service&gt;"} = $listPrepend . $objectExamples{"Service"} . $listAppend;
 $objectExamples{"List<Service>"} = $objectExamples{"List&lt;Service&gt;"};
 
-$objectExamples{"ServicesPackage"} = "{ \"id\" : 50 , \"name\" : \"Unix account\" , \"description\" : \"Collection of services for managing unix accounts.\" }";
-$objectExamples{"List&lt;ServicesPackage&gt;"} = $listPrepend . $objectExamples{"ServicesPackage"} . $listAppend;
-$objectExamples{"List<ServicesPackage>"} = $objectExamples{"List&lt;ServicesPackage&gt;"};
-
 $objectExamples{"Destination"} = "{ \"id\" : 99 , \"destination\" : \"host\@host.cz\" , \"type\" : \"HOST\" , \"propagationType\" : \"PARALLEL\" }";
 $objectExamples{"List&lt;Destination&gt;"} = $listPrepend . $objectExamples{"Destination"} . $listAppend;
 $objectExamples{"List<Destination>"} = $objectExamples{"List&lt;Destination&gt;"};
