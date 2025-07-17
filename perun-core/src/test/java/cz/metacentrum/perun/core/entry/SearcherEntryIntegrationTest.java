@@ -954,6 +954,28 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
   }
 
+  @Test
+  public void globalSearchUsersWithAttributes() throws Exception {
+    System.out.println(CLASS_NAME + "globalSearchUsersWithAttributes");
+
+    User user1 = setUpUser("Global", "Test1", "user1");
+    User user2 = setUpUser("Global", "Test2", "user2");
+
+    AttributeDefinition prefMailAttrDef =
+        perun.getAttributesManagerBl().getAttributeDefinition(sess,
+            AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+    Attribute prefMail = new Attribute(prefMailAttrDef);
+    prefMail.setValue("mail@mail.com");
+
+    perun.getAttributesManagerBl().setAttribute(sess, user1, prefMail);
+
+    prefMail.setValue("mail2@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, user2, prefMail);
+
+    Map<String, List<PerunBean>> results = searcherBl.globalSearchPerunAdmin(sess, "mail@mail.com");
+    assertThat(results.get("users")).containsExactly(user1);
+  }
+
   @Before
   public void setUp() throws Exception {
     searcherBl = perun.getSearcherBl();
