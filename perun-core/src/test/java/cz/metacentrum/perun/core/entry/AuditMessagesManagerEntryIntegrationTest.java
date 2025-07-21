@@ -52,7 +52,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 
     List<String> events = perun.getAuditMessagesManager().findAllPossibleEvents(sess);
 
-    assertThat(events.size()).isGreaterThan(200);
+    assertThat(events.size()).isGreaterThan(198);
     assertThat(events).contains("MemberCreated");
     assertThat(events).contains("VoCreated");
     assertThat(events).contains("UserCreated");

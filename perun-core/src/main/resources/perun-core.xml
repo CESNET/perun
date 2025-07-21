@@ -162,12 +162,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.updateService(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
-                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.createServicesPackage(..))"/>
-        <aop:advisor advice-ref="txAdviceNestedTransaction"
-                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.updateServicesPackage(..))"/>
-        <aop:advisor advice-ref="txAdviceNestedTransaction"
-                     pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addServiceToServicesPackage(..))"/>
-        <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addRequiredAttribute(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.ServicesManagerImpl.addDestination(..))"/>

@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -264,23 +263,6 @@ public interface ResourcesManager {
    */
   void assignServices(PerunSession perunSession, Resource resource, List<Service> services)
       throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException,
-      WrongAttributeValueException, WrongReferenceAttributeValueException;
-
-  /**
-   * Assign all services from services package to resouce.
-   *
-   * @param perunSession
-   * @param resource
-   * @param servicesPackage
-   * @throws InternalErrorException
-   * @throws ResourceNotExistsException
-   * @throws PrivilegeException
-   * @throws WrongReferenceAttributeValueException
-   * @throws WrongAttributeValueException
-   * @throws ServicesPackageNotExistsException
-   */
-  void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage)
-      throws PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException,
       WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
@@ -1375,20 +1357,6 @@ public interface ResourcesManager {
                       boolean removeTaskResults, boolean removeDestinations)
       throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException,
                  FacilityNotExistsException;
-
-  /**
-   * Remove from resource all services from services package.
-   *
-   * @param perunSession
-   * @param resource
-   * @param servicesPackage
-   * @throws InternalErrorException
-   * @throws ResourceNotExistsException
-   * @throws PrivilegeException
-   * @throws ServicesPackageNotExistsException
-   */
-  void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage)
-      throws PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException;
 
   /**
    * Set ban for member on resource.

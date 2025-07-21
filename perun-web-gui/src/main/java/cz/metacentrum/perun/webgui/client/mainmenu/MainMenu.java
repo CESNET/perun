@@ -17,7 +17,6 @@ import cz.metacentrum.perun.webgui.tabs.cabinettabs.UsersPublicationsTabItem;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.*;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.*;
 import cz.metacentrum.perun.webgui.tabs.perunadmintabs.*;
-import cz.metacentrum.perun.webgui.tabs.servicestabs.ServicePackagesTabItem;
 import cz.metacentrum.perun.webgui.tabs.servicestabs.ServicesTabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.*;
 import cz.metacentrum.perun.webgui.tabs.vostabs.*;
@@ -347,8 +346,6 @@ public class MainMenu {
     menu.addItem(new MainMenuItem("Virtual organizations", new VosTabItem(), SmallIcons.INSTANCE.buildingIcon()));
     menu.addItem(new MainMenuItem("Facilities", new FacilitiesTabItem(), SmallIcons.INSTANCE.databaseServerIcon()));
     menu.addItem(new MainMenuItem("Services", new ServicesTabItem(), SmallIcons.INSTANCE.trafficLightsIcon()));
-    menu.addItem(
-        new MainMenuItem("Services packages", new ServicePackagesTabItem(), SmallIcons.INSTANCE.packageIcon()));
     menu.addItem(
         new MainMenuItem("Attributes", new AttributeDefinitionsTabItem(), SmallIcons.INSTANCE.attributesDisplayIcon()));
     menu.addItem(new MainMenuItem("Users", new UsersTabItem(), SmallIcons.INSTANCE.userGrayIcon()));

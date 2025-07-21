@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceDenial;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
@@ -24,9 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
 import java.sql.SQLException;
@@ -78,14 +75,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
                                                                "service_denials_created_by_uid, service_denials" +
                                                                ".modified_by_uid as " +
                                                                "service_denials_modified_by_uid";
-  public static final String SERVICE_PACKAGE_MAPPING_SELECT_QUERY =
-      " service_packages.id as service_packages_id, service_packages.description as service_packages_description, " +
-      "service_packages.name as service_packages_name, service_packages.created_at as " +
-      "service_packages_created_at, service_packages.created_by as service_packages_created_by, " +
-      "service_packages.modified_by as service_packages_modified_by, service_packages.modified_at as " +
-      "service_packages_modified_at, " +
-      "service_packages.modified_by_uid as s_packages_modified_by_uid, service_packages.created_by_uid as " +
-      "s_packages_created_by_uid";
   public static final String DESTINATION_MAPPING_SELECT_QUERY =
       " destinations.id as destinations_id, destinations.destination as destinations_destination, " +
       "destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations" +
@@ -178,28 +167,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
       serviceDenial.setCreatedByUid(resultSet.getInt("service_denials_created_by_uid"));
     }
     return serviceDenial;
-  };
-  public static final RowMapper<ServicesPackage> SERVICESPACKAGE_MAPPER = (resultSet, i) -> {
-
-    ServicesPackage servicesPackage = new ServicesPackage();
-    servicesPackage.setId(resultSet.getInt("service_packages_id"));
-    servicesPackage.setDescription(resultSet.getString("service_packages_description"));
-    servicesPackage.setName(resultSet.getString("service_packages_name"));
-    servicesPackage.setCreatedAt(resultSet.getString("service_packages_created_at"));
-    servicesPackage.setCreatedBy(resultSet.getString("service_packages_created_by"));
-    servicesPackage.setModifiedAt(resultSet.getString("service_packages_modified_at"));
-    servicesPackage.setModifiedBy(resultSet.getString("service_packages_modified_by"));
-    if (resultSet.getInt("s_packages_modified_by_uid") == 0) {
-      servicesPackage.setModifiedByUid(null);
-    } else {
-      servicesPackage.setModifiedByUid(resultSet.getInt("s_packages_modified_by_uid"));
-    }
-    if (resultSet.getInt("s_packages_created_by_uid") == 0) {
-      servicesPackage.setCreatedByUid(null);
-    } else {
-      servicesPackage.setCreatedByUid(resultSet.getInt("s_packages_created_by_uid"));
-    }
-    return servicesPackage;
   };
   public static final RowMapper<Destination> DESTINATION_MAPPER = (resultSet, i) -> {
     Destination destination = new Destination();
@@ -343,24 +310,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
     }
   }
 
-  @Override
-  public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service)
-      throws ServiceAlreadyAssignedException {
-    try {
-      jdbc.update("insert into service_service_packages (package_id, service_id, created_by,created_at,modified_by," +
-                  "modified_at,created_by_uid,modified_by_uid) " + "values (?,?,?," + Compatibility.getSysdate() +
-                  ",?," + Compatibility.getSysdate() + ",?,?)", servicesPackage.getId(), service.getId(),
-          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-          sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-    } catch (DuplicateKeyException e) {
-      throw new ServiceAlreadyAssignedException(
-          "Service with id " + service.getId() + " is already assigned to the service package with id " +
-          servicesPackage.getId(), e);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
   @SuppressWarnings("ConstantConditions")
   @Override
   public void blockServiceOnDestination(PerunSession sess, int serviceId, int destinationId)
@@ -403,14 +352,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
   public void checkServiceExists(PerunSession sess, Service service) throws ServiceNotExistsException {
     if (!serviceExists(sess, service)) {
       throw new ServiceNotExistsException("Service not exists: " + service);
-    }
-  }
-
-  @Override
-  public void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage)
-      throws ServicesPackageNotExistsException {
-    if (!servicesPackageExists(sess, servicesPackage)) {
-      throw new ServicesPackageNotExistsException("ServicesPackage not exists: " + servicesPackage);
     }
   }
 
@@ -459,26 +400,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
   }
 
   @Override
-  public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
-    try {
-
-      int newId = Utils.getNewId(jdbc, "service_packages_id_seq");
-
-      jdbc.update(
-          "insert into service_packages (id, name, description, created_by,created_at,modified_by,modified_at," +
-          "created_by_uid,modified_by_uid) " + "values (?,?,?,?," + Compatibility.getSysdate() + ",?," +
-          Compatibility.getSysdate() + ",?,?)", newId, servicesPackage.getName(), servicesPackage.getDescription(),
-          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-          sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-      servicesPackage.setId(newId);
-
-      return servicesPackage;
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
   public void deleteDestination(PerunSession sess, Destination destination)
       throws DestinationAlreadyRemovedException, RelationExistsException {
     try {
@@ -504,15 +425,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
       }
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
-  public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
-    try {
-      jdbc.update("delete from service_packages where id = ?", servicesPackage.getId());
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
     }
   }
 
@@ -831,69 +743,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
   }
 
   @Override
-  public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
-    try {
-      List<Service> services = new ArrayList<>();
-      List<Integer> servicesId =
-          jdbc.query("select service_id as id from service_service_packages where package_id=?", Utils.ID_MAPPER,
-              servicesPackage.getId());
-      for (Integer serviceId : servicesId) {
-        try {
-          services.add(getServiceById(sess, serviceId));
-        } catch (ServiceNotExistsException ex) {
-          throw new InternalErrorException(ex);
-        }
-      }
-      return services;
-    } catch (RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
-  public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId)
-      throws ServicesPackageNotExistsException {
-    try {
-      ServicesPackage servicesPackage =
-          jdbc.queryForObject("select " + SERVICE_PACKAGE_MAPPING_SELECT_QUERY + " from service_packages where id = ?",
-              SERVICESPACKAGE_MAPPER, servicesPackageId);
-
-      return servicesPackage;
-    } catch (EmptyResultDataAccessException ex) {
-      throw new ServicesPackageNotExistsException("ServicesPackage with id '" + servicesPackageId + "' desn't exists",
-          ex);
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
-  public ServicesPackage getServicesPackageByName(PerunSession sess, String name)
-      throws ServicesPackageNotExistsException {
-    try {
-      return jdbc.queryForObject("select " + SERVICE_PACKAGE_MAPPING_SELECT_QUERY +
-                                     " from service_packages where name=?",
-          SERVICESPACKAGE_MAPPER, name);
-    } catch (EmptyResultDataAccessException ex) {
-      throw new ServicesPackageNotExistsException("ServicesPackage not exists. name=" + name);
-    } catch (RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-  }
-
-  @Override
-  public List<ServicesPackage> getServicesPackages(PerunSession sess) {
-    try {
-      List<ServicesPackage> servicesPackages =
-          jdbc.query("select " + SERVICE_PACKAGE_MAPPING_SELECT_QUERY +
-                         " from service_packages", SERVICESPACKAGE_MAPPER);
-      return servicesPackages;
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
   public boolean isServiceAssignedToFacility(PerunSession sess, Facility facility, Service service) {
     try {
       int count = jdbc.queryForInt(
@@ -1002,30 +851,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
   }
 
   @Override
-  public void removeServiceFromAllServicesPackages(PerunSession sess, Service service) {
-    try {
-      jdbc.update("delete from service_service_packages where service_id=?", service.getId());
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
-  public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service)
-      throws ServiceAlreadyRemovedFromServicePackageException {
-    try {
-      int numAffected = jdbc.update("delete from service_service_packages where package_id=? and service_id=?",
-          servicesPackage.getId(), service.getId());
-      if (numAffected == 0) {
-        throw new ServiceAlreadyRemovedFromServicePackageException(
-            "Service: " + service + " , ServicePackage: " + servicesPackage);
-      }
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
   public boolean serviceExists(PerunSession sess, Service service) {
     try {
       int numberOfExistences = jdbc.queryForInt("select count(1) from services where id=?", service.getId());
@@ -1033,25 +858,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
         return true;
       } else if (numberOfExistences > 1) {
         throw new ConsistencyErrorException("Service " + service + " exists more than once.");
-      }
-      return false;
-    } catch (EmptyResultDataAccessException ex) {
-      return false;
-    } catch (RuntimeException ex) {
-      throw new InternalErrorException(ex);
-    }
-
-  }
-
-  @Override
-  public boolean servicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) {
-    try {
-      int numberOfExistences =
-          jdbc.queryForInt("select count(1) from service_packages where id=?", servicesPackage.getId());
-      if (numberOfExistences == 1) {
-        return true;
-      } else if (numberOfExistences > 1) {
-        throw new ConsistencyErrorException("ServicesPackage " + servicesPackage + " exists more than once.");
       }
       return false;
     } catch (EmptyResultDataAccessException ex) {
@@ -1130,18 +936,4 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
       throw new InternalErrorException(ex);
     }
   }
-
-  @Override
-  public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
-    try {
-      jdbc.update(
-          "update service_packages set description = ?, name = ?, modified_by=?, modified_by_uid=?, modified_at=" +
-          Compatibility.getSysdate() + "  where id = ?", servicesPackage.getDescription(), servicesPackage.getName(),
-          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), servicesPackage.getId());
-    } catch (RuntimeException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-
 }

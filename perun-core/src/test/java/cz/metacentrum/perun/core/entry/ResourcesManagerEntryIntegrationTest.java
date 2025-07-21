@@ -34,7 +34,6 @@ import cz.metacentrum.perun.core.api.ResourceTag;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -50,7 +49,6 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -463,49 +461,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
     resourcesManager.assignService(sess, resource, new Service());
     // shouldn't find service
-
-  }
-
-  @Test
-  public void assignServicesPackage() throws Exception {
-    System.out.println(CLASS_NAME + "assignServicesPackage");
-
-    vo = setUpVo();
-    facility = setUpFacility();
-    resource = setUpResource();
-    service = setUpService();
-    ServicesPackage servicesPackage = setUpServicesPackage(service);
-
-    resourcesManager.assignServicesPackage(sess, resource, servicesPackage);
-
-    List<Service> services = resourcesManager.getAssignedServices(sess, resource);
-    assertTrue("resource should have 1 service", services.size() == 1);
-    assertTrue("our service should be assigned to our resource", services.contains(service));
-
-  }
-
-  @Test(expected = ServicesPackageNotExistsException.class)
-  public void assignServicesPackageWhenPackageNotExists() throws Exception {
-    System.out.println(CLASS_NAME + "assignServicesPackageWhenPackageNotExists");
-
-    vo = setUpVo();
-    facility = setUpFacility();
-    resource = setUpResource();
-
-    resourcesManager.assignServicesPackage(sess, resource, new ServicesPackage());
-    // shouldn't find package
-
-  }
-
-  @Test(expected = ResourceNotExistsException.class)
-  public void assignServicesPackageWhenResourceNotExists() throws Exception {
-    System.out.println(CLASS_NAME + "assignServicesPackageWhenResourceNotExists");
-
-    service = setUpService();
-    ServicesPackage servicesPackage = setUpServicesPackage(service);
-
-    resourcesManager.assignServicesPackage(sess, new Resource(), servicesPackage);
-    // shouldn't find resource
 
   }
 
@@ -2946,49 +2901,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
   }
 
   @Test
-  public void removeServicesPackage() throws Exception {
-    System.out.println(CLASS_NAME + "removeServicesPackage");
-
-    vo = setUpVo();
-    facility = setUpFacility();
-    resource = setUpResource();
-    service = setUpService();
-    ServicesPackage servicesPackage = setUpServicesPackage(service);
-
-    resourcesManager.assignServicesPackage(sess, resource, servicesPackage);
-
-    resourcesManager.removeServicesPackage(sess, resource, servicesPackage);
-    List<Service> services = resourcesManager.getAssignedServices(sess, resource);
-    assertTrue("resource shouldn't have any services assigned", services.isEmpty());
-
-  }
-
-  @Test(expected = ServicesPackageNotExistsException.class)
-  public void removeServicesPackageWhenPackageNotExists() throws Exception {
-    System.out.println(CLASS_NAME + "removeServicesPackageWhenPackageNotExists");
-
-    vo = setUpVo();
-    facility = setUpFacility();
-    resource = setUpResource();
-
-    resourcesManager.removeServicesPackage(sess, resource, new ServicesPackage());
-    // shouldn't find services package
-
-  }
-
-  @Test(expected = ResourceNotExistsException.class)
-  public void removeServicesPackageWhenResourceNotExists() throws Exception {
-    System.out.println(CLASS_NAME + "removeServicesPackageWhenResourceNotExists");
-
-    service = setUpService();
-    ServicesPackage servicesPackage = setUpServicesPackage(service);
-
-    resourcesManager.removeServicesPackage(sess, new Resource(), servicesPackage);
-    // shouldn't find resource
-
-  }
-
-  @Test
   public void setBan() throws Exception {
     System.out.println(CLASS_NAME + "setBan");
     vo = setUpVo();
@@ -3200,18 +3112,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     perun.getServicesManager().addRequiredAttributes(sess, service, List.of(attribute));
 
     return service;
-
-  }
-
-  private ServicesPackage setUpServicesPackage(Service service) throws Exception {
-
-    ServicesPackage servicesPackage = new ServicesPackage();
-    servicesPackage.setName("ResourcesManagertTestSP");
-    servicesPackage.setDescription("testingServicePackage");
-    servicesPackage = perun.getServicesManager().createServicesPackage(sess, servicesPackage);
-    perun.getServicesManager().addServiceToServicesPackage(sess, servicesPackage, service);
-
-    return servicesPackage;
 
   }
 

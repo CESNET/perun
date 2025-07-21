@@ -687,17 +687,6 @@ public interface ButtonTranslation extends Messages {
   @DefaultMessage("Save changes in service details")
   String saveServiceDetails();
 
-  /* SERVICE PACKAGES */
-
-  @DefaultMessage("Create new service package in Perun")
-  String createServicePackage();
-
-  @DefaultMessage("Delete selected service packages from Perun")
-  String deleteSelectedServicePackages();
-
-  @DefaultMessage("Save changes in services packages")
-  String saveChangesInServicesPackages();
-
   /* TAGS */
 
   @DefaultMessage("Filter resources tags by name")

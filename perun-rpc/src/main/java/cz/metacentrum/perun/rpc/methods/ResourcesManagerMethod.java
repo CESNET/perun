@@ -876,23 +876,6 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Assign all services from services package to resource.
-   *
-   * @param resource int Resource <code>id</code>
-   * @param servicesPackage int Services package <code>id</code>
-   */
-  assignServicesPackage {
-    @Override
-    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      parms.stateChangingCheck();
-
-      ac.getResourcesManager().assignServicesPackage(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
-          ac.getServicesPackageById(parms.readInt("servicesPackage")));
-      return null;
-    }
-  },
-
-  /*#
    * Removes a service from a resource.
    *
    * @param resource int Resource <code>id</code>
@@ -975,23 +958,6 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
       ac.getResourcesManager().removeServices(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
           services, removeTasks, removeTaskResults, removeDestinations);
-      return null;
-    }
-  },
-
-  /*#
-   * Remove from resource all services from services package.
-   *
-   * @param resource int Resource <code>id</code>
-   * @param servicesPackage int Services package <code>id</code>
-   */
-  removeServicesPackage {
-    @Override
-    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-      parms.stateChangingCheck();
-
-      ac.getResourcesManager().removeServicesPackage(ac.getSession(), ac.getResourceById(parms.readInt("resource")),
-          ac.getServicesPackageById(parms.readInt("servicesPackage")));
       return null;
     }
   },
