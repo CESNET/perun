@@ -2869,7 +2869,7 @@ components:
       required: true
 
     attrDefId:
-      name: attributeDefinition
+      name: attrDefId
       description: "id of AttributeDefinition"
       schema:
         type: integer
