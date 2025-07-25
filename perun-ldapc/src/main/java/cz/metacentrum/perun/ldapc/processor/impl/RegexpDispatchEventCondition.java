@@ -4,7 +4,10 @@ import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ * Implements the message pattern matching part of dispatch conditions.
+ * The primary condition used in all the processors, defined in `perun-ldapc.xml`.
+ */
 public class RegexpDispatchEventCondition extends SimpleDispatchEventCondition {
 
   private Pattern pattern;

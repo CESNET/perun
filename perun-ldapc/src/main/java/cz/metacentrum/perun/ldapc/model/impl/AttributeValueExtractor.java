@@ -5,6 +5,12 @@ import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Represents an abstract base class for extracting and matching attribute values based on specific criteria.
+ * This class defines methods and properties for filtering attributes based on namespace, name, and name pattern.
+ * It also sets up groundwork for transformation of attribute values into a form acceptable by LDAP using a supplied
+ * {@link AttributeValueTransformer}.
+ */
 public abstract class AttributeValueExtractor {
 
   protected AttributeValueTransformer valueTransformer;

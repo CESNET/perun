@@ -6,6 +6,13 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 
+/**
+ * Represents a description of a Perun attribute, providing functionality
+ * for single-valued or multi-valued attribute extraction and handling
+ * various attribute configuration details for when it gets propagated into LDAP.
+ *
+ * @param <T> Type parameter extending the PerunBean class.
+ */
 public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T> {
 
   private String name;

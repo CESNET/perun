@@ -5,6 +5,16 @@ import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * The AbstractAttributeProcessor class is an abstract base implementation for handling attribute-related events
+ * in the Perun-LDAP connector.
+ * This class handles pattern matching for events related to attribute changes, delegating specific processing
+ * tasks to its concrete implementations.
+ * This class uses regex patterns to match messages and invoke the appropriate attribute-related processing methods.
+ * Concrete subclasses must implement the abstract methods to provide specific handling for each type of event.
+ * Preferably register the patterns using `perun-ldapc.xml`
+ */
 public abstract class AbstractAttributeProcessor extends AbstractEventProcessor implements AttributeProcessor {
 
   private int beanFlag;

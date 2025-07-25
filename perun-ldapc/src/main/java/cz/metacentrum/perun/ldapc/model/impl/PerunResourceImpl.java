@@ -19,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
+/**
+ * Provides implementation of operations to modify the Resource entities in the LDAP directory.
+ */
 public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements PerunResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(PerunResourceImpl.class);

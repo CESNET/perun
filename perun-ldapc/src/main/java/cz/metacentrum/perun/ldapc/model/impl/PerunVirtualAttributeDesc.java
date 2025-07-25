@@ -6,6 +6,11 @@ import cz.metacentrum.perun.ldapc.processor.VirtualAttributeManager;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Further extends a description of Perun virt attributes that depend on other attributes, ensuring the dependant
+ * attributes get updated accordingly.
+ * @param <T> Type parameter extending the PerunBean class.
+ */
 public class PerunVirtualAttributeDesc<T extends PerunBean> extends PerunAttributeDesc<T>
     implements PerunVirtualAttribute<T>, InitializingBean {
 

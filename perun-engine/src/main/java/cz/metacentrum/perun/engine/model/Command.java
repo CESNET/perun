@@ -3,7 +3,9 @@ package cz.metacentrum.perun.engine.model;
 import java.io.Serializable;
 
 /**
- * @author Michal Karm Babacek JavaDoc coming soon...
+ * Intended to retrieve commands via the JMS messaging, not yet implemented
+ *
+ * @author Michal Karm Babacek
  */
 public class Command implements Serializable {
 

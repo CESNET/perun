@@ -13,6 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+/**
+ * The AuditLoggerStarter is the main entry point for starting the AuditLogger in the Perun system.
+ * It is responsible for initializing the application context, setting up necessary components,
+ * and managing the startup of event processing for the AuditLogger.
+ */
 public class AuditLoggerStarter {
   private static final Logger LOG = LoggerFactory.getLogger(AuditLoggerStarter.class);
 

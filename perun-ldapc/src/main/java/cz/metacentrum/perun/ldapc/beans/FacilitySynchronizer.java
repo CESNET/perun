@@ -17,6 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
+/**
+ * The FacilitySynchronizer class is responsible for synchronizing state between Perun facilities
+ * and an LDAP server. It retrieves facilities and their attributes from Perun, updates or adds facilities
+ * in the LDAP directory, and removes entries that are no longer present in Perun.
+ *
+ * This class extends AbstractSynchronizer, inheriting utility methods for attribute processing
+ * and old entry removal. The synchronization process ensures alignment of facility data between
+ * the two systems.
+ */
 @Component
 public class FacilitySynchronizer extends AbstractSynchronizer {
 
