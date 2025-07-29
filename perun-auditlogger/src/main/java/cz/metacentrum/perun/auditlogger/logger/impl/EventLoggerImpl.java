@@ -27,6 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Class containing the core logic of AuditLogger. It retrieves the last processed event ID from the configured file,
+ * periodically polls Perun core for AuditMessages which it logs using logback into the configured journal file and
+ * handles errors/interruptions by writing the id of the last processed message into the configured state file.
+ *
+ * As the name suggests, AuditLogger output is mainly used for auditing and potential third party handling.
+ * Similar logic is used in the LDAP connector to poll for events and propagate updates to LDAP.
+ */
 @org.springframework.stereotype.Service(value = "eventLogger")
 public class EventLoggerImpl implements EventLogger, Runnable {
 

@@ -14,6 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NamingException;
 
+/**
+ * EventProcessor handling the more complex events related to Group updates (excluding attributes) - such as the group
+ * being set/unset as an admin group, member operations, assignments to resources, etc.
+ */
 public class GroupEventProcessor extends AbstractEventProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(GroupEventProcessor.class);

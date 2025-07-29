@@ -2,11 +2,17 @@ package cz.metacentrum.perun.ldapc.model.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute.SingleValueExtractor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/**
+ * Extracts the value of the first matching attribute into a form of a single-valued LDAP attribute, optionally using an
+ * {@link AttributeValueTransformer}
+ * @param <T> Type parameter extending the PerunBean class.
+ */
 public class SingleAttributeValueExtractor<T extends PerunBean> extends AttributeValueExtractor
     implements SingleValueExtractor<T> {
 

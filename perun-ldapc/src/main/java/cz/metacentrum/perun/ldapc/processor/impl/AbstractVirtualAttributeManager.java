@@ -13,6 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * Manages dependencies for virtual attributes, allowing processors to retrieve dependant attributes and update their
+ * values when necessary.
+ * @param <T> Type parameter extending the PerunBean class.
+ */
 @Component
 public class AbstractVirtualAttributeManager<T extends PerunBean> implements VirtualAttributeManager<T> {
 

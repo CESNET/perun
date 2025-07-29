@@ -37,6 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * EventDispatcher runs continuously in a separate thread, polling the Perun BE for AuditMessages, parsing the affected
+ * beans out of them and calling the adequate processor based on the present beans and message regex matching (defined
+ * in `perun-ldapc.xml`).
+ * Also loads/saves the id of the last processed message in a defined file for consistency.
+ */
 @org.springframework.stereotype.Service(value = "eventDispatcher")
 public class EventDispatcherImpl implements EventDispatcher, Runnable {
 
@@ -239,6 +245,10 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
     this.lastProcessedIdNumber = lastProcessedIdNumber;
   }
 
+  /**
+   * Stores the parsed out PerunBean objects, also creating a binary mask, which is used to check for the presence of
+   * the bean flags to determine the EventProcessor to use.
+   */
   private class MessageBeansImpl implements MessageBeans {
 
     int beanCount = 0;

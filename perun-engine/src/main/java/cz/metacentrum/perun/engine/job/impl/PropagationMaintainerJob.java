@@ -7,7 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author Michal Karm Babacek JavaDoc coming soon...
+ * Job called periodically using cron (see `perun-engine-scheduler.xml`) to prompt PropagationMaintainer to clean up
+ * stuck tasks.
+ *
+ * @author Michal Karm Babacek
  */
 @org.springframework.stereotype.Service(value = "propagationMaintainerJob")
 public class PropagationMaintainerJob implements PerunEngineJob {

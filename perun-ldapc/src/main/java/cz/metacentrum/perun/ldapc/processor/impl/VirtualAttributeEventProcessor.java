@@ -22,6 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Performs updates to registered virtual attributes and their dependencies after various events (e.g., member status
+ * change).
+ */
 public class VirtualAttributeEventProcessor extends AbstractEventProcessor implements EventProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(VirtualAttributeEventProcessor.class);

@@ -12,6 +12,9 @@ import javax.naming.Name;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
+/**
+ * Provides implementation of operations to modify the Facility entities in the LDAP directory.
+ */
 public class PerunFacilityImpl extends AbstractPerunEntry<Facility> implements PerunFacility {
 
   @Override

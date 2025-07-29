@@ -18,6 +18,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * ResourceSynchronizer is a component that handles the synchronization of resources
+ * and their associated attributes and groups from the Perun system to the LDAP server.
+ * It extends the AbstractSynchronizer, providing specific implementation for
+ * resource-related synchronization operations.
+ *
+ * The synchronization process involves:
+ * - Fetching a list of VOs (Virtual Organizations) from the Perun backend.
+ * - For each VO, retrieving its associated resources.
+ * - Fetching attributes and assigned groups for each resource.
+ * - Synchronizing these resources, attributes, and groups with the LDAP server.
+ * - Cleaning up any old, non-existent entries from the LDAP server.
+ *
+ * If any errors occur during the synchronization process, appropriate logging is handled,
+ * and exceptions are propagated to ensure visibility.
+ *
+ * Dependencies:
+ * - The PerunResource implementation is injected and used to manage LDAP-specific operations.
+ */
 @Component
 public class ResourceSynchronizer extends AbstractSynchronizer {
 

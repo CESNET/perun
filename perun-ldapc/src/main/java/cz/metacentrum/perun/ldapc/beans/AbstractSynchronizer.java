@@ -15,6 +15,12 @@ public abstract class AbstractSynchronizer {
   @Autowired
   protected LdapcManager ldapcManager;
 
+  /**
+   * Retrieves similar attribute names for attribute names ending with `:` (e.g., all namespace attributes for
+   * login-namespace), or simply returns the attribute name if it's complete.
+   * @param attrNames attribute names to potentially retrieve similar names for
+   * @return the names with similar names included
+   */
   protected List<String> fillPerunAttributeNames(List<String> attrNames) {
     PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
     List<String> result = new ArrayList<String>();
@@ -28,6 +34,14 @@ public abstract class AbstractSynchronizer {
     return result;
   }
 
+  /**
+   * Removes old entries from the LDAP directory that are no longer present in the specified set
+   * of active entries.
+   *
+   * @param perunEntry the PerunEntry object providing access to LDAP entries
+   * @param presentEntries the set of currently active entries to be retained
+   * @param log the logger used to log debug information during the operation
+   */
   protected void removeOldEntries(PerunEntry<?> perunEntry, Set<Name> presentEntries, Logger log) {
     List<Name> ldapEntries = perunEntry.listEntries();
     log.debug("Checking for old entries: {} present, {} active", ldapEntries.size(), presentEntries.size());

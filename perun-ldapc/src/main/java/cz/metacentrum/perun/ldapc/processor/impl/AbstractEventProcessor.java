@@ -14,6 +14,12 @@ import java.util.Collection;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * The AbstractEventProcessor provides a base implementation for processing events in the Perun-LDAP connector.
+ * It mainly handles the registration of Processors and their conditions in the EventDispatcher.
+ * Implementing classes are then responsible for implementing the handler methods for each event (`processEvent` being
+ * the fallback method).
+ */
 public abstract class AbstractEventProcessor implements EventProcessor, InitializingBean {
 
   @Autowired

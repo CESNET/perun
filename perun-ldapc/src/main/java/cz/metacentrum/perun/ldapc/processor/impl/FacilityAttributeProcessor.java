@@ -11,6 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NamingException;
 
+/**
+ * FacilityAttributeProcessor processes attribute-related events specifically for facilities.
+ * Provides implementations for handling events such as attribute setting, attribute removal,
+ * and virtual attribute changes.
+ *
+ * Regex patterns primarily defined in `perun-ldapc.xml` are used to match the incoming messages to determine the type
+ * of event and delegate the processing task to the respective method.
+ */
 public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(FacilityAttributeProcessor.class);

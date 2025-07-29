@@ -5,6 +5,9 @@ import cz.metacentrum.perun.ldapc.processor.EventDispatcher.DispatchEventConditi
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
 import java.util.List;
 
+/**
+ * Implements the bean matching part of dispatch conditions.
+ */
 public class SimpleDispatchEventCondition implements DispatchEventCondition {
 
   private int requiredBeans = 0;

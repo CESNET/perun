@@ -28,6 +28,17 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.support.LdapNameBuilder;
 
+/**
+ * The AbstractPerunEntry class serves as a base class for managing LDAP entries
+ * in connection with the Perun system. It provides methods for handling entry
+ * synchronization, modifications, deletions, and creation, along with utility
+ * methods for managing attributes and performing various LDAP operations.
+ *
+ * This class implements common functionality for subclasses representing specific
+ * types of Perun entities (e.g., groups, VOs). It relies on derived classes to
+ * provide implementation for abstract methods specific to particular Perun entities.
+ *
+ */
 public abstract class AbstractPerunEntry<T extends PerunBean> implements InitializingBean, PerunEntry<T> {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractPerunEntry.class);

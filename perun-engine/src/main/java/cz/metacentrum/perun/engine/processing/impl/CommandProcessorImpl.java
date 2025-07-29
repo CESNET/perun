@@ -6,7 +6,9 @@ import cz.metacentrum.perun.engine.processing.CommandProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Intended to retrieve commands via the JMS messaging, not yet implemented
+ */
 @org.springframework.stereotype.Service(value = "commandProcessor")
 public class CommandProcessorImpl implements CommandProcessor {
 

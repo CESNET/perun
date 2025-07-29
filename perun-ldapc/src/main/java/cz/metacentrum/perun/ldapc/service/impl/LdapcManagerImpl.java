@@ -18,6 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * LdapcManager provides the Perun interface to other classes in perun-ldapc, handles synchronization by calling the
+ * synchronizer classes, and starts eventDispatcher processing in a separate thread to handle real-time updates via
+ * AuditEvents produced by Perun BE.
+ */
 @org.springframework.stereotype.Service(value = "ldapcManager")
 public class LdapcManagerImpl implements LdapcManager {
 
