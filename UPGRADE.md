@@ -1,5 +1,35 @@
 Upgrade notes
 
+## [49.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.3.0...v49.0.0) (2025-08-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* removed ServicesPackage and all related functionality
+
+### Features
+
+* **core:** extend `removeServices` method to allow removal of associated objects ([edefddc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/edefddc24563b5b7fcf1d8cf69af539d2629ff6f))
+* **core:** match user global search results to other user search methods ([09fb48e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/09fb48ee5e180b5018810d899da4ba159396725d))
+* **core:** support passing custom url params to registrar initialization ([e8c89e2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e8c89e21a873e34427bd85a1221f77212bf5d997))
+
+
+### Bug Fixes
+
+* **cli:** added missing api method to perl cli ([e5c6388](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e5c63880f398a9690c10377514d2e95dc9ec7795))
+* **deps:** update dependency google-api-services-admin-directory ([3abcade](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3abcade58ce87ac8df0658e4b5dc9f78badeba32))
+* **deps:** update dependency org.apache.commons:commons-text to v1.14.0 ([3d3ef46](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3d3ef4671783d9ca6132484dc9a8f38ed83adc6f))
+* **deps:** update dependency org.dom4j:dom4j to v2.2.0 ([7ce7458](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7ce7458f14e29267cd9e1a9e559d9d0ded85718d))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.4 ([4954a9f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4954a9f8c3e0fad6249c8a8e5a55175b8f5e7560))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.13.1 ([e566356](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e566356a7087bb88312d4faf881863a49089d42b))
+* **deps:** update org.springframework.security.kerberos:spring-security-kerberos-client to v2.2.0 ([d70cc49](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d70cc490dbc2b08b54e455ef1332fdbf6e7fbec6))
+* **openapi:** fix parameter name in `convertAttributeToUnique` and `convertAttributeToNonunique` ([6e6a2e1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6e6a2e144e72bc516352acb8a3028722b5e0d87d))
+
+
+### Others
+
+* remove ServicesPackage functionality ([4e40c40](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4e40c40973896f1e355d6d67846c6ce1421ee251))
+
 ## [48.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.2.0...v48.3.0) (2025-07-07)
 
 
