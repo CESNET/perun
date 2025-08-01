@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
@@ -13,8 +14,12 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.modules.CeitecCrmConnector;
+import cz.metacentrum.perun.core.impl.modules.ModulesYamlConfigLoader;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +30,10 @@ import org.slf4j.LoggerFactory;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class urn_perun_user_attribute_def_def_login_namespace_ceitec
-    extends urn_perun_user_attribute_def_def_login_namespace {
+        extends urn_perun_user_attribute_def_def_login_namespace {
 
   private static final Logger LOG =
-      LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_ceitec.class);
+          LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_ceitec.class);
 
   private static final String CEITEC_PROXY_ENTITY_ID = "https://login.ceitec.cz/idp/";
   private static final String CEITEC_PROXY_SCOPE = "ceitec.cz";
@@ -36,15 +41,17 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec
   private static final String CEITEC_PROXY_ENTITY_ID_AD = "https://login.ceitec.cz/idp-ad/";
   private static final String CEITEC_PROXY_SCOPE_AD = "ceitec.local";
 
+  private static final CeitecCrmConnector ceitecCrmConnector = new CeitecCrmConnector();
+  private static final ModulesYamlConfigLoader loader = new ModulesYamlConfigLoader();
+
   @Override
   public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute)
-      throws WrongReferenceAttributeValueException {
-    super.changedAttributeHook(session, user, attribute);
-    LOG.debug("changedAttributeHook for attr: " + attribute + " and user: " + user);
-
-    handleChangedAttributeHook(session, user, attribute, CEITEC_PROXY_ENTITY_ID, CEITEC_PROXY_SCOPE);
-    handleChangedAttributeHook(session, user, attribute, CEITEC_PROXY_ENTITY_ID_AD, CEITEC_PROXY_SCOPE_AD);
-
+          throws WrongReferenceAttributeValueException {
+    // generate identities only on old Perun instance
+    if (!loader.moduleFileExists("Ceitec")) {
+      handleChangedAttributeHook(session, user, attribute, CEITEC_PROXY_ENTITY_ID, CEITEC_PROXY_SCOPE);
+      handleChangedAttributeHook(session, user, attribute, CEITEC_PROXY_ENTITY_ID_AD, CEITEC_PROXY_SCOPE_AD);
+    }
   }
 
   /**
@@ -59,7 +66,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec
    */
   @Override
   public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute)
-      throws WrongAttributeValueException {
+          throws WrongAttributeValueException {
 
     // check syntax of attribute
     super.checkAttributeSyntax(sess, user, attribute);
@@ -68,7 +75,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec
     if (attribute.getValue() != null) {
       if ((attribute.valueAsString()).length() > 20) {
         throw new WrongAttributeValueException(attribute, user,
-            "Login '" + attribute.getValue() + "' exceeds 20 chars limit.");
+                "Login '" + attribute.getValue() + "' exceeds 20 chars limit.");
       }
     }
 
@@ -91,11 +98,42 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec
    */
   @Override
   public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute)
-      throws WrongAttributeAssignmentException {
+          throws WrongAttributeAssignmentException {
 
     Attribute filledAttribute = new Attribute(attribute);
+    if (loader.moduleFileExists("Ceitec")) {
+      return fillAttributeUsingCRM(perunSession, user, filledAttribute);
+    } else {
+      return fillAttributeLocally(perunSession, user, filledAttribute);
+    }
 
-    if (generatedNamespaces.contains(attribute.getFriendlyNameParameter())) {
+  }
+
+  @Override
+  public AttributeDefinition getAttributeDefinition() {
+    AttributeDefinition attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setFriendlyName("login-namespace:ceitec");
+    attr.setDisplayName("Login in namespace: ceitec");
+    attr.setType(String.class.getName());
+    attr.setDescription("Logname in namespace 'ceitec'.");
+    return attr;
+  }
+
+  /**
+   * LOCAL FILL ATTRIBUTE LOGIN for old CEITEC (MU instance).
+   *
+   * Filling implemented for: - namespaces configured in /etc/perun/perun.properties as property:
+   * "perun.loginNamespace.generated"
+   * <p>
+   * Resulting format/rules: - "firstName.lastName[number]" where number is opt and start with 1 when same login is
+   * already present. - Only first part of "firstName" and last part of "lastName" is taken. - All accented chars are
+   * unaccented and all non (a-z,A-Z) chars are removed from name and value is lowered.
+   */
+  private Attribute fillAttributeLocally(PerunSessionImpl perunSession, User user, Attribute filledAttribute)
+          throws WrongAttributeAssignmentException {
+
+    if (generatedNamespaces.contains(filledAttribute.getFriendlyNameParameter())) {
 
       ModulesUtilsBlImpl.LoginGenerator generator = new ModulesUtilsBlImpl.LoginGenerator();
       String login = generator.generateLogin(user, (firstName, lastName) -> {
@@ -149,17 +187,69 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec
       // without value
       return filledAttribute;
     }
+
   }
 
-  @Override
-  public AttributeDefinition getAttributeDefinition() {
-    AttributeDefinition attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-    attr.setFriendlyName("login-namespace:ceitec");
-    attr.setDisplayName("Login in namespace: ceitec");
-    attr.setType(String.class.getName());
-    attr.setDescription("Logname in namespace 'ceitec'.");
-    return attr;
+  /**
+   * Fill attribute using same rules, but data is generated on CRM side (new CEITEC on e-INFRA CZ instance)
+   * We call CRM passing users ceitec_id, eppns, name and get back
+   * either existing login for matching user (by ceitec_id, or eppns)
+   * or new login if there is no matching user.
+   * If eppns are split between multiple user accounts in ceitec CRM, this throws error since user must "choose"
+   * one of the accounts.
+   *
+   * @param perunSession
+   * @param user
+   * @param filledAttribute
+   * @return
+   */
+  private Attribute fillAttributeUsingCRM(PerunSessionImpl perunSession, User user, Attribute filledAttribute) {
+
+    AttributesManagerBl attributesManagerBl = perunSession.getPerunBl().getAttributesManagerBl();
+    try {
+      // Exclusive lock for transaction
+      Attribute lock = attributesManagerBl.getEntitylessAttributeForUpdate(perunSession, "CRM",
+              AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":ceitecCrmLock");
+      String login = getLoginFromCRM(perunSession, user);
+      filledAttribute.setValue(login);
+      return filledAttribute;
+    } catch (AttributeNotExistsException e) {
+      throw new InternalErrorException("Locking attribute ceitecCrmLock not found.");
+    }
+
+  }
+
+  private String getLoginFromCRM(PerunSessionImpl perunSession, User user) {
+
+    PerunBl perunBl = perunSession.getPerunBl();
+    Attribute eppns = null;
+    Attribute ceitecId = null;
+
+    // TODO - normalize string or convert?
+    // get only first part of first name and remove spec. chars
+    // get only last part of last name and remove spec. chars
+    // like ModulesUtilsBlImpl.LoginGenerator().generateLogin();
+
+    try {
+      eppns = perunBl.getAttributesManagerBl().getAttribute(perunSession, user,
+              AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonPrincipalNames");
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+
+    try {
+      ceitecId = perunBl.getAttributesManagerBl().getAttribute(perunSession, user,
+              AttributesManager.NS_USER_ATTR_DEF + ":ceitecId");
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+      throw new InternalErrorException(e);
+    }
+
+    try {
+      return ceitecCrmConnector.getLogin(ceitecId.valueAsString(), eppns, user);
+    } catch (Exception ex) {
+      return null;
+    }
+
   }
 
   private UserExtSource getCeitecProxyUserExtSource(PerunSessionImpl session, User user, ExtSource ceitecExtSource,
@@ -172,7 +262,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec
       if (ues.getExtSource().equals(ceitecExtSource) && ues.getLogin().endsWith("@" + scope)) {
         if (ceitecProxyUserExtSource != null) {
           throw new InternalErrorException(
-              "Multiple UserExtSourceLogins with Ceitec proxy IdP scope '" + scope + "' founded for user: " + user);
+                  "Multiple UserExtSourceLogins with Ceitec proxy IdP scope '" + scope + "' founded for user: " + user);
         }
         ceitecProxyUserExtSource = ues;
       }
@@ -222,17 +312,17 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec
 
     } catch (ExtSourceNotExistsException e) {
       throw new InternalErrorException("Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
-                                       " require extSource with name (entityId): " + entityId + ". User: " + user, e);
+              " require extSource with name (entityId): " + entityId + ". User: " + user, e);
     } catch (UserExtSourceAlreadyRemovedException e) {
       throw new InternalErrorException(
-          "Inconsistency. Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
-          " tries to delete extSource but it does not exists. " + "extSource with name (entityId): " + entityId +
-          ". User: " + user, e);
+              "Inconsistency. Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
+                      " tries to delete extSource but it does not exists. " + "extSource with name (entityId): " +
+                      entityId + ". User: " + user, e);
     } catch (UserExtSourceExistsException e) {
       throw new InternalErrorException("Login: '" + newLogin + "' of user: " + user +
-                                       " is already taken by another user in namespace ceitec. Cannot add " +
-                                       "UserExtSource to the user. Different " +
-                                       "login must be used", e);
+              " is already taken by another user in namespace ceitec. Cannot add " +
+              "UserExtSource to the user. Different " +
+              "login must be used", e);
     }
 
   }

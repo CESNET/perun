@@ -57,6 +57,9 @@ $objectExamples{"List<Attribute>"} = $objectExamples{"List&lt;Attribute&gt;"};
 $objectExamples{"Map<String,Attribute>"} = "{ \"key\" : " . $objectExamples{"Attribute"} . " , \"key2\" : {...} }";
 $objectExamples{"Map&lt;String,Attribute&lt;"} = $objectExamples{"Map<String,Attribute>"};
 
+$objectExamples{"Map<String,List<String>>"} = "{ \"key\" : [ \"text\" , \"text\" ] , \"key2\" : [] }";
+$objectExamples{"Map&lt;String,List&lt;String&lt;&gt;"} = $objectExamples{"Map<String,List<String>>"};
+
 $objectExamples{"Vo"} = "{ \"id\" : 123 , \"name\" : \"My testing VO\" , \"shortName\" : \"test_vo\" , \"beanName\" : \"Vo\" }";
 $objectExamples{"List&lt;Vo&gt;"} = $listPrepend . $objectExamples{"Vo"} . $listAppend;
 $objectExamples{"List<Vo>"} = $objectExamples{"List&lt;Vo&gt;"};
@@ -147,10 +150,6 @@ $objectExamples{"RTMessage"} = "{ \"ticketNumber\" : 32525 , \"memberPreferredEm
 $objectExamples{"Service"} = "{ \"id\" : 290 , \"name\" : \"passwd\" , \"description\" : \"Provision /etc/passwd file.\" , \"delay\" : 10 , \"recurrence\" : 2 , \"enabled\" : true , \"script\" : \"./passwd\" , \"useExpiredMembers\" : false , \"useExpiredVoMembers\" : false, \"useBannedMembers\" : false }";
 $objectExamples{"List&lt;Service&gt;"} = $listPrepend . $objectExamples{"Service"} . $listAppend;
 $objectExamples{"List<Service>"} = $objectExamples{"List&lt;Service&gt;"};
-
-$objectExamples{"ServicesPackage"} = "{ \"id\" : 50 , \"name\" : \"Unix account\" , \"description\" : \"Collection of services for managing unix accounts.\" }";
-$objectExamples{"List&lt;ServicesPackage&gt;"} = $listPrepend . $objectExamples{"ServicesPackage"} . $listAppend;
-$objectExamples{"List<ServicesPackage>"} = $objectExamples{"List&lt;ServicesPackage&gt;"};
 
 $objectExamples{"Destination"} = "{ \"id\" : 99 , \"destination\" : \"host\@host.cz\" , \"type\" : \"HOST\" , \"propagationType\" : \"PARALLEL\" }";
 $objectExamples{"List&lt;Destination&gt;"} = $listPrepend . $objectExamples{"Destination"} . $listAppend;
@@ -529,7 +528,7 @@ sub buildVersion {
 	<meta name="msapplication-TileImage" content="$importPathImg/favicons/favicon-white-144.png">
 		<meta name="msapplication-TileColor" content="#00569c">
 
-		<script src="$importPathJs/jquery-1.10.2.min.js"></script>
+		<script src="$importPathJs/jquery-3.7.1.min.js"></script>
 		<script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
 </head>
 
@@ -743,7 +742,7 @@ API: perun-api.&ltdomain&gt.cz
 	<meta name="msapplication-TileImage" content="$importPathImg/favicons/favicon-white-144.png">
 		<meta name="msapplication-TileColor" content="#00569c">
 
-		<script src="$importPathJs/jquery-1.10.2.min.js"></script>
+		<script src="$importPathJs/jquery-3.7.1.min.js"></script>
 		<script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
 </head>
 

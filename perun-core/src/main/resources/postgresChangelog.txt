@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.33
+DROP TABLE IF EXISTS service_service_packages;
+DROP TABLE IF EXISTS service_packages;
+DROP SEQUENCE IF EXISTS service_packages_id_seq;
+UPDATE configurations SET value='3.2.33' WHERE property='DATABASE VERSION';
+
 3.2.32
 create table blocked_attr_values (attr_id integer not null, attr_value varchar not null, created_at timestamp default statement_timestamp() not null, created_by_uid integer, modified_by_uid integer, constraint fk_attr_names foreign key (attr_id) references attr_names(id) ON DELETE CASCADE, constraint blocked_attr_values_u unique (attr_id, attr_value));
 create index idx_fk_blk_attr_attr_names on blocked_attr_values(attr_id);

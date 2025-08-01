@@ -73,7 +73,7 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365muTest {
     when(adNameAttr.getValue()).thenReturn(adName);
     when(am.getAttributeDefinition(session,
         urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu.USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE)).thenReturn(
-        new urn_perun_user_attribute_def_def_o365UserEmailAddresses_mu().getAttributeDefinition());
+          new urn_perun_user_attribute_def_def_o365UserEmailAddresses_mu().getAttributeDefinition());
 
     attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
     attributeToCheck.setId(100);

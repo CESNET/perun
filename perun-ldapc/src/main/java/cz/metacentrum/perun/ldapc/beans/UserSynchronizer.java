@@ -26,6 +26,26 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+/**
+ * UserSynchronizer is responsible for synchronizing all Perun users into
+ * the configured LDAP server. It utilizes a thread pool for parallel execution of user synchronization
+ * tasks. The class handles the retrieval of user information, attributes, membership details,
+ * external sources, and administrative roles, and synchronizes these details into the local
+ * system.
+ *
+ * Thread safety is ensured through the use of synchronized methods and atomic variables. A
+ * worker thread executes the process for each user to maximize performance.
+ *
+ * Key responsibilities:
+ * - Retrieve and sort the list of all Perun users.
+ * - Synchronize user attributes, memberships, external sources, and administrative roles.
+ * - Handle exceptions gracefully during synchronization and log necessary information.
+ * - Remove outdated user entries from the configured LDAP server.
+ *
+ * The synchronization process leverages multithreading for concurrent execution.
+ * {@link ThreadPoolTaskExecutor} is used to manage worker threads efficiently. Detailed logs
+ * are produced to provide visibility into each step of the process.
+ */
 @Component
 public class UserSynchronizer extends AbstractSynchronizer implements ApplicationContextAware {
 
@@ -181,6 +201,24 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
   }
 
+  /**
+   * Represents a worker that performs synchronization tasks for a specific user in a multi-threaded environment.
+   * This class implements {@link Runnable} and is designed to be executed within a thread pool.
+   *
+   * Each instance of this worker is associated with a single user and their related entities such as attributes,
+   * virtual organizations (VOs), groups, external sources, and administration roles.
+   *
+   * The synchronization process involves:
+   * - Synchronizing the user's attributes.
+   * - Synchronizing the user's memberships in VOs and groups.
+   * - Synchronizing the user's external sources.
+   * - Synchronizing the user's administrative roles for groups, VOs, and facilities.
+   *
+   * If any exception occurs during the synchronization, it is logged, and a flag indicating an error is set.
+   * Once the synchronization task is completed or fails, the task counter is decremented.
+   *
+   * This class relies on the `perunUser` pool for handling synchronization logic.
+   */
   private class SyncUsersWorker implements Runnable {
 
     public int poolIndex;

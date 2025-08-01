@@ -22,6 +22,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * A component responsible for synchronizing group data from the Perun system with an LDAP directory.
+ * This class handles the retrieval of groups, their attributes, members, resources, and administrative roles,
+ * and ensures that the LDAP directory is updated to reflect the current state of the data in Perun.
+ *
+ * Group data synchronization includes:
+ * - Fetching lists of VOs and corresponding groups.
+ * - Synchronizing group attributes.
+ * - Synchronizing group members with valid status.
+ * - Synchronizing resources assigned to groups.
+ * - Synchronizing group administrative roles (other groups, VOs, and facilities).
+ * - Removing outdated LDAP entries that are no longer present in the Perun system.
+ *
+ * This class extends {@link AbstractSynchronizer}, utilizing its utility methods to handle attribute name expansion
+ * and removal of obsolete LDAP entries.
+ */
 @Component
 public class GroupSynchronizer extends AbstractSynchronizer {
 

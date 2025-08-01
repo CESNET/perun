@@ -132,60 +132,6 @@ sub getHashedDataWithGroups
 	return Perun::Common::callManagerMethod('getHashedDataWithGroups', 'HashedGenData', @_);
 }
 
-#bez parametru
-sub getServicesPackages
-{
-	return Perun::Common::callManagerMethod('getServicesPackages', '[]ServicesPackage', @_);
-}
-
-#(servicesPackageId => $number)
-sub getServicesPackageById
-{
-	return Perun::Common::callManagerMethod('getServicesPackageById', 'ServicesPackage', @_);
-}
-
-#(name => $servicesPackageName)
-sub getServicesPackageByName
-{
-	return Perun::Common::callManagerMethod('getServicesPackageByName', 'ServicesPackage', @_);
-}
-
-#(servicesPackage => $servicesPackage)
-sub createServicesPackage
-{
-	return Perun::Common::callManagerMethod('createServicesPackage', 'ServicesPackage', @_);
-}
-
-#(servicesPackage => $servicesPackageId)
-sub deleteServicesPackage
-{
-	return Perun::Common::callManagerMethod('deleteServicesPackage', '', @_);
-}
-
-#(servicesPackage => $servicesPackage)
-sub updateServicesPackage
-{
-	return Perun::Common::callManagerMethod('updateServicesPackage', '', @_);
-}
-
-#(servicesPackage => $servicesPackageId, service => $serviceId)
-sub addServiceToServicesPackage
-{
-	return Perun::Common::callManagerMethod('addServiceToServicesPackage', '', @_);
-}
-
-#(servicesPackage => $servicesPackageId, service => $serviceId)
-sub removeServiceFromServicesPackage
-{
-	return Perun::Common::callManagerMethod('removeServiceFromServicesPackage', '', @_);
-}
-
-#(servicesPackage => $servicesPackageId)
-sub getServicesFromServicesPackage
-{
-	return Perun::Common::callManagerMethod('getServicesFromServicesPackage', '[]Service', @_);
-}
-
 #(service => $service, attribute => $attributeId)
 sub addRequiredAttribute
 {

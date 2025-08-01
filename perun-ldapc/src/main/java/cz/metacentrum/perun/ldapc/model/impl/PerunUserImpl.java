@@ -32,6 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
+/**
+ * Provides implementation of operations to modify the User entities in the LDAP directory.
+ */
 public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser {
 
   private static final Logger LOG = LoggerFactory.getLogger(PerunUserImpl.class);

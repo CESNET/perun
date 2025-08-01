@@ -39,7 +39,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-  private final String CLASS_NAME = "AuditMessagesManager.";
+  private static final String CLASS_NAME = "AuditMessagesManager.";
   private final AuditMessage createdAuditMessage = new AuditMessage();
 
   public AuditMessagesManagerEntryIntegrationTest() {
@@ -52,7 +52,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 
     List<String> events = perun.getAuditMessagesManager().findAllPossibleEvents(sess);
 
-    assertThat(events.size()).isGreaterThan(200);
+    assertThat(events.size()).isGreaterThan(198);
     assertThat(events).contains("MemberCreated");
     assertThat(events).contains("VoCreated");
     assertThat(events).contains("UserCreated");
@@ -323,7 +323,8 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 
     Paginated<AuditMessage> messages = perun.getAuditMessagesManager().getMessagesPage(sess, query);
     assertThat(messages.getData().size()).isEqualTo(1);
-    // normally newest should be returned (see getMessagesPage_oneOfMany), however since it's skipped, voEvent should be returned here
+    // normally newest should be returned (see getMessagesPage_oneOfMany), however since it's skipped, voEvent should
+    // be returned here
     assertThat(messages.getData().get(0).getEvent()).isEqualTo(voEvent);
   }
 

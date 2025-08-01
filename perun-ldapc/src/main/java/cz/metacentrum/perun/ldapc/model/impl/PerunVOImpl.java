@@ -20,6 +20,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
+/**
+ * Provides implementation of operations to modify the VO entities in the LDAP directory.
+ */
 public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 
   private static final Logger LOG = LoggerFactory.getLogger(PerunVOImpl.class);

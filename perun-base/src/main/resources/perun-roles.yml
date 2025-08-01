@@ -4331,6 +4331,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  isResourceLastAssignedServices_Resource_List<Service>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
   createResource_Resource_Vo_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -4702,15 +4708,6 @@ perun_policies:
       - MFA: Vo
       - MFA: Facility
 
-  assignServicesPackage_Resource_ServicesPackage_policy:
-    policy_roles: [ ]
-    include_policies:
-      - default_policy
-    mfa_rules:
-      - MFA: Resource
-      - MFA: Vo
-      - MFA: Facility
-
   removeService_Resource_Service_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -4724,15 +4721,6 @@ perun_policies:
   removeServices_Resource_List<Service>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
-    include_policies:
-      - default_policy
-    mfa_rules:
-      - MFA: Resource
-      - MFA: Vo
-      - MFA: Facility
-
-  removeServicesPackage_Resource_ServicesPackage_policy:
-    policy_roles: [ ]
     include_policies:
       - default_policy
     mfa_rules:
@@ -5781,72 +5769,6 @@ perun_policies:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
       - ENGINE:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getServicesPackages_policy:
-    policy_roles:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
-      - VOADMIN:
-      - VOOBSERVER:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getServicesPackageById_int_policy:
-    policy_roles:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
-      - RPC:
-      - VOADMIN:
-      - VOOBSERVER:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getServicesPackageByName_String_policy:
-    policy_roles:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
-      - VOADMIN:
-      - VOOBSERVER:
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  createServicesPackage_ServicesPackage_policy:
-    policy_roles: [ ]
-    include_policies:
-      - default_policy
-
-  updateServicesPackage_ServicesPackage_policy:
-    policy_roles: [ ]
-    include_policies:
-      - default_policy
-
-  deleteServicesPackage_ServicesPackage_policy:
-    policy_roles: [ ]
-    include_policies:
-      - default_policy
-
-  addServiceToServicesPackage_ServicesPackage_Service_policy:
-    policy_roles: [ ]
-    include_policies:
-      - default_policy
-
-  removeServiceFromServicesPackage_ServicesPackage_Service_policy:
-    policy_roles: [ ]
-    include_policies:
-      - default_policy
-
-  getServicesFromServicesPackage_ServicesPackage_policy:
-    policy_roles:
-      - FACILITYADMIN:
-      - FACILITYOBSERVER:
-      - VOADMIN:
-      - VOOBSERVER:
       - PERUNOBSERVER:
     include_policies:
       - default_policy

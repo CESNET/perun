@@ -1417,15 +1417,6 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/GenDataNode'
 
-    ServicesPackage:
-      allOf:
-        - $ref: '#/components/schemas/Auditable'
-      properties:
-        description: { type: string }
-        name: { type: string }
-      discriminator:
-        propertyName: beanName
-
     TaskStatus:
       type: string
       enum:
@@ -2605,22 +2596,6 @@ components:
           schema:
             $ref: "#/components/schemas/HashedGenData"
 
-    ServicesPackageResponse:
-      description: "return ServicesPackage"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ServicesPackage"
-
-    ListOfServicesPackageResponse:
-      description: "return List<ServicesPackage>"
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/ServicesPackage"
-
     TaskResponse:
       description: "Task"
       content:
@@ -2894,7 +2869,7 @@ components:
       required: true
 
     attrDefId:
-      name: attributeDefinition
+      name: attrDefId
       description: "id of AttributeDefinition"
       schema:
         type: integer
@@ -3379,14 +3354,6 @@ components:
         type: array
         items:
           type: integer
-
-    servicesPackageId:
-      name: servicesPackage
-      description: "id of ServicesPackage"
-      schema:
-        type: integer
-      in: query
-      required: true
 
     workWithUserAttributes:
       name: workWithUserAttributes
@@ -14846,6 +14813,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/resourcesManager/isResourceLastAssignedServices:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: isResourceLastAssignedServices
+      summary: Returns the services where the resource is the last one on the facility to have them assigned.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/serviceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/resourcesManager/assignGroupToResource:
     post:
       tags:
@@ -15395,21 +15377,6 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/assignServicesPackage:
-    post:
-      tags:
-        - ResourcesManager
-      operationId: assignServicesPackage
-      summary: Assign all services from a services package to a resource.
-      parameters:
-        - $ref: '#/components/parameters/resourceId'
-        - $ref: '#/components/parameters/servicesPackageId'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
   /urlinjsonout/resourcesManager/removeService:
     post:
       tags:
@@ -15445,25 +15412,13 @@ paths:
       tags:
         - ResourcesManager
       operationId: removeServices
-      summary: Removes services from a resource.
+      summary: Removes services from a resource. Optionally also removes tasks, their results or destinations associated with the services on the resource's facility. This only happens for services which are not assigned to other resources on the facility.
       parameters:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/serviceIds'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/resourcesManager/removeServicesPackage:
-    post:
-      tags:
-        - ResourcesManager
-      operationId: removeServicesPackage
-      summary: Remove from resource all services from services package.
-      parameters:
-        - $ref: '#/components/parameters/resourceId'
-        - $ref: '#/components/parameters/servicesPackageId'
+        - { name: removeTasks, required: false, schema: { type: boolean }, in: query, description: 'whether to also remove associated tasks. This will also remove task results' }
+        - { name: removeTaskResults, required: false, schema: { type: boolean }, in: query, description: 'whether to also remove associated task results' }
+        - { name: removeDestinations, required: false, schema: { type: boolean }, in: query, description: 'whether to also remove associated destinations' }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -18788,169 +18743,6 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/HashedGenDataResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getServicesPackages:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getServicesPackages
-      summary: Returns packages.
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfServicesPackageResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getServicesPackageById:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getServicesPackageById
-      summary: Gets package by id.
-      parameters:
-        - $ref: '#/components/parameters/servicesPackageId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ServicesPackageResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getServicesPackageByName:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getServicesPackageByName
-      summary: Gets package by name.
-      parameters:
-        - { name: name, description: "ServicesPackage name", schema: { type: string },  in: query, required: true }
-      responses:
-        '200':
-          $ref: '#/components/responses/ServicesPackageResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/createServicesPackage:
-    post:
-      tags:
-        - ServicesManager
-      operationId: createServicesPackage
-      summary: Creates a new services package.
-      responses:
-        '200':
-          $ref: '#/components/responses/ServicesPackageResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              title: InputCreateServicesPackage
-              description: Input to createServicesPackage
-              required:
-                - servicesPackage
-              properties:
-                servicesPackage:
-                  $ref: '#/components/schemas/ServicesPackage'
-
-  /urlinjsonout/servicesManager/createServicesPackage:
-    post:
-      tags:
-        - ServicesManager
-      operationId: createServicesPackageByNameAndDescription
-      summary: Creates a new services package.
-      parameters:
-        - { name: name, description: "name", schema: { type: string },  in: query, required: true }
-        - { name: description, description: "description", schema: { type: string },  in: query, required: true }
-      responses:
-        '200':
-          $ref: '#/components/responses/ServicesPackageResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/servicesManager/deleteServicesPackage:
-    post:
-      tags:
-        - ServicesManager
-      operationId: deleteServicesPackage
-      summary: Deletes a services package.
-      parameters:
-        - $ref: '#/components/parameters/servicesPackageId'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/updateServicesPackage:
-    post:
-      tags:
-        - ServicesManager
-      operationId: updateServicesPackage
-      summary: Updates a service package.
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              title: InputUpdateServicesPackage
-              description: Input to updateServicesPackage
-              required:
-                - servicesPackage
-              properties:
-                servicesPackage:
-                  $ref: '#/components/schemas/ServicesPackage'
-
-  /urlinjsonout/servicesManager/addServiceToServicesPackage:
-    post:
-      tags:
-        - ServicesManager
-      operationId: addServiceToServicesPackage
-      summary: Adds a Service to a Services Package.
-      parameters:
-        - $ref: '#/components/parameters/servicesPackageId'
-        - $ref: '#/components/parameters/serviceId'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/servicesManager/removeServiceFromServicesPackage:
-    post:
-      tags:
-        - ServicesManager
-      operationId: removeServiceFromServicesPackage
-      summary: Removes a Service from a Services Package.
-      parameters:
-        - $ref: '#/components/parameters/servicesPackageId'
-        - $ref: '#/components/parameters/serviceId'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/servicesManager/getServicesFromServicesPackage:
-    get:
-      tags:
-        - ServicesManager
-      operationId: getServicesFromServicesPackage
-      summary: Lists services stored in a package.
-      parameters:
-        - $ref: '#/components/parameters/servicesPackageId'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfServicesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

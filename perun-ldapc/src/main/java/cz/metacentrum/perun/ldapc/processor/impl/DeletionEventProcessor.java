@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NamingException;
 
+/**
+ * EventProcessor handling the deletion of any PerunBean object.
+ */
 public class DeletionEventProcessor extends AbstractEventProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(DeletionEventProcessor.class);

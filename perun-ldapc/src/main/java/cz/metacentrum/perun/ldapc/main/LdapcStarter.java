@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+/**
+ * Starting class for the perun-ldapc component.
+ */
 public class LdapcStarter {
   private static final Logger LOG = LoggerFactory.getLogger(LdapcStarter.class);
 

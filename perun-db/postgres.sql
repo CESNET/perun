@@ -1,4 +1,4 @@
--- database version 3.2.32 (don't forget to update insert statement at the end of file)
+-- database version 3.2.33 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1171,36 +1171,6 @@ create table user_ext_sources (
   constraint usrex_usersrc_fk foreign key(ext_sources_id) references ext_sources(id)
 );
 
--- SERVICE_PACKAGES - possible groups of services
-create table service_packages (
-	id integer not null,
-	name varchar not null,   --name of service package
-	description varchar,     --purpose,description
-	created_at timestamp default statement_timestamp() not null,
-	created_by varchar default user not null,
-	modified_at timestamp default statement_timestamp() not null,
-	modified_by varchar default user not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint pkg_pk primary key (id),
-  constraint pkg_name unique(name)
-);
-
--- SERVICE_SERVICE_PACKAGES - groups of services which should to be executed together however at specific order
-create table service_service_packages (
-	service_id integer not null,   --identifier of service (services.id)
-	package_id integer not null,   --identifier of package (service_packages.id)
-	created_at timestamp default statement_timestamp() not null,
-	created_by varchar default user not null,
-	modified_at timestamp default statement_timestamp() not null,
-	modified_by varchar default user not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint srvpkg_srv_pk primary key(service_id,package_id),
-  constraint srvpkg_srv_fk foreign key(service_id) references services(id),
-  constraint srvpkg_pkg_fk foreign key(package_id) references service_packages(id)
-);
-
 -- TASKS - contains planned services and services finished at near past
 create table tasks (
 	id integer not null,
@@ -1676,7 +1646,6 @@ create sequence "owners_id_seq";
 create sequence "resources_id_seq";
 create sequence "services_id_seq";
 create sequence "service_denials_id_seq";
-create sequence "service_packages_id_seq";
 create sequence "tasks_id_seq";
 create sequence "tasks_run_id_seq";
 create sequence "tasks_results_id_seq";
@@ -1746,8 +1715,6 @@ create index idx_fk_facattval_nam on facility_attr_values(attr_id);
 create index idx_fk_facattval_fac on facility_attr_values(facility_id);
 create index idx_fk_voattval_nam on vo_attr_values(attr_id);
 create index idx_fk_voattval_vo on vo_attr_values(vo_id);
-create index idx_fk_srvpkg_srv on service_service_packages(service_id);
-create index idx_fk_srvpkg_pkg on service_service_packages(package_id);
 create index idx_fk_grp_vos on groups(vo_id);
 create index idx_fk_grp_grp on groups(parent_group_id);
 create index idx_fk_memrav_mem on member_resource_attr_values(member_id);
@@ -1904,8 +1871,6 @@ grant all on facility_attr_values to perun;
 grant all on facility_attr_u_values to perun;
 grant all on vo_attr_values to perun;
 grant all on vo_attr_u_values to perun;
-grant all on service_packages to perun;
-grant all on service_service_packages to perun;
 grant all on groups to perun;
 grant all on member_resource_attr_values to perun;
 grant all on member_resource_attr_u_values to perun;
@@ -1987,7 +1952,7 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.32');
+insert into configurations values ('DATABASE VERSION','3.2.33');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

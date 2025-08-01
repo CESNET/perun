@@ -41,24 +41,23 @@ public class urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persisten
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, "bbmriid",
       AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":disableIDGeneration")).thenReturn(reqAttribute);
 
-    when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(session, user, urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persistent.SHADOW)).thenReturn(new Attribute() {
-      {
-        setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-        setFriendlyName("login-namespace:bbmriid-persistent-shadow");
-        setType("def");
-      }
-    });
+    Attribute attributeToReturn = new Attribute();
+    attributeToReturn.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attributeToReturn.setFriendlyName("login-namespace:bbmriid-persistent-shadow");
+    attributeToReturn.setType("def");
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .fillAttribute(any(PerunSession.class), any(User.class), any(Attribute.class))).thenReturn(new Attribute() {
-      {
-        setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-        setFriendlyName("login-namespace:bbmriid-persistent-shadow");
-        setType("def");
-        setValue("879a224546cf11fe53863737de037d2d39640258@bbmriid");
-      }
-    });
+        .getAttribute(session, user, urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persistent.SHADOW))
+        .thenReturn(attributeToReturn);
+
+    Attribute attributeToFill = new Attribute();
+    attributeToFill.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attributeToFill.setFriendlyName("login-namespace:bbmriid-persistent-shadow");
+    attributeToFill.setType("def");
+    attributeToFill.setValue("879a224546cf11fe53863737de037d2d39640258@bbmriid");
+
+    when(session.getPerunBl().getAttributesManagerBl()
+        .fillAttribute(any(PerunSession.class), any(User.class), any(Attribute.class))).thenReturn(attributeToFill);
   }
 
   @Test

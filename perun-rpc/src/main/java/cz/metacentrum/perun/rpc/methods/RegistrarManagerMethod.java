@@ -67,11 +67,16 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     @Override
     public Map<String, Object> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
+      Map<String, List<String>> externalParams = null;
+      if (parms.contains("externalParams")) {
+        externalParams = (Map<String, List<String>>) parms.read("externalParams", Map.class);
+      }
       if (parms.contains("group")) {
         return ac.getRegistrarManager()
-            .initRegistrar(ac.getSession(), parms.readString("vo"), parms.readString("group"));
+            .initRegistrar(ac.getSession(), parms.readString("vo"), parms.readString("group"), externalParams);
       } else {
-        return ac.getRegistrarManager().initRegistrar(ac.getSession(), parms.readString("vo"), null);
+        return ac.getRegistrarManager().initRegistrar(ac.getSession(), parms.readString("vo"),
+                null, externalParams);
       }
 
     }
@@ -642,18 +647,42 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    * @param type String Application type: INITIAL, EXTENSION or EMBEDDED
    * @return List<ApplicationFormItemWithPrefilledValue> Form items
    */
+  /*#
+   * Gets the content for an application form for a given type of application and user.
+   * The values are prefilled from database for extension applications, and always from federation values
+   * taken from the user argument.
+   *
+   * @param vo int VO <code>id</code>
+   * @param type String Application type: INITIAL or EXTENSION
+   * @param externalParams Map<String,List<String>> mapping of query params used in registration URL
+   * @return List<ApplicationFormItemWithPrefilledValue> Form items
+   */
+  /*#
+   * Gets the content for an application form for a given type of application and user.
+   * The values are prefilled from database for extension applications, and always from federation values
+   * taken from the user argument.
+   *
+   * @param group int Group <code>id</code>
+   * @param type String Application type: INITIAL, EXTENSION or EMBEDDED
+   * @param externalParams Map<String,List<String>> mapping of query params used in registration URL
+   * @return List<ApplicationFormItemWithPrefilledValue> Form items
+   */
   getFormItemsWithPrefilledValues {
     @Override
     public List<ApplicationFormItemWithPrefilledValue> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      Map<String, List<String>> externalParams = null;
+      if (parms.contains("externalParams")) {
+        externalParams = (Map<String, List<String>>) parms.read("externalParams", Map.class);
+      }
 
       if (parms.contains("vo")) {
         return ac.getRegistrarManager()
             .getFormItemsWithPrefilledValues(ac.getSession(), Application.AppType.valueOf(parms.readString("type")),
-                ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))));
+                ac.getRegistrarManager().getFormForVo(ac.getVoById(parms.readInt("vo"))), externalParams);
       } else if (parms.contains("group")) {
         return ac.getRegistrarManager()
             .getFormItemsWithPrefilledValues(ac.getSession(), Application.AppType.valueOf(parms.readString("type")),
-                ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))));
+                ac.getRegistrarManager().getFormForGroup(ac.getGroupById(parms.readInt("group"))), externalParams);
       } else {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
       }

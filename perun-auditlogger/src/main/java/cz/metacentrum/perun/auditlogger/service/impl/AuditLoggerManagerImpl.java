@@ -11,6 +11,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Implementation of the {@link AuditLoggerManager} interface responsible for managing the audit logging process.
+ * This class orchestrates the event logging by utilizing an {@link EventLogger} for processing and logging incoming
+ * events.
+ * The configuration, including consumer name and state file, is dynamically determined through provided properties.
+ *
+ * It provides methods for starting and stopping event processing and allows access and configuration
+ * of objects such as {@link Perun}, {@link PerunSession}, and {@link PerunPrincipal}.
+ *
+ * This class is a Spring service and is managed by the Spring container.
+ */
 @org.springframework.stereotype.Service(value = "auditLoggerManager")
 public class AuditLoggerManagerImpl implements AuditLoggerManager {
 

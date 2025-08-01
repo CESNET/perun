@@ -29,7 +29,7 @@ public class MuPasswordManagerModuleTest extends AbstractPerunIntegrationTest {
 
   private final ISServiceCaller isServiceCallerMock = mock(ISServiceCaller.class);
   private final int randomPasswordLength = 12;
-  private final Pattern MUPasswordContainsNotAllowedChars =
+  private static final Pattern MU_PASSWORD_CONTAINS_NOT_ALLOWED_CHARS =
       Pattern.compile(".*[^ABCDEFGHJKLMNPQRSTUVWXabcdefghjkmnpqrstuvwx23456789,._-].*");
   private MuPasswordManagerModule module;
 
@@ -65,7 +65,8 @@ public class MuPasswordManagerModuleTest extends AbstractPerunIntegrationTest {
     when(isServiceCallerMock.call(anyString(), anyInt())).thenReturn(okResponseData);
 
     // test that password does not contain any invalid character
-    Assert.assertFalse(MUPasswordContainsNotAllowedChars.matcher(module.generateRandomPassword(sess, null)).matches());
+    Assert.assertFalse(MU_PASSWORD_CONTAINS_NOT_ALLOWED_CHARS
+                           .matcher(module.generateRandomPassword(sess, null)).matches());
   }
 
   @Test

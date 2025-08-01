@@ -3134,7 +3134,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   @Override
   public List<ApplicationFormItemWithPrefilledValue> getFormItemsWithPrefilledValues(PerunSession sess, AppType appType,
-                                                                                     ApplicationForm form)
+                                                                                     ApplicationForm form,
+                                                                                     Map<String, List<String>>
+                                                                                               externalParams)
       throws PerunException {
 
     Vo vo = form.getVo();
@@ -3157,7 +3159,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     Set<RegistrarModule> modules = getRegistrarModules(form);
     if (!modules.isEmpty()) {
       for (RegistrarModule module : modules) {
-        module.canBeSubmitted(sess, appType, federValues);
+        module.canBeSubmitted(sess, appType, federValues, externalParams);
       }
     }
 
@@ -3395,7 +3397,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     if (!modules.isEmpty()) {
       for (RegistrarModule module : modules) {
-        module.processFormItemsWithData(sess, appType, form, itemsWithValues);
+        module.processFormItemsWithData(sess, appType, form, externalParams, itemsWithValues);
       }
     }
 
@@ -3756,7 +3758,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   @Override
-  public Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName)
+  public Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName,
+                                           Map<String, List<String>> externalParams)
       throws PerunException {
 
     Map<String, Object> result = new HashMap<>();
@@ -3779,7 +3782,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
       try {
 
         result.put("voFormInitial",
-            getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("voForm")));
+            getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("voForm"),
+                    externalParams));
 
       } catch (DuplicateRegistrationAttemptException ex) {
         // has submitted application
@@ -3809,7 +3813,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         try {
           result.put("voFormExtension",
-              getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("voForm")));
+              getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("voForm"),
+                      externalParams));
         } catch (DuplicateRegistrationAttemptException ex) {
           // has submitted application
           result.put("voFormExtensionException", ex);
@@ -3847,7 +3852,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         try {
           result.put("groupFormInitial",
-              getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("groupForm")));
+              getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("groupForm"),
+                      externalParams));
         } catch (DuplicateRegistrationAttemptException ex) {
           // has submitted application
           result.put("groupFormInitialException", ex);
@@ -3881,7 +3887,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
         try {
           result.put("groupFormExtension",
-              getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("groupForm")));
+              getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("groupForm"),
+                      externalParams));
         } catch (DuplicateRegistrationAttemptException ex) {
           // has submitted application
           result.put("groupFormExtensionException", ex);

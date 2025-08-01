@@ -5,6 +5,11 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
+/**
+ * Interface for managing the integration of Perun with LDAP.
+ * Defines methods for handling Perun sessions, principals, and synchronization processes
+ * between Perun and LDAP, including processing events and synchronizing data.
+ */
 public interface LdapcManager {
 
   public Perun getPerunBl();

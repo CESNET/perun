@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class urn_perun_member_resource_attribute_def_def_bucketQuotaTest extends AbstractPerunIntegrationTest {
-   private static urn_perun_member_resource_attribute_def_def_bucketQuota classInstance;
+  private static urn_perun_member_resource_attribute_def_def_bucketQuota classInstance;
   private static PerunSessionImpl session;
   private static Resource resource;
   private static Member member;

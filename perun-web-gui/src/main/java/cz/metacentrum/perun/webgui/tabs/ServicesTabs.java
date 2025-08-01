@@ -50,10 +50,6 @@ public class ServicesTabs {
       session.getTabManager().addTab(ServicesTabItem.load(parameters), open);
       return true;
     }
-    if (tab.equals(ServicePackagesTabItem.URL)) {
-      session.getTabManager().addTab(ServicePackagesTabItem.load(parameters), open);
-      return true;
-    }
 
     return false;
 

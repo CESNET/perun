@@ -9,6 +9,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -59,7 +60,7 @@ import org.junit.Test;
  */
 public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-  private static final String extSourceName = "VosManagerEntryIntegrationTest";
+  private static final String EXT_SOURCE_NAME = "VosManagerEntryIntegrationTest";
   private static final String CLASS_NAME = "VosManager.";
   private final int someNumber = 55;
   private final String voShortName = "TestShortN-" + someNumber;
@@ -148,9 +149,9 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
     perun.getVosManagerBl().addMemberVo(sess, vo, memberVo);
 
     assertThat(perun.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_DEF_MEMBER_ORGANIZATIONS)
-        .valueAsList()).containsOnly(vo.getShortName());
+                   .valueAsList()).containsOnly(vo.getShortName());
     assertThat(perun.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY)
-        .valueAsList()).containsOnly(vo.getShortName());
+                   .valueAsList()).containsOnly(vo.getShortName());
   }
 
   @Test
@@ -174,7 +175,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
     Member member1 = createMemberFromExtSource(memberVo1);
     Member member2 = perun.getMembersManagerBl()
-        .createMember(sess, memberVo2, perun.getUsersManagerBl().getUserByMember(sess, member1));
+                         .createMember(sess, memberVo2, perun.getUsersManagerBl().getUserByMember(sess, member1));
     perun.getMembersManagerBl().validateMember(sess, member2);
     vosManagerEntry.addMemberVo(sess, vo, memberVo1);
     vosManagerEntry.addMemberVo(sess, vo, memberVo2);
@@ -185,8 +186,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
         perun.getAttributesManagerBl().getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS)
             .valueAsList()).contains(memberVo1.getShortName(), memberVo2.getShortName());
     assertThat(perun.getAttributesManagerBl()
-        .getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY)
-        .valueAsList()).contains(memberVo1.getShortName(), memberVo2.getShortName());
+                   .getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY)
+                   .valueAsList()).contains(memberVo1.getShortName(), memberVo2.getShortName());
   }
 
   @Test
@@ -208,8 +209,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
         perun.getAttributesManagerBl().getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS)
             .valueAsList()).contains(memberVo.getShortName());
     assertThat(perun.getAttributesManagerBl()
-        .getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY)
-        .valueAsList()).contains(memberVo.getShortName());
+                   .getAttribute(sess, membersInParentVo.get(0), A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY)
+                   .valueAsList()).contains(memberVo.getShortName());
   }
 
   @Test
@@ -234,7 +235,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
     Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
     Member memberWithExpiration = createMemberFromExtSource(vo);
     Member memberWithoutExpiration = perun.getMembersManagerBl()
-        .createMember(sess, memberVo, perun.getUsersManagerBl().getUserByMember(sess, memberWithExpiration));
+                                         .createMember(sess, memberVo,
+                                             perun.getUsersManagerBl().getUserByMember(sess, memberWithExpiration));
     perun.getMembersManagerBl().validateMember(sess, memberWithoutExpiration);
 
     String membershipExpirationAttrName = perun.getAttributesManager().NS_MEMBER_ATTR_DEF + ":membershipExpiration";
@@ -259,15 +261,15 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
         new Attribute(memberOrgsHistoryAttrDef, new ArrayList<>(List.of(vo.getShortName()))));
 
     assertEquals(perun.getAttributesManagerBl().getAttribute(sess, memberWithExpiration, membershipExpirationAttrName)
-        .getValue(), expirationValue);
+                     .getValue(), expirationValue);
     assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberWithoutExpiration, membershipExpirationAttrName)
-        .getValue());
+                   .getValue());
 
     vosManagerEntry.addMemberVo(sess, vo, memberVo);
     assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberWithExpiration, membershipExpirationAttrName)
-        .getValue());
+                   .getValue());
     assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberWithoutExpiration, membershipExpirationAttrName)
-        .getValue());
+                   .getValue());
   }
 
   @Test
@@ -278,7 +280,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
     Vo memberVo = perun.getVosManagerBl().createVo(sess, new Vo(-1, "Vo2", "vo2"));
     Member memberInParentVo = createMemberFromExtSource(parentVo);
     Member memberInChildVo = perun.getMembersManagerBl()
-                                         .createMember(sess, memberVo, perun.getUsersManagerBl().getUserByMember(sess, memberInParentVo));
+                                 .createMember(sess, memberVo,
+                                     perun.getUsersManagerBl().getUserByMember(sess, memberInParentVo));
     perun.getMembersManagerBl().validateMember(sess, memberInChildVo);
 
     String membershipExpirationAttrName = perun.getAttributesManager().NS_MEMBER_ATTR_DEF + ":membershipExpiration";
@@ -311,13 +314,16 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
         new Attribute(memberOrgsHistoryAttrDef, new ArrayList<>(List.of(parentVo.getShortName()))));
 
     vosManagerEntry.addMemberVo(sess, parentVo, memberVo);
-    assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
+    assertNull(
+        perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
 
     perun.getMembersManagerBl().setStatus(sess, memberInChildVo, Status.EXPIRED);
-    assertNotNull(perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
+    assertNotNull(
+        perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
 
     perun.getMembersManagerBl().setStatus(sess, memberInChildVo, Status.VALID);
-    assertNull(perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
+    assertNull(
+        perun.getAttributesManagerBl().getAttribute(sess, memberInParentVo, membershipExpirationAttrName).getValue());
   }
 
   @Test
@@ -404,7 +410,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
     //This is obsolete approach which is dependent on extSource, remove these lines in future...
     //addExtSourceDelegate(createdVo);
     //final List<Candidate> candidates = vosManagerEntry.findCandidates(sess,
-    //		createdVo, "kouril", 1);
+    //  createdVo, "kouril", 1);
 
     final Candidate candidate = prepareCandidate();
 
@@ -667,7 +673,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
     assertThat(voBans).containsOnly(ban);
   }
 
-    @Test
+  @Test
   public void removeExpiredBansIfExist() throws Exception {
     System.out.println(CLASS_NAME + "removeExpiredBansIfExist");
     Vo createdVo = vosManagerEntry.createVo(sess, myVo);
@@ -809,7 +815,8 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
     Vo createdVo = vosManagerEntry.createVo(sess, myVo);
     User user = perun.getUsersManagerBl()
-        .createUser(sess, new User(-1, "BanManagerTestUser", "BanManagerTestUser", "BanManagerTestUser", "", ""));
+                    .createUser(sess,
+                        new User(-1, "BanManagerTestUser", "BanManagerTestUser", "BanManagerTestUser", "", ""));
     Member member = perun.getMembersManagerBl().createMember(sess, createdVo, user);
 
     BanOnVo ban = new BanOnVo();
@@ -1203,14 +1210,14 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
     List<String> expectedAttributeValue = new ArrayList<>(List.of(memberVo.getShortName()));
 
     assertThat(perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS)
-        .valueAsList()).isEqualTo(expectedAttributeValue);
+                   .valueAsList()).isEqualTo(expectedAttributeValue);
     assertThat(
         perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY)
             .valueAsList()).isEqualTo(expectedAttributeValue);
 
     vosManagerEntry.removeMemberVo(sess, vo, memberVo);
     assertThat(perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS)
-        .valueAsList()).isNullOrEmpty();
+                   .valueAsList()).isNullOrEmpty();
     assertThat(
         perun.getAttributesManagerBl().getAttribute(sess, memberInParent, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY)
             .valueAsList()).isEqualTo(expectedAttributeValue);
@@ -1286,7 +1293,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
   public void setUp() throws Exception {
     vosManagerEntry = perun.getVosManager();
     myVo = new Vo(0, voName, voShortName);
-    ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
+    ExtSource newExtSource = new ExtSource(EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
     es = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
 
   }

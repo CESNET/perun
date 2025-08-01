@@ -43,8 +43,8 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
   public void attributeValueToString() throws Exception {
     System.out.println(CLASS_NAME + "attributeValueToString");
     for (Map.Entry<Attribute, String> entry : attrMap.entrySet()) {
-      String DBValue = BeansUtils.attributeValueToString(entry.getKey());
-      assertEquals(entry.getValue(), DBValue);
+      String dbvalue = BeansUtils.attributeValueToString(entry.getKey());
+      assertEquals(entry.getValue(), dbvalue);
     }
   }
 

@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,12 +52,10 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
     System.out.println("testCheckAttributeSemantics()");
 
     Attribute attributeToCheck = new Attribute();
-    attributeToCheck.setValue(new ArrayList<String>() {{
-      add("/bin/bash");
-    }});
+    attributeToCheck.setValue(new ArrayList<>(List.of("/bin/bash")));
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
+             .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
 
     classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
   }
@@ -85,13 +84,10 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
     System.out.println("testCheckAttributeSemanticsUnknownShell()");
 
     Attribute attributeToCheck = new Attribute();
-    attributeToCheck.setValue(new ArrayList<String>() {{
-      add("/bin/bash");
-      add("/hypershell");
-    }});
+    attributeToCheck.setValue(new ArrayList<>(List.of("/bin/bash", "/hypershell")));
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
+             .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
 
     classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
 
@@ -107,7 +103,7 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
     System.out.println("testFillAttribute()");
 
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
+             .getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
     final Attribute result = classInstance.fillAttribute(session, new Resource(), new AttributeDefinition());
 
     assertEquals("fillAttribute has filled different shells than expected", listOfShells, result);

@@ -65,7 +65,7 @@ public class urn_perun_facility_attribute_def_def_unixGID_namespaceTest {
     attributeToCheck.setValue("example");
     when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session,
         AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + attributeToCheck.getValue())).thenThrow(
-        new AttributeNotExistsException(""));
+          new AttributeNotExistsException(""));
 
     classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
   }

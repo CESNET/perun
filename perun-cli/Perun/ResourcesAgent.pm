@@ -98,19 +98,9 @@ sub assignService
 	return Perun::Common::callManagerMethod('assignService', '', @_);
 }
 
-sub assignServicesPackage
-{
-	return Perun::Common::callManagerMethod('assignServicesPackage', '', @_);
-}
-
 sub removeService
 {
 	return Perun::Common::callManagerMethod('removeService', '', @_);
-}
-
-sub removeServicesPackage
-{
-	return Perun::Common::callManagerMethod('removeServicesPackage', '', @_);
 }
 
 sub getResources

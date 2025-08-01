@@ -19,6 +19,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * The VOSynchronizer class is responsible for synchronizing Virtual Organizations (VOs)
+ * from the Perun system to an LDAP directory. This includes synchronizing the details
+ * of VOs and their attributes, along with the members associated with each VO.
+ *
+ * The synchronization process retrieves the list of all VOs from Perun, fetches their
+ * attributes, and their members. These entities are then synchronized with the LDAP directory.
+ * Any outdated LDAP entries that no longer exist in Perun are also removed.
+ *
+ * This class extends the AbstractSynchronizer, which provides helper methods for completing
+ * synchronization tasks, such as removing old entries or handling attribute name expansions.
+ *
+ * The main method, {@code synchronizeVOs()}, initiates the synchronization process.
+ * It handles the retrieval of VOs and their associated data, synchronization of this information,
+ * and cleanup of outdated LDAP entries.
+ */
 @Component
 public class VOSynchronizer extends AbstractSynchronizer {
 

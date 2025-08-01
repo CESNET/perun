@@ -26,7 +26,7 @@ public class ServicesManagerImplIntegrationTest extends AbstractPerunIntegration
   private Destination destination;
 
   @Test
-  public void Foo() throws Exception {
+  public void foo() throws Exception {
     servicesManagerImpl.blockServiceOnDestination(sess, service.getId(), destination.getId());
     servicesManagerImpl.blockServiceOnFacility(sess, service.getId(), facility.getId());
   }

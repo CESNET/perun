@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -264,23 +263,6 @@ public interface ResourcesManager {
    */
   void assignServices(PerunSession perunSession, Resource resource, List<Service> services)
       throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException,
-      WrongAttributeValueException, WrongReferenceAttributeValueException;
-
-  /**
-   * Assign all services from services package to resouce.
-   *
-   * @param perunSession
-   * @param resource
-   * @param servicesPackage
-   * @throws InternalErrorException
-   * @throws ResourceNotExistsException
-   * @throws PrivilegeException
-   * @throws WrongReferenceAttributeValueException
-   * @throws WrongAttributeValueException
-   * @throws ServicesPackageNotExistsException
-   */
-  void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage)
-      throws PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException,
       WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
@@ -1125,6 +1107,22 @@ public interface ResourcesManager {
   Vo getVo(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, PrivilegeException;
 
   /**
+   * Checks whether the resource is the last one on the facility to have the provided services assigned.
+   * Returns the services where this is the case.
+   *
+   * @param sess
+   * @param resource
+   * @param services
+   * @return list of services where the provided resource is last to have them assigned on its facility.
+   * @throws FacilityNotExistsException
+   * @throws ResourceNotExistsException
+   * @throws ServiceNotExistsException
+   * @throws PrivilegeException
+   */
+  List<Service> isResourceLastAssignedServices(PerunSession sess, Resource resource, List<Service> services)
+      throws FacilityNotExistsException, ResourceNotExistsException, ServiceNotExistsException, PrivilegeException;
+
+  /**
    * Remove role resource admin from user for the selected resource.
    *
    * @param sess
@@ -1338,33 +1336,27 @@ public interface ResourcesManager {
       FacilityNotExistsException, FacilityMismatchException;
 
   /**
-   * Remove services from resource.
+   * Remove services from resource. Optionally also removes tasks, their results or destinations associated with the
+   * services on the resource's facility. This only happens for services which are not assigned to other resources on
+   * the facility.
    *
    * @param perunSession
    * @param resource
    * @param services
+   * @param removeTasks
+   * @param removeTaskResults
+   * @param removeDestinations
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
    * @throws ServiceNotExistsException
    * @throws ServiceNotAssignedException
+   * @throws FacilityNotExistsException
    */
-  void removeServices(PerunSession perunSession, Resource resource, List<Service> services)
-      throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException;
-
-  /**
-   * Remove from resource all services from services package.
-   *
-   * @param perunSession
-   * @param resource
-   * @param servicesPackage
-   * @throws InternalErrorException
-   * @throws ResourceNotExistsException
-   * @throws PrivilegeException
-   * @throws ServicesPackageNotExistsException
-   */
-  void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage)
-      throws PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException;
+  void removeServices(PerunSession perunSession, Resource resource, List<Service> services, boolean removeTasks,
+                      boolean removeTaskResults, boolean removeDestinations)
+      throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException,
+                 FacilityNotExistsException;
 
   /**
    * Set ban for member on resource.

@@ -66,7 +66,8 @@ public class DefaultRegistrarModule implements RegistrarModule {
   }
 
   @Override
-  public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params)
+  public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> federValues,
+                             Map<String, List<String>> externalParams)
       throws PerunException {
 
   }
@@ -80,6 +81,7 @@ public class DefaultRegistrarModule implements RegistrarModule {
 
   @Override
   public void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
+                                       Map<String, List<String>> externalParams,
                                        List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException {
 
   }

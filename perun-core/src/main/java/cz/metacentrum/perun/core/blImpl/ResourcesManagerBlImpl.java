@@ -38,7 +38,6 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -80,6 +79,7 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
+import cz.metacentrum.perun.taskslib.model.Task;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -263,20 +263,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
              AttributeNotExistsException e) {
       throw new ConsistencyErrorException(e);
     }
-  }
-
-  @Override
-  public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException {
-    for (Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
-      try {
-        this.assignService(sess, resource, service);
-      } catch (ServiceAlreadyAssignedException e) {
-        // FIXME a co delat tady? Pravdepodobne muzeme tise ignorovat
-      }
-    }
-    LOG.info("All services from service package was assigned to the resource. servicesPackage={}, resource={}",
-        servicesPackage, resource);
   }
 
   @Override
@@ -1187,6 +1173,22 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   }
 
   @Override
+  public List<Service> isResourceLastAssignedServices(PerunSession sess, Resource resource, List<Service> services)
+      throws FacilityNotExistsException {
+    Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
+    List<Service> result = new ArrayList<>();
+
+    for (Service service : services) {
+      List<RichResource> assignedResources = getPerunBl().getFacilitiesManagerBl()
+                                                             .getAssignedRichResources(sess, facility, service);
+      if (assignedResources.size() == 1 && assignedResources.get(0).getId() == resource.getId()) {
+        result.add(service);
+      }
+    }
+    return result;
+  }
+
+  @Override
   public boolean isUserAllowed(PerunSession sess, User user, Resource resource) {
     return getResourcesManagerImpl().isUserAllowed(sess, user, resource);
   }
@@ -1464,22 +1466,24 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
   }
 
   @Override
-  public void removeServices(PerunSession sess, Resource resource, List<Service> services)
-      throws ServiceNotAssignedException {
+  public void removeServices(PerunSession sess, Resource resource, List<Service> services, boolean removeTasks,
+                      boolean removeTaskResults, boolean removeDestinations)
+      throws ServiceNotAssignedException, FacilityNotExistsException {
+    Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
     for (Service service : services) {
-      removeService(sess, resource, service);
-    }
-  }
-
-  @Override
-  public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) {
-    for (Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
-      try {
-        //FIXME odstranit pouze v pripade ze tato service neni v jinem servicesPackage prirazenem na resource
-        this.removeService(sess, resource, service);
-      } catch (ServiceNotAssignedException e) {
-        // FIXME a co delat tady? Pravdepodobne muzeme tise ignorovat
+      boolean isLastAssignedToResource = isResourceLastAssignedServices(sess, resource, List.of(service)).size() == 1;
+      if (isLastAssignedToResource) {
+        Task task = getPerunBl().getTasksManagerBl().getTask(sess, service, facility);
+        if (removeTasks && task != null) {
+          getPerunBl().getTasksManagerBl().deleteTask(sess, task);
+        } else if (removeTaskResults && task != null) {
+          getPerunBl().getTasksManagerBl().deleteTaskResults(sess, task.getId());
+        }
+        if (removeDestinations) {
+          getPerunBl().getServicesManagerBl().removeAllDestinations(sess, service, facility);
+        }
       }
+      removeService(sess, resource, service);
     }
   }
 

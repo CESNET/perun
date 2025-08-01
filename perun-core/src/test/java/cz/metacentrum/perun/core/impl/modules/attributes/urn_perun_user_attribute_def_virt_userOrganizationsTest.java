@@ -27,7 +27,7 @@ public class urn_perun_user_attribute_def_virt_userOrganizationsTest extends Abs
   private urn_perun_user_attribute_def_virt_userOrganizations classInstance;
 
   @Before
-  public void SetUp() throws Exception {
+  public void setUp() throws Exception {
     classInstance = new urn_perun_user_attribute_def_virt_userOrganizations();
     user = setUpUser();
     vo = setUpVo();

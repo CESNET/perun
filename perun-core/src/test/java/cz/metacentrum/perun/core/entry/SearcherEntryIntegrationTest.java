@@ -362,12 +362,14 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
     // set attributes
     Attribute attribute = new Attribute(perun.getAttributesManager()
-        .getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration"));
+                                            .getAttributeDefinition(sess,
+                                                "urn:perun:member:attribute-def:def:membershipExpiration"));
     attribute.setValue(today);
     perun.getAttributesManager().setAttribute(sess, member1, attribute);
 
     Attribute attribute2 = new Attribute(perun.getAttributesManager()
-        .getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration"));
+                                             .getAttributeDefinition(sess,
+                                                 "urn:perun:member:attribute-def:def:membershipExpiration"));
     attribute2.setValue(yesterday);
     perun.getAttributesManager().setAttribute(sess, member2, attribute2);
 
@@ -449,12 +451,14 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
     // set attributes
     Attribute attribute = new Attribute(perun.getAttributesManager()
-        .getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration"));
+                                            .getAttributeDefinition(sess,
+                                                "urn:perun:member_group:attribute-def:def:groupMembershipExpiration"));
     attribute.setValue(today);
     perun.getAttributesManager().setAttribute(sess, member1, group, attribute);
 
     Attribute attribute2 = new Attribute(perun.getAttributesManager()
-        .getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration"));
+                                             .getAttributeDefinition(sess,
+                                                 "urn:perun:member_group:attribute-def:def:groupMembershipExpiration"));
     attribute2.setValue(yesterday);
     perun.getAttributesManager().setAttribute(sess, member2, group, attribute2);
 
@@ -506,7 +510,8 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
   @Test
   public void getMembersByCoreMemberAttribute() throws Exception {
     System.out.println(CLASS_NAME + "getMembersByCoreMemberAttribute");
-    Attribute attr = perun.getAttributesManagerBl().getAttribute(sess, member1, "urn:perun:member:attribute-def:core:id");
+    Attribute attr =
+        perun.getAttributesManagerBl().getAttribute(sess, member1, "urn:perun:member:attribute-def:core:id");
     Map<String, String> attributesWithSearchingValues = new HashMap<>();
     attributesWithSearchingValues.put(attr.getName(), attr.getValue().toString());
     List<Member> members = perun.getSearcher().getMembers(sess, vo, attributesWithSearchingValues);
@@ -870,7 +875,8 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
   @Test
   public void getUsersForCoreAttributeDifferentCase() throws Exception {
     System.out.println(CLASS_NAME + "getUsersForCoreAttribute");
-    Attribute attr = perun.getAttributesManagerBl().getAttribute(sess, user1, "urn:perun:user:attribute-def:core:firstName");
+    Attribute attr =
+        perun.getAttributesManagerBl().getAttribute(sess, user1, "urn:perun:user:attribute-def:core:firstName");
     Map<String, String> attributesWithSearchingValues = new HashMap<>();
     attributesWithSearchingValues.put(attr.getName(), attr.getValue().toString().toUpperCase());
     List<User> users = searcherBl.getUsers(sess, attributesWithSearchingValues);
@@ -946,6 +952,28 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
     assertThat(results.get("groups").size()).isEqualTo(4);
     assertThat(results.get("vos")).containsExactlyInAnyOrder(vo1, vo2);
 
+  }
+
+  @Test
+  public void globalSearchUsersWithAttributes() throws Exception {
+    System.out.println(CLASS_NAME + "globalSearchUsersWithAttributes");
+
+    User user1 = setUpUser("Global", "Test1", "user1");
+    User user2 = setUpUser("Global", "Test2", "user2");
+
+    AttributeDefinition prefMailAttrDef =
+        perun.getAttributesManagerBl().getAttributeDefinition(sess,
+            AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+    Attribute prefMail = new Attribute(prefMailAttrDef);
+    prefMail.setValue("mail@mail.com");
+
+    perun.getAttributesManagerBl().setAttribute(sess, user1, prefMail);
+
+    prefMail.setValue("mail2@mail.com");
+    perun.getAttributesManagerBl().setAttribute(sess, user2, prefMail);
+
+    Map<String, List<PerunBean>> results = searcherBl.globalSearchPerunAdmin(sess, "mail@mail.com");
+    assertThat(results.get("users")).containsExactly(user1);
   }
 
   @Before

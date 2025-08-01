@@ -17,7 +17,7 @@ public class urn_perun_member_group_attribute_def_virt_groupStatusTest {
   private static Attribute attributeToCheck;
 
   @Before
-  public void SetUp() {
+  public void setUp() {
     classInstance = new urn_perun_member_group_attribute_def_virt_groupStatus();
     attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
     session = mock(PerunSessionImpl.class);

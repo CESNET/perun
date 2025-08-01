@@ -115,7 +115,7 @@ public class RegistrarBaseIntegrationTest extends AbstractRegistrarIntegrationTe
     application.setFedInfo(feder.toString());
     application.setVo(vo);
     List<ApplicationFormItemWithPrefilledValue> prefilledForm =
-        registrarManager.getFormItemsWithPrefilledValues(user, INITIAL, registrarManager.getFormForVo(vo));
+        registrarManager.getFormItemsWithPrefilledValues(user, INITIAL, registrarManager.getFormForVo(vo), null);
     List<ApplicationFormItemData> data = new ArrayList<>();
     for (ApplicationFormItemWithPrefilledValue itemW : prefilledForm) {
       ApplicationFormItem item = itemW.getFormItem();
@@ -310,7 +310,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     perun.getAttributesManager().setAttribute(session, group, synchroAttr3);
 
     Attribute synchroAttr4 = new Attribute(perun.getAttributesManager()
-        .getAttributeDefinition(session, GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME));
+                                               .getAttributeDefinition(session,
+                                                   GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME));
     synchroAttr4.setValue(true);
     perun.getAttributesManager().setAttribute(session, group, synchroAttr4);
 
@@ -713,13 +714,13 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     i6.getTexts(CS).setLabel("Popis plánovaného využití MetaCentra");
     i6.getTexts(CS).setHelp(
         "Uveďte stručně, jakou činností se hodláte v MetaCentru zabývat. Uveďte také Vaše nadstandardní požadavky, " +
-        "požadavky, které nejsou pokryty položkami formuláře, případně jiné skutečnosti, které považujete za " +
-        "podstatné pro vyřízení přihlášky.");
+            "požadavky, které nejsou pokryty položkami formuláře, případně jiné skutečnosti, které považujete za " +
+            "podstatné pro vyřízení přihlášky.");
     i6.getTexts(EN).setLabel("Description of planned activity");
     i6.getTexts(EN).setHelp(
         "Describe shortly activity which you plane to perform at MetaCentrum. Mention your nonstandard demands, " +
-        "requests which are not covered in this form, eventually anything you consider important for this " +
-        "registration too.");
+            "requests which are not covered in this form, eventually anything you consider important for this " +
+            "registration too.");
     registrarManager.addFormItem(session, applicationForm, i6);
 
     ApplicationFormItem i7 = new ApplicationFormItem();
@@ -763,11 +764,11 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     i10.getTexts(CS).setLabel("Zvolte si uživatelské jméno");
     i10.getTexts(CS).setHelp(
         "Uživatelské jméno musí začínat malým písmenem, a obsahovat pouze malá písmena, číslice a podtržení. " +
-        "Doporučujeme délku nanejvýš 8 znaků.");
+            "Doporučujeme délku nanejvýš 8 znaků.");
     i10.getTexts(EN).setLabel("Choose you user name");
     i10.getTexts(EN).setHelp(
         "User name must begin with a small letter, and can contain only small letters, digits and underscores. We " +
-        "recommend length max 8 characters.");
+            "recommend length max 8 characters.");
     i10.setApplicationTypes(Collections.singletonList(INITIAL));
     registrarManager.addFormItem(session, applicationForm, i10);
 
@@ -1279,6 +1280,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     assertThat(returnedIds).containsExactly(group1.getId(), subGroup1.getId());
   }
+
   @Test
   public void getApplicationsPageForGroupWithSubgroupsRecursive() throws Exception {
     System.out.println("getApplicationsPageForGroupWithSubgroupsRecursive");
@@ -1515,7 +1517,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     assertThat(result.getData().size()).isEqualTo(3);
   }
 
-  @Test (expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void getApplicationsPageForUserNoUserInQuery() throws Exception {
     System.out.println("getApplicationsPageForUser");
 
@@ -1552,7 +1554,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, groupWithInvitation);
     ApplicationForm form = registrarManager.getFormForGroup(groupWithInvitation);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "test"));
 
     mailManager.addMail(session, form, mail);
 
@@ -1568,7 +1570,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationForm form = registrarManager.getFormForVo(vo);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "test"));
     mailManager.addMail(session, form, mail);
 
     assertTrue(mailManager.invitationFormExists(session, vo, null));
@@ -1585,14 +1587,14 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.createApplicationFormInGroup(session, groupWithInvitation);
     ApplicationForm form = registrarManager.getFormForGroup(groupWithInvitation);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "test"));
 
     mailManager.addMail(session, form, mail);
 
     registrarManager.createApplicationFormInGroup(session, groupWithoutInvitation);
     ApplicationForm form2 = registrarManager.getFormForGroup(groupWithoutInvitation);
     ApplicationMail mail2 = new ApplicationMail(0, INITIAL, form2.getId(), MailType.USER_INVITE, true);
-    mail2.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+    mail2.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "test"));
 
     mailManager.addMail(session, form2, mail2);
 
@@ -1611,13 +1613,13 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationForm form = registrarManager.getFormForVo(vo);
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "test"));
 
     mailManager.addMail(session, form, mail);
 
     ApplicationForm form2 = registrarManager.getFormForVo(voWithoutInvitation);
     ApplicationMail mail2 = new ApplicationMail(0, INITIAL, form2.getId(), MailType.USER_INVITE, true);
-    mail2.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","test"));
+    mail2.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "test"));
 
     mailManager.addMail(session, form2, mail2);
 
@@ -1635,9 +1637,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     System.out.println("isPreApprovedInvitationEnabled");
 
     Group groupWithInvitation =
-            perun.getGroupsManagerBl().createGroup(session, vo, new Group("group1", "group with form"));
+        perun.getGroupsManagerBl().createGroup(session, vo, new Group("group1", "group with form"));
     Group groupWithoutInvitation =
-            perun.getGroupsManagerBl().createGroup(session, vo, new Group("group2", "group without form"));
+        perun.getGroupsManagerBl().createGroup(session, vo, new Group("group2", "group without form"));
 
     registrarManager.createApplicationFormInGroup(session, groupWithInvitation);
     ApplicationForm form = registrarManager.getFormForGroup(groupWithInvitation);
@@ -1653,7 +1655,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.addFormItem(session, form2, submitButton);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","{preapprovedInvitationLink} {expirationDate}"));
+    mail.getMessage()
+        .put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "{preapprovedInvitationLink} {expirationDate}"));
 
     mailManager.addMail(session, form, mail);
 
@@ -1670,7 +1673,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForGroup(group);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test",
+        "Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
 
     mailManager.addMail(session, form, mail);
   }
@@ -1684,12 +1688,13 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForGroup(group);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Message text without tags"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "Message text without tags"));
 
     Exception e = assertThrows(ApplicationMailTextMissingException.class,
         () -> mailManager.addMail(session, form, mail));
     assertTrue(e.getMessage().contains(
-        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}', '{expirationDate}'."));
+        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}'," +
+            " '{expirationDate}'."));
   }
 
   @Test
@@ -1701,7 +1706,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForGroup(group);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
+    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test",
+        "<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
 
     mailManager.addMail(session, form, mail);
   }
@@ -1715,12 +1721,13 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForGroup(group);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Message text without tags</div>"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test", "<div>Message text without tags</div>"));
 
     Exception e = assertThrows(ApplicationMailTextMissingException.class,
         () -> mailManager.addMail(session, form, mail));
     assertTrue(e.getMessage().contains(
-        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}', '{expirationDate}'."));
+        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}'," +
+            " '{expirationDate}'."));
   }
 
   @Test
@@ -1732,7 +1739,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForGroup(group);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test",
+        "Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
 
     int mailId = mailManager.addMail(session, form, mail);
     ApplicationMail updatedMail = mailManager.getMailById(session, mailId);
@@ -1752,7 +1760,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForGroup(group);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
+    mail.getMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test",
+        "Submit your application here {preapprovedInvitationLink} until {expirationDate}"));
 
     int mailId = mailManager.addMail(session, form, mail);
     ApplicationMail updatedMail = mailManager.getMailById(session, mailId);
@@ -1763,7 +1772,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Exception e = assertThrows(ApplicationMailTextMissingException.class,
         () -> mailManager.updateMailById(session, mail));
     assertTrue(e.getMessage().contains(
-        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}', '{expirationDate}'."));
+        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}'," +
+            " '{expirationDate}'."));
   }
 
   @Test
@@ -1775,13 +1785,15 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForGroup(group);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
+    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test",
+        "<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
 
     int mailId = mailManager.addMail(session, form, mail);
     ApplicationMail updatedMail = mailManager.getMailById(session, mailId);
 
     MailText htmlMessage = mail.getHtmlMessage(Locale.ENGLISH);
-    htmlMessage.setText("<div>Updated version: Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>");
+    htmlMessage.setText(
+        "<div>Updated version: Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>");
 
     mailManager.updateMailById(session, mail);
   }
@@ -1795,7 +1807,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForGroup(group);
 
     ApplicationMail mail = new ApplicationMail(0, INITIAL, form.getId(), MailType.USER_PRE_APPROVED_INVITE, true);
-    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test","<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
+    mail.getHtmlMessage().put(Locale.ENGLISH, new MailText(Locale.ENGLISH, "test",
+        "<div>Submit your application here {preapprovedInvitationLink} until {expirationDate}</div>"));
 
     int mailId = mailManager.addMail(session, form, mail);
     ApplicationMail updatedMail = mailManager.getMailById(session, mailId);
@@ -1806,7 +1819,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Exception e = assertThrows(ApplicationMailTextMissingException.class,
         () -> mailManager.updateMailById(session, mail));
     assertTrue(e.getMessage().contains(
-        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}', '{expirationDate}'."));
+        "The mail message text for this notification type must contain following tags: '{preapprovedInvitationLink}'," +
+            " '{expirationDate}'."));
   }
 
   @Test
@@ -1966,7 +1980,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     perun.getGroupsManagerBl().addGroupsToAutoRegistration(session, List.of(groupA), groupCheckboxItem);
 
-    Map<String, Object> data = registrarManager.initRegistrar(session, vo.getShortName(), null);
+    Map<String, Object> data = registrarManager.initRegistrar(session, vo.getShortName(), null, null);
     var items = (List<ApplicationFormItemWithPrefilledValue>) data.get("voFormInitial");
 
     String expectedOptions = groupA.getId() + "#A#ENABLED";
@@ -2083,7 +2097,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     ApplicationForm form = registrarManager.getFormForVo(vo);
 
     assertThatExceptionOfType(MissingSubmitButtonException.class).isThrownBy(
-            () -> registrarManager.updateFormItems(session, form, List.of(inputItem)));
+        () -> registrarManager.updateFormItems(session, form, List.of(inputItem)));
   }
 
   @Test
@@ -2128,7 +2142,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     submitButtonItem.setForDelete(true);
     assertThatExceptionOfType(MissingSubmitButtonException.class).isThrownBy(
-            () -> registrarManager.updateFormItems(session, form, List.of(inputItem, submitButtonItem))
+        () -> registrarManager.updateFormItems(session, form, List.of(inputItem, submitButtonItem))
     );
   }
 
@@ -2205,7 +2219,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     List<ApplicationOperationResult> approveResultList = registrarManager.approveApplications(session,
         new ArrayList<>(List.of(application1.getId(), application2.getId(), application3.getId())));
     Map<Integer, Exception> approveResult = approveResultList.stream()
-        .collect(HashMap::new, (map, val) -> map.put(val.getApplicationId(), val.getError()), HashMap::putAll);
+                                                .collect(HashMap::new,
+                                                    (map, val) -> map.put(val.getApplicationId(), val.getError()),
+                                                    HashMap::putAll);
     assertNull(approveResult.get(application1.getId()));
     assertNull(approveResult.get(application2.getId()));
     assertTrue(approveResult.get(application3.getId()) instanceof RegistrarException);
@@ -2236,7 +2252,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
         registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED"), false).stream().map(Application::getId)
             .toList();
     Map<Integer, Exception> approveResult = approveResultList.stream()
-        .collect(HashMap::new, (map, val) -> map.put(val.getApplicationId(), val.getError()), HashMap::putAll);
+                                                .collect(HashMap::new,
+                                                    (map, val) -> map.put(val.getApplicationId(), val.getError()),
+                                                    HashMap::putAll);
     assertEquals(approveResult.keySet(), new HashSet<>(approvedAppIds));
     assertNull(approveResult.get(application1.getId()));
     assertTrue(approveResult.get(application2.getId()) instanceof RegistrarException);
@@ -2299,7 +2317,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
         registrarManager.getApplicationsForVo(session, vo, List.of("APPROVED", "NEW", "VERIFIED", "REJECTED"), false)
             .stream().map(Application::getId).toList();
     Map<Integer, Exception> deleteResult = deleteResultList.stream()
-        .collect(HashMap::new, (map, val) -> map.put(val.getApplicationId(), val.getError()), HashMap::putAll);
+                                               .collect(HashMap::new,
+                                                   (map, val) -> map.put(val.getApplicationId(), val.getError()),
+                                                   HashMap::putAll);
     assertEquals(1, applicationIds.size());
     assertThat(applicationIds).containsOnly(application2.getId());
     assertEquals(new HashSet<>(List.of(application1.getId(), application2.getId(), application3.getId())),
@@ -2610,7 +2630,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
         registrarManager.getApplicationsForVo(session, vo, List.of("REJECTED"), false).stream().map(Application::getId)
             .toList();
     Map<Integer, Exception> rejectResult = rejectResultList.stream()
-        .collect(HashMap::new, (map, val) -> map.put(val.getApplicationId(), val.getError()), HashMap::putAll);
+                                               .collect(HashMap::new,
+                                                   (map, val) -> map.put(val.getApplicationId(), val.getError()),
+                                                   HashMap::putAll);
     assertEquals(rejectResult.keySet(), new HashSet<>(rejectedAppIdsVO));
     assertNull(rejectResult.get(application1.getId()));
     assertTrue(rejectResult.get(application2.getId()) instanceof RegistrarException);
@@ -2758,9 +2780,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Application app = registrarManager.submitApplication(session, application, appItemsData);
 
     assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream()
-        .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("wrongone")));
+                   .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("wrongone")));
     assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream()
-        .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("correctone")));
+                   .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("correctone")));
 
     List<ApplicationFormItem> items = registrarManager.getFormItems(session, form);
     items.stream().filter(f -> f.getShortname().equals("wrongone")).findFirst().get().setShortname("newone");
@@ -2768,11 +2790,11 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     registrarManager.updateFormItems(session, form, items);
 
     assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream()
-        .map(ApplicationFormItemData::getShortname).noneMatch(n -> n.equals("wrongone")));
+                   .map(ApplicationFormItemData::getShortname).noneMatch(n -> n.equals("wrongone")));
     assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream()
-        .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("newone")));
+                   .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("newone")));
     assertTrue(registrarManager.getApplicationDataById(session, app.getId()).stream()
-        .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("correctone")));
+                   .map(ApplicationFormItemData::getShortname).anyMatch(n -> n.equals("correctone")));
   }
 
   @Test
@@ -2797,9 +2819,11 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     invitation = invitationsManager.createInvitation(session, invitation);
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+    applicationToGroup =
+        registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
 
-    assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
+    assertEquals(applicationToGroup.getId(),
+        (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
   }
 
   @Test
@@ -2825,14 +2849,18 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     invitation = invitationsManager.createInvitation(session, invitation);
 
     Application applicationToGroup = prepareApplicationToGroup(user, group);
-    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+    applicationToGroup =
+        registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
 
     List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
     assertEquals(1, groupApps.size());
     assertEquals(user, groupApps.get(0).getUser());
-    assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
-    assertEquals(InvitationStatus.ACCEPTED, invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
-    assertEquals(session.getPerunPrincipal().getActor(), registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
+    assertEquals(applicationToGroup.getId(),
+        (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
+    assertEquals(InvitationStatus.ACCEPTED,
+        invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
+    assertEquals(session.getPerunPrincipal().getActor(),
+        registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
   }
 
   @Test
@@ -2861,7 +2889,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     invitation = invitationsManager.createInvitation(session, invitation);
 
     Application applicationToGroup = prepareApplicationToGroup(null, group);
-    applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
+    applicationToGroup =
+        registrarManager.submitApplication(session, applicationToGroup, new ArrayList<>(), invitation.getToken());
 
     List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
     assertEquals(0, groupApps.size());
@@ -2872,9 +2901,12 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
     assertEquals(1, groupApps.size());
     assertEquals(user, groupApps.get(0).getUser());
-    assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
-    assertEquals(InvitationStatus.ACCEPTED, invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
-    assertEquals(session.getPerunPrincipal().getActor(), registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
+    assertEquals(applicationToGroup.getId(),
+        (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
+    assertEquals(InvitationStatus.ACCEPTED,
+        invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
+    assertEquals(session.getPerunPrincipal().getActor(),
+        registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
   }
 
   @Test
@@ -2913,14 +2945,18 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     applicationToGroup = registrarManager.submitApplication(session, applicationToGroup, data, invitation.getToken());
 
     List<Application> groupApps = registrarManager.getApplicationsForGroup(session, group, List.of("APPROVED"));
-    List<ApplicationFormItemData> processedData = registrarManager.getApplicationDataById(session, applicationToGroup.getId());
+    List<ApplicationFormItemData> processedData =
+        registrarManager.getApplicationDataById(session, applicationToGroup.getId());
 
     assertEquals("1", processedData.get(0).getAssuranceLevel());
     assertEquals(1, groupApps.size());
     assertEquals(user, groupApps.get(0).getUser());
-    assertEquals(applicationToGroup.getId(), (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
-    assertEquals(InvitationStatus.ACCEPTED, invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
-    assertEquals(session.getPerunPrincipal().getActor(), registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
+    assertEquals(applicationToGroup.getId(),
+        (long) invitationsManager.getInvitationById(session, invitation.getId()).getApplicationId());
+    assertEquals(InvitationStatus.ACCEPTED,
+        invitationsManager.getInvitationById(session, invitation.getId()).getStatus());
+    assertEquals(session.getPerunPrincipal().getActor(),
+        registrarManager.getApplicationById(session, applicationToGroup.getId()).getModifiedBy());
   }
 
   /*

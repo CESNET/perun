@@ -57,9 +57,9 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   private static final ObjectMapper YAMLMAPPER = new ObjectMapper(new YAMLFactory());
   private static final List<String> ROLENAMESFORTESTING = List.of("PERUNADMIN", "VOADMIN", "GROUPADMIN", "VOOBSERVER");
   final ExtSource extSource = new ExtSource(0, "AuthzResolverExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
-  private int userLoginSequence = 0;
   @Autowired
   PerunRolesLoader perunRolesLoader;
+  private int userLoginSequence = 0;
 
   private Method getLoadPoliciesFromJsonNodeMethod() throws NoSuchMethodException {
     // need to do this since loadPoliciesFromJsonNode is a private method
@@ -266,7 +266,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void authorizedGroupcreator() throws Exception {
     System.out.println(CLASS_NAME + "authorizedGroupcreator");
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
-    final Group createdGroup = perun.getGroupsManager().createGroup(sess, createdVo, new Group("testGroup", "testDesc"));
+    final Group createdGroup =
+        perun.getGroupsManager().createGroup(sess, createdVo, new Group("testGroup", "testDesc"));
 
     final Member createdMember = createSomeMember(createdVo);
     final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -276,14 +277,15 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
     AuthzResolver.refreshAuthz(session);
     assertTrue(
-            AuthzResolver.authorizedInternal(session, "test_groupcreator", Arrays.asList(createdGroup)));
+        AuthzResolver.authorizedInternal(session, "test_groupcreator", Arrays.asList(createdGroup)));
   }
 
   @Test
   public void authorizedGroupcreatorVo() throws Exception {
     System.out.println(CLASS_NAME + "authorizedGroupcreatorVo");
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
-    final Group createdGroup = perun.getGroupsManager().createGroup(sess, createdVo, new Group("testGroup", "testDesc"));
+    final Group createdGroup =
+        perun.getGroupsManager().createGroup(sess, createdVo, new Group("testGroup", "testDesc"));
 
     final Member createdMember = createSomeMember(createdVo);
     final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -293,7 +295,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
     AuthzResolver.refreshAuthz(session);
     assertTrue(
-            AuthzResolver.authorizedInternal(session, "test_groupcreator_vo", Arrays.asList(createdVo)));
+        AuthzResolver.authorizedInternal(session, "test_groupcreator_vo", Arrays.asList(createdVo)));
   }
 
   @Test
@@ -414,7 +416,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
   private Member createSomeMember(final Vo createdVo)
       throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException {
+                 WrongReferenceAttributeValueException {
     final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
     final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
     return createdMember;
@@ -600,7 +602,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   private PerunSession getHisSession(final Member createdMember) {
 
     List<UserExtSource> ues = perun.getUsersManagerBl()
-        .getUserExtSources(sess, perun.getUsersManagerBl().getUserByMember(sess, createdMember));
+                                  .getUserExtSources(sess,
+                                      perun.getUsersManagerBl().getUserByMember(sess, createdMember));
     if (ues.size() == 0) {
       throw new InternalErrorException("Empty userExtSource list");
     }
@@ -678,9 +681,11 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Facility testFacility =
         perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testfacility1", "testfacility1"));
     final Resource testResource = perun.getResourcesManagerBl()
-        .createResource(sess, new Resource(0, "testResource", "testResource", 0, 0), testVo, testFacility);
+                                      .createResource(sess, new Resource(0, "testResource", "testResource", 0, 0),
+                                          testVo, testFacility);
     final Resource testResource2 = perun.getResourcesManagerBl()
-        .createResource(sess, new Resource(0, "testResource2", "testResource2", 0, 0), testVo, testFacility);
+                                       .createResource(sess, new Resource(0, "testResource2", "testResource2", 0, 0),
+                                           testVo, testFacility);
     final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
     final Member testMember = createSomeMember(testVo);
     final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
@@ -704,9 +709,11 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Facility testFacility =
         perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testfacility1", "testfacility1"));
     final Resource testResource = perun.getResourcesManagerBl()
-        .createResource(sess, new Resource(0, "testResource", "testResource", 0, 0), testVo, testFacility);
+                                      .createResource(sess, new Resource(0, "testResource", "testResource", 0, 0),
+                                          testVo, testFacility);
     final Resource testResource2 = perun.getResourcesManagerBl()
-        .createResource(sess, new Resource(0, "testResource2", "testResource2", 0, 0), testVo, testFacility);
+                                       .createResource(sess, new Resource(0, "testResource2", "testResource2", 0, 0),
+                                           testVo, testFacility);
     final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
     final Member testMember = createSomeMember(testVo);
     final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
@@ -994,22 +1001,23 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     assertFalse(AuthzResolverBlImpl.isAnyObjectMfaCritical(sess, List.of(vo, facility, resource)));
 
     AttributeDefinition attrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+                                      .getAttributeDefinition(sess,
+                                          AttributesManager.NS_FACILITY_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
     Attribute attr = new Attribute(attrDef, true);
     perun.getAttributesManagerBl().setAttribute(sess, facility, attr);
 
     assertTrue(AuthzResolverBlImpl.isAnyObjectMfaCritical(sess, List.of(resource, vo, facility)));
   }
 
-  //	@Test
-  //	public void isResourceAdmin() {
-  //		System.out.println(CLASS_NAME + "isResourceAdmin");
+  //  @Test
+  //  public void isResourceAdmin() {
+  //    System.out.println(CLASS_NAME + "isResourceAdmin");
   //
-  //		sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);
-  //		when(sess.getPerunPrincipal().getRoles().hasRole(Role.RESOURCEADMIN)).thenReturn(true);
+  //    sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);
+  //    when(sess.getPerunPrincipal().getRoles().hasRole(Role.RESOURCEADMIN)).thenReturn(true);
   //
-  //		assertTrue(AuthzResolver.isResourceAdmin(sess));
-  //	}
+  //    assertTrue(AuthzResolver.isResourceAdmin(sess));
+  //  }
 
   @Test
   public void isAuthorized() throws Exception {
@@ -1292,7 +1300,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Member createdMember = createSomeMember(createdVo);
     final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
     AttributeDefinition attrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+                                      .getAttributeDefinition(sess,
+                                          AttributesManager.NS_USER_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
     Attribute attr = new Attribute(attrDef, true);
 
     boolean originalMfaForce = BeansUtils.getCoreConfig().isEnforceMfa();
@@ -1418,7 +1427,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Member createdMember = createSomeMember(createdVo);
     final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
     AttributeDefinition attrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+                                      .getAttributeDefinition(sess,
+                                          AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
     Attribute attr = new Attribute(attrDef, true);
 
     boolean originalMfaForce = BeansUtils.getCoreConfig().isEnforceMfa();
@@ -1447,7 +1457,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "test123test123", "test123test123"));
     // mark createdVo as critical
     Attribute criticalObject = perun.getAttributesManagerBl()
-        .getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+                                   .getAttribute(sess, createdVo,
+                                       AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
     criticalObject.setValue(true);
     perun.getAttributesManagerBl().setAttribute(sess, createdVo, criticalObject);
 
@@ -1473,7 +1484,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Member createdMember = createSomeMember(createdVo);
     final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
     AttributeDefinition attrDef = perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
+                                      .getAttributeDefinition(sess,
+                                          AttributesManager.NS_VO_ATTR_DEF + ":" + MFA_CRITICAL_ATTR);
     Attribute attr = new Attribute(attrDef, true);
 
     boolean originalMfaForce = BeansUtils.getCoreConfig().isEnforceMfa();
@@ -1581,7 +1593,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     AuthzResolver.setRole(sess, testGroup, otherVo, Role.VOADMIN);
     AuthzResolver.setRole(sess, testGroup2, otherVo, Role.VOOBSERVER);
 
-    assertEquals(List.of(testGroup), perun.getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, List.of(testGroup, testGroup2)));
+    assertEquals(List.of(testGroup),
+        perun.getGroupsManagerBl().isGroupLastAdminInSomeVo(sess, List.of(testGroup, testGroup2)));
   }
 
   @Test
@@ -1596,7 +1609,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
     assertEquals(List.of(testFac), perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, testGroup));
   }
-    @Test
+
+  @Test
   public void isGroupLastFacilityAdminHasDirectAdmins() throws Exception {
     System.out.println(CLASS_NAME + "isGroupLastFacilityAdminHasDirectAdmins");
 
@@ -1667,7 +1681,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     AuthzResolver.setRole(sess, testGroup, testFac, Role.FACILITYADMIN);
     AuthzResolver.setRole(sess, testGroup2, testFac, Role.FACILITYOBSERVER);
 
-    assertEquals(List.of(testGroup), perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, List.of(testGroup, testGroup2)));
+    assertEquals(List.of(testGroup),
+        perun.getGroupsManagerBl().isGroupLastAdminInSomeFacility(sess, List.of(testGroup, testGroup2)));
   }
 
   @Test
@@ -1680,7 +1695,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
     AuthzResolver.setRole(sess, testGroup, testFac, Role.FACILITYADMIN);
 
-    assertEquals(List.of(testFac), AuthzResolver.isGroupLastAdminInFacilities(sess, testGroup, List.of(testFac, otherFac)));
+    assertEquals(List.of(testFac),
+        AuthzResolver.isGroupLastAdminInFacilities(sess, testGroup, List.of(testFac, otherFac)));
   }
 
   @Test
@@ -1694,7 +1710,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
     AuthzResolver.setRole(sess, createdUser, testFac, Role.FACILITYADMIN);
 
-    assertEquals(List.of(testFac), AuthzResolver.isUserLastAdminInFacilities(sess, createdUser, List.of(testFac, otherFac)));
+    assertEquals(List.of(testFac),
+        AuthzResolver.isUserLastAdminInFacilities(sess, createdUser, List.of(testFac, otherFac)));
   }
 
   @Test
@@ -1869,13 +1886,13 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     Facility facility = new Facility();
     facility.setName("ResourcesManagerTestFacility");
     facility = perun.getFacilitiesManager().createFacility(sess, facility);
-        /*
-             Owner owner = new Owner();
-             owner.setName("ResourcesManagerTestOwner");
-             owner.setContact("testingOwner");
-             perun.getOwnersManager().createOwner(sess, owner);
-             perun.getFacilitiesManager().addOwner(sess, facility, owner);
-             */
+    /*
+         Owner owner = new Owner();
+         owner.setName("ResourcesManagerTestOwner");
+         owner.setContact("testingOwner");
+         perun.getOwnersManager().createOwner(sess, owner);
+         perun.getFacilitiesManager().addOwner(sess, facility, owner);
+         */
     return facility;
 
   }
@@ -1944,7 +1961,9 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Vo createdVo =
         perun.getVosManager().createVo(sess, new Vo(0, "PasswordResetManagerTestVo", "PasswordResetManagerTestVo"));
 
-    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final User createdUser = perun.getUsersManagerBl()
+                                 .createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++),
+                                     new ArrayList<>());
     final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, null, Role.PASSWORDRESETMANAGER);
@@ -1959,7 +1978,9 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     System.out.println(CLASS_NAME + "testProxyRole");
     final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "ProxyRoleTestVo", "ProxyRoleTestVo"));
 
-    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final User createdUser = perun.getUsersManagerBl()
+                                 .createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++),
+                                     new ArrayList<>());
     final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, null, Role.PROXY);
@@ -1975,7 +1996,9 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     final Vo createdVo =
         perun.getVosManager().createVo(sess, new Vo(0, "SpregApplicationTestVo", "SpregApplicationTestVo"));
 
-    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final User createdUser = perun.getUsersManagerBl()
+                                 .createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++),
+                                     new ArrayList<>());
     final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, null, Role.SPREGAPPLICATION);
@@ -1987,11 +2010,14 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
   @Test
   public void testVoBanManagerRole() throws Exception {
-        System.out.println(CLASS_NAME + "testVoBanManagerRole");
+    System.out.println(CLASS_NAME + "testVoBanManagerRole");
     final Vo createdVo =
-        perun.getVosManager().createVo(sess, new Vo(0, "VoBanManagerApplicationTestVo", "VoBanManagerApplicationTestVo"));
+        perun.getVosManager()
+            .createVo(sess, new Vo(0, "VoBanManagerApplicationTestVo", "VoBanManagerApplicationTestVo"));
 
-    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final User createdUser = perun.getUsersManagerBl()
+                                 .createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++),
+                                     new ArrayList<>());
     final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOBANMANAGER);
@@ -2003,26 +2029,29 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
   @Test
   public void testFacilityBanManagerRole() throws Exception {
-        System.out.println(CLASS_NAME + "testFacilityBanManagerRole");
+    System.out.println(CLASS_NAME + "testFacilityBanManagerRole");
     final Vo createdVo =
         perun.getVosManager().createVo(sess, new Vo(0, "FBanManagerApplicationTestVo",
             "FBanManagerApplicationTestVo"));
 
     Facility createdFacility = setUpFacility();
 
-    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final User createdUser = perun.getUsersManagerBl()
+                                 .createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++),
+                                     new ArrayList<>());
     final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, createdFacility, Role.FACILITYBANMANAGER);
 
     PerunSession session = getHisSession(createdMember);
     AuthzResolver.refreshAuthz(session);
-    assertTrue(AuthzResolver.authorizedInternal(session, "test_facilitybanmanager_role", Arrays.asList(createdFacility)));
+    assertTrue(
+        AuthzResolver.authorizedInternal(session, "test_facilitybanmanager_role", Arrays.asList(createdFacility)));
   }
 
   @Test
   public void testResourceBanManagerRole() throws Exception {
-        System.out.println(CLASS_NAME + "testResourceBanManagerRole");
+    System.out.println(CLASS_NAME + "testResourceBanManagerRole");
     final Vo createdVo =
         perun.getVosManager().createVo(sess, new Vo(0, "RBanManagerApplicationTestVo",
             "RBanManagerApplicationTestVo"));
@@ -2030,7 +2059,9 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     Facility createdFacility = setUpFacility();
     Resource createdResource = setUpResource(createdVo, createdFacility);
 
-    final User createdUser = perun.getUsersManagerBl().createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++), new ArrayList<>());
+    final User createdUser = perun.getUsersManagerBl()
+                                 .createServiceUser(sess, setUpCandidate("Login" + userLoginSequence++),
+                                     new ArrayList<>());
     final Member createdMember = perun.getMembersManagerBl().createMember(sess, createdVo, createdUser);
 
     AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEBANMANAGER);
@@ -2348,13 +2379,13 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
     PerunSession userSession = getHisSession(createdMember);
     assertFalse(
-            AuthzResolver.authorizedInternal(userSession, "test_groupadmin_vo_of_resource",Arrays.asList(createdResource))
+        AuthzResolver.authorizedInternal(userSession, "test_groupadmin_vo_of_resource", Arrays.asList(createdResource))
     );
 
     AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
     AuthzResolver.refreshAuthz(userSession);
     assertTrue(
-            AuthzResolver.authorizedInternal(userSession, "test_groupadmin_vo_of_resource", Arrays.asList(createdResource))
+        AuthzResolver.authorizedInternal(userSession, "test_groupadmin_vo_of_resource", Arrays.asList(createdResource))
     );
   }
 
@@ -2384,7 +2415,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     Map<String, Set<Integer>> membershipObjects = new HashMap<>();
     membershipObjects.put("Vo", new HashSet<>(Arrays.asList(createdVo.getId())));
     membershipObjects.put("Group", new HashSet<>(Arrays.asList(perun.getGroupsManager().getGroups(sess, createdVo)
-        .get(0).getId(), createdGroup.getId())));
+                                                                   .get(0).getId(), createdGroup.getId())));
     rolesShouldBe.putAuthzRoles("MEMBERSHIP", membershipObjects);
     rolesShouldBe.putAuthzRole("VOCREATOR");
     Map<String, Set<Integer>> selfObjects = new HashMap<>();
@@ -2448,10 +2479,10 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void loadPoliciesFromJsonNodePassesOnCorrectPolicy() throws Exception {
     System.out.println(CLASS_NAME + "loadPoliciesFromJsonNodePassesOnCorrectPolicy");
     String yaml = "perun_policies:\n" +
-        "  default_policy:\n" +
-        "    policy_roles:\n" +
-        "      - PERUNADMIN:\n" +
-        "    include_policies: [ ]";
+                      "  default_policy:\n" +
+                      "    policy_roles:\n" +
+                      "      - PERUNADMIN:\n" +
+                      "    include_policies: [ ]";
 
     JsonNode rootNode = YAMLMAPPER.readTree(yaml);
     Method loadPoliciesFromJsonNode = getLoadPoliciesFromJsonNodeMethod();
@@ -2463,10 +2494,10 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void loadPoliciesFromJsonNodeFailsOnMissingColon() throws Exception {
     System.out.println(CLASS_NAME + "loadPoliciesFromJsonNodeFailsOnMissingColon");
     String yaml = "perun_policies:\n" +
-        "  default_policy:\n" +
-        "    policy_roles:\n" +
-        "      - PERUNADMIN\n" +
-        "    include_policies: [ ]";
+                      "  default_policy:\n" +
+                      "    policy_roles:\n" +
+                      "      - PERUNADMIN\n" +
+                      "    include_policies: [ ]";
 
     JsonNode rootNode = YAMLMAPPER.readTree(yaml);
     Method loadPoliciesFromJsonNode = getLoadPoliciesFromJsonNodeMethod();
@@ -2486,10 +2517,10 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void loadPoliciesFromJsonNodeFailsOnNonExistingRole() throws Exception {
     System.out.println(CLASS_NAME + "loadPoliciesFromJsonNodeFailsOnNonExistingRole");
     String yaml = "perun_policies:\n" +
-        "  default_policy:\n" +
-        "    policy_roles:\n" +
-        "      - NONEXISTINGROLE:\n" +
-        "    include_policies: [ ]";
+                      "  default_policy:\n" +
+                      "    policy_roles:\n" +
+                      "      - NONEXISTINGROLE:\n" +
+                      "    include_policies: [ ]";
 
     JsonNode rootNode = YAMLMAPPER.readTree(yaml);
     Method loadPoliciesFromJsonNode = getLoadPoliciesFromJsonNodeMethod();
@@ -2509,10 +2540,10 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void loadPoliciesFromJsonNodeFailsOnNonArrayRoles() throws Exception {
     System.out.println(CLASS_NAME + "loadPoliciesFromJsonNodeFailsOnNonArrayRoles");
     String yaml = "perun_policies:\n" +
-        "  default_policy:\n" +
-        "    policy_roles:\n" +
-        "      PERUNADMIN:\n" +
-        "    include_policies: [ ]";
+                      "  default_policy:\n" +
+                      "    policy_roles:\n" +
+                      "      PERUNADMIN:\n" +
+                      "    include_policies: [ ]";
 
     JsonNode rootNode = YAMLMAPPER.readTree(yaml);
     Method loadPoliciesFromJsonNode = getLoadPoliciesFromJsonNodeMethod();
@@ -2532,26 +2563,26 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void loadRoleManagementRulesFromJsonNodePassesOnCorrectStructure() throws Exception {
     System.out.println(CLASS_NAME + "loadRoleManagementRulesFromJsonNodePassesOnCorrectStructure");
     String yaml = "perun_roles_management:\n" +
-                  "  VOADMIN:\n" +
-                  "    primary_object: Vo\n" +
-                  "    assign_to_objects:\n" +
-                  "      Vo: vo_id\n" +
-                  "    assignment_check:\n" +
-                  "      - MFA: Vo\n" +
-                  "    entities_to_manage:\n" +
-                  "      User: user_id\n" +
-                  "      Group: authorized_group_id\n" +
-                  "    privileged_roles_to_manage:\n" +
-                  "      - PERUNADMIN:\n" +
-                  "      - VOADMIN: Vo\n" +
-                  "    privileged_roles_to_read:\n" +
-                  "      - PERUNADMIN:\n" +
-                  "    associated_read_roles:\n" +
-                  "      - VOOBSERVER\n" +
-                  "    assignable_to_attributes: true\n" +
-                  "    display_name: \"Organization admin\"\n" +
-                  "    receive_notifications:\n" +
-                  "      - Vo";
+                      "  VOADMIN:\n" +
+                      "    primary_object: Vo\n" +
+                      "    assign_to_objects:\n" +
+                      "      Vo: vo_id\n" +
+                      "    assignment_check:\n" +
+                      "      - MFA: Vo\n" +
+                      "    entities_to_manage:\n" +
+                      "      User: user_id\n" +
+                      "      Group: authorized_group_id\n" +
+                      "    privileged_roles_to_manage:\n" +
+                      "      - PERUNADMIN:\n" +
+                      "      - VOADMIN: Vo\n" +
+                      "    privileged_roles_to_read:\n" +
+                      "      - PERUNADMIN:\n" +
+                      "    associated_read_roles:\n" +
+                      "      - VOOBSERVER\n" +
+                      "    assignable_to_attributes: true\n" +
+                      "    display_name: \"Organization admin\"\n" +
+                      "    receive_notifications:\n" +
+                      "      - Vo";
 
     JsonNode rootNode = YAMLMAPPER.readTree(yaml);
     Method loadPerunRolesManagementFromJsonNode = getLoadPerunRolesManagementFromJsonNode();
@@ -2563,26 +2594,26 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void loadRoleManagementRulesFromJsonNodeFailsOnMissingColon() throws Exception {
     System.out.println(CLASS_NAME + "loadRoleManagementRulesFromJsonNodeFailsOnMissingColon");
     String yaml = "perun_roles_management:\n" +
-        "  VOADMIN:\n" +
-        "    primary_object: Vo\n" +
-        "    assign_to_objects:\n" +
-        "      Vo: vo_id\n" +
-        "    assignment_check:\n" +
-        "      - MFA\n" +
-        "    entities_to_manage:\n" +
-        "      User: user_id\n" +
-        "      Group: authorized_group_id\n" +
-        "    privileged_roles_to_manage:\n" +
-        "      - PERUNADMIN:\n" +
-        "      - VOADMIN: Vo\n" +
-        "    privileged_roles_to_read:\n" +
-        "      - PERUNADMIN:\n" +
-        "    associated_read_roles:\n" +
-        "      - VOOBSERVER\n" +
-        "    assignable_to_attributes: true\n" +
-        "    display_name: \"Organization admin\"\n" +
-        "    receive_notifications:\n" +
-        "      - Vo";
+                      "  VOADMIN:\n" +
+                      "    primary_object: Vo\n" +
+                      "    assign_to_objects:\n" +
+                      "      Vo: vo_id\n" +
+                      "    assignment_check:\n" +
+                      "      - MFA\n" +
+                      "    entities_to_manage:\n" +
+                      "      User: user_id\n" +
+                      "      Group: authorized_group_id\n" +
+                      "    privileged_roles_to_manage:\n" +
+                      "      - PERUNADMIN:\n" +
+                      "      - VOADMIN: Vo\n" +
+                      "    privileged_roles_to_read:\n" +
+                      "      - PERUNADMIN:\n" +
+                      "    associated_read_roles:\n" +
+                      "      - VOOBSERVER\n" +
+                      "    assignable_to_attributes: true\n" +
+                      "    display_name: \"Organization admin\"\n" +
+                      "    receive_notifications:\n" +
+                      "      - Vo";
 
     JsonNode rootNode = YAMLMAPPER.readTree(yaml);
     Method loadPerunRolesManagementFromJsonNode = getLoadPerunRolesManagementFromJsonNode();
@@ -2602,26 +2633,26 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void loadRoleManagementRulesFromJsonNodeFailsOnIncorrectArray() throws Exception {
     System.out.println(CLASS_NAME + "loadRoleManagementRulesFromJsonNodeFailsOnIncorrectArray");
     String yaml = "perun_roles_management:\n" +
-        "  VOADMIN:\n" +
-        "    primary_object: Vo\n" +
-        "    assign_to_objects:\n" +
-        "      Vo: vo_id\n" +
-        "    assignment_check:\n" +
-        "      - MFA: Vo\n" +
-        "    entities_to_manage:\n" +
-        "      User: user_id\n" +
-        "      Group: authorized_group_id\n" +
-        "    privileged_roles_to_manage:\n" +
-        "      - PERUNADMIN:\n" +
-        "      - VOADMIN: Vo\n" +
-        "    privileged_roles_to_read:\n" +
-        "      - PERUNADMIN:\n" +
-        "    associated_read_roles:\n" +
-        "      - VOOBSERVER\n" +
-        "    assignable_to_attributes: true\n" +
-        "    display_name: \"Organization admin\"\n" +
-        "    receive_notifications:\n" +
-        "      Vo";
+                      "  VOADMIN:\n" +
+                      "    primary_object: Vo\n" +
+                      "    assign_to_objects:\n" +
+                      "      Vo: vo_id\n" +
+                      "    assignment_check:\n" +
+                      "      - MFA: Vo\n" +
+                      "    entities_to_manage:\n" +
+                      "      User: user_id\n" +
+                      "      Group: authorized_group_id\n" +
+                      "    privileged_roles_to_manage:\n" +
+                      "      - PERUNADMIN:\n" +
+                      "      - VOADMIN: Vo\n" +
+                      "    privileged_roles_to_read:\n" +
+                      "      - PERUNADMIN:\n" +
+                      "    associated_read_roles:\n" +
+                      "      - VOOBSERVER\n" +
+                      "    assignable_to_attributes: true\n" +
+                      "    display_name: \"Organization admin\"\n" +
+                      "    receive_notifications:\n" +
+                      "      Vo";
 
     JsonNode rootNode = YAMLMAPPER.readTree(yaml);
     Method loadPerunRolesManagementFromJsonNode = getLoadPerunRolesManagementFromJsonNode();
@@ -2641,26 +2672,26 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
   public void loadRoleManagementRulesFromJsonNodeFailsOnNonExistingRole() throws Exception {
     System.out.println(CLASS_NAME + "loadRoleManagementRulesFromJsonNodeFailsOnNonExistingRole");
     String yaml = "perun_roles_management:\n" +
-        "  VOADMIN:\n" +
-        "    primary_object: Vo\n" +
-        "    assign_to_objects:\n" +
-        "      Vo: vo_id\n" +
-        "    assignment_check:\n" +
-        "      - MFA: Vo\n" +
-        "    entities_to_manage:\n" +
-        "      User: user_id\n" +
-        "      Group: authorized_group_id\n" +
-        "    privileged_roles_to_manage:\n" +
-        "      - PERUNADMIN:\n" +
-        "      - VOADMIN: Vo\n" +
-        "    privileged_roles_to_read:\n" +
-        "      - NONEXISTINGROLE:\n" +
-        "    associated_read_roles:\n" +
-        "      - VOOBSERVER\n" +
-        "    assignable_to_attributes: true\n" +
-        "    display_name: \"Organization admin\"\n" +
-        "    receive_notifications:\n" +
-        "      - Vo";
+                      "  VOADMIN:\n" +
+                      "    primary_object: Vo\n" +
+                      "    assign_to_objects:\n" +
+                      "      Vo: vo_id\n" +
+                      "    assignment_check:\n" +
+                      "      - MFA: Vo\n" +
+                      "    entities_to_manage:\n" +
+                      "      User: user_id\n" +
+                      "      Group: authorized_group_id\n" +
+                      "    privileged_roles_to_manage:\n" +
+                      "      - PERUNADMIN:\n" +
+                      "      - VOADMIN: Vo\n" +
+                      "    privileged_roles_to_read:\n" +
+                      "      - NONEXISTINGROLE:\n" +
+                      "    associated_read_roles:\n" +
+                      "      - VOOBSERVER\n" +
+                      "    assignable_to_attributes: true\n" +
+                      "    display_name: \"Organization admin\"\n" +
+                      "    receive_notifications:\n" +
+                      "      - Vo";
 
     JsonNode rootNode = YAMLMAPPER.readTree(yaml);
     Method loadPerunRolesManagementFromJsonNode = getLoadPerunRolesManagementFromJsonNode();

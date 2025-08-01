@@ -20,7 +20,6 @@ import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -28,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -43,6 +43,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -228,19 +229,6 @@ public interface ResourcesManagerBl {
    */
   void assignServices(PerunSession perunSession, Resource resource, List<Service> services)
       throws ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-
-  /**
-   * Assign all services from services package to resource.
-   *
-   * @param perunSession
-   * @param resource
-   * @param servicesPackage
-   * @throws WrongReferenceAttributeValueException
-   * @throws WrongAttributeValueException
-   * @throws InternalErrorException
-   */
-  void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage)
-      throws WrongAttributeValueException, WrongReferenceAttributeValueException;
 
   /**
    * Get true if any ban for member and resource exists.
@@ -1184,6 +1172,20 @@ public interface ResourcesManagerBl {
   boolean isGroupManuallyAssigned(PerunSession sess, Group group, Resource resource);
 
   /**
+   * Checks whether the resource is the last one on the facility to have the provided services assigned.
+   * Returns the services where this is the case.
+   *
+   * @param sess
+   * @param resource
+   * @param services
+   * @return list of services where the provided resource is last to have them assigned on its facility.
+   * @throws FacilityNotExistsException
+   * @throws ServiceNotExistsException
+   */
+  List<Service> isResourceLastAssignedServices(PerunSession sess, Resource resource, List<Service> services)
+      throws FacilityNotExistsException, ResourceNotExistsException;
+
+  /**
    * Returns true if the user is allowed to the current resource, false otherwise.
    *
    * @param sess
@@ -1372,26 +1374,22 @@ public interface ResourcesManagerBl {
   void removeService(PerunSession perunSession, Resource resource, Service service) throws ServiceNotAssignedException;
 
   /**
-   * Remove services from resource.
+   * Remove services from resource. Optionally also removes tasks, their results or destinations associated with the
+   * services on the resource's facility. This only happens for services which are not assigned to other resources on
+   * the facility.
    *
    * @param perunSession
    * @param resource
    * @param services
+   * @param removeTasks
+   * @param removeTaskResults
+   * @param removeDestinations
    * @throws InternalErrorException
    * @throws ServiceNotAssignedException
    */
-  void removeServices(PerunSession perunSession, Resource resource, List<Service> services)
-      throws ServiceNotAssignedException;
-
-  /**
-   * Remove from resource all services from services package.
-   *
-   * @param perunSession
-   * @param resource
-   * @param servicesPackage
-   * @throws InternalErrorException
-   */
-  void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage);
+  void removeServices(PerunSession perunSession, Resource resource, List<Service> services, boolean removeTasks,
+                      boolean removeTaskResults, boolean removeDestinations)
+      throws ServiceNotAssignedException, FacilityNotExistsException;
 
   /**
    * Set ban for member on resource

@@ -39,7 +39,6 @@ import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -58,7 +57,6 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.api.InvitationsManager;
-import cz.metacentrum.perun.registrar.entry.InvitationsManagerEntry;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Invitation;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -509,10 +507,6 @@ public class ApiCaller {
       servicesManager = rpcSession.getPerun().getServicesManager();
     }
     return servicesManager;
-  }
-
-  public ServicesPackage getServicesPackageById(int id) throws PerunException {
-    return getServicesManager().getServicesPackageById(rpcSession, id);
   }
 
   public PerunSession getSession() {

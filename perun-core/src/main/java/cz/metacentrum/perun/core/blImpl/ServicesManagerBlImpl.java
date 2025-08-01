@@ -20,14 +20,9 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.DestinationsRemov
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.DestinationsRemovedFromService;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.RequiredAttributeRemovedFromService;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.RequiredAttributesRemovedFromService;
-import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServiceAddedToServicePackage;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServiceCreated;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServiceDeleted;
-import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServiceRemovedFromServicesPackage;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServiceUpdated;
-import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageCreated;
-import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDeleted;
-import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -40,7 +35,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
@@ -55,16 +49,12 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAttributesCannotExtend;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
@@ -283,13 +273,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
   }
 
   @Override
-  public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service)
-      throws ServiceAlreadyAssignedException {
-    getServicesManagerImpl().addServiceToServicesPackage(sess, servicesPackage, service);
-    getPerunBl().getAuditer().log(sess, new ServiceAddedToServicePackage(service, servicesPackage));
-  }
-
-  @Override
   public void blockAllServicesOnDestination(PerunSession sess, int destinationId)
       throws PrivilegeException, DestinationNotExistsException {
     List<Service> services = getServicesManagerImpl().getServicesFromDestination(destinationId);
@@ -371,12 +354,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     getServicesManagerImpl().checkServiceExists(sess, service);
   }
 
-  @Override
-  public void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage)
-      throws ServicesPackageNotExistsException {
-    getServicesManagerImpl().checkServicesPackageExists(sess, servicesPackage);
-  }
-
   public Destination createDestination(PerunSession sess, Destination destination) throws DestinationExistsException {
     if (getServicesManagerImpl().destinationExists(sess, destination)) {
       throw new DestinationExistsException(destination);
@@ -396,22 +373,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
     getPerunBl().getAuditer().log(sess, new ServiceCreated(service));
     return getServicesManagerImpl().createService(sess, service);
-  }
-
-  @Override
-  public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage)
-      throws ServicesPackageExistsException {
-    Utils.notNull(servicesPackage.getDescription(), "servicesPackage.getDescription()");
-    Utils.notNull(servicesPackage.getName(), "servicesPackage.getName()");
-
-    //check if servicesPackage with same name exists in perun
-    try {
-      ServicesPackage s = getServicesManagerImpl().getServicesPackageByName(sess, servicesPackage.getName());
-      throw new ServicesPackageExistsException(s);
-    } catch (ServicesPackageNotExistsException ex) { /* OK */ }
-
-    getPerunBl().getAuditer().log(sess, new ServicesPackageCreated(servicesPackage));
-    return getServicesManagerImpl().createServicesPackage(sess, servicesPackage);
   }
 
   @Override
@@ -441,7 +402,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
    *   - service_denials
    *   - resource_services
    *   - facility_service_destinations
-   *   - service_service_packages
    *   - tasks
    *   - authz
    */
@@ -471,9 +431,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
         }
       }
 
-      // Remove from service packages
-      getServicesManagerImpl().removeServiceFromAllServicesPackages(perunSession, service);
-
       // Remove all related tasks
       getPerunBl().getTasksManagerBl().removeAllTasksForService(perunSession, service);
 
@@ -486,17 +443,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     getServicesManagerImpl().removeAllRequiredAttributes(perunSession, service);
     getServicesManagerImpl().deleteService(perunSession, service);
     getPerunBl().getAuditer().log(perunSession, new ServiceDeleted(service));
-  }
-
-  @Override
-  public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws RelationExistsException {
-    if (getServicesFromServicesPackage(sess, servicesPackage).isEmpty()) {
-      getServicesManagerImpl().deleteServicesPackage(sess, servicesPackage);
-      getPerunBl().getAuditer().log(sess, new ServicesPackageDeleted(servicesPackage));
-    } else {
-      throw new RelationExistsException(
-          "There is one or more services in the services package. ServicesPackage=\"" + servicesPackage + "\"");
-    }
   }
 
   @Override
@@ -676,11 +622,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     return getServicesManagerImpl().getServicesByAttributeDefinition(sess, attributeDefinition);
   }
 
-  @Override
-  public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
-    return getServicesManagerImpl().getServicesFromServicesPackage(sess, servicesPackage);
-  }
-
   /**
    * Gets the servicesManagerImpl.
    *
@@ -688,23 +629,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
    */
   private ServicesManagerImplApi getServicesManagerImpl() {
     return this.servicesManagerImpl;
-  }
-
-  @Override
-  public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId)
-      throws ServicesPackageNotExistsException {
-    return getServicesManagerImpl().getServicesPackageById(sess, servicesPackageId);
-  }
-
-  @Override
-  public ServicesPackage getServicesPackageByName(PerunSession sess, String name)
-      throws ServicesPackageNotExistsException {
-    return getServicesManagerImpl().getServicesPackageByName(sess, name);
-  }
-
-  @Override
-  public List<ServicesPackage> getServicesPackages(PerunSession sess) {
-    return getServicesManagerImpl().getServicesPackages(sess);
   }
 
   @Override
@@ -829,13 +753,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     getPerunBl().getAuditer().log(sess, new RequiredAttributesRemovedFromService(attributes, service));
   }
 
-  @Override
-  public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service)
-      throws ServiceAlreadyRemovedFromServicePackageException {
-    getServicesManagerImpl().removeServiceFromServicesPackage(sess, servicesPackage, service);
-    getPerunBl().getAuditer().log(sess, new ServiceRemovedFromServicesPackage(service, servicesPackage));
-  }
-
   public void setPerunBl(PerunBl perunBl) {
     this.perunBl = perunBl;
   }
@@ -879,13 +796,5 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
     Utils.notNull(service.getName(), "service.name");
     getServicesManagerImpl().updateService(sess, service);
     getPerunBl().getAuditer().log(sess, new ServiceUpdated(service));
-  }
-
-  @Override
-  public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
-    Utils.notNull(servicesPackage.getDescription(), "servicesPackage.getDescription()");
-    Utils.notNull(servicesPackage.getName(), "servicesPackage.getName()");
-    getServicesManagerImpl().updateServicesPackage(sess, servicesPackage);
-    getPerunBl().getAuditer().log(sess, new ServicesPackageUpdated(servicesPackage));
   }
 }

@@ -34,7 +34,6 @@ import cz.metacentrum.perun.core.api.ResourceTag;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -50,7 +49,6 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -298,7 +296,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     List<AssignedGroup> assignedGroups = resourcesManager.getGroupAssignments(sess, resource, null);
     assertEquals("one group should be assigned to our Resource", 1, assignedGroups.size());
     assertTrue("our group should be assigned to resource Expected: " + group.getName() + ", Actual: " +
-               assignedGroups.get(0).getEnrichedGroup().getGroup().getName(), assignedGroups.contains(expectedGroup));
+                   assignedGroups.get(0).getEnrichedGroup().getGroup().getName(),
+        assignedGroups.contains(expectedGroup));
     assertEquals("our group should be assigned to resource as inactive", assignedGroups.get(0).getStatus(),
         GroupResourceStatus.INACTIVE);
   }
@@ -462,49 +461,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
     resourcesManager.assignService(sess, resource, new Service());
     // shouldn't find service
-
-  }
-
-  @Test
-  public void assignServicesPackage() throws Exception {
-    System.out.println(CLASS_NAME + "assignServicesPackage");
-
-    vo = setUpVo();
-    facility = setUpFacility();
-    resource = setUpResource();
-    service = setUpService();
-    ServicesPackage servicesPackage = setUpServicesPackage(service);
-
-    resourcesManager.assignServicesPackage(sess, resource, servicesPackage);
-
-    List<Service> services = resourcesManager.getAssignedServices(sess, resource);
-    assertTrue("resource should have 1 service", services.size() == 1);
-    assertTrue("our service should be assigned to our resource", services.contains(service));
-
-  }
-
-  @Test(expected = ServicesPackageNotExistsException.class)
-  public void assignServicesPackageWhenPackageNotExists() throws Exception {
-    System.out.println(CLASS_NAME + "assignServicesPackageWhenPackageNotExists");
-
-    vo = setUpVo();
-    facility = setUpFacility();
-    resource = setUpResource();
-
-    resourcesManager.assignServicesPackage(sess, resource, new ServicesPackage());
-    // shouldn't find package
-
-  }
-
-  @Test(expected = ResourceNotExistsException.class)
-  public void assignServicesPackageWhenResourceNotExists() throws Exception {
-    System.out.println(CLASS_NAME + "assignServicesPackageWhenResourceNotExists");
-
-    service = setUpService();
-    ServicesPackage servicesPackage = setUpServicesPackage(service);
-
-    resourcesManager.assignServicesPackage(sess, new Resource(), servicesPackage);
-    // shouldn't find resource
 
   }
 
@@ -1858,10 +1814,10 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     Resource resource = setUpResource();
 
-    EnrichedResource eResource = resourcesManager.getEnrichedResourceById(sess, resource.getId(), null);
+    EnrichedResource enrichedResource = resourcesManager.getEnrichedResourceById(sess, resource.getId(), null);
 
-    assertThat(eResource.getResource()).isEqualTo(resource);
-    assertThat(eResource.getAttributes()).isNotEmpty();
+    assertThat(enrichedResource.getResource()).isEqualTo(resource);
+    assertThat(enrichedResource.getAttributes()).isNotEmpty();
   }
 
   @Test
@@ -1872,12 +1828,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     Resource resource = setUpResource();
 
-    EnrichedResource eResource =
+    EnrichedResource enrichedResource =
         resourcesManager.getEnrichedResourceById(sess, resource.getId(), Collections.singletonList(A_R_C_ID));
 
-    assertThat(eResource.getResource()).isEqualTo(resource);
-    assertThat(eResource.getAttributes()).hasSize(1);
-    assertThat(eResource.getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+    assertThat(enrichedResource.getResource()).isEqualTo(resource);
+    assertThat(enrichedResource.getAttributes()).hasSize(1);
+    assertThat(enrichedResource.getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
   }
 
   @Test
@@ -1888,11 +1844,11 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     Resource resource = setUpResource();
 
-    List<EnrichedResource> eResources = resourcesManager.getEnrichedResourcesForFacility(sess, facility, null);
+    List<EnrichedResource> enrichedResources = resourcesManager.getEnrichedResourcesForFacility(sess, facility, null);
 
-    assertThat(eResources).hasSize(1);
-    assertThat(eResources.get(0).getResource()).isEqualTo(resource);
-    assertThat(eResources.get(0).getAttributes()).isNotEmpty();
+    assertThat(enrichedResources).hasSize(1);
+    assertThat(enrichedResources.get(0).getResource()).isEqualTo(resource);
+    assertThat(enrichedResources.get(0).getAttributes()).isNotEmpty();
   }
 
   @Test
@@ -1903,12 +1859,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     setUpResource();
 
-    List<EnrichedResource> eResources =
+    List<EnrichedResource> enrichedResources =
         resourcesManager.getEnrichedResourcesForFacility(sess, facility, Collections.singletonList(A_R_C_ID));
 
-    assertThat(eResources).hasSize(1);
-    assertThat(eResources.get(0).getAttributes()).hasSize(1);
-    assertThat(eResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+    assertThat(enrichedResources).hasSize(1);
+    assertThat(enrichedResources.get(0).getAttributes()).hasSize(1);
+    assertThat(enrichedResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
   }
 
   @Test
@@ -1919,11 +1875,11 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     Resource resource = setUpResource();
 
-    List<EnrichedResource> eResources = resourcesManager.getEnrichedResourcesForVo(sess, vo, null);
+    List<EnrichedResource> enrichedResources = resourcesManager.getEnrichedResourcesForVo(sess, vo, null);
 
-    assertThat(eResources).hasSize(1);
-    assertThat(eResources.get(0).getResource()).isEqualTo(resource);
-    assertThat(eResources.get(0).getAttributes()).isNotEmpty();
+    assertThat(enrichedResources).hasSize(1);
+    assertThat(enrichedResources.get(0).getResource()).isEqualTo(resource);
+    assertThat(enrichedResources.get(0).getAttributes()).isNotEmpty();
   }
 
   @Test
@@ -1934,12 +1890,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     facility = setUpFacility();
     setUpResource();
 
-    List<EnrichedResource> eResources =
+    List<EnrichedResource> enrichedResources =
         resourcesManager.getEnrichedResourcesForVo(sess, vo, Collections.singletonList(A_R_C_ID));
 
-    assertThat(eResources).hasSize(1);
-    assertThat(eResources.get(0).getAttributes()).hasSize(1);
-    assertThat(eResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+    assertThat(enrichedResources).hasSize(1);
+    assertThat(enrichedResources.get(0).getAttributes()).hasSize(1);
+    assertThat(enrichedResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
   }
 
   @Test
@@ -2278,24 +2234,24 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     resourcesManager.assignGroupToResource(sess, group, resource, false, false, false);
 
     List<Resource> resources = perun.getResourcesManagerBl()
-        .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
-            List.of(GroupResourceStatus.ACTIVE));
+                                   .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
+                                       List.of(GroupResourceStatus.ACTIVE));
     assertThat(resources).containsOnly(resource);
 
     resourcesManager.deactivateGroupResourceAssignment(sess, group, resource);
 
     resources = perun.getResourcesManagerBl()
-        .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
-            List.of(GroupResourceStatus.INACTIVE));
+                    .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
+                        List.of(GroupResourceStatus.INACTIVE));
     assertThat(resources).containsOnly(resource);
 
     resources = perun.getResourcesManagerBl()
-        .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), null);
+                    .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID), null);
     assertThat(resources).containsOnly(resource);
 
     resources = perun.getResourcesManagerBl()
-        .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
-            List.of(GroupResourceStatus.ACTIVE));
+                    .getResources(sess, user, List.of(Status.VALID), List.of(MemberGroupStatus.VALID),
+                        List.of(GroupResourceStatus.ACTIVE));
     assertThat(resources).doesNotContain(resource);
   }
 
@@ -2505,6 +2461,25 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
     resourcesManager.getVo(sess, new Resource());
 
+  }
+
+  @Test
+  public void isResourceLastAssignedServices() throws Exception {
+    System.out.println(CLASS_NAME + "isResourceLastAssignedServices");
+
+    vo = setUpVo();
+    facility = setUpFacility();
+    resource = setUpResource();
+    service = setUpService();
+    Resource anotherResource = setUpResource2();
+
+    resourcesManager.assignService(sess, resource, service);
+    resourcesManager.assignService(sess, anotherResource, service);
+
+    assertEquals(0, resourcesManager.isResourceLastAssignedServices(sess, resource, List.of(service)).size());
+
+    resourcesManager.removeService(sess, anotherResource, service);
+    assertEquals(service, resourcesManager.isResourceLastAssignedServices(sess, resource, List.of(service)).get(0));
   }
 
   @Test
@@ -2926,49 +2901,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
   }
 
   @Test
-  public void removeServicesPackage() throws Exception {
-    System.out.println(CLASS_NAME + "removeServicesPackage");
-
-    vo = setUpVo();
-    facility = setUpFacility();
-    resource = setUpResource();
-    service = setUpService();
-    ServicesPackage servicesPackage = setUpServicesPackage(service);
-
-    resourcesManager.assignServicesPackage(sess, resource, servicesPackage);
-
-    resourcesManager.removeServicesPackage(sess, resource, servicesPackage);
-    List<Service> services = resourcesManager.getAssignedServices(sess, resource);
-    assertTrue("resource shouldn't have any services assigned", services.isEmpty());
-
-  }
-
-  @Test(expected = ServicesPackageNotExistsException.class)
-  public void removeServicesPackageWhenPackageNotExists() throws Exception {
-    System.out.println(CLASS_NAME + "removeServicesPackageWhenPackageNotExists");
-
-    vo = setUpVo();
-    facility = setUpFacility();
-    resource = setUpResource();
-
-    resourcesManager.removeServicesPackage(sess, resource, new ServicesPackage());
-    // shouldn't find services package
-
-  }
-
-  @Test(expected = ResourceNotExistsException.class)
-  public void removeServicesPackageWhenResourceNotExists() throws Exception {
-    System.out.println(CLASS_NAME + "removeServicesPackageWhenResourceNotExists");
-
-    service = setUpService();
-    ServicesPackage servicesPackage = setUpServicesPackage(service);
-
-    resourcesManager.removeServicesPackage(sess, new Resource(), servicesPackage);
-    // shouldn't find resource
-
-  }
-
-  @Test
   public void setBan() throws Exception {
     System.out.println(CLASS_NAME + "setBan");
     vo = setUpVo();
@@ -3064,13 +2996,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     Facility facility = new Facility();
     facility.setName("ResourcesManagerTestFacility");
     facility = perun.getFacilitiesManager().createFacility(sess, facility);
-        /*
-             Owner owner = new Owner();
-             owner.setName("ResourcesManagerTestOwner");
-             owner.setContact("testingOwner");
-             perun.getOwnersManager().createOwner(sess, owner);
-             perun.getFacilitiesManager().addOwner(sess, facility, owner);
-             */
+    /*
+         Owner owner = new Owner();
+         owner.setName("ResourcesManagerTestOwner");
+         owner.setContact("testingOwner");
+         perun.getOwnersManager().createOwner(sess, owner);
+         perun.getFacilitiesManager().addOwner(sess, facility, owner);
+         */
     return facility;
 
   }
@@ -3103,7 +3035,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
   private Attribute setUpMailingListAttribute() throws Exception {
     Attribute attribute = new Attribute(perun.getAttributesManagerBl()
-        .getAttributeDefinition(sess, AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":optOutMailingList"));
+                                            .getAttributeDefinition(sess,
+                                                AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":optOutMailingList"));
     attribute.setValue("Testing value for mailing list attribute");
     return attribute;
   }
@@ -3179,18 +3112,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     perun.getServicesManager().addRequiredAttributes(sess, service, List.of(attribute));
 
     return service;
-
-  }
-
-  private ServicesPackage setUpServicesPackage(Service service) throws Exception {
-
-    ServicesPackage servicesPackage = new ServicesPackage();
-    servicesPackage.setName("ResourcesManagertTestSP");
-    servicesPackage.setDescription("testingServicePackage");
-    servicesPackage = perun.getServicesManager().createServicesPackage(sess, servicesPackage);
-    perun.getServicesManager().addServiceToServicesPackage(sess, servicesPackage, service);
-
-    return servicesPackage;
 
   }
 

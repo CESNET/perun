@@ -115,25 +115,25 @@ public class AttributesManagerBlImplUnitTests {
     // set up DB failure
     doThrow(new RuntimeException()).when(attrManagerImplMock).deleteAttribute(any(), any());
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
 
     // Set dependencies:
-    //    A -> B
-    setUpModuleMock(A, Collections.singletonList(B.getName()));
-    setUpModuleMock(B, Collections.emptyList());
-    Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
+    //    attributeDefinitionA -> attributeDefinitionB
+    setUpModuleMock(attributeDefinitionA, Collections.singletonList(attributeDefinitionB.getName()));
+    setUpModuleMock(attributeDefinitionB, Collections.emptyList());
+    Set<AttributeDefinition> allDefinitions = Sets.newHashSet(attributeDefinitionA, attributeDefinitionB);
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
     // enable deletion of attribute with relation to service
-    mockEnableAttributeDeletionWithRelationToService(B);
+    mockEnableAttributeDeletionWithRelationToService(attributeDefinitionB);
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(
-        () -> attrManagerBlImpl.deleteAttribute(sessionMock, B));
+        () -> attrManagerBlImpl.deleteAttribute(sessionMock, attributeDefinitionB));
 
     Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
 
-    assertThat(dependencies.get(A)).contains(B);
+    assertThat(dependencies.get(attributeDefinitionA)).contains(attributeDefinitionB);
   }
 
   @Test
@@ -146,25 +146,26 @@ public class AttributesManagerBlImplUnitTests {
     // set up DB failure
     doThrow(new RuntimeException()).when(attrManagerImplMock).deleteAttribute(any(), any());
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
 
     // Set dependencies:
-    //    A => B
-    setUpVirtualModuleMock(A, Collections.emptyList(), Collections.singletonList(B.getName()));
-    setUpVirtualModuleMock(B, Collections.emptyList(), Collections.emptyList());
-    Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
+    //    attributeDefinitionA => attributeDefinitionB
+    setUpVirtualModuleMock(attributeDefinitionA, Collections.emptyList(),
+        Collections.singletonList(attributeDefinitionB.getName()));
+    setUpVirtualModuleMock(attributeDefinitionB, Collections.emptyList(), Collections.emptyList());
+    Set<AttributeDefinition> allDefinitions = Sets.newHashSet(attributeDefinitionA, attributeDefinitionB);
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
     // enable deletion of attribute with relation to service
-    mockEnableAttributeDeletionWithRelationToService(B);
+    mockEnableAttributeDeletionWithRelationToService(attributeDefinitionB);
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(
-        () -> attrManagerBlImpl.deleteAttribute(sessionMock, B));
+        () -> attrManagerBlImpl.deleteAttribute(sessionMock, attributeDefinitionB));
 
     Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = getStrongDependencies();
 
-    assertThat(strongDependencies.get(A)).contains(B);
+    assertThat(strongDependencies.get(attributeDefinitionA)).contains(attributeDefinitionB);
   }
 
   @Test
@@ -178,16 +179,16 @@ public class AttributesManagerBlImplUnitTests {
     doThrow(new RuntimeException()).when(attrManagerImplMock).deleteAttribute(any(), any());
 
     // set up initial data for attribute
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    setUpModuleMock(A, Collections.emptyList());
-    Set<AttributeDefinition> allDefinitions = Collections.singleton(A);
+    AttributeDefinition attributeDefinition = setUpAttributeDefinition("attributeDefinition");
+    setUpModuleMock(attributeDefinition, Collections.emptyList());
+    Set<AttributeDefinition> allDefinitions = Collections.singleton(attributeDefinition);
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
     // enable deletion of attribute with relation to service
-    mockEnableAttributeDeletionWithRelationToService(A);
+    mockEnableAttributeDeletionWithRelationToService(attributeDefinition);
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(
-        () -> attrManagerBlImpl.deleteAttribute(sessionMock, A));
+        () -> attrManagerBlImpl.deleteAttribute(sessionMock, attributeDefinition));
 
     Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
     Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = getStrongDependencies();
@@ -195,11 +196,11 @@ public class AttributesManagerBlImplUnitTests {
     Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies = getInverseStrongDependencies();
     Map<AttributeDefinition, Set<AttributeDefinition>> allDependencies = getAllDependencies();
 
-    assertThat(dependencies.keySet()).contains(A);
-    assertThat(strongDependencies.keySet()).contains(A);
-    assertThat(inverseDependencies.keySet()).contains(A);
-    assertThat(inverseStrongDependencies.keySet()).contains(A);
-    assertThat(allDependencies.keySet()).contains(A);
+    assertThat(dependencies.keySet()).contains(attributeDefinition);
+    assertThat(strongDependencies.keySet()).contains(attributeDefinition);
+    assertThat(inverseDependencies.keySet()).contains(attributeDefinition);
+    assertThat(inverseStrongDependencies.keySet()).contains(attributeDefinition);
+    assertThat(allDependencies.keySet()).contains(attributeDefinition);
   }
 
   @Test
@@ -209,24 +210,24 @@ public class AttributesManagerBlImplUnitTests {
     Method initializeModuleDependenciesMethod =
         getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
 
     // Set dependencies:
-    //    A -> B
-    setUpModuleMock(A, Collections.singletonList(B.getName()));
-    setUpModuleMock(B, Collections.emptyList());
-    Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
+    //    attributeDefinitionA -> attributeDefinitionB
+    setUpModuleMock(attributeDefinitionA, Collections.singletonList(attributeDefinitionB.getName()));
+    setUpModuleMock(attributeDefinitionB, Collections.emptyList());
+    Set<AttributeDefinition> allDefinitions = Sets.newHashSet(attributeDefinitionA, attributeDefinitionB);
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
     // enable deletion of attribute with relation to service
-    mockEnableAttributeDeletionWithRelationToService(B);
+    mockEnableAttributeDeletionWithRelationToService(attributeDefinitionB);
 
-    attrManagerBlImpl.deleteAttribute(sessionMock, B);
+    attrManagerBlImpl.deleteAttribute(sessionMock, attributeDefinitionB);
 
     Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
 
-    assertThat(dependencies.get(A)).doesNotContain(B);
+    assertThat(dependencies.get(attributeDefinitionA)).doesNotContain(attributeDefinitionB);
   }
 
   @Test
@@ -236,24 +237,25 @@ public class AttributesManagerBlImplUnitTests {
     Method initializeModuleDependenciesMethod =
         getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
 
     // Set dependencies:
-    //    A => B
-    setUpVirtualModuleMock(A, Collections.emptyList(), Collections.singletonList(B.getName()));
-    setUpVirtualModuleMock(B, Collections.emptyList(), Collections.emptyList());
-    Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
+    //    attributeDefinitionA => attributeDefinitionB
+    setUpVirtualModuleMock(attributeDefinitionA, Collections.emptyList(),
+        Collections.singletonList(attributeDefinitionB.getName()));
+    setUpVirtualModuleMock(attributeDefinitionB, Collections.emptyList(), Collections.emptyList());
+    Set<AttributeDefinition> allDefinitions = Sets.newHashSet(attributeDefinitionA, attributeDefinitionB);
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
     // enable deletion of attribute with relation to service
-    mockEnableAttributeDeletionWithRelationToService(B);
+    mockEnableAttributeDeletionWithRelationToService(attributeDefinitionB);
 
-    attrManagerBlImpl.deleteAttribute(sessionMock, B);
+    attrManagerBlImpl.deleteAttribute(sessionMock, attributeDefinitionB);
 
     Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = getStrongDependencies();
 
-    assertThat(strongDependencies.get(A)).doesNotContain(B);
+    assertThat(strongDependencies.get(attributeDefinitionA)).doesNotContain(attributeDefinitionB);
   }
 
   @Test
@@ -264,16 +266,16 @@ public class AttributesManagerBlImplUnitTests {
         getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
 
     // set up initial data for attribute
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    setUpModuleMock(A, Collections.emptyList());
-    Set<AttributeDefinition> allDefinitions = Collections.singleton(A);
+    AttributeDefinition attributeDefinition = setUpAttributeDefinition("attributeDefinition");
+    setUpModuleMock(attributeDefinition, Collections.emptyList());
+    Set<AttributeDefinition> allDefinitions = Collections.singleton(attributeDefinition);
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
 
     // enable deletion of attribute with relation to service
-    mockEnableAttributeDeletionWithRelationToService(A);
+    mockEnableAttributeDeletionWithRelationToService(attributeDefinition);
 
     // delete attribute
-    attrManagerBlImpl.deleteAttribute(sessionMock, A);
+    attrManagerBlImpl.deleteAttribute(sessionMock, attributeDefinition);
 
     Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
     Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = getStrongDependencies();
@@ -281,11 +283,11 @@ public class AttributesManagerBlImplUnitTests {
     Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies = getInverseStrongDependencies();
     Map<AttributeDefinition, Set<AttributeDefinition>> allDependencies = getAllDependencies();
 
-    assertThat(dependencies.keySet()).doesNotContain(A);
-    assertThat(strongDependencies.keySet()).doesNotContain(A);
-    assertThat(inverseDependencies.keySet()).doesNotContain(A);
-    assertThat(inverseStrongDependencies.keySet()).doesNotContain(A);
-    assertThat(allDependencies.keySet()).doesNotContain(A);
+    assertThat(dependencies.keySet()).doesNotContain(attributeDefinition);
+    assertThat(strongDependencies.keySet()).doesNotContain(attributeDefinition);
+    assertThat(inverseDependencies.keySet()).doesNotContain(attributeDefinition);
+    assertThat(inverseStrongDependencies.keySet()).doesNotContain(attributeDefinition);
+    assertThat(allDependencies.keySet()).doesNotContain(attributeDefinition);
   }
 
   @SuppressWarnings("unchecked")
@@ -418,29 +420,31 @@ public class AttributesManagerBlImplUnitTests {
     Method initializeModuleDependenciesMethod =
         getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
-    AttributeDefinition C = setUpAttributeDefinition("C");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
+    AttributeDefinition attributeDefinitionC = setUpAttributeDefinition("attributeDefinitionC");
 
     // Set dependencies:
-    //    B -> A
-    //    C => A
-    setUpVirtualModuleMock(A, new ArrayList<>(), new ArrayList<>());
-    setUpVirtualModuleMock(B, Collections.singletonList(A.getName()), new ArrayList<>());
-    setUpVirtualModuleMock(C, new ArrayList<>(), Collections.singletonList(A.getName()));
+    //    attributeDefinitionB -> attributeDefinitionA
+    //    attributeDefinitionC => attributeDefinitionA
+    setUpVirtualModuleMock(attributeDefinitionA, new ArrayList<>(), new ArrayList<>());
+    setUpVirtualModuleMock(attributeDefinitionB, Collections.singletonList(attributeDefinitionA.getName()),
+        new ArrayList<>());
+    setUpVirtualModuleMock(attributeDefinitionC, new ArrayList<>(),
+        Collections.singletonList(attributeDefinitionA.getName()));
 
     Set<AttributeDefinition> allDefinitions = new HashSet<>();
-    allDefinitions.add(A);
-    allDefinitions.add(B);
-    allDefinitions.add(C);
+    allDefinitions.add(attributeDefinitionA);
+    allDefinitions.add(attributeDefinitionB);
+    allDefinitions.add(attributeDefinitionC);
 
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
     Map<AttributeDefinition, Set<AttributeDefinition>> allDependencies = getAllDependencies();
 
-    assertThat(allDependencies.keySet()).containsOnly(A, B, C);
-    assertThat(allDependencies.get(A)).containsOnly(B, C);
-    assertThat(allDependencies.get(B)).isEmpty();
-    assertThat(allDependencies.get(C)).isEmpty();
+    assertThat(allDependencies.keySet()).containsOnly(attributeDefinitionA, attributeDefinitionB, attributeDefinitionC);
+    assertThat(allDependencies.get(attributeDefinitionA)).containsOnly(attributeDefinitionB, attributeDefinitionC);
+    assertThat(allDependencies.get(attributeDefinitionB)).isEmpty();
+    assertThat(allDependencies.get(attributeDefinitionC)).isEmpty();
   }
 
   @Test
@@ -450,24 +454,24 @@ public class AttributesManagerBlImplUnitTests {
     Method initializeModuleDependenciesMethod =
         getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
 
     // Set dependencies:
-    //    A -> B
-    setUpModuleMock(A, Collections.singletonList(B.getName()));
-    setUpModuleMock(B, new ArrayList<>());
+    //    attributeDefinitionA -> attributeDefinitionB
+    setUpModuleMock(attributeDefinitionA, Collections.singletonList(attributeDefinitionB.getName()));
+    setUpModuleMock(attributeDefinitionB, new ArrayList<>());
 
     Set<AttributeDefinition> allDefinitions = new HashSet<>();
-    allDefinitions.add(A);
-    allDefinitions.add(B);
+    allDefinitions.add(attributeDefinitionA);
+    allDefinitions.add(attributeDefinitionB);
 
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
     Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
 
-    assertThat(dependencies.keySet()).containsOnly(A, B);
-    assertThat(dependencies.get(A)).containsOnly(B);
-    assertThat(dependencies.get(B)).isEmpty();
+    assertThat(dependencies.keySet()).containsOnly(attributeDefinitionA, attributeDefinitionB);
+    assertThat(dependencies.get(attributeDefinitionA)).containsOnly(attributeDefinitionB);
+    assertThat(dependencies.get(attributeDefinitionB)).isEmpty();
   }
 
   // ## ----------- PRIVATE METHODS ------------ ##
@@ -479,24 +483,24 @@ public class AttributesManagerBlImplUnitTests {
     Method initializeModuleDependenciesMethod =
         getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
 
     // Set dependencies:
-    //    A -> B
-    setUpModuleMock(A, Collections.singletonList(B.getName()));
-    setUpModuleMock(B, new ArrayList<>());
+    //    attributeDefinitionA -> attributeDefinitionB
+    setUpModuleMock(attributeDefinitionA, Collections.singletonList(attributeDefinitionB.getName()));
+    setUpModuleMock(attributeDefinitionB, new ArrayList<>());
 
     Set<AttributeDefinition> allDefinitions = new HashSet<>();
-    allDefinitions.add(A);
-    allDefinitions.add(B);
+    allDefinitions.add(attributeDefinitionA);
+    allDefinitions.add(attributeDefinitionB);
 
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
     Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies = getInverseDependencies();
 
-    assertThat(inverseDependencies.keySet()).containsOnly(A, B);
-    assertThat(inverseDependencies.get(B)).contains(A);
-    assertThat(inverseDependencies.get(A)).isEmpty();
+    assertThat(inverseDependencies.keySet()).containsOnly(attributeDefinitionA, attributeDefinitionB);
+    assertThat(inverseDependencies.get(attributeDefinitionB)).contains(attributeDefinitionA);
+    assertThat(inverseDependencies.get(attributeDefinitionA)).isEmpty();
   }
 
   @Test
@@ -506,24 +510,25 @@ public class AttributesManagerBlImplUnitTests {
     Method initializeModuleDependenciesMethod =
         getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
 
     // Set dependencies:
-    //    A => B
-    setUpVirtualModuleMock(A, new ArrayList<>(), Collections.singletonList(B.getName()));
-    setUpVirtualModuleMock(B, new ArrayList<>(), new ArrayList<>());
+    //    attributeDefinitionA => attributeDefinitionB
+    setUpVirtualModuleMock(attributeDefinitionA, new ArrayList<>(),
+        Collections.singletonList(attributeDefinitionB.getName()));
+    setUpVirtualModuleMock(attributeDefinitionB, new ArrayList<>(), new ArrayList<>());
 
     Set<AttributeDefinition> allDefinitions = new HashSet<>();
-    allDefinitions.add(A);
-    allDefinitions.add(B);
+    allDefinitions.add(attributeDefinitionA);
+    allDefinitions.add(attributeDefinitionB);
 
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
     Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies = getInverseStrongDependencies();
 
-    assertThat(inverseStrongDependencies.keySet()).containsOnly(A, B);
-    assertThat(inverseStrongDependencies.get(B)).containsOnly(A);
-    assertThat(inverseStrongDependencies.get(A)).isEmpty();
+    assertThat(inverseStrongDependencies.keySet()).containsOnly(attributeDefinitionA, attributeDefinitionB);
+    assertThat(inverseStrongDependencies.get(attributeDefinitionB)).containsOnly(attributeDefinitionA);
+    assertThat(inverseStrongDependencies.get(attributeDefinitionA)).isEmpty();
   }
 
   @Test
@@ -533,24 +538,25 @@ public class AttributesManagerBlImplUnitTests {
     Method initializeModuleDependenciesMethod =
         getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
 
-    AttributeDefinition A = setUpAttributeDefinition("A");
-    AttributeDefinition B = setUpAttributeDefinition("B");
+    AttributeDefinition attributeDefinitionA = setUpAttributeDefinition("attributeDefinitionA");
+    AttributeDefinition attributeDefinitionB = setUpAttributeDefinition("attributeDefinitionB");
 
     // Set dependencies:
-    //    A => B
-    setUpVirtualModuleMock(A, new ArrayList<>(), Collections.singletonList(B.getName()));
-    setUpVirtualModuleMock(B, new ArrayList<>(), new ArrayList<>());
+    //    attributeDefinitionA => attributeDefinitionB
+    setUpVirtualModuleMock(attributeDefinitionA, new ArrayList<>(),
+        Collections.singletonList(attributeDefinitionB.getName()));
+    setUpVirtualModuleMock(attributeDefinitionB, new ArrayList<>(), new ArrayList<>());
 
     Set<AttributeDefinition> allDefinitions = new HashSet<>();
-    allDefinitions.add(A);
-    allDefinitions.add(B);
+    allDefinitions.add(attributeDefinitionA);
+    allDefinitions.add(attributeDefinitionB);
 
     initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
     Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getStrongDependencies();
 
-    assertThat(dependencies.keySet()).containsOnly(A, B);
-    assertThat(dependencies.get(A)).containsOnly(B);
-    assertThat(dependencies.get(B)).isEmpty();
+    assertThat(dependencies.keySet()).containsOnly(attributeDefinitionA, attributeDefinitionB);
+    assertThat(dependencies.get(attributeDefinitionA)).containsOnly(attributeDefinitionB);
+    assertThat(dependencies.get(attributeDefinitionB)).isEmpty();
   }
 
   /**
@@ -627,23 +633,23 @@ public class AttributesManagerBlImplUnitTests {
    */
   private RichAttribute<User, Void> setUpDependencyBetweenTwoAttributesWhereTheDependantHasModule(
       AttributesModuleImplApi module) throws Exception {
-    RichAttribute<User, Void> A = setUpVirtualRichAttribute(new User(), null, "A");
-    RichAttribute<User, Void> B = setUpVirtualRichAttribute(new User(), null, "B");
+    RichAttribute<User, Void> attributeA = setUpVirtualRichAttribute(new User(), null, "attributeA");
+    RichAttribute<User, Void> attributeB = setUpVirtualRichAttribute(new User(), null, "attributeB");
 
     // Set dependency(inverse):
-    //    A -> B
+    //    attributeA -> attributeB
     Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = new HashMap<>();
-    dependencies.put(new AttributeDefinition(B.getAttribute()),
-        Collections.singleton(new AttributeDefinition(A.getAttribute())));
+    dependencies.put(new AttributeDefinition(attributeB.getAttribute()),
+        Collections.singleton(new AttributeDefinition(attributeA.getAttribute())));
     when(attrManagerBlImplMock.getAllDependencies()).thenReturn(dependencies);
 
-    when(attrManagerImplMock.getAttributesModule(any(), eq(new AttributeDefinition(A.getAttribute())))).thenReturn(
-        module);
+    when(attrManagerImplMock.getAttributesModule(any(), eq(new AttributeDefinition(attributeA.getAttribute()))))
+        .thenReturn(module);
     when(attrManagerBlImplMock.getRichAttributesWithHoldersForAttributeDefinition(any(), any(), any())).thenReturn(
-        Collections.singletonList(A));
+        Collections.singletonList(attributeA));
     when(attrManagerImplMock.isFromNamespace(any(), eq(NS_USER_ATTR))).thenReturn(true);
 
-    return B;
+    return attributeB;
   }
 
   /**

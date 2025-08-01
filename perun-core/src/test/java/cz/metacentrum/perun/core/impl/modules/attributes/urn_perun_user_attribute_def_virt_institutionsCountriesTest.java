@@ -107,14 +107,14 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
   @Test
   public void resolveVirtualAttributeValueChange2() throws Exception {
     setSchacHomeOrgs("muni.cz;cesnet.cz");
-    String czech_republic = "Czech Republic";
-    dnsMap.put(".cz", czech_republic);
+    String czechRepublic = "Czech Republic";
+    dnsMap.put(".cz", czechRepublic);
     AttributeDefinition countries = classInstance.getAttributeDefinition();
     when(sess.getPerunBl().getAttributesManagerBl()
         .getAttributeDefinition(sess, "urn:perun:user:attribute-def:virt:institutionsCountries")).thenReturn(countries);
     Attribute newval =
         new Attribute(new urn_perun_entityless_attribute_def_def_dnsStateMapping().getAttributeDefinition());
-    newval.setValue(czech_republic);
+    newval.setValue(czechRepublic);
 
     when(sess.getPerunBl().getUsersManagerBl()
         .findUsersWithExtSourceAttributeValueEnding(eq(sess), eq(SCHAC_HOME_ATTR_NAME), eq(".cz"), any())).thenReturn(

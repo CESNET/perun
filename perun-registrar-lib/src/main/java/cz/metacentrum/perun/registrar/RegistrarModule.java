@@ -85,9 +85,11 @@ public interface RegistrarModule {
    *
    * @param session who approves the application
    * @param appType INITIAL or EXTENSION application
-   * @param params  custom params
+   * @param federValues  Custom params from IdP (session)
+   * @param externalParams External custom params from URL
    */
-  void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params)
+  void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> federValues,
+                      Map<String, List<String>> externalParams)
       throws PerunException;
 
   /**
@@ -110,9 +112,11 @@ public interface RegistrarModule {
    * @param session   who approves the application
    * @param appType   initial/extension application type
    * @param form      form this form items belongs to
+   * @param externalParams untrusted external params
    * @param formItems form items with pre-filled data if any
    */
   void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
+                                Map<String, List<String>> externalParams,
                                 List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException;
 
   /**

@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
-import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.taskslib.model.Task;
@@ -67,7 +66,6 @@ public class ServicesManagerBlImplTest {
   private Resource resource;
   private Vo vo;
   private Destination destination;
-  private ServicesPackage servicesPackage;
   private Task task;
 
   public DataSource getDataSource() {
@@ -100,7 +98,6 @@ public class ServicesManagerBlImplTest {
    *   - service_denials
    *   - resource_services
    *   - facility_service_destinations
-   *   - service_service_packages
    *   - tasks
    *   - authz
    *
@@ -191,15 +188,6 @@ public class ServicesManagerBlImplTest {
     // facility_service_destinations
     destination = ((PerunBl) perun).getServicesManagerBl().getDestinationById(perunSession, testDestinationId1);
     ((PerunBl) perun).getServicesManagerBl().addDestination(perunSession, testService1, facility1, destination);
-
-    // service package
-    servicesPackage = new ServicesPackage();
-    servicesPackage.setName("ResourcesManagertTestSP");
-    servicesPackage.setDescription("testingServicePackage");
-    servicesPackage = ((PerunBl) perun).getServicesManagerBl().createServicesPackage(perunSession, servicesPackage);
-
-    // service_service_packages
-    ((PerunBl) perun).getServicesManagerBl().addServiceToServicesPackage(perunSession, servicesPackage, testService1);
 
     // tasks
     task = new Task();

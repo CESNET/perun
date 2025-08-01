@@ -33,10 +33,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTest {
 
   private static final String CLASS_NAME = "AttributesManagerImplIntegrationTest.";
-  private static final User user1 = new User(1, "", "", "", "", "");
-  private static final User user2 = new User(2, "", "", "", "", "");
-  private static final User user3 = new User(3, "", "", "", "", "");
-  private static final User user4 = new User(4, "", "", "", "", "");
+  private static final User USER_1 = new User(1, "", "", "", "", "");
+  private static final User USER_2 = new User(2, "", "", "", "", "");
+  private static final User USER_3 = new User(3, "", "", "", "", "");
+  private static final User USER_4 = new User(4, "", "", "", "", "");
   private static Vo createdVo;
   final ExtSource extSource = new ExtSource(0, "AuthzResolverExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
   private AuthzResolverImplApi authzResolverImpl;
@@ -44,7 +44,7 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
 
   private Member createSomeMember(final Vo createdVo)
       throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException {
+                 WrongReferenceAttributeValueException {
     final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
     final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
     return createdMember;
@@ -208,10 +208,10 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
   public void setRole() throws Exception {
     System.out.println(CLASS_NAME + "setRole");
 
-    Map<String, Integer> mapping = prepareMapping(user1);
+    Map<String, Integer> mapping = prepareMapping(USER_1);
 
     authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
-    AuthzRoles userRoles = AuthzResolverBlImpl.getUserRoles(sess, user1, true);
+    AuthzRoles userRoles = AuthzResolverBlImpl.getUserRoles(sess, USER_1, true);
 
     assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
   }
@@ -220,7 +220,7 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
   public void setRoleWhichIsAlreadySet() throws Exception {
     System.out.println(CLASS_NAME + "setRoleWhichIsAlreadySet");
 
-    Map<String, Integer> mapping = prepareMapping(user4);
+    Map<String, Integer> mapping = prepareMapping(USER_4);
 
     authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
     authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
@@ -232,10 +232,10 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
         (AuthzResolverImplApi) ReflectionTestUtils.getField(AuthzResolverBlImpl.class, "authzResolverImpl");
 
     createdVo = perun.getVosManagerBl().createVo(sess, new Vo(1, "", ""));
-    perun.getUsersManagerBl().createUser(sess, user1);
-    perun.getUsersManagerBl().createUser(sess, user2);
-    perun.getUsersManagerBl().createUser(sess, user3);
-    perun.getUsersManagerBl().createUser(sess, user4);
+    perun.getUsersManagerBl().createUser(sess, USER_1);
+    perun.getUsersManagerBl().createUser(sess, USER_2);
+    perun.getUsersManagerBl().createUser(sess, USER_3);
+    perun.getUsersManagerBl().createUser(sess, USER_4);
   }
 
   private Candidate setUpCandidate(String login) {
@@ -271,19 +271,19 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
   public void unsetRole() throws Exception {
     System.out.println(CLASS_NAME + "unsetRole");
 
-    Map<String, Integer> mapping = prepareMapping(user2);
+    Map<String, Integer> mapping = prepareMapping(USER_2);
 
     authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
     authzResolverImpl.unsetRole(sess, mapping, Role.VOADMIN);
 
-    assertFalse(AuthzResolverBlImpl.getUserRoleNames(sess, user2).contains(Role.VOADMIN));
+    assertFalse(AuthzResolverBlImpl.getUserRoleNames(sess, USER_2).contains(Role.VOADMIN));
   }
 
   @Test(expected = RoleNotSetException.class)
   public void unsetRoleWhichIsNotSet() throws Exception {
     System.out.println(CLASS_NAME + "unsetRoleWhichIsNotSet");
 
-    Map<String, Integer> mapping = prepareMapping(user3);
+    Map<String, Integer> mapping = prepareMapping(USER_3);
 
     authzResolverImpl.unsetRole(sess, mapping, Role.VOADMIN);
   }

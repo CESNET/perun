@@ -205,12 +205,13 @@ public enum SearcherMethod implements ManagerMethod {
 
   /*#
    * Similarity substring search in users, VOs, groups and facilities.
-   * The amount of results is limited bt the globalSearchLimit CoreConfig property
+   * The amount of results is limited by the `globalSearchLimit` CoreConfig property
    * Searches in the following priority by the following fields:
-   *    Users - fullname, logins   PERUNADMIN ONLY
+   *    Users - full name (similarity search), attributes defined in `attributesToSearchUsersAndMembersBy` CoreConfig
+   * property (exact match)   PERUNADMIN ONLY
    *    Vos - shortname, name
    *    Groups - name, description
-   *    Facilities - name, descriptin
+   *    Facilities - name, description
    *
    * If called by PERUNADMIN, also searches by id in each entity. The ids are exact matched
    * Should the string be shorter than 3 characters and is a number solely an ID search will be executed

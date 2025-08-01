@@ -1658,15 +1658,14 @@ public interface UsersManagerBl {
       PasswordStrengthFailedException, InvalidLoginException;
 
   /**
-   * Similarity substring search in all users based on fullname .
+   * Similarity substring search in all users based on fullname, ID and attributes defined in perun.properties
    * Places the searchString as line start always
    *
    * @param sess session
    * @param searchString string to search for
-   * @param includeIDs whether to search in IDs as well, used for PERUNADMINs
    * @return list of matched users
    */
-  List<User> searchForUsers(PerunSession sess, String searchString, boolean includeIDs);
+  List<User> searchForUsers(PerunSession sess, String searchString);
 
   /**
    * Allow users to manually add login in supported namespace if same login is not reserved

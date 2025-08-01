@@ -43,7 +43,7 @@ public class UsersManagerImplIntegrationTest extends AbstractPerunIntegrationTes
 
   private Member createSomeMember(final Vo createdVo)
       throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException,
-      WrongReferenceAttributeValueException {
+                 WrongReferenceAttributeValueException {
     final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
     final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
     return createdMember;

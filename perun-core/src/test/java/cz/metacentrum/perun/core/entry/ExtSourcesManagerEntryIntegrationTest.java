@@ -233,7 +233,8 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   /**
    * Test method for
    * {@link
-   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#checkOrCreateExtSource(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#checkOrCreateExtSource(
+   * cz.metacentrum.perun.core.api.PerunSession,
    * java.lang.String, java.lang.String)}.
    */
   @Test
@@ -267,7 +268,8 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   /**
    * Test method for
    * {@link
-   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#deleteExtSource(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#deleteExtSource(
+   * cz.metacentrum.perun.core.api.PerunSession,
    * cz.metacentrum.perun.core.api.ExtSource)}.
    */
   @Test(expected = ExtSourceNotExistsException.class)
@@ -286,7 +288,8 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   /**
    * Test method for
    * {@link
-   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getExtSourceById(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getExtSourceById(
+   * cz.metacentrum.perun.core.api.PerunSession,
    * int)}.
    */
   @Test
@@ -303,7 +306,8 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   /**
    * Test method for
    * {@link
-   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getExtSourceByName(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getExtSourceByName(
+   * cz.metacentrum.perun.core.api.PerunSession,
    * java.lang.String)}.
    */
   @Test
@@ -319,7 +323,8 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   /**
    * Test method for
    * {@link
-   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getExtSources(cz.metacentrum.perun.core.api.PerunSession)}.
+   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getExtSources(
+   * cz.metacentrum.perun.core.api.PerunSession)}.
    */
   @Test
   public void testGetExtSources() throws Exception {
@@ -354,7 +359,8 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   /**
    * Test method for
    * {@link
-   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getInvalidUsers(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getInvalidUsers(
+   * cz.metacentrum.perun.core.api.PerunSession,
    * cz.metacentrum.perun.core.api.ExtSource)}.
    */
   @Ignore
@@ -366,7 +372,8 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   /**
    * Test method for
    * {@link
-   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getVoExtSources(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getVoExtSources(
+   * cz.metacentrum.perun.core.api.PerunSession,
    * cz.metacentrum.perun.core.api.Vo)}.
    */
   @Test
@@ -416,7 +423,8 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
   /**
    * Test method for
    * {@link
-   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#removeExtSource(cz.metacentrum.perun.core.api.PerunSession,
+   * cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#removeExtSource(
+   * cz.metacentrum.perun.core.api.PerunSession,
    * cz.metacentrum.perun.core.api.Vo, cz.metacentrum.perun.core.api.ExtSource)}.
    */
   @Test

@@ -28,7 +28,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_elixir_persistent
   private static User user;
 
   @Before
-  public void SetUp() {
+  public void setUp() {
     classInstance = new urn_perun_user_attribute_def_virt_login_namespace_elixir_persistent();
     session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
     user = new User();
@@ -45,24 +45,20 @@ public class urn_perun_user_attribute_def_virt_login_namespace_elixir_persistent
 
     Attribute attribute = new Attribute(classInstance.getAttributeDefinition());
 
+    Attribute attributeToReturn = new Attribute();
+    attributeToReturn.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attributeToReturn.setFriendlyName("login-namespace:elixir-persistent-shadow");
+    attributeToReturn.setType("def");
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(new Attribute() {
-      {
-        setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-        setFriendlyName("login-namespace:elixir-persistent-shadow");
-        setType("def");
-      }
-    });
+        .getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(attributeToReturn);
 
+    Attribute attributeToFill = new Attribute();
+    attributeToFill.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attributeToFill.setFriendlyName("login-namespace:elixir-persistent-shadow");
+    attributeToFill.setType("def");
+    attributeToFill.setValue("879a224546cf11fe53863737de037d2d39640258@elixir-europe.org");
     when(session.getPerunBl().getAttributesManagerBl()
-        .fillAttribute(any(PerunSession.class), any(User.class), any(Attribute.class))).thenReturn(new Attribute() {
-      {
-        setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-        setFriendlyName("login-namespace:elixir-persistent-shadow");
-        setType("def");
-        setValue("879a224546cf11fe53863737de037d2d39640258@elixir-europe.org");
-      }
-    });
+        .fillAttribute(any(PerunSession.class), any(User.class), any(Attribute.class))).thenReturn(attributeToFill);
 
     Attribute output = classInstance.getAttributeValue(session, user, attribute);
     assertEquals("879a224546cf11fe53863737de037d2d39640258@elixir-europe.org", output.getValue());

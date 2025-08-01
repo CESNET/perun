@@ -81,7 +81,8 @@ public class Du extends DefaultRegistrarModule {
   }
 
   @Override
-  public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params)
+  public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params,
+                             Map<String, List<String>> externalParams)
       throws PerunException {
 
     String eligibleString = params.get("isCesnetEligibleLastSeen");

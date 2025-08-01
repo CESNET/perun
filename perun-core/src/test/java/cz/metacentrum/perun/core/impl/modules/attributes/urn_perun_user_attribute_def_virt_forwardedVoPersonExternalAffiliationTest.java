@@ -28,9 +28,9 @@ import org.junit.Test;
 public class urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliationTest {
 
   private static urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliation classInstance;
-  private final String VALUE1 = "11aff11@somewhere.edu";
-  private final String VALUE2 = "22aff22@somewhere.edu";
-  private final String VALUE3 = "33aff33@somewhere.edu";
+  private static final String VALUE1 = "11aff11@somewhere.edu";
+  private static final String VALUE2 = "22aff22@somewhere.edu";
+  private static final String VALUE3 = "33aff33@somewhere.edu";
   private PerunSessionImpl session;
   private User user;
   private UserExtSource ues1;

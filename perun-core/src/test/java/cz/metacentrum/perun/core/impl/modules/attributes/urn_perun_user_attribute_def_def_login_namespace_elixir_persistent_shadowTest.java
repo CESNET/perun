@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
   private static User user;
 
   @Before
-  public void SetUp() {
+  public void setUp() {
     classInstance = new urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow();
     session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
     user = new User();
@@ -50,18 +51,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
     attribute.setValue("28c5353b8bb34984a8bd4169ba94c606@elixir-europe.org");
 
     when(session.getPerunBl().getUsersManagerBl()
-        .getUsersByAttribute(any(PerunSession.class), any(Attribute.class))).thenReturn(new ArrayList<User>() {
-      {
-        add(user);
-      }
-    });
+             .getUsersByAttribute(any(PerunSession.class), any(Attribute.class))).thenReturn(
+               new ArrayList<>(List.of(user)));
 
+    Attribute attributeToReturn = new Attribute();
+    attributeToReturn.setValue("28c5353b8bb34984a8bd4169ba94c606@elixir-europe.org");
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(new Attribute() {
-      {
-        setValue("28c5353b8bb34984a8bd4169ba94c606@elixir-europe.org");
-      }
-    });
+             .getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(attributeToReturn);
 
     assertEquals(attribute.getValue().toString(), "28c5353b8bb34984a8bd4169ba94c606@elixir-europe.org");
     classInstance.checkAttributeSemantics(session, user, attribute);
@@ -75,12 +71,10 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
     attribute.setFriendlyName("login-namespace:elixir-persistent-shadow");
     attribute.setValue("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org");
 
+    Attribute attributeToReturn = new Attribute();
+    attributeToReturn.setValue("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org");
     when(session.getPerunBl().getAttributesManagerBl()
-        .getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(new Attribute() {
-      {
-        setValue("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org");
-      }
-    });
+             .getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(attributeToReturn);
 
     Attribute output = classInstance.fillAttribute(session, user, attribute);
     assertEquals("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org", output.getValue());
