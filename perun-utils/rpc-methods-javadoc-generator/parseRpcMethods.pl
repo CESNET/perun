@@ -57,6 +57,9 @@ $objectExamples{"List<Attribute>"} = $objectExamples{"List&lt;Attribute&gt;"};
 $objectExamples{"Map<String,Attribute>"} = "{ \"key\" : " . $objectExamples{"Attribute"} . " , \"key2\" : {...} }";
 $objectExamples{"Map&lt;String,Attribute&lt;"} = $objectExamples{"Map<String,Attribute>"};
 
+$objectExamples{"Map<String,List<String>>"} = "{ \"key\" : [ \"text\" , \"text\" ] , \"key2\" : [] }";
+$objectExamples{"Map&lt;String,List&lt;String&lt;&gt;"} = $objectExamples{"Map<String,List<String>>"};
+
 $objectExamples{"Vo"} = "{ \"id\" : 123 , \"name\" : \"My testing VO\" , \"shortName\" : \"test_vo\" , \"beanName\" : \"Vo\" }";
 $objectExamples{"List&lt;Vo&gt;"} = $listPrepend . $objectExamples{"Vo"} . $listAppend;
 $objectExamples{"List<Vo>"} = $objectExamples{"List&lt;Vo&gt;"};

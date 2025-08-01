@@ -17,6 +17,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +74,7 @@ public class AdminMeta extends DefaultRegistrarModule {
 
   @Override
   public void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
+                                       Map<String, List<String>> externalParams,
                                        List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException {
     if (Application.AppType.INITIAL.equals(appType)) {
       formItems.stream().filter(item -> item.getFormItem().getType() == ApplicationFormItem.Type.USERNAME)

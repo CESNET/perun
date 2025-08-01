@@ -592,12 +592,14 @@ public interface RegistrarManager {
    * @param sess    PerunSession including PerunPrincipal containing info from authentication system
    * @param appType application type INITIAL, EXTENSION or EMBEDDED
    * @param form    ApplicationForm to get items for (specify vo and group)
+   * @param externalParams External params (not trusted) passed to the application form from the URL
    * @return list of form items for a given application type with pre-filled values
    * @throws PerunException
    * @throws DuplicateRegistrationAttemptException when registration already exists
    */
   List<ApplicationFormItemWithPrefilledValue> getFormItemsWithPrefilledValues(PerunSession sess, AppType appType,
-                                                                              ApplicationForm form)
+                                                                              ApplicationForm form,
+                                                                              Map<String, List<String>> externalParams)
       throws PerunException;
 
   /**
@@ -695,10 +697,12 @@ public interface RegistrarManager {
    * @param sess        PerunSession of user to resolve app form for.
    * @param voShortName VOs shortname to get info about
    * @param groupName   Groups name to get info about
+   * @param params      Additional params
    * @return Map of expected data
    * @throws PerunException
    */
-  Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName) throws PerunException;
+  Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName,
+                                    Map<String, List<String>> params) throws PerunException;
 
   /**
    * Retrieves all necessary data about VO/group under registrar session
