@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import static cz.metacentrum.perun.core.impl.Utils.getEmailMessagePartFromEntitylessAttribute;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.EXPIRE_SPONSORED_MEMBERS;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -2275,42 +2276,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         this.getRichMembersWithAttributesByNames(sess, group, resource, attrsNames), allowedStatuses);
   }
 
-  /**
-   * Resolve email template (subject/message) from an entityless attribute.
-   *
-   * @param sess          Perun session
-   * @param attributeName friendly name of the attribute (namespace of entityless is assigned in the method)
-   * @param language      Language of the template. If fails to find, default EN template will be looked up.
-   * @return Found template for given language. If fails, tries to find for default EN. If fails, returns null.
-   */
-  private String getEmailMessagePartFromEntitylessAttribute(PerunSession sess, String attributeName, String language,
-                                                            String logAction) {
-    String template = null;
-    try {
-      attributeName = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ':' + attributeName;
-      try {
-        Attribute templateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language, attributeName);
-        template = templateAttribute.valueAsString();
-      } catch (AttributeNotExistsException ex) {
-        //If attribute not exists, log it and use null instead - default template for message will be used
-        LOG.error("There is missing attribute with message template for {} in specific namespace.", logAction, ex);
-      }
-      if (!StringUtils.hasText(template)) {
-        try {
-          Attribute templateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en", attributeName);
-          template = templateAttribute.valueAsString();
-        } catch (AttributeNotExistsException ex) {
-          //If attribute not exists, log it and use null instead - default template for message will be used
-          LOG.error("There is missing attribute with email message template for {} in specific namespace.", logAction,
-              ex);
-        }
-      }
-    } catch (WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
-    }
-    return template;
-  }
-
   @Override
   public Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin)
       throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException,
@@ -3676,15 +3641,27 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     String attrNameBase = "nonAuthzAccActivationMail";
     String subjectAttrName = attrNameBase + "Subject:" + namespace;
     String templateAttrName = attrNameBase + "Template:" + namespace;
-    String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction);
-    String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction);
+    String subjectAttrHTMLName = attrNameBase + "HTMLSubject:" + namespace;
+    String templateAttrHTMLName = attrNameBase + "HTMLTemplate:" + namespace;
+    String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction, true);
+    String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction, true);
+    String htmlSubject = getEmailMessagePartFromEntitylessAttribute(
+        sess, subjectAttrHTMLName, language, logAction, false);
+    String htmlMessage = getEmailMessagePartFromEntitylessAttribute(
+        sess, templateAttrHTMLName, language, logAction, false);
+
+    if (htmlSubject == null && htmlMessage != null) {
+      LOG.warn("Activation mail html template attribute is set, but not the html subject attribute." +
+               "Will fallback to plain text subject attribute.");
+    }
 
     int validationWindow = BeansUtils.getCoreConfig().getAccountActivationValidationWindow();
     LocalDateTime validityTo = LocalDateTime.now().plusHours(validationWindow);
 
     //IMPORTANT: we are using the same requests for password reset and account activation
     UUID uuid = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
-    Utils.sendAccountActivationEmail(user, mailAddress, login, namespace, url, uuid, message, subject, validityTo);
+    Utils.sendAccountActivationEmail(user, mailAddress, login, namespace, url, uuid, message, subject, htmlMessage,
+        htmlSubject, validityTo);
   }
 
   @Override
@@ -3693,7 +3670,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
     User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
 
-    String logAction = "account activation";
+    String logAction = "password reset";
 
     String login = getUserLogin(sess, user, namespace);
     if (!StringUtils.hasText(login)) {
@@ -3703,14 +3680,26 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     String attrNameBase = "nonAuthzPwdResetMail";
     String subjectAttrName = attrNameBase + "Subject:" + namespace;
     String templateAttrName = attrNameBase + "Template:" + namespace;
-    String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction);
-    String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction);
+    String subjectAttrHTMLName = attrNameBase + "HTMLSubject:" + namespace;
+    String templateAttrHTMLName = attrNameBase + "HTMLTemplate:" + namespace;
+    String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction, true);
+    String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction, true);
+    String htmlSubject = getEmailMessagePartFromEntitylessAttribute(
+        sess, subjectAttrHTMLName, language, logAction, false);
+    String htmlMessage = getEmailMessagePartFromEntitylessAttribute(
+        sess, templateAttrHTMLName, language, logAction, false);
+
+    if (htmlSubject == null && htmlMessage != null) {
+      LOG.warn("Password reset mail html template attribute is set, but not the html subject attribute." +
+               "Will fallback to plain text subject attribute.");
+    }
 
     int validationWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
     LocalDateTime validityTo = LocalDateTime.now().plusHours(validationWindow);
 
     UUID uuid = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
-    Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, uuid, message, subject, validityTo);
+    Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, uuid, message, subject, htmlMessage, htmlSubject,
+        validityTo);
   }
 
   @Override
@@ -3729,8 +3718,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     String attrNameBase = "usernameReminderMail";
     String subjectAttrName = attrNameBase + "Subject:" + namespace;
     String templateAttrName = attrNameBase + "Template:" + namespace;
-    String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction);
-    String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction);
+    String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, language, logAction, true);
+    String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, language, logAction, true);
 
     Utils.sendUsernameReminderEmail(user, mailAddress, login, namespace, message, subject);
   }
