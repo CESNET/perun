@@ -10208,6 +10208,66 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
       policies = new ArrayList<>();
       attributes.put(attr, createInitialPolicyCollections(policies));
+
+      attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+      attr.setType(String.class.getName());
+      attr.setFriendlyName("nonAuthzPwdResetConfirmMailHTMLSubject:" + namespace);
+      attr.setDisplayName("Non-Authz Pwd Reset Confirmation Mail HTML Subject");
+      attr.setDescription("HTML template of PWD reset confirmation mails subject.");
+
+      policies = new ArrayList<>();
+      attributes.put(attr, createInitialPolicyCollections(policies));
+
+      attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+      attr.setType(String.class.getName());
+      attr.setFriendlyName("nonAuthzPwdResetConfirmMailHTMLTemplate:" + namespace);
+      attr.setDisplayName("Non-Authz Pwd Reset Confirmation Mail HTML Template");
+      attr.setDescription("HTML template of confirmation message in password reset notification.");
+
+      policies = new ArrayList<>();
+      attributes.put(attr, createInitialPolicyCollections(policies));
+
+      attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+      attr.setType(String.class.getName());
+      attr.setFriendlyName("nonAuthzPwdResetMailHTMLSubject:" + namespace);
+      attr.setDisplayName("Non-Authz Pwd Reset Mail HTML Subject");
+      attr.setDescription("Non authz password reset HTML mail subject for " + namespace + ".");
+
+      policies = new ArrayList<>();
+      attributes.put(attr, createInitialPolicyCollections(policies));
+
+      attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+      attr.setType(String.class.getName());
+      attr.setFriendlyName("nonAuthzPwdResetMailHTMLTemplate:" + namespace);
+      attr.setDisplayName("Non-Authz Pwd Reset Mail HTML Template");
+      attr.setDescription("Non authz password reset mail HTML template for " + namespace + ".");
+
+      policies = new ArrayList<>();
+      attributes.put(attr, createInitialPolicyCollections(policies));
+
+      attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+      attr.setType(String.class.getName());
+      attr.setFriendlyName("nonAuthzAccActivationMailHTMLSubject:" + namespace);
+      attr.setDisplayName("Non-Authz Acc Activation Mail HTML Subject");
+      attr.setDescription("Non authz account activation mail HTML subject for " + namespace + ".");
+
+      policies = new ArrayList<>();
+      attributes.put(attr, createInitialPolicyCollections(policies));
+
+      attr = new AttributeDefinition();
+      attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+      attr.setType(String.class.getName());
+      attr.setFriendlyName("nonAuthzAccActivationMailHTMLTemplate:" + namespace);
+      attr.setDisplayName("Non-Authz Acc Activation Mail HTML Template");
+      attr.setDescription("Non authz account activation mail HTML template for " + namespace + ".");
+
+      policies = new ArrayList<>();
+      attributes.put(attr, createInitialPolicyCollections(policies));
     }
 
     if (perunBl.isPerunReadOnly()) {

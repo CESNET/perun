@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import static cz.metacentrum.perun.core.impl.Utils.getEmailMessagePartFromEntitylessAttribute;
+
 import cz.metacentrum.perun.audit.events.UserManagerEvents.LastSpecificUserOwnerRemoved;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipDisabledForSpecificUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipEnabledForSpecificUser;
@@ -352,38 +354,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     }
 
-    // get template
+    String logAction = "password reset confirm";
 
-    String subject;
-    try {
-      Attribute subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, lang,
-          AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailSubject:" + namespace);
-      subject = (String) subjectTemplateAttribute.getValue();
-      if (subject == null) {
-        subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
-            AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailSubject:" + namespace);
-        subject = (String) subjectTemplateAttribute.getValue();
-      }
-    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
-    }
+    String attrNameBase = "nonAuthzPwdResetConfirmMail";
+    String subjectAttrName = attrNameBase + "Subject:" + namespace;
+    String templateAttrName = attrNameBase + "Template:" + namespace;
+    String subjectAttrHTMLName = attrNameBase + "HTMLSubject:" + namespace;
+    String templateAttrHTMLName = attrNameBase + "HTMLTemplate:" + namespace;
+    String subject = getEmailMessagePartFromEntitylessAttribute(sess, subjectAttrName, lang, logAction, true);
+    String message = getEmailMessagePartFromEntitylessAttribute(sess, templateAttrName, lang, logAction, true);
+    String htmlSubject = getEmailMessagePartFromEntitylessAttribute(
+        sess, subjectAttrHTMLName, lang, logAction, false);
+    String htmlMessage = getEmailMessagePartFromEntitylessAttribute(
+        sess, templateAttrHTMLName, lang, logAction, false);
 
-    String message;
-    try {
-      Attribute messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, lang,
-          AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailTemplate:" + namespace);
-      message = (String) messageTemplateAttribute.getValue();
-      if (message == null) {
-        messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
-            AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailTemplate:" + namespace);
-        message = (String) messageTemplateAttribute.getValue();
-      }
-    } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
+    if (htmlSubject == null && htmlMessage != null) {
+      LOG.warn("Password reset confirmation mail html template attribute is set, but not the html subject attribute." +
+               "Will fallback to plain text subject attribute.");
     }
 
     for (String email : emails) {
-      Utils.sendPasswordResetConfirmationEmail(user, email, namespace, login, subject, message);
+      Utils.sendPasswordResetConfirmationEmail(user, email, namespace, login, subject, message,
+          htmlSubject, htmlMessage);
     }
 
   }
