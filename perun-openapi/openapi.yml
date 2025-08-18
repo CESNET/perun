@@ -9836,6 +9836,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/moveUserExtSource:
+    post:
+      tags:
+        - UsersManager
+      operationId: moveUserExtSource
+      summary: Move UserExtSource from one user to another
+      parameters:
+        - { name: sourceUser, schema: { type: integer }, in: query, description: "id of source user", required: true }
+        - { name: targetUser, schema: { type: integer }, in: query, description: "id of target user", required: true }
+        - $ref: '#/components/parameters/userExtSourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/removeSpecificUserOwner:
     post:
       tags:
