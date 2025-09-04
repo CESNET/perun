@@ -1,5 +1,25 @@
 Upgrade notes
 
+## [49.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.0.0...v49.1.0) (2025-09-04)
+
+
+### Features
+
+* **core:** logic for html template password reset/validation attributes ([20bf48a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/20bf48a90dee3fa98bfb85dc0049af3859724073))
+* **openapi:** add moveUserExtSource into openapi ([272853f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/272853f6d79d835008069739bd394712d3ea0469))
+* **openapi:** add un/setSpecificUser into openapi ([77ddf01](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/77ddf01126aef75553601038ffd378ba97d72d29))
+
+
+### Bug Fixes
+
+* allow group roles to get group by id in VO ([6d8bd41](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6d8bd41a55f7968c33e15cbd82441584be60dc37))
+* **deps:** update dependency commons-cli:commons-cli to v1.10.0 ([bf12f3c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bf12f3ca2f4caab4892e9301d47685e1bbfc0b3a))
+* **deps:** update dependency google-api-services-admin-directory ([18fe0e7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/18fe0e782c44e262d7155a793c066e95b15d4780))
+* **deps:** update dependency org.eclipse.angus:angus-mail to v2.0.4 ([0bf4464](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0bf4464826492b95c8e31a564d176c4264c8e00e))
+* **deps:** update dependency org.openapitools:jackson-databind-nullable to v0.2.7 ([9975951](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/99759514328f660b9a7f12a22b41b7cecefc40b4))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.5 ([af6ce08](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/af6ce08d49fa7df72755014e84f4a87f6ed76c0d))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v9.13.3 ([ab96d1a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ab96d1af4de30721cd035f415169be357d067249))
+
 ## [49.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v48.3.0...v49.0.0) (2025-08-01)
 
 
