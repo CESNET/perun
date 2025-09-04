@@ -64,6 +64,13 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -1251,6 +1258,27 @@ public class Utils {
   }
 
   /**
+   * Replace the template parameters in HTML email body or subject. The difference to the plain text method
+   * above (prepareBodyOfEmail), is that there is no default text to be used in case of null.
+   *
+   * @param text                subject or body of email where the parameters should be replaced
+   * @param parametersToReplace keys are name of parameters and values are replacements for the parameter
+   * @return body to be used for sending an email to user
+   */
+  private static String prepareHTMLPartOfEmail(String text, Map<String, String> parametersToReplace) {
+
+    if (text != null) {
+      if (parametersToReplace != null) {
+        for (String parameterToReplace : parametersToReplace.keySet()) {
+          text = text.replace(parameterToReplace, parametersToReplace.get(parameterToReplace));
+        }
+      }
+    }
+
+    return text;
+  }
+
+  /**
    * Send message with specific body and subject to the email.
    *
    * @param subjectOfEmail specific subject of mail (need to be not null)
@@ -1284,6 +1312,50 @@ public class Utils {
       LOG.error("Unable to send email to '" + email + "'.", ex);
       throw new InternalErrorException("Unable to send email.", ex);
     }
+  }
+
+  /**
+   * Send message with specific body and subject with optional HTML variant of the email.
+   *
+   * @param subjectOfEmail     specific subject of mail (not null)
+   * @param htmlSubjectOfEmail subject of mail for HTML variant of the mail (should not be null if html text is set)
+   * @param bodyOfEmail        specific text of body of mail (not null)
+   * @param htmlBodyOfEmail    optional HTML variant of email body
+   * @param email              email to send message to (not null)
+   */
+  private static void sendMultiPartEmail(String subjectOfEmail, String htmlSubjectOfEmail, String bodyOfEmail,
+                                         String htmlBodyOfEmail, String email) throws MessagingException {
+    notNull(subjectOfEmail, "subject");
+    notNull(bodyOfEmail, "body");
+    notNull(email, "email");
+
+    JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
+    MimeMessage message = mailSender.createMimeMessage();
+
+    message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
+    message.setFrom(new InternetAddress(BeansUtils.getCoreConfig().getMailchangeBackupFrom()));
+
+    if (StringUtils.isNotEmpty(BeansUtils.getCoreConfig().getMailchangeReplyTo())) {
+      message.setReplyTo(new InternetAddress[] {
+          new InternetAddress(BeansUtils.getCoreConfig().getMailchangeReplyTo())});
+    }
+
+    if (htmlBodyOfEmail != null) {
+      final MimeBodyPart textPart = new MimeBodyPart();
+      textPart.setContent(bodyOfEmail, "text/plain; charset=utf-8");
+      final MimeBodyPart htmlPart = new MimeBodyPart();
+      htmlPart.setContent(htmlBodyOfEmail, "text/html; charset=utf-8");
+      final Multipart mp = new MimeMultipart("alternative");
+      mp.addBodyPart(textPart);
+      mp.addBodyPart(htmlPart);
+      message.setContent(mp);
+    } else {
+      message.setText(bodyOfEmail);
+    }
+
+    message.setSubject(htmlSubjectOfEmail != null ? htmlSubjectOfEmail : subjectOfEmail);
+
+    mailSender.send(message);
   }
 
   /**
@@ -1325,19 +1397,23 @@ public class Utils {
 
   /**
    * Sends email with link to non-authz account activation where user can activate his account by setting a password.
+   * If HTML text is non-null the email is sent as an HTML multipart.
    *
-   * @param user            user to send notification for
-   * @param email           user's email to send notification to
-   * @param login           user's login which will be used in message, if tag {@code {login}} is used.
-   * @param namespace       namespace to reset password in
-   * @param url             base URL of Perun instance
-   * @param uuid            UUID of account activation request
-   * @param messageTemplate message of the email (use default if null)
-   * @param subject         subject of the email (use default if null)
-   * @param validityTo      time till link is valid
+   * @param user                user to send notification for
+   * @param email               user's email to send notification to
+   * @param login               user's login which will be used in message, if tag {@code {login}} is used.
+   * @param namespace           namespace to reset password in
+   * @param url                 base URL of Perun instance
+   * @param uuid                UUID of account activation request
+   * @param messageTemplate     message of the email (use default if null)
+   * @param subject             subject of the email (use default if null)
+   * @param htmlMessageTemplate html message of the email (use plain template if null)
+   * @param htmlSubject         subject of the email in html variant (use plain subject if null)
+   * @param validityTo          time till link is valid
    */
   public static void sendAccountActivationEmail(User user, String email, String login, String namespace, String url,
                                                 UUID uuid, String messageTemplate, String subject,
+                                                String htmlMessageTemplate, String htmlSubject,
                                                 LocalDateTime validityTo) {
     String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
@@ -1358,12 +1434,32 @@ public class Utils {
     subjectParametersToReplace.put("{namespace}", namespace);
     subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
 
+    Map<String, String> htmlSubjectParametersToReplace = new HashMap<>(subjectParametersToReplace);
+    htmlSubject = prepareHTMLPartOfEmail(htmlSubject, htmlSubjectParametersToReplace);
+
     Map<String, String> bodyParametersToReplace = new HashMap<>();
     bodyParametersToReplace.put("{displayName}", user.getDisplayName());
     bodyParametersToReplace.put("{namespace}", namespace);
     bodyParametersToReplace.put("{validity}", validityToString);
     bodyParametersToReplace.put("{login}", login);
 
+    Map<String, String> htmlBodyParametersToReplace = new HashMap<>(bodyParametersToReplace);
+    addValidationLinkToReplaceParams(messageTemplate, validationLink, bodyParametersToReplace);
+    addValidationLinkToReplaceParams(htmlMessageTemplate, validationLink, htmlBodyParametersToReplace);
+
+    messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
+    htmlMessageTemplate = prepareHTMLPartOfEmail(htmlMessageTemplate, htmlBodyParametersToReplace);
+
+    try {
+      sendMultiPartEmail(subject, htmlSubject, messageTemplate, htmlMessageTemplate, email);
+    } catch (MessagingException e) {
+      LOG.error("Error sending account activation email to {}", email, e);
+      throw new InternalErrorException("Sending account activation email failed with exception.", e);
+    }
+  }
+
+  private static void addValidationLinkToReplaceParams(String messageTemplate, String validationLink,
+                                                  Map<String, String> paramsToReplace) {
     // allow enforcing per-language links
     if (messageTemplate != null && messageTemplate.contains("{link-")) {
       Pattern pattern = Pattern.compile("\\{link-[^}]+}");
@@ -1380,15 +1476,11 @@ public class Utils {
           String lang = m2.group(1);
           langLink = langLink + "&locale=" + lang;
         }
-        bodyParametersToReplace.put(toSubstitute, langLink);
+        paramsToReplace.put(toSubstitute, langLink);
       }
     } else {
-      bodyParametersToReplace.put("{link}", validationLink);
+      paramsToReplace.put("{link}", validationLink);
     }
-
-    messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
-
-    sendEmail(subject, messageTemplate, email);
   }
 
   /**
@@ -1445,7 +1537,8 @@ public class Utils {
   }
 
   /**
-   * Sends email with link to non-authz password reset GUI where user can reset forgotten password
+   * Sends email with link to non-authz password reset GUI where user can reset forgotten password. If HTML text is
+   * non-null the email is sent as an HTML multipart.
    *
    * @param user            user to send notification for
    * @param email           user's email to send notification to
@@ -1454,11 +1547,14 @@ public class Utils {
    * @param uuid            UUID of pwd reset request
    * @param messageTemplate message of the email
    * @param subject         subject of the email
+   * @param htmlMessageTemplate html message of the email (use plain template if null)
+   * @param htmlSubject         subject of the email in html variant (use plain subject if null)
    * @param validityTo      time till link is valid
    * @throws InternalErrorException
    */
   public static void sendPasswordResetEmail(User user, String email, String namespace, String url, UUID uuid,
-                                            String messageTemplate, String subject, LocalDateTime validityTo) {
+                                            String messageTemplate, String subject, String htmlMessageTemplate,
+                                            String htmlSubject, LocalDateTime validityTo) {
     String instanceName = BeansUtils.getCoreConfig().getInstanceName();
     String linkLocation = "/non/pwd-reset/";
 
@@ -1504,35 +1600,27 @@ public class Utils {
     subjectParametersToReplace.put("{namespace}", namespace);
     subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
 
+    Map<String, String> htmlSubjectParametersToReplace = new HashMap<>(subjectParametersToReplace);
+    htmlSubject = prepareHTMLPartOfEmail(htmlSubject, htmlSubjectParametersToReplace);
+
     Map<String, String> bodyParametersToReplace = new HashMap<>();
     bodyParametersToReplace.put("{displayName}", user.getDisplayName());
     bodyParametersToReplace.put("{namespace}", namespace);
     bodyParametersToReplace.put("{validity}", validityToString);
-    // allow enforcing per-language links
-    if (messageTemplate != null && messageTemplate.contains("{link-")) {
-      Pattern pattern = Pattern.compile("\\{link-[^}]+}");
-      Matcher matcher = pattern.matcher(messageTemplate);
-      while (matcher.find()) {
-        // whole "{link-something}"
-        String toSubstitute = matcher.group(0);
-        String langLink = validationLink;
 
-        Pattern namespacePattern = Pattern.compile("-(.*?)}");
-        Matcher m2 = namespacePattern.matcher(toSubstitute);
-        if (m2.find()) {
-          // only language "cs", "en",...
-          String lang = m2.group(1);
-          langLink = langLink + "&locale=" + lang;
-        }
-        bodyParametersToReplace.put(toSubstitute, langLink);
-      }
-    } else {
-      bodyParametersToReplace.put("{link}", validationLink);
-    }
+    Map<String, String> htmlBodyParametersToReplace = new HashMap<>(bodyParametersToReplace);
+    addValidationLinkToReplaceParams(messageTemplate, validationLink, bodyParametersToReplace);
+    addValidationLinkToReplaceParams(htmlMessageTemplate, validationLink, htmlBodyParametersToReplace);
 
     messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
+    htmlMessageTemplate = prepareHTMLPartOfEmail(htmlMessageTemplate, htmlBodyParametersToReplace);
 
-    sendEmail(subject, messageTemplate, email);
+    try {
+      sendMultiPartEmail(subject, htmlSubject, messageTemplate, htmlMessageTemplate, email);
+    } catch (MessagingException e) {
+      LOG.error("Error sending password reset email to {}", email, e);
+      throw new InternalErrorException("Sending password reset email failed with exception.", e);
+    }
   }
 
   /**
@@ -1581,16 +1669,20 @@ public class Utils {
 
   /**
    * Sends email to user confirming his password was changed.
+   * If HTML text is non-null the email is sent as an HTML multipart.
    *
-   * @param user      user to send notification for
-   * @param email     user's email to send notification to
-   * @param namespace namespace the password was re-set
-   * @param login     login of user
-   * @param subject   Subject from template or null
-   * @param content   Message from template or null
+   * @param user          user to send notification for
+   * @param email         user's email to send notification to
+   * @param namespace     namespace the password was re-set
+   * @param login         login of user
+   * @param subject       Subject from template or null
+   * @param content       Message from template or null
+   * @param htmlSubject   html subject, plain is used if null
+   * @param htmlContent   html content. plain is used if null
    */
   public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String login,
-                                                        String subject, String content) {
+                                                        String subject, String content, String htmlSubject,
+                                                        String htmlContent) {
     String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
     String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;
@@ -1609,16 +1701,76 @@ public class Utils {
     Map<String, String> subjectParametersToReplace = new HashMap<>();
     subjectParametersToReplace.put("{instanceName}", instanceName);
     subjectParametersToReplace.put("{namespace}", namespace);
+
+    Map<String, String> htmlSubjectParametersToReplace = new HashMap<>(subjectParametersToReplace);
     subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+    htmlSubject = prepareHTMLPartOfEmail(htmlSubject, htmlSubjectParametersToReplace);
 
     Map<String, String> bodyParametersToReplace = new HashMap<>();
     bodyParametersToReplace.put("{displayName}", user.getDisplayName());
     bodyParametersToReplace.put("{namespace}", namespace);
     bodyParametersToReplace.put("{login}", login);
     bodyParametersToReplace.put("{instanceName}", instanceName);
-    content = prepareBodyOfEmail(content, defaultText, bodyParametersToReplace);
 
-    sendEmail(subject, content, email);
+    Map<String, String> htmlBodyParametersToReplace = new HashMap<>(bodyParametersToReplace);
+    content = prepareBodyOfEmail(content, defaultText, bodyParametersToReplace);
+    htmlContent = prepareHTMLPartOfEmail(htmlContent, htmlBodyParametersToReplace);
+
+    try {
+      sendMultiPartEmail(subject, htmlSubject, content, htmlContent, email);
+    } catch (MessagingException e) {
+      LOG.error("Error sending password reset confirmation email to {}", email, e);
+      throw new InternalErrorException("Sending password reset confirmation email failed with exception.", e);
+    }
+  }
+
+  /**
+   * Resolve email template (subject/message) from an entityless attribute.
+   *
+   * @param sess          Perun session
+   * @param attributeName friendly name of the attribute (namespace of entityless is assigned in the method)
+   * @param language      Language of the template. If fails to find, default EN template will be looked up.
+   * @param plainText     if the attribute to get is a plain text attribute then error is logged when it is missing
+   * @return Found template for given language. If fails, tries to find for default EN. If fails, returns null.
+   */
+  public static String getEmailMessagePartFromEntitylessAttribute(PerunSession sess, String attributeName,
+                                                                  String language, String logAction,
+                                                                  Boolean plainText) {
+    String template = null;
+    try {
+      attributeName = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ':' + attributeName;
+      try {
+        Attribute templateAttribute = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(
+            sess, language, attributeName);
+        template = templateAttribute.valueAsString();
+      } catch (AttributeNotExistsException ex) {
+        if (plainText) {
+          // If attribute not exists, log it and use null instead - default template for message will be used
+          LOG.error("There is missing attribute with message template for {} in specific namespace.", logAction, ex);
+        }
+      }
+      if (!org.springframework.util.StringUtils.hasText(template)) {
+        try {
+          Attribute templateAttribute = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(
+              sess, "en", attributeName);
+          template = templateAttribute.valueAsString();
+        } catch (AttributeNotExistsException ex) {
+          if (plainText) {
+            // If the attribute not exists use null instead, default template will be used for the plain text
+            LOG.error("There is missing attribute with email message template for {} in specific namespace.", logAction,
+                ex);
+          }
+        }
+      }
+    } catch (WrongAttributeAssignmentException ex) {
+      throw new InternalErrorException(ex);
+    }
+
+    if (!plainText && template != null && template.isBlank()) {
+      LOG.warn("HTML mail template attribute '{}' is blank. Plain text version for {} will be used instead",
+          attributeName, logAction);
+    }
+    return template;
   }
 
   /**

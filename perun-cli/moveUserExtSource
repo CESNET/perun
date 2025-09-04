@@ -12,7 +12,7 @@ sub help {
 	Both user's ids and user external source id are required fields.
 	------------------------------------
 	Available options:
-	--sourcetUserId   | -s source user id
+	--sourceUserId   | -s source user id
 	--targetUserId    | -t target user id
 	--userExtSourceId | -e user external source id
 	--batch           | -b batch

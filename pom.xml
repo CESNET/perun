@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.4</version>
+		<version>3.5.5</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -63,16 +63,16 @@
 		<spring.profiles.default>default</spring.profiles.default>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
-		<commons-cli.version>1.9.0</commons-cli.version>
+		<commons-cli.version>1.10.0</commons-cli.version>
 		<commons-text.version>1.14.0</commons-text.version>
 		<commons-lang3.version>3.14.0</commons-lang3.version> <!-- newer commons-text requires also newer commons-lang3 than provided by current spring-boot-parent -->
-		<docker-java.version>3.5.3</docker-java.version>
+		<docker-java.version>3.6.0</docker-java.version>
 		<dom4j.version>2.2.0</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
-		<flying-saucer-pdf.version>9.13.1</flying-saucer-pdf.version>
+		<flying-saucer-pdf.version>9.13.3</flying-saucer-pdf.version>
 		<bouncycastle.version>1.81</bouncycastle.version>
-		<google-api-services-admin-directory.version>directory_v1-rev20250707-2.0.0</google-api-services-admin-directory.version>
+		<google-api-services-admin-directory.version>directory_v1-rev20250804-2.0.0</google-api-services-admin-directory.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20240303</json.version>
@@ -80,7 +80,7 @@
 		<reflections.version>0.9.12</reflections.version>
 		<testcontainers.version>1.21.3</testcontainers.version>
         <httpmime.version>4.5.14</httpmime.version>
-        <angus-mail.version>2.0.3</angus-mail.version>
+        <angus-mail.version>2.0.4</angus-mail.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS

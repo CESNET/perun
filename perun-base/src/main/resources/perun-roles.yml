@@ -1484,10 +1484,10 @@ perun_policies:
       - RESOURCEOBSERVER: Vo
       - PERUNOBSERVER:
       - RPC:
-      - GROUPADMIN: Group
-      - GROUPCREATOR: Group
-      - GROUPMEMBERSHIPMANAGER: Group
-      - GROUPOBSERVER: Group
+      - GROUPADMIN: Vo
+      - GROUPCREATOR: Vo
+      - GROUPMEMBERSHIPMANAGER: Vo
+      - GROUPOBSERVER: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - ORGANIZATIONMEMBERSHIPMANAGER: Vo

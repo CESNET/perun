@@ -9836,6 +9836,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/moveUserExtSource:
+    post:
+      tags:
+        - UsersManager
+      operationId: moveUserExtSource
+      summary: Move UserExtSource from one user to another
+      parameters:
+        - { name: sourceUser, schema: { type: integer }, in: query, description: "id of source user", required: true }
+        - { name: targetUser, schema: { type: integer }, in: query, description: "id of target user", required: true }
+        - $ref: '#/components/parameters/userExtSourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/removeSpecificUserOwner:
     post:
       tags:
@@ -10199,6 +10215,37 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/setSpecificUser:
+    post:
+      tags:
+        - UsersManager
+      operationId: setSpecificUser
+      summary: Set specific user type for specific user and set ownership of this user to the owner.
+      parameters:
+        - { name: specificUser, schema: { type: integer }, in: query, description: "id of specific user", required: true }
+        - { name: specificUserType, schema: { type: string, enum: [ SERVICE, SPONSORED, NORMAL ] }, in: query, description: "specific type of user", required: true }
+        - { name: owner, schema: { type: integer }, in: query, description: "id of user, who will be owner of the specific user", required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/unsetSpecificUser:
+    post:
+      tags:
+        - UsersManager
+      operationId: unsetSpecificUser
+      summary: Remove all ownerships of this specific user and unset this specific user type from this specific user.
+      parameters:
+        - { name: specificUser, schema: { type: integer }, in: query, description: "id of specific user", required: true }
+        - { name: specificUserType, schema: { type: string, enum: [ SERVICE, SPONSORED, NORMAL ] }, in: query, description: "specific type of user", required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
