@@ -98,7 +98,7 @@ public class CeitecCrmConnector {
       }
       String json = EntityUtils.toString(entity, StandardCharsets.UTF_8);
       JSONObject o = new JSONObject(json);
-      String login = o.getString("domainname");
+      String login = o.getString("new_ceitec_login");
       if (StringUtils.isNotBlank(login)) {
         return login.substring(login.indexOf("\\") + 1);
       } else {
