@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [49.1.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.1.0...v49.1.1) (2025-09-09)
+
+
+### Bug Fixes
+
+* **core:** ceitec login is provided by CRM in a new attribute ([6397c48](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6397c4831c40c82d9084838c84ca5599ba4eb35a))
+
 ## [49.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.0.0...v49.1.0) (2025-09-04)
 
 
