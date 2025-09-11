@@ -28,7 +28,6 @@ public class ExtSourceJSON extends ExtSourceImpl implements ExtSourceApi {
 
   private static final Logger LOG = LoggerFactory.getLogger(ExtSourceJSON.class);
 
-  private String filepath = null;
   private String query = null;
 
   @Override
@@ -71,9 +70,9 @@ public class ExtSourceJSON extends ExtSourceImpl implements ExtSourceApi {
         throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
       }
 
-      filepath = prepareFilepath(attributes);
+      String filepath = prepareFilepath(attributes);
 
-      return jsonParsing(membersQuery, 0);
+      return jsonParsing(membersQuery, 0, filepath);
 
     } catch (IOException ex) {
       LOG.error("IOException in getGroupSubjects() method while parsing json file", ex);
@@ -141,7 +140,7 @@ public class ExtSourceJSON extends ExtSourceImpl implements ExtSourceApi {
    * @throws InternalErrorException When implementation fails
    * @throws IOException            When reading JSON file fails
    */
-  private List<Map<String, String>> jsonParsing(String query, int maxResults) throws IOException {
+  private List<Map<String, String>> jsonParsing(String query, int maxResults, String filepath) throws IOException {
 
     List<Map<String, String>> subjects = new ArrayList<>();
 
@@ -149,6 +148,7 @@ public class ExtSourceJSON extends ExtSourceImpl implements ExtSourceApi {
     String json;
     try {
       json = new String(Files.readAllBytes(Paths.get(filepath)));
+      LOG.debug("ExtSource '{}' parsing json file: '{}' with query: '{}'.", this.getName(), filepath, query);
     } catch (NoSuchFileException e) {
       String skipMissingFiles = getAttributes().get("skipMissingFiles");
 
@@ -199,6 +199,7 @@ public class ExtSourceJSON extends ExtSourceImpl implements ExtSourceApi {
     Map<String, String> extsourceAttributes = getAttributes();
     String file = extsourceAttributes.get("file");
     String directory = extsourceAttributes.get("directory");
+    String filepath;
 
     if (directory == null || directory.isEmpty()) {
       if (file == null || file.isEmpty()) {
