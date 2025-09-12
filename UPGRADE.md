@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [49.1.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.1.1...v49.1.2) (2025-09-12)
+
+
+### Bug Fixes
+
+* **core:** eliminate JSON sync race condition ([0fd3e1f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0fd3e1f3e5dd27a64607fcee1b26467c61820117))
+
 ## [49.1.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.1.0...v49.1.1) (2025-09-09)
 
 
