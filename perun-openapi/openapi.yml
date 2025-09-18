@@ -1134,8 +1134,11 @@ components:
         user: { $ref: '#/components/schemas/User' }
         createdBy: { type: string }
         createdAt: { type: string }
+        createdByUid : { type: integer, nullable: true }
         modifiedBy: { type: string }
         modifiedAt: { type: string }
+        modifiedByUid: { type: integer, nullable: true }
+        modifiedByDisplayName: { type: string, nullable: true }
         autoApproveError: { type: string }
 
     RichApplication:
@@ -2404,6 +2407,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Invitation'
+
+    InvitationWithSenderResponse:
+      description: "returns InvitationWithSender"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InvitationWithSender'
 
     ListOfApplicationsResponse:
       description: "returns List<Application>"
@@ -20248,6 +20258,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/InvitationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/invitationsManager/getInvitationWithSenderByApplication:
+    get:
+      tags:
+        - InvitationsManager
+      operationId: getInvitationWithSenderByApplication
+      summary: Get invitation object associated with the application, enriched with the sender's information. Fills only sender's name, not the email. Return null if such invitation doesn't exist.
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/InvitationWithSenderResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

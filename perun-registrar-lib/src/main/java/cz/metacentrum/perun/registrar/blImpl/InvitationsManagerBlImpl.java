@@ -12,6 +12,8 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -96,6 +98,22 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
   @Override
   public List<Invitation> getAllInvitations(PerunSession sess, InvitationStatus status) {
     return invitationsManagerImpl.getAllInvitations(sess, status);
+  }
+
+  @Override
+  public InvitationWithSender getInvitationWithSenderByApplication(PerunSession sess, Application application) {
+    Invitation invitation = getInvitationByApplication(sess, application);
+    if (invitation == null) {
+      return null;
+    }
+    User sender;
+    try {
+      sender = perun.getUsersManagerBl().getUserById(sess, invitation.getSenderId());
+    } catch (UserNotExistsException e) {
+      throw new InternalErrorException("Sender of invitation with id " + invitation.getId() + " does not exist.", e);
+    }
+
+    return new InvitationWithSender(invitation, sender.getDisplayName(), null);
   }
 
   @Override

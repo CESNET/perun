@@ -122,6 +122,19 @@ public class InvitationsManagerEntry implements InvitationsManager {
   }
 
   @Override
+  public InvitationWithSender getInvitationWithSenderByApplication(PerunSession sess, Application application)
+      throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    if (!AuthzResolver.authorizedInternal(sess, "getInvitationByApplication_Application_policy",
+        application.getGroup())) {
+      throw new PrivilegeException("getInvitationWithSenderByApplication");
+    }
+
+    return invitationsManagerBl.getInvitationWithSenderByApplication(sess, application);
+  }
+
+  @Override
   public Invitation inviteToGroup(PerunSession sess, Vo vo, Group group, String receiverName, String receiverEmail,
                                   String language, LocalDate expiration, String redirectUrl)
       throws PrivilegeException, GroupNotExistsException, VoNotExistsException, RegistrarException {

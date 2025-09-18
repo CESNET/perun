@@ -66,6 +66,22 @@ public enum InvitationsManagerMethod implements ManagerMethod {
     }
   },
 
+  /*#
+  * Get invitation object associated with the application, enriched with the sender's information.
+  * Fills only sender's name, not the email. Return null if such invitation doesn't exist.
+  *
+  * @param appId int <code>id</code> of application to send notification for
+  * @throw PrivilegeException insufficient rights
+  */
+  getInvitationWithSenderByApplication {
+    @Override
+    public Invitation call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getInvitationsManager().getInvitationWithSenderByApplication(ac.getSession(), ac.getApplicationById(
+          parms.readInt("appId")
+      ));
+    }
+  },
+
   //TODO most likely delete this method and use better ways to submit invitation, wanted to try RPC
   createInvitation {
     @Override

@@ -21,11 +21,14 @@ public class Application {
   private String extSourceType;
   private int extSourceLoa = 0; // 0 - by default
   private User user;
+  private String modifiedByDisplayName;
   private String autoApproveError;
   private String createdBy;
   private String createdAt;
+  private Integer createdByUid;
   private String modifiedBy;
   private String modifiedAt;
+  private Integer modifiedByUid;
 
   public Application() {
   }
@@ -80,6 +83,14 @@ public class Application {
 
   public void setCreatedBy(String createdBy) {
     this.createdBy = createdBy;
+  }
+
+  public Integer getCreatedByUid() {
+    return createdByUid;
+  }
+
+  public void setCreatedByUid(Integer createdByUid) {
+    this.createdByUid = createdByUid;
   }
 
   public int getExtSourceLoa() {
@@ -144,6 +155,22 @@ public class Application {
 
   public void setModifiedBy(String modifiedBy) {
     this.modifiedBy = modifiedBy;
+  }
+
+  public Integer getModifiedByUid() {
+    return modifiedByUid;
+  }
+
+  public void setModifiedByUid(Integer modifiedByUid) {
+    this.modifiedByUid = modifiedByUid;
+  }
+
+  public String getModifiedByDisplayName() {
+    return modifiedByDisplayName;
+  }
+
+  public void setModifiedByDisplayName(String modifiedByDisplayName) {
+    this.modifiedByDisplayName = modifiedByDisplayName;
   }
 
   public AppState getState() {

@@ -205,8 +205,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
       ".state as state," +
       "a.user_id as user_id, a.auto_approve_error as auto_approve_error, a.extsourcename as extsourcename, a" +
       ".extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as " +
-      "app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as " +
-      "app_modified_by, " +
+      "app_created_at, a.created_by as app_created_by, a.created_by_uid as app_created_by_uid, a.modified_at as" +
+      " app_modified_at, a.modified_by as app_modified_by, a.modified_by_uid as app_modified_by_uid, " +
       "v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as " +
       "vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
       "v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as " +
@@ -223,8 +223,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
       ".state as state," +
       "a.auto_approve_error as auto_approve_error, a.user_id as user_id,a.extsourcename as extsourcename, a" +
       ".extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as " +
-      "app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as " +
-         "app_modified_by, " +
+      "app_created_at, a.created_by as app_created_by, a.created_by_uid as app_created_by_uid, a.modified_at as" +
+      " app_modified_at, a.modified_by as app_modified_by, a.modified_by_uid as app_modified_by_uid, " +
       "v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as " +
       "vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
       "v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as " +
@@ -284,8 +284,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     app.setCreatedAt(resultSet.getString("app_created_at"));
     app.setCreatedBy(resultSet.getString("app_created_by"));
+    app.setCreatedByUid(resultSet.getInt("app_created_by_uid"));
     app.setModifiedAt(resultSet.getString("app_modified_at"));
     app.setModifiedBy(resultSet.getString("app_modified_by"));
+    app.setModifiedByUid(resultSet.getInt("app_modified_by_uid"));
     app.setAutoApproveError(resultSet.getString("auto_approve_error"));
 
     return app;
@@ -748,8 +750,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     // mark as APPROVED
-    int result = jdbc.update("update application set state=?, modified_by=?, modified_at=?" +
-                                 " where id=?", AppState.APPROVED.toString(), approver, new Date(), appId);
+    int result = jdbc.update("update application set state=?, modified_by=?, modified_at=?, modified_by_uid=?" +
+                                 " where id=?", AppState.APPROVED.toString(), approver, new Date(),
+        sess.getPerunPrincipal().getUserId(), appId);
     if (result == 0) {
       throw new RegistrarException("Application with ID=" + appId + " not found.");
     } else if (result > 1) {
@@ -1794,15 +1797,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
       }
       if (application.getUser() != null) {
         userId = application.getUser().getId();
+        // user exists, set uids
+        application.setCreatedByUid(userId);
+        application.setModifiedByUid(userId);
       }
 
       jdbc.update(
           "insert into application(id,vo_id,group_id,user_id,apptype,fed_info,extSourceName,extSourceType," +
-                          "extSourceLoa,state,created_by,modified_by) values (?,?,?,?,?,?,?,?,?,?,?,?)",
+                          "extSourceLoa,state,created_by, created_by_uid, modified_by, modified_by_uid) values " +
+              "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
           appId, application.getVo().getId(), groupId, userId, application.getType().toString(),
           application.getFedInfo(), application.getExtSourceName(), application.getExtSourceType(),
-          application.getExtSourceLoa(), application.getState().toString(), application.getCreatedBy(),
-          application.getCreatedBy());
+          application.getExtSourceLoa(), application.getState().toString(), application.getCreatedBy(), userId,
+          application.getCreatedBy(), userId);
 
       // 2) process & store app data
       for (ApplicationFormItemData itemData : data) {
@@ -2476,7 +2483,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
    */
   private Application getApplicationById(int appId) {
     try {
-      return jdbc.queryForObject(APP_SELECT + " where a.id=?", APP_MAPPER, appId);
+      Application app = jdbc.queryForObject(APP_SELECT + " where a.id=?", APP_MAPPER, appId);
+      setApplicationModifiedDisplayName(app);
+      return app;
     } catch (EmptyResultDataAccessException ex) {
       return null;
     }
@@ -2794,9 +2803,33 @@ public class RegistrarManagerImpl implements RegistrarManager {
         appData = getApplicationDataById(userSession, app.getId());
       }
       app.setFormData(appData);
+
+      setApplicationModifiedDisplayName(app);
     }
 
     return applications;
+  }
+
+  /**
+   * Try to retrieve the user object associated as the last modifier of the application, retrieve the display name and
+   * add it to the application object (to display in the GUI).
+   * @param app
+   */
+  private void setApplicationModifiedDisplayName(Application app) {
+    if (app != null) {
+      if (app.getModifiedBy().equals("perunRegistrar")) {
+        app.setModifiedByDisplayName("perunRegistrar");
+        return;
+      }
+      if (app.getModifiedByUid() != null && app.getModifiedByUid() > 0) {
+        try {
+          app.setModifiedByDisplayName(usersManager.getUserById(registrarSession, app.getModifiedByUid())
+                                           .getDisplayName());
+        } catch (UserNotExistsException ex) {
+          throw new InternalErrorException("User with ID=" + app.getModifiedByUid() + " doesn't exists.", ex);
+        }
+      }
+    }
   }
 
   /**
@@ -4474,8 +4507,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
     try {
       if (jdbc.update("update application set state=?, modified_at=" + Compatibility.getSysdate() +
-                      ", modified_by=? where id=? and state=?", AppState.VERIFIED.toString(),
-          sess.getPerunPrincipal().getActor(), appId, AppState.NEW.toString()) > 0) {
+                      ", modified_by=?, modified_by_uid=? where id=? and state=?", AppState.VERIFIED.toString(),
+          sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), appId,
+          AppState.NEW.toString()) > 0) {
         LOG.info("Application {} marked as VERIFIED", appId);
       } else {
         LOG.info("Application {} not marked VERIFIED, was not in state NEW", appId);
@@ -4861,8 +4895,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
     try {
 
       // mark as rejected
-      int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?",
-          AppState.REJECTED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
+      int result = jdbc.update("update application set state=?, modified_by=?, modified_at=?, modified_by_uid=? " +
+                                   "where id=?",
+          AppState.REJECTED.toString(), sess.getPerunPrincipal().getActor(),
+          new Date(), sess.getPerunPrincipal().getUserId(), appId);
       if (result == 0) {
         throw new RegistrarException("Application with ID=" + appId + " not found.");
       } else if (result > 1) {
@@ -4981,8 +5017,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
   private void setApplicationState(PerunSession sess, int appId, AppState appState) {
     try {
       jdbc.update(
-          "update application set state=?, modified_at=" + Compatibility.getSysdate() + ", modified_by=? where id=?",
-          appState.toString(), sess.getPerunPrincipal().getActor(), appId);
+          "update application set state=?, modified_at=" + Compatibility.getSysdate() + ", modified_by=?, " +
+              "modified_by_uid=? where id=?",
+          appState.toString(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), appId);
     } catch (RuntimeException ex) {
       LOG.error("Unable to set application state: {}, to application ID: {}", appState, appId, ex);
       throw new InternalErrorException("Unable to set application state: " + appState + " to application: " + appId,
@@ -5470,7 +5507,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
                 */
 
         // other types of application doesn't create new user - continue
-        String approver = invitation != null ? invitation.getCreatedBy() : sess.getPerunPrincipal().getActor();
+        String approver = invitation != null ? invitation.getCreatedBy() :
+                              registrarSession.getPerunPrincipal().getActor(); // auto-approve -> approver = registrar
         approveApplication(registrarSession, app.getId(), approver);
       }
     } catch (Exception ex) {
@@ -5628,8 +5666,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
   public void updateApplicationUser(PerunSession sess, Application app) {
 
     jdbc.update(
-        "update application set user_id=?, modified_at=" + Compatibility.getSysdate() + ", modified_by=? where id=?",
-        (app.getUser() != null) ? app.getUser().getId() : null, sess.getPerunPrincipal().getActor(), app.getId());
+        "update application set user_id=?, modified_at=" + Compatibility.getSysdate() + ", modified_by=?, " +
+            "modified_by_uid=? where id=?",
+        (app.getUser() != null) ? app.getUser().getId() : null, sess.getPerunPrincipal().getActor(),
+        sess.getPerunPrincipal().getUserId(), app.getId());
 
   }
 
