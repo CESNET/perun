@@ -45,6 +45,16 @@ public class InvitationWithSender extends Invitation {
     this.senderEmail = senderEmail;
   }
 
+  public InvitationWithSender(Invitation invitation, String senderName, String senderEmail) {
+    super(invitation.getId(), invitation.getVoId(), invitation.getGroupId(), invitation.getApplicationId(),
+        invitation.getSenderId(), invitation.getReceiverName(), invitation.getReceiverEmail(),
+        invitation.getRedirectUrl(), invitation.getToken(), invitation.getLanguage(), invitation.getExpiration(),
+        invitation.getStatus(), invitation.getCreatedAt(), invitation.getCreatedBy(), invitation.getModifiedAt(),
+        invitation.getModifiedBy(), invitation.getCreatedByUid(), invitation.getModifiedByUid());
+    this.senderName = senderName;
+    this.senderEmail = senderEmail;
+  }
+
   public String getSenderName() {
     return senderName;
   }
