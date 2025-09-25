@@ -437,8 +437,8 @@ public class ConsentsManagerBlImpl implements ConsentsManagerBl {
   public void removeFacility(PerunSession sess, ConsentHub consentHub, Facility facility)
       throws RelationNotExistsException, ConsentHubAlreadyRemovedException {
     getConsentsManagerImpl().removeFacility(sess, consentHub, facility);
-    if (getConsentsManagerImpl().getFacilitiesForConsentHub(consentHub).size() == 0) {
-      getConsentsManagerImpl().deleteConsentHub(sess, consentHub);
+    if (getConsentsManagerImpl().getFacilitiesForConsentHub(consentHub).isEmpty()) {
+      this.deleteConsentHub(sess, consentHub);
     }
   }
 
