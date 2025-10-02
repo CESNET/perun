@@ -636,6 +636,11 @@ public class Api extends HttpServlet {
         // if the operation id ends with BodyParams just trim it since it's the same call
         method = fcm[2].replaceAll(BODY_PARAMS_SUFFIX + "$", "");
 
+        // FIX - use full path for SCIM manager, since "methods" are like "api/v2/Schemas".
+        if (SCIMMANAGER.equals(manager)) {
+          method = req.getPathInfo().substring(1).split("/", 3)[2];
+        }
+
         ser = selectSerializer(fcm[0], manager, method, out, req, resp);
 
         // what is the output format?
