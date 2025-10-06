@@ -1674,6 +1674,59 @@ components:
         - enableCustomEmail
         - customEmailRequiresVerification
 
+    PerunNotifTemplate:
+      description: Represents template for message sent to receivers
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, nullable: true }
+        matchingRegexs: { type: array, items: { $ref: "#/components/schemas/PerunNotifRegex" } }
+        receivers: { type: array, items: { $ref: "#/components/schemas/PerunNotifReceiver" } }
+        primaryProperties: { type: object, additionalProperties: { type: array, items: { type: string } } }
+        notifyTrigger: { type: string }
+        perunNotifTemplateMessages: { type: array, items: { $ref: "#/components/schemas/PerunNotifTemplateMessage" } }
+        oldestMessageTime: { type: integer, format: int64, nullable: true }
+        youngestMessageTime: { type: integer, format: int64, nullable: true }
+        sender: { type: string, nullable: true }
+        replyTo: { type: string, nullable: true }
+
+    PerunNotifRegex:
+      description: Holds a regex definition used to recognize type of message
+      type: object
+      properties:
+        id: { type: integer }
+        regex: { type: string }
+        note: { type: string, nullable: true }
+        objects: { type: array, items: { $ref: "#/components/schemas/PerunNotifObject" } }
+
+    PerunNotifReceiver:
+      description: Represents one receiver of message, is defined in template
+      type: object
+      properties:
+        id: { type: integer }
+        target: { type: string }
+        typeOfReceiver: { type: string }
+        templateId: { type: integer }
+        locale: { type: string, nullable: true }
+
+    PerunNotifTemplateMessage:
+      description: Localized freemarker template
+      type: object
+      properties:
+        id: { type: integer }
+        templateId: { type: integer }
+        locale: { type: string }
+        message: { type: string, nullable: true }
+        subject: { type: string }
+
+    PerunNotifObject:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        properties: { type: array, items: { type: string } }
+        objectClass: { type: string }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -2804,7 +2857,40 @@ components:
             items:
               $ref: "#/components/schemas/ApplicationOperationResult"
 
+    PerunNotifTemplateResponse:
+      description: "returns PerunNotifTemplate"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PerunNotifTemplate"
 
+    PerunNotifRegexResponse:
+      description: "returns PerunNotifRegex"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PerunNotifRegex"
+
+    PerunNotifReceiverResponse:
+      description: "returns PerunNotifReceiver"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PerunNotifReceiver"
+
+    PerunNotifTemplateMessageResponse:
+      description: "returns PerunNotifTemplateMessage"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PerunNotifTemplateMessage"
+
+    PerunNotifObjectResponse:
+      description: "returns PerunNotifObject"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PerunNotifObject"
 
   #####################################################
   #                                                   #
@@ -3752,6 +3838,11 @@ tags:
     description: ConfigManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ConfigManager.html
+  - name: NotificationManager
+    description: NotificationManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-NotificationManager.html
+
 
 #################################################
 #                                               #
@@ -20456,5 +20547,407 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/PersonalDataChangeConfigResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # NotificationManager
+  #                                               #
+  #################################################
+
+  /json/notificationManager/createPerunNotifTemplate:
+    post:
+      tags:
+        - NotificationManager
+      operationId: createPerunNotifTemplate
+      summary: Creates a new PerunNotifTemplate and saves all relations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerunNotifTemplate'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifTemplateResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getPerunNotifTemplateById:
+    get:
+      tags:
+        - NotificationManager
+      operationId: getPerunNotifTemplateById
+      summary: Gets perunNotifTemplate by id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifTemplateResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/notificationManager/updatePerunNotifTemplate:
+    post:
+      tags:
+        - NotificationManager
+      operationId: updatePerunNotifTemplate
+      summary: Updates an existing PerunNotifTemplate.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerunNotifTemplate'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifTemplateResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/removePerunNotifTemplateById:
+    post:
+      tags:
+        - NotificationManager
+      operationId: removePerunNotifTemplateById
+      summary: Removes a PerunNotifTemplate by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getAllPerunNotifTemplates:
+    get:
+      tags:
+        - NotificationManager
+      operationId: getAllPerunNotifTemplates
+      summary: Returns all PerunNotifTemplates.
+      responses:
+        '200':
+          description: returns List<PerunNotifTemplate>
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PerunNotifTemplate'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getAllPerunNotifRegexes:
+   get:
+     tags:
+       - NotificationManager
+     operationId: getAllPerunNotifRegexes
+     summary: Returns all PerunNotifRegexes.
+     responses:
+       '200':
+         description: returns List<PerunNotifRegex>
+         content:
+           application/json:
+             schema:
+               type: array
+               items:
+                 $ref: '#/components/schemas/PerunNotifRegex'
+       default:
+         $ref: '#/components/responses/ExceptionResponse'
+
+  /json/notificationManager/createPerunNotifRegex:
+    post:
+      tags:
+        - NotificationManager
+      operationId: createPerunNotifRegex
+      summary: Saves perunNotifRegex to DB and creates id, also saves relation between regex and object
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                regex:
+                  $ref: '#/components/schemas/PerunNotifRegex'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifRegexResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getPerunNotifRegexById:
+    get:
+      tags:
+        - NotificationManager
+      operationId: getPerunNotifRegexById
+      summary: Gets perunNotifRegex by id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifRegexResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/notificationManager/updatePerunNotifRegex:
+    post:
+      tags:
+        - NotificationManager
+      operationId: updatePerunNotifRegex
+      summary: Updates an existing PerunNotifRegex
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                regex:
+                  $ref: '#/components/schemas/PerunNotifRegex'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifRegexResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/removePerunNotifRegexById:
+    post:
+      tags:
+        - NotificationManager
+      operationId: removePerunNotifRegexById
+      summary: Removes a PerunNotifRegex by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/saveTemplateRegexRelation:
+     post:
+       tags:
+         - NotificationManager
+       operationId: saveTemplateRegexRelation
+       summary: Stores relation between template and regex to db
+       parameters:
+        - { name: templateId, description: "Id of the Notif Template", schema: { type: integer }, in: query, required: true }
+        - { name: regexId, description: "Id of the Notif Regex", schema: { type: integer }, in: query, required: true }
+       responses:
+         '200':
+           $ref: '#/components/responses/VoidResponse'
+         default:
+           $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/removePerunNotifTemplateRegexRelation:
+     post:
+       tags:
+         - NotificationManager
+       operationId: removePerunNotifTemplateRegexRelation
+       summary: Removes relation between template and regex
+       parameters:
+        - { name: templateId, description: "Id of the Notif Template", schema: { type: integer }, in: query, required: true }
+        - { name: regexId, description: "Id of the Notif Regex", schema: { type: integer }, in: query, required: true }
+       responses:
+         '200':
+           $ref: '#/components/responses/VoidResponse'
+         default:
+           $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getRelatedRegexesForTemplate:
+    get:
+      tags:
+        - NotificationManager
+      operationId: getRelatedRegexesForTemplate
+      summary: Returns all regexes related to given template.
+      parameters:
+        - { name: templateId, description: "Id of the Notif Template", schema: { type: integer }, in: query, required: true }
+      responses:
+        '200':
+         description: returns List<PerunNotifRegex>
+         content:
+           application/json:
+             schema:
+               type: array
+               items:
+                 $ref: '#/components/schemas/PerunNotifRegex'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getAllPerunNotifReceivers:
+     get:
+       tags:
+         - NotificationManager
+       operationId: getAllPerunNotifReceivers
+       summary: Returns all PerunNotifReceivers
+       responses:
+         '200':
+           description: returns List<PerunNotifReceiver>
+           content:
+             application/json:
+               schema:
+                 type: array
+                 items:
+                   $ref: '#/components/schemas/PerunNotifReceiver'
+         default:
+           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/notificationManager/createPerunNotifReceiver:
+    post:
+      tags:
+        - NotificationManager
+      operationId: createPerunNotifReceiver
+      summary: Creates perunNotifReceiver with new id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                receiver:
+                  $ref: '#/components/schemas/PerunNotifReceiver'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifReceiverResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getPerunNotifReceiverById:
+    get:
+      tags:
+        - NotificationManager
+      operationId: getPerunNotifReceiverById
+      summary: Gets perunNotifReceiver by id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifReceiverResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/notificationManager/updatePerunNotifReceiver:
+    post:
+      tags:
+        - NotificationManager
+      operationId: updatePerunNotifReceiver
+      summary: Updates an existing PerunNotifReceiver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                receiver:
+                  $ref: '#/components/schemas/PerunNotifReceiver'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifReceiverResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/removePerunNotifReceiverById:
+    post:
+      tags:
+        - NotificationManager
+      operationId: removePerunNotifReceiverById
+      summary: Removes a PerunNotifReceiver by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getAllPerunNotifTemplateMessages:
+     get:
+       tags:
+         - NotificationManager
+       operationId: getAllPerunNotifTemplateMessages
+       summary: Returns all PerunNotifTemplateMessages.
+       responses:
+         '200':
+           description: returns List<PerunNotifTemplateMessage>
+           content:
+             application/json:
+               schema:
+                 type: array
+                 items:
+                   $ref: '#/components/schemas/PerunNotifTemplateMessage'
+         default:
+           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/notificationManager/createPerunNotifTemplateMessage:
+    post:
+      tags:
+        - NotificationManager
+      operationId: createPerunNotifTemplateMessage
+      summary: Save perunNotifTemplateMessage to db
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  $ref: '#/components/schemas/PerunNotifTemplateMessage'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifTemplateMessageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/getPerunNotifTemplateMessageById:
+    get:
+      tags:
+        - NotificationManager
+      operationId: getPerunNotifTemplateMessageById
+      summary: Gets perunNotifTemplateMessage by id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifTemplateMessageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/notificationManager/updatePerunNotifTemplateMessage:
+    post:
+      tags:
+        - NotificationManager
+      operationId: updatePerunNotifTemplateMessage
+      summary: Updates perunNotifTemplateMessage in db
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  $ref: '#/components/schemas/PerunNotifTemplateMessage'
+      responses:
+        '200':
+          $ref: '#/components/responses/PerunNotifTemplateMessageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/notificationManager/removePerunNotifTemplateMessage:
+    post:
+      tags:
+        - NotificationManager
+      operationId: removePerunNotifTemplateMessage
+      summary: Remove perunNotifTemplateMessage from db by id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
