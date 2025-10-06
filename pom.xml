@@ -72,7 +72,7 @@
 		<expiringmap.version>0.5.11</expiringmap.version>
 		<flying-saucer-pdf.version>9.13.3</flying-saucer-pdf.version>
 		<bouncycastle.version>1.82</bouncycastle.version>
-		<google-api-services-admin-directory.version>directory_v1-rev20250916-2.0.0</google-api-services-admin-directory.version>
+		<google-api-services-admin-directory.version>directory_v1-rev20250930-2.0.0</google-api-services-admin-directory.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20240303</json.version>
