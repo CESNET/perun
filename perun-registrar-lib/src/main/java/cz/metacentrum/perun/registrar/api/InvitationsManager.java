@@ -100,6 +100,17 @@ public interface InvitationsManager {
   List<Invitation> getInvitationsForVo(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException;
 
   /**
+   * Get invitation object associated with the application, enriched with the sender's information.
+   * Fills only sender's name, not the email.
+   * @param sess session
+   * @param application application to get invitation for
+   * @return invitation object or null if such invitation doesn't exist
+   * @throws PrivilegeException insufficient rights
+   */
+  InvitationWithSender getInvitationWithSenderByApplication(PerunSession sess, Application application)
+      throws PrivilegeException;
+
+  /**
    * Creates new Invitation object - does not send it out or perform any other actions.
    *
    * @param sess       session

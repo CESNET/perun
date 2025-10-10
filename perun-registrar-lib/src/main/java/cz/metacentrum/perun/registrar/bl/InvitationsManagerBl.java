@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.registrar.exceptions.InvalidInvitationStatusException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationAlreadyAssignedToAnApplicationException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
@@ -82,6 +83,15 @@ public interface InvitationsManagerBl {
    * @return List of all invitations to groups of the specified Vo
    */
   List<Invitation> getInvitationsForVo(PerunSession sess, Vo vo);
+
+  /**
+   * Get invitation object associated with the application, enriched with the sender's information.
+   *
+   * @param sess session
+   * @param application application to get invitation for
+   * @return invitation object or null if such invitation doesn't exist
+   */
+  InvitationWithSender getInvitationWithSenderByApplication(PerunSession sess, Application application);
 
   /**
    * Lists all invitations with a given status
