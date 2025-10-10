@@ -1,5 +1,24 @@
 Upgrade notes
 
+## [49.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.1.2...v49.2.0) (2025-10-10)
+
+
+### Features
+
+* **openapi:** add NotificationManager methods into openapi ([1a3991b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1a3991b76c4125e30492a9a63063b99571c9b25d))
+* **registrar:** display name of modifying user in Application object ([15adf7e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/15adf7ee2cbd309d60fe976209cbdd54de8cf646))
+
+
+### Bug Fixes
+
+* **core:** allow to delete a facility with existing consents ([2b93e9f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2b93e9fbe3b2636e3bfd2030681ebc08db1b55c3))
+* **core:** pass whole path for scim manager methods ([e1df3d6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e1df3d60d17d835bd1f2021052a42caa410f36a4))
+* **deps:** update dependency google-api-services-admin-directory ([f505f8e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f505f8e89ef0b0630c26ad059c9c2703ed8a4013))
+* **deps:** update dependency google-api-services-admin-directory ([054419d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/054419d7356d9b8bc9fc32a5136458687d8fe3ca))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.82 ([9cbd6b0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9cbd6b098023785cb922b795eb99e4a3b3f94b15))
+* **deps:** update dependency org.eclipse.angus:angus-mail to v2.0.5 ([ffaa323](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ffaa323034b19920d4ce7ffa9253ac2e94ce521a))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.6 ([8269cbc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8269cbc28134d89d9bfa67cfe6c56858552b6d0a))
+
 ## [49.1.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.1.1...v49.1.2) (2025-09-12)
 
 
