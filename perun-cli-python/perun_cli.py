@@ -49,7 +49,7 @@ class PerunInstance(str, Enum):
     muni = ("muni",)
     muni_test = ("muni_test",)
     perun_dev = ("perun_dev",)
-    elixir = ("elixir",)
+    lifescience = ("lifescience",)
     egi = ("egi",)
 
 
@@ -105,13 +105,13 @@ class PerunInstances:
             "perun_api_url_krb": "https://perun-api-test.aai.muni.cz/krb/rpc",
             "mfa": True,
         },
-        PerunInstance.elixir: {
-            "issuer": "https://login.elixir-czech.org/oidc/",
-            "metadata_url": "https://login.elixir-czech.org/oidc/.well-known/openid-configuration",
+        PerunInstance.lifescience: {
+            "issuer": "https://login.aai.lifescience-ri.eu/oidc/",
+            "metadata_url": "https://login.aai.lifescience-ri.eu/oidc/.well-known/openid-configuration",
             "client_id": "da97db9f-b511-4c72-b71f-daab24b86884",
             "scopes": "openid perun_api perun_admin offline_access",
-            "perun_api_url": "https://elixir-api.aai.lifescience-ri.eu/oauth/rpc",
-            "perun_api_url_ba": "https://elixir-api.aai.lifescience-ri.eu/ba/rpc",
+            "perun_api_url": "https://perun-api.aai.lifescience-ri.eu/oauth/rpc",
+            "perun_api_url_ba": "https://perun-api.aai.lifescience-ri.eu/ba/rpc",
             "perun_api_url_krb": "",
             "mfa": True,
         },
