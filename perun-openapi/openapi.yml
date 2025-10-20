@@ -17924,6 +17924,30 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/checkForSimilarUsers/formData:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: checkForSimilarUsersWithFormItemData
+      summary: Check for similar users by name and email in form data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCheckForSimilarUsersWithData
+              description: "input to checkForSimilarUsersWithFormItemData"
+              type: object
+              required:
+                - formItems
+              properties:
+                formItems: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfIdentityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/registrarManager/checkForSimilarRichIdentities:
     post:
       tags:
