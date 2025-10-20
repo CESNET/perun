@@ -1,5 +1,19 @@
 Upgrade notes
 
+## [49.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.2.0...v49.3.0) (2025-10-20)
+
+
+### Features
+
+* **cli:** elixir migrated to LS, update relevant instance URLs/variables ([389902a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/389902a11fe639bf5dfebb95e5d72d0c1df7ce01))
+* **openapi:** add checkForSimilarUsers using form data to openapi spec ([ebf9e95](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ebf9e95ddf4ec29b21fe691f10df623f871f0524))
+
+
+### Bug Fixes
+
+* **core:** added spring-repository xsd schema in perun-ldapc ([ddbb889](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ddbb8895d051144c51d56f7bb7766c488c840b8e))
+* **core:** our HTMLParser would duplicate `rel` attribute value ([e30a0aa](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e30a0aac15fc2591328fe86b85824c4fa32ec67d))
+
 ## [49.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.1.2...v49.2.0) (2025-10-10)
 
 
