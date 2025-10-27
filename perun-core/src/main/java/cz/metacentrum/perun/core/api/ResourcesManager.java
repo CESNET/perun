@@ -297,8 +297,9 @@ public interface ResourcesManager {
 
   /**
    * Copy "template" settings from user's another existing resource and create new resource with this template. The
-   * settings are attributes, services, tags (if exists), groups and their members (if the resources are from the same
-   * VO and withGroups is true) Template Resource can be from any of user's facilities.
+   * settings are attributes, services, tags (if the resources are from the same VO),
+   * groups and their members (if the resources are from the same VO and withGroups is true)
+   * Template Resource can be from any of user's facilities.
    *
    * @param perunSession
    * @param templateResource    template resource to copy

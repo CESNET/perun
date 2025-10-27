@@ -452,10 +452,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
       }
     }
 
-    //tags
-    List<ResourceTag> templateResourceTags = getAllResourcesTagsForResource(sess, templateResource);
-    for (ResourceTag resourceTag : templateResourceTags) {
-      getResourcesManagerImpl().assignResourceTagToResource(sess, resourceTag, newResource);
+    //tags, if the resources are inside the same VO, copy also the tags
+    if (destinationResource.getVoId() == templateResource.getVoId()) {
+      List<ResourceTag> templateResourceTags = getAllResourcesTagsForResource(sess, templateResource);
+      for (ResourceTag resourceTag : templateResourceTags) {
+        getResourcesManagerImpl().assignResourceTagToResource(sess, resourceTag, newResource);
+      }
     }
 
     return newResource;
