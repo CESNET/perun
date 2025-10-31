@@ -1,5 +1,29 @@
 Upgrade notes
 
+## [49.3.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.3.0...v49.3.1) (2025-10-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* tags are now copied only between the resource of the
+same VO. To find existing inconsistencies use the following query:
+SELECT
+    tr.tag_id,
+    tr.resource_id,
+    rt.vo_id as tag_vo_id,
+    r.vo_id as resource_vo_id
+FROM tags_resources tr
+JOIN res_tags rt ON tr.tag_id = rt.id
+JOIN resources r ON tr.resource_id = r.id
+WHERE rt.vo_id != r.vo_id;
+
+### Bug Fixes
+
+* copy resources tweaks ([1261457](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/12614577c9d2903691082a70452b99f3ef5819a6))
+* **deps:** update dependency google-api-services-admin-directory ([781ed8f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/781ed8f6f27f35374681afa2368f5276ff7583d3))
+* **deps:** update dependency org.openapitools:jackson-databind-nullable to v0.2.8 ([3d93331](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3d933318f5daa126acc74a07acd595d8f724304e))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.7 ([95b9176](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/95b91765c452c352b59d7f9575cb7f06b40c13b6))
+
 ## [49.3.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.2.0...v49.3.0) (2025-10-20)
 
 
