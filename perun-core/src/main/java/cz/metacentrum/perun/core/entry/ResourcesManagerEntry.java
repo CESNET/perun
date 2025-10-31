@@ -367,9 +367,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
         throw new InternalErrorException("Resources are not from the same VO.");
       }
       for (Group group : perunBl.getResourcesManager().getAssignedGroups(sess, templateResource)) {
-        if (!AuthzResolver.authorizedInternal(sess, "source-withGroups-copyResource_Resource_Resource_boolean_policy",
-            templateResource, group) || !AuthzResolver.authorizedInternal(sess,
-            "destination-withGroups-copyResource_Resource_Resource_boolean_policy", destinationResource)) {
+        // We are iterating here, because this policy needs to check MFA on every group
+        if (!AuthzResolver.authorizedInternal(sess, "withGroups-copyResource_Resource_Resource_boolean_policy",
+            destinationResource, group)) {
           throw new PrivilegeException(sess, "copyResource");
         }
       }
