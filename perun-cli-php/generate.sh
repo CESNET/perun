@@ -21,6 +21,6 @@ java \
  --api-package Api \
  --model-package Model \
  --package-name Perun \
- --additional-properties=generateSourceCodeOnly=true,variableNamingConvention=camelCase
+ --additional-properties=generateSourceCodeOnly=true,variableNamingConvention=camelCase,legacyDiscriminatorBehavior=false
 
 composer install
