@@ -46,10 +46,10 @@ deploy:
   rules:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != 'schedule' && $CI_PIPELINE_SOURCE != 'trigger'"
 
-
 openapi-lint:
+  # FIXME - use specific version of quobix/vacuum since newer version fails the lint on missing "beanName" in schema.
   stage: test
   image: registry.gitlab.ics.muni.cz:443/perun/ci/pipeline-components/expo:latest
   script:
-    - npm install -g @quobix/vacuum
+    - npm install -g @quobix/vacuum@0.20.1
     - vacuum lint -d -e -a perun-openapi/openapi.yml
