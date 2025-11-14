@@ -15,7 +15,7 @@ public class LifescienceidusernamePasswordManagerModuleTest extends AbstractPeru
   @Test
   public void passwordShouldPass() throws Exception {
     String password = "Testetest123!";
-    module.checkPasswordStrength(sess, "test", password);
+    module.checkPasswordStrength(sess, "meaningfullogin", password);
   }
 
   @Test

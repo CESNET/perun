@@ -134,8 +134,31 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
       LOG.error("Error reading weak passwords file " + weakpassFilename + ":" + e);
     }
 
-    // TODO - some more generic checks ???
+    if (login != null) {
+      // Check that password does not contain login, or any logical part of it. Logical parts
+      // are considered to be split by either '-' or '_' and to have more than 3 chars.
+      // Finally, also check that the password is not/does not contain the parts of the login backwards.
+      String[] loginParts = login.split("[-_]");
+      for (String loginPart : loginParts) {
+        if (loginPart.length() < 3) {
+          continue;
+        }
 
+        if (password.toLowerCase().contains(loginPart.toLowerCase())) {
+          LOG.warn("Password for {}:{} cannot contain login nor any 'meaningful' part of the login.",
+              actualLoginNamespace, login);
+          throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login +
+                                              " cannot contain login nor any 'meaningful' part of the login.");
+        }
+
+        String backwardsLoginPart = StringUtils.reverse(loginPart);
+        if (password.toLowerCase().contains(backwardsLoginPart.toLowerCase())) {
+          LOG.warn("Password for {}:{} cannot contain any part of the login backwards.", actualLoginNamespace, login);
+          throw new PasswordStrengthException(
+            "Password for " + actualLoginNamespace + ":" + login + " cannot contain any part of the login backwards.");
+        }
+      }
+    }
   }
 
   protected Process createAltPwdManagerProcess(String operation, String loginNamespace, User user, String passwordId) {

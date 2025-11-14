@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.webgui.tabs.userstabs;
 
+import java.util.HashMap;
+import java.util.Map;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -35,8 +37,6 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedPasswordBox;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Tab with user's password settings
@@ -188,35 +188,43 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl {
     final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
       @Override
       public boolean validateTextBox() {
-
-        if (newPass.getTextBox().getValue().trim().equals("")) {
+        String pass = newPass.getTextBox().getValue();
+        if (pass.trim().equals("")) {
           newPass.setError("Password can't be empty!");
           return false;
         }
 
-        // einfra check
-        if ("einfra".equals(namespace)) {
+        if (login != null) {
+          // Check that password does not contain login, or any logical part of it. Logical parts
+          // are considered to be split by either '-' or '_' and to have more than 3 chars.
+          // Finally, also check that the password is not/does not contain any part of login backwards.
+          for (String loginPart : login.split("[-_]")) {
+            if (loginPart.length() < 3) {
+              continue;
+            }
 
-          RegExp regExp2 = RegExp.compile("^[\\x20-\\x7E]{1,}$");
-          if (regExp2.exec(newPass.getTextBox().getValue()) == null) {
-            newPass.setError(
-                "Password <b>can`t contain accented characters (diacritics)</b> or non-printing and control characters!");
-            return false;
-          }
+            if (pass.toLowerCase().contains(loginPart.toLowerCase())) {
+              newPass.setError("Password <b>can't contain login nor any meaningful parts of it!</b>.");
+              return false;
+            }
 
-          // TODO - check for name/surname too
-          // check on login in password if login is longer than 2 chars
-          if (login.length() > 2) {
-            String pass = newPass.getTextBox().getValue();
-            if (Utils.normalizeString(pass).contains(Utils.normalizeString(login)) ||
-                Utils.normalizeString(pass).contains(Utils.normalizeString(Utils.reverseString((login))))) {
-              newPass.setError("Password <b>can't contain login, name or surname</b>, not even backwards!");
+            String backwardsLoginPart = Utils.reverseString(loginPart);
+            if (pass.toLowerCase().contains(backwardsLoginPart.toLowerCase())) {
+              newPass.setError("Password <b>can't contain login nor any meaningful parts of it backwards</b>.");
               return false;
             }
           }
+        }
+
+        if ("einfra".equals(namespace)) {
+          RegExp regExp2 = RegExp.compile("^[\\x20-\\x7E]{1,}$");
+          if (regExp2.exec(pass) == null) {
+              newPass.setError(
+                  "Password <b>can`t contain accented characters (diacritics)</b> or non-printing and control characters!");
+              return false;
+          }
 
           // Check that password contains at least 3 of 4 character groups
-
           RegExp regExpDigit = RegExp.compile("^.*[0-9].*$");
           RegExp regExpLower = RegExp.compile("^.*[a-z].*$");
           RegExp regExpUpper = RegExp.compile("^.*[A-Z].*$");
@@ -238,16 +246,14 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl {
 
           if (matchCounter < 3) {
             newPass.setError(
-                "Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
+              "Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
             return false;
           }
-
           // check length
           if (newPass.getTextBox().getValue().length() < 10) {
             newPass.setError("Password must be <b>at least 10 characters</b> long!");
             return false;
           }
-
         } else {
 
           // check default minimum length for password

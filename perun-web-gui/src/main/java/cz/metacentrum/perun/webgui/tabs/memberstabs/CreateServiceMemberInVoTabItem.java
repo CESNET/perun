@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -55,9 +58,6 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedPasswordBox;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Create service member in VO.
@@ -221,35 +221,44 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
           return false;
         }
 
-        // einfra check
-        if ("einfra".equals(namespace.getSelectedValue())) {
+        String pass = serviceUserPassword.getTextBox().getValue();
+        String login = serviceUserLogin.getTextBox().getValue();
+        if (login != null) {
+          // Check that password does not contain login, or any logical part of it. Logical parts
+          // are considered to be split by either '-' or '_' and to have more than 3 chars.
+          // Finally, also check that the password is not/does not contain any part of login backwards.
+          for (String loginPart : login.split("[-_]")) {
+            if (loginPart.length() < 3) {
+              continue;
+            }
 
-          RegExp regExp2 = RegExp.compile("^[\\x20-\\x7E]{1,}$");
-          if (regExp2.exec(serviceUserPassword.getTextBox().getValue()) == null) {
-            serviceUserPassword.setError(
-                "Password <b>can`t contain accented characters (diacritics)</b> or non-printing and control characters!");
-            return false;
-          }
+            if (pass.toLowerCase().contains(loginPart.toLowerCase())) {
+              serviceUserPassword.setError("Password <b>can't contain login nor any meaningful parts of it!</b>.");
+              return false;
+            }
 
-          // check on login in password if login is longer than 2 chars
-          // TODO - check for name/surname too
-          String pass = serviceUserPassword.getTextBox().getValue();
-          String login = serviceUserLogin.getTextBox().getValue();
-          if (login.length() > 2) {
-            if (Utils.normalizeString(pass).contains(Utils.normalizeString(login)) ||
-                Utils.normalizeString(pass).contains(Utils.normalizeString(Utils.reverseString((login))))) {
-              serviceUserPassword.setError("Password <b>can't contain login, name or surname</b>, not even backwards!");
+            String backwardsLoginPart = Utils.reverseString(loginPart);
+            if (pass.toLowerCase().contains(backwardsLoginPart.toLowerCase())) {
+              serviceUserPassword.setError("Password <b>can't contain login nor any meaningful parts of it backwards</b>.");
               return false;
             }
           }
+        }
+
+        if ("einfra".equals(namespace.getSelectedValue())) {
+          RegExp regExp2 = RegExp.compile("^[\\x20-\\x7E]{1,}$");
+          if (regExp2.exec(serviceUserPassword.getTextBox().getValue()) == null) {
+            serviceUserPassword.setError(
+              "Password <b>can`t contain accented characters (diacritics)</b> or non-printing and control characters!");
+            return false;
+          }
 
           // Check that password contains at least 3 of 4 character groups
-
           RegExp regExpDigit = RegExp.compile("^.*[0-9].*$");
           RegExp regExpLower = RegExp.compile("^.*[a-z].*$");
           RegExp regExpUpper = RegExp.compile("^.*[A-Z].*$");
           RegExp regExpSpec = RegExp.compile(
-              "^.*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*$"); // FIXME - are those correct printable specific chars?
+            "^.*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*$"); // FIXME - are those correct printable specific chars?
 
           int matchCounter = 0;
           if (regExpDigit.exec(serviceUserPassword.getTextBox().getValue()) != null) {
@@ -267,7 +276,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
           if (matchCounter < 3) {
             serviceUserPassword.setError(
-                "Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
+              "Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
             return false;
           }
 

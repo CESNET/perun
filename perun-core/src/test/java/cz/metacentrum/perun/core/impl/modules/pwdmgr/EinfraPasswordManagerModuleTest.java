@@ -1,8 +1,10 @@
 package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -51,5 +53,12 @@ public class EinfraPasswordManagerModuleTest extends AbstractPerunIntegrationTes
     List<String> notAllowedLogins = List.of("open-suff", "dd-suff", "it4isuff", "pr0suff", "pr5suff");
 
     assertThat(notAllowedLogins).noneMatch(login -> module.isLoginPermitted(sess, login));
+  }
+
+  @Test
+  public void checkPasswordStrengthPasswordContainsPartsOfLoginUnderscore() {
+    String password = "novak123";
+    assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
+        () -> module.checkPasswordStrength(sess, "Jan_Novak", password));
   }
 }
