@@ -38,6 +38,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuring
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -154,10 +155,21 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
         LocalDate now = LocalDate.now();
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(VALIDITY_DATE_FORMAT);
         for (Map.Entry<String, String> entry : value.entrySet()) {
-          LocalDate expiration = LocalDate.parse(entry.getValue(), dateFormat);
+          try {
+            if (entry.getValue().isEmpty()) {
+              // empty expiration means indefinite validity
+              result.add(entry.getKey());
+              continue;
+            }
 
-          if (!now.isAfter(expiration)) {
-            result.add(entry.getKey());
+            LocalDate expiration = LocalDate.parse(entry.getValue(), dateFormat);
+            if (!now.isAfter(expiration)) {
+              result.add(entry.getKey());
+            }
+          } catch (Exception e) {
+            log.error("Invalid date format for affiliation {} in attribute {} for user with id {}. " +
+                      "This affiliation will be skipped from the result.",
+                entry.getKey(), getSecondarySourceAttributeFriendlyName(), user.getId(), e);
           }
         }
       }

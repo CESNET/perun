@@ -100,8 +100,6 @@ components:
         modifiedBy: { type: string, nullable: true }
         createdByUid: { type: integer, nullable: true }
         modifiedByUid: { type: integer, nullable: true }
-      discriminator:
-        propertyName: beanName
 
     User:
       description: represents user as a physical person
@@ -118,8 +116,6 @@ components:
         uuid: { type: string, format: uuid }
         specificUser: { type: boolean }
         majorSpecificType: { type: string }
-      discriminator:
-        propertyName: beanName
 
     RichUser:
       description: user data packed together with all user attributes and UserExtSources
@@ -131,8 +127,6 @@ components:
       required:
         - userExtSources
         - userAttributes
-      discriminator:
-        propertyName: beanName
 
     PaginatedRichUsers:
       description: represents Paginated&lt;RichUser>
@@ -177,8 +171,6 @@ components:
         sponsored: { type: boolean }
         groupStatus: { type: string }
         groupStatuses: { type: object, additionalProperties: { type: string } }
-      discriminator:
-        propertyName: beanName
 
     AssignedMember:
       description: represents a member of a group assigned to a resource
@@ -199,8 +191,6 @@ components:
       required:
         - user
         - userExtSources
-      discriminator:
-        propertyName: beanName
 
     PaginatedRichMembers:
       properties:
@@ -346,8 +336,6 @@ components:
       required:
         - login
         - extSource
-      discriminator:
-        propertyName: beanName
 
     ExtSource:
       description: represents external source of data for users such as an IdP or an HR database
@@ -356,8 +344,6 @@ components:
       properties:
         name: { type: string }
         type: { type: string }
-      discriminator:
-        propertyName: beanName
 
     EnrichedExtSource:
       properties:
@@ -378,8 +364,6 @@ components:
         friendlyNameParameter: { type: string, readOnly: true }
         baseFriendlyName: { type: string, readOnly: true }
         entity: { type: string, readOnly: true }
-      discriminator:
-        propertyName: beanName
 
     Attribute:
       allOf:
@@ -390,8 +374,6 @@ components:
         valueModifiedAt: { type: string, nullable: true }
         valueModifiedBy: { type: string, nullable: true }
         value: { nullable: true }
-      discriminator:
-        propertyName: beanName
 
     AttributeRules:
       type: object
@@ -516,8 +498,6 @@ components:
         name: { type: string }
         description: { type: string, nullable: true }
         uuid: { type: string, format: uuid }
-      discriminator:
-        propertyName: beanName
 
     RichFacility:
       allOf:
@@ -526,8 +506,6 @@ components:
         facilityOwners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
       required:
         - facilityOwners
-      discriminator:
-        propertyName: beanName
 
     FacilityWithAttributes:
       type: object
@@ -543,8 +521,6 @@ components:
         - $ref: '#/components/schemas/Auditable'
       properties:
         hostname: { type: string }
-      discriminator:
-        propertyName: beanName
 
     EnrichedResource:
       type: object
@@ -619,8 +595,6 @@ components:
         - name
         - enforceConsents
         - facilities
-      discriminator:
-        propertyName: beanName
 
     PublicationSystem:
       allOf:
@@ -632,8 +606,6 @@ components:
         password: { type: string }
         loginNamespace: { type: string }
         type: { type: string }
-      discriminator:
-        propertyName: beanName
 
     Publication:
       allOf:
@@ -653,8 +625,6 @@ components:
         createdBy: { type: string }
         createdByUid: { type: integer }
         createdDate: { type: string, format: date }
-      discriminator:
-        propertyName: beanName
 
     PublicationForGUI:
       allOf:
@@ -663,8 +633,6 @@ components:
         pubSystemName: { type: string }
         categoryName: { type: string }
         thanks: { type: array, items: { $ref: '#/components/schemas/ThanksForGUI' } }
-      discriminator:
-        propertyName: beanName
 
     Category:
       allOf:
@@ -672,8 +640,6 @@ components:
       properties:
         name: { type: string }
         rank: { type: number, format: double }
-      discriminator:
-        propertyName: beanName
 
     Thanks:
       allOf:
@@ -684,16 +650,12 @@ components:
         createdBy: { type: string }
         createdByUid: { type: integer }
         createdDate: { type: string, format: date }
-      discriminator:
-        propertyName: beanName
 
     ThanksForGUI:
       allOf:
         - $ref: '#/components/schemas/Thanks'
       properties:
         ownerName: { type: string }
-      discriminator:
-        propertyName: beanName
 
     Authorship:
       allOf:
@@ -704,8 +666,6 @@ components:
         createdBy: { type: string }
         createdDate: { type: string, format: date }
         createdByUid: { type: integer }
-      discriminator:
-        propertyName: beanName
 
     Author:
       allOf:
@@ -718,8 +678,6 @@ components:
         titleAfter: { type: string }
         attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
         authorships: { type: array, items: { $ref: '#/components/schemas/Authorship' } }
-      discriminator:
-        propertyName: beanName
 
     OwnerType:
       description: "enumeration of types of Owners"
@@ -735,8 +693,6 @@ components:
         name: { type: string }
         contact: { type: string }
         type: { $ref: '#/components/schemas/OwnerType' }
-      discriminator:
-        propertyName: beanName
 
     PerunPolicy:
       type: object
@@ -826,16 +782,12 @@ components:
         voId: { type: integer }
         parentGroupId: { type: integer, nullable: true }
         uuid: { type: string, format: uuid }
-      discriminator:
-        propertyName: beanName
 
     RichGroup:
       allOf:
         - $ref: '#/components/schemas/Group'
       properties:
         attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-      discriminator:
-        propertyName: beanName
 
     PaginatedRichGroups:
       properties:
@@ -895,8 +847,6 @@ components:
         status: { $ref: '#/components/schemas/ConsentStatus' }
         consentHub: { $ref: '#/components/schemas/ConsentHub' }
         attributes: { type: array, items: { $ref: '#/components/schemas/AttributeDefinition' } }
-      discriminator:
-        propertyName: beanName
 
     Resource:
       allOf:
@@ -907,8 +857,6 @@ components:
         voId: { type: integer }
         facilityId: { type: integer }
         uuid: { type: string, format: uuid }
-      discriminator:
-        propertyName: beanName
 
     RichResource:
       allOf:
@@ -917,8 +865,6 @@ components:
         vo: { $ref: '#/components/schemas/Vo' }
         facility: { $ref: '#/components/schemas/Facility' }
         resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
-      discriminator:
-        propertyName: beanName
 
     ResourceTag:
       allOf:
@@ -926,8 +872,6 @@ components:
       properties:
         tagName: { type: string }
         voId: { type: integer }
-      discriminator:
-        propertyName: beanName
 
     Vo:
       allOf:
@@ -936,8 +880,6 @@ components:
         name: { type: string }
         shortName: { type: string }
         uuid: { type: string, format: uuid }
-      discriminator:
-        propertyName: beanName
 
     VoAdminRoles:
       type: string
@@ -978,8 +920,6 @@ components:
         useExpiredMembers: { type: boolean }
         useExpiredVoMembers: { type: boolean }
         useBannedMembers: { type: boolean }
-      discriminator:
-        propertyName: beanName
 
     DestinationType:
       type: string
@@ -1008,8 +948,6 @@ components:
         destination: { type: string }
         type: { $ref: '#/components/schemas/DestinationType' }
         propagationType: { $ref: '#/components/schemas/DestinationPropagationType' }
-      discriminator:
-        propertyName: beanName
 
     RichDestination:
       allOf:
@@ -1020,8 +958,6 @@ components:
         facility: { $ref: '#/components/schemas/Facility' }
         lastSuccessfulPropagation: { type: string }
         lastAttemptedPropagation: { type: string }
-      discriminator:
-        propertyName: beanName
 
     ApplicationForm:
       type: object
@@ -1310,8 +1246,6 @@ components:
       properties:
         validityTo: { type: string }
         description: { type: string }
-      discriminator:
-        propertyName: beanName
 
     BanOnResource:
       allOf:
@@ -1319,8 +1253,6 @@ components:
       properties:
         memberId: { type: integer }
         resourceId: { type: integer }
-      discriminator:
-        propertyName: beanName
 
     BanOnVo:
       allOf:
@@ -1328,8 +1260,6 @@ components:
       properties:
         memberId: { type: integer }
         voId: { type: integer }
-      discriminator:
-        propertyName: beanName
 
     EnrichedBanOnVo:
       type: object
@@ -1344,8 +1274,6 @@ components:
       properties:
         userId: { type: integer }
         facilityId: { type: integer }
-      discriminator:
-        propertyName: beanName
 
     EnrichedBanOnResource:
       type: object
@@ -1377,8 +1305,6 @@ components:
         additionalUserExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
         attributes: { type: object, additionalProperties: { type: string } }
         expectedSyncGroupStatus: { type: string }
-      discriminator:
-        propertyName: beanName
 
     MemberCandidate:
       type: object
@@ -1392,8 +1318,6 @@ components:
         - $ref: '#/components/schemas/Service'
       properties:
         allowedOnFacility: { type: boolean }
-      discriminator:
-        propertyName: beanName
 
     GenDataNode:
       type: object
@@ -1477,8 +1401,6 @@ components:
         status: { $ref: '#/components/schemas/TaskResultStatus' }
         destination: { $ref: '#/components/schemas/Destination' }
         service: { $ref: '#/components/schemas/Service' }
-      discriminator:
-        propertyName: beanName
 
     FacilityPropagationState:
       type: string
