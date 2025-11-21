@@ -1,5 +1,22 @@
 Upgrade notes
 
+## [49.4.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.3.1...v49.4.0) (2025-11-21)
+
+
+### Features
+
+* **core:** password strength checks for login parts ([073114d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/073114d086098145dcd94f1bac9d2e11f3ad9323))
+
+
+### Bug Fixes
+
+* **core:** eduPersonScopedAffiliations fails on wrong value of dependent attr ([7f4493a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7f4493a10400ba66266287fa51776d5fe6abc7a2))
+* **deps:** update dependency commons-cli:commons-cli to v1.11.0 ([deadaa9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/deadaa9ea0c74aa88c99a1d9dcfb605c9fe532d5))
+* **deps:** update dependency google-api-services-admin-directory ([92a278b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/92a278b26365609643559c1a223e9a4c2aeb21f8))
+* **deps:** update spring-boot-starter-parent to 3.5.8 ([4d01915](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4d019150d5f8b18c823588232d3a5b2c417906bb))
+* **openapi:** correct php openapi generation ([6deb044](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6deb044140da904094ca8e216c8564add2e81a37))
+* **openapi:** remove redundant discriminator property name ([ec70498](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ec7049876bd85362495d00a68e3e9355787901d3))
+
 ## [49.3.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.3.0...v49.3.1) (2025-10-31)
 
 
