@@ -18,6 +18,7 @@ public class MuadmPasswordManagerModule extends GenericPasswordManagerModule {
   private static final Pattern UPPER_CASE_PATTERN = Pattern.compile(".*[A-Z].*");
   private static final Pattern SPECIAL_CHAR_PATTERN =
       Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
+  protected final int passwordMinLength = 14;
 
   public MuadmPasswordManagerModule() {
     this.actualLoginNamespace = "mu-adm";
@@ -47,8 +48,9 @@ public class MuadmPasswordManagerModule extends GenericPasswordManagerModule {
       throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " cannot be empty.");
     }
 
-    if (password.length() < 14) {
-      LOG.warn("Password for {}:{} is too short. At least 14 characters are required.", actualLoginNamespace, login);
+    if (password.length() < passwordMinLength) {
+      LOG.warn("Password for {}:{} is too short. At least " + passwordMinLength + " characters are required.",
+          actualLoginNamespace, login);
       throw new PasswordStrengthException(
           "Password for " + actualLoginNamespace + ":" + login + " is too short. At least 14 characters is required.");
     }

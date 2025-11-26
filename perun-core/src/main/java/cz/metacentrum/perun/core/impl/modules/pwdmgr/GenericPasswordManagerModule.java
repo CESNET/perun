@@ -53,7 +53,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
   protected static final String WEAKPASS = "weakpass";
   protected static final String BIN_TRUE = "/bin/true";
   private static final Logger LOG = LoggerFactory.getLogger(GenericPasswordManagerModule.class);
-  private static final int MINIMUM_PASSWORD_LENGTH = 8;
+  private static final int MINIMUM_PASSWORD_LENGTH = 12;
   protected String actualLoginNamespace = "generic";
   protected String passwordManagerProgram = BeansUtils.getCoreConfig().getPasswordManagerProgram();
   protected String altPasswordManagerProgram = BeansUtils.getCoreConfig().getAlternativePasswordManagerProgram();
