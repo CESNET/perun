@@ -28,7 +28,7 @@ public class IcsmuniczPasswordManagerModule extends GenericPasswordManagerModule
 
   private static final Logger LOG = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
 
-  protected final int passwordMinLength = 10;
+  protected final int passwordMinLength = 12;
 
   public IcsmuniczPasswordManagerModule() {
     // set proper namespace

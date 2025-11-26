@@ -19,21 +19,21 @@ public class GenericPasswordManagerModuleTest extends AbstractPerunIntegrationTe
 
   @Test
   public void checkPasswordStrengthPasswordContainsLogin() {
-    String password = "jannovak123";
+    String password = "jannovak1234";
     assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
         () -> module.checkPasswordStrength(sess, "JanNovak", password));
   }
 
   @Test
   public void checkPasswordStrengthPasswordContainsLoginBackwards() {
-    String password = "kavonnaj123";
+    String password = "kavonnaj1234";
     assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
         () -> module.checkPasswordStrength(sess, "JanNovak", password));
   }
 
   @Test
   public void checkPasswordStrengthPasswordContainsPartsOfLoginUnderscore() {
-    String password = "novak123";
+    String password = "novak1234567";
     assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
         () -> module.checkPasswordStrength(sess, "Jan_Novak", password));
   }
@@ -53,7 +53,7 @@ public class GenericPasswordManagerModuleTest extends AbstractPerunIntegrationTe
 
   @Test
   public void checkPasswordStrengthPasswordContainsPartOfLoginBackwards() {
-    String password = "kavonnaj123";
+    String password = "kavonnaj1234";
     assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
         () -> module.checkPasswordStrength(sess, "Jan_No", password));
   }

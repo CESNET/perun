@@ -52,7 +52,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
   protected final Pattern einfraPasswordContainsUpper = Pattern.compile(".*[A-Z].*");
   protected final Pattern einfraPasswordContainsSpec =
       Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
-  protected final int einfraPasswordMinLength = 10;
+  protected final int einfraPasswordMinLength = 12;
 
   public EinfraPasswordManagerModule() {
 

@@ -66,6 +66,8 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  */
 public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
+  private static final int MIN_PASS_LENGTH = 12;
+
   public static final String URL = "add-service-member";
   /**
    * vo id
@@ -279,20 +281,11 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
               "Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
             return false;
           }
-
-          // check length
-          if (serviceUserPassword.getTextBox().getValue().length() < 10) {
-            serviceUserPassword.setError("Password must be <b>at least 10 characters</b> long!");
-            return false;
-          }
-
-        } else {
-
-          // check default minimum length for password
-          if (serviceUserPassword.getTextBox().getValue().length() < 8) {
-            serviceUserPassword.setError("Password must be <b>at least 8 characters</b> long!");
-            return false;
-          }
+        }
+        // check length
+        if (serviceUserPassword.getTextBox().getValue().length() < MIN_PASS_LENGTH) {
+          serviceUserPassword.setError("Password must be <b>at least " + MIN_PASS_LENGTH + " characters</b> long!");
+          return false;
         }
 
         if (!serviceUserPassword.getTextBox().getValue().equals(serviceUserPassword2.getTextBox().getValue())) {
@@ -740,10 +733,10 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
                     ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
                     if ("einfra".equals(namespace.getSelectedValue())) {
                       ft.setHTML(2, 0,
-                          "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 10 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
+                          "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 12 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
                     } else {
                       ft.setHTML(2, 0,
-                          "Password must be at least 8 characters long. Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+                          "Password must be at least 12 characters long. Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
                     }
                     ft.getFlexCellFormatter().setColSpan(2, 0, 2);
                     ft.getCellFormatter().setStyleName(2, 0, "inputFormInlineComment");

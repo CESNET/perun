@@ -57,7 +57,7 @@ public class EinfraPasswordManagerModuleTest extends AbstractPerunIntegrationTes
 
   @Test
   public void checkPasswordStrengthPasswordContainsPartsOfLoginUnderscore() {
-    String password = "novak123";
+    String password = "novak1234567";
     assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
         () -> module.checkPasswordStrength(sess, "Jan_Novak", password));
   }

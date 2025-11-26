@@ -47,6 +47,8 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  */
 public class SelfPasswordTabItem implements TabItem, TabItemWithUrl {
 
+  private static final int MIN_PASS_LENGTH = 12;
+
   public static final String URL = "pass";
   /**
    * Perun web session
@@ -249,18 +251,11 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl {
               "Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
             return false;
           }
-          // check length
-          if (newPass.getTextBox().getValue().length() < 10) {
-            newPass.setError("Password must be <b>at least 10 characters</b> long!");
-            return false;
-          }
-        } else {
-
-          // check default minimum length for password
-          if (newPass.getTextBox().getValue().length() < 8) {
-            newPass.setError("Password must be <b>at least 8 characters</b> long!");
-            return false;
-          }
+        }
+        // check length
+        if (newPass.getTextBox().getValue().length() < MIN_PASS_LENGTH) {
+          newPass.setError("Password must be <b>at least " + MIN_PASS_LENGTH + " characters</b> long!");
+          return false;
         }
 
         if (!newPass.getTextBox().getValue().equals(confPass.getTextBox().getValue())) {
@@ -551,10 +546,10 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl {
     int row = layout.getRowCount();
     if ("einfra".equals(namespace)) {
       layout.setHTML(row, 0,
-          "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 10 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
+          "Password must <ul><li>contain only printing (non-accented) characters<li>be at least " + MIN_PASS_LENGTH + " characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
     } else {
       layout.setHTML(row, 0,
-          "Password must be at least 8 characters long. Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+          "Password must be at least " + MIN_PASS_LENGTH + " characters long. Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
     }
     layout.getFlexCellFormatter().setColSpan(row, 0, 2);
     layout.getCellFormatter().setStyleName(row, 0, "inputFormInlineComment");
