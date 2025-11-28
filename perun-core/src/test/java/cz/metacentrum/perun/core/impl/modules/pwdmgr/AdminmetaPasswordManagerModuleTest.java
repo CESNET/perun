@@ -61,8 +61,15 @@ public class AdminmetaPasswordManagerModuleTest extends AbstractPerunIntegration
   }
 
   @Test
-  public void passwordTooShortTest() {
+  public void passwordTooShortTestLength6() {
     String password = "123456";
+    assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
+        () -> module.checkPasswordStrength(sess, "test", password));
+  }
+
+  @Test
+  public void passwordTooShortTestLength11() {
+    String password = "12345678901";
     assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
         () -> module.checkPasswordStrength(sess, "test", password));
   }

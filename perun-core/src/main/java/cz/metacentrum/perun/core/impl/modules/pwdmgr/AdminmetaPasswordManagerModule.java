@@ -34,7 +34,7 @@ public class AdminmetaPasswordManagerModule extends GenericPasswordManagerModule
   protected final Pattern adminMetaPasswordContainsUpper = Pattern.compile(".*[A-Z].*");
   protected final Pattern adminMetaPasswordContainsSpec =
       Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
-  protected final int adminMetaPasswordMinLength = 10;
+  protected final int adminMetaPasswordMinLength = 12;
 
   public AdminmetaPasswordManagerModule() {
 

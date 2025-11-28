@@ -112,8 +112,15 @@ public class MuadmPasswordManagerModuleTest extends AbstractPerunIntegrationTest
   }
 
   @Test
-  public void passwordTooShortTest() {
+  public void passwordTooShortTestLength6() {
     String password = "123456";
+    assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
+        () -> module.checkPasswordStrength(sess, "test", password)).withMessageContaining("is too short");
+  }
+
+  @Test
+  public void passwordTooShortTestLength13() {
+    String password = "1234567890123";
     assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
         () -> module.checkPasswordStrength(sess, "test", password)).withMessageContaining("is too short");
   }

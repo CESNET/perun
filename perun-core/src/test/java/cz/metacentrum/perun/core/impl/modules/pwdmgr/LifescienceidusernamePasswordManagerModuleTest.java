@@ -41,7 +41,7 @@ public class LifescienceidusernamePasswordManagerModuleTest extends AbstractPeru
 
   @Test
   public void passwordDigitCharacterMissing() {
-    String password = "Testetest!";
+    String password = "Testetesttes!";
     assertThatExceptionOfType(PasswordStrengthException.class).isThrownBy(
         () -> module.checkPasswordStrength(sess, "test", password));
   }
