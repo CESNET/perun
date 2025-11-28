@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [49.5.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.4.0...v49.5.0) (2025-11-28)
+
+
+### Features
+
+* **core:** raise minimum password length to 12 characters ([905c62a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/905c62af07ef6963418913a0d1212b36f5918c46))
+
 ## [49.4.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.3.1...v49.4.0) (2025-11-21)
 
 
