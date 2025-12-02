@@ -1418,7 +1418,7 @@ public class Utils {
     String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
     String validationLink =
-        prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", uuid, user, namespace, true);
+        prepareValidationLinkForPasswordResetAndAccountActivation(url, uuid, user, namespace, true);
     String validityToString = prepareValidityTo(validityTo);
 
     String defaultSubject = "[" + instanceName + "] Account activation in namespace: " + namespace;
@@ -1494,10 +1494,37 @@ public class Utils {
    * @param activation   if result link should work as activation
    * @return link of validation as String
    */
-  private static String prepareValidationLinkForPasswordResetAndAccountActivation(String url, String linkLocation,
+  private static String prepareValidationLinkForPasswordResetAndAccountActivation(String url,
                                                                                   UUID uuid, User user,
                                                                                   String namespace,
                                                                                   boolean activation) {
+    String linkLocation = "/non/pwd-reset/";
+
+    try {
+      URL urlObject = new URL(url);
+      String domain = urlObject.getProtocol() + "://" + urlObject.getHost();
+      PerunAppsConfig.Brand brand = getBrandContainingDomain(domain);
+
+      if (brand != null) {
+        if (!brand.getOldGuiDomain().equals(domain) && brand.getNewApps().getPwdReset() != null &&
+            !brand.getNewApps().getPwdReset().isEmpty()) {
+          // change url to new pwd reset app
+          url = brand.getNewApps().getPwdReset();
+          linkLocation = "";
+        } else {
+          url = brand.getOldGuiDomain();
+        }
+      } else {
+        // if no brand contains specified domain, set default old gui domain
+        PerunAppsConfig.Brand defaultBrand =
+            getInstance().getBrands().stream().filter(b -> b.getName().equals("default")).findFirst()
+                .orElseThrow(() -> new InternalErrorException("Default GUI branding configuration is missing"));
+        url = defaultBrand.getOldGuiDomain();
+      }
+    } catch (MalformedURLException ex) {
+      throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
+    }
+
     notNull(user, "user");
     notNull(url, "url");
     notNull(linkLocation, "linkLocation");
@@ -1556,35 +1583,9 @@ public class Utils {
                                             String messageTemplate, String subject, String htmlMessageTemplate,
                                             String htmlSubject, LocalDateTime validityTo) {
     String instanceName = BeansUtils.getCoreConfig().getInstanceName();
-    String linkLocation = "/non/pwd-reset/";
-
-    try {
-      URL urlObject = new URL(url);
-      String domain = urlObject.getProtocol() + "://" + urlObject.getHost();
-      PerunAppsConfig.Brand brand = getBrandContainingDomain(domain);
-
-      if (brand != null) {
-        if (!brand.getOldGuiDomain().equals(domain) && brand.getNewApps().getPwdReset() != null &&
-            !brand.getNewApps().getPwdReset().isEmpty()) {
-          // change url to new pwd reset app
-          url = brand.getNewApps().getPwdReset();
-          linkLocation = "";
-        } else {
-          url = brand.getOldGuiDomain();
-        }
-      } else {
-        // if no brand contains specified domain, set default old gui domain
-        PerunAppsConfig.Brand defaultBrand =
-            getInstance().getBrands().stream().filter(b -> b.getName().equals("default")).findFirst()
-                .orElseThrow(() -> new InternalErrorException("Default GUI branding configuration is missing"));
-        url = defaultBrand.getOldGuiDomain();
-      }
-    } catch (MalformedURLException ex) {
-      throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
-    }
 
     String validationLink =
-        prepareValidationLinkForPasswordResetAndAccountActivation(url, linkLocation, uuid, user, namespace, false);
+        prepareValidationLinkForPasswordResetAndAccountActivation(url, uuid, user, namespace, false);
     String validityToString = prepareValidityTo(validityTo);
 
     String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;

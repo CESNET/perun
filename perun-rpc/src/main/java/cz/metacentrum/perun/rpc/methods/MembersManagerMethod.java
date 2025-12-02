@@ -140,6 +140,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the
    * email
    *                            default is false, can't be used with empty email parameter
+   * @param baseUrl String base url of Perun instance (optional)
    * @return RichMember newly created sponsored member
    */
   /*#
@@ -166,6 +167,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the
    * email
    *                            default is false, can't be used with empty email parameter
+   * @param baseUrl String base url of Perun instance (optional)
    * @return RichMember newly created sponsored member
    */
   /*#
@@ -181,11 +183,11 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param namespace String namespace selecting remote system for storing the password
    * @param sponsor int sponsor's ID
    * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
-   * @param sendActivationLink boolean (optional) If true link for manual activation of account will be sent to the
-   * email
-   *                            default is false, can't be used with empty email parameter
-   *                            If set to true, a non-empty namespace has to be provided.
+   * @param sendActivationLink boolean (optional). If true link for manual activation of account will be sent to the
+   * email default is false, can't be used with empty email parameter.
+   * If set to true, a non-empty namespace has to be provided.
    * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
+   * @param baseUrl String base url of Perun instance (optional)
    * @return RichMember newly created sponsored member
    */
   createSponsoredMember {
@@ -196,6 +198,27 @@ public enum MembersManagerMethod implements ManagerMethod {
       if (params.contains("language")) {
         language = params.readString("language");
       }
+
+      boolean sendActivationLink = false;
+      if (params.contains("sendActivationLink")) {
+        sendActivationLink = params.readBoolean("sendActivationLink");
+      }
+
+      String url = null;
+      if (sendActivationLink) {
+        url = params.getServletRequest().getRequestURL().toString();
+        String baseUrl = params.contains("baseUrl") ? params.readString("baseUrl") : null;
+
+        if (baseUrl != null) {
+          try {
+            URL testBaseUrl = new URL(baseUrl);
+          } catch (MalformedURLException e) {
+            throw new RpcException(RpcException.Type.INVALID_URL, "Invalid base url of Perun instance.");
+          }
+          url = baseUrl;
+        }
+      }
+
       if (!params.contains("userData")) {
         // FIXME old behaviour - this should be removed once we are ready to use only the new behaviour
 
@@ -204,10 +227,7 @@ public enum MembersManagerMethod implements ManagerMethod {
         userData.setPassword(params.readString("password"));
         Vo vo = ac.getVoById(params.readInt("vo"));
         userData.setNamespace(params.readString("namespace"));
-        boolean sendActivationLink = false;
-        if (params.contains("sendActivationLink") && params.readBoolean("sendActivationLink") != null) {
-          sendActivationLink = params.readBoolean("sendActivationLink");
-        }
+
         if (params.contains("email")) {
           userData.setEmail(params.readString("email"));
         }
@@ -247,7 +267,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
         return ac.getMembersManager()
             .createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo, sendActivationLink, language,
-                params.getServletRequest().getRequestURL().toString());
+                url);
       } else {
         // FIXME new behaviour
 
@@ -259,11 +279,6 @@ public enum MembersManagerMethod implements ManagerMethod {
         }
         if (params.contains("sponsor")) {
           sponsor = ac.getUserById(params.readInt("sponsor"));
-        }
-
-        boolean sendActivationLink = false;
-        if (params.contains("sendActivationLink")) {
-          sendActivationLink = params.readBoolean("sendActivationLink");
         }
 
         SponsoredUserData userData = params.read("userData", SponsoredUserData.class);
@@ -286,7 +301,7 @@ public enum MembersManagerMethod implements ManagerMethod {
         }
         return ac.getMembersManager()
             .createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo, sendActivationLink, language,
-                params.getServletRequest().getRequestURL().toString());
+                url);
       }
     }
   },
@@ -387,6 +402,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    *                           If set to true, a non-empty namespace has to be provided.
    * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
    * @param groups int[] group ids, to which will be the created users assigned (has to be from the given vo)
+   * @param baseUrl String base url of Perun instance (optional)
    * @return List<Map<String, String>> newly created sponsored member, their password and status of creation
    */
   createSponsoredMembersFromCSV {
@@ -435,9 +451,24 @@ public enum MembersManagerMethod implements ManagerMethod {
         }
       }
 
+      String url = null;
+      if (sendActivationLink) {
+        url = params.getServletRequest().getRequestURL().toString();
+        String baseUrl = params.contains("baseUrl") ? params.readString("baseUrl") : null;
+
+        if (baseUrl != null) {
+          try {
+            URL testBaseUrl = new URL(baseUrl);
+          } catch (MalformedURLException e) {
+            throw new RpcException(RpcException.Type.INVALID_URL, "Invalid base url of Perun instance.");
+          }
+          url = baseUrl;
+        }
+      }
+
       return ac.getMembersManager()
           .createSponsoredMembersFromCSV(ac.getSession(), vo, namespace, data, header, sponsor, validityTo,
-              sendActivationLink, language, params.getServletRequest().getRequestURL().toString(), groups);
+              sendActivationLink, language, url, groups);
     }
   },
 
@@ -470,6 +501,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    *                           to the email, be careful when using with empty (no-reply) email, default is false
    * @param language String Language of the activation email (e.g. "en", "cs"). Use english if null.
    * @param validityTo String (optional) The last day, when the sponsorship is active, yyyy-mm-dd format.
+   * @param baseUrl String base url of Perun instance (optional)
    * @return List<Map<String, String>> newly created sponsored member, their password and status of creation
    */
   createSponsoredMembers {
@@ -479,7 +511,7 @@ public enum MembersManagerMethod implements ManagerMethod {
       Vo vo = ac.getVoById(params.readInt("vo"));
       String namespace = params.readString("namespace");
       boolean sendActivationLink = false;
-      if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
+      if (params.contains("sendActivationLinks")) {
         sendActivationLink = params.readBoolean("sendActivationLinks");
       }
       LocalDate validityTo = null;
@@ -509,9 +541,24 @@ public enum MembersManagerMethod implements ManagerMethod {
         throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value: 'guestNames' must be sent.");
       }
 
+      String url = null;
+      if (sendActivationLink) {
+        url = params.getServletRequest().getRequestURL().toString();
+        String baseUrl = params.contains("baseUrl") ? params.readString("baseUrl") : null;
+
+        if (baseUrl != null) {
+          try {
+            URL testBaseUrl = new URL(baseUrl);
+          } catch (MalformedURLException e) {
+            throw new RpcException(RpcException.Type.INVALID_URL, "Invalid base url of Perun instance.");
+          }
+          url = baseUrl;
+        }
+      }
+
       return ac.getMembersManager()
           .createSponsoredMembers(ac.getSession(), vo, namespace, names, email, sponsor, validityTo, sendActivationLink,
-              language, params.getServletRequest().getRequestURL().toString());
+              language, url);
     }
   },
 
@@ -2054,6 +2101,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param member int Member to get user to send link mail to
    * @param namespace String Namespace to activate account in (member must have login in it)
    * @param emailAttributeURN String URN of the attribute with stored mail
+   * @param baseUrl String base url of Perun instance (optional)
    * @param language String 2-char language code of the message
    */
   sendAccountActivationLinkEmail {
@@ -2061,12 +2109,22 @@ public enum MembersManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
+      String url = parms.getServletRequest().getRequestURL().toString();
+      String baseUrl = parms.contains("baseUrl") ? parms.readString("baseUrl") : null;
+
+      if (baseUrl != null) {
+        try {
+          URL testBaseUrl = new URL(baseUrl);
+        } catch (MalformedURLException e) {
+          throw new RpcException(RpcException.Type.INVALID_URL, "Invalid base url of Perun instance.");
+        }
+        url = baseUrl;
+      }
+
       ac.getMembersManager().sendAccountActivationLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
-          parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString(),
-          parms.readString("emailAttributeURN"), parms.readString("language"));
+          parms.readString("namespace"), url, parms.readString("emailAttributeURN"), parms.readString("language"));
 
       return null;
-
     }
   },
 

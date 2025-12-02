@@ -11052,6 +11052,7 @@ paths:
                 sendActivationLink: { type: boolean }
                 language: { type: string }
                 userData: { $ref: '#/components/schemas/SponsoredUserData' }
+                baseUrl: { type: string, description: "base url of Perun instance (optional)" }
 
   /json/membersManager/setSponsoredMember:
     post:
@@ -11120,6 +11121,7 @@ paths:
                 sendActivationLinks: { type: boolean }
                 language: { type: string }
                 groups: { type: array, items: { type: integer }, description: "groups to which should be the created users assigned" }
+                baseUrl: { type: string, description: "base url of Perun instance (optional)" }
 
   /json/membersManager/createSponsoredMembers:
     post:
@@ -11154,6 +11156,7 @@ paths:
                 email: { type: string }
                 sendActivationLink: { type: boolean }
                 language: { type: string }
+                baseUrl: { type: string, description: "base url of Perun instance (optional)" }
 
   /json/membersManager/createSpecificMember:
     post:
@@ -11627,6 +11630,7 @@ paths:
         - $ref: '#/components/parameters/namespace'
         - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail" }
         - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message" }
+        - { name: baseUrl, schema: { type: string }, in: query, required: false, description: "base url of Perun instance (optional)" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
