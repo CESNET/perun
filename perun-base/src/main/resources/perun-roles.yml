@@ -3245,35 +3245,11 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getCompleteRichMembers_Vo_List<String>_policy:
-    policy_roles:
-      - GROUPADMIN: Vo
-      - GROUPOBSERVER: Vo
-      - GROUPMEMBERSHIPMANAGER: Vo
-      - PERUNOBSERVER:
-      - VOOBSERVER: Vo
-      - VOADMIN: Vo
-      - ORGANIZATIONMEMBERSHIPMANAGER: Vo
-    include_policies:
-      - default_policy
-
   getCompleteRichMembers_Vo_List<String>_List<String>_policy:
     policy_roles:
       - GROUPADMIN: Vo
       - GROUPOBSERVER: Vo
       - GROUPMEMBERSHIPMANAGER: Vo
-      - PERUNOBSERVER:
-      - VOOBSERVER: Vo
-      - VOADMIN: Vo
-      - ORGANIZATIONMEMBERSHIPMANAGER: Vo
-    include_policies:
-      - default_policy
-
-  getCompleteRichMembers_Group_List<String>_boolean_policy:
-    policy_roles:
-      - GROUPADMIN: Group
-      - GROUPOBSERVER: Group
-      - GROUPMEMBERSHIPMANAGER: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -5510,23 +5486,23 @@ perun_policies:
     include_policies:
       - default_policy
 
-#  globalSearch_String_policy:
-#    policy_roles:
-#      - PERUNOBSERVER:
-#      - VOADMIN:
-#      - VOOBSERVER:
-#      - ORGANIZATIONMEMBERSHIPMANAGER:
-#      - SPONSOR:
-#      - SPONSORNOCREATERIGHTS:
-#      - TOPGROUPCREATOR:
-#      - TRUSTEDFACILITYADMIN:
-#      - FACILITYADMIN:
-#      - FACILITYOBSERVER:
-#      - GROUPADMIN:
-#      - GROUPOBSERVER:
-#      - GROUPMEMBERSHIPMANAGER:
-#    include_policies:
-#      - default_policy
+  #  globalSearch_String_policy:
+  #    policy_roles:
+  #      - PERUNOBSERVER:
+  #      - VOADMIN:
+  #      - VOOBSERVER:
+  #      - ORGANIZATIONMEMBERSHIPMANAGER:
+  #      - SPONSOR:
+  #      - SPONSORNOCREATERIGHTS:
+  #      - TOPGROUPCREATOR:
+  #      - TRUSTEDFACILITYADMIN:
+  #      - FACILITYADMIN:
+  #      - FACILITYOBSERVER:
+  #      - GROUPADMIN:
+  #      - GROUPOBSERVER:
+  #      - GROUPMEMBERSHIPMANAGER:
+  #    include_policies:
+  #      - default_policy
 
   ids-globalSearch_String_policy:
     policy_roles:
@@ -7156,7 +7132,7 @@ perun_policies:
       - default_policy
 
   createServiceUser_policy:
-    policy_roles: []
+    policy_roles: [ ]
     include_policies:
       - default_policy
 

@@ -1248,72 +1248,42 @@ public enum MembersManagerMethod implements ManagerMethod {
     @Override
     public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      if (parms.contains("vo")) {
-        if (parms.contains("allowedStatuses")) {
-          if (parms.contains("attrsNames")) {
-            // with selected attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")),
-                parms.readList("attrsNames", String.class), parms.readList("allowedStatuses", String.class));
-          } else {
-            // with all attributes
-            return ac.getMembersManager()
-                .getCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")), null,
-                    parms.readList("allowedStatuses", String.class));
-          }
-        } else {
-          if (parms.contains("attrsNames")) {
-            // with selected attributes
-            return ac.getMembersManager().getCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")),
-                parms.readList("attrsNames", String.class));
-          } else {
-            // with all attributes
-            return ac.getMembersManager()
-                .getCompleteRichMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")), null);
-          }
-        }
-      } else {
-        if (parms.contains("allowedStatuses")) {
-          // read allowedGroupStatuses from the params or use empty list
-          List<String> allowedGroupStatuses = Collections.emptyList();
-          if (parms.contains("allowedGroupStatuses")) {
-            allowedGroupStatuses = parms.readList("allowedGroupStatuses", String.class);
-          }
+      List<String> allowedStatuses = parms.contains("allowedStatuses") ?
+          parms.readList("allowedStatuses", String.class) :
+          Collections.emptyList();
 
-          if (parms.contains("attrsNames")) {
-            if (parms.contains("resource")) {
-              // with selected attributes
-              return ac.getMembersManager()
-                  .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")),
-                      ac.getResourceById(parms.readInt("resource")), parms.readList("attrsNames", String.class),
-                      parms.readList("allowedStatuses", String.class));
-            } else {
-              // with selected attributes
-              return ac.getMembersManager()
-                  .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")),
-                      parms.readList("attrsNames", String.class), parms.readList("allowedStatuses", String.class),
-                      allowedGroupStatuses, parms.readBoolean("lookingInParentGroup"));
-            }
-          } else {
-            // with all attributes
-            return ac.getMembersManager()
-                .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")), null,
-                    parms.readList("allowedStatuses", String.class), allowedGroupStatuses,
-                    parms.readBoolean("lookingInParentGroup"));
-          }
-        } else {
-          if (parms.contains("attrsNames")) {
-            // with selected attributes
-            return ac.getMembersManager()
-                .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")),
-                    parms.readList("attrsNames", String.class), parms.readBoolean("lookingInParentGroup"));
-          } else {
-            // with all attributes
-            return ac.getMembersManager()
-                .getCompleteRichMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")), null,
-                    parms.readBoolean("lookingInParentGroup"));
-          }
-        }
+      List<String> attrsNames = parms.contains("attrsNames") ?
+          parms.readList("attrsNames", String.class) :
+          Collections.emptyList();
+
+      List<String> allowedGroupStatuses = parms.contains("allowedGroupStatuses") ?
+          parms.readList("allowedGroupStatuses", String.class) :
+          Collections.emptyList();
+
+      if (parms.contains("vo")) {
+        return ac.getMembersManager()
+            .getCompleteRichMembers(ac.getSession(),
+                ac.getVoById(parms.readInt("vo")),
+                attrsNames,
+                allowedStatuses);
       }
+
+      if (parms.contains("resource")) {
+        return ac.getMembersManager()
+            .getCompleteRichMembers(ac.getSession(),
+                ac.getGroupById(parms.readInt("group")),
+                ac.getResourceById(parms.readInt("resource")),
+                attrsNames,
+                allowedStatuses);
+      }
+
+      return ac.getMembersManager()
+          .getCompleteRichMembers(ac.getSession(),
+              ac.getGroupById(parms.readInt("group")),
+              attrsNames,
+              allowedStatuses,
+              allowedGroupStatuses,
+              parms.readBoolean("lookingInParentGroup"));
     }
   },
 
@@ -2175,7 +2145,7 @@ public enum MembersManagerMethod implements ManagerMethod {
     @Override
     public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getMembersManager()
-                 .someAvailableSponsorExistsForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
+          .someAvailableSponsorExistsForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   },
 
@@ -2193,7 +2163,7 @@ public enum MembersManagerMethod implements ManagerMethod {
     @Override
     public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getMembersManager()
-                 .getAvailableSponsorsForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
+          .getAvailableSponsorsForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
     }
   }
 }
