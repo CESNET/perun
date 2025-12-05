@@ -1,9 +1,14 @@
 package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
@@ -14,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntime
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDoesntMatchRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordOperationTimeoutRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordStrengthFailedRuntimeException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
@@ -25,6 +31,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -52,6 +60,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
   protected static final String LOGIN_EXIST = "exist";
   protected static final String WEAKPASS = "weakpass";
   protected static final String BIN_TRUE = "/bin/true";
+  protected static final String PASSWORD_CHANGE_TIMESTAMP_WITHOUT_NAMESPACE = "lastPwdChangeTimestamp";
   private static final Logger LOG = LoggerFactory.getLogger(GenericPasswordManagerModule.class);
   private static final int MINIMUM_PASSWORD_LENGTH = 12;
   protected String actualLoginNamespace = "generic";
@@ -155,7 +164,8 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
         if (password.toLowerCase().contains(backwardsLoginPart.toLowerCase())) {
           LOG.warn("Password for {}:{} cannot contain any part of the login backwards.", actualLoginNamespace, login);
           throw new PasswordStrengthException(
-            "Password for " + actualLoginNamespace + ":" + login + " cannot contain any part of the login backwards.");
+              "Password for " + actualLoginNamespace + ":" + login +
+              " cannot contain any part of the login backwards.");
         }
       }
     }
@@ -423,6 +433,51 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
   @Override
   public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
     checkLoginFormat(sess, userLogin);
+    AttributesManagerBl attrsManagerBl = ((PerunBl) sess.getPerun()).getAttributesManagerBl();
+    if (user == null) {
+      user = ((PerunBl) sess.getPerun()).getModulesUtilsBl()
+                 .getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
+    }
+
+    if (user == null) {
+      LOG.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+    } else {
+      // Set Timestamp when password has been changed
+      Attribute attribute;
+      try {
+        attrsManagerBl.getAttributeDefinition(sess,
+            AttributesManager.NS_USER_ATTR_DEF + ":" + PASSWORD_CHANGE_TIMESTAMP_WITHOUT_NAMESPACE +
+            ":" + actualLoginNamespace);
+      } catch (AttributeNotExistsException ignore) {
+        try {
+          // Create attribute if not exists
+          AttributeDefinition attrDef = new AttributeDefinition();
+          attrDef.setDisplayName("Password change timestamp for " + actualLoginNamespace);
+          attrDef.setFriendlyName(PASSWORD_CHANGE_TIMESTAMP_WITHOUT_NAMESPACE + ":" + actualLoginNamespace);
+          attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+          attrDef.setDescription("Timestamp of last password set/change operation.");
+          attrDef.setType(String.class.getName());
+          attrsManagerBl.createAttribute(sess, attrDef);
+        } catch (AttributeDefinitionExistsException e) {
+          // probably just a race condition
+          LOG.warn("Unable to create attribute definition for user attribute {}.",
+              PASSWORD_CHANGE_TIMESTAMP_WITHOUT_NAMESPACE + ":" + actualLoginNamespace);
+        }
+      }
+
+      try {
+        attribute = attrsManagerBl.getAttribute(sess, user,
+            AttributesManager.NS_USER_ATTR_DEF + ":" + PASSWORD_CHANGE_TIMESTAMP_WITHOUT_NAMESPACE +
+            ":" + actualLoginNamespace);
+        LocalDateTime now = LocalDateTime.now();
+        String value = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        attribute.setValue(value);
+        attrsManagerBl.setAttribute(sess, user, attribute);
+      } catch (Exception ex) {
+        LOG.warn("Unable to set last password change timestamp for {} in {}", userLogin, actualLoginNamespace, ex);
+      }
+    }
+
     Process process = createPwdManagerProcess(PASSWORD_VALIDATE, actualLoginNamespace, userLogin);
     handleExit(process, actualLoginNamespace, userLogin);
   }

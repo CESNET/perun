@@ -71,7 +71,7 @@
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
 		<flying-saucer-pdf.version>9.13.3</flying-saucer-pdf.version>
-		<bouncycastle.version>1.82</bouncycastle.version>
+		<bouncycastle.version>1.83</bouncycastle.version>
 		<google-api-services-admin-directory.version>directory_v1-rev20251107-2.0.0</google-api-services-admin-directory.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>

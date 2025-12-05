@@ -20,8 +20,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeExceptio
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -271,21 +269,6 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
     } else {
 
       PerunBl perunBl = ((PerunBl) sess.getPerun());
-
-      // Set Timestamp when password has been changed
-      // FIXME - find out more convenient place and support other namespaces
-      try {
-        Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, user,
-            AttributesManager.NS_USER_ATTR_DEF + ":lastPwdChangeTimestamp:einfra");
-        LocalDateTime now = LocalDateTime.now();
-        String value = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        attribute.setValue(value);
-        perunBl.getAttributesManagerBl().setAttribute(sess, user, attribute);
-      } catch (AttributeNotExistsException ignore) {
-        // not supported by namespace
-      } catch (Exception ex) {
-        LOG.warn("Unable to set last password change timestamp for {} in {}", userLogin, actualLoginNamespace, ex);
-      }
 
       // set extSources and extSource related attributes
       try {
