@@ -1,5 +1,19 @@
 Upgrade notes
 
+## [49.6.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.5.0...v49.6.0) (2025-12-05)
+
+
+### Features
+
+* **core:** password change timestamp now in every module ([8fbc315](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8fbc315e9332641eadf3400aafc561cf4b3bd36c))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.83 ([5bc1023](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5bc1023b6effc3236c5c2e1cf80a4da1dac5e414))
+* password reset link on account activation of sponsored member ([1e98613](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1e986137ce151d0ec8bb4c6bd2463d89154dd88b))
+* **registrar:** fix potential regex injection ([7e295aa](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7e295aa31492e890d235ff0af3cd973dca33fe84))
+
 ## [49.5.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.4.0...v49.5.0) (2025-11-28)
 
 
