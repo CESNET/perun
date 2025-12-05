@@ -3553,7 +3553,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
    * @return pattern for parsing titles and middle name
    */
   private Pattern getNamesPattern(String firstName, String lastName) {
-    return Pattern.compile("^(.*)" + firstName + "(.*)" + lastName + "(.*)$");
+    return Pattern.compile("^(.*)" + Pattern.quote(firstName) + "(.*)" + Pattern.quote(lastName) + "(.*)$");
   }
 
   @Override
