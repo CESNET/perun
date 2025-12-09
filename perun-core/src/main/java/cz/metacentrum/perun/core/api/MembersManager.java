@@ -958,22 +958,6 @@ public interface MembersManager {
       throws VoNotExistsException, PrivilegeException, AttributeNotExistsException;
 
   /**
-   * Get all RichMembers with attrs specific for list of attrsNames from the vo. If attrsNames is empty or null return
-   * all attributes for specific richMembers.
-   *
-   * @param sess
-   * @param vo
-   * @param attrsNames
-   * @return list of richMembers with specific attributes from Vo
-   * @throws InternalErrorException
-   * @throws PrivilegeException
-   * @throws VoNotExistsException
-   * @throws AttributeNotExistsException
-   */
-  List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames)
-      throws PrivilegeException, VoNotExistsException, AttributeNotExistsException;
-
-  /**
    * Get all RichMembers with attrs specific for list of attrsNames from the vo and have only status which is contain in
    * list of statuses. If attrsNames is empty or null return all attributes for specific richMembers. If listOfStatuses
    * is empty or null, return all possible statuses.
@@ -991,27 +975,6 @@ public interface MembersManager {
   List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames,
                                           List<String> allowedStatuses)
       throws PrivilegeException, VoNotExistsException, AttributeNotExistsException;
-
-  /**
-   * Get all RichMembers with attrs specific for list of attrsNames from the group. If attrsNames is empty or null
-   * return all attributes for specific richMembers.
-   * <p>
-   * If lookingInParentGroup is true, get all these richMembers only for parentGroup of this group. If this group is top
-   * level group, so get richMembers from members group.
-   *
-   * @param sess
-   * @param group
-   * @param attrsNames
-   * @param lookingInParentGroup
-   * @return list of richMembers with specific attributes from Group
-   * @throws InternalErrorException
-   * @throws PrivilegeException
-   * @throws GroupNotExistsException
-   * @throws AttributeNotExistsException
-   */
-  List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames,
-                                          boolean lookingInParentGroup)
-      throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException, ParentGroupNotExistsException;
 
   /**
    * Get all RichMembers with attrs specific for list of attrsNames from the group and have only status which is contain
