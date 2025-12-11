@@ -5047,7 +5047,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
         }
       }
     } catch (NotGroupMemberException e) {
-      throw new ConsistencyErrorException("Trying to remove non-existing user");
+      if (e.getGroup() != null && e.getGroup().getId() != group.getId()) {
+        throw new ConsistencyErrorException("Error while synchronizing group with id " + group.getId() + ". Cannot " +
+                                            "remove member with id " + memberToRemove.getId() + " from related" +
+                                            " group with id " + e.getGroup().getId() + ", since they are not a " +
+                                            "member there.", e);
+      } else {
+        throw new ConsistencyErrorException("Cannot remove member with id " + memberToRemove.getId() + " from group " +
+                                            "with id " + group.getId() + ", since they are not a member there.", e);
+      }
     } catch (MemberAlreadyRemovedException ex) {
       //Member was probably removed before starting of synchronization removing process, log it and skip this member
       LOG.debug("Member {} was removed from group {} before removing process. Skip this member.", memberToRemove,
