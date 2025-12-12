@@ -1,5 +1,20 @@
 Upgrade notes
 
+## [49.7.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.6.0...v49.7.0) (2025-12-12)
+
+
+### Features
+
+* **registrar:** new e-INFRA CZ eligibility modules ([f202569](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f202569ccaef9487f5e7a1348464a4fb770a2ea2))
+
+
+### Bug Fixes
+
+* **core:** apply group status filter independently of vo status filter in getCompleteRichMembers ([f41c5b4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f41c5b454ae45358c8f548d5a9d2d0ba9c2a775c))
+* **core:** log ids when removing a member fails during synchronization ([3b243c9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3b243c9545abff02acb9ec2739fb80703a222610))
+* **deps:** update dependency google-api-services-admin-directory ([05b88bc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/05b88bcc23e7a43dd1a866b42a2846db1a11ff43))
+* **deps:** update dependency org.apache.commons:commons-text to v1.15.0 ([fd67ed0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fd67ed0f0d7277003ed5a976546791b7763a2718))
+
 ## [49.6.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.5.0...v49.6.0) (2025-12-05)
 
 
