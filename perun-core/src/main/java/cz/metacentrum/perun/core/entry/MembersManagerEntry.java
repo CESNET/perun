@@ -511,7 +511,7 @@ public class MembersManagerEntry implements MembersManager {
         if (group.getVoId() != vo.getId()) {
           throw new InternalErrorException(
               "Group " + group + " is not from the vo " + vo + " where user with login " + login + " from ExtSource " +
-              extSource + " should be added.");
+                  extSource + " should be added.");
         }
       }
     }
@@ -1120,23 +1120,6 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
-  public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames)
-      throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getVosManagerBl().checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_policy", vo)) {
-      throw new PrivilegeException(sess, "getCompleteRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl()
-        .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames), null,
-            true);
-  }
-
-  @Override
   public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames,
                                                  List<String> allowedStatuses)
       throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
@@ -1151,23 +1134,6 @@ public class MembersManagerEntry implements MembersManager {
 
     return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
         getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames, allowedStatuses), null, true);
-  }
-
-  @Override
-  public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames,
-                                                 boolean lookingInParentGroup)
-      throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
-    Utils.checkPerunSession(sess);
-
-    perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_boolean_policy", group)) {
-      throw new PrivilegeException(sess, "getCompleteRichMembers");
-    }
-
-    return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess,
-        getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), group, true);
   }
 
   @Override
@@ -1867,8 +1833,8 @@ public class MembersManagerEntry implements MembersManager {
 
     //Check that sponsoring user has a role SPONSOR for the VO
     if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSOR, vo, true) &&
-            !getPerunBl().getVosManagerBl()
-                 .isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSORNOCREATERIGHTS, vo, true)) {
+        !getPerunBl().getVosManagerBl()
+            .isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSORNOCREATERIGHTS, vo, true)) {
       throw new PrivilegeException(sess,
           "user " + sponsorToRemove.getId() + " is not in role SPONSOR or SPONSORNOCREATERIGHTS for VO " + vo.getId());
     }

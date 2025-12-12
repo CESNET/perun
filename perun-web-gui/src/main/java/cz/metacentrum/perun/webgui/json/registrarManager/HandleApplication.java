@@ -220,22 +220,14 @@ public class HandleApplication {
 
           layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.errorIcon())));
 
-          if ("NOT_ACADEMIC".equals(error.getReason())) {
-            layout.setHTML(0, 1,
-                "<p>User is not active academia member and application shouldn't be approved.<p><b>LoA:</b> " +
-                    SafeHtmlUtils.fromString(app.getExtSourceLoa() + "").asString() +
-                    "</br><b>IdP category:</b> " +
-                    (!(error.getCategory().equals("")) ? SafeHtmlUtils.fromString(error.getCategory()).asString() :
-                        "N/A") +
-                    "</br><b>Affiliation:</b> " + (!(error.getAffiliation().equals("")) ?
-                    SafeHtmlUtils.fromString(error.getAffiliation().replace(";", ", ")).asString() : "N/A") +
-                    ((error.isSoft()) ?
-                        "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
-          }
           if ("NOT_ELIGIBLE".equals(error.getReason())) {
-            layout.setHTML(0, 1, "<p>User is not eligible for CESNET services and application shouldn't be approved." +
+            layout.setHTML(0, 1, "<p>The applicant's account does not contain a valid academic affiliation, so the user is not eligible for CESNET services." +
                 ((error.isSoft()) ?
-                    "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
+                    "<p>You may override this restriction – just click 'Approve anyway'." : ""));
+          } else if ("NOT_ELIGIBLE_EINFRACZ".equals(error.getReason())) {
+            layout.setHTML(0, 1, "<p>The applicant's account does not contain a valid academic affiliation, so the user is not eligible for e‑INFRA CZ services." +
+                ((error.isSoft()) ?
+                    "<p>You may override this restriction – just click 'Approve anyway'." : ""));
           } else {
             layout.setHTML(0, 1, "<p>" + SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + ((error.isSoft()) ?
                 "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
