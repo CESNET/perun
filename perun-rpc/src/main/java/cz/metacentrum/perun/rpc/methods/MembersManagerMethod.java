@@ -1233,7 +1233,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
   /*#
    * Get all RichMembers with attributes specific for list of attrsNames from the vo and have only
-   * status which is contain in list of statuses.
+   * status which is contains in list of statuses.
    * If attrsNames is empty or null return all attributes for specific richMembers.
    * If listOfStatuses is empty or null, return all possible statuses.
    *
@@ -1252,7 +1252,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    */
   /*#
    * Get all RichMembers with attributes specific for list of attrsNames from the group and have only
-   * status which is contain in lists of statuses.
+   * status which is contains in lists of statuses.
    * If attrsNames is empty or null return all attributes for specific richMembers.
    * If listOfStatuses or listOfGroupStatuses is empty or null, return all possible statuses.
    *
@@ -1262,7 +1262,7 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @param group int Group <code>id</code>
    * @param attrsNames List<String> Attribute names
    * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | EXPIRED | DISABLED)
-   * @param allowedGroupStatuses (Optional) List<String> Allowed statuses (VALID | EXPIRED)
+   * @param allowedGroupStatuses List<String> Allowed group statuses (VALID | EXPIRED)
    * @param lookingInParentGroup boolean If true, look up in a parent group
    * @return List<RichMember> List of richMembers with specific attributes from group
    */
