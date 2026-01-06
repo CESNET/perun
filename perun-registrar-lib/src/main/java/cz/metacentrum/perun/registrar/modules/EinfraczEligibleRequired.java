@@ -38,7 +38,7 @@ public class EinfraczEligibleRequired extends DefaultRegistrarModule {
 
     if (createdAt.isAfter(yearAgo)) {
       LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
-      List<String> eligibility = List.of(additionalAttributes.get("internalEligibilities").split(";"));
+      List<String> eligibility = List.of(additionalAttributes.getOrDefault("internalEligibilities", "").split(";"));
       if (eligibility.contains(ELIGIBILITY_FED_ATTR)) {
         return app;
       }
@@ -66,7 +66,7 @@ public class EinfraczEligibleRequired extends DefaultRegistrarModule {
   @Override
   public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> federValues,
                              Map<String, List<String>> externalParams) throws PerunException {
-    List<String> eligibility = List.of(federValues.get("internalEligibilities").split(";"));
+    List<String> eligibility = List.of(federValues.getOrDefault("internalEligibilities", "").split(";"));
     if (eligibility.contains(ELIGIBILITY_FED_ATTR)) {
       return;
     }
