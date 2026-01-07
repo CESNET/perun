@@ -1,5 +1,13 @@
 Upgrade notes
 
+## [49.7.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.7.0...v49.7.1) (2026-01-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.9 ([92d734d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/92d734d3604500d5524e4ca723d6b610b3d2b945))
+* einfracz eligible modules failing ([be12b22](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/be12b2254029f4a427915bd221e59ca8d143d985))
+
 ## [49.7.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.6.0...v49.7.0) (2025-12-12)
 
 
