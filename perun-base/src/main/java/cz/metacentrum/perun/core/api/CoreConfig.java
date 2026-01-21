@@ -571,14 +571,6 @@ public class CoreConfig {
     this.mailchangeReplyTo = mailchangeReplyTo;
   }
 
-  public String getMailchangeSecretKey() {
-    return mailchangeSecretKey;
-  }
-
-  public void setMailchangeSecretKey(String mailchangeSecretKey) {
-    this.mailchangeSecretKey = mailchangeSecretKey;
-  }
-
   public int getMailchangeValidationWindow() {
     return mailchangeValidationWindow;
   }
