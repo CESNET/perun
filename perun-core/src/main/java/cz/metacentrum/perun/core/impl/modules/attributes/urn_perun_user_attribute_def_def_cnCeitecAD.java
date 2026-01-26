@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.modules.CeitecCrmConnector;
@@ -115,8 +114,22 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
         filledAttribute.setValue(lastName + " " + firstName);
       }
       try {
+        // check uniqueness in perun
         checkAttributeSemantics(session, user, filledAttribute);
-        return filledAttribute;
+
+        // if called as fallback and module exist, check uniqueness in CRM too!
+        if (loader.moduleFileExists("Ceitec")) {
+          if (ceitecCrmConnector.checkAttributeExist("ce_cn_ceitec_ad", filledAttribute.valueAsString())) {
+            // continue in a WHILE cycle
+            iterator++;
+          } else {
+            // new CN is not used in CRM
+            return filledAttribute;
+          }
+        } else {
+          // passed semantic check in perun and CRM is not checked (used)
+          return filledAttribute;
+        }
       } catch (WrongReferenceAttributeValueException ex) {
         // continue in a WHILE cycle
         iterator++;
@@ -127,46 +140,61 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 
   }
 
+  /**
+   * Fill attribute using same rules, but data is taken from CRM side (new CEITEC on e-INFRA CZ instance)
+   * We call CRM passing users ceitec_id, and eppns and get back
+   * either existing "CEITEC CN in AD" for matching user (by ceitec_id, or eppns)
+   * or we falls-back to locally generated CEITEC CN if no matching user is found.
+   * If eppns are split between multiple user accounts in ceitec CRM, this throws error since user must "choose"
+   * one of the accounts.
+   *
+   * @param perunSession
+   * @param user
+   * @param filledAttribute
+   * @return
+   */
   private Attribute fillAttributeUsingCRM(PerunSessionImpl perunSession, User user, Attribute filledAttribute) {
 
-    AttributesManagerBl attributesManagerBl = perunSession.getPerunBl().getAttributesManagerBl();
+    PerunBl perunBl = perunSession.getPerunBl();
     try {
+
       // Exclusive lock for transaction
-      Attribute lock = attributesManagerBl.getEntitylessAttributeForUpdate(perunSession, "CRM",
+      Attribute lock = perunBl.getAttributesManagerBl().getEntitylessAttributeForUpdate(perunSession, "CRM",
               AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":ceitecCrmLock");
-      String cn = getCNFromCRM(perunSession, user);
-      filledAttribute.setValue(cn);
-      return filledAttribute;
+
+      // Get input data to check CRM
+      Attribute ceitecId = null;
+      Attribute eppns = null;
+
+      try {
+        ceitecId = perunBl.getAttributesManagerBl().getAttribute(perunSession, user,
+                AttributesManager.NS_USER_ATTR_DEF + ":ceitecId");
+      } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+        throw new InternalErrorException(e);
+      }
+      try {
+        eppns = perunBl.getAttributesManagerBl().getAttribute(perunSession, user,
+                AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonPrincipalNames");
+      } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+        throw new InternalErrorException(e);
+      }
+
+      // NOTE: If there are multiple users found for passed eppns or there is any other
+      // error contacting CRM API, this implementation throws error to upper layers and stop transaction.
+
+      if (ceitecCrmConnector.checkCrmUserExists(ceitecId.valueAsString(), eppns.valueAsList())) {
+        // Single user found in CRM either by ceitecID or EPPNs
+        String ceitecCn = ceitecCrmConnector.getCn(ceitecId.valueAsString(), eppns.valueAsList());
+        filledAttribute.setValue(ceitecCn);
+        return filledAttribute;
+
+      } else {
+        // User doesn't exist in CRM - generate login locally !!
+        return fillAttributeLocally(perunSession, user, filledAttribute);
+      }
+
     } catch (AttributeNotExistsException e) {
       throw new InternalErrorException("Locking attribute ceitecCrmLock not found.");
-    }
-
-  }
-
-  private String getCNFromCRM(PerunSessionImpl perunSession, User user) {
-
-    PerunBl perunBl = perunSession.getPerunBl();
-    Attribute eppns = null;
-    Attribute ceitecId = null;
-
-    try {
-      eppns = perunBl.getAttributesManagerBl().getAttribute(perunSession, user,
-              AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonPrincipalNames");
-    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-      throw new InternalErrorException(e);
-    }
-
-    try {
-      ceitecId = perunBl.getAttributesManagerBl().getAttribute(perunSession, user,
-              AttributesManager.NS_USER_ATTR_DEF + ":ceitecId");
-    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-      throw new InternalErrorException(e);
-    }
-
-    try {
-      return ceitecCrmConnector.getCn(ceitecId.valueAsString(), eppns, user);
-    } catch (Exception ex) {
-      return null;
     }
 
   }

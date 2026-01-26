@@ -56,7 +56,7 @@ public class Ceitec extends DefaultRegistrarModule {
                 "Registration in e-INFRA CZ instance of CEITEC is opened only for current CEITEC users." +
                         "Make sure 'ceitec_id' parameter is present in registration URL.",
                 "NOT_ELIGIBLE_CEITEC", null, null);
-      } else if (!ceitecCrmConnector.checkCrmUserExists(ceitecId)) {
+      } else if (!ceitecCrmConnector.checkCrmUserExists(ceitecId, null)) {
         throw new CantBeSubmittedException(
                 "Registration in e-INFRA CZ instance of CEITEC is opened only for current CEITEC users." +
                         "Provided 'ceitec_id' parameter is not valid.",
@@ -84,7 +84,7 @@ public class Ceitec extends DefaultRegistrarModule {
     if (StringUtils.isBlank(ceitecId)) {
       return;
     }
-    if (!ceitecCrmConnector.checkCrmUserExists(ceitecId)) {
+    if (!ceitecCrmConnector.checkCrmUserExists(ceitecId, null)) {
       return;
     }
     for (ApplicationFormItemWithPrefilledValue formItem : formItems) {
@@ -131,15 +131,18 @@ public class Ceitec extends DefaultRegistrarModule {
               AttributesManager.NS_USER_ATTR_DEF + ":ceitecId");
       if (a != null) {
         if (a.getValue() != null) {
-          throw new WrongAttributeValueException("User " + user +
+          throw new CantBeApprovedException("User " + user +
                   " already has CEITEC ID attribute.");
         }
         a.setValue(ceitecId);
         perun.getAttributesManagerBl().setAttribute(session, user, a);
       }
-    } catch (WrongAttributeAssignmentException | WrongAttributeValueException |
-             WrongReferenceAttributeValueException e) {
+    } catch (WrongAttributeAssignmentException e) {
       throw new CantBeApprovedException("Can't get/set ceitecId attribute.", e);
+    } catch (WrongAttributeValueException e) {
+      throw new CantBeApprovedException("Can't set ceitecId attribute.", e);
+    } catch (WrongReferenceAttributeValueException e) {
+      throw new CantBeApprovedException("Can't set ceitecId attribute. Same value is already set for another user.", e);
     } catch (AttributeNotExistsException e) {
       throw new ConsistencyErrorException("Required attribute for CEITEC ID doesn't exist.");
     }
