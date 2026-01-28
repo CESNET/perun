@@ -1071,29 +1071,6 @@ public class Utils {
   }
 
   /**
-   * Return encrypted version of input in UTF-8 by HmacSHA256
-   *
-   * @param input input to encrypt
-   * @return encrypted value
-   */
-  public static String getMessageAuthenticationCode(String input) {
-
-    if (input == null) {
-      throw new NullPointerException("input must not be null");
-    }
-    try {
-      Mac mac = Mac.getInstance("HmacSHA256");
-      mac.init(new SecretKeySpec(BeansUtils.getCoreConfig().getMailchangeSecretKey().getBytes(StandardCharsets.UTF_8),
-          "HmacSHA256"));
-      byte[] macbytes = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
-      return new BigInteger(macbytes).toString(Character.MAX_RADIX);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-
-  }
-
-  /**
    * Send validation email related to requested change of users preferred email.
    *
    * @param user          user to change preferred email for

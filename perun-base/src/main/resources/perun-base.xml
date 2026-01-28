@@ -41,7 +41,6 @@
                   value="#{'${perun.externalProgramsDependencies}'.split('\s*,\s*')}"/>
         <property name="mailchangeBackupFrom" value="${perun.mailchange.backupFrom}"/>
         <property name="mailchangeReplyTo" value="${perun.mailchange.replyTo}"/>
-        <property name="mailchangeSecretKey" value="${perun.mailchange.secretKey}"/>
         <property name="mailchangeValidationWindow" value="${perun.mailchange.validationWindow}"/>
         <property name="nativeLanguage" value="${perun.native.language}"/>
         <property name="notificationPrincipals" value="#{'${perun.notification.principals}'.split('\s*,\s*')}"/>
@@ -153,7 +152,6 @@
                 <prop key="perun.passwordManager.program">/usr/local/bin/perun.passwordManager</prop>
                 <prop key="perun.alternativePasswordManager.program">/usr/local/bin/perun.altPasswordManager</prop>
                 <prop key="perun.recaptcha.privatekey"/>
-                <prop key="perun.mailchange.secretKey"/>
                 <prop key="perun.mailchange.backupFrom"/>
                 <prop key="perun.mailchange.replyTo"/>
                 <prop key="perun.mailchange.validationWindow">6</prop>
