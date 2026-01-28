@@ -1,5 +1,29 @@
 Upgrade notes
 
+## [49.8.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.7.1...v49.8.0) (2026-01-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* New property "checkExistingLoginUrl" must be added in Ceitec.yaml module file. Also make sure 'ceitec' login-namespace is set as generated in perun.properties.
+* **core:** Property "perun.mailchange.secretKey" is no longer used and can be removed from perun.properties file.
+
+### Features
+
+* reworked ceitec modules ([7d19f9d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7d19f9d6a01d674236b1fd41dac9fe5662f2ba7c))
+
+
+### Bug Fixes
+
+* **deps:** owasp html sanitizer bump due to security ([2dcd115](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2dcd1151bb2f5ddb26597be30fb33e7d3db8b616))
+* **deps:** update dependency google-api-services-admin-directory ([d956c6e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d956c6ed833c20dd22a4b77ced2ff204b979c3cb))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.10 ([cd688bf](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cd688bf02e5f10711aeda952bf17fef4f012a853))
+
+
+### Refactoring
+
+* **core:** removed unused config property perun.mailchange.secretKey ([27c29d8](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/27c29d8c17d9e84babd78cb54ebfca78b5cd9015))
+
 ## [49.7.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.7.0...v49.7.1) (2026-01-07)
 
 
