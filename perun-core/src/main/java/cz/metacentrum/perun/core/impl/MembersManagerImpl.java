@@ -1057,8 +1057,10 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       boolean availableSponsorExists = !jdbc.query(
           "select " + USER_MAPPING_SELECT_QUERY + " from authz join users on authz.user_id=users.id" +
               " where (authz.role_id=? or authz.role_id=?) and authz.vo_id=? and" +
-              " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id) limit 1",
-          USER_MAPPER, sponsorRoleId, sponsorNoCreateRightRoleId, member.getVoId(), member.getId()).isEmpty();
+              " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id" +
+              " and active=?) limit 1",
+          USER_MAPPER, sponsorRoleId, sponsorNoCreateRightRoleId, member.getVoId(), member.getId(), true)
+                                            .isEmpty();
 
       if (!availableSponsorExists) {
         Vo vo = new Vo(member.getVoId(), "DummyVo", "DummyVo");
@@ -1097,8 +1099,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
       Set<User> sponsors = new HashSet<>(jdbc.query(
           "select " + USER_MAPPING_SELECT_QUERY + " from authz join users on authz.user_id=users.id" +
               " where (authz.role_id=? or authz.role_id=?) and authz.vo_id=? and" +
-              " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id)",
-          USER_MAPPER, sponsorRoleId, sponsorNoCreateRightRoleId, member.getVoId(), member.getId()));
+              " not exists(select 1 from members_sponsored where sponsored_id=? and sponsor_id=users.id" +
+              " and active = ?)",
+          USER_MAPPER, sponsorRoleId, sponsorNoCreateRightRoleId, member.getVoId(), member.getId(), true));
 
       Vo vo = new Vo(member.getVoId(), "DummyVo", "DummyVo");
 
