@@ -1,5 +1,17 @@
 Upgrade notes
 
+## [49.9.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.8.0...v49.9.0) (2026-02-03)
+
+
+### Features
+
+* **openapi:** add getAllSubGroups to GroupsAgent.pm ([b301898](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b3018980a28b1bf9de2a4f11125f55def21af8c4))
+
+
+### Bug Fixes
+
+* **core:** search by correct values in ceitec crm ([020ec7d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/020ec7dc7f88b294128200c3e2993b1045744d40))
+
 ## [49.8.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.7.1...v49.8.0) (2026-01-28)
 
 
