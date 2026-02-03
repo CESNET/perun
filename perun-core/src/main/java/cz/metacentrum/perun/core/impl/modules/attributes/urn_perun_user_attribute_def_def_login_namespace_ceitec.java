@@ -177,11 +177,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec
 
           // if called as fallback and module exist, check uniqueness in CRM too!
           if (loader.moduleFileExists("Ceitec")) {
-            if (ceitecCrmConnector.checkAttributeExist("new_ceitec_login", filledAttribute.valueAsString())) {
+            // prepend "CEITEC\" since it is stored like this in CRM
+            if (ceitecCrmConnector.checkAttributeExist("new_ceitec_login",
+                    "CEITEC\\" + filledAttribute.valueAsString())) {
               // continue in a WHILE cycle
               iterator++;
             } else {
-              // new CN is not used in CRM
+              // new CEITEC login is not used in CRM
               return filledAttribute;
             }
           } else {
