@@ -88,6 +88,11 @@ sub getSubGroups
 	return Perun::Common::callManagerMethod('getSubGroups', '[]Group', @_);
 }
 
+sub getAllSubGroups
+{
+	return Perun::Common::callManagerMethod('getAllSubGroups', '[]Group', @_);
+}
+
 sub addAdmin
 {
 	return Perun::Common::callManagerMethod('addAdmin', 'null', @_);
