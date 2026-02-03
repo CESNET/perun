@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [49.9.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.9.0...v49.9.1) (2026-02-03)
+
+
+### Bug Fixes
+
+* **core:** handle empty list in ceitec registration module ([310037f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/310037fda3d47ffa3287213f32671e96f7731ea4))
+
 ## [49.9.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.8.0...v49.9.0) (2026-02-03)
 
 
