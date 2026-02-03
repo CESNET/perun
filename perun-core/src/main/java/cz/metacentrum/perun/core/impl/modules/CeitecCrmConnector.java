@@ -8,7 +8,11 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
@@ -61,7 +65,7 @@ public class CeitecCrmConnector {
       throw new InternalErrorException("We are in migration period, users are required to have ceitec ID.");
     }
 
-    HttpGet request = getRequest(ceitecId, eppns);
+    HttpGet request = getRequest(ceitecId, fixEppns(eppns));
 
     try {
       CloseableHttpResponse response = httpClient.execute(request);
@@ -87,7 +91,7 @@ public class CeitecCrmConnector {
         }
         if (array.length() > 1) {
           // multiple users found -> error
-          LOG.error("Multiple users found in CRM for ceitecId: '{}' and eppns: '{}'.", ceitecId, eppns);
+          LOG.error("Multiple users found in CRM for ceitecId: '{}' and eppns: '{}'.", ceitecId, fixEppns(eppns));
           throw new InternalErrorException("Multiple users found in CRM.");
         } else if (array.isEmpty()) {
           // no users found
@@ -118,7 +122,7 @@ public class CeitecCrmConnector {
       throw new InternalErrorException("We are in migration period, users are required to have ceitec ID.");
     }
 
-    HttpGet request = getRequest(ceitecId, eppns);
+    HttpGet request = getRequest(ceitecId, fixEppns(eppns));
 
     ResponseHandler<String> rh = httpResponse -> {
       StatusLine statusLine = httpResponse.getStatusLine();
@@ -145,7 +149,7 @@ public class CeitecCrmConnector {
         }
       }
       if (array.length() > 1) {
-        LOG.error("Multiple users found in CRM for ceitecId: '{}' and eppns: '{}'.", ceitecId, eppns);
+        LOG.error("Multiple users found in CRM for ceitecId: '{}' and eppns: '{}'.", ceitecId, fixEppns(eppns));
         throw new InternalErrorException("Multiple users found in CRM.");
       } else if (array.isEmpty()) {
         return null;
@@ -180,7 +184,7 @@ public class CeitecCrmConnector {
       throw new InternalErrorException("We are in migration period, users are required to have ceitec ID.");
     }
 
-    HttpGet request = getRequest(ceitecId, eppns);
+    HttpGet request = getRequest(ceitecId, fixEppns(eppns));
 
     ResponseHandler<String> rh = httpResponse -> {
       StatusLine statusLine = httpResponse.getStatusLine();
@@ -201,7 +205,7 @@ public class CeitecCrmConnector {
         return object.getString("ce_cn_ceitec_ad");
       }
       if (array.length() > 1) {
-        LOG.error("Multiple users found in CRM for ceitecId: '{}' and eppns: '{}'.", ceitecId, eppns);
+        LOG.error("Multiple users found in CRM for ceitecId: '{}' and eppns: '{}'.", ceitecId, fixEppns(eppns));
         throw new InternalErrorException("Multiple users found in CRM.");
       } else if (array.isEmpty()) {
         return null;
@@ -282,7 +286,7 @@ public class CeitecCrmConnector {
       uri.addParameter("id", ceitecId);
     }
     if (eppns != null) {
-      eppns.forEach(eppn -> {
+      fixEppns(eppns).forEach(eppn -> {
         uri.addParameter("eppns[]", eppn);
       });
     }
@@ -454,6 +458,34 @@ public class CeitecCrmConnector {
       return now.isAfter(LocalDateTime.parse(expiresAt));
 
     }
+
+  }
+
+  /**
+   * Return list of EPPNs including MU formatted Google and Linked-In identities.
+   *
+   * @param eppns Eppns from einfra perun
+   * @return If Google or LinkedIn identity is present, includes also identities in MU format.
+   */
+  private List<String> fixEppns(List<String> eppns) {
+
+    if (eppns == null || eppns.isEmpty()) {
+      return eppns;
+    }
+
+    Set<String> fixedEppns = new HashSet<>();
+
+    for (String eppn : eppns) {
+      fixedEppns.add(eppn);
+      if (eppn.endsWith("@google.extidp.cesnet.cz")) {
+        fixedEppns.add(eppn.substring(0, eppn.lastIndexOf("@google.extidp.cesnet.cz")) + "@google");
+      }
+      if (eppn.endsWith("@linkedin.extidp.cesnet.cz")) {
+        fixedEppns.add(eppn.substring(0, eppn.lastIndexOf("@linkedin.extidp.cesnet.cz")) + "@linkedin");
+      }
+    }
+
+    return fixedEppns.stream().toList();
 
   }
 
