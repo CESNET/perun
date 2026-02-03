@@ -47,7 +47,9 @@ public class Ceitec extends DefaultRegistrarModule {
     String ceitecId = null;
     if (externalParams != null) {
       List<String> ceitecIds = externalParams.get("ceitec_id");
-      ceitecId = ceitecIds.get(0);
+      if (ceitecIds != null && !ceitecIds.isEmpty()) {
+        ceitecId = ceitecIds.get(0);
+      }
     }
 
     if (ceitecCrmConnector.isMigrationRunning() && Application.AppType.INITIAL.equals(appType)) {
@@ -74,7 +76,9 @@ public class Ceitec extends DefaultRegistrarModule {
     String ceitecId = null;
     if (externalParams != null) {
       List<String> ceitecIds = externalParams.get("ceitec_id");
-      ceitecId = ceitecIds.get(0);
+      if (ceitecIds != null && !ceitecIds.isEmpty()) {
+        ceitecId = ceitecIds.get(0);
+      }
     }
 
     if (!ceitecCrmConnector.isMigrationRunning()) {
