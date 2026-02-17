@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,12 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 
   @Override
   public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws NotifRegexAlreadyExistsException {
+
+    try {
+      Pattern.compile(regex.getRegex());
+    } catch (PatternSyntaxException e) {
+      throw new InternalErrorException("Regex does not have valid syntax", e);
+    }
 
     // check if there is no other Notif regex with the same regular expression
     for (PerunNotifRegex item : getAllPerunNotifRegexes()) {
@@ -213,6 +221,12 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
   }
 
   public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex regex) {
+
+    try {
+      Pattern.compile(regex.getRegex());
+    } catch (PatternSyntaxException e) {
+      throw new InternalErrorException("Regex does not have valid syntax", e);
+    }
 
     PerunNotifRegex oldRegex = perunNotifRegexDao.getPerunNotifRegexById(regex.getId());
     PerunNotifRegex updatedRegex = perunNotifRegexDao.updatePerunNotifRegexInternals(regex);
