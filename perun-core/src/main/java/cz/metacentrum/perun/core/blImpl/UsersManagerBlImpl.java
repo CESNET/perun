@@ -2475,8 +2475,19 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
       AttributeDefinition definition = attrsManager.getAttributeDefinition(sess, attributeName);
       Attribute attribute = new Attribute(definition);
-      attribute.setValue(
-          attrsManager.stringToAttributeValue(candidate.getAttributes().get(attributeName), attribute.getType()));
+      String attributeValueString = candidate.getAttributes().get(attributeName);
+      String attributeType = attribute.getType();
+      int userId = user.getId();
+      try {
+        attribute.setValue(
+                attrsManager.stringToAttributeValue(attributeValueString, attributeType));
+      } catch (Exception e) {
+        LOG.error("Failed to convert string: \"{}\" to attribute value of type: '{}' while " +
+                        "attempting to set candidate attribute: '{}' for User: {}",
+                attributeValueString, attributeType, attributeName, userId);
+        throw new InternalErrorException("Couldn't set candidate attributes for User: " + userId + " due to " +
+                "exception which occurred while attempting to set attribute: '" + attributeName + "'.", e);
+      }
       attributesToSet.add(attribute);
     }
     attrsManager.setAttributes(sess, user, attributesToSet);
