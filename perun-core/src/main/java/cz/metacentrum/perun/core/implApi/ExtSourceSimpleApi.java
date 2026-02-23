@@ -26,21 +26,6 @@ public interface ExtSourceSimpleApi {
   void close() throws ExtSourceUnsupportedOperationException;
 
   /**
-   * Finds all subjects logins in the external source, that contains searchString, limited by the maxResults.
-   * <p>
-   * This method is used for getting all logins of subjects in external source and then use them to searching in
-   * external source for other subjects attributes
-   *
-   * @param searchString
-   * @param maxResults   limit returned results
-   * @return list of maps, which contains attr_name-&gt;attr_value but only for login definition eg. login;MichalS
-   * @throws InternalErrorException
-   * @throws ExtSourceUnsupportedOperationException
-   */
-  List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException;
-
-  /**
    * Finds all subjects logins in the external source, that contains searchString.
    * <p>
    * This method is used for getting all logins of subjects in external source and then use them to searching in

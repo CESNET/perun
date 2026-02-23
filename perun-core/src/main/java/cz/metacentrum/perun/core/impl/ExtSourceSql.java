@@ -83,17 +83,12 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
   }
 
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) {
+  public List<Map<String, String>> findSubjectsLogins(String searchString) {
     String query = getAttributes().get("query");
     if (query == null) {
       throw new InternalErrorException("query attribute is required");
     }
-    return this.querySource(query, searchString, maxResults);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString) {
-    return findSubjectsLogins(searchString, 0);
+    return this.querySource(query, searchString);
   }
 
   protected DataSource getDataSource() {
@@ -113,7 +108,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
   public List<Map<String, String>> getGroupSubjects(Map<String, String> groupAttributes) throws InternalErrorException {
     // Get the sql query for the group subjects
     String sqlQueryForGroup = groupAttributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-    return this.querySource(sqlQueryForGroup, null, 0);
+    return this.querySource(sqlQueryForGroup, null);
   }
 
   @Override
@@ -123,7 +118,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
       throw new InternalErrorException("loginQuery attribute is required");
     }
 
-    List<Map<String, String>> subjects = this.querySource(query, login, 0);
+    List<Map<String, String>> subjects = this.querySource(query, login);
 
     if (subjects.size() < 1) {
       throw new SubjectNotExistsException("Login: " + login);
@@ -149,7 +144,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
     if (query == null) {
       throw new InternalErrorException("usersQuery attribute is required");
     }
-    return this.querySource(query, null, 0);
+    return this.querySource(query, null);
   }
 
   /**
@@ -219,7 +214,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
     }
   }
 
-  protected List<Map<String, String>> querySource(String query, String searchString, int maxResults)
+  protected List<Map<String, String>> querySource(String query, String searchString)
       throws InternalErrorException {
     LOG.debug("Searching for '{}' in external source '{}'", searchString, getName());
     try (Connection con = getDataSource().getConnection()) {
@@ -230,10 +225,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
             st.setString(i, searchString);
           }
         }
-        // Limit results
-        if (maxResults > 0) {
-          st.setMaxRows(maxResults);
-        }
+
         // make the SQL query
         LOG.trace("Query {}", query);
         try (ResultSet rs = st.executeQuery()) {

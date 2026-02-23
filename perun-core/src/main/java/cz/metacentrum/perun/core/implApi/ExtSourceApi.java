@@ -26,17 +26,4 @@ public interface ExtSourceApi extends ExtSourceSimpleApi {
    */
   List<Map<String, String>> findSubjects(String searchString) throws ExtSourceUnsupportedOperationException;
 
-  /**
-   * Finds all subjects with attributes in the external source, that contains searchString limited by the maxResults
-   * <p>
-   * This method is used for getting all logins of subjects in external source with all possible attributes.
-   *
-   * @param searchString
-   * @param maxResults   define max number of returned results, 0 means unlimited
-   * @return list of maps, which contains attr_name-&gt;attr_value (for all extSource attributes)
-   * @throws InternalErrorException
-   * @throws ExtSourceUnsupportedOperationException
-   */
-  List<Map<String, String>> findSubjects(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException;
 }

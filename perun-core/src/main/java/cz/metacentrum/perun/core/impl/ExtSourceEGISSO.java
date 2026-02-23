@@ -203,7 +203,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
   }
 
   @Override
-  protected List<Map<String, String>> querySource(String query, String base, int maxResults) {
+  protected List<Map<String, String>> querySource(String query, String base) {
     List<Map<String, String>> subjects = new ArrayList<>();
     NamingEnumeration<SearchResult> results = null;
 
@@ -218,9 +218,6 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
     try {
       SearchControls controls = new SearchControls();
       controls.setTimeLimit(5000);
-      if (maxResults > 0) {
-        controls.setCountLimit(maxResults);
-      }
       results = getContext().search(base, query, controls);
 
       while (results.hasMore()) {

@@ -41,19 +41,7 @@ public class ExtSourceJSON extends ExtSourceImpl implements ExtSourceApi {
   }
 
   @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException("Not implemented.");
-  }
-
-  @Override
   public List<Map<String, String>> findSubjectsLogins(String searchString)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException("Not implemented.");
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
       throws ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException("Not implemented.");
   }
