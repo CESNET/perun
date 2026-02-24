@@ -5526,7 +5526,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
             "Not existing attribute specified to be set for a group during group" + "structure synchronization: " +
             attrName, exception);
       }
-      Object value = BeansUtils.stringToAttributeValue(rawValue, definition.getType());
+      Object value;
+      String definitionType = definition.getType();
+      int groupId = group.getId();
+      try {
+        value = BeansUtils.stringToAttributeValue(rawValue, definition.getType());
+      } catch (Exception e) {
+        LOG.error("Failed to convert string: \"{}\" to attribute value of type: '{}' while " +
+                        "processing attribute: '{}' of Group: {}",
+                rawValue, definitionType, attrName, groupId);
+        throw new InternalErrorException("Couldn't set up additional attributes for Group: " + groupId + " due to " +
+                "exception which occurred while attempting to set up attribute: '" + attrName + "'.", e);
+      }
       Attribute attribute = new Attribute(definition, value);
       try {
         if (mergeAttributes != null && mergeAttributes.contains(attrName)) {
@@ -6377,10 +6388,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   private void updateMemberAttribute(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate,
                                      AttributeDefinition attributeDefinition, List<String> mergeMemberAttributesList) {
     for (Attribute memberAttribute : memberToUpdate.getMemberAttributes()) {
-      if (memberAttribute.getName().equals(attributeDefinition.getName())) {
-        Object subjectAttributeValue = getPerunBl().getAttributesManagerBl()
-            .stringToAttributeValue(candidate.getAttributes().get(attributeDefinition.getName()),
-                memberAttribute.getType());
+
+      String memberAttributeName = memberAttribute.getName();
+      if (memberAttributeName.equals(attributeDefinition.getName())) {
+        Object subjectAttributeValue;
+        String memberAttributeValueString = candidate.getAttributes().get(attributeDefinition.getName());
+        String memberAttributeType = memberAttribute.getType();
+        int memberId = memberToUpdate.getId();
+        try {
+          subjectAttributeValue = getPerunBl().getAttributesManagerBl()
+                  .stringToAttributeValue(memberAttributeValueString, memberAttributeType);
+        } catch (Exception e) {
+          LOG.error("Failed to convert string: \"{}\" to attribute value of type: '{}' while " +
+                          "processing MemberAttribute: '{}' of Member: {}",
+                  memberAttributeValueString, memberAttributeType, memberAttributeName, memberId);
+          throw new InternalErrorException("Couldn't update MemberAttribute: '" + memberAttributeName + "' for " +
+                  "Member: " + memberId + " due to error.", e);
+        }
         if (subjectAttributeValue != null && !Objects.equals(memberAttribute.getValue(), subjectAttributeValue)) {
           LOG.trace(
               "Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new " +
@@ -6506,10 +6530,22 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   private void updateUserAttribute(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate,
                                    AttributeDefinition attributeDefinition, List<String> overwriteUserAttributesList) {
     for (Attribute userAttribute : memberToUpdate.getUserAttributes()) {
-      if (userAttribute.getName().equals(attributeDefinition.getName())) {
-        Object subjectAttributeValue = getPerunBl().getAttributesManagerBl()
-            .stringToAttributeValue(candidate.getAttributes().get(attributeDefinition.getName()),
-                userAttribute.getType());
+      String userAttributeName = userAttribute.getName();
+      if (userAttributeName.equals(attributeDefinition.getName())) {
+        Object subjectAttributeValue;
+        String userAttributeValueString = candidate.getAttributes().get(attributeDefinition.getName());
+        String userAttributeType = userAttribute.getType();
+        int userId = memberToUpdate.getUserId();
+        try {
+          subjectAttributeValue = getPerunBl().getAttributesManagerBl()
+                  .stringToAttributeValue(userAttributeValueString, userAttributeType);
+        } catch (Exception e) {
+          LOG.error("Failed to convert string: \"{}\" to attribute value of type: '{}' while " +
+                          "processing UserAttribute: '{}' of User: {}",
+                  userAttributeValueString, userAttributeType, userAttributeName, userId);
+          throw new InternalErrorException("Couldn't update UserAttribute: '" + userAttributeName + "' for User: " +
+                  userId + " due to error.", e);
+        }
         if (!Objects.equals(userAttribute.getValue(), subjectAttributeValue)) {
           LOG.trace(
               "Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new " +
