@@ -534,7 +534,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
     addExtSourceDelegate(createdVo);
 
-    final List<Candidate> candidates = vosManagerEntry.findCandidates(sess, createdVo, "kouril", 1);
+    final List<Candidate> candidates = vosManagerEntry.findCandidates(sess, createdVo, "kouril");
 
     assertEquals(1, candidates.size());
     removeExtSourceDelegate(createdVo);

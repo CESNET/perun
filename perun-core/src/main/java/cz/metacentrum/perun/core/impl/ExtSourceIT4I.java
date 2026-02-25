@@ -103,12 +103,6 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
   }
 
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
-  }
-
-  @Override
   public List<Map<String, String>> findSubjectsLogins(String searchString)
       throws ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();

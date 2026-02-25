@@ -186,22 +186,6 @@ public interface VosManager {
    * Finds users, who can join the Vo.
    *
    * @param perunSession
-   * @param vo
-   * @param searchString    depends on the extSource of the VO, could by part of the name, email or something like
-   *                        that.
-   * @param maxNumOfResults limit the maximum number of returned entries
-   * @return list of candidates who match the searchString
-   * @throws InternalErrorException
-   * @throws VoNotExistsException
-   * @throws PrivilegeException
-   */
-  List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString, int maxNumOfResults)
-      throws VoNotExistsException, PrivilegeException;
-
-  /**
-   * Finds users, who can join the Vo.
-   *
-   * @param perunSession
    * @param vo           vo to be used
    * @param searchString depends on the extSource of the VO, could by part of the name, email or something like that.
    * @return list of candidates who match the searchString

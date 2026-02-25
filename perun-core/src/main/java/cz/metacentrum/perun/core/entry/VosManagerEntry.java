@@ -271,21 +271,6 @@ public class VosManagerEntry implements VosManager {
   }
 
   @Override
-  public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults)
-      throws VoNotExistsException, PrivilegeException {
-    Utils.notNull(searchString, "searchString");
-    Utils.notNull(sess, "sess");
-    vosManagerBl.checkVoExists(sess, vo);
-
-    // Authorization
-    if (!AuthzResolver.authorizedInternal(sess, "findCandidates_Vo_String_int_policy", vo)) {
-      throw new PrivilegeException(sess, "findCandidates");
-    }
-
-    return vosManagerBl.findCandidates(sess, vo, searchString, maxNumOfResults);
-  }
-
-  @Override
   public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString)
       throws VoNotExistsException, PrivilegeException {
     Utils.notNull(searchString, "searchString");

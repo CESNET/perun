@@ -16330,11 +16330,10 @@ paths:
       summary: |
         Find candidates for VO. Candidates can be used to create new members. Candidates are searched
         in VOs external sources (if available). Candidates, which are already members of VO are never
-        returned even if they match searchString. You can also specify maximum number of results.
+        returned even if they match searchString.
       parameters:
         - $ref: '#/components/parameters/id'
         - $ref: '#/components/parameters/searchString'
-        - { name: maxNumOfResults, schema: { type: integer }, in: query, required: false, description: 'Number of maximum results' }
       responses:
         '200':
           $ref: '#/components/responses/ListOfCandidatesResponse'
