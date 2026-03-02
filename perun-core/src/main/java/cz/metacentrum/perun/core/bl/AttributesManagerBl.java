@@ -5462,5 +5462,21 @@ public interface AttributesManagerBl {
    * @throws InternalErrorException
    */
   AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition);
+
+  /**
+   * Updates user and member attributes based on attributes provided from registrar application.
+   * The logins (login-namespace) attributes are not updated if existing, only new logins are set.
+   * Skips null/empty values (except for Boolean).
+   *
+   * @param sess              Perun session
+   * @param user              User to update attributes for
+   * @param member            Member to update attributes for
+   * @param updateOnlyLogins  Update only login attributes and skip all other
+   * @param attributesFromApp Map of attribute names to values from registrar
+   */
+  void updateUserMemberAttributesFromApplicationAttributes(PerunSession sess, User user, Member member,
+                                                           Map<String, String> attributesFromApp,
+                                                           boolean updateOnlyLogins)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 }
 

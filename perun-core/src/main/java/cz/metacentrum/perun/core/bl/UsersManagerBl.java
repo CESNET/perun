@@ -458,6 +458,18 @@ public interface UsersManagerBl {
       throws PasswordOperationTimeoutException, InvalidLoginException, PasswordDeletionFailedException;
 
   /**
+   * Deletes multiple reserved logins from various namespaces.
+   * This method processes a map of login attribute names and their corresponding values,
+   * extracts the namespace from each attribute definition, and deletes the reserved login
+   * for each namespace-login pair.
+   *
+   * @param sess                  perun session
+   * @param loginAttrsNameValueMap map with keys the login attribute names and values are the login values to be deleted
+   * @return list of deleted namespace-login pairs
+   */
+  List<Pair<String, String>> deleteReservedLogins(PerunSession sess, Map<String, String> loginAttrsNameValueMap);
+
+  /**
    * Deletes user.
    *
    * @param perunSession
@@ -1936,4 +1948,18 @@ public interface UsersManagerBl {
   void changeEmailCustom(PerunSession sess, User user, String newEmail, String url, String lang, String path,
                          String idp)
       throws PersonalDataChangeNotEnabledException;
+
+  /**
+   * Unreserve login/password from KDC if the user already has an existing login in that namespace
+   * <p>
+   * !! must be called before setting new attributes from registrar application !!
+   *
+   * @param logins list of all logins/namespace pairs from the application
+   * @param user   user to check logins for
+   * @return List of login/namespace pairs which are purely new and can be set to user and validated in KDC
+   */
+  List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(PerunSession sess,
+                                                                 List<Pair<String, String>> logins, User user)
+      throws PasswordDeletionFailedException, PasswordOperationTimeoutException, LoginNotExistsException,
+                 InvalidLoginException;
 }

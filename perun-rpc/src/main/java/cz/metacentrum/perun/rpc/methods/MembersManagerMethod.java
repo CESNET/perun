@@ -2,6 +2,7 @@ package cz.metacentrum.perun.rpc.methods;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import cz.metacentrum.perun.core.api.ApplicationType;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
@@ -19,8 +20,27 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.rt.MissingOidcAttributesRuntimeException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -33,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -2222,6 +2243,98 @@ public enum MembersManagerMethod implements ManagerMethod {
     public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getMembersManager()
           .getAvailableSponsorsForMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
+    }
+  },
+
+  /*#
+   * Creates a member based on data from a registrar application.
+   *
+   * @param vo int VO id
+   * @param group int Group id
+   * @param attributes Map of user/member attributes from the application
+   * @param oidcAttributes Map of OIDC attributes
+   *
+   * @throw ExtSourceNotExistsException if external source does not exist
+   * @throw UserExtSourceNotExistsException if user external source does not exist
+   * @throw WrongReferenceAttributeValueException if reference attribute value is invalid
+   * @throw AlreadyMemberException if user is already a member
+   * @throw WrongAttributeValueException if attribute value is invalid
+   * @throw ExtendMembershipException if membership cannot be extended
+   * @throw WrongAttributeAssignmentException if attribute assignment is wrong
+   * @throw PasswordOperationTimeoutException if password operation times out
+   * @throw LoginNotExistsException if login does not exist
+   * @throw InvalidLoginException if login is invalid
+   * @throw PasswordDeletionFailedException if password deletion fails
+   * @throw PasswordCreationFailedException if password creation fails
+   * @throw UserNotExistsException if user does not exist when required
+   * @throw AttributeNotExistsException if required attribute does not exist
+   * @throw PrivilegeException if caller lacks required privileges
+   * @throw MemberNotExistsException if member does not exist when required
+   * @throw ExternallyManagedException if target group is externally managed
+   * @throw NotGroupMemberException if user is not a member of the specified group
+   * @throw MissingOidcAttributesRuntimeException if required OIDC claims (issuer, subject) are missing
+   *
+   * @return created or updated member
+   *
+   */
+  createMemberFromInitialRegistrarApplication {
+    @Override
+    public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
+      Group group = null;
+      if (parms.contains("group")) {
+        group = ac.getGroupById(parms.readInt("group"));
+      }
+
+      return ac.getMembersManager().createMemberFromRegistrarApplication(ac.getSession(),
+          ac.getVoById(parms.readInt("vo")), group,
+          (Map<String, String>) parms.read("attributes", LinkedHashMap.class),
+          (Map<String, String>) parms.read("oidcAttributes", LinkedHashMap.class), ApplicationType.INITIAL);
+    }
+  },
+
+  /*#
+   * Extends a membership based on data from a registrar application.
+   *
+   * @param vo int VO id
+   * @param group int Group id
+   * @param attributes Map of user/member attributes from the application
+   * @param oidcAttributes Map of OIDC attributes
+   *
+   * @throw ExtSourceNotExistsException if external source does not exist
+   * @throw UserExtSourceNotExistsException if user external source does not exist
+   * @throw WrongReferenceAttributeValueException if reference attribute value is invalid
+   * @throw AlreadyMemberException if user is already a member
+   * @throw WrongAttributeValueException if attribute value is invalid
+   * @throw ExtendMembershipException if membership cannot be extended
+   * @throw WrongAttributeAssignmentException if attribute assignment is wrong
+   * @throw PasswordOperationTimeoutException if password operation times out
+   * @throw LoginNotExistsException if login does not exist
+   * @throw InvalidLoginException if login is invalid
+   * @throw PasswordDeletionFailedException if password deletion fails
+   * @throw PasswordCreationFailedException if password creation fails
+   * @throw UserNotExistsException if user does not exist when required
+   * @throw AttributeNotExistsException if required attribute does not exist
+   * @throw PrivilegeException if caller lacks required privileges
+   * @throw MemberNotExistsException if member does not exist when required
+   * @throw ExternallyManagedException if target group is externally managed
+   * @throw NotGroupMemberException if user is not a member of the specified group
+   * @throw MissingOidcAttributesRuntimeException if required OIDC claims (issuer, subject) are missing
+   *
+   * @return created or updated member
+   *
+   */
+  extendMembershipFromExtensionRegistrarApplication {
+    @Override
+    public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
+      Group group = null;
+      if (parms.contains("group")) {
+        ac.getGroupById(parms.readInt("group"));
+      }
+
+      return ac.getMembersManager().createMemberFromRegistrarApplication(ac.getSession(),
+          ac.getVoById(parms.readInt("vo")), group,
+          (Map<String, String>) parms.read("attributes", LinkedHashMap.class),
+          (Map<String, String>) parms.read("oidcAttributes", LinkedHashMap.class), ApplicationType.EXTENSION);
     }
   }
 }

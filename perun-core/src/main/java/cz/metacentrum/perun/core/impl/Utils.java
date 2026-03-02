@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -79,7 +80,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -100,6 +100,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +114,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.crypto.Cipher;
-import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
@@ -164,6 +164,15 @@ public class Utils {
   public static final Pattern URL_JSON_PATTERN = URL_PATTERN;
   // set this to +1 than the displayed amount in GUI
   public static final int GLOBAL_SEARCH_LIMIT = BeansUtils.getCoreConfig().getGlobalSearchLimit();
+  private static final Pattern ALNUM_PATTERN = Pattern.compile(".*\\p{Alnum}+.*", Pattern.UNICODE_CHARACTER_CLASS);
+  private static final String OIDC_CLAIM_FIRST_NAME = "given_name";
+  private static final String OIDC_CLAIM_LAST_NAME = "last_name";
+  private static final String URN_USER_TITLE_BEFORE = "urn:perun:user:attribute-def:core:titleBefore";
+  private static final String URN_USER_TITLE_AFTER = "urn:perun:user:attribute-def:core:titleAfter";
+  private static final String URN_USER_FIRST_NAME = "urn:perun:user:attribute-def:core:firstName";
+  private static final String URN_USER_MIDDLE_NAME = "urn:perun:user:attribute-def:core:middleName";
+  private static final String URN_USER_LAST_NAME = "urn:perun:user:attribute-def:core:lastName";
+  private static final String URN_USER_DISPLAY_NAME = "urn:perun:user:attribute-def:core:displayName";
 
   /**
    * Integer row mapper
@@ -3052,4 +3061,192 @@ public class Utils {
     }
   }
 
+  /**
+   * Creates a new Candidate object from registrar data, populating it with attributes and user information.
+   * The login attributes are filtered out, as they will be set later.
+   * The candidate's names and titles are set from the attributes and OIDC data.
+   *
+   * @param attributesArg  map of user attributes from registrar application
+   * @param oidcAttributes map of OIDC attributes from registrar
+   * @return newly created Candidate with populated attributes, names, and titles
+   */
+  public static Candidate createCandidateFromNewRegistrarData(Map<String, String> attributesArg,
+                                                              Map<String, String> oidcAttributes) {
+    // create a copy to not modify the original attributes
+    Map<String, String> attributes = new HashMap<>(attributesArg);
+
+    // we do not set logins, it will be done so later
+    attributes.entrySet()
+        .removeIf(entry -> entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:"));
+
+    Candidate candidate = new Candidate();
+    candidate.setAttributes(attributes);
+
+    setNamesForCandidate(candidate, attributes, oidcAttributes);
+    updateUserNameTitles(candidate, attributes);
+
+    return candidate;
+  }
+
+  /**
+   * Sets first name, middle name, and last name for the given candidate based on available attributes.
+   * The priority to determine which values to use is as follows:
+   * <ol>
+   *   <li>Lowest priority: Parses display name to extract name components</li>
+   *   <li>Medium priority: Uses OIDC claims for first name and last name (if both are present)</li>
+   *   <li>Highest priority: Uses specific user attributes</li>
+   * </ol>
+   *
+   * @param candidate      the candidate whose names will be set
+   * @param attributes     map of user attributes from registrar application
+   * @param oidcAttributes map of OIDC attributes from registrar
+   */
+  private static void setNamesForCandidate(Candidate candidate, Map<String, String> attributes,
+                                           Map<String, String> oidcAttributes) {
+    // Lowest priority
+    if (containsNonEmptyValue(attributes, URN_USER_DISPLAY_NAME)) {
+      Map<String, String> commonName = Utils.parseCommonName(attributes.get(URN_USER_DISPLAY_NAME));
+      if (commonName.get("firstName") != null && !commonName.get("firstName").isEmpty()) {
+        candidate.setFirstName(commonName.get("firstName"));
+      }
+      if (commonName.get("middleName") != null && !commonName.get("middleName").isEmpty()) {
+        candidate.setMiddleName(commonName.get("middleName"));
+      }
+      if (commonName.get("lastName") != null && !commonName.get("lastName").isEmpty()) {
+        candidate.setLastName(commonName.get("lastName"));
+      }
+    }
+
+    // Medium priority
+    if (containsNonEmptyValue(oidcAttributes, OIDC_CLAIM_FIRST_NAME) &&
+        containsNonEmptyValue(oidcAttributes, OIDC_CLAIM_LAST_NAME)) {
+      candidate.setFirstName(oidcAttributes.get(OIDC_CLAIM_FIRST_NAME));
+      candidate.setLastName(oidcAttributes.get(OIDC_CLAIM_LAST_NAME));
+    }
+
+    // Highest priority
+    String firstName = attributes.get(URN_USER_FIRST_NAME);
+    if (firstName != null && !firstName.isEmpty()) {
+      candidate.setFirstName(firstName);
+    }
+    String middleName = attributes.get(URN_USER_MIDDLE_NAME);
+    if (middleName != null && !middleName.isEmpty()) {
+      candidate.setMiddleName(middleName);
+    }
+    String lastName = attributes.get(URN_USER_LAST_NAME);
+    if (lastName != null && !lastName.isEmpty()) {
+      candidate.setLastName(lastName);
+    }
+  }
+
+
+  /**
+   * Updates the titles, before and after, for the given user (only on the object, not in DB).
+   * The titles are fetched from display name attribute, with lower priority, and from respective attributes, with
+   * higher priority.
+   *
+   * @param user       user
+   * @param attributes Map of the attributes from registrar application
+   * @return true if any titles were found
+   */
+  public static boolean updateUserNameTitles(User user, Map<String, String> attributes) {
+    try {
+      boolean found = false;
+      String displayName = attributes.get(URN_USER_DISPLAY_NAME);
+      if (displayName != null && !displayName.isEmpty()) {
+        Map<String, String> commonName = Utils.parseCommonName(displayName);
+        if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
+          user.setTitleBefore(commonName.get("titleBefore"));
+          found = true;
+        }
+        if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
+          user.setTitleAfter(commonName.get("titleAfter"));
+          found = true;
+        }
+      }
+
+      String titleBefore = attributes.get(URN_USER_TITLE_BEFORE);
+      if (titleBefore != null && !titleBefore.isEmpty()) {
+        user.setTitleBefore(titleBefore);
+        found = true;
+      }
+      String titleAfter = attributes.get(URN_USER_TITLE_AFTER);
+      if (titleAfter != null && !titleAfter.isEmpty()) {
+        user.setTitleAfter(titleAfter);
+        found = true;
+      }
+      return found;
+    } catch (Exception ex) {
+      LOG.error("Could not update/create titles for user {}", user, ex);
+      return false;
+    }
+  }
+
+  /**
+   * Normalize the value of an array-type attribute from the registration form
+   * and correctly merge it with the original value.
+   *
+   * @param originalValue Value from the user's attribute currently stored in Perun
+   * @param newValue      Value from the registration form
+   * @return List of array attribute values after merge
+   */
+  public static ArrayList<String> handleArrayValue(ArrayList<String> originalValue, String newValue) {
+    // blank input means no change to the original attribute
+    if (org.apache.commons.lang3.StringUtils.isBlank(newValue)) {
+      return originalValue;
+    }
+
+    if (!newValue.endsWith(",")) {
+      newValue += ",";
+    }
+
+    List<String> newVals = BeansUtils.parseEscapedListValue(newValue);
+    if (originalValue == null) {
+      return new ArrayList<>(newVals);
+    } else {
+      for (String s : newVals) {
+        if (!originalValue.contains(s)) {
+          originalValue.add(s);
+        }
+      }
+      return originalValue;
+    }
+  }
+
+  /**
+   * Returns true if the given map contains a non-empty value for the given key.
+   *
+   * @param map map
+   * @param key key
+   * @return true if the given map contains a non-empty value for the given key, false otherwise
+   */
+  private static boolean containsNonEmptyValue(Map<String, String> map, String key) {
+    return map.containsKey(key) && map.get(key) != null && !map.get(key).isEmpty();
+  }
+
+  /**
+   * Merge the value of a map-type attribute from a registration form with the original value.
+   *
+   * @param originalValue Value from the user's attribute currently stored in Perun
+   * @param newValue      Value provided by registration form
+   * @return Map of attribute keys, values after merge
+   */
+  public static LinkedHashMap<String, String> handleMapValue(LinkedHashMap<String, String> originalValue,
+                                                             String newValue) {
+    if (StringUtils.isBlank(newValue)) {
+      return originalValue;
+    }
+
+    LinkedHashMap<String, String> newVals = BeansUtils.stringToMapOfAttributes(newValue);
+    if (originalValue == null) {
+      return new LinkedHashMap<>(newVals);
+    } else {
+      for (Map.Entry<String, String> entry : newVals.entrySet()) {
+        if (!originalValue.containsKey(entry.getKey())) {
+          originalValue.put(entry.getKey(), entry.getValue());
+        }
+      }
+      return originalValue;
+    }
+  }
 }
