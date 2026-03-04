@@ -176,7 +176,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           }
         } catch (UserExtSourceExistsException e1) {
           throw new ConsistencyErrorException(
-              "Updating login of userExtSource to value which already" + " exists: " + userExtSource, e1);
+                  "Updating login of userExtSource to value which already exists: " + userExtSource, e1);
         }
       }
     }
@@ -185,7 +185,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   @Override
   public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationExistsException {
     if (specificUser.isServiceUser() && specificUser.isSponsoredUser()) {
-      throw new InternalErrorException("We don't support specific and sponsored users together yet.");
+      throw new InternalErrorException(
+          "We don't support specific and sponsored users together yet. specificUser: " + specificUser);
     }
     if (specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) {
       throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
@@ -195,7 +196,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     }
     List<User> specificUserOwners = this.getUsersBySpecificUser(sess, specificUser);
     if (specificUserOwners.remove(user)) {
-      throw new RelationExistsException("User is already the active owner of specific user.");
+      throw new RelationExistsException(
+          "User is already the active owner of specific user. user: " + user + ", specificUser: " + specificUser);
     }
 
     if (getUsersManagerImpl().specificUserOwnershipExists(sess, user, specificUser)) {
@@ -218,7 +220,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         }
       }
     } catch (AlreadyAdminException ex) {
-      throw new InternalErrorException("User " + user + " is already sponsor of sponsored user " + specificUser);
+      throw new InternalErrorException("User " + user + " is already sponsor of sponsored user " + specificUser, ex);
     }
   }
 
@@ -241,12 +243,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         if (userExtSources.stream().allMatch(ues -> ues.getUserId() == userExtSources.get(0).getUserId())) {
           // Duplicate identity belongs to different user - block it!!
           throw new InternalErrorException(
-              "ExtLogin: " + login + " is already used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
+                  "ExtLogin: " + login + " is already used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP +
+                          ", so it cannot be assigned to user with userId: " + user.getId() + ".");
         } else {
           // more users cannot have the same login
           throw new ConsistencyErrorException(
-              "There are " + userExtSources.size() + " extLogins: " + login + " for  extSourceType: " +
-              ExtSourcesManager.EXTSOURCE_IDP);
+                  "There are " + userExtSources.size() + " extLogins: " + login + " for extSourceType: " +
+                          ExtSourcesManager.EXTSOURCE_IDP);
         }
       }
     }
@@ -264,7 +267,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     } catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException |
              DeletionNotSupportedException ex) {
       //this shouldn't happen with 'anonymizedInstead' set to true
-      throw new InternalErrorException(ex);
+      throw new InternalErrorException("Failed to anonymize user: " + user, ex);
     }
   }
 
@@ -280,10 +283,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throws LoginIsAlreadyBlockedException, LoginExistsException {
     for (String login : logins) {
       if (getPerunBl().getAttributesManagerBl().isLoginAlreadyUsed(sess, login, namespace)) {
-        throw new LoginExistsException("Login: " + login + " is already in use.");
+        throw new LoginExistsException("Login: " + login + " is already in use in namespace: " + namespace);
       }
       if (getUsersManagerImpl().isLoginReserved(sess, namespace, login, false)) {
-        throw new LoginExistsException("Login: " + login + " is already reserved.");
+        throw new LoginExistsException("Login: " + login + " is already reserved in namespace: " + namespace);
       }
 
       getUsersManagerImpl().blockLogin(sess, login, namespace, relatedUserId);
@@ -318,7 +321,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       changePassword(sess, user, namespace, "", password, false);
     } catch (PasswordDoesntMatchException ex) {
       // shouldn't happen
-      throw new InternalErrorException(ex);
+      throw new InternalErrorException(
+              "Failed to change password for user with id: " + user.getId() + " in namespace: " + namespace, ex);
     }
 
     // was changed - send notification to all member's emails
@@ -336,7 +340,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         emails.add((String) a.getValue());
       }
     } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
-      throw new InternalErrorException(ex);
+      throw new InternalErrorException("Failed to get preferredMail attribute for user with id: " + user.getId(), ex);
     }
 
     List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
@@ -349,7 +353,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           emails.add((String) a.getValue());
         }
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
-        throw new InternalErrorException(ex);
+        throw new InternalErrorException(
+                "Failed to get mail attribute for member with id: " + member.getId() +
+                " of user with id: " + user.getId(), ex);
       }
 
     }
@@ -394,9 +400,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       userLogin = getPerunBl().getAttributesManagerBl()
           .getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
     } catch (AttributeNotExistsException e) {
-      throw new LoginNotExistsException(e);
+      throw new LoginNotExistsException(
+              "Login for user with id: " + user.getId() + " in namespace: " + loginNamespace + " doesn't exist.", e);
     } catch (WrongAttributeAssignmentException e) {
-      throw new InternalErrorException(e);
+      throw new InternalErrorException("" +
+              "Wrong attribute assignment for user with id: " + user.getId() + " in namespace: " + loginNamespace, e);
     }
 
     PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
@@ -406,13 +414,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       try {
         module.checkPassword(sess, userLogin.valueAsString(), oldPassword);
       } catch (PasswordDoesntMatchRuntimeException e) {
-        throw new PasswordDoesntMatchException(e);
+        throw new PasswordDoesntMatchException(
+                "Password doesn't match for user with id: " + user.getId() + " in namespace: " + loginNamespace, e);
       } catch (PasswordOperationTimeoutRuntimeException e) {
-        throw new PasswordOperationTimeoutException(e);
+        throw new PasswordOperationTimeoutException(
+                "Password operation timeout for user with id: " + user.getId() + " in namespace: " + loginNamespace, e);
       } catch (Exception ex) {
         // fallback for exception compatibility
         throw new PasswordDoesntMatchException(
-            "Old password doesn't match for " + loginNamespace + ":" + userLogin + ".", ex);
+                "Old password doesn't match for " + loginNamespace + ":" + userLogin + ".", ex);
       }
     }
 
@@ -420,24 +430,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       module.changePassword(sess, userLogin.valueAsString(), newPassword);
     } catch (PasswordChangeFailedRuntimeException e) {
-      throw new PasswordChangeFailedException(e);
+      throw new PasswordChangeFailedException(
+              "Password change failed for user with id: " + user.getId() + " in namespace: " + loginNamespace, e);
     } catch (PasswordOperationTimeoutRuntimeException e) {
-      throw new PasswordOperationTimeoutException(e);
+      throw new PasswordOperationTimeoutException(
+              "Password operation timeout for user with id: " + user.getId() + " in namespace: " + loginNamespace, e);
     } catch (PasswordStrengthFailedRuntimeException e) {
-      throw new PasswordStrengthFailedException(e);
+      throw new PasswordStrengthFailedException("Password strength check failed for user with id: " +
+              user.getId() + " in namespace: " + loginNamespace, e);
     } catch (InvalidLoginException | PasswordStrengthException e) {
       throw e;
     } catch (Exception ex) {
       // fallback for exception compatibility
-      throw new PasswordChangeFailedException("Password change failed for " + loginNamespace + ":" + userLogin + ".",
-          ex);
+      throw new PasswordChangeFailedException(
+              "Password change failed for " + loginNamespace + ":" + userLogin + ".", ex);
     }
 
     //validate and set user ext sources
     try {
       this.validatePassword(sess, user, loginNamespace);
     } catch (PasswordCreationFailedException ex) {
-      throw new PasswordChangeFailedException(ex);
+      throw new PasswordChangeFailedException(
+              "Password validation failed for user: " + user + " in namespace: " + loginNamespace, ex);
     }
   }
 
@@ -456,12 +470,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       // should not happen since the changePassword method passed
       LOG.error("Unexpected exception when re-seting password to randomly generated for user {} in {}", user, namespace,
           e);
-      throw new InternalErrorException(e);
+      throw new InternalErrorException(
+              "Failed to get login attribute for user with id: " + user.getId() + " in namespace: " + namespace, e);
     }
 
     if (userLogin == null) {
       LOG.warn("User {} has no login in {} namespace.", user, namespace);
-      throw new LoginNotExistsException("User has no login in " + namespace + " namespace.");
+      throw new LoginNotExistsException("userId: " + user.getId() + " has no login in " + namespace + " namespace.");
     }
 
     // generate and change password
@@ -474,7 +489,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       // should not happen when we are not using the old password and have good password generated
       LOG.error("Unexpected exception when re-seting password to randomly generated for login {} in {}", userLogin,
           namespace, e);
-      throw new InternalErrorException(e);
+      throw new InternalErrorException(
+              "Failed to change password for user with id: " + user.getId() + " in namespace: " + namespace, e);
     }
 
     // create template to return
@@ -543,7 +559,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           User user = getPerunBl().getUsersManagerBl()
               .getUserByExtSourceNameAndExtLogin(sess, ues.getExtSource().getName(), ues.getLogin());
           if (user != null) {
-            throw new UserExtSourceExistsException(ues);
+            throw new UserExtSourceExistsException(
+                    "UserExtSource: " + ues + " already exists for user with id: " + user.getId() + ".");
           }
         } catch (UserExtSourceNotExistsException | UserNotExistsException | ExtSourceNotExistsException e) {
           // This is OK, we don't want it to exist
@@ -691,8 +708,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
       //If password already exists, throw an exception
       if (altPassValue.containsKey(description)) {
-        throw new ConsistencyErrorException(
-            "Password with this description already exists. Description: " + description);
+        throw new ConsistencyErrorException("Password with this description already exists. Description: " +
+                                            description + " for user with id: " + user.getId());
       }
       //set new value to attribute
       altPassValue.put(description, passwordId);
@@ -701,9 +718,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
     } catch (WrongAttributeAssignmentException | WrongAttributeValueException |
              WrongReferenceAttributeValueException ex) {
-      throw new InternalErrorException(ex);
+      throw new InternalErrorException("Wrong attribute value/assignment for alternative password attribute " +
+                                        "for userId: " + user.getId() + " in namespace: " + loginNamespace, ex);
     } catch (AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
+      throw new ConsistencyErrorException("Alternative password attribute doesn't exist " + "for userId: " +
+                                            user.getId() + " in namespace: " + loginNamespace, ex);
     }
 
     // actually create password in the backend
@@ -712,9 +731,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       module.createAlternativePassword(sess, user, passwordId, password);
     } catch (PasswordCreationFailedRuntimeException ex) {
-      throw new PasswordCreationFailedException(ex);
+      throw new PasswordCreationFailedException(
+              "Password creation failed for userId: " + user.getId() + " in namespace: " + loginNamespace, ex);
     } catch (LoginNotExistsRuntimeException ex) {
-      throw new LoginNotExistsException(ex);
+      throw new LoginNotExistsException(
+              "Login in namespace: " + loginNamespace + " doesn't exist for userId: " + user.getId(), ex);
     } catch (PasswordStrengthException e) {
       throw e;
     } catch (Exception ex) {
@@ -736,7 +757,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       try {
         getPerunBl().getUsersManagerBl().addSpecificUserOwner(sess, owner, serviceUser);
       } catch (RelationExistsException ex) {
-        throw new InternalErrorException(ex);
+        throw new InternalErrorException("Owner relation already exists for ownerId: " + owner.getId() +
+                                        ", serviceUserId: " + serviceUser.getId() + ".", ex);
       }
     }
 
@@ -796,7 +818,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       this.addUserExtSource(sess, user, ues);
     } catch (UserExtSourceExistsException e) {
-      throw new ConsistencyErrorException(e);
+      throw new ConsistencyErrorException("Default userExtSource already exists for userId: " + user.getId(), e);
     }
 
     return user;
@@ -851,9 +873,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       if (userAlternativePassword.getValue() != null) {
         altPassValue = userAlternativePassword.valueAsMap();
       }
-      //If password already exists, throw an exception
+      //If the password does not exist, throw an exception
       if (!altPassValue.containsValue(passwordId)) {
-        throw new PasswordDeletionFailedException("Password not found by ID.");
+        throw new PasswordDeletionFailedException("Password not found by ID: " + passwordId + " for userId: " +
+                                                    user.getId() + " in namespace: " + loginNamespace);
       }
       //remove key with this value from map
       Set<String> keys = altPassValue.keySet();
@@ -862,13 +885,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         String valueOfKey = altPassValue.get(key);
         if (valueOfKey.equals(passwordId)) {
           if (description != null) {
-            throw new ConsistencyErrorException("There is more than 1 password with same ID in value for user " + user);
+            throw new ConsistencyErrorException("There is more than 1 password with same ID: " +
+                                                passwordId + " in value for userId: " + user.getId());
           }
           description = key;
         }
       }
       if (description == null) {
-        throw new InternalErrorException("Password not found by ID.");
+        throw new InternalErrorException("Password not found by ID: " + passwordId +
+                                         " for userId: " + user.getId() + " in namespace: " + loginNamespace);
       }
       altPassValue.remove(description);
       //set new value for altPassword attribute for this user
@@ -876,9 +901,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
     } catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
              WrongAttributeValueException ex) {
-      throw new InternalErrorException(ex);
+      throw new InternalErrorException("Wrong attribute value/assignment for alternative password attribute " +
+                                       "for userId: " + user.getId() + " in namespace: " + loginNamespace, ex);
     } catch (AttributeNotExistsException ex) {
-      throw new ConsistencyErrorException(ex);
+      throw new ConsistencyErrorException("Alternative password attribute doesn't exist " +
+                                          "for userId: " + user.getId() + " in namespace: " + loginNamespace, ex);
     }
 
     // actually delete password in the backend
@@ -887,13 +914,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       module.deleteAlternativePassword(sess, user, passwordId);
     } catch (PasswordDeletionFailedRuntimeException ex) {
-      throw new PasswordDeletionFailedException(ex);
+      throw new PasswordDeletionFailedException("Password deletion failed for userId: " + user.getId() +
+                                                " in namespace: " + loginNamespace + " passwordId: " + passwordId, ex);
     } catch (LoginNotExistsRuntimeException ex) {
-      throw new LoginNotExistsException(ex);
+      throw new LoginNotExistsException("Login in namespace: " + loginNamespace +
+                                        " doesn't exist for userId: " + user.getId(), ex);
     } catch (Exception ex) {
       // fallback for exception compatibility
-      throw new PasswordDeletionFailedException(
-          "Alternative password deletion failed for " + loginNamespace + ":" + passwordId + " of " + user + ".", ex);
+      throw new PasswordDeletionFailedException("Alternative password deletion failed for " +
+                                                loginNamespace + ":" + passwordId + " of " + user + ".", ex);
     }
   }
 
@@ -908,17 +937,20 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       module.deletePassword(sess, userLogin);
     } catch (PasswordDeletionFailedRuntimeException e) {
-      throw new PasswordDeletionFailedException(e);
+      throw new PasswordDeletionFailedException(
+              "Password deletion failed for login: " + userLogin + " in namespace: " + loginNamespace, e);
     } catch (LoginNotExistsRuntimeException e) {
-      throw new LoginNotExistsException(e);
+      throw new LoginNotExistsException(
+              "Login: " + userLogin + " doesn't exist in namespace: " + loginNamespace, e);
     } catch (PasswordOperationTimeoutRuntimeException e) {
-      throw new PasswordOperationTimeoutException(e);
+      throw new PasswordOperationTimeoutException(
+              "Password operation timed out for login: " + userLogin + " in namespace: " + loginNamespace, e);
     } catch (InvalidLoginException e) {
       throw e;
     } catch (Exception ex) {
       // fallback for exception compatibility
       throw new PasswordDeletionFailedException(
-          "Password deletion failed for " + loginNamespace + ":" + userLogin + ".", ex);
+              "Password deletion failed for " + loginNamespace + ":" + userLogin + ".", ex);
     }
   }
 
@@ -935,20 +967,24 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
       if (attr.getValue() == null) {
-        throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+        throw new LoginNotExistsException("Attribute containing login has empty value for userId: " + user.getId() +
+                " in namespace: " + loginNamespace);
       }
 
       module.deletePassword(sess, attr.valueAsString());
     } catch (PasswordDeletionFailedRuntimeException e) {
-      throw new PasswordDeletionFailedException(e);
+      throw new PasswordDeletionFailedException(
+              "Password deletion failed for userId: " + user.getId() + " in namespace: " + loginNamespace, e);
     } catch (LoginNotExistsRuntimeException e) {
-      throw new LoginNotExistsException(e);
+      throw new LoginNotExistsException(
+              "Login doesn't exist for userId: " + user.getId() + " in namespace: " + loginNamespace, e);
     } catch (PasswordOperationTimeoutRuntimeException e) {
-      throw new PasswordOperationTimeoutException(e);
+      throw new PasswordOperationTimeoutException(
+              "Password operation timed out for userId: " + user.getId() + " in namespace: " + loginNamespace, e);
     } catch (Exception ex) {
       // fallback for exception compatibility
-      throw new PasswordDeletionFailedException("Password deletion failed for " + loginNamespace + ": " + user + ".",
-          ex);
+      throw new PasswordDeletionFailedException(
+              "Password deletion failed for " + loginNamespace + ": " + user + ".", ex);
     }
   }
 
@@ -995,7 +1031,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       this.deleteUser(sess, user, forceDelete, false);
     } catch (AnonymizationNotSupportedException ex) {
       //this shouldn't happen with 'anonymizedInstead' set to false
-      throw new InternalErrorException(ex);
+      throw new InternalErrorException("Unexpected anonymization error while deleting userId: " + user.getId(), ex);
     }
   }
 
@@ -1019,7 +1055,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           getPerunBl().getMembersManagerBl().deleteMember(sess, member);
         }
       } else {
-        throw new RelationExistsException("Members exist");
+        throw new RelationExistsException(
+                "Could not delete user '" + user.getId() + "', as members still exist for them.");
       }
     }
 
@@ -1043,16 +1080,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       } catch (LoginNotExistsException e) {
         // OK - User hasn't assigned any password with this login
       } catch (InvalidLoginException e) {
-        throw new InternalErrorException(
-            "We are deleting login of user, but its syntax is not allowed by namespace configuration.", e);
+        throw new InternalErrorException("We are deleting login of user with id: " + user.getId() +
+                                          ", but its syntax is not allowed by namespace configuration.", e);
       } catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
         if (forceDelete) {
           LOG.error("Error during deletion of an account at {} for user {} with login {}.", login.getLeft(), user,
               login.getRight());
         } else {
-          throw new RelationExistsException(
-              "Error during deletion of an account at " + login.getLeft() + " for user " + user + " with login " +
-              login.getRight() + ".");
+          throw new RelationExistsException("Error during deletion of an account at " + login.getLeft() +
+                                            " for user " + user + " with login " + login.getRight() + ".");
         }
       }
     }
@@ -1068,8 +1104,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         } catch (LoginNotExistsException e) {
           // OK - User hasn't assigned any password with this login
         } catch (InvalidLoginException e) {
-          throw new InternalErrorException(
-                  "We are deleting login of user, but its syntax is not allowed by namespace configuration.", e);
+          throw new InternalErrorException("We are deleting login of user with id: " + user.getId() +
+                                            ", but its syntax is not allowed by namespace configuration.", e);
         } catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
           if (forceDelete) {
             LOG.error("Error during deletion of the account at {} for user {} with login {}.",
@@ -1142,7 +1178,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     } catch (WrongAttributeValueException | WrongReferenceAttributeValueException |
              WrongAttributeAssignmentException ex) {
       //All members are deleted => there are no required attributes => all attributes can be removed
-      throw new ConsistencyErrorException(ex);
+      throw new ConsistencyErrorException(
+              "Error during attribute removal/anonymization for user with id: " + user.getId(), ex);
     }
 
     //delete all associated external sources to the user
@@ -1333,8 +1370,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     AttributeDefinition adef = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
     if ((!adef.getType().equals("java.lang.String")) ||
         (!adef.getNamespace().equals(AttributesManager.NS_UES_ATTR_DEF))) {
-      throw new InternalErrorException(
-          "only ues attributes of type String can be used in findUsersWithExtSourceAttributeValueEnding()");
+      throw new InternalErrorException("Only ues attributes of type String can be used in " +
+                                        "findUsersWithExtSourceAttributeValueEnding()." + " Attribute: " +
+                                        attributeName + " has type: " + adef.getType() + " and namespace: " +
+                                        adef.getNamespace());
     }
     return usersManagerImpl.findUsersWithExtSourceAttributeValueEnding(sess, attributeName, valueEnd, excludeValueEnds);
   }
@@ -1731,7 +1770,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         // TODO If the member object will contain also User object, here can be returned directly.
         return getUsersManagerImpl().getUserById(sess, member.getUserId());
       } catch (UserNotExistsException e) {
-        throw new ConsistencyErrorException("Member " + member + "has non-existin user.", e);
+        throw new ConsistencyErrorException("Member " + member + "has non-existing user.", e);
       }
     } else {
       return getUsersManagerImpl().getUserByMember(sess, member);
@@ -1772,7 +1811,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue)
       throws AttributeNotExistsException, UserExtSourceNotExistsException {
     if (attrId <= 0) {
-      throw new InternalErrorException("Unexpected attribute Id with zero or negative value.");
+      throw new InternalErrorException("Unexpected attribute Id with zero or negative value: " + attrId);
     }
     AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinitionById(sess, attrId);
     return getUserExtSourceByUniqueAttributeValue(sess, attrDef, uniqueValue);
@@ -1791,7 +1830,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   /**
-   * Return userExtSource for specific attribute definition and unique value. If not found, throw and exception.
+   * Return userExtSource for a specific attribute definition and unique value. If not found, throw and exception.
    * <p>
    * It looks for exactly one value of the specific attribute type: - Integer -> exactly match - String -> exactly match
    * - Map -> exactly match of "key=value" - ArrayList -> exactly match of one of the value
@@ -1813,7 +1852,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       throw new InternalErrorException("Attribute definition has to be unique: " + attrDef);
     }
     if (uniqueValue == null || uniqueValue.isEmpty()) {
-      throw new InternalErrorException("Can't find userExtSource by empty value!");
+      throw new InternalErrorException("Can't find userExtSource by empty value!" + attrDef);
     }
 
     return usersManagerImpl.getUserExtSourceByUniqueAttributeValue(sess, attrDef.getId(), uniqueValue);
@@ -2033,7 +2072,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       try {
         userAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, user, attributeDef.getName());
       } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
-        throw new InternalErrorException(e);
+        throw new InternalErrorException(
+                "Error getting attribute: " + attributeDef.getName() + " for userId: " + user.getId(), e);
       }
       if (userAttribute.valueContains(attributeValue)) {
         matchedUsers.add(user);
@@ -2096,7 +2136,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   @Override
   public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InvalidLoginException {
     if (loginNamespace == null || login == null) {
-      throw new InternalErrorException(new NullPointerException("loginNamespace cannot be null, nor login"));
+      throw new InternalErrorException(new NullPointerException(
+              "loginNamespace or login is null. " + "loginNamespace: " + loginNamespace + ", login: " + login));
     }
 
     try {
@@ -2108,7 +2149,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
       attribute.setValue(login);
 
-      // Create empty user
+      // Create an empty user
       User user = new User();
 
       // check if login is allowed (has valid syntax and is not prohibited)
@@ -2120,7 +2161,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
       return true;
     } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
-      throw new InternalErrorException(e);
+      throw new InternalErrorException(
+              "Error checking login availability for login: " + login + " in namespace: " + loginNamespace + ".", e);
     } catch (WrongReferenceAttributeValueException e) {
       return false;
     }
@@ -2168,14 +2210,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
       return module.loginExist(sess, attr.valueAsString());
     } catch (Exception ex) {
-      throw new InternalErrorException(ex);
+      throw new InternalErrorException(
+              "Failed to check login existence for userId: " + user.getId() + " in namespace: " + loginNamespace, ex);
     }
   }
 
   @Override
   public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) {
     List<Attribute> userExtSourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, userExtSource);
-    //remove all virtual attributes (we don't need to take care about them)
+    //remove all virtual attributes (we don't need to take care of them)
     userExtSourceAttributes.removeIf(
         attribute -> getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute));
 
@@ -2191,10 +2234,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       this.removeUserExtSource(sess, sourceUser, userExtSource);
     } catch (UserExtSourceAlreadyRemovedException ex) {
-      //this is little weird, will be better to report exception
-      throw new InternalErrorException(
-          "UserExtSource was unexpectedly removed while moving " + userExtSource + " from " + sourceUser + " to " +
-          targetUser);
+      //this is little weird, will be better to report an exception
+      throw new InternalErrorException("UserExtSource was unexpectedly removed while moving " +
+                                        userExtSource + " from " + sourceUser + " to " + targetUser);
     }
 
     //change userId for userExtSource
@@ -2215,8 +2257,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
              WrongAttributeValueException ex) {
       throw new InternalErrorException("Moving " + userExtSource + " from " + sourceUser + " to " + targetUser +
                                        " failed because of problem with setting removed attributes back to the " +
-                                        "UserExtSource.",
-          ex);
+                                        "UserExtSource.", ex);
     }
   }
 
@@ -2226,7 +2267,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       try {
         removeUserExtSource(sess, user, userExtSource);
       } catch (UserExtSourceAlreadyRemovedException ex) {
-        throw new InternalErrorException(ex);
+        throw new InternalErrorException(
+                "UserExtSourceId: " + userExtSource.getId() + " already removed for userId: " + user.getId(), ex);
       }
     }
   }
@@ -2252,11 +2294,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     List<User> specificUserOwners = this.getUsersBySpecificUser(sess, specificUser);
     if (!specificUserOwners.remove(user)) {
-      throw new RelationNotExistsException("User is not the active owner of the specificUser.");
+      throw new RelationNotExistsException("User with userId: " + user.getId() + " is not the active owner" +
+                                            " of specificUser: " + specificUser.getId());
     }
 
     if (!getUsersManagerImpl().specificUserOwnershipExists(sess, user, specificUser)) {
-      throw new RelationNotExistsException("User has no relationship to specificUser.");
+      throw new RelationNotExistsException("User with userId: " + user.getId() + " has no relationship to" +
+                                            " specificUser: " + specificUser.getId());
     }
 
     try {
@@ -2272,7 +2316,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       }
     } catch (UserNotAdminException ex) {
       throw new InternalErrorException(
-          "Can't remove role of sponsor for user " + user + " and sponsored user " + specificUser);
+              "Can't remove role of sponsor for user: " + user + " and sponsoredUser: " + specificUser, ex);
     }
 
     if (forceDelete) {
@@ -2295,8 +2339,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, userExtSource);
     } catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
-      throw new InternalErrorException(
-          "Can't remove userExtSource because there is problem with removing all it's attributes.", ex);
+      throw new InternalErrorException("Can't remove userExtSource: " + userExtSource.getId() + " for userId: " +
+                                        user.getId() + " because of problem with removing its attributes. ", ex);
     }
     getUsersManagerImpl().removeUserExtSource(sess, user, userExtSource);
     getPerunBl().getAuditer().log(sess, new UserExtSourceRemovedFromUser(userExtSource, user));
@@ -2323,7 +2367,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         subject = (String) subjectTemplateAttribute.getValue();
       }
     } catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
-      throw new InternalErrorException(ex);
+      throw new InternalErrorException(
+              "Failed to get email subject template for userId: " + user.getId() + ", lang: " + lang, ex);
     }
 
     String message;
@@ -2355,11 +2400,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       module.reservePassword(sess, userLogin, password);
     } catch (PasswordCreationFailedRuntimeException e) {
-      throw new PasswordCreationFailedException(e);
+      throw new PasswordCreationFailedException(
+              "Password creation failed for login: " + userLogin + " in namespace: " + loginNamespace + ".", e);
     } catch (PasswordOperationTimeoutRuntimeException e) {
-      throw new PasswordOperationTimeoutException(e);
+      throw new PasswordOperationTimeoutException(
+              "Password operation timed out for login: " + userLogin + " in namespace: " + loginNamespace + ".", e);
     } catch (PasswordStrengthFailedRuntimeException e) {
-      throw new PasswordStrengthFailedException(e);
+      throw new PasswordStrengthFailedException(
+              "Password strength check failed for login: " + userLogin + " in namespace: " + loginNamespace + ".", e);
     } catch (InvalidLoginException | PasswordStrengthException e) {
       throw e;
     } catch (Exception ex) {
@@ -2381,7 +2429,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
       if (attr.getValue() == null) {
-        throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+        throw new LoginNotExistsException("Attribute containing login has empty value for userId: " +
+                                          user.getId() + " in namespace: " + loginNamespace);
       }
 
       // Create the password
@@ -2389,11 +2438,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       try {
         module.reservePassword(sess, attr.valueAsString(), password);
       } catch (PasswordCreationFailedRuntimeException e) {
-        throw new PasswordCreationFailedException(e);
+        throw new PasswordCreationFailedException(
+                "Password creation failed for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e);
       } catch (PasswordOperationTimeoutRuntimeException e) {
-        throw new PasswordOperationTimeoutException(e);
+        throw new PasswordOperationTimeoutException("Password operation timed out for userId: " +
+                                                    user.getId() + " in namespace: " + loginNamespace + ".", e);
       } catch (PasswordStrengthFailedRuntimeException e) {
-        throw new PasswordStrengthFailedException(e);
+        throw new PasswordStrengthFailedException("Password strength check failed for userId: " +
+                                                  user.getId() + " in namespace: " + loginNamespace + ".", e);
       } catch (InvalidLoginException | PasswordStrengthException e) {
         throw e;
       } catch (Exception ex) {
@@ -2402,9 +2454,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
             "Password creation failed for " + loginNamespace + ":" + attr.valueAsString() + ".", ex);
       }
     } catch (AttributeNotExistsException e) {
-      throw new LoginNotExistsException(e);
+      throw new LoginNotExistsException(
+              "Login attribute not found for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e);
     } catch (WrongAttributeAssignmentException e) {
-      throw new InternalErrorException(e);
+      throw new InternalErrorException(
+              "Wrong attribute assignment for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e);
     }
   }
 
@@ -2421,7 +2475,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
       if (attr.getValue() == null) {
-        throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+        throw new LoginNotExistsException("Attribute containing login has empty value for userId: " +
+                                          user.getId() + " in namespace: " + loginNamespace);
       }
 
       // Create the password
@@ -2429,11 +2484,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       try {
         module.reserveRandomPassword(sess, attr.valueAsString());
       } catch (PasswordCreationFailedRuntimeException e) {
-        throw new PasswordCreationFailedException(e);
+        throw new PasswordCreationFailedException(
+                "Password creation failed for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e);
       } catch (PasswordOperationTimeoutRuntimeException e) {
-        throw new PasswordOperationTimeoutException(e);
+        throw new PasswordOperationTimeoutException("Password operation timed out for userId: " +
+                                                    user.getId() + " in namespace: " + loginNamespace + ".", e);
       } catch (PasswordStrengthFailedRuntimeException e) {
-        throw new PasswordStrengthFailedException(e);
+        throw new PasswordStrengthFailedException("Password strength check failed for userId: " +
+                                                  user.getId() + " in namespace: " + loginNamespace + ".", e);
       } catch (InvalidLoginException e) {
         throw e;
       } catch (Exception ex) {
@@ -2442,19 +2500,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
             "Password creation failed for " + loginNamespace + ":" + attr.valueAsString() + ".", ex);
       }
     } catch (AttributeNotExistsException e) {
-      throw new LoginNotExistsException(e);
+      throw new LoginNotExistsException(
+              "Login attribute not found for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e);
     } catch (WrongAttributeAssignmentException e) {
-      throw new InternalErrorException(e);
+      throw new InternalErrorException(
+              "Wrong attribute assignment for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e);
     }
   }
 
   /**
-   * For given user, set user attributes from given candidate. Can set only user-def and user-opt attributes.
+   * For a given user, set user attributes from a given candidate. Can set only user-def and user-opt attributes.
    *
    * @param sess      session
    * @param user      user
    * @param candidate candidate to take attributes
-   * @throws AttributeNotExistsException           if some of the given attributes dont exist
+   * @throws AttributeNotExistsException           if some of the given attributes don't exist
    * @throws WrongAttributeAssignmentException     if some of the given attributes have unsupported namespace
    * @throws WrongReferenceAttributeValueException if some of the given attribute value cannot be set because of some
    *                                               other attribute constraint
@@ -2505,11 +2565,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       // will always get attribute (empty, if not set)
       List<Attribute> checked = getPerunBl().getAttributesManagerBl().getAttributes(sess, user, names);
       if (checked.size() != 1) {
-        throw new InternalErrorException("User should have only one login (attribute) in namespace");
+        throw new InternalErrorException("User should have only one login (attribute) in namespace. userId: " +
+                                         user.getId() + ", namespace: " + loginNamespace);
       }
-      // if user already has login
+      // if the user already has login
       if (checked.get(0).getValue() != null) {
-        throw new InternalErrorException("Can't set new login. User already has login in namespace: " + loginNamespace);
+        throw new InternalErrorException("Can't set new login. User already has login in namespace: " +
+                                         loginNamespace + ", userId: " + user.getId());
       }
 
       checked.get(0).setValue(login);
@@ -2518,7 +2580,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     } catch (WrongAttributeAssignmentException | WrongAttributeValueException |
              WrongReferenceAttributeValueException e) {
-      throw new InternalErrorException(e);
+      throw new InternalErrorException("Failed to set login for userId: " + user.getId() + ", namespace: " +
+                                       loginNamespace + ", login: " + login, e);
     }
 
   }
@@ -2688,7 +2751,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     try {
       module.validatePassword(sess, userLogin, null);
     } catch (PasswordCreationFailedRuntimeException e) {
-      throw new PasswordCreationFailedException(e);
+      throw new PasswordCreationFailedException(
+              "Password validation failed for login: " + userLogin + " in namespace: " + loginNamespace + ".", e);
     }
   }
 
@@ -2703,7 +2767,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
       if (attr.getValue() == null) {
-        throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+        throw new LoginNotExistsException("Attribute containing login has empty value for userId: " + user.getId() +
+                                          " in namespace: " + loginNamespace);
       }
 
       // Validate the password
@@ -2711,12 +2776,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       try {
         module.validatePassword(sess, attr.valueAsString(), user);
       } catch (PasswordCreationFailedRuntimeException e) {
-        throw new PasswordCreationFailedException(e);
+        throw new PasswordCreationFailedException(
+                "Password validation failed for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e);
       }
     } catch (AttributeNotExistsException e) {
-      throw new LoginNotExistsException(e);
+      throw new LoginNotExistsException(
+              "Login attribute not found for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e);
     } catch (WrongAttributeAssignmentException e) {
-      throw new InternalErrorException(e);
+      throw new InternalErrorException(
+              "Wrong attribute assignment for userId: " + user.getId() + " in namespace: " + loginNamespace + ".", e
+      );
     }
   }
 
@@ -2770,7 +2839,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         }
       } catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
                WrongAttributeValueException | AttributeNotExistsException ex) {
-        throw new InternalErrorException(ex);
+        throw new InternalErrorException("Error processing organization attribute for userId: " +
+                                         user.getId() + ", uesId: " + ues.getId() + ".", ex);
       }
     }
     throw new UserExtSourceNotExistsException(
@@ -2796,7 +2866,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
       } catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
                AttributeNotExistsException | WrongAttributeValueException ex) {
-        throw new InternalErrorException(ex);
+        throw new InternalErrorException("Error setting organization attribute for userId: " + user.getId() +
+                                         ", newOrganizationName: " + newOrganizationName + ".", ex);
       }
     }
   }
@@ -2823,7 +2894,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
           return;
         }
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
-        throw new InternalErrorException(ex);
+        throw new InternalErrorException("Error processing name attribute for userId: " + user.getId() +
+                                         ", uesId: " + ues.getId() + ".", ex);
       }
     }
 
@@ -2879,7 +2951,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         }
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
                WrongReferenceAttributeValueException ex) {
-        throw new InternalErrorException(ex);
+        throw new InternalErrorException("Error processing email attribute for userId: " + user.getId() +
+                                         ", uesId: " + ues.getId() + ".", ex);
       }
     }
 
@@ -2907,7 +2980,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userOrganizationAttr);
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
                WrongReferenceAttributeValueException ex) {
-        throw new InternalErrorException(ex);
+        throw new InternalErrorException("Error setting email attribute for userId: " + user.getId() +
+                                         ", newEmail: " + newEmail + ".", ex);
       }
     }
   }
