@@ -60,6 +60,8 @@ public class CoreConfig {
   private String pwdresetInitVector;
   private String pwdresetSecretKey;
   private String recaptchaPrivateKey;
+  private String registrarApiUrl;
+  private String registrarApiSecret;
   private String rpcPrincipal;
   private String rtDefaultQueue;
   private String rtServiceuserPassword;
@@ -714,6 +716,22 @@ public class CoreConfig {
 
   public void setRequestUserInfoEndpoint(boolean requestUserInfoEndpoint) {
     this.requestUserInfoEndpoint = requestUserInfoEndpoint;
+  }
+
+  public String getRegistrarApiSecret() {
+    return registrarApiSecret;
+  }
+
+  public void setRegistrarApiSecret(String registrarApiSecret) {
+    this.registrarApiSecret = registrarApiSecret;
+  }
+
+  public String getRegistrarApiUrl() {
+    return registrarApiUrl;
+  }
+
+  public void setRegistrarApiUrl(String registrarApiUrl) {
+    this.registrarApiUrl = registrarApiUrl;
   }
 
   public int getRoleUpdateInterval() {

@@ -505,6 +505,14 @@ public interface UsersManagerBl {
       SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
 
   /**
+   * Delete all applications and submitted data for specific user.
+   *
+   * @param user for which delete applications and submitted data
+   * @throws InternalErrorException
+   */
+  void deleteUsersApplications(PerunSession perunSession, User user);
+
+  /**
    * For richUser filter all his user attributes and remove all which principal has no access to.
    *
    * @param sess

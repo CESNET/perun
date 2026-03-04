@@ -303,4 +303,10 @@ public interface PerunBl extends Perun {
    * @return VOs manager
    */
   VosManagerBl getVosManagerBl();
+
+  /**
+   * Adapter communicating with new registrar and temporarily handling old applications logic
+   * @return Registrar adapter
+   */
+  RegistrarAdapter getRegistrarAdapter();
 }

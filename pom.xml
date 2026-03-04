@@ -354,10 +354,17 @@
 
     <!-- GitLab package registry setup -->
     <repositories>
-      <repository>
-        <id>gitlab-maven</id>
-        <url>https://gitlab.ics.muni.cz/api/v4/groups/8198/-/packages/maven</url>
-      </repository>
+        <repository>
+            <id>gitlab-maven-registrar</id>
+            <url>https://gitlab.ics.muni.cz/api/v4/projects/8422/packages/maven</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>gitlab-maven</id>
+            <url>https://gitlab.ics.muni.cz/api/v4/groups/8198/-/packages/maven</url>
+        </repository>
     </repositories>
     <distributionManagement>
       <repository>

@@ -1751,22 +1751,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
           "All resources was removed from this group, so no attributes should remain assigned.", ex);
     }
 
-    // delete all Groups reserved logins from KDC and DB
-    List<Integer> list = getGroupsManagerImpl().getGroupApplicationIds(sess, group);
-    for (Integer appId : list) {
-      // for each application
-      try {
-        perunBl.getUsersManagerBl().deleteReservedLoginsOnlyByGivenApp(sess, appId);
-      } catch (InvalidLoginException e) {
-        throw new InternalErrorException(
-            "We are deleting reserved login from group applications, but its syntax is not allowed by namespace " +
-            "configuration.", e);
-      } catch (PasswordOperationTimeoutException ex) {
-        throw new InternalErrorException("Failed to delete reserved login " + ex.getLogin() + " from KDC.", ex);
-      } catch (PasswordDeletionFailedException ex) {
-        throw new InternalErrorException("Failed to delete reserved login " + ex.getLogin() + " from KDC.", ex);
-      }
-    }
+    perunBl.getRegistrarAdapter().onDeleteGroup(sess, group);
 
     //remove all assigned ExtSources to this group
     List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
@@ -2781,6 +2766,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   @Override
   public List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession perunSession, Group group) {
     return this.getGroupsManagerImpl().getFacilitiesWhereGroupIsAdmin(perunSession, group);
+  }
+
+  @Override
+  public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) {
+    return getGroupsManagerImpl().getGroupApplicationIds(sess, group);
   }
 
   @Override
@@ -4955,6 +4945,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     if (!getGroupsManagerImpl().isGroupMember(sess, group, member)) {
       addMemberToGroupsFromTriggerAttribute(sess, group, member);
     }
+    // todo reject existing open applications to group
+    getPerunBl().getRegistrarAdapter().onRemoveMemberFromGroup(
+        sess, group, member
+    );
   }
 
   /**
