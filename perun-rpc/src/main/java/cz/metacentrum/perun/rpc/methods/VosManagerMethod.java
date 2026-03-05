@@ -216,18 +216,6 @@ public enum VosManagerMethod implements ManagerMethod {
    * @return List<Candidate> List of Candidates
    */
   /*#
-   * Find candidates for VO with specified maximum number of results. Candidates can be used to create new members.
-   * Candidates are searched in VOs external sources (if available). Candidates, which are already members of VO are
-   * never
-   * returned even if they match searchString.
-   *
-   * @param vo int VO <code>id</code>
-   * @param searchString String Text to search by
-   * @param maxNumOfResults int Number of maximum results
-   * @throw VoNotExistsException When <code>id</code> of VO doesn't match any existing VO.
-   * @return List<Candidate> List of Candidates
-   */
-  /*#
    * Find candidates for Group. Candidates can be used to create new VO and Group members. Candidates are searched
    * in Groups external sources (if available). Candidates, which are already members of VO are never
    * returned even if they match searchString.
@@ -240,16 +228,13 @@ public enum VosManagerMethod implements ManagerMethod {
   findCandidates {
     @Override
     public List<Candidate> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      if (parms.contains("maxNumOfResults")) {
+      if (parms.contains("group")) {
         return ac.getVosManager()
-            .findCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("searchString"),
-                parms.readInt("maxNumOfResults"));
-      } else if (parms.contains("group")) {
-        return ac.getVosManager()
-            .findCandidates(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));
+                .findCandidates(ac.getSession(),
+                        ac.getGroupById(parms.readInt("group")), parms.readString("searchString"));
       } else {
         return ac.getVosManager()
-            .findCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("searchString"));
+                .findCandidates(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readString("searchString"));
       }
     }
   },

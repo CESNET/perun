@@ -129,7 +129,7 @@ public class ExtSourceISXML extends ExtSourceXML {
     //Get file or uri of xml
     prepareEnvironment();
 
-    return xpathParsing(query, 0);
+    return xpathParsing(query);
   }
 
   /**

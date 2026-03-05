@@ -26,15 +26,9 @@ public class ExtSourceInternal extends ExtSourceImpl implements ExtSourceSimpleA
   }
 
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
-  }
-
-  @Override
   public List<Map<String, String>> findSubjectsLogins(String searchString)
       throws ExtSourceUnsupportedOperationException {
-    return findSubjectsLogins(searchString, 0);
+    throw new ExtSourceUnsupportedOperationException();
   }
 
   @Override

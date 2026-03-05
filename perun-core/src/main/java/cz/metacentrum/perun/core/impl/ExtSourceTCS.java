@@ -129,21 +129,9 @@ public class ExtSourceTCS extends ExtSourceImpl implements ExtSourceApi {
   }
 
   @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
-  }
-
-  @Override
   public List<Map<String, String>> findSubjectsLogins(String searchString)
       throws ExtSourceUnsupportedOperationException {
-    return findSubjectsLogins(searchString, 0);
+    throw new ExtSourceUnsupportedOperationException();
   }
 
   protected Map<String, String> getAttributes() {

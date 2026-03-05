@@ -265,34 +265,18 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
 
   @Override
   public List<Map<String, String>> findSubjects(String searchString) {
-    return findSubjects(searchString, 0);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
     setEnviroment();
     List<RichUser> richUsers = findRichUsers(searchString);
-    if (maxResults != 0) {
-      if (richUsers.size() > maxResults) {
-        richUsers = richUsers.subList(0, maxResults);
-      }
-    }
 
     List<Map<String, String>> subjects = convertRichUsersToListOfSubjects(richUsers);
     return subjects;
   }
 
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResulsts)
+  public List<Map<String, String>> findSubjectsLogins(String searchString)
       throws ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException(
         "For Perun ExtSource is not supported to use this method. Use findSubjects instead.");
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString)
-      throws ExtSourceUnsupportedOperationException {
-    return findSubjectsLogins(searchString, 0);
   }
 
   @Override

@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 /**
- * Attribute which is reference for used attribute has illegal value. Because of it, we can't determinate if used
+ * Attribute which is reference for used attribute has illegal value. Because of it, we can't be determinate if used
  * attribute have correct value.
  *
  * @author Slavek Licehammer
@@ -101,8 +101,8 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
    */
   public WrongReferenceAttributeValueException(AttributeDefinition attribute, AttributeDefinition referenceAttribute,
                                                String message) {
-    super(attribute == null ? "Attribute: null" :
-        attribute + " reference attribute " + referenceAttribute == null ? "null" : referenceAttribute + " " + message);
+    super((attribute == null ? "Attribute: null" : attribute) + ", reference attribute: " +
+            (referenceAttribute == null ? "null" : referenceAttribute) + ", message: " + message);
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }
@@ -117,9 +117,9 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
    */
   public WrongReferenceAttributeValueException(AttributeDefinition attribute, AttributeDefinition referenceAttribute,
                                                String message, Throwable cause) {
-    super(attribute == null ? "Attribute: null" :
-        attribute + " reference attribute " + referenceAttribute == null ? "null" :
-            referenceAttribute + " " + message + " cause:" + cause.getMessage());
+    super((attribute == null ? "Attribute: null" : attribute) + ", reference attribute: " +
+            (referenceAttribute == null ? "null" : referenceAttribute) + ", message: " + message +
+            ", cause:" + cause.getMessage());
     this.attribute = attribute;
     this.referenceAttribute = referenceAttribute;
   }
@@ -137,7 +137,7 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
   public WrongReferenceAttributeValueException(AttributeDefinition attribute, AttributeDefinition referenceAttribute,
                                                Object attributeHolderPrimary, Object attributeHolderSecondary,
                                                String message) {
-    super((attribute == null ? "Attribute: null" : attribute) + " reference attribute: " +
+    super((attribute == null ? "Attribute: null" : attribute) + ", reference attribute: " +
           (referenceAttribute == null ? "null" : referenceAttribute) + " " +
           (attributeHolderPrimary == null ? "AttributeHolderPrimary: null" : attributeHolderPrimary) + " " +
           (attributeHolderSecondary == null ? "" : attributeHolderSecondary) + " " + message);

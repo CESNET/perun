@@ -532,13 +532,7 @@ public class VosManagerBlImpl implements VosManagerBl {
     this.deleteVo(sess, vo, false);
   }
 
-  @Override
-  public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults) {
-    List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
-    return this.findCandidates(sess, vo, searchString, maxNumOfResults, extSources, true);
-  }
-
-  public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults,
+  public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString,
                                         List<ExtSource> extSources, boolean filterExistingMembers) {
     List<Candidate> candidates = new ArrayList<>();
     int numOfResults = 0;
@@ -555,11 +549,11 @@ public class VosManagerBlImpl implements VosManagerBl {
           try {
             if (source instanceof ExtSourceApi) {
               // find subjects with all their properties
-              subjects = ((ExtSourceApi) source).findSubjects(searchString, maxNumOfResults);
+              subjects = ((ExtSourceApi) source).findSubjects(searchString);
               simpleExtSource = false;
             } else {
               // find subjects only with logins - they then must be retrieved by login
-              subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString, maxNumOfResults);
+              subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString);
             }
           } catch (ExtSourceUnsupportedOperationException e1) {
             LOG.warn("ExtSource {} doesn't support findSubjects", source.getName());
@@ -629,10 +623,6 @@ public class VosManagerBlImpl implements VosManagerBl {
             candidates.add(candidate);
 
             numOfResults++;
-            // Stop getting new members if the number of already retrieved members exceeded the maxNumOfResults
-            if (maxNumOfResults > 0 && numOfResults >= maxNumOfResults) {
-              break;
-            }
           }
 
         } catch (InternalErrorException e) {
@@ -648,10 +638,6 @@ public class VosManagerBlImpl implements VosManagerBl {
             }
           }
         }
-        // Stop walking through next sources if the number of already retrieved members exceeded the maxNumOfResults
-        if (maxNumOfResults > 0 && numOfResults >= maxNumOfResults) {
-          break;
-        }
       }
 
       LOG.debug("Returning {} potential members for vo {}", candidates.size(), vo);
@@ -663,7 +649,8 @@ public class VosManagerBlImpl implements VosManagerBl {
 
   @Override
   public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString) {
-    return this.findCandidates(sess, vo, searchString, 0);
+    List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
+    return this.findCandidates(sess, vo, searchString, extSources, true);
   }
 
   @Override
@@ -856,7 +843,7 @@ public class VosManagerBlImpl implements VosManagerBl {
                                                      String searchString) {
     List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
     List<RichUser> richUsers = getRichUsersForMemberCandidates(sess, attrNames, searchString);
-    List<Candidate> candidates = findCandidates(sess, vo, searchString, 0, extSources, false);
+    List<Candidate> candidates = findCandidates(sess, vo, searchString, extSources, false);
 
     return createMemberCandidates(sess, richUsers, vo, candidates, attrNames);
   }

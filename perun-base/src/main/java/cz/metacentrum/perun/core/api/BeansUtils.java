@@ -412,87 +412,102 @@ public class BeansUtils {
       throw new InternalErrorException("Unknown attribute def type", e);
     }
 
-    if (attributeClass.equals(String.class)) {
-      return stringValue;
-    } else if (attributeClass.equals(Integer.class)) {
-      return Integer.parseInt(stringValue);
-    } else if (attributeClass.equals(Boolean.class)) {
-      return Boolean.parseBoolean(stringValue);
-    } else if (attributeClass.equals(ArrayList.class)) {
-      return parseEscapedListValue(stringValue);
-    } else if (attributeClass.equals(LinkedHashMap.class)) {
-      String[] array = stringValue.split(Character.toString(LIST_DELIMITER), -1);
-      Map<String, String> attributeValue = new LinkedHashMap<String, String>();
+    try {
+      if (attributeClass.equals(String.class)) {
+        return stringValue;
+      } else if (attributeClass.equals(Integer.class)) {
+        return Integer.parseInt(stringValue);
+      } else if (attributeClass.equals(Boolean.class)) {
+        return Boolean.parseBoolean(stringValue);
+      } else if (attributeClass.equals(ArrayList.class)) {
+        return parseEscapedListValue(stringValue);
+      } else if (attributeClass.equals(LinkedHashMap.class)) {
+        return parseLinkedHashMapValue(stringValue);
+      } else {
+        throw new InternalErrorException("Unknown attribute type. (" + attributeClass.toString() + ")");
+      }
+    } catch (NumberFormatException | ConsistencyErrorException e) {
+      LOG.error("Failed to convert string: \"{}\" to attribute value of type: '{}'", stringValue, type, e);
+      throw new InternalErrorException("Attribute conversion failed.", e);
+    }
+  }
 
-      //join items which was splited on escaped LIST_DELIMITER
-      for (int i = 0; i < array.length - 1; i++) {  //itarate to lenght -1  ... last array item is always empty
-        String mapEntry = array[i];
+  /**
+   * Parse string representation of a linkedHashMap attribute value to the java object
+   *
+   * @param stringValue string representation of a linkedHashMap attribute value
+   * @return parsed LinkedHashMap object
+   */
+  private static Map<String, String> parseLinkedHashMapValue(String stringValue) {
+    String[] array = stringValue.split(Character.toString(LIST_DELIMITER), -1);
+    Map<String, String> attributeValue = new LinkedHashMap<String, String>();
 
-        while (mapEntry.matches("^(.*[^\\\\])?(\\\\\\\\)*\\\\$")) { //mapEntry last char is '\' .
-          // Next mapEntry start with ',', so we need to concat this mapEntries.
-          mapEntry = mapEntry.substring(0, mapEntry.length() - 1);  //cut off last char ('\')
-          try {
-            mapEntry = mapEntry.concat(Character.toString(LIST_DELIMITER)).concat(array[i + 1]);
-            i++;
-          } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new ConsistencyErrorException("Bad format in attribute value", ex);
-          }
+    //join items which was splited on escaped LIST_DELIMITER
+    for (int i = 0; i < array.length - 1; i++) {  //itarate to lenght -1  ... last array item is always empty
+      String mapEntry = array[i];
+
+      while (mapEntry.matches("^(.*[^\\\\])?(\\\\\\\\)*\\\\$")) { //mapEntry last char is '\' .
+        // Next mapEntry start with ',', so we need to concat this mapEntries.
+        mapEntry = mapEntry.substring(0, mapEntry.length() - 1);  //cut off last char ('\')
+        try {
+          mapEntry = mapEntry.concat(Character.toString(LIST_DELIMITER)).concat(array[i + 1]);
+          i++;
+        } catch (ArrayIndexOutOfBoundsException ex) {
+          throw new ConsistencyErrorException("Bad format in attribute value", ex);
         }
-
-        boolean delimiterFound = false;
-        int delimiterIndex = -1;
-
-
-        while (!delimiterFound) {
-          delimiterIndex++; //start searching at next char then last time
-          delimiterIndex = mapEntry.indexOf(Character.toString(KEY_VALUE_DELIMITER), delimiterIndex);
-          if (delimiterIndex == -1) {
-            throw new ConsistencyErrorException(
-                "Bad format in attribute value. KEY_VALUE_DELIMITER not found. Attribute value='" + stringValue +
-                "', processed entry='" + mapEntry + "'");
-          }
-
-          //check if this delimiter is not escaped
-          boolean isEscaped = false;  //is delimiter escaped
-          boolean stop = false;
-          int processedIndex = delimiterIndex - 1;
-          while (!stop && processedIndex >= 0) {
-            if (mapEntry.charAt(processedIndex) == '\\') {
-              isEscaped = !isEscaped;
-            } else {
-              stop = true;
-            }
-            processedIndex--;
-          }
-          if (!isEscaped) {
-            delimiterFound = true;
-          }
-        }
-
-        String key = mapEntry.substring(0, delimiterIndex);
-        String value = mapEntry.substring(delimiterIndex + 1);
-
-        //unescape
-        key = key.replaceAll(
-            "\\\\([\\\\" + Character.toString(LIST_DELIMITER) + Character.toString(KEY_VALUE_DELIMITER) + "])", "$1");
-        value = value.replaceAll(
-            "\\\\([\\\\" + Character.toString(LIST_DELIMITER) + Character.toString(KEY_VALUE_DELIMITER) + "])", "$1");
-
-        if (key.equals("\\0")) {
-          key = null;
-        }
-        if (value.equals("\\0")) {
-          value = null;
-        }
-
-        //return updated item back to list
-        attributeValue.put(key, value);
       }
 
-      return attributeValue;
-    } else {
-      throw new InternalErrorException("Unknown attribute type. (" + attributeClass.toString() + ")");
+      boolean delimiterFound = false;
+      int delimiterIndex = -1;
+
+
+      while (!delimiterFound) {
+        delimiterIndex++; //start searching at next char then last time
+        delimiterIndex = mapEntry.indexOf(Character.toString(KEY_VALUE_DELIMITER), delimiterIndex);
+        if (delimiterIndex == -1) {
+          throw new ConsistencyErrorException(
+                  "Bad format in attribute value. KEY_VALUE_DELIMITER not found. Attribute value='" + stringValue +
+                          "', processed entry='" + mapEntry + "'");
+        }
+
+        //check if this delimiter is not escaped
+        boolean isEscaped = false;  //is delimiter escaped
+        boolean stop = false;
+        int processedIndex = delimiterIndex - 1;
+        while (!stop && processedIndex >= 0) {
+          if (mapEntry.charAt(processedIndex) == '\\') {
+            isEscaped = !isEscaped;
+          } else {
+            stop = true;
+          }
+          processedIndex--;
+        }
+        if (!isEscaped) {
+          delimiterFound = true;
+        }
+      }
+
+      String key = mapEntry.substring(0, delimiterIndex);
+      String value = mapEntry.substring(delimiterIndex + 1);
+
+      //unescape
+      key = key.replaceAll(
+              "\\\\([\\\\" + Character.toString(LIST_DELIMITER) + Character.toString(KEY_VALUE_DELIMITER) + "])", "$1");
+      value = value.replaceAll(
+              "\\\\([\\\\" + Character.toString(LIST_DELIMITER) + Character.toString(KEY_VALUE_DELIMITER) + "])", "$1");
+
+      if (key.equals("\\0")) {
+        key = null;
+      }
+      if (value.equals("\\0")) {
+        value = null;
+      }
+
+      //return updated item back to list
+      attributeValue.put(key, value);
     }
+
+    return attributeValue;
   }
 
   /**

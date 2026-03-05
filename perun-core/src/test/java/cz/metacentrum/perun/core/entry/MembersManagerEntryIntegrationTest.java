@@ -4696,6 +4696,30 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
   }
 
   @Test
+  public void getAvailableSponsorsForMemberIncludesExpired() throws Exception {
+    System.out.println(CLASS_NAME + "getAvailableSponsorsForMemberIncludesExpired");
+
+    Vo vo = setUpVo("TestVo");
+    Member member = setUpMember(vo, "Test", "Member");
+
+    User sponsor1 = perun.getUsersManagerBl().createUser(sess, new User(-1, "User1", "Test1", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor1, vo, Role.SPONSOR);
+
+    User sponsor2 = perun.getUsersManagerBl().createUser(sess, new User(-2, "User2", "Test2", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor2, vo, Role.SPONSOR);
+
+    User sponsor3 = perun.getUsersManagerBl().createUser(sess, new User(-3, "User3", "Test3", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor3, vo, Role.SPONSOR);
+
+    member.setSponsored(true);
+    membersManagerEntry.sponsorMember(sess, member, sponsor2, null);
+    membersManagerEntry.sponsorMember(sess, member, sponsor3, null);
+    membersManagerEntry.removeSponsor(sess, member, sponsor3);
+
+    assertThat(membersManagerEntry.getAvailableSponsorsForMember(sess, member)).contains(sponsor1, sponsor3);
+  }
+
+  @Test
   public void someAvailableSponsorExistsForMember() throws Exception {
     System.out.println(CLASS_NAME + "someAvailableSponsorExistsForMember");
 
@@ -4712,5 +4736,48 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     membersManagerEntry.sponsorMember(sess, member, sponsor2, null);
 
     assertTrue(membersManagerEntry.someAvailableSponsorExistsForMember(sess, member));
+  }
+
+  @Test
+  public void someAvailableSponsorExistsForMemberIncludesExpired() throws Exception {
+    System.out.println(CLASS_NAME + "someAvailableSponsorExistsForMemberIncludesExpired");
+
+    Vo vo = setUpVo("TestVo");
+    Member member = setUpMember(vo, "Test", "Member");
+
+    User sponsor1 = perun.getUsersManagerBl().createUser(sess, new User(-1, "User1", "Test1", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor1, vo, Role.SPONSOR);
+
+    User sponsor2 = perun.getUsersManagerBl().createUser(sess, new User(-2, "User2", "Test2", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor2, vo, Role.SPONSOR);
+
+
+    member.setSponsored(true);
+    membersManagerEntry.sponsorMember(sess, member, sponsor2, null);
+    membersManagerEntry.sponsorMember(sess, member, sponsor1, null);
+    membersManagerEntry.removeSponsor(sess, member, sponsor1);
+
+    assertTrue(membersManagerEntry.someAvailableSponsorExistsForMember(sess, member));
+  }
+
+  @Test
+  public void someAvailableSponsorExistsForMemberExcludesActive() throws Exception {
+    System.out.println(CLASS_NAME + "someAvailableSponsorExistsForMemberExcludesActive");
+
+    Vo vo = setUpVo("TestVo");
+    Member member = setUpMember(vo, "Test", "Member");
+
+    User sponsor1 = perun.getUsersManagerBl().createUser(sess, new User(-1, "User1", "Test1", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor1, vo, Role.SPONSOR);
+
+    User sponsor2 = perun.getUsersManagerBl().createUser(sess, new User(-2, "User2", "Test2", "", "", ""));
+    AuthzResolverBlImpl.setRole(sess, sponsor2, vo, Role.SPONSOR);
+
+
+    member.setSponsored(true);
+    membersManagerEntry.sponsorMember(sess, member, sponsor2, null);
+    membersManagerEntry.sponsorMember(sess, member, sponsor1, null);
+
+    assertFalse(membersManagerEntry.someAvailableSponsorExistsForMember(sess, member));
   }
 }

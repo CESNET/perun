@@ -1041,8 +1041,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
           throw new InternalErrorException(ex);
         }
         Attribute attribute = new Attribute(attributeDefinition);
-        attribute.setValue(getPerunBl().getAttributesManagerBl()
-            .stringToAttributeValue(candidate.getAttributes().get(attributeName), attribute.getType()));
+        String attributeValueString = candidate.getAttributes().get(attributeName);
+        String attributeType = attribute.getType();
+        int voId = vo.getId();
+        try {
+          attribute.setValue(getPerunBl().getAttributesManagerBl()
+                  .stringToAttributeValue(candidate.getAttributes().get(attributeName), attribute.getType()));
+        } catch (Exception e) {
+          LOG.error("Failed to convert string: \"{}\" to attribute value of type: '{}' while " +
+                          "attempting to create attribute: '{}' for candidate member: {}",
+                  attributeValueString, attributeType, attributeName, candidate);
+          throw new InternalErrorException("Couldn't create attributes for candidate member: " + candidate +
+                "due to exception which occurred while attempting create to attribute: '" + attributeName + "'.");
+        }
         if (getPerunBl().getAttributesManagerBl()
                 .isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR_DEF) ||
             getPerunBl().getAttributesManagerBl()

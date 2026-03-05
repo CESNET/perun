@@ -14,13 +14,8 @@ import java.util.Map;
 public class ExtSourceSqlComplex extends ExtSourceSql implements ExtSourceApi {
 
   @Override
-  public List<Map<String, String>> findSubjects(String searchString) throws ExtSourceUnsupportedOperationException {
-    return findSubjects(searchString, 0);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults)
+  public List<Map<String, String>> findSubjects(String searchString)
       throws ExtSourceUnsupportedOperationException {
-    return findSubjectsLogins(searchString, maxResults);
+    return findSubjectsLogins(searchString);
   }
 }

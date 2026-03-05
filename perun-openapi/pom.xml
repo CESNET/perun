@@ -28,7 +28,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.19.0</version>
+                <version>7.20.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.8</version>
+            <version>0.2.9</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>

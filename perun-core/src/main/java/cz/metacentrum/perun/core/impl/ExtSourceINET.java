@@ -40,6 +40,6 @@ public class ExtSourceINET extends ExtSourceSqlComplex {
     }
     query = query.replaceFirst("[?]", "'" + nameOfTheGroup + "'");
 
-    return this.querySource(query, null, 0);
+    return this.querySource(query, null);
   }
 }

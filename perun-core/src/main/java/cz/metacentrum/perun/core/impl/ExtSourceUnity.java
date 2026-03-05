@@ -151,11 +151,6 @@ public class ExtSourceUnity extends ExtSourceImpl implements ExtSourceApi {
 
   @Override
   public List<Map<String, String>> findSubjects(String searchString) {
-    return findSubjects(searchString, 0);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
     String query = getAttributes().get("query");
 
     if (query == null || query.isEmpty()) {
@@ -171,15 +166,8 @@ public class ExtSourceUnity extends ExtSourceImpl implements ExtSourceApi {
 
     prepareEnvironment();
 
-    return jsonParsing(query, maxResults);
+    return jsonParsing(query);
 
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException(
-        "For Unity using this method is not optimized, use findSubjects instead.");
   }
 
   @Override
@@ -291,7 +279,7 @@ public class ExtSourceUnity extends ExtSourceImpl implements ExtSourceApi {
 
     prepareEnvironment();
 
-    List<Map<String, String>> subjects = jsonParsing(query, 0);
+    List<Map<String, String>> subjects = jsonParsing(query);
 
     if (subjects == null || subjects.isEmpty()) {
       throw new SubjectNotExistsException("Login: " + login);
@@ -315,10 +303,10 @@ public class ExtSourceUnity extends ExtSourceImpl implements ExtSourceApi {
 
     prepareEnvironment();
 
-    return jsonParsing(query, 0);
+    return jsonParsing(query);
   }
 
-  private List<Map<String, String>> jsonParsing(String query, int maxResults) {
+  private List<Map<String, String>> jsonParsing(String query) {
     try {
       List<Integer> entitiesIds = connectAndGetEntitiesId();
       List<UnityEntity> validEntities = connectAndGetValidEntitiesById(entitiesIds);
@@ -332,11 +320,6 @@ public class ExtSourceUnity extends ExtSourceImpl implements ExtSourceApi {
 
         for (UnityEntity entity : validEntities) {
           Map<String, String> map = new HashMap<>();
-          if (maxResults > 0) {
-            if (subjects.size() >= maxResults) {
-              break;
-            }
-          }
 
           // if query contains login or email
           switch (attrName) {

@@ -286,11 +286,6 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
 
   @Override
   public List<Map<String, String>> findSubjects(String searchString) {
-    return findSubjects(searchString, 0);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
     //prepare string for xpath (use concat for chars ' and  ")
     searchString = convertToXpathSearchString(searchString);
 
@@ -309,20 +304,14 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
     //Get file or uri of xml
     prepareEnvironment();
 
-    return xpathParsing(query, maxResults);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResulsts)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException(
-        "For XML is using this method not optimized, use findSubjects instead.");
+    return xpathParsing(query);
   }
 
   @Override
   public List<Map<String, String>> findSubjectsLogins(String searchString)
       throws ExtSourceUnsupportedOperationException {
-    return findSubjectsLogins(searchString, 0);
+    throw new ExtSourceUnsupportedOperationException(
+        "For XML is using this method not optimized, use findSubjects instead.");
   }
 
   @JsonIgnore
@@ -343,7 +332,7 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
     //Get file or uri of xml
     prepareEnvironment();
 
-    return xpathParsing(queryForGroup, 0);
+    return xpathParsing(queryForGroup);
   }
 
   @Override
@@ -366,7 +355,7 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
     //Get file or uri of xml
     prepareEnvironment();
 
-    List<Map<String, String>> subjects = this.xpathParsing(query, 0);
+    List<Map<String, String>> subjects = this.xpathParsing(query);
 
     if (subjects.size() > 1) {
       throw new SubjectNotExistsException("There are more than one results for the login: " + login);
@@ -398,7 +387,7 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
     //Get file or uri of xml
     prepareEnvironment();
 
-    return xpathParsing(queryForUsers, 0);
+    return xpathParsing(queryForUsers);
   }
 
   /**
@@ -454,11 +443,10 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
    * The way of xml take from "file" or "uri" (configuration file)
    *
    * @param query      xpath query from config file
-   * @param maxResults never get more than maxResults results (0 mean unlimited)
    * @return List of results, where result is Map<String,String> like <name, value>
    * @throws InternalErrorException
    */
-  protected List<Map<String, String>> xpathParsing(String query, int maxResults) {
+  protected List<Map<String, String>> xpathParsing(String query) {
     //Prepare result list
     List<Map<String, String>> subjects = new ArrayList<>();
 
@@ -521,12 +509,6 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
       Map<String, String> map = convertNodeToMap(singleNode);
       if (map != null) {
         subjects.add(map);
-      }
-      //Reducing results by maxResults
-      if (maxResults > 0) {
-        if (subjects.size() >= maxResults) {
-          break;
-        }
       }
     }
 

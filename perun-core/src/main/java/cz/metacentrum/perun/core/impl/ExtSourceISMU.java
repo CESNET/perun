@@ -37,12 +37,6 @@ public class ExtSourceISMU extends ExtSourceImpl implements ExtSourceSimpleApi {
   }
 
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException();
-  }
-
-  @Override
   public List<Map<String, String>> findSubjectsLogins(String searchString)
       throws ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();
@@ -53,7 +47,7 @@ public class ExtSourceISMU extends ExtSourceImpl implements ExtSourceSimpleApi {
     // Get the url query for the group subjects
     String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
-    return this.querySource(queryForGroup, null, 0);
+    return this.querySource(queryForGroup, null);
   }
 
   protected HttpURLConnection getHttpConnection(String query, String searchString) throws IOException {
@@ -105,10 +99,10 @@ public class ExtSourceISMU extends ExtSourceImpl implements ExtSourceSimpleApi {
     // Get the url query for users subjects
     String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
 
-    return querySource(queryForUsers, null, 0);
+    return querySource(queryForUsers, null);
   }
 
-  protected List<Map<String, String>> querySource(String query, String searchString, int maxResults) {
+  protected List<Map<String, String>> querySource(String query, String searchString) {
 
     try {
       HttpURLConnection http = getHttpConnection(query, searchString);

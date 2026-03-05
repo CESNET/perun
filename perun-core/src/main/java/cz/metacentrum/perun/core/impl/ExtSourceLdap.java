@@ -52,17 +52,12 @@ public class ExtSourceLdap extends ExtSourceImpl implements ExtSourceApi {
 
   @Override
   public List<Map<String, String>> findSubjects(String searchString) {
-    return findSubjects(searchString, 0);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
     // We can call original implementation, since LDAP always return whole entry and not just login
-    return findSubjectsLogins(searchString, maxResults);
+    return findSubjectsLogins(searchString);
   }
 
   @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) {
+  public List<Map<String, String>> findSubjectsLogins(String searchString) {
     // Prepare searchQuery
     // attributes.get("query") contains query template, e.g. (uid=?), ? will be replaced by the searchString
     String query = getAttributes().get("query");
@@ -75,12 +70,7 @@ public class ExtSourceLdap extends ExtSourceImpl implements ExtSourceApi {
     if (base == null) {
       throw new InternalErrorException("base attributes is required");
     }
-    return this.querySource(query, base, maxResults);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString) {
-    return findSubjectsLogins(searchString, 0);
+    return this.querySource(query, base);
   }
 
   protected DirContext getContext() {
@@ -137,7 +127,7 @@ public class ExtSourceLdap extends ExtSourceImpl implements ExtSourceApi {
 
       // Now query LDAP again and search for each subject
       for (String ldapSubjectName : ldapGroupSubjects) {
-        subjects.addAll(this.querySource(filter, ldapSubjectName, 0));
+        subjects.addAll(this.querySource(filter, ldapSubjectName));
       }
 
       return subjects;
@@ -277,7 +267,7 @@ public class ExtSourceLdap extends ExtSourceImpl implements ExtSourceApi {
       throw new InternalErrorException("base attributes is required");
     }
 
-    List<Map<String, String>> subjects = this.querySource(query, base, 0);
+    List<Map<String, String>> subjects = this.querySource(query, base);
 
     if (subjects.size() > 1) {
       throw new SubjectNotExistsException("There are more than one results for the login: " + login);
@@ -306,7 +296,7 @@ public class ExtSourceLdap extends ExtSourceImpl implements ExtSourceApi {
       throw new InternalErrorException("base attributes is required");
     }
 
-    return querySource(filter, base, 0);
+    return querySource(filter, base);
   }
 
   protected void initContext() {
@@ -354,15 +344,14 @@ public class ExtSourceLdap extends ExtSourceImpl implements ExtSourceApi {
   }
 
   /**
-   * Query LDAP using query in defined base. Results can be limited to the maxResults.
+   * Query LDAP using query in defined base.
    *
    * @param query
    * @param base
-   * @param maxResults
    * @return List of Map of the LDAP attribute names and theirs values
    * @throws InternalErrorException
    */
-  protected List<Map<String, String>> querySource(String query, String base, int maxResults) {
+  protected List<Map<String, String>> querySource(String query, String base) {
 
     NamingEnumeration<SearchResult> results = null;
     List<Map<String, String>> subjects = new ArrayList<>();
@@ -386,9 +375,6 @@ public class ExtSourceLdap extends ExtSourceImpl implements ExtSourceApi {
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         // Set timeout to 5s
         controls.setTimeLimit(5000);
-        if (maxResults > 0) {
-          controls.setCountLimit(maxResults);
-        }
 
         if (base == null) {
           base = "";

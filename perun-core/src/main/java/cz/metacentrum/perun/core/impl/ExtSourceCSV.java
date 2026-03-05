@@ -90,12 +90,11 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
    * Parse CSV file into list of our standard "subject" (aka candidates)
    *
    * @param query      query to check CSV file content against
-   * @param maxResults limit results to X row or 0 for unlimited
    * @return List of Maps representing subjects for synchronization (perun_attr/constant = value).
    * @throws InternalErrorException When implementation fails
    * @throws IOException            When reading CSV file fails
    */
-  private List<Map<String, String>> csvParsing(String query, int maxResults) throws IOException {
+  private List<Map<String, String>> csvParsing(String query) throws IOException {
 
     List<Map<String, String>> subjects = new ArrayList<>();
 
@@ -106,31 +105,24 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
     // use first row as header; otherwise defaults are fine
     CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
-    MappingIterator<Map<String, String>> it = mapper.readerFor(Map.class).with(schema).readValues(csvFile);
-    while (it.hasNext()) {
+    try (MappingIterator<Map<String, String>> it = mapper.readerFor(Map.class).with(schema).readValues(csvFile)) {
+      while (it.hasNext()) {
 
-      Map<String, String> rowAsMap = it.next();
+        Map<String, String> rowAsMap = it.next();
 
-      if (compareRowToQuery(rowAsMap, query)) {
+        if (compareRowToQuery(rowAsMap, query)) {
 
-        Map<String, String> singleSubject = new HashMap<>();
+          Map<String, String> singleSubject = new HashMap<>();
 
-        // translate CSV column names to perun attribute URNs
-        for (String key : rowAsMap.keySet()) {
-          singleSubject.put(attributeMapping.get(key), rowAsMap.get(key));
-        }
-
-        subjects.add(singleSubject);
-
-        // break if we required limited response
-        if (maxResults > 0) {
-          if (subjects.size() >= maxResults) {
-            break;
+          // translate CSV column names to perun attribute URNs
+          for (String key : rowAsMap.keySet()) {
+            singleSubject.put(attributeMapping.get(key), rowAsMap.get(key));
           }
+
+          subjects.add(singleSubject);
         }
 
       }
-
     }
 
     return subjects;
@@ -139,11 +131,6 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
 
   @Override
   public List<Map<String, String>> findSubjects(String searchString) {
-    return findSubjects(searchString, 0);
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
     try {
       query = getAttributes().get("query");
 
@@ -161,20 +148,13 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
       //Get CSV file
       prepareFile();
 
-      return csvParsing(query, maxResults);
+      return csvParsing(query);
 
     } catch (IOException ex) {
       LOG.error("IOException in findSubjects() method while parsing csv file", ex);
     }
 
     return null;
-  }
-
-  @Override
-  public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults)
-      throws ExtSourceUnsupportedOperationException {
-    throw new ExtSourceUnsupportedOperationException(
-        "For CSV using this method is not optimized, use findSubjects instead.");
   }
 
   @Override
@@ -238,7 +218,7 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
       // Get CSV file
       prepareFile();
 
-      return csvParsing(queryForGroup, 0);
+      return csvParsing(queryForGroup);
 
     } catch (IOException ex) {
       LOG.error("IOException in getGroupSubjects() method while parsing csv file", ex);
@@ -265,7 +245,7 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
       //Get CSV file
       prepareFile();
 
-      List<Map<String, String>> subjects = this.csvParsing(query, 0);
+      List<Map<String, String>> subjects = this.csvParsing(query);
 
       if (subjects.isEmpty()) {
         throw new SubjectNotExistsException("Login: " + login);
@@ -303,7 +283,7 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
       // Get CSV file
       prepareFile();
 
-      return csvParsing(queryForUsers, 0);
+      return csvParsing(queryForUsers);
 
     } catch (IOException ex) {
       LOG.error("IOException in getUsersSubjects() method while parsing csv file", ex);
