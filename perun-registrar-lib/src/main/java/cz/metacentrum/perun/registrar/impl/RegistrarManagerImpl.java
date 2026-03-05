@@ -122,6 +122,7 @@ import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataCertException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataException;
+import cz.metacentrum.perun.registrar.exceptions.NewRegistrarUsedException;
 import cz.metacentrum.perun.registrar.exceptions.NoPrefilledUneditableRequiredDataException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -703,6 +704,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw new RegistrarException("Application with ID " + appId + " doesn't exists.");
     }
     Member member;
+
+    throwIfNewRegistration(app, "Cannot edit old registrar applications " +
+                                    "for this Vo/Group as long as it uses new Registrar");
 
     //Authorization
     if (app.getGroup() == null) {
@@ -3829,6 +3833,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
           Arrays.asList(AttributesManager.NS_VO_ATTR_DEF + ":contactEmail",
               AttributesManager.NS_VO_ATTR_DEF + ":voLogoURL"));
 
+      Attribute useNewAttr;
+      try {
+        useNewAttr = attrManager.getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF +
+                                                            ":useNewRegistration");
+      } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+        useNewAttr = null;
+      }
+      if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+        String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForVo(vo);
+        result.put("newRegistrarUrl", regRedirect);
+        return result;
+      }
+
       result.put("vo", vo);
       result.put("voAttributes", list);
       result.put("voForm", getFormForVo(vo));
@@ -3902,8 +3919,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
       if (groupName != null && !groupName.isEmpty()) {
 
         group = groupsManager.getGroupByName(sess, vo, groupName);
+
+
         result.put("group", group);
         result.put("groupForm", getFormForGroup(group));
+        try {
+          useNewAttr = attrManager.getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF +
+                                                                 ":useNewRegistration");
+        } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+          useNewAttr = null;
+        }
+        if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+          String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForGroup(group);
+          result.put("groupNewRegistrarUrl", regRedirect);
+          return result;
+        }
 
         try {
           result.put("groupFormInitial",
@@ -4725,6 +4755,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
     Application processedApplication;
     try {
 
+      // check whether Vo/Group uses new registrar
+      throwIfNewRegistration(application, "Cannot submit old registrar applications " +
+                                               "for this Vo/Group as long as it uses new Registrar");
+
       // throws exception if user already submitted application or is already a member or can't submit it by VO/Group
       // expiration rules.
       checkDuplicateRegistrationAttempt(session, application.getType(),
@@ -4895,6 +4929,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
         throw new PrivilegeException(sess, "rejectApplication");
       }
     }
+    throwIfNewRegistration(app, "Cannot edit old registrar applications " +
+                                    "for this Vo/Group as long as it uses new Registrar");
 
     // only VERIFIED applications can be rejected
     if (AppState.APPROVED.equals(app.getState())) {
@@ -5026,6 +5062,25 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw e;
     } catch (Exception ignored) {
       // deal with this exception later in the bulk call
+    }
+  }
+
+  private void throwIfNewRegistration(Application app, String message) throws PerunException {
+    // check whether Vo/Group uses new registrar
+    try {
+      Attribute useNewAttr;
+      if (app.getGroup() != null) {
+        useNewAttr = attrManager.getAttribute(registrarSession, app.getGroup(),
+            AttributesManager.NS_GROUP_ATTR_DEF + ":useNewRegistration");
+      } else {
+        useNewAttr = attrManager.getAttribute(registrarSession, app.getVo(),
+            AttributesManager.NS_VO_ATTR_DEF + ":useNewRegistration");
+      }
+      if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+        throw new NewRegistrarUsedException(message);
+      }
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+      return;
     }
   }
 

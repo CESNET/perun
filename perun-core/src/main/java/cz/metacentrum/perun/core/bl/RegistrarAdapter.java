@@ -74,4 +74,8 @@ public interface RegistrarAdapter {
       throws RelationExistsException;
 
   void onUserIdentityJoined(PerunSession sess, UserExtSource userExtSource);
+
+  String getInviteUrlForVo(Vo vo);
+
+  String getInviteUrlForGroup(Group group);
 }

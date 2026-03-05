@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RegistrarAdapter;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
+import cz.metacentrum.perun.registrar.openapi.FormsApi;
 import cz.metacentrum.perun.registrar.openapi.IdmMessagesApi;
 import cz.metacentrum.perun.registrar.openapi.invoker.ApiClient;
 import cz.metacentrum.perun.registrar.openapi.model.ConsolidateUserDTO;
@@ -39,6 +40,7 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
 
   private PerunBl perunBl;
   private IdmMessagesApi registrarApi;
+  private ApiClient apiClient;
 
 
   public void init() {
@@ -47,10 +49,10 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
       LOG.debug("Registrar API URL not configured, skipping RegistrarAdapter initialization");
       return;
     }
-    ApiClient apiClient = new ApiClient();
-    apiClient.setBasePath(apiUrl);
-    apiClient.addDefaultHeader("X-API-Key", BeansUtils.getCoreConfig().getRegistrarApiSecret());
-    registrarApi = new IdmMessagesApi(apiClient);
+    this.apiClient = new ApiClient();
+    this.apiClient.setBasePath(apiUrl);
+    this.apiClient.addDefaultHeader("X-API-Key", BeansUtils.getCoreConfig().getRegistrarApiSecret());
+    registrarApi = new IdmMessagesApi(this.apiClient);
   }
 
   public void setPerunBl(PerunBl perunBl) {
@@ -154,8 +156,6 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
                                               "applications in the following forms (New Registrar): " + formIds);
       }
     }
-    // newRegistrar.toString();
-
     //Check relation to any application form as a source or destination attribute
     List<ApplicationForm> applicationForms = perunBl.getAttributesManagerBl().getAppFormsWhereAttributeRelated(sess,
         attributeDefinition);
@@ -199,6 +199,26 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
     registrarApi.userConsolidated(consolidateUserDTO)
           .doOnError((err) -> LOG.error("Failed to notify Registrar on user identity consolidation", err))
         .subscribe();
+  }
+
+  @Override
+  public String getInviteUrlForVo(Vo vo) {
+    if (registrarApi == null) {
+      return "";
+    }
+    FormsApi formsApi = new FormsApi(apiClient);
+    return formsApi.inviteUrl("VO", String.valueOf(vo.getId()), null)
+               .block();
+  }
+
+  @Override
+  public String getInviteUrlForGroup(Group group) {
+    if (registrarApi == null) {
+      return "";
+    }
+    FormsApi formsApi = new FormsApi(apiClient);
+    return formsApi.inviteUrl("GROUP", String.valueOf(group.getId()), null)
+               .block();
   }
 
   private boolean doesGroupUseNewRegistration(PerunSession sess, Group group) {
