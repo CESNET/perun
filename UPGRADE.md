@@ -1,5 +1,29 @@
 Upgrade notes
 
+## [50.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.9.1...v50.0.0) (2026-03-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** remove maxNumOfResults param for findCandidates, as it is unused
+
+### Features
+
+* **core:** remove maxNumOfResults param for findCandidates ([cc03591](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cc035916c90a7869ed5ac1f49557d963ced1b69b))
+
+
+### Bug Fixes
+
+* **core:** add more comprehensive logging to failed stringToAttributeValue calls ([efa23be](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/efa23be7a8ff2d05f36425723d46bebb18d739c7))
+* **core:** fail when storing invalid regex ([8c28a70](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8c28a70342668d780cad4cb5773299e97881d0f3))
+* **core:** return expired sponsors as available for new sponsorship ([ec6e026](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ec6e026e8c22e5131864a8daf870374f433b35b1))
+* **core:** unified messages in constructor of WrongReferenceAttributeValueException ([b556975](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b55697559ee5cbdced65f5be33e4ae2ebc7dadc2))
+* **deps:** update dependency google-api-services-admin-directory ([cce7f20](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cce7f20e564654763f73b5c546a1bca7d2dfc0ca))
+* **deps:** update dependency org.openapitools:jackson-databind-nullable to v0.2.9 ([437dd64](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/437dd649f7f0458fdae24a77b0d031026acd762a))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.11 ([f73d29a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f73d29a4701d6234ac2b553f6806dfeb3eb55adc))
+* **deps:** update gwtversion to v2.13.0 ([5ce684a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5ce684a48ef33176a9b4e2ddab936945ea139d8c))
+* **gui:** changed hardcoded site id for analytics on mu instance ([7b93ae0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7b93ae084e2e9c5157c6109d71364771bd328cad))
+
 ## [49.9.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.9.0...v49.9.1) (2026-02-03)
 
 
