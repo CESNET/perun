@@ -225,7 +225,7 @@ public class UsersManagerEntry implements UsersManager {
     Utils.notNull(token, "token");
 
     if (lang == null || lang.isEmpty()) {
-      lang = "en"; // fallback to english
+      lang = "en"; // fallback to English
     }
 
     getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, token, password, lang);
@@ -254,7 +254,8 @@ public class UsersManagerEntry implements UsersManager {
     try {
       getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attributeName);
     } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
-      throw new LoginNotExistsException(e);
+      throw new LoginNotExistsException(
+              "Login in namespace '" + loginNamespace + "' does not exist for user " + user.getId(), e);
     }
 
     getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
@@ -276,13 +277,15 @@ public class UsersManagerEntry implements UsersManager {
       users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, login);
     } catch (ConsistencyErrorException e) {
       // attr def not exists by implementation in getUsersByAttributeValue
-      throw new LoginNotExistsException(e);
+      throw new LoginNotExistsException("Login: " + login + " in namespace: " + loginNamespace, e);
     }
     if (users.size() > 1) {
-      throw new ConsistencyErrorException("Multiple users found for login: " + login);
+      throw new ConsistencyErrorException(
+              "Multiple users found for login: " + login + " in namespace: " + loginNamespace);
     }
     if (users.isEmpty()) {
-      throw new LoginNotExistsException("User with login: " + login + " not exists.");
+      throw new LoginNotExistsException(
+              "User with login: " + login + " in namespace: " + loginNamespace + " doesn't exist");
     }
     User user = users.get(0);
 
@@ -302,7 +305,7 @@ public class UsersManagerEntry implements UsersManager {
 
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "changePasswordRandom_User_String_policy", user)) {
-      throw new PrivilegeException("changePasswordRandom");
+      throw new PrivilegeException(sess, "changePasswordRandom");
     }
 
     return usersManagerBl.changePasswordRandom(sess, user, loginNamespace);
@@ -390,7 +393,7 @@ public class UsersManagerEntry implements UsersManager {
     }
 
     if (!AuthzResolver.authorizedInternal(sess, "createServiceUser_policy")) {
-      throw new PrivilegeException("createServiceUser");
+      throw new PrivilegeException(sess, "createServiceUser");
     }
 
     return perunBl.getUsersManagerBl().createServiceUser(sess, candidate, owners);
@@ -791,7 +794,7 @@ public class UsersManagerEntry implements UsersManager {
       try {
         resources = getAssociatedResources(sess, fac, user);
       } catch (FacilityNotExistsException e) {
-        throw new ConsistencyErrorException("Facility should exist", e);
+        throw new ConsistencyErrorException("Facility: " + fac.getId() + " should exist but was not found.", e);
       }
 
       assignments.put(fac, resources);
@@ -847,7 +850,7 @@ public class UsersManagerEntry implements UsersManager {
 
     if (!AuthzResolver.authorizedInternal(sess, "getGroupsWhereUserIsActive_Resource_User_policy",
         Arrays.asList(resource, user))) {
-      throw new PrivilegeException("getGroupsWhereUserIsActive");
+      throw new PrivilegeException(sess, "getGroupsWhereUserIsActive");
     }
 
     return perunBl.getUsersManagerBl().getGroupsWhereUserIsActive(sess, resource, user);
@@ -860,7 +863,7 @@ public class UsersManagerEntry implements UsersManager {
 
     if (!AuthzResolver.authorizedInternal(sess, "getGroupsWhereUserIsActive_Facility_User_policy",
         Arrays.asList(facility, user))) {
-      throw new PrivilegeException("getGroupsWhereUserIsActive");
+      throw new PrivilegeException(sess, "getGroupsWhereUserIsActive");
     }
 
     return perunBl.getUsersManagerBl().getGroupsWhereUserIsActive(sess, facility, user);
@@ -929,7 +932,7 @@ public class UsersManagerEntry implements UsersManager {
 
     if (!AuthzResolver.authorizedInternal(sess, "getRichGroupsWhereUserIsActive_Resource_User_List<String>_policy",
         Arrays.asList(resource, user))) {
-      throw new PrivilegeException("getRichGroupsWhereUserIsActive");
+      throw new PrivilegeException(sess, "getRichGroupsWhereUserIsActive");
     }
 
     return perunBl.getGroupsManagerBl().filterOnlyAllowedAttributes(sess,
@@ -944,7 +947,7 @@ public class UsersManagerEntry implements UsersManager {
 
     if (!AuthzResolver.authorizedInternal(sess, "getRichGroupsWhereUserIsActive_Facility_User_List<String>_policy",
         Arrays.asList(facility, user))) {
-      throw new PrivilegeException("getRichGroupsWhereUserIsActive");
+      throw new PrivilegeException(sess, "getRichGroupsWhereUserIsActive");
     }
 
     return perunBl.getGroupsManagerBl().filterOnlyAllowedAttributes(sess,
@@ -1131,7 +1134,7 @@ public class UsersManagerEntry implements UsersManager {
         richUsers = usersManagerBl.convertRichUsersToRichUsersWithAttributes(sess,
             usersManagerBl.convertUsersToRichUsers(sess, sponsors));
       } catch (UserNotExistsException e) {
-        throw new InternalErrorException(e);
+        throw new InternalErrorException("Failed to convert sponsors to rich users for member " + member.getId(), e);
       }
     } else {
       //adds only selected atributes (if the list would be empty, it will return no attributes)
@@ -1934,7 +1937,7 @@ public class UsersManagerEntry implements UsersManager {
     getUsersManagerBl().checkUserExists(sess, user);
     if (user.getLastName() == null || user.getLastName().isEmpty()) {
       throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException(
-          "User lastName can't be null. It's required attribute.");
+              "User lastName can't be null for userId:" + user.getId() + ". It's required attribute.");
     }
 
     return getUsersManagerBl().updateUser(sess, user);
@@ -2097,7 +2100,7 @@ public class UsersManagerEntry implements UsersManager {
     newOrganizationName = Utils.trimInput(newOrganizationName);
 
     if (newOrganizationName == null) {
-      throw new IllegalArgumentException("Organization is required");
+      throw new IllegalArgumentException("Organization is required for user with id: " + user.getId());
     }
 
     // Authorization
@@ -2137,7 +2140,7 @@ public class UsersManagerEntry implements UsersManager {
     titleAfter = Utils.trimInput(titleAfter);
 
     if (firstName == null || lastName == null) {
-      throw new IllegalArgumentException("First name and last name are required");
+      throw new IllegalArgumentException("First name and last name are required for user with id: " + user.getId());
     }
 
     // Authorization
@@ -2175,7 +2178,7 @@ public class UsersManagerEntry implements UsersManager {
     newEmail = Utils.trimInput(newEmail);
 
     if (newEmail == null) {
-      throw new IllegalArgumentException("Email is required");
+      throw new IllegalArgumentException("Email is required for user with id: " + user.getId());
     }
 
     // Authorization
