@@ -39,18 +39,20 @@ public class PerunLogbackConfigurator extends ContextAwareBase implements Config
     String envConfig = System.getProperty("logback.configurationFile");
     confFile = (envConfig != null) ? Paths.get(envConfig).toFile() : null;
     if (confFile != null && confFile.exists()) {
-      System.out.println("Loading logback config from system property.");
+      System.out.println("Loading logback config from system property logback.configurationFile");
       loadConfig(configurator, confFile);
       return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
     }
 
     // load logback config for tests from classpath
     try (InputStream configStream = this.getClass().getResourceAsStream("/logback-test.xml")) {
-      System.out.println("Loading logback-test.xml file from classpath.");
-      configurator.doConfigure(configStream); // loads logback file
-      return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
+      if (configStream != null) {
+        System.out.println("Loading logback-test.xml file from classpath.");
+        configurator.doConfigure(configStream); // loads logback file
+        return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
+      }
     } catch (IOException | JoranException e) {
-      System.out.println("Failed to load logback configuration file for tests (logback-test.xml): " + e.getMessage());
+      System.out.println("Failed to load logback-test.xml from classpath: " + e.getMessage());
     }
 
     // load logback config from perun config location
@@ -63,11 +65,13 @@ public class PerunLogbackConfigurator extends ContextAwareBase implements Config
 
       // load default logback config (logback.xml) from classpath (used only by engine, ldapc, auditlogger)
       try (InputStream configStream = this.getClass().getResourceAsStream("/logback.xml")) {
-        System.out.println("Loading logback.xml file from classpath.");
-        configurator.doConfigure(configStream); // loads logback file
-        return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
+        if (configStream != null) {
+          System.out.println("Loading logback.xml file from classpath.");
+          configurator.doConfigure(configStream); // loads logback file
+          return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
+        }
       } catch (IOException | JoranException e) {
-        System.out.println("Failed to load default logback configuration file (logback.xml): " + e.getMessage());
+        System.out.println("Failed to load logback.xml from classpath: " + e.getMessage());
       }
 
       // load default logback config (logback-default.xml) from classpath (used by core / RPC)
@@ -75,8 +79,7 @@ public class PerunLogbackConfigurator extends ContextAwareBase implements Config
         System.out.println("Loading logback-default.xml file from classpath.");
         configurator.doConfigure(configStream); // loads logback file
       } catch (IOException | JoranException e) {
-        System.out.println("Failed to load default logback configuration file (logback-default.xml): " +
-                e.getMessage());
+        System.out.println("Failed to load logback-default.xml from classpath: " + e.getMessage());
         System.out.println("Falling back to logback basic configurator.");
         BasicConfigurator basicConfigurator = new BasicConfigurator();
         basicConfigurator.setContext(loggerContext);
