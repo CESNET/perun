@@ -77,6 +77,7 @@
 		<jdom.version>1.0</jdom.version>
 		<json.version>20240303</json.version>
 		<logback-journal.version>0.3.0</logback-journal.version>
+		<logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
 		<reflections.version>0.9.12</reflections.version>
 		<testcontainers.version>2.0.3</testcontainers.version>
         <httpmime.version>4.5.14</httpmime.version>
