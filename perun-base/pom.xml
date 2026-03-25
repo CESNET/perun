@@ -82,6 +82,14 @@
             <artifactId>logback-journal</artifactId>
             <version>${logback-journal.version}</version>
         </dependency>
+        <!-- logback appender for logging in JSON
+            see https://github.com/logfellow/logstash-logback-encoder
+            -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback-encoder.version}</version>
+        </dependency>
 
         <!-- OTHER -->
         <dependency>
