@@ -1,5 +1,25 @@
 Upgrade notes
 
+## [50.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v50.0.0...v50.1.0) (2026-03-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Make sure to remove "Ceitec" module from VO application form settings before deployment.
+
+### Features
+
+* added countryOfResidence and organisationType to ldap schema ([d357498](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d357498200bc5be76e386586a930099086e4568e))
+* remove ceitec registration module ([2173392](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2173392010e93b04fa7109f4e1b216ba00a99680))
+
+
+### Bug Fixes
+
+* **core:** fixed Logback configurator, added LogStash encoder library ([c69cd93](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c69cd93bde18ef58cde6ae7ae826a644ee2ce85d))
+* **core:** improve exception messages in UsersManager ([02cadc2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/02cadc20de67e5f6dd2bd4eae1e5b4f1fd6de39a)), closes [STR-1819](https://perunaai.atlassian.net/browse/STR-1819)
+* **deps:** update dependency google-api-services-admin-directory ([e8d6678](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e8d667898cc25504c93ec6ab4da20192cdee596d))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.12 ([3247750](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3247750157de6f4cc9b4dd1ef5268c5fc4e1a983))
+
 ## [50.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v49.9.1...v50.0.0) (2026-03-05)
 
 
