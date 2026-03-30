@@ -120,6 +120,18 @@ public interface AttributesManagerBl {
   void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws AttributeNotExistsException;
 
   /**
+   * Get attribute definition for the given attribute, based on the name, type, and id and create a new
+   * Attribute object from the fetched definition with the value of the original attribute.
+   *
+   * @param sess session
+   * @param attribute attribute
+   * @return new Attribute object from the updated definition with the value of the original attribute
+   * @throws AttributeNotExistsException if no attribute definition with a given name, type, and id exists.
+   */
+  Attribute checkAttributeExistsAndUpdateDefinition(PerunSession sess, Attribute attribute)
+      throws AttributeNotExistsException;
+
+  /**
    * Check if value of this facility attribute has valid semantics.
    *
    * @param sess      perun session
@@ -497,6 +509,18 @@ public interface AttributesManagerBl {
       throws WrongAttributeAssignmentException, WrongAttributeValueException;
 
   void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes)
+      throws AttributeNotExistsException;
+
+  /**
+   * Checks, by name, type, and id, if attribute definitions exist for all attributes. Then updates the attributes
+   * with the found definitions.
+   *
+   * @param sess
+   * @param attributes
+   * @return the list of the attributes with updated definitions
+   * @throws AttributeNotExistsException if any of the attributes does not exist by name, type, or id
+   */
+  List<Attribute> checkAttributesExistAndUpdateDefinitions(PerunSession sess, List<Attribute> attributes)
       throws AttributeNotExistsException;
 
   /**

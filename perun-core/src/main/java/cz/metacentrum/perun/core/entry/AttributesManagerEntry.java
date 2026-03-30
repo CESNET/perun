@@ -5807,7 +5807,7 @@ public class AttributesManagerEntry implements AttributesManager {
       throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeValueException,
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, facility, true)) {
       throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
@@ -5821,7 +5821,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, vo, true)) {
       throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
     }
@@ -5834,7 +5834,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group, true)) {
       throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
     }
@@ -5846,7 +5846,7 @@ public class AttributesManagerEntry implements AttributesManager {
       throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException,
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, resource, true)) {
       throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
@@ -5860,7 +5860,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException,
       MemberResourceMismatchException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, resource, true)) {
@@ -5875,7 +5875,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException,
       MemberGroupMismatchException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, group, true)) {
@@ -5889,7 +5889,7 @@ public class AttributesManagerEntry implements AttributesManager {
       throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException,
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, member, true)) {
       throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
@@ -5902,7 +5902,7 @@ public class AttributesManagerEntry implements AttributesManager {
       throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException,
       WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
     getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user, facility, true)) {
@@ -5916,7 +5916,7 @@ public class AttributesManagerEntry implements AttributesManager {
       throws PrivilegeException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException,
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, user, true)) {
       throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
@@ -5929,7 +5929,7 @@ public class AttributesManagerEntry implements AttributesManager {
       throws PrivilegeException, HostNotExistsException, AttributeNotExistsException, WrongAttributeValueException,
       WrongAttributeAssignmentException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, host, true)) {
       throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
@@ -5947,7 +5947,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException,
       GroupResourceMismatchException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, group, resource, true)) {
@@ -5962,7 +5962,7 @@ public class AttributesManagerEntry implements AttributesManager {
       throws PrivilegeException, AttributeNotExistsException, WrongAttributeValueException,
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     Utils.notNull(key, "key");
     if (key.isEmpty()) {
       throw new InternalErrorException("key for entityless attribute can't be empty string");
@@ -5980,7 +5980,7 @@ public class AttributesManagerEntry implements AttributesManager {
       throws PrivilegeException, UserExtSourceNotExistsException, AttributeNotExistsException,
       WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
-    getAttributesManagerBl().checkAttributeExists(sess, attribute);
+    attribute = getAttributesManagerBl().checkAttributeExistsAndUpdateDefinition(sess, attribute);
     getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
     if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, attribute, ues, true)) {
       throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
@@ -6035,7 +6035,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
 
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
@@ -6053,7 +6053,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), vo,
@@ -6070,7 +6070,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group,
@@ -6087,7 +6087,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), resource,
@@ -6106,7 +6106,7 @@ public class AttributesManagerEntry implements AttributesManager {
     Utils.checkPerunSession(sess);
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member,
@@ -6126,7 +6126,7 @@ public class AttributesManagerEntry implements AttributesManager {
     Utils.checkPerunSession(sess);
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR_DEF)) {
@@ -6169,7 +6169,7 @@ public class AttributesManagerEntry implements AttributesManager {
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     // Choose to which attributes has the principal access
     for (Attribute attribute : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attribute),
@@ -6191,7 +6191,7 @@ public class AttributesManagerEntry implements AttributesManager {
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_GROUP_ATTR)) {
@@ -6229,7 +6229,7 @@ public class AttributesManagerEntry implements AttributesManager {
       getPerunBl().getUsersManagerBl()
           .checkUserExists(sess, getPerunBl().getUsersManagerBl().getUserByMember(sess, member));
     }
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
@@ -6262,7 +6262,7 @@ public class AttributesManagerEntry implements AttributesManager {
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
     getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR_DEF)) {
@@ -6306,7 +6306,7 @@ public class AttributesManagerEntry implements AttributesManager {
     getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (getAttributesManagerBl().isFromNamespace(sess, attr, NS_MEMBER_ATTR_DEF)) {
@@ -6348,7 +6348,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), member,
@@ -6366,7 +6366,7 @@ public class AttributesManagerEntry implements AttributesManager {
     Utils.checkPerunSession(sess);
     getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user,
@@ -6383,7 +6383,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), user,
@@ -6400,7 +6400,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeValueException {
     Utils.checkPerunSession(sess);
     getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), host,
@@ -6423,7 +6423,7 @@ public class AttributesManagerEntry implements AttributesManager {
     Utils.checkPerunSession(sess);
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), group,
@@ -6443,7 +6443,7 @@ public class AttributesManagerEntry implements AttributesManager {
     Utils.checkPerunSession(sess);
     getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
     getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     if (!getPerunBl().getGroupsManagerBl().getVo(sess, group)
         .equals(getPerunBl().getResourcesManagerBl().getVo(sess, resource))) {
       throw new GroupResourceMismatchException("group and resource are not in the same VO");
@@ -6474,7 +6474,7 @@ public class AttributesManagerEntry implements AttributesManager {
       WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserExtSourceNotExistsException {
     Utils.checkPerunSession(sess);
     getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
-    getAttributesManagerBl().checkAttributesExists(sess, attributes);
+    attributes = getAttributesManagerBl().checkAttributesExistAndUpdateDefinitions(sess, attributes);
     //Choose to which attributes has the principal access
     for (Attribute attr : attributes) {
       if (!AuthzResolver.isAuthorizedForAttribute(sess, AttributeAction.WRITE, new AttributeDefinition(attr), ues,

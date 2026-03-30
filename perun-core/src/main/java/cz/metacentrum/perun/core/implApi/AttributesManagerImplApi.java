@@ -1196,6 +1196,17 @@ public interface AttributesManagerImplApi {
   AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws AttributeNotExistsException;
 
   /**
+   * Get attribute definition for the given attribute, based on the name, type, and id.
+   *
+   * @param sess session
+   * @param attribute attribute
+   * @return
+   * @throws AttributeNotExistsException if no attribute definition with given name, type, and id exists.
+   */
+  AttributeDefinition checkAttributeExistsAndGetDefinition(PerunSession sess, Attribute attribute)
+      throws AttributeNotExistsException;
+
+  /**
    * Gets attribute policy collections for an attribute definition with given id.
    *
    * @param sess        perun session
