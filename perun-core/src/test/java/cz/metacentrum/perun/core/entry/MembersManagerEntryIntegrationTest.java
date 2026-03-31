@@ -16,6 +16,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.ApplicationType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -76,6 +77,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.rt.MissingOidcAttributesRuntimeException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
@@ -4271,6 +4273,14 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     g3ing1 = perun.getGroupsManagerBl().createGroup(sess, g1, new Group("TESTINGGROUP3", "TESTINGGROUP3"));
   }
 
+  private void setUpNamespaceAttribute() throws Exception {
+    Attribute attrLogin = new Attribute();
+    attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attrLogin.setFriendlyName("login-namespace:dummy");
+    attrLogin.setType(String.class.getName());
+    perun.getAttributesManager().createAttribute(sess, attrLogin);
+  }
+
   private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {
     Attribute attr = new Attribute();
     attr.setNamespace(namespace);
@@ -4779,5 +4789,251 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     membersManagerEntry.sponsorMember(sess, member, sponsor1, null);
 
     assertFalse(membersManagerEntry.someAvailableSponsorExistsForMember(sess, member));
+  }
+
+  @Test
+  public void createMemberFromRegistrarApplicationInitialForNonExistingUser() throws Exception {
+    System.out.println(CLASS_NAME + "createMemberFromRegistrarApplicationInitialForNonExistingUser");
+
+    Vo vo = setUpVo("TestVo");
+    setUpNamespaceAttribute();
+
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("urn:perun:user:attribute-def:core:firstName", "John");
+    attributes.put("urn:perun:user:attribute-def:core:lastName", "Doe");
+    attributes.put("urn:perun:user:attribute-def:core:displayName", "John Doe");
+    attributes.put("urn:perun:member:attribute-def:def:mail", "john.doe@example.com");
+    attributes.put("urn:perun:user:attribute-def:def:preferredMail", "john.doe@example.com");
+    attributes.put("urn:perun:user:attribute-def:def:login-namespace:dummy", "testLogin");
+
+    Map<String, String> oidcAttributes = new HashMap<>();
+    oidcAttributes.put("sub", "nonexisting-user-123");
+    oidcAttributes.put("iss", "https://issuer.example.com");
+
+    Member member = membersManagerEntry.createMemberFromRegistrarApplication(sess, vo, null, attributes,
+        oidcAttributes, ApplicationType.INITIAL);
+
+    assertNotNull(member);
+    assertEquals(vo.getId(), member.getVoId());
+
+    User user = usersManagerEntry.getUserByMember(sess, member);
+    assertNotNull(attributesManagerEntry.getAttribute(sess, user,
+        "urn:perun:user:attribute-def:def:login-namespace:dummy").getValue());
+    assertNotNull(user);
+    assertEquals("John", user.getFirstName());
+    assertEquals("Doe", user.getLastName());
+  }
+
+  @Test
+  public void createMemberFromRegistrarApplicationInitialForExistingUser() throws Exception {
+    System.out.println(CLASS_NAME + "createMemberFromRegistrarApplicationInitialForExistingUser");
+
+    Vo vo = setUpVo("TestVo");
+    setUpNamespaceAttribute();
+
+    ExtSource extSource = perun.getExtSourcesManagerBl().createExtSource(sess,
+        new ExtSource("https://issuer.example.com", ExtSourcesManager.EXTSOURCE_IDP), null);
+    User existingUser = perun.getUsersManagerBl().createUser(sess, new User(0, "Jane", "Smith", "", "", ""));
+    UserExtSource ues = new UserExtSource(extSource, "existing-user-456");
+    ues.setLoa(0);
+    perun.getUsersManagerBl().addUserExtSource(sess, existingUser, ues);
+    AttributeDefinition dummyLogin = perun.getAttributesManagerBl().getAttributeDefinition(sess,
+        "urn:perun:user:attribute-def:def:login-namespace:dummy");
+    perun.getAttributesManagerBl().setAttribute(sess, existingUser, new Attribute(dummyLogin, "existingValue"));
+
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("urn:perun:user:attribute-def:core:firstName", "Jane");
+    attributes.put("urn:perun:user:attribute-def:core:lastName", "Smith");
+    attributes.put("urn:perun:member:attribute-def:def:mail", "jane.smith@example.com");
+    attributes.put("urn:perun:user:attribute-def:core:titleBefore", "bc.");
+    attributes.put("urn:perun:user:attribute-def:def:login-namespace:dummy", "testLogin");
+
+    Map<String, String> oidcAttributes = new HashMap<>();
+    oidcAttributes.put("sub", "existing-user-456");
+    oidcAttributes.put("iss", "https://issuer.example.com");
+
+    Member member = membersManagerEntry.createMemberFromRegistrarApplication(sess, vo, null, attributes,
+        oidcAttributes, ApplicationType.INITIAL);
+
+    assertNotNull(member);
+    assertEquals(vo.getId(), member.getVoId());
+
+    User user = usersManagerEntry.getUserByMember(sess, member);
+    assertEquals(existingUser.getId(), user.getId());
+    assertEquals("The title should be updated", "bc.", user.getTitleBefore());
+    assertEquals("Login should be unchanged", "existingValue", attributesManagerEntry.getAttribute(sess, user,
+        "urn:perun:user:attribute-def:def:login-namespace:dummy").getValue());
+  }
+
+  @Test
+  public void createGroupMemberFromRegistrarApplicationInitialForExistingUser() throws Exception {
+    System.out.println(CLASS_NAME + "createGroupMemberFromRegistrarApplicationInitialForExistingUser");
+
+    Vo vo = setUpVo("TestVo");
+    Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("test", "test"));
+    setUpNamespaceAttribute();
+
+    ExtSource extSource = perun.getExtSourcesManagerBl().createExtSource(sess,
+        new ExtSource("https://issuer.example.com", ExtSourcesManager.EXTSOURCE_IDP), null);
+    User existingUser = perun.getUsersManagerBl().createUser(sess, new User(0, "Jane", "Smith", "", "", ""));
+    UserExtSource ues = new UserExtSource(extSource, "existing-user-456");
+    ues.setLoa(0);
+    perun.getUsersManagerBl().addUserExtSource(sess, existingUser, ues);
+
+    membersManagerEntry.createMember(sess, vo, existingUser);
+
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("urn:perun:user:attribute-def:core:firstName", "Jane");
+    attributes.put("urn:perun:user:attribute-def:core:lastName", "Smith");
+    attributes.put("urn:perun:member:attribute-def:def:mail", "jane.smith@example.com");
+    attributes.put("urn:perun:user:attribute-def:def:login-namespace:dummy", "testLogin");
+
+    Map<String, String> oidcAttributes = new HashMap<>();
+    oidcAttributes.put("sub", "existing-user-456");
+    oidcAttributes.put("iss", "https://issuer.example.com");
+
+    Member member = membersManagerEntry.createMemberFromRegistrarApplication(sess, vo, group, attributes,
+        oidcAttributes, ApplicationType.INITIAL);
+
+    assertNotNull(member);
+    assertTrue(perun.getGroupsManagerBl().getMemberGroups(sess, member).contains(group));
+
+    User user = usersManagerEntry.getUserByMember(sess, member);
+    assertEquals(existingUser.getId(), user.getId());
+    assertEquals("Login should be set", "testLogin", attributesManagerEntry.getAttribute(sess, user,
+        "urn:perun:user:attribute-def:def:login-namespace:dummy").getValue());
+  }
+
+  @Test(expected = AlreadyMemberException.class)
+  public void createMemberFromRegistrarApplicationInitialForAlreadyExistingMember() throws Exception {
+    System.out.println(CLASS_NAME + "createMemberFromRegistrarApplicationInitialForAlreadyExistingMember");
+
+    Vo vo = setUpVo("TestVo");
+    setUpNamespaceAttribute();
+
+    ExtSource extSource = perun.getExtSourcesManagerBl().createExtSource(sess,
+        new ExtSource("https://issuer.example.com", ExtSourcesManager.EXTSOURCE_IDP), null);
+    User existingUser = perun.getUsersManagerBl().createUser(sess, new User(0, "Bob", "Jones", "", "", ""));
+    UserExtSource ues = new UserExtSource(extSource, "existing-member-789");
+    ues.setLoa(0);
+    perun.getUsersManagerBl().addUserExtSource(sess, existingUser, ues);
+
+    perun.getMembersManagerBl().createMember(sess, vo, existingUser);
+
+    Map<String, String> attributes = new HashMap<>();
+    Map<String, String> oidcAttributes = new HashMap<>();
+    oidcAttributes.put("sub", "existing-member-789");
+    oidcAttributes.put("iss", "https://issuer.example.com");
+
+    membersManagerEntry.createMemberFromRegistrarApplication(sess, vo, null, attributes, oidcAttributes,
+        ApplicationType.INITIAL);
+  }
+
+  @Test
+  public void extendMemberFromRegistrarApplication() throws Exception {
+    System.out.println(CLASS_NAME + "extendMemberFromRegistrarApplication");
+
+    setUpNamespaceAttribute();
+
+    // Set membershipExpirationRules attribute
+    HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+    extendMembershipRules.put(AbstractMembershipExpirationRulesModule.MEMBERSHIP_PERIOD_KEY_NAME, "1.1.");
+    extendMembershipRules.put(AbstractMembershipExpirationRulesModule.MEMBERSHIP_GRACE_PERIOD_KEY_NAME, "2d");
+    Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess,
+        AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules"));
+    extendMembershipRulesAttribute.setValue(extendMembershipRules);
+    attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+    ExtSource extSource = perun.getExtSourcesManagerBl().createExtSource(sess,
+        new ExtSource("https://issuer.example.com", ExtSourcesManager.EXTSOURCE_IDP), null);
+    UserExtSource ues = new UserExtSource(extSource, "extension-user-101");
+    ues.setLoa(1);
+    User user = usersManagerEntry.getUserByMember(sess, createdMember);
+    perun.getUsersManagerBl().addUserExtSource(sess, user, ues);
+    perun.getMembersManagerBl().expireMember(sess, createdMember);
+
+    AttributeDefinition dummyLogin = perun.getAttributesManagerBl().getAttributeDefinition(sess,
+        "urn:perun:user:attribute-def:def:login-namespace:dummy");
+    perun.getAttributesManagerBl().setAttribute(sess, user, new Attribute(dummyLogin, "existingValue"));
+
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("urn:perun:user:attribute-def:core:titleBefore", "bc.");
+    attributes.put("urn:perun:user:attribute-def:def:login-namespace:dummy", "testLogin");
+    Map<String, String> oidcAttributes = new HashMap<>();
+    oidcAttributes.put("sub", "extension-user-101");
+    oidcAttributes.put("iss", "https://issuer.example.com");
+
+    Member member = membersManagerEntry.createMemberFromRegistrarApplication(sess, createdVo, null, attributes,
+        oidcAttributes, ApplicationType.EXTENSION);
+
+    assertNotNull(member);
+    assertEquals(Status.VALID, member.getStatus());
+    User updatedUser = usersManagerEntry.getUserByMember(sess, member);
+    assertEquals("The title should be updated", "bc.", updatedUser.getTitleBefore());
+    assertEquals("Login should be unchanged", "existingValue", attributesManagerEntry.getAttribute(sess, updatedUser,
+        "urn:perun:user:attribute-def:def:login-namespace:dummy").getValue());
+  }
+
+  @Test
+  public void extendGroupMemberFromRegistrarApplication() throws Exception {
+    System.out.println(CLASS_NAME + "extendGroupMemberFromRegistrarApplication");
+
+    setUpNamespaceAttribute();
+
+    HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+    extendMembershipRules.put(AbstractMembershipExpirationRulesModule.MEMBERSHIP_PERIOD_KEY_NAME, "1.1.");
+    extendMembershipRules.put(AbstractMembershipExpirationRulesModule.MEMBERSHIP_GRACE_PERIOD_KEY_NAME, "2d");
+    Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess,
+        AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules"));
+    extendMembershipRulesAttribute.setValue(extendMembershipRules);
+    attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+    groupsManagerEntry.addMember(sess, createdGroup, createdMember);
+    groupsManagerEntry.setMemberGroupStatus(sess, createdMember, createdGroup, MemberGroupStatus.EXPIRED);
+
+    ExtSource extSource = perun.getExtSourcesManagerBl().createExtSource(sess,
+        new ExtSource("https://issuer.example.com", ExtSourcesManager.EXTSOURCE_IDP), null);
+    UserExtSource ues = new UserExtSource(extSource, "extension-user-101");
+    ues.setLoa(1);
+    User user = usersManagerEntry.getUserByMember(sess, createdMember);
+    perun.getUsersManagerBl().addUserExtSource(sess, user, ues);
+
+    Map<String, String> attributes = new HashMap<>();
+    Map<String, String> oidcAttributes = new HashMap<>();
+    oidcAttributes.put("sub", "extension-user-101");
+    oidcAttributes.put("iss", "https://issuer.example.com");
+
+    Member member = membersManagerEntry.createMemberFromRegistrarApplication(sess, createdVo, null, attributes,
+        oidcAttributes, ApplicationType.EXTENSION);
+
+    assertNotNull(member);
+    assertEquals(MemberGroupStatus.VALID, member.getGroupStatus());
+  }
+
+  @Test(expected = MissingOidcAttributesRuntimeException.class)
+  public void createMemberFromRegistrarApplicationWhenOidcAttributesMissingSub() throws Exception {
+    System.out.println(CLASS_NAME + "createMemberFromRegistrarApplicationWhenOidcAttributesMissingSub");
+
+    Vo vo = setUpVo("TestVo");
+    Map<String, String> attributes = new HashMap<>();
+    Map<String, String> oidcAttributes = new HashMap<>();
+    oidcAttributes.put("iss", "https://issuer.example.com");
+
+    membersManagerEntry.createMemberFromRegistrarApplication(sess, vo, null, attributes, oidcAttributes,
+        ApplicationType.INITIAL);
+  }
+
+  @Test(expected = InternalErrorException.class)
+  public void createMemberFromRegistrarApplicationWhenNonExistingAttributeIsSubmitted() throws Exception {
+    System.out.println(CLASS_NAME + "createMemberFromRegistrarApplicationWhenNonExistingAttributeIsSubmitted");
+
+    Vo vo = setUpVo("TestVo");
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("urn:perun:user:attribute-def:def:notExisting", "value");
+    Map<String, String> oidcAttributes = new HashMap<>();
+    oidcAttributes.put("iss", "https://issuer.example.com");
+    oidcAttributes.put("sub", "user-101");
+
+    membersManagerEntry.createMemberFromRegistrarApplication(sess, vo, null, attributes, oidcAttributes,
+        ApplicationType.INITIAL);
   }
 }

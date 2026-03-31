@@ -58,6 +58,33 @@ components:
   #                                           #
   #############################################
   schemas:
+    RegistrarApplicationInput:
+      title: RegistrarApplicationInput
+      description: "input for registrar application endpoints"
+      type: object
+      required:
+        - vo
+        - attributes
+        - oidcAttributes
+      properties:
+        vo:
+          type: integer
+          description: "ID of the Virtual Organization"
+        group:
+          type: integer
+          description: "ID of the Group to add the member to (optional, null for VO applications)"
+          nullable: true
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+          description: "Map of the application attributes (key: attr name, value: attr value)"
+        oidcAttributes:
+          type: object
+          additionalProperties:
+            type: string
+          description: "Map of OIDC attributes (must contain iss and sub claims)"
+
     PerunException:
       description: exception thrown from inside of Perun
       type: object
@@ -11877,6 +11904,44 @@ paths:
           $ref: '#/components/responses/ListOfUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/createMemberFromInitialRegistrarApplication:
+    post:
+      tags:
+        - MembersManager
+      operationId: createMemberFromInitialRegistrarApplication
+      summary: Creates a member based on data from an initial registrar application.
+      description: Creates a member based on a registrar application with OIDC authentication.
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrarApplicationInput'
+
+  /json/membersManager/extendMembershipFromExtensionRegistrarApplication:
+    post:
+      tags:
+        - MembersManager
+      operationId: extendMembershipFromExtensionRegistrarApplication
+      summary: Extends a membership based on data from an initial registrar application.
+      description: Extends a membership based on a registrar application with OIDC authentication.
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrarApplicationInput'
 
   #################################################
   #                                               #
