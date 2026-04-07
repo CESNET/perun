@@ -4236,7 +4236,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     return membersManagerImpl.getAvailableSponsorsForMember(sess, member);
   }
 
-  @Transactional(rollbackFor = Exception.class)
   @Override
   public Member createMemberFromRegistrarApplication(PerunSession sess, Vo vo, Group group,
                                                      Map<String, String> attributes, Map<String, String> oidcAttributes,
@@ -4483,7 +4482,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
    * We want to run asynchronous member validation after a member is created. It needs to be outside the existing
    * transaction, so it is implemented as an after commit handler.
    */
-  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  @Override
   public void createMemberFromRegistrarAfterCommitValidation(PerunSession sess, Member member) {
     try {
       new Thread(() -> {
