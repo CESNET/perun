@@ -334,6 +334,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   }
 
   @Override
+  public Attribute checkAttributeExistsAndUpdateDefinition(PerunSession sess, Attribute attribute)
+      throws AttributeNotExistsException {
+    AttributeDefinition attrDef = getAttributesManagerImpl().checkAttributeExistsAndGetDefinition(sess, attribute);
+    return new Attribute(attrDef, attribute.getValue());
+  }
+
+  @Override
   public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute)
       throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
     getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
@@ -1130,6 +1137,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes)
       throws AttributeNotExistsException {
     getAttributesManagerImpl().checkAttributesExists(sess, attributes);
+  }
+
+  @Override
+  public List<Attribute> checkAttributesExistAndUpdateDefinitions(PerunSession sess, List<Attribute> attributes)
+      throws AttributeNotExistsException {
+    List<Attribute> updatedAttrs = new ArrayList<>();
+    for (Attribute attr : attributes) {
+      updatedAttrs.add(checkAttributeExistsAndUpdateDefinition(sess, attr));
+    }
+    return updatedAttrs;
   }
 
   @Override
