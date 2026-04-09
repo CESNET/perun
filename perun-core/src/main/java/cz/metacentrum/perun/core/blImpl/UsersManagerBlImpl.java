@@ -1773,6 +1773,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   @Override
   public User getUserByExtSourceNameAndExtLogin(PerunSession sess, String extSourceName, String extLogin)
       throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException {
+    if (BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().containsKey(extSourceName)) {
+      extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(extSourceName);
+    }
     ExtSource extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, extSourceName);
     UserExtSource userExtSource = this.getUserExtSourceByExtLogin(sess, extSource, extLogin);
 
