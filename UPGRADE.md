@@ -1,5 +1,22 @@
 Upgrade notes
 
+## [50.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v50.1.0...v50.2.0) (2026-04-10)
+
+
+### Features
+
+* add iss mapping to extsource map ([c8e4e67](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c8e4e67de427390826308aed008455b40d293c54))
+* added organizationDisplayName and countryOfOrganizationRegistration to ldap schema ([289deb9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/289deb9d4a4a2e71b24a9f711bc0da32aaf81dbb))
+* **core:** methods to create/extend member from new registrar app data ([c9c20c2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c9c20c2a218522a05342240e5976d93b4c6a7c22))
+
+
+### Bug Fixes
+
+* **core:** update attributes with definitions on setAttribute(s) methods ([4ced587](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4ced5878e8431fbf569b3a0dc6caf52215ab224a))
+* **deps:** update dependency org.openapitools:jackson-databind-nullable to v0.2.10 ([c6b50b1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c6b50b19536aa4de0927b66a8423447404accf0d))
+* **registrar:** validate submit button presence per application type ([fd27123](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fd2712377c24c5fb9a580c49b35cfa9edeb3fc52))
+* use xml transaction spec for create member new registrar methods ([dc8715d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/dc8715d595e8d43e806d1b669bf7561ceb4d8386))
+
 ## [50.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v50.0.0...v50.1.0) (2026-03-25)
 
 
