@@ -21,9 +21,12 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.NotificationMemberMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -1787,4 +1790,48 @@ public interface MembersManager {
    * @throws PrivilegeException
    */
   Member validateMemberAsync(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException;
+
+  /**
+   * Creates or extends a member based on data from a registrar application.
+   * The method proceeds as follows:
+   * <ul>
+   *   <li> Releases reservations for all logins from the application</li>
+   *   <li> <b>If the user does not exist</b> </li>
+   *   <ul>
+   *     <li>
+   *      User is created based on oidc 'iss' and 'sub' attributes; the extSource is also created if not existing yet
+   *     </li>
+   *     <li> A new member is created in the given VO</li>
+   *     <li> All attributes, except logins, are set to the new user/member</li>
+   *     <li> Names and titles are parsed from the display name, oidc attributes, and application attributes</li>
+   *   </ul>
+   *   <li> <b>If the user does exist</b> </li>
+   *   <ul>
+   *     <li> A new member is created in the group/VO on INITIAL application </li>
+   *     <li> The membership is extended in the group/VO on EXTENSION application </li>
+   *     <li> User titles are updated </li>
+   *   </ul>
+   *   <li> Existing login/passwords are unreserved </li>
+   *   <li> The user/member attributes are updated, login attributes are only set anew, the existing remain </li>
+   *   <li> Passwords for new logins are validated </li>
+   *   <li> After the method finishes and the transaction commits, an async member validation is triggered </li>
+   * </ul>
+   *
+   * @param sess Perun session
+   * @param vo Virtual Organization
+   * @param group Group to add the member to (null for VO applications)
+   * @param attributes Map of user/member attributes from the application
+   * @param oidcAttributes Map of OIDC attributes
+   * @param type Application type: "INITIAL" for new membership or "EXTENSION" for extending existing membership
+   * @return created or updated member
+   */
+  Member createMemberFromRegistrarApplication(PerunSession sess, Vo vo, Group group, Map<String, String> attributes,
+                                              Map<String, String> oidcAttributes, ApplicationType type)
+      throws VoNotExistsException, GroupNotExistsException, PrivilegeException, ExternallyManagedException,
+                 MemberNotExistsException, UserNotExistsException, WrongAttributeAssignmentException,
+                 LoginNotExistsException, UserExtSourceNotExistsException, AttributeNotExistsException,
+                 AlreadyMemberException, PasswordCreationFailedException, ExtendMembershipException,
+                 PasswordOperationTimeoutException, NotGroupMemberException, WrongReferenceAttributeValueException,
+                 InvalidLoginException, PasswordDeletionFailedException, ExtSourceNotExistsException,
+                 WrongAttributeValueException;
 }

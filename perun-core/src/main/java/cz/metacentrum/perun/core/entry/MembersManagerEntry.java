@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
+import cz.metacentrum.perun.core.api.ApplicationType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -50,9 +51,12 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.NotificationMemberMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -2172,5 +2176,32 @@ public class MembersManagerEntry implements MembersManager {
     getMembersManagerBl().validateMemberAsync(sess, member);
 
     return member;
+  }
+
+  @Override
+  public Member createMemberFromRegistrarApplication(PerunSession sess, Vo vo, Group group,
+                                                     Map<String, String> attributes,
+                                                     Map<String, String> oidcAttributes,
+                                                     ApplicationType type)
+      throws VoNotExistsException, GroupNotExistsException, PrivilegeException, ExternallyManagedException,
+                 MemberNotExistsException, UserNotExistsException, WrongAttributeAssignmentException,
+                 LoginNotExistsException, UserExtSourceNotExistsException, AttributeNotExistsException,
+                 AlreadyMemberException, PasswordCreationFailedException, ExtendMembershipException,
+                 PasswordOperationTimeoutException, NotGroupMemberException, WrongReferenceAttributeValueException,
+                 InvalidLoginException, PasswordDeletionFailedException, ExtSourceNotExistsException,
+                 WrongAttributeValueException {
+    Utils.checkPerunSession(sess);
+    perunBl.getVosManagerBl().checkVoExists(sess, vo);
+    if (group != null) {
+      perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+    }
+
+    if (!AuthzResolver.authorizedInternal(sess,
+        "createMemberFromRegistrarApplication_Vo_Group_Map<String_String>_Map<String_String>_policy",
+        vo)) {
+      throw new PrivilegeException(sess, "createMemberFromRegistrarApplication");
+    }
+    return this.membersManagerBl.createMemberFromRegistrarApplication(
+        sess, vo, group, attributes, oidcAttributes, type);
   }
 }

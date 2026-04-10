@@ -5542,4 +5542,8 @@ values (1, 1, 'perun@BA', 1, 2);
 insert into authz (user_id, role_id)
 values (1, 21);
 
+-- insert reserved login for testing
+insert into application_reserved_logins (login, namespace, extsourcename)
+values ('testLogin', 'dummy', 'https://issuer.example.com');
+
 

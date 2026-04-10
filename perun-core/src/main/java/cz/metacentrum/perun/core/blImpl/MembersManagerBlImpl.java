@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
 import static cz.metacentrum.perun.core.impl.Utils.getEmailMessagePartFromEntitylessAttribute;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.EXPIRE_SPONSORED_MEMBERS;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
@@ -21,6 +22,7 @@ import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsoredMemberUns
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipEstablished;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipRemoved;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipValidityUpdated;
+import cz.metacentrum.perun.core.api.ApplicationType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -70,6 +72,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
@@ -88,8 +91,11 @@ import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeSetException;
@@ -104,8 +110,10 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.rt.MissingOidcAttributesRuntimeException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
@@ -144,6 +152,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
 public class MembersManagerBlImpl implements MembersManagerBl {
@@ -174,6 +186,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizations";
   private static final String A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY =
       AttributesManager.NS_MEMBER_ATTR_DEF + ":memberOrganizationsHistory";
+  private static final String OIDC_CLAIM_SUB = "sub";
+  private static final String OIDC_CLAIM_ISSUER = "iss";
   private final MembersManagerImplApi membersManagerImpl;
   private PerunBl perunBl;
 
@@ -4220,5 +4234,271 @@ public class MembersManagerBlImpl implements MembersManagerBl {
   @Override
   public List<User> getAvailableSponsorsForMember(PerunSession sess, Member member) {
     return membersManagerImpl.getAvailableSponsorsForMember(sess, member);
+  }
+
+  @Override
+  public Member createMemberFromRegistrarApplication(PerunSession sess, Vo vo, Group group,
+                                                     Map<String, String> attributes, Map<String, String> oidcAttributes,
+                                                     ApplicationType type)
+      throws ExtSourceNotExistsException, UserExtSourceNotExistsException, WrongReferenceAttributeValueException,
+                 AlreadyMemberException, WrongAttributeValueException, ExtendMembershipException,
+                 WrongAttributeAssignmentException, PasswordOperationTimeoutException, LoginNotExistsException,
+                 InvalidLoginException, PasswordDeletionFailedException, PasswordCreationFailedException,
+                 UserNotExistsException, AttributeNotExistsException, PrivilegeException, MemberNotExistsException,
+                 ExternallyManagedException, NotGroupMemberException {
+    String iss = oidcAttributes.get(OIDC_CLAIM_ISSUER);
+    String sub = oidcAttributes.get(OIDC_CLAIM_SUB);
+    String extSourceName = iss != null ?
+                               BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().getOrDefault(iss, iss) : null;
+    if (sub == null || extSourceName == null) {
+      LOG.error("Expected both id ({}) and issuer name ({}) to be among the OIDC attributes: {}",
+          OIDC_CLAIM_SUB, OIDC_CLAIM_ISSUER, oidcAttributes);
+      throw new MissingOidcAttributesRuntimeException(
+          "Expected both id (" + OIDC_CLAIM_SUB + ") and issuer name (" + OIDC_CLAIM_ISSUER + ")" +
+          " to be among the OIDC attributes.");
+    }
+
+    if (group != null) {
+      Attribute attrSynchronizeEnabled = perunBl.getAttributesManagerBl()
+                                             .getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+      if ("true".equals(attrSynchronizeEnabled.getValue()) ||
+          perunBl.getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+        LOG.error("Member cannot be created in group '{}' of VO '{}', since it is" +
+                  "externally managed.", group.getName(), vo.getName());
+        throw new ExternallyManagedException("Member cannot be created in group '" + group.getName() + "' of VO '" +
+                                             vo.getName() + "' since it is externally managed.");
+      }
+    }
+
+    // Free reserved logins
+    Map<String, String> loginAttributes =
+        attributes.entrySet().stream().filter(entry ->
+                                                  entry.getKey()
+                                                       .contains("urn:perun:user:attribute-def:def:login-namespace:"))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    List<Pair<String, String>> reservedLogins = perunBl.getUsersManagerBl().deleteReservedLogins(sess, loginAttributes);
+
+    User user;
+    Member member;
+    try {
+      user = getPerunBl().getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, extSourceName, sub);
+    } catch (UserNotExistsException | UserExtSourceNotExistsException | ExtSourceNotExistsException ignored) {
+      LOG.debug("User with id {} from issuer {} does not exist. A new one will be created.", sub, iss);
+      user = null;
+    }
+
+    boolean userDidNotExist = false;
+    if (user == null) {
+      userDidNotExist = true;
+      member = createMemberForNonExistingUser(sess, vo, group, attributes, oidcAttributes, extSourceName, sub);
+      user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+    } else {
+      if (type == ApplicationType.INITIAL) {
+        member = createMemberForExistingUser(sess, vo, group, user);
+      } else if (type == ApplicationType.EXTENSION) {
+        member = extendMember(sess, vo, group, user);
+      } else {
+        // TODO add new app types if needed
+        return null;
+      }
+
+      if (Utils.updateUserNameTitles(user, attributes)) {
+        perunBl.getUsersManagerBl().updateNameTitles(sess, user);
+      }
+    }
+
+    List<Pair<String, String>> newLogins = perunBl.getUsersManagerBl()
+                                               .unreserveNewLoginsFromSameNamespace(sess, reservedLogins, user);
+    // a new user has non-login attributes already set, so we need to pass the flag to skip them
+    perunBl.getAttributesManagerBl()
+        .updateUserMemberAttributesFromApplicationAttributes(sess, user, member, attributes, userDidNotExist);
+    for (Pair<String, String> pair : newLogins) {
+      perunBl.getUsersManagerBl().validatePassword(sess, user, pair.getLeft());
+    }
+
+    Member finalMember = member;
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public void afterCommit() {
+        // logic extracted to a separate method to clear the still existing commited transaction just to be safe
+        perunBl.getMembersManagerBl().createMemberFromRegistrarAfterCommitValidation(sess, finalMember);
+      }
+    });
+
+    LOG.info("Member {} created for user '{}' {}, in VO '{}'.", member,
+        user.getId(), group != null ? "in group '" + group.getName() + "'" : "", vo.getName());
+    return member;
+  }
+
+  /**
+   * Extends membership for an existing user in the specified VO or group.
+   * For group extensions, the member must be in VALID or INVALID status in the VO.
+   *
+   * @param sess  Perun session
+   * @param vo    Virtual Organization
+   * @param group Group to extend membership in (null for VO membership extension)
+   * @param user  User whose membership should be extended
+   * @return member with extended membership
+   */
+  private Member extendMember(PerunSession sess, Vo vo, Group group, User user)
+      throws MemberNotExistsException, WrongAttributeValueException,
+                 WrongReferenceAttributeValueException, ExtendMembershipException, NotGroupMemberException,
+                 WrongAttributeAssignmentException, AttributeNotExistsException {
+    LOG.debug("Trying to extend membership for user '{}' {}, in VO '{}'.",
+        user.getId(), group != null ? "in group '" + group.getName() + "'" : "", vo.getName());
+    Member member;
+    try {
+      member = getMemberByUser(sess, vo, user);
+    } catch (MemberNotExistsException e) {
+      LOG.error("Membership cannot be extended for user '{}' in the VO '{}', " +
+                "since they are not a member of the organization.", user.getId(), vo.getName());
+      throw new MemberNotExistsException("Membership cannot be extended for user '" + user.getId() + " in the VO '" +
+                                         vo.getName() + "', " + "since they are not a member of the organization.");
+    }
+
+    if (group != null) {
+      if (!Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
+        LOG.error("Membership '{}' cannot be extended in group '{}', in the VO '{}', since they are not a " +
+                  "VALID/INVALID member of the organization.", member.getId(), group.getName(), vo.getName());
+        throw new MemberNotExistsException("Membership '" + member.getId() + "' cannot be extended in group '" +
+                                           group.getName() + "', in the VO '" + vo.getName() + "'," +
+                                           "since they are not a VALID/INVALID member of the organization.");
+      }
+      member = perunBl.getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
+      perunBl.getGroupsManagerBl().extendMembershipInGroup(sess, member, group);
+      return member;
+    }
+
+    // if the VO is hierarchical, add it to member's MemberOrganizations attribute
+    if (!perunBl.getVosManagerBl().getMemberVos(sess, vo.getId()).isEmpty()) {
+      updateOrganizationsAttributes(sess, vo, member);
+    }
+    extendMembership(sess, member);
+    return member;
+  }
+
+  /**
+   * Creates a member for an existing user in the specified VO or group.
+   * For group applications, the user must already be a valid or invalid member of the VO.
+   * For VO applications, creates a new member directly.
+   *
+   * @param sess  Perun session
+   * @param vo    Virtual Organization
+   * @param group Group to add the member to (null for VO applications)
+   * @param user  Existing user to create member for
+   * @return created or existing member
+   */
+  private Member createMemberForExistingUser(PerunSession sess, Vo vo, Group group, User user)
+      throws MemberNotExistsException, AlreadyMemberException, WrongAttributeValueException,
+                 WrongReferenceAttributeValueException, ExtendMembershipException {
+    LOG.debug("Trying to create member for user '{}' {}, in VO '{}'.",
+        user.getId(), group != null ? "in group '" + group.getName() + "'" : "", vo.getName());
+    Member member;
+    if (group != null) {
+      try {
+        member = getMemberByUser(sess, vo, user);
+      } catch (MemberNotExistsException e) {
+        member = null;
+      }
+
+      if (member == null || !Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
+        LOG.error("Member cannot be created for user '{}' in group '{}', in the VO '{}', since they are not a member" +
+                  " (Valid or Invalid) of the organization.", user.getId(), group.getName(), vo.getName());
+        throw new MemberNotExistsException("Member cannot be created for user '" + user.getId() + "' in group '" +
+                                           group.getName() + "', in the VO '" + vo.getName() +
+                                           "', since they are not a member " +
+                                           "(Valid or Invalid) of the organization.");
+      }
+
+      try {
+        perunBl.getGroupsManagerBl().addMember(sess, group, member);
+      } catch (GroupNotExistsException e) {
+        // should not happen
+        throw new RuntimeException(e);
+      }
+    } else {
+      // VO application
+      member = perunBl.getMembersManagerBl().createMember(sess, vo, user);
+    }
+    return member;
+  }
+
+  /**
+   * Creates a VO member from registrar attributes for along with a new user not-yet existing.
+   *
+   * @param sess           Perun session
+   * @param vo             Organization to create member in
+   * @param group          Group to add the member to (must be null, otherwise throws exception)
+   * @param attributes     Map of attributes from new registrar
+   * @param oidcAttributes Map of OIDC attributes from new registrar
+   * @param extSourceName  issuer
+   * @param sub            oidc user id
+   * @return newly created member
+   */
+  private Member createMemberForNonExistingUser(PerunSession sess, Vo vo, Group group, Map<String, String> attributes,
+                                                Map<String, String> oidcAttributes, String extSourceName, String sub)
+      throws UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException,
+                 WrongReferenceAttributeValueException, AlreadyMemberException, WrongAttributeValueException,
+                 ExtendMembershipException {
+    LOG.debug("Trying to create user and member for sub '{}', issuer {}, in VO '{}'.",
+        sub, extSourceName, vo.getName());
+    if (group != null) {
+      LOG.error("Received an application to group '{}' of VO '{}' of non existing user." +
+                "User has to exist for group applications!", group.getName(), vo.getName());
+      throw new UserNotExistsException("Cannot create group member from non-existing user.");
+    }
+
+    Member member;
+    Candidate candidate = Utils.createCandidateFromNewRegistrarData(attributes, oidcAttributes);
+    LOG.debug("Created this candidate {}. Proceeding to member creation.", candidate);
+
+    String extSourceType = ExtSourcesManagerEntry.EXTSOURCE_IDP;
+    try {
+      ExtSource extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, extSourceName);
+      extSourceType = extSource.getType();
+    } catch (ExtSourceNotExistsException e) {
+      // this is fine it will be created below
+    }
+    try {
+      member = perunBl.getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, -1, sub, candidate);
+    } catch (Exception e) {
+      LOG.error("Creating member from candidate '{}' from application to VO '{}' failed with:", candidate,
+          vo, e);
+      throw e;
+    }
+
+    ExtSource es = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, extSourceName);
+    UserExtSource ues = perunBl.getUsersManagerBl().getUserExtSourceByExtLogin(sess, es, sub);
+    try {
+      // TODO implement update of ues attributes properly, when the attributes that proxy will send will be decided
+      ((PerunBlImpl) perunBl).setUserExtSourceAttributes(sess, ues, oidcAttributes);
+    } catch (Exception ex) {
+      // ignore until the TODO is implemented
+    }
+    return member;
+  }
+
+  /**
+   * We want to run asynchronous member validation after a member is created. It needs to be outside the existing
+   * transaction, so it is implemented as an after commit handler.
+   */
+  @Override
+  public void createMemberFromRegistrarAfterCommitValidation(PerunSession sess, Member member) {
+    try {
+      new Thread(() -> {
+        try {
+          LOG.debug("Asynchronously validating member {}", member);
+          validateMember(sess, member);
+        } catch (InternalErrorException | WrongAttributeValueException |
+                 WrongReferenceAttributeValueException e) {
+          LOG.error("Exception when validating member {} created from new registrar {}.", member, e);
+        }
+        // TODO we might want to move this code to the sync part depending on the message q implementation in new reg
+      }).start();
+
+    } catch (Exception e) {
+      // we skip any exception thrown from here
+      LOG.error("Exception when validating member {} created from new registrar {}.", member, e);
+    }
   }
 }

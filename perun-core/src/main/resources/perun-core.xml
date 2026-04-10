@@ -46,6 +46,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
                      pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.addMissingMemberWhileSynchronization(..))"/>
         <aop:advisor advice-ref="txAdviceNestedTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.synchronizeGroupStructure(..))"/>
+        <aop:advisor advice-ref="txAdviceNoneTransaction"
+                     pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.createMemberFromRegistrarAfterCommitValidation(..))"/>
         <!--<aop:advisor advice-ref="txAdviceAuditerTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.*.*(..))"/>-->
         <aop:advisor advice-ref="txAdviceNoneTransaction"
                      pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSql.*(..))"/>

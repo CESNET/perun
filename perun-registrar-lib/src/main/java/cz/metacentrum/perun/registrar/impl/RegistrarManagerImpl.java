@@ -1706,22 +1706,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
    * @return true if submit or auto-submit button is either not required, or present. False otherwise
    */
   private boolean validateSubmitButtonPresence(List<ApplicationFormItem> items) {
-    boolean containsInputTypeItems = false;
+    for (AppType appType : List.of(AppType.INITIAL, AppType.EXTENSION)) {
+      boolean containsInputTypeItems = false;
+      boolean containsSubmitButton = false;
 
-    for (ApplicationFormItem item : items) {
-      if (item.isForDelete() || (item.getDisabled() == ApplicationFormItem.Disabled.ALWAYS)) {
-        continue;
+      for (ApplicationFormItem item : items) {
+        if (item.isForDelete() || (item.getDisabled() == ApplicationFormItem.Disabled.ALWAYS) ||
+            !item.getApplicationTypes().contains(appType)) {
+          continue;
+        }
+        ApplicationFormItem.Type itemType = item.getType();
+        if (!NON_INPUT_FORM_ITEM_TYPES.contains(itemType)) {
+          containsInputTypeItems = true;
+        }
+        if (SUBMIT_FORM_ITEM_TYPES.contains(itemType) && (item.getHidden() != ApplicationFormItem.Hidden.ALWAYS)) {
+          containsSubmitButton = true;
+        }
       }
-      ApplicationFormItem.Type itemType = item.getType();
-      if (!NON_INPUT_FORM_ITEM_TYPES.contains(itemType)) {
-        containsInputTypeItems = true;
-      }
-      if (SUBMIT_FORM_ITEM_TYPES.contains(itemType) && (item.getHidden() != ApplicationFormItem.Hidden.ALWAYS)) {
-        return true;
+
+      if (containsInputTypeItems && !containsSubmitButton) {
+        return false;
       }
     }
 
-    return !containsInputTypeItems;
+    return true;
   }
 
   @Override

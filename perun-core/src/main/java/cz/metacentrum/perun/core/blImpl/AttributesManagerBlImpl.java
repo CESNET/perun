@@ -15,6 +15,7 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_UES_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_FACILITY_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForFacilityAndUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForGroup;
@@ -330,6 +331,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   public void checkAttributeExists(PerunSession sess, AttributeDefinition attribute)
       throws AttributeNotExistsException {
     getAttributesManagerImpl().checkAttributeExists(sess, attribute);
+  }
+
+  @Override
+  public Attribute checkAttributeExistsAndUpdateDefinition(PerunSession sess, Attribute attribute)
+      throws AttributeNotExistsException {
+    AttributeDefinition attrDef = getAttributesManagerImpl().checkAttributeExistsAndGetDefinition(sess, attribute);
+    return new Attribute(attrDef, attribute.getValue());
   }
 
   @Override
@@ -1129,6 +1137,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes)
       throws AttributeNotExistsException {
     getAttributesManagerImpl().checkAttributesExists(sess, attributes);
+  }
+
+  @Override
+  public List<Attribute> checkAttributesExistAndUpdateDefinitions(PerunSession sess, List<Attribute> attributes)
+      throws AttributeNotExistsException {
+    List<Attribute> updatedAttrs = new ArrayList<>();
+    for (Attribute attr : attributes) {
+      updatedAttrs.add(checkAttributeExistsAndUpdateDefinition(sess, attr));
+    }
+    return updatedAttrs;
   }
 
   @Override
@@ -13605,4 +13623,77 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
   }
 
   // --------------END OF METHODS FOR ATTRIBUTES DEPENDENCIES-------------------
+
+  @Override
+  public void updateUserMemberAttributesFromApplicationAttributes(PerunSession sess, User user, Member member,
+                                                                  Map<String, String> attributesFromApp,
+                                                                  boolean updateOnlyLogins)
+      throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+
+    // attributes to set
+    List<Attribute> updatedAttributes = new ArrayList<>();
+    attributesFromApp.forEach((attrName, attrValue) -> {
+      if (updateOnlyLogins && !attrName.contains("urn:perun:user:attribute-def:def:login-namespace:")) {
+        return;
+      }
+
+      // get attribute (for user and member only)
+      Attribute a;
+      try {
+        if (attrName.contains("urn:perun:user:")) {
+          a = perunBl.getAttributesManagerBl().getAttribute(sess, user, attrName);
+        } else if (attrName.contains("urn:perun:member:")) {
+          a = perunBl.getAttributesManagerBl().getAttribute(sess, member, attrName);
+        } else {
+          return;
+        }
+      } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+        LOG.error("Attribute {} from user's '{}' application does not exist:", attrName, user.getId(), e);
+        return;
+      }
+
+      if (a == null) {
+        return;
+      }
+
+      // do not store null or empty values at all with an exception to the boolean type
+      if ((attrValue == null || attrValue.isEmpty()) && !a.getType().equalsIgnoreCase(Boolean.class.getName())) {
+        return;
+      }
+
+      if ("login-namespace".equals(a.getBaseFriendlyName()) && !isBlank(a.valueAsString())) {
+        // Skip login attributes that already have value; we do not want to update logins, only create new
+        return;
+      }
+
+      if (a.getType().equalsIgnoreCase(LinkedHashMap.class.getName())) {
+
+        // we expect that a map contains string keys and values
+        LinkedHashMap<String, String> value = a.valueAsMap();
+        value = Utils.handleMapValue(value, attrValue);
+
+        a.setValue(value);
+        updatedAttributes.add(a);
+      } else if (a.getType().equalsIgnoreCase(Boolean.class.getName())) {
+        a.setValue(BeansUtils.stringToAttributeValue(attrValue, Boolean.class.getName()));
+        updatedAttributes.add(a);
+      } else if (a.getType().equalsIgnoreCase(ArrayList.class.getName())) {
+
+        ArrayList<String> value = a.valueAsList();
+        value = Utils.handleArrayValue(value, attrValue);
+
+        a.setValue(value);
+        updatedAttributes.add(a);
+      } else {
+        // other attributes are handled like strings
+        a.setValue(attrValue);
+        updatedAttributes.add(a);
+      }
+    });
+
+    if (!updatedAttributes.isEmpty()) {
+      perunBl.getAttributesManagerBl().setAttributes(sess, member, updatedAttributes, true);
+      LOG.debug("Member {} was updated with these attributes {}", member, updatedAttributes);
+    }
+  }
 }

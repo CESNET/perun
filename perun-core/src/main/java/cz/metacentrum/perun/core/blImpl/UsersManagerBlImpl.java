@@ -1017,6 +1017,27 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
+  public List<Pair<String, String>> deleteReservedLogins(PerunSession sess,
+                                                         Map<String, String> loginAttrsNameValueMap) {
+    List<Pair<String, String>> deletedNamespaceLoginPairs = new ArrayList<>();
+    for (Map.Entry<String, String> loginAttrEntry : loginAttrsNameValueMap.entrySet()) {
+      AttributeDefinition loginAttribute;
+      try {
+        loginAttribute = perunBl.getAttributesManagerBl().getAttributeDefinition(
+            sess, loginAttrEntry.getKey());
+      } catch (AttributeNotExistsException e) {
+        LOG.error("Attribute {} does not exist", loginAttrEntry.getKey());
+        continue;
+      }
+      String loginNamespace = loginAttribute.getFriendlyNameParameter();
+      Pair<String, String> namespaceLoginPair = new Pair<>(loginNamespace, loginAttrEntry.getValue());
+      getUsersManagerImpl().deleteReservedLogin(sess, namespaceLoginPair);
+      deletedNamespaceLoginPairs.add(namespaceLoginPair);
+    }
+    return deletedNamespaceLoginPairs;
+  }
+
+  @Override
   public void deleteUser(PerunSession sess, User user)
       throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException,
       SpecificUserAlreadyRemovedException, DeletionNotSupportedException {
@@ -1752,6 +1773,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   @Override
   public User getUserByExtSourceNameAndExtLogin(PerunSession sess, String extSourceName, String extLogin)
       throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException {
+    if (BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().containsKey(extSourceName)) {
+      extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(extSourceName);
+    }
     ExtSource extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, extSourceName);
     UserExtSource userExtSource = this.getUserExtSourceByExtLogin(sess, extSource, extLogin);
 
@@ -2984,5 +3008,37 @@ public class UsersManagerBlImpl implements UsersManagerBl {
                                          ", newEmail: " + newEmail + ".", ex);
       }
     }
+  }
+
+  @Override
+  public List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(PerunSession sess,
+                                                                        List<Pair<String, String>> logins, User user)
+      throws PasswordDeletionFailedException, PasswordOperationTimeoutException, LoginNotExistsException,
+                 InvalidLoginException {
+
+    List<Pair<String, String>> result = new ArrayList<>();
+
+    List<Attribute> loginAttrs = perunBl.getAttributesManagerBl().getLogins(sess, user);
+
+    for (Pair<String, String> pair : logins) {
+      boolean found = false;
+      for (Attribute a : loginAttrs) {
+        if (pair.getLeft().equals(a.getFriendlyNameParameter())) {
+          // old login found in the same namespace => unreserve new login from KDC
+          perunBl.getUsersManagerBl().deletePassword(sess, pair.getRight(), pair.getLeft());
+          LOG.debug(
+              "[REGISTRAR] Unreserving new login: {} in namespace: {} since user already has login: {} in same " +
+              "namespace.",
+              pair.getRight(), pair.getLeft(), a.getValue());
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        result.add(pair);
+      }
+    }
+
+    return result;
   }
 }

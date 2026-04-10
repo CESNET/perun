@@ -1911,7 +1911,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
       return jdbc.queryForObject("SELECT " + ATTRIBUTE_DEFINITION_MAPPING_SELECT_QUERY + " FROM attr_names WHERE id=?",
           ATTRIBUTE_DEFINITION_MAPPER, id);
     } catch (EmptyResultDataAccessException ex) {
-      throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+      throw new AttributeNotExistsException("Attribute with id= \"" + id + "\", does not exist", ex);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public AttributeDefinition checkAttributeExistsAndGetDefinition(PerunSession sess, Attribute attribute)
+      throws AttributeNotExistsException {
+    try {
+      return jdbc.queryForObject("SELECT " + ATTRIBUTE_DEFINITION_MAPPING_SELECT_QUERY + " FROM attr_names" +
+                                 " WHERE attr_name=? AND friendly_name=? AND namespace=? AND id=? and type=?",
+          ATTRIBUTE_DEFINITION_MAPPER, attribute.getName(), attribute.getFriendlyName(), attribute.getNamespace(),
+          attribute.getId(), attribute.getType());
+    } catch (EmptyResultDataAccessException ex) {
+      throw new AttributeNotExistsException("Attribute does not exist: '" + attribute + "'", ex);
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
     }

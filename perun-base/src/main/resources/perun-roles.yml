@@ -3696,6 +3696,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  # TODO registrar role
+  createMemberFromRegistrarApplication_Vo_Group_Map<String_String>_Map<String_String>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
   sendUsernameReminderEmail_Member_String_String_String_policy:
     policy_roles:
       - VOADMIN: Vo
