@@ -920,12 +920,12 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
   }
 
   @Test
-  public void prepareGracePeriodDate() {
-    System.out.println("Utils.prepareGracePeriodDate");
+  public void prepareTimePeriodAmount() {
+    System.out.println("Utils.prepareTimePeriodAmount");
     String gracePeriod = "5d";
     Pattern p = Pattern.compile("([0-9]+)([dmy]?)");
     Matcher m = p.matcher(gracePeriod);
-    Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareGracePeriodDate(m);
+    Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareTimePeriodAmount(m);
     assertEquals(Integer.valueOf(5), fieldAmount.getLeft());
     assertEquals(ChronoUnit.DAYS, fieldAmount.getRight());
   }

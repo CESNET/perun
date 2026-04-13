@@ -2028,7 +2028,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
       p = Pattern.compile("([0-9]+)([dmy]?)");
       m = p.matcher(gracePeriod);
       if (m.matches()) {
-        Pair<Integer, TemporalUnit> amountField = Utils.prepareGracePeriodDate(m);
+        Pair<Integer, TemporalUnit> amountField = Utils.prepareTimePeriodAmount(m);
         LocalDate gracePeriodDate = localDate.minus(amountField.getLeft(), amountField.getRight());
 
         // Check if we are in grace period
@@ -3480,6 +3480,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
       // If attribute was not filled, then silently exit
       if (membershipExpirationRulesAttribute.getValue() == null) {
+        return null;
+      }
+      LinkedHashMap<String, String> membershipExpirationRules = membershipExpirationRulesAttribute.valueAsMap();
+      // If membership lifecycle is not enabled, silently exit
+      if (!"true".equals(membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED))) {
         return null;
       }
     } catch (AttributeNotExistsException e) {

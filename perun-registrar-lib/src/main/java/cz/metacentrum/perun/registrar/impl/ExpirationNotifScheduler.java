@@ -2,6 +2,7 @@ package cz.metacentrum.perun.registrar.impl;
 
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.AUTO_EXTENSION_EXT_SOURCES;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.AUTO_EXTENSION_LAST_LOGIN_PERIOD;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED;
 import static java.util.stream.Collectors.toMap;
 
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.CesnetEligibleExpiration;
@@ -22,6 +23,8 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -33,9 +36,13 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -45,12 +52,16 @@ import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.Synchronizer;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application;
+import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,6 +70,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.sql.DataSource;
@@ -78,6 +91,12 @@ public class ExpirationNotifScheduler {
 
   private static final Logger LOG = LoggerFactory.getLogger(Synchronizer.class);
   private static final String A_VO_MEMBERSHIP_EXP_RULES = "urn:perun:vo:attribute-def:def:membershipExpirationRules";
+  private static final String A_GROUP_MEMBERSHIP_EXP_RULES =
+      "urn:perun:group:attribute-def:def:groupMembershipExpirationRules";
+  private static final String A_MEMBER_LIFECYCLE_TIMESTAMPS = AttributesManager.NS_MEMBER_ATTR_DEF +
+                                                                  ":lifecycleTimestamps";
+  private static final String A_MEMBER_GROUP_LIFECYCLE_TIMESTAMPS = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +
+                                                                        ":lifecycleTimestamps";
   private final DateTimeFormatter lastAccessFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   private PerunSession sess;
   private PerunBl perun;
@@ -381,6 +400,9 @@ public class ExpirationNotifScheduler {
       return false;
     }
     LinkedHashMap<String, String> rulesAttrValue = expirationRulesAttribute.valueAsMap();
+    if (!"true".equals(rulesAttrValue.get(LIFECYCLE_ENABLED))) {
+      return false;
+    }
     String lastAccessPeriod = rulesAttrValue.get(AUTO_EXTENSION_LAST_LOGIN_PERIOD);
     if (lastAccessPeriod == null) {
       return false;
@@ -527,6 +549,8 @@ public class ExpirationNotifScheduler {
       checkGroupMemberExpiration(group, today);
       // check members which should be validated today
       checkGroupMemberValidation(group, today);
+      // perform lifecycle changes now that timestamps have been updated
+      performLifecycleChangesForGroup(group, today);
 
     }
   }
@@ -652,6 +676,7 @@ public class ExpirationNotifScheduler {
     expireMembers(today);
     validateMembers(today);
     expireSponsorships();
+    performLifecycleChangesForVos(vos, today);
   }
 
   /**
@@ -820,6 +845,42 @@ public class ExpirationNotifScheduler {
     }
   }
 
+  private Attribute getGroupMemberTimestampAttribute(Member member, Group group) {
+    try {
+      return perun.getAttributesManagerBl().getAttribute(sess, member, group, A_MEMBER_GROUP_LIFECYCLE_TIMESTAMPS);
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException | MemberGroupMismatchException e) {
+      // shouldn't happen
+      LOG.error("Failed to get group member lifecycle timestamps attribute.", e);
+      throw new InternalErrorException(e);
+    }
+  }
+
+  private Attribute getMemberTimestampAttribute(Member member) {
+    try {
+      return perun.getAttributesManagerBl().getAttribute(sess, member, A_MEMBER_LIFECYCLE_TIMESTAMPS);
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+      // shouldn't happen
+      LOG.error("Failed to get group member lifecycle timestamps attribute.", e);
+      throw new InternalErrorException(e);
+    }
+  }
+
+  /**
+   * For given group, return group expiration rules attribute.
+   *
+   * @param group group to find the attribute
+   * @return group expiration rules attribute
+   */
+  private Attribute getGroupExpirationAttribute(Group group) {
+    try {
+      return perun.getAttributesManagerBl().getAttribute(sess, group, A_GROUP_MEMBERSHIP_EXP_RULES);
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+      // shouldn't happen
+      LOG.error("Failed to get group expiration rules attribute.", e);
+      throw new InternalErrorException(e);
+    }
+  }
+
   /**
    * Returns true, if the given user has last access in an extSource with given id.
    *
@@ -846,6 +907,26 @@ public class ExpirationNotifScheduler {
     List<UserExtSource> userExtSources = perun.getUsersManagerBl().getUserExtSources(sess, user);
     return userExtSources.stream().map(ues -> lastAccessToLocalDate(ues.getLastAccess()))
         .anyMatch(lastAccessDate -> lastAccessDate.isAfter(lastAcceptableDate));
+  }
+
+  private boolean isLifecycleEnabledForGroup(Group group) {
+    Attribute groupRulesAttr = getGroupExpirationAttribute(group);
+    if (groupRulesAttr == null || groupRulesAttr.getValue() == null) {
+      return false;
+    }
+    LinkedHashMap<String, String> groupRules = groupRulesAttr.valueAsMap();
+    String enabled = groupRules.get("lifecycleEnabled");
+    return "true".equals(enabled);
+  }
+
+  private boolean isLifecycleEnabledForVo(Vo vo) {
+    Attribute voRulesAttr = getVoExpirationAttribute(vo);
+    if (voRulesAttr == null || voRulesAttr.getValue() == null) {
+      return false;
+    }
+    LinkedHashMap<String, String> voRules = voRulesAttr.valueAsMap();
+    String enabled = voRules.get("lifecycleEnabled");
+    return "true".equals(enabled);
   }
 
   public void initialize() {
@@ -887,6 +968,106 @@ public class ExpirationNotifScheduler {
         }
       }
     }
+  }
+
+  private void performLifecycleChangesForVos(List<Vo> vos, LocalDate today) {
+    for (Vo vo : vos) {
+      if (!isLifecycleEnabledForVo(vo)) {
+        continue;
+      }
+      Attribute voRulesAttr = getVoExpirationAttribute(vo);
+      Map<String, String> voRules = voRulesAttr.valueAsMap();
+      String excludeServiceAccsValue = voRules.get("excludeServiceAccounts");
+      boolean excludeServiceAccounts =
+          excludeServiceAccsValue != null && excludeServiceAccsValue.equals("true");
+      // first handle expire members
+      List<Member> members = perun.getMembersManagerBl().getMembers(sess, vo, Status.EXPIRED);
+      for (Member member : members) {
+        if (excludeServiceAccounts && perun.getUsersManagerBl().getUserByMember(sess, member).isServiceUser()) {
+          continue;
+        }
+        Attribute memberTimestampsAttr = getMemberTimestampAttribute(member);
+        Map<String, String> memberTimestamps = memberTimestampsAttr.valueAsMap();
+        if (isPastCycle(memberTimestamps.get("expiredAt"), today, voRules.get("archiveAfter"))) {
+          try {
+            perun.getMembersManagerBl().disableMember(sess, member);
+          } catch (MemberNotValidYetException e) {
+            // should not happen
+            throw new InternalErrorException("Couldn't disable member as part of lifecycle", e);
+          }
+        }
+      }
+      // now we can handle disabled members
+      members = perun.getMembersManagerBl().getMembers(sess, vo, Status.DISABLED);
+      for (Member member : members) {
+        if (excludeServiceAccounts && perun.getUsersManagerBl().getUserByMember(sess, member).isServiceUser()) {
+          continue;
+        }
+        Attribute memberTimestampsAttr = getMemberTimestampAttribute(member);
+        Map<String, String> memberTimestamps = memberTimestampsAttr.valueAsMap();
+        if (isPastCycle(memberTimestamps.get("archivedAt"), today, voRules.get("removeAfter"))) {
+          try {
+            perun.getMembersManagerBl().deleteMember(sess, member);
+          } catch (MemberAlreadyRemovedException e) {
+            // should not happen
+            throw new InternalErrorException("Couldn't disable member as part of lifecycle", e);
+          }
+        }
+      }
+    }
+  }
+
+  private void performLifecycleChangesForGroup(Group group, LocalDate today) {
+    if (!isLifecycleEnabledForGroup(group)) {
+      return;
+    }
+    Attribute groupRulesAttr = getGroupExpirationAttribute(group);
+    Map<String, String> groupRules = groupRulesAttr.valueAsMap();
+    String excludeServiceAccsValue = groupRules.get("excludeServiceAccounts");
+    boolean excludeServiceAccounts =
+        excludeServiceAccsValue != null && excludeServiceAccsValue.equals("true");
+    List<Member> members = perun.getGroupsManagerBl().getGroupMembers(sess, group, MemberGroupStatus.EXPIRED, null);
+    for (Member member : members) {
+      if (MembershipType.INDIRECT.equals(member.getMembershipType())) {
+        // skip indirect members, trying to remove them would only throw `NotGroupMemberException`
+        continue;
+      }
+      if (excludeServiceAccounts && perun.getUsersManagerBl().getUserByMember(sess, member).isServiceUser()) {
+        continue;
+      }
+      Attribute timestampAttr = getGroupMemberTimestampAttribute(member, group);
+      Map<String, String> timestampMap = timestampAttr.valueAsMap();
+      if (isPastCycle(timestampMap.get("expiredAt"), today, groupRules.get("removeAfter"))) {
+        try {
+          perun.getGroupsManagerBl().removeMember(sess, group, member);
+        } catch (NotGroupMemberException | GroupNotExistsException e) {
+          // should not happen
+          throw new InternalErrorException("Failed to remove member from group.", e);
+        }
+      }
+    }
+  }
+
+  private boolean isPastCycle(String timestamp, LocalDate today, String ruleEntry) {
+    LocalDate expirationTimestampDate;
+    try {
+      Date expDate = BeansUtils.getDateFormatterWithoutTime().parse(timestamp);
+      expirationTimestampDate = LocalDate.ofInstant(expDate.toInstant(), ZoneId.systemDefault());
+    } catch (ParseException e) {
+      // shouldn't happen
+      throw new InternalErrorException("Incorrect value in timestamp attribute", e);
+    }
+    if (ruleEntry == null || ruleEntry.isEmpty()) {
+      // unset means immediate removal
+      return true;
+    }
+    Pattern p = Pattern.compile("([0-9]+)([dmy]?)");
+    Matcher m = p.matcher(ruleEntry);
+    Pair<Integer, TemporalUnit> amountField = Utils.prepareTimePeriodAmount(m);
+
+    expirationTimestampDate = expirationTimestampDate.plus(amountField.getLeft(), amountField.getRight());
+    // isEqual should be enough but check isBefore just to make sure
+    return expirationTimestampDate.isBefore(today) || expirationTimestampDate.isEqual(today);
   }
 
   @Autowired

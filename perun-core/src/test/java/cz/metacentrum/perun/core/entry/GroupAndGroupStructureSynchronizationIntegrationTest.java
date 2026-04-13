@@ -1240,6 +1240,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
         AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules"));
     Map<String, String> values = new LinkedHashMap<>();
     values.put(AbstractMembershipExpirationRulesModule.MEMBERSHIP_PERIOD_KEY_NAME, "+1m");
+    values.put(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED, "true");
     expirationRulesAttribute.setValue(values);
     attributesManagerBl.setAttribute(sess, groupWithExpiration, expirationRulesAttribute);
   }
