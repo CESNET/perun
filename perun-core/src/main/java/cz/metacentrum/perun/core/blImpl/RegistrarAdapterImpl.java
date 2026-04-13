@@ -61,7 +61,9 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
   @Override
   public void onDeleteUser(PerunSession sess, User user) {
     if (registrarApi != null) {
-      registrarApi.onDeleteIdmUser(String.valueOf(user.getId()));
+      registrarApi.onDeleteIdmUser(String.valueOf(user.getId()))
+          .doOnError((err) -> LOG.error("Failed to notify Registrar on user delete", err))
+          .subscribe();
     }
     // delete all users applications and submitted data, this is needed only when 'anonymizeInstead'
     // because applications are deleted on cascade when user's row is deleted in DB
@@ -70,7 +72,6 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
 
   @Override
   public void onDeleteMember(PerunSession sess, Member member) {
-    // newRegistrar.toString();
     // do the new registrar logic first, since the old removes more broadly (e.g. all reserved
     // logins for user object of the member;
     if (registrarApi != null) {
@@ -80,7 +81,9 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
       IdmMemberDTO idmMemberDTO = new IdmMemberDTO();
       idmMemberDTO.setIdmObject(idmObject);
       idmMemberDTO.setUserId(String.valueOf(member.getUserId()));
-      registrarApi.onDeleteIdmMember(idmMemberDTO);
+      registrarApi.onDeleteIdmMember(idmMemberDTO)
+          .doOnError((err) -> LOG.error("Failed to notify Registrar on member delete", err))
+          .subscribe();
     }
 
     perunBl.getMembersManagerBl().rejectAllMemberOpenApplications(sess, member);
@@ -97,7 +100,9 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
       IdmObject idmObject = new IdmObject();
       idmObject.setIdmObjectType(IdmObject.IdmObjectTypeEnum.GROUP);
       idmObject.setObjectId(String.valueOf(group.getId()));
-      registrarApi.onDeleteIdmObject(idmObject);
+      registrarApi.onDeleteIdmObject(idmObject)
+          .doOnError((err) -> LOG.error("Failed to notify Registrar on group delete", err))
+          .subscribe();
     }
     // todo determine the process of switching between registrar (e.g. don't allow if apps exist, keep old apps, etc.)
     //  and then we can decide whether to perform both operations or decide based on `useNew` attr
@@ -126,7 +131,9 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
       IdmObject idmObject = new IdmObject();
       idmObject.setIdmObjectType(IdmObject.IdmObjectTypeEnum.VO);
       idmObject.setObjectId(String.valueOf(vo.getId()));
-      registrarApi.onDeleteIdmObject(idmObject);
+      registrarApi.onDeleteIdmObject(idmObject)
+          .doOnError((err) -> LOG.error("Failed to notify Registrar on VO delete", err))
+          .subscribe();
     }
 
     // delete all VO reserved logins from KDC and DB
@@ -140,7 +147,8 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
   public void onDeleteAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition)
       throws RelationExistsException {
     if (registrarApi != null) {
-      List<UUID> formIds = registrarApi.checkIdmAttributeUsed(attributeDefinition.getFriendlyName());
+      List<UUID> formIds = registrarApi.checkIdmAttributeUsed(attributeDefinition.getFriendlyName())
+              .collectList().block();
       if (formIds != null && !formIds.isEmpty()) {
         throw new RelationExistsException("Attribute " + attributeDefinition.getFriendlyName() + " is used in open " +
                                               "applications in the following forms (New Registrar): " + formIds);
@@ -188,7 +196,9 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
     consolidateUserDTO.setIdentityIssuer(userExtSource.getExtSource().getName());
     consolidateUserDTO.setUserId(String.valueOf(userExtSource.getUserId()));
 
-    registrarApi.userConsolidated(consolidateUserDTO);
+    registrarApi.userConsolidated(consolidateUserDTO)
+          .doOnError((err) -> LOG.error("Failed to notify Registrar on user identity consolidation", err))
+        .subscribe();
   }
 
   private boolean doesGroupUseNewRegistration(PerunSession sess, Group group) {
