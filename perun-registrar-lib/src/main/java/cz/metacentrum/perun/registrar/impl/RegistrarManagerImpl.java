@@ -105,6 +105,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_htmlMailFooter;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_htmlMailFooter;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
@@ -1376,12 +1377,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     try {
-      Attribute membershipExpirationRules =
+      Attribute membershipExpirationRulesAttr =
           attrManager.getAttribute(sess, vo, MembersManager.MEMBERSHIP_EXPIRATION_RULES_ATTRIBUTE_NAME);
       Attribute memberExpiration =
           attrManager.getAttribute(sess, member, MembersManager.MEMBERSHIP_EXPIRATION_ATTRIBUTE_NAME);
+      LinkedHashMap<String, String> membershipExpirationRules = membershipExpirationRulesAttr.valueAsMap();
 
-      if (membershipExpirationRules.getValue() != null && memberExpiration.getValue() == null) {
+      if (membershipExpirationRulesAttr.getValue() != null &&
+            "true".equals(membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED)) &&
+              memberExpiration.getValue() == null) {
         List<ApplicationFormItem> formItems;
         try {
           formItems = getFormItems(registrarSession, form, AppType.EXTENSION);

@@ -294,6 +294,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
     String voMembershipExpirationAttrName = perun.getAttributesManager().NS_VO_ATTR_DEF + ":membershipExpirationRules";
     LinkedHashMap<String, String> expirationRules = new LinkedHashMap<>();
     expirationRules.put("period", "+10d");
+    expirationRules.put(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED, "true");
 
     AttributeDefinition attrExpirationRulesDef =
         perun.getAttributesManagerBl().getAttributeDefinition(sess, voMembershipExpirationAttrName);

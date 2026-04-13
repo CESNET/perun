@@ -30,6 +30,10 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
   public static final String AUTO_EXTENSION_LAST_LOGIN_PERIOD = "autoExtensionLastLoginPeriod";
   public static final String AUTO_EXTENSION_EXT_SOURCES = "autoExtensionExtSources";
   public static final String EXPIRE_SPONSORED_MEMBERS = "expireSponsoredMembers";
+  public static final String LIFECYCLE_ENABLED = "lifecycleEnabled";
+  public static final String EXCLUDE_SERVICE_ACCOUNTS = "excludeServiceAccounts";
+  public static final String REMOVE_AFTER = "removeAfter";
+  public static final String ARCHIVE_AFTER = "archiveAfter";
   private static final Pattern EXTENSION_DATE_PATTERN = Pattern.compile("^[+][0-9]+([dmy])$");
   private static final Pattern DATE_PATTERN = Pattern.compile("^[0-9]+([dmy])$");
   private static final Pattern LOA_PATTERN = Pattern.compile("^(([0-9]+,)|([0-9]+,[ ]))*[0-9]+$");
@@ -199,6 +203,51 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
       if (!expireSponsoredMemberMatcher.find()) {
         throw new WrongAttributeValueException(attribute,
             "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
+      }
+    }
+
+    parameter = LIFECYCLE_ENABLED;
+    if (keys.contains(parameter)) {
+      String value = attrValue.get(parameter);
+      if (!value.equals("true") && !value.equals("false")) {
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
+      }
+    }
+
+    parameter = EXCLUDE_SERVICE_ACCOUNTS;
+    if (keys.contains(parameter)) {
+      String value = attrValue.get(parameter).toLowerCase();
+      if (!value.equals("true") && !value.equals("false")) {
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
+      }
+    }
+
+    parameter = REMOVE_AFTER;
+    if (keys.contains(parameter)) {
+      String value = attrValue.get(parameter);
+      if (value != null && !value.isEmpty()) {
+        // TODO test this, pretty sure you should not be able to set the value to null or empty via gui
+        // null or empty means immediate removal so it's fine
+        Matcher dateMatcher = DATE_PATTERN.matcher(value);
+        if (!dateMatcher.find()) {
+          throw new WrongAttributeValueException(attribute,
+              "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
+        }
+      }
+    }
+
+    parameter = ARCHIVE_AFTER;
+    if (keys.contains(parameter)) {
+      String value = attrValue.get(parameter);
+      if (value != null && !value.isEmpty()) {
+        // null or empty means immediate removal so it's fine
+        Matcher dateMatcher = DATE_PATTERN.matcher(value);
+        if (!dateMatcher.find()) {
+          throw new WrongAttributeValueException(attribute,
+              "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
+        }
       }
     }
   }

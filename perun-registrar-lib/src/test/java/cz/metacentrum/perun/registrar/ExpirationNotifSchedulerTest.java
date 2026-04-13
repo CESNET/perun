@@ -617,6 +617,7 @@ public class ExpirationNotifSchedulerTest extends AbstractRegistrarIntegrationTe
     Attribute voRulesAttribute =
         new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(session, VO_MEMBERSHIP_RULES_URN));
     Map<String, String> value = new LinkedHashMap<>();
+    value.put("lifecycleEnabled", "true");
     voExpirationRulesModifier.accept(value);
     voRulesAttribute.setValue(value);
 
