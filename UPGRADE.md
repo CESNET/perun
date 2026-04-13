@@ -1,5 +1,16 @@
 Upgrade notes
 
+## [51.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v50.2.0...v51.0.0) (2026-04-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** db update (SQL query in changelog only)
+
+### Features
+
+* **core:** implement lifecycle changes for members and groups ([523c60d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/523c60db140f861268725a676177f6e32b9fb162))
+
 ## [50.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v50.1.0...v50.2.0) (2026-04-10)
 
 
