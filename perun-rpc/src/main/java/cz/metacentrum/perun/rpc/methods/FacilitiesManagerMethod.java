@@ -71,30 +71,36 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Lists all users assigned to facility containing resources where service is assigned.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. On top of that, results are restricted to resources that have the given service
+   * assigned. No filter is applied on their VO membership status.
    *
    * @param service int Service <code>id</code>
    * @param facilityName String Facility name
-   * @return List<User> assigned users
+   * @return List<User> assigned users on the facility for resources with the given service
    */
   /*#
-   * Lists all users assigned to facility.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. No filter is applied on their VO membership status.
    *
    * @param facilityName String Facility name
-   * @return List<User> assigned users
+   * @return List<User> assigned users on the facility
    */
   /*#
-   * Lists all users assigned to facility containing resources where service is assigned.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. On top of that, results are restricted to resources that have the given service
+   * assigned. No filter is applied on their VO membership status.
    *
    * @param service int Service <code>id</code>
    * @param facility int Facility <code>id</code>
-   * @return List<User> assigned users
+   * @return List<User> assigned users on the facility for resources with the given service
    */
   /*#
-   * Lists all users assigned to facility.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. No filter is applied on their VO membership status.
    *
    * @param facility int Facility <code>id</code>
-   * @return List<User> assigned users
+   * @return List<User> assigned users on the facility
    */
   getAssignedUsers {
     public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -427,60 +433,66 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Get all assigned groups on Facility.
+   * Get all allowed groups on Facility. Allowed groups have an active assignment to a resource on the facility.
    *
    * @param facilityName String Facility name
-   * @return List<Group> assigned groups
+   * @return List<Group> allowed groups
    */
   /*#
-   * Get all assigned groups on Facility filtered by VO.
-   *
-   * @param facilityName String Facility name
-   * @param vo int Vo <code>id</code> to filter groups by
-   * @return List<Group> assigned groups
-   */
-  /*#
-   * Get all assigned groups on Facility filtered by Service.
-   *
-   * @param facilityName String Facility name
-   * @param service int Service <code>id</code> to filter groups by
-   * @return List<Group> assigned groups
-   */
-  /*#
-   * Get all assigned groups on Facility filtered by VO and Service.
+   * Get all allowed groups on Facility filtered by VO. Allowed groups have an active assignment to a resource on the
+   * facility.
    *
    * @param facilityName String Facility name
    * @param vo int Vo <code>id</code> to filter groups by
-   * @param service int Service <code>id</code> to filter groups by
-   * @return List<Group> assigned groups
+   * @return List<Group> allowed groups
    */
   /*#
-   * Get all assigned groups on Facility.
+   * Get all allowed groups on Facility filtered by Service. Allowed groups have an active assignment to a resource on
+   * the facility.
+   *
+   * @param facilityName String Facility name
+   * @param service int Service <code>id</code> to filter groups by
+   * @return List<Group> allowed groups
+   */
+  /*#
+   * Get all allowed groups on Facility filtered by VO and Service. Allowed groups have an active assignment to a
+   * resource on the facility.
+   *
+   * @param facilityName String Facility name
+   * @param vo int Vo <code>id</code> to filter groups by
+   * @param service int Service <code>id</code> to filter groups by
+   * @return List<Group> allowed groups
+   */
+  /*#
+   * Get all allowed groups on Facility. Allowed groups have an active assignment to a resource on the facility.
    *
    * @param facility int Facility <code>id</code>
-   * @return List<Group> assigned groups
+   * @return List<Group> allowed groups
    */
   /*#
-   * Get all assigned groups on Facility filtered by VO.
+   * Get all allowed groups on Facility filtered by VO. Allowed groups have an active assignment to a resource on the
+   * facility.
    *
    * @param facility int Facility <code>id</code>
    * @param vo int Vo <code>id</code> to filter groups by
-   * @return List<Group> assigned groups
+   * @return List<Group> allowed groups
    */
   /*#
-   * Get all assigned groups on Facility filtered by Service.
+   * Get all allowed groups on Facility filtered by Service. Allowed groups have an active assignment to a resource on
+   * the facility.
    *
    * @param facility int Facility <code>id</code>
    * @param service int Service <code>id</code> to filter groups by
-   * @return List<Group> assigned groups
+   * @return List<Group> allowed groups
    */
   /*#
-   * Get all assigned groups on Facility filtered by VO and Service.
+   * Get all allowed groups on Facility filtered by VO and Service. Allowed groups have an active assignment to a
+   * resource on the facility.
    *
    * @param facility int Facility <code>id</code>
    * @param vo int Vo <code>id</code> to filter groups by
    * @param service int Service <code>id</code> to filter groups by
-   * @return List<Group> assigned groups
+   * @return List<Group> allowed groups
    */
   getAllowedGroups {
     @Override
@@ -499,82 +511,90 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Get all assigned RichGroups on Facility with specified set of attributes.
+   * Get all allowed RichGroups on Facility with specified set of attributes. Allowed groups have an active
+   * assignment to a resource on the facility.
    *
    * @param facilityName String Facility name
    * @param attrNames List<String> Attribute names
-   * @return List<RichGroup> assigned groups
+   * @return List<RichGroup> allowed groups
    * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" ,
    * "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
    */
   /*#
-   * Get all assigned RichGroups on Facility filtered by VO with specified set of attributes.
+   * Get all allowed RichGroups on Facility filtered by VO with specified set of attributes. Allowed groups have an
+   * active assignment to a resource on the facility.
    *
    * @param facilityName String Facility name
    * @param vo int Vo <code>id</code> to filter groups by
    * @param attrNames List<String> Attribute names
-   * @return List<RichGroup> assigned groups
+   * @return List<RichGroup> allowed groups
    * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" ,
    * "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
    */
   /*#
-   * Get all assigned RichGroups on Facility filtered by Service with specified set of attributes.
+   * Get all allowed RichGroups on Facility filtered by Service with specified set of attributes. Allowed groups have
+   * an active assignment to a resource on the facility.
    *
    * @param facilityName String Facility name
    * @param service int Service <code>id</code> to filter groups by
    * @param attrNames List<String> Attribute names
-   * @return List<RichGroup> assigned groups
+   * @return List<RichGroup> allowed groups
    * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" ,
    * "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
    */
   /*#
-   * Get all assigned RichGroups on Facility filtered by VO and Service with specified set of attributes.
+   * Get all allowed RichGroups on Facility filtered by VO and Service with specified set of attributes. Allowed groups
+   * have an active assignment to a resource on the facility.
    *
    * @param facilityName String Facility name
    * @param vo int Vo <code>id</code> to filter groups by
    * @param service int Service <code>id</code> to filter groups by
    * @param attrNames List<String> Attribute names
-   * @return List<RichGroup> assigned groups
+   * @return List<RichGroup> allowed groups
    * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" ,
    * "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
    */
   /*#
-   * Get all assigned RichGroups on Facility with specified set of attributes.
+   * Get all allowed RichGroups on Facility with specified set of attributes. Allowed groups have an active
+   * assignment to a resource on the facility.
    *
    * @param facility int Facility <code>id</code>
    * @param attrNames List<String> Attribute names
-   * @return List<RichGroup> assigned groups
+   * @return List<RichGroup> allowed groups
    * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" ,
    * "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
    */
   /*#
-   * Get all assigned RichGroups on Facility filtered by VO with specified set of attributes.
+   * Get all allowed RichGroups on Facility filtered by VO with specified set of attributes. Allowed groups have an
+   * active assignment to a resource on the facility.
    *
    * @param facility int Facility <code>id</code>
    * @param vo int Vo <code>id</code> to filter groups by
    * @param attrNames List<String> Attribute names
-   * @return List<RichGroup> assigned groups
+   * @return List<RichGroup> allowed groups
    * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" ,
    * "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
    */
   /*#
-   * Get all assigned RichGroups on Facility filtered by Service with specified set of attributes.
+   * Get all allowed RichGroups on Facility filtered by Service with specified set of attributes. Allowed groups have
+   * an active assignment to a resource on the facility.
    *
    * @param facility int Facility <code>id</code>
    * @param service int Service <code>id</code> to filter groups by
    * @param attrNames List<String> Attribute names
-   * @return List<RichGroup> assigned groups
+   * @return List<RichGroup> allowed groups
    * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" ,
    * "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
    */
   /*#
-   * Get all assigned RichGroups on Facility filtered by VO and Service with specified set of attributes.
+   * Get all allowed RichGroups on Facility filtered by VO and Service with specified set of attributes. Allowed groups
+   * have an active assignment to a resource on the facility.
    *
    * @param facility int Facility <code>id</code>
    * @param vo int Vo <code>id</code> to filter groups by
    * @param service int Service <code>id</code> to filter groups by
    * @param attrNames List<String> Attribute names
-   * @return List<RichGroup> assigned groups
+   * @return List<RichGroup> allowed groups
    * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" ,
    * "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
    */
@@ -969,16 +989,18 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * @return List<Facility> Assigned facilities
    */
   /*#
-   * Get facilities which have the member access on.
+   * Get facilities where the member is assigned. A facility is returned if the member belongs to a group with an
+   * active assignment to at least one resource on that facility. No filter is applied on their VO membership status.
    *
    * @param member int Member <code>id</code>
-   * @return List<Facility> Assigned facilities
+   * @return List<Facility> facilities where the member is assigned
    */
   /*#
-   * Get facilities which have the user access on.
+   * Get facilities where the user is assigned. A facility is returned if the user has a membership in a group with
+   * an active assignment to at least one resource on that facility. No filter is applied on VO membership status.
    *
    * @param user int User <code>id</code>
-   * @return List<Facility> Assigned facilities
+   * @return List<Facility> facilities where the user is assigned
    */
   getAssignedFacilities {
     @Override
@@ -1360,7 +1382,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Return all users which can use this facility
+   * Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a
+   * resource on this facility and their VO membership status is not INVALID or DISABLED.
    *
    * @param facilityName String Facility name
    * @param vo int VO <code>id</code>, if provided, filter out users who aren't in specific VO
@@ -1369,7 +1392,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
    * @return List<User> list of allowed users
    */
   /*#
-   * Return all users which can use this facility
+   * Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a
+   * resource on this facility and their VO membership status is not INVALID or DISABLED.
    *
    * @param facility int Facility <code>id</code>
    * @param vo int VO <code>id</code>, if provided, filter out users who aren't in specific VO

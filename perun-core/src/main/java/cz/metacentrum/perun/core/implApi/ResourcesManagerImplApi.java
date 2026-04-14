@@ -260,76 +260,85 @@ public interface ResourcesManagerImplApi {
   List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo);
 
   /**
-   * Returns all members who are "allowed" on the resource disregarding their possible expired status in a group. All
-   * members include all group statuses, through which they can be filtered if necessary.
+   * Returns all allowed members on the resource. Allowed members belong to a group with an active assignment to the
+   * resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param resource
-   * @return list of members
+   * @return list of allowed members on the resource
    * @throws InternalErrorException
    */
   List<Member> getAllowedMembers(PerunSession sess, Resource resource);
 
   /**
-   * Returns all members which are allowed on the resource and are not expired within their assigned groups. It means if
-   * member is allowed on the resource, but only through expired groups, it is filtered out.
+   * Returns all allowed members on the resource who are not expired in groups.
+   * <p>
+   * Allowed members belong to a group with an active assignment to the resource and their VO membership status is
+   * not INVALID or DISABLED. On top of that, only members with a VALID group membership status in at least one
+   * group assigned to the resource are included.
    *
    * @param sess
    * @param resource
-   * @return list of members
+   * @return list of allowed members not expired in groups on the resource
    * @throws InternalErrorException
    */
   List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource);
 
   /**
-   * Return all resources through which user is allowed on facility.
+   * Get all resources on the facility where the user is allowed. The user has a membership in a group with an
+   * active assignment to the resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param facility
    * @param user
-   * @return List of allowed resources for the user on facility
+   * @return list of resources where the user is allowed
    * @throws InternalErrorException
    */
   List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user);
 
   /**
-   * Returns all users who are allowed on the defined resource.
+   * Get all allowed users on the resource. Allowed users are members of a group with an active assignment to the
+   * resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param resource
-   * @return list of users
+   * @return list of allowed users on the resource
    * @throws InternalErrorException
    */
   List<User> getAllowedUsers(PerunSession sess, Resource resource);
 
   /**
-   * Returns all users which are allowed on the resource and are not expired within their assigned groups. It means if
-   * user is allowed on the resource, but only through expired groups, it is filtered out.
+   * Get all allowed users on the resource who are not expired in groups.
+   * <p>
+   * Allowed users are members of a group with an active assignment to the resource and their VO membership status
+   * is not INVALID or DISABLED. On top of that, only users with a VALID group membership status in at least one
+   * group assigned to the resource are included.
    *
    * @param sess
    * @param resource
-   * @return list of users
+   * @return list of allowed users not expired in groups on the resource
    * @throws InternalErrorException
    */
   List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource);
 
   /**
-   * Returns all members who are assigned on the defined resource.
+   * Returns all assigned members on the resource. Assigned members belong to a group with an active assignment to the
+   * resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param resource
-   * @return list of members
+   * @return list of assigned members on the resource
    * @throws InternalErrorException
    */
   List<Member> getAssignedMembers(PerunSession sess, Resource resource);
 
   /**
-   * Returns members of groups assigned to resource with status of group-resource assignment. RichMember attribute has
-   * only Member set.
+   * Returns all members of groups with a group-resource assignment to the resource, annotated with the assignment
+   * status. Assignments in any state are included (not only ACTIVE). RichMember attribute has only Member set.
    *
    * @param sess     perunSession
    * @param resource resource
-   * @return list of members of groups assigned to given resource
+   * @return list of members of groups assigned to given resource with assignment status
    */
   List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource);
 
@@ -344,44 +353,51 @@ public interface ResourcesManagerImplApi {
   List<Resource> getAssignedResources(PerunSession perunSession, Group group);
 
   /**
-   * Returns all resources where the member is assigned through the groups.
+   * Returns all resources where the member is assigned. The member belongs to a group with an active assignment to
+   * the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param member
-   * @return list of resources
+   * @return list of resources where the member is assigned
    * @throws InternalErrorException
    */
   List<Resource> getAssignedResources(PerunSession sess, Member member);
 
   /**
-   * Returns all resources where member and service are assigned together.
+   * Returns all resources where the member is assigned. The member belongs to a group with an active assignment to
+   * the resource. On top of that, results are restricted to resources with the given service assigned. No filter is
+   * applied on their VO membership status.
    *
    * @param sess
    * @param member
    * @param service
-   * @return list of resources
+   * @return list of resources where the member is assigned that have the given service
    * @throws InternalErrorException
    */
   List<Resource> getAssignedResources(PerunSession sess, Member member, Service service);
 
   /**
-   * Returns all resources where the user is assigned through the specified vo and its groups.
+   * Returns all resources where the user is assigned. The user has a membership in a group with an active assignment
+   * to the resource. On top of that, results are restricted to resources in the given VO. No filter is applied on VO
+   * membership status.
    *
    * @param sess
    * @param user
    * @param vo
-   * @return list of resources
+   * @return list of resources in the VO where the user is assigned
    * @throws InternalErrorException
    * @see #getAssignedResources(PerunSession, Member)
    */
   List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo);
 
   /**
-   * Returns all assigned resources where member is assigned through the groups.
+   * Returns all resources reachable through groups the member belongs to, annotated with the group-resource
+   * assignment status. Assignments in any state are included (not only ACTIVE). If the same resource is reached
+   * through multiple assignments, only the entry with the most important status is returned.
    *
    * @param sess   perun session
    * @param member member
-   * @return list of assigned resources
+   * @return list of resources where the member is assigned together with the assignment status
    */
   List<AssignedResource> getAssignedResourcesWithStatus(PerunSession sess, Member member);
 
@@ -396,22 +412,25 @@ public interface ResourcesManagerImplApi {
   List<RichResource> getAssignedRichResources(PerunSession perunSession, Group group);
 
   /**
-   * Returns all rich resources where the member is assigned through the groups.
+   * Returns all rich resources where the member is assigned. The member belongs to a group with an active assignment
+   * to the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param member
-   * @return list of rich resources
+   * @return list of rich resources where the member is assigned
    * @throws InternalErrorException
    */
   List<RichResource> getAssignedRichResources(PerunSession sess, Member member);
 
   /**
-   * Returns all rich resources where the service and the member are assigned through the groups.
+   * Returns all rich resources where the member is assigned. The member belongs to a group with an active assignment
+   * to the resource. On top of that, results are restricted to resources with the given service assigned. No filter
+   * is applied on their VO membership status.
    *
    * @param sess
    * @param member
    * @param service
-   * @return list of rich resources
+   * @return list of rich resources where the member is assigned that have the given service
    * @throws InternalErrorException
    */
   List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service);
@@ -427,11 +446,12 @@ public interface ResourcesManagerImplApi {
   List<Service> getAssignedServices(PerunSession perunSession, Resource resource);
 
   /**
-   * Returns all user assigned to the resource.
+   * Returns all assigned users on the resource. Assigned users are members of a group with an active assignment to
+   * the resource. No filter is applied on their VO membership status.
    *
    * @param perunSession
    * @param resource
-   * @return list of user  assigned to the resource
+   * @return list of assigned users on the resource
    * @throws InternalErrorException
    */
   List<User> getAssignedUsers(PerunSession perunSession, Resource resource);

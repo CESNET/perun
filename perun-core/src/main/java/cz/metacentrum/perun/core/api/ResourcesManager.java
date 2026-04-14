@@ -517,11 +517,12 @@ public interface ResourcesManager {
       throws PrivilegeException, VoNotExistsException;
 
   /**
-   * Returns all members assigned to the resource.
+   * Returns all allowed members on the resource. Allowed members belong to a group with an active assignment to the
+   * resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param perunSession
    * @param resource
-   * @return list of members assigned to the resource
+   * @return list of allowed members on the resource
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -530,11 +531,12 @@ public interface ResourcesManager {
       throws ResourceNotExistsException, PrivilegeException;
 
   /**
-   * Get all resources which have the member access on.
+   * Get all resources where the member is allowed. The member belongs to a group with an active assignment to the
+   * resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param member
-   * @return list of resources which have the member acess on
+   * @return list of resources where the member is allowed
    * @throws InternalErrorException
    * @throws PrivilegeException
    * @throws MemberNotExistsException
@@ -543,11 +545,12 @@ public interface ResourcesManager {
       throws MemberNotExistsException, PrivilegeException;
 
   /**
-   * Returns all users who is assigned with the resource.
+   * Returns all allowed users on the resource. Allowed users are members of a group with an active assignment to the
+   * resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param resource
-   * @return list of users
+   * @return list of allowed users on the resource
    * @throws InternalErrorException
    * @throws ResourceNotExistsException
    * @throws PrivilegeException
@@ -583,22 +586,24 @@ public interface ResourcesManager {
       throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException;
 
   /**
-   * Returns all members assigned to the resource.
+   * Returns all assigned members on the resource. Assigned members belong to a group with an active assignment to the
+   * resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param resource
-   * @return list of assigned members
+   * @return list of assigned members on the resource
    * @throws InternalErrorException
    * @throws PrivilegeException
    */
   List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws PrivilegeException;
 
   /**
-   * Returns members of groups assigned to resource with status of group-resource assignment.
+   * Returns all members of groups with a group-resource assignment to the resource, annotated with the assignment
+   * status. Assignments in any state are included (not only ACTIVE).
    *
    * @param sess     perunSession
    * @param resource resource
-   * @return list of members of groups assigned to given resource
+   * @return list of members of groups assigned to given resource with assignment status
    */
   List<AssignedMember> getAssignedMembersWithStatus(PerunSession sess, Resource resource) throws PrivilegeException;
 
@@ -616,11 +621,12 @@ public interface ResourcesManager {
       throws GroupNotExistsException, PrivilegeException;
 
   /**
-   * Get all resources where the member is assigned.
+   * Get all resources where the member is assigned. The member belongs to a group with an active assignment to the
+   * resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param member
-   * @return
+   * @return list of resources where the member is assigned
    * @throws InternalErrorException
    * @throws MemberNotExistsException
    * @throws PrivilegeException
@@ -629,12 +635,14 @@ public interface ResourcesManager {
       throws PrivilegeException, MemberNotExistsException;
 
   /**
-   * Get all resources where the member and the service are assigned.
+   * Get all resources where the member is assigned. The member belongs to a group with an active assignment to the
+   * resource. On top of that, results are restricted to resources with the given service assigned. No filter is
+   * applied on their VO membership status.
    *
    * @param sess
    * @param member
    * @param service
-   * @return list of resources
+   * @return list of resources where the member is assigned that have the given service
    * @throws InternalErrorException
    * @throws MemberNotExistsException
    * @throws ServiceNotExistsException
@@ -644,11 +652,13 @@ public interface ResourcesManager {
       throws PrivilegeException, MemberNotExistsException, ServiceNotExistsException;
 
   /**
-   * Returns all assigned resources where member is assigned through the groups.
+   * Returns all resources reachable through groups the member belongs to, annotated with the group-resource
+   * assignment status. Assignments in any state are included (not only ACTIVE). If the same resource is reached
+   * through multiple assignments, only the entry with the most important status is returned.
    *
    * @param sess   perun session
    * @param member member
-   * @return list of assigned resources
+   * @return list of resources where the member is assigned together with the assignment status
    * @throws MemberNotExistsException if the member does not exist
    * @throws PrivilegeException
    */
@@ -656,11 +666,12 @@ public interface ResourcesManager {
       throws PrivilegeException, MemberNotExistsException;
 
   /**
-   * Returns all members assigned to the resource as RichMembers.
+   * Returns all assigned members on the resource as RichMembers. Assigned members belong to a group with an active
+   * assignment to the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param resource
-   * @return list of assigned rich members
+   * @return list of assigned rich members on the resource
    * @throws InternalErrorException
    * @throws PrivilegeException
    */
@@ -680,11 +691,12 @@ public interface ResourcesManager {
       throws GroupNotExistsException, PrivilegeException;
 
   /**
-   * Get all rich resources where the member is assigned with facility property filled.
+   * Get all rich resources where the member is assigned, with facility property filled. The member belongs to a group
+   * with an active assignment to the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param member
-   * @return list of rich resources
+   * @return list of rich resources where the member is assigned
    * @throws InternalErrorException
    * @throws MemberNotExistsException
    * @throws PrivilegeException
@@ -693,12 +705,14 @@ public interface ResourcesManager {
       throws PrivilegeException, MemberNotExistsException;
 
   /**
-   * Get all rich resources where the service and the member are assigned with facility property filled.
+   * Get all rich resources where the member is assigned, with facility property filled. The member belongs to a group
+   * with an active assignment to the resource. On top of that, results are restricted to resources with the given
+   * service assigned. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param member
    * @param service
-   * @return list of rich resources
+   * @return list of rich resources where the member is assigned that have the given service
    * @throws InternalErrorException
    * @throws MemberNotExistsException
    * @throws ServiceNotExistsException

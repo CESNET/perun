@@ -575,12 +575,13 @@ public interface UsersManager {
       throws PrivilegeException, UserNotExistsException;
 
   /**
-   * Get all resources from the facility which have the user access on.
+   * Get all resources on the facility where the user is allowed. The user has a membership in a group with an active
+   * assignment to the resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param facility
    * @param user
-   * @return list of resources which have the user acess on
+   * @return list of resources where the user is allowed
    * @throws InternalErrorException
    * @throws FacilityNotExistsException
    * @throws UserNotExistsException
@@ -590,11 +591,12 @@ public interface UsersManager {
       throws FacilityNotExistsException, UserNotExistsException, PrivilegeException;
 
   /**
-   * Get all resources which have the user access on.
+   * Get all resources where the user is allowed. The user has a membership in a group with an active assignment to
+   * the resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param user
-   * @return list of resources which have the user acess on
+   * @return list of resources where the user is allowed
    * @throws UserNotExistsException
    * @throws PrivilegeException
    */
@@ -613,11 +615,12 @@ public interface UsersManager {
                                                                                             PrivilegeException;
 
   /**
-   * Get all rich resources which have the user assigned.
+   * Get all rich resources where the user is assigned. The user has a membership in a group with an active
+   * assignment to the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param user
-   * @return list of rich resources which have the user assigned
+   * @return list of rich resources where the user is assigned
    * @throws UserNotExistsException
    * @throws PrivilegeException
    */
