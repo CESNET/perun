@@ -21,7 +21,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RegistrarAdapter;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
-import cz.metacentrum.perun.registrar.openapi.FormsApi;
 import cz.metacentrum.perun.registrar.openapi.IdmMessagesApi;
 import cz.metacentrum.perun.registrar.openapi.invoker.ApiClient;
 import cz.metacentrum.perun.registrar.openapi.model.ConsolidateUserDTO;
@@ -206,8 +205,7 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
     if (registrarApi == null) {
       return "";
     }
-    FormsApi formsApi = new FormsApi(apiClient);
-    return formsApi.inviteUrl("VO", String.valueOf(vo.getId()), null)
+    return registrarApi.inviteUrl("VO", String.valueOf(vo.getId()), null)
                .block();
   }
 
@@ -216,8 +214,7 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
     if (registrarApi == null) {
       return "";
     }
-    FormsApi formsApi = new FormsApi(apiClient);
-    return formsApi.inviteUrl("GROUP", String.valueOf(group.getId()), null)
+    return registrarApi.inviteUrl("GROUP", String.valueOf(group.getId()), null)
                .block();
   }
 
