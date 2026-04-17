@@ -47,6 +47,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidHtmlInputException;
@@ -73,6 +74,7 @@ import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsExcepti
 import cz.metacentrum.perun.registrar.exceptions.ApplicationMailTextMissingException;
 import cz.metacentrum.perun.registrar.exceptions.ApplicationNotNewException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.NewRegistrarUsedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
@@ -2386,6 +2388,8 @@ public class MailManagerImpl implements MailManager {
 
   public void sendInvitationPreApproved(Vo vo, Group group, Invitation invitation, String url)
       throws RegistrarException {
+    throwIfNewRegistration(vo, group, "This VO/Group uses new Registrar and it does not " +
+                                          "support preapproved invitations yet");
     MimeMessage message;
     try {
       message = getInvitationMessagePreApproved(vo, group, invitation, url);
@@ -2500,6 +2504,9 @@ public class MailManagerImpl implements MailManager {
   @Override
   public void sendMessage(Application app, MailType mailType, String reason, List<Exception> exceptions) {
     try {
+      throwIfNewRegistration(app.getVo(), app.getGroup(), "Cannot send application notifications" +
+                                                              " for this VO/Group as long " +
+                                      "as it uses new registrar");
       // get form
       ApplicationForm form = getForm(app);
 
@@ -2676,6 +2683,26 @@ public class MailManagerImpl implements MailManager {
       message.setReplyTo(new InternetAddress[] {new InternetAddress(replayToMail, replyToName)});
     } else {
       message.setReplyTo(new InternetAddress[] {new InternetAddress(replayToMail)});
+    }
+  }
+
+  private void throwIfNewRegistration(Vo vo, Group group, String message) throws NewRegistrarUsedException {
+    // check whether Vo/Group uses new registrar
+    Attribute useNewAttr;
+    try {
+      if (group != null) {
+        useNewAttr = attrManager.getAttribute(registrarSession, group,
+            AttributesManager.NS_GROUP_ATTR_DEF + ":useNewRegistration");
+      } else {
+        useNewAttr = attrManager.getAttribute(registrarSession, vo,
+            AttributesManager.NS_VO_ATTR_DEF + ":useNewRegistration");
+      }
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+      return;
+    }
+
+    if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+      throw new NewRegistrarUsedException(message);
     }
   }
 

@@ -50,6 +50,7 @@ import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.OwnersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
+import cz.metacentrum.perun.core.bl.RegistrarAdapter;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
@@ -123,6 +124,7 @@ public class PerunBlImpl implements PerunBl {
   private Auditer auditer = null;
   private AttributesManagerImplApi attributesManagerImpl = null;
   private ResourceAssignmentActivatorApi resourceAssignmentActivator = null;
+  private RegistrarAdapter registrarAdapter = null;
 
   public PerunBlImpl() {
 
@@ -336,6 +338,11 @@ public class PerunBlImpl implements PerunBl {
   }
 
   @Override
+  public RegistrarAdapter getRegistrarAdapter() {
+    return registrarAdapter;
+  }
+
+  @Override
   public RTMessagesManager getRTMessagesManager() {
     return rtMessagesManager;
   }
@@ -523,6 +530,10 @@ public class PerunBlImpl implements PerunBl {
 
   public void setOwnersManagerBl(OwnersManagerBl ownersManagerBl) {
     this.ownersManagerBl = ownersManagerBl;
+  }
+
+  public void setRegistrarAdapter(RegistrarAdapter registrarAdapter) {
+    this.registrarAdapter = registrarAdapter;
   }
 
   public void setRTMessagesManager(RTMessagesManager rtMessagesManager) {

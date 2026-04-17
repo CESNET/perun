@@ -1984,27 +1984,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
               relatedServices.stream().map(service -> service.getName() + " (id: " + service.getId() + ")").toList());
     }
 
-    //Check relation to any application form as a source or destination attribute
-    List<ApplicationForm> applicationForms = getAppFormsWhereAttributeRelated(sess, attribute);
-    if (!applicationForms.isEmpty()) {
-      throw new RelationExistsException("Attribute definition with id: " + attribute.getId() +
-                                            " has a relation (as a source or destination attribute)" +
-                                            " to these application form items: " +
-                                            applicationForms.stream().map(appForm -> {
-                                              String message =
-                                                  "Application form items: " +
-                                                      getAppFormItemsForAppFormAndAttribute(sess, appForm.getId(),
-                                                          attribute);
-                                              message += appForm.getGroup() == null ?
-                                                             " in the application form in VO with id: " +
-                                                                 appForm.getVo().getId() :
-                                                             " in the application form in Group with id: " +
-                                                                 appForm.getGroup().getId() +
-                                                                 " (under Vo with id: " + appForm.getVo().getId() + ")";
-                                              return message;
-                                            })
-                                                .toList());
-    }
+    getPerunBl().getRegistrarAdapter().onDeleteAttributeDefinition(sess, attribute);
     // Free logins for login-namespace attribute
     if (attribute.getNamespace().equalsIgnoreCase(AttributesManager.NS_USER_ATTR_DEF) &&
             attribute.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
@@ -9534,6 +9514,36 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:useNewRegistration
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+    attr.setType(Boolean.class.getName());
+    attr.setFriendlyName("useNewRegistration");
+    attr.setDisplayName("Use new registration");
+    attr.setDescription(
+        "A flag determining whether the new Registrar component is used to submit and manage application and forms.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:vo:attribute-def:def:useNewRegistration
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    attr.setType(Boolean.class.getName());
+    attr.setFriendlyName("useNewRegistration");
+    attr.setDisplayName("Use new registration");
+    attr.setDescription(
+        "A flag determining whether the new Registrar component is used to submit and manage application and forms.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
+    policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:group:attribute-def:def:authType

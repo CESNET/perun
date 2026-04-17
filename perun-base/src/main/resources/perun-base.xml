@@ -52,6 +52,8 @@
         <property name="accountActivationValidationWindow" value="${perun.accountActivation.validationWindow}"/>
         <property name="readOnlyPerun" value="${perun.readOnlyPerun}"/>
         <property name="recaptchaPrivateKey" value="${perun.recaptcha.privatekey}"/>
+        <property name="registrarApiUrl" value="${perun.registrar.apiUrl}"/>
+        <property name="registrarApiSecret" value="${perun.registrar.apiSecret}"/>
         <property name="registrarPrincipals" value="#{'${perun.registrar.principals}'.split('\s*,\s*')}"/>
         <property name="rpcPowerusers" value="#{'${perun.rpc.powerusers}'.split('\s*,\s*')}"/>
         <property name="rpcPrincipal" value="${perun.rpc.principal}"/>
@@ -123,6 +125,8 @@
                 </prop>
                 <prop key="perun.engine.principals">perunEngine</prop>
                 <prop key="perun.registrar.principals"/>
+                <prop key="perun.registrar.apiUrl"/>
+                <prop key="perun.registrar.apiSecret"/>
                 <prop key="perun.notification.principals">perunNotifications</prop>
                 <prop key="perun.rpc.principal">perunRpc</prop>
                 <prop key="perun.dont.lookup.users">perunTests, perunEngine, perunDispatcher,

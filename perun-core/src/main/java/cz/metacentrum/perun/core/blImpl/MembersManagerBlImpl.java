@@ -1693,7 +1693,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     //Remove possible links to member's sponsors
     membersManagerImpl.deleteSponsorLinks(sess, member);
 
-    membersManagerImpl.rejectAllMemberOpenApplications(sess, member);
+    perunBl.getRegistrarAdapter().onDeleteMember(sess, member);
 
     // Remove member from the DB
     removeMemberFromParentVos(sess, member);
@@ -3575,6 +3575,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       //Should not happen
       throw new InternalErrorException(e);
     }
+  }
+
+  @Override
+  public void rejectAllMemberOpenApplications(PerunSession sess, Member member) {
+    getMembersManagerImpl().rejectAllMemberOpenApplications(sess, member);
   }
 
   /**

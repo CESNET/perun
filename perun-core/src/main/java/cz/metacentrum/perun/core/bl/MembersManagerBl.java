@@ -1766,6 +1766,15 @@ public interface MembersManagerBl {
       throws MemberNotExistsException, AlreadyMemberException, ExtendMembershipException;
 
   /**
+   * Reject all member applications which are not Approved or already rejected Reserved login/passwords are also
+   * deleted. User is not notified about the rejection.
+   *
+   * @param sess   perunSession
+   * @param member which applications will be removed
+   */
+  void rejectAllMemberOpenApplications(PerunSession sess, Member member);
+
+  /**
    * Removes a sponsor.
    *
    * @param sess            perun session

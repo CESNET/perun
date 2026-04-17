@@ -256,6 +256,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);
     getPerunBl().getAuditer().log(sess, new UserExtSourceAddedToUser(userExtSource, user));
+    getPerunBl().getRegistrarAdapter().onUserIdentityJoined(sess, userExtSource);
     return userExtSource;
   }
 
@@ -1244,9 +1245,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       getUsersManagerImpl().anonymizeUser(sess, user);
       getPerunBl().getAuditer().log(sess, new UserUpdated(user));
 
-      // delete all users applications and submitted data, this is needed only when 'anonymizeInstead'
-      // because applications are deleted on cascade when user's row is deleted in DB
-      getUsersManagerImpl().deleteUsersApplications(user);
+      perunBl.getRegistrarAdapter().onDeleteUser(sess, user);
     } else {
       // Finally delete the user
       getUsersManagerImpl().deleteUser(sess, user);
@@ -1256,6 +1255,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     for (User specificUser : specificUsers) {
       logLastSpecificUserOwner(sess, specificUser);
     }
+  }
+
+  @Override
+  public void deleteUsersApplications(PerunSession perunSession, User user) {
+    getUsersManagerImpl().deleteUsersApplications(user);
   }
 
   @Override

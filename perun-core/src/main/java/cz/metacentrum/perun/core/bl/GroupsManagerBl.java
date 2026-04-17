@@ -1030,6 +1030,16 @@ public interface GroupsManagerBl {
   List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession perunSession, Group group);
 
   /**
+   * Return list of IDs of all applications, which belongs to Group.
+   *
+   * @param sess
+   * @param group
+   * @return list of all group applications ids
+   * @throws InternalErrorException
+   */
+  List<Integer> getGroupApplicationIds(PerunSession sess, Group group);
+
+  /**
    * Search for the group with specified id in all VOs.
    *
    * @param id
