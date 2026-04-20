@@ -1617,6 +1617,16 @@ http://www.springframework.org/schema/data/repository classpath:schema/spring-re
 						</bean>
 					</property>
 				</bean>
+                <bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+                    <property name="name" value="rpStage"/>
+                    <property name="required" value="false"/>
+                    <property name="singleValueExtractor">
+                        <bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+                            <property name="name" value="rpStage"/>
+                            <property name="namespace" value="urn:perun:facility:attribute-def:def"/>
+                        </bean>
+                    </property>
+                </bean>
 			</list>
 		</property>
 		<property name="attributeDescriptionsExt" ref="perunFacilityAttributesExt"/>
