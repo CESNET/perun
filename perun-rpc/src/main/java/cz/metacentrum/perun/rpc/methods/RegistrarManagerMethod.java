@@ -849,6 +849,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Gets open applications for the current user in given VO
+   * based on authz and internal user ID.
+   *
+   * @param vo int VO <code>id</code>
+   * @return List<Application> Found open applications
+   */
+  getOpenApplicationsForUserInVo {
+    @Override
+    public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+      return ac.getRegistrarManager().getOpenApplicationsForUserInVo(ac.getSession(),
+          ac.getVoById(parms.readInt("vo")));
+    }
+
+  },
+
+  /*#
    * Gets all applications for member
    *
    * @param member int <code>id</code> of member to get applications for

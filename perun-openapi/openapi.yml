@@ -17145,6 +17145,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/getOpenApplicationsForUserInVo:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getOpenApplicationsForUserInVo
+      summary: Gets all open applications of the caller in the given VO
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/getApplicationById:
     get:
       tags:
