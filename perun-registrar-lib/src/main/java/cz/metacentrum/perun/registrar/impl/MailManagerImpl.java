@@ -349,11 +349,12 @@ public class MailManagerImpl implements MailManager {
   }
 
   private void appCreatedVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data,
-                                 String reason, List<Exception> exceptions) throws MessagingException {
-    MimeMessage message = getAdminMessage(app, mail, data, reason, exceptions);
+                                 String reason, List<Exception> exceptions,
+                                 boolean newReg, UUID newRegAppId) throws MessagingException {
+    MimeMessage message = getAdminMessage(app, mail, data, reason, exceptions, newReg, newRegAppId);
 
     // send a message to all VO or Group admins
-    Set<String> toEmail = getToMailAddresses(app);
+    Set<String> toEmail = getToMailAddresses(app.getVo(), app.getGroup());
     for (String email : toEmail) {
       setRecipient(message, email);
       try {
@@ -368,10 +369,10 @@ public class MailManagerImpl implements MailManager {
 
   private void appErrorVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason,
                                List<Exception> exceptions) throws MessagingException {
-    MimeMessage message = getAdminMessage(app, mail, data, reason, exceptions);
+    MimeMessage message = getAdminMessage(app, mail, data, reason, exceptions, false, null);
 
     // send a message to all VO or Group admins
-    Set<String> toEmail = getToMailAddresses(app);
+    Set<String> toEmail = getToMailAddresses(app.getVo(), app.getGroup());
 
     for (String email : toEmail) {
       setRecipient(message, email);
@@ -574,11 +575,12 @@ public class MailManagerImpl implements MailManager {
    * TEXT, set SUBJECT
    */
   private MimeMessage getAdminMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data,
-                                      String reason, List<Exception> exceptions) throws MessagingException {
+                                      String reason, List<Exception> exceptions,
+                                      boolean newReg, UUID newRegAppId) throws MessagingException {
     MimeMessage message = mailSender.createMimeMessage();
 
     // set FROM
-    setFromMailAddress(message, app);
+    setFromMailAddress(message, app.getVo(), app.getGroup());
 
     // set language independent on user's preferred language.
     String language = LANG_EN;
@@ -588,14 +590,17 @@ public class MailManagerImpl implements MailManager {
     lang = checkLocaleAndFallback(mail, lang);
 
     // get localized subject and text
-    String mailText = getMailText(mail, lang, app, data, reason, exceptions);
+    String mailText = getMailText(mail, lang, app, data, reason, exceptions, newReg, newRegAppId);
+    LOG.debug("Resolved mail text {} for application {}", mailText, app);
     if (containsHtmlMessage(mail, lang)) {
-      String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions);
+      String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, newReg,
+          newRegAppId);
       setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
     } else {
       message.setText(mailText);
     }
-    String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
+    String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions, newReg, newRegAppId);
+    LOG.debug("Resolved mail subject {} for application {}", mailSubject, app);
     message.setSubject(mailSubject);
 
     return message;
@@ -714,10 +719,6 @@ public class MailManagerImpl implements MailManager {
     return app;
   }
 
-  private ApplicationForm getForm(Application app) throws FormNotExistsException {
-    return getForm(app.getVo(), app.getGroup());
-  }
-
   private ApplicationForm getForm(Vo vo, Group group) throws FormNotExistsException {
     if (group != null) {
       return registrarManager.getFormForGroup(group);
@@ -730,8 +731,8 @@ public class MailManagerImpl implements MailManager {
    * Initialize MimeMessage for invitation, that will be sent to user. Initialization takes care of following: - set
    * FROM, set TO, set TEXT, set SUBJECT
    */
-  private MimeMessage getInvitationMessage(Vo vo, Group group, String language, String to, Application app, String name,
-                                           User user)
+  private MimeMessage getInvitationMessage(Vo vo, Group group, String language, String to, Vo fromVo,
+                                           Group fromGroup, String name, User user)
       throws FormNotExistsException, RegistrarException, MessagingException {
     if (language == null) {
       language = LANG_EN;
@@ -742,7 +743,7 @@ public class MailManagerImpl implements MailManager {
     ApplicationMail mail = getMail(form, AppType.INITIAL, MailType.USER_INVITE);
     MimeMessage message = mailSender.createMimeMessage();
 
-    setFromMailAddress(message, app);
+    setFromMailAddress(message, fromVo, fromGroup);
     setRecipient(message, to);
     // get language
     Locale lang = new Locale(language);
@@ -764,10 +765,9 @@ public class MailManagerImpl implements MailManager {
 
   private MimeMessage getInvitationMessagePreApproved(Vo vo, Group group, Invitation invitation, String url)
       throws MessagingException, FormNotExistsException, RegistrarException {
-    Application fakeApp = getFakeApplication(vo, group);
     MimeMessage message = mailSender.createMimeMessage();
 
-    setFromMailAddress(message, fakeApp);
+    setFromMailAddress(message, vo, group);
     setRecipient(message, invitation.getReceiverEmail());
 
     ApplicationForm form = getForm(vo, group);
@@ -829,35 +829,39 @@ public class MailManagerImpl implements MailManager {
   }
 
   /**
-   * Return preferred Locale from application (return EN if not found)
+   * Return preferred Locale from user or application data (return EN if not found)
    *
+   * @param user user
    * @param data application data
    * @return Preferred locale resolved from application data
    */
-  private String getLanguageFromAppData(Application app, List<ApplicationFormItemData> data) {
+  private String getLanguageFromAppData(User user, List<ApplicationFormItemData> data,
+                                        boolean newReg) {
     String language = LANG_EN;
 
     // if user present - get preferred language
-    if (app.getUser() != null) {
+    if (user != null) {
       try {
-        User u = usersManager.getUserById(registrarSession, app.getUser().getId());
+        User u = usersManager.getUserById(registrarSession, user.getId());
         Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PREFERRED_LANGUAGE);
         if (a != null && a.getValue() != null) {
           language = BeansUtils.attributeValueToString(a);
         }
       } catch (Exception ex) {
-        LOG.error("[MAIL MANAGER] Exception thrown when getting preferred language for {}: {}", app.getUser(), ex);
+        LOG.error("[MAIL MANAGER] Exception thrown when getting preferred language for {}: {}", user, ex);
       }
     }
 
     // if preferred language specified on application - rewrite
-    for (ApplicationFormItemData item : data) {
-      if (item.getFormItem() != null) {
-        if (URN_USER_PREFERRED_LANGUAGE.equalsIgnoreCase(item.getFormItem().getPerunDestinationAttribute())) {
-          if (item.getValue() == null || item.getValue().isEmpty()) {
-            return language; // return default
-          } else {
-            return item.getValue(); // or return value
+    if (!newReg) {
+      for (ApplicationFormItemData item : data) {
+        if (item.getFormItem() != null) {
+          if (URN_USER_PREFERRED_LANGUAGE.equalsIgnoreCase(item.getFormItem().getPerunDestinationAttribute())) {
+            if (item.getValue() == null || item.getValue().isEmpty()) {
+              return language; // return default
+            } else {
+              return item.getValue(); // or return value
+            }
           }
         }
       }
@@ -922,12 +926,12 @@ public class MailManagerImpl implements MailManager {
     return null;
   }
 
-  private String getLoginFromUser(Application app, String namespace) {
+  private String getLoginFromUser(User user, String namespace) {
     // if user exists, try to get login from attribute instead of application
     // since we do not allow to overwrite login by application
     try {
-      if (app.getUser() != null) {
-        List<Attribute> logins = attrManager.getLogins(registrarSession, app.getUser());
+      if (user != null) {
+        List<Attribute> logins = attrManager.getLogins(registrarSession, user);
         Attribute a = logins.stream()
             .filter(attr -> namespace.equalsIgnoreCase(attr.getFriendlyNameParameter()) && attr.getValue() != null)
             .findFirst().orElse(null);
@@ -954,13 +958,14 @@ public class MailManagerImpl implements MailManager {
 
   private String getMailAlternativePlainText(ApplicationMail mail, Locale lang, Application app,
                                              List<ApplicationFormItemData> data, String reason,
-                                             List<Exception> exceptions) {
+                                             List<Exception> exceptions, boolean newReg, UUID newRegAppId) {
     String mailText = EMPTY_STRING;
     MailText mt = mail.getMessage(lang);
 
     if (mt.getText() != null && !mt.getText().isEmpty()) {
       mailText = mt.getText();
-      mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, true);
+      mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, true, newReg,
+          newRegAppId);
     }
 
     return mailText;
@@ -1101,17 +1106,17 @@ public class MailManagerImpl implements MailManager {
    * Get FROM field as email attribute from VO and GROUP. If group is NULL or doesn't have the attribute, VO is used as
    * fallback.
    */
-  private Attribute getMailFromVoAndGroupAttrs(Application app, String voEmailAttr, String groupEmailAttr)
+  private Attribute getMailFromVoAndGroupAttrs(Vo vo, Group group, String voEmailAttr, String groupEmailAttr)
       throws AttributeNotExistsException, WrongAttributeAssignmentException {
     Attribute attrSenderEmail;
 
-    if (app.getGroup() == null) {
-      attrSenderEmail = attrManager.getAttribute(registrarSession, app.getVo(), voEmailAttr);
+    if (group == null) {
+      attrSenderEmail = attrManager.getAttribute(registrarSession, vo, voEmailAttr);
     } else {
-      attrSenderEmail = attrManager.getAttribute(registrarSession, app.getGroup(), groupEmailAttr);
+      attrSenderEmail = attrManager.getAttribute(registrarSession, group, groupEmailAttr);
       // use VO as backup
       if (attrSenderEmail == null || attrSenderEmail.getValue() == null) {
-        attrSenderEmail = attrManager.getAttribute(registrarSession, app.getVo(), voEmailAttr);
+        attrSenderEmail = attrManager.getAttribute(registrarSession, vo, voEmailAttr);
       }
     }
 
@@ -1119,7 +1124,7 @@ public class MailManagerImpl implements MailManager {
   }
 
   private String getMailSubject(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
-                                String reason, List<Exception> exceptions) {
+                                String reason, List<Exception> exceptions, boolean newReg, UUID newRegAppId) {
     String mailSubject = EMPTY_STRING;
 
     MailText htmlMt = mail.getHtmlMessage(lang);
@@ -1127,10 +1132,12 @@ public class MailManagerImpl implements MailManager {
 
     if (htmlMt.getSubject() != null && !htmlMt.getSubject().isBlank()) {
       mailSubject = htmlMt.getSubject();
-      mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions, false);
+      mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions, false, newReg,
+          newRegAppId);
     } else if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
       mailSubject = mt.getSubject();
-      mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions, false);
+      mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions, false, newReg,
+          newRegAppId);
     }
 
     // substitute common strings
@@ -1176,7 +1183,7 @@ public class MailManagerImpl implements MailManager {
   }
 
   private String getMailText(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
-                             String reason, List<Exception> exceptions) {
+                             String reason, List<Exception> exceptions, boolean newReg, UUID newRegAppId) {
     String mailText = EMPTY_STRING;
 
     MailText htmlMt = mail.getHtmlMessage(lang);
@@ -1184,10 +1191,12 @@ public class MailManagerImpl implements MailManager {
 
     if (htmlMt.getText() != null && !htmlMt.getText().isBlank()) {
       mailText = htmlMt.getText();
-      mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, false);
+      mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, false, newReg,
+          newRegAppId);
     } else if (mt.getText() != null && !mt.getText().isEmpty()) {
       mailText = mt.getText();
-      mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, false);
+      mailText = substituteCommonStrings(app, data, mailText, reason, exceptions, false, newReg,
+          newRegAppId);
     }
 
     return mailText;
@@ -1427,14 +1436,15 @@ public class MailManagerImpl implements MailManager {
    * procedure on VO level (without cascading). When no recipient is identified on the VO level or some error happens,
    * BACKUP_TO address will be used.
    *
-   * @param app application to decide if it's VO or Group application
+   * @param vo    VO
+   * @param group Group
    * @return Set of mail addresses to send mail to
    */
-  private Set<String> getToMailAddresses(Application app) {
+  private Set<String> getToMailAddresses(Vo vo, Group group) {
     Set<String> result = new HashSet<>();
     try {
       // Check group and its parent group hierarchy first
-      Group currentGroup = app.getGroup();
+      Group currentGroup = group;
       while (currentGroup != null) {
         result = getToEmailsGroupLevel(currentGroup);
         if (!result.isEmpty()) {
@@ -1443,13 +1453,13 @@ public class MailManagerImpl implements MailManager {
         currentGroup = getParentGroupForMailAddresses(currentGroup);
       }
       // VO application or fallback to VO level
-      if (app.getGroup() == null || result.isEmpty()) {
-        result = getToEmailsVoLevel(app.getVo());
+      if (group == null || result.isEmpty()) {
+        result = getToEmailsVoLevel(vo);
       }
     } catch (Exception ex) {
       // we don't care about exceptions here - we have backup TO/FROM address
       LOG.error("[MAIL MANAGER] Exception thrown when getting TO email from an attribute {}. Ex: {}",
-          app.getGroup() == null ? URN_VO_TO_EMAIL : URN_GROUP_TO_EMAIL, ex);
+          group == null ? URN_VO_TO_EMAIL : URN_GROUP_TO_EMAIL, ex);
       // set backup
       result = new HashSet<>();
       result.add(getPropertyFromConfiguration("backupTo"));
@@ -1474,27 +1484,29 @@ public class MailManagerImpl implements MailManager {
    * TEXT, set SUBJECT
    */
   private MimeMessage getUserMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data,
-                                     String reason, List<Exception> exceptions) throws MessagingException {
+                                     String reason, List<Exception> exceptions,
+                                     boolean newReg, UUID newRegAppId) throws MessagingException {
     MimeMessage message = mailSender.createMimeMessage();
     // set FROM
-    setFromMailAddress(message, app);
+    setFromMailAddress(message, app.getVo(), app.getGroup());
 
     // set TO
-    setUsersMailAsTo(message, app, data);
+    setUsersMailAsTo(message, app.getUser(), data, newReg);
 
     // get language
-    Locale lang = new Locale(getLanguageFromAppData(app, data));
+    Locale lang = new Locale(getLanguageFromAppData(app.getUser(), data, newReg));
 
     lang = checkLocaleAndFallback(mail, lang);
     // get localized subject and text
-    String mailText = getMailText(mail, lang, app, data, reason, exceptions);
+    String mailText = getMailText(mail, lang, app, data, reason, exceptions, newReg, newRegAppId);
     if (containsHtmlMessage(mail, lang)) {
-      String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions);
+      String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, newReg,
+          newRegAppId);
       setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
     } else {
       message.setText(mailText);
     }
-    String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
+    String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions, newReg, newRegAppId);
     message.setSubject(mailSubject);
 
     return message;
@@ -1662,24 +1674,25 @@ public class MailManagerImpl implements MailManager {
                               List<Exception> exceptions) throws MessagingException {
     MimeMessage message = mailSender.createMimeMessage();
     // set FROM
-    setFromMailAddress(message, app);
+    setFromMailAddress(message, app.getVo(), app.getGroup());
 
     // set TO
     message.setRecipient(Message.RecipientType.TO, null); // empty = not sent
 
     // get language
-    Locale lang = new Locale(getLanguageFromAppData(app, data));
+    Locale lang = new Locale(getLanguageFromAppData(app.getUser(), data, false));
 
     lang = checkLocaleAndFallback(mail, lang);
     // get localized subject and text
-    String mailText = getMailText(mail, lang, app, data, reason, exceptions);
+    String mailText = getMailText(mail, lang, app, data, reason, exceptions, false, null);
     if (containsHtmlMessage(mail, lang)) {
-      String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions);
+      String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, false,
+          null);
       setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
     } else {
       message.setText(mailText);
     }
-    String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
+    String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions, false, null);
     message.setSubject(mailSubject);
 
     // send to all emails, which needs to be validated
@@ -1702,7 +1715,8 @@ public class MailManagerImpl implements MailManager {
 
           // set replaced text
           if (containsHtmlMessage(mail, lang)) {
-            String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions);
+            String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, false,
+                null);
             alternativePlainText = replaceValidationLinkAndRedirectUrl(app, d, alternativePlainText);
             setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
           } else {
@@ -1740,14 +1754,14 @@ public class MailManagerImpl implements MailManager {
     return rows.readAll();
   }
 
-  private String replaceActor(String mailText, Application app) {
+  private String replaceActor(String mailText, String actor) {
     if (!mailText.contains(FIELD_ACTOR)) {
       return mailText;
     }
-    return replaceNullSafe(mailText, FIELD_ACTOR, app.getCreatedBy());
+    return replaceNullSafe(mailText, FIELD_ACTOR, actor);
   }
 
-  private String replaceAppDetailUrl(String mailText, int appId, Vo vo, Group group) {
+  private String replaceAppDetailUrl(String mailText, String appId, Vo vo, Group group) {
     // replace appDetail for VO admins
     if (mailText.contains(FIELD_APP_DETAIL_URL)) {
       String text = getPerunRegistrarUrl(vo, group);
@@ -1794,7 +1808,7 @@ public class MailManagerImpl implements MailManager {
                 pathComponents.add(String.valueOf(group.getId()));
               }
               pathComponents.add("applications");
-              pathComponents.add(String.valueOf(appId));
+              pathComponents.add(appId);
               newValue = buildUrl(newValue, Map.of(), pathComponents);
             }
           } else {
@@ -1873,11 +1887,11 @@ public class MailManagerImpl implements MailManager {
     return mailText;
   }
 
-  private String replaceAppId(String mailText, Application app) {
+  private String replaceAppId(String mailText, String appId) {
     if (!mailText.contains(FIELD_APP_ID)) {
       return mailText;
     }
-    return replaceInt(mailText, FIELD_APP_ID, app.getId());
+    return replaceNullSafe(mailText, FIELD_APP_ID, appId);
   }
 
   private String replaceAutoApproveErrors(String mailText, List<Exception> exceptions) {
@@ -1898,21 +1912,23 @@ public class MailManagerImpl implements MailManager {
     return replaceNullSafe(mailText, FIELD_CUSTOM_MESSAGE, reason);
   }
 
-  private String replaceDisplayName(String mailText, Application app, List<ApplicationFormItemData> data,
-                                    PerunPrincipal applicationPrincipal) {
+  private String replaceDisplayName(String mailText, User user, List<ApplicationFormItemData> data,
+                                    boolean newReg) {
     if (!mailText.contains(FIELD_DISPLAY_NAME)) {
       return mailText;
     }
     String nameText = EMPTY_STRING; // backup
-    ApplicationFormItemData replacementItem =
-        data.stream().filter(d -> hasValueAndReplacement(d, List.of(URN_USER_DISPLAY_NAME), List.of(CN, DISPLAY_NAME)))
-            .findFirst().orElse(null);
-    if (replacementItem != null) {
-      nameText = replacementItem.getValue();
+    if (!newReg) {
+      ApplicationFormItemData replacementItem =
+          data.stream().filter(d -> hasValueAndReplacement(d, List.of(URN_USER_DISPLAY_NAME),
+                  List.of(CN, DISPLAY_NAME)))
+              .findFirst().orElse(null);
+      if (replacementItem != null) {
+        nameText = replacementItem.getValue();
+      }
     }
 
     if (!StringUtils.hasText(nameText)) {
-      User user = getUserFromAppOrByExtSource(app, applicationPrincipal);
       if (user != null) {
         nameText = user.getDisplayName();
       }
@@ -1932,15 +1948,15 @@ public class MailManagerImpl implements MailManager {
     return replaceNullSafe(mailText, FIELD_ERRORS, errorText);
   }
 
-  private String replaceExpiration(String mailText, Application app) {
+  private String replaceExpiration(String mailText, User user, Vo vo) {
     if (!mailText.contains(FIELD_MEMBERSHIP_EXPIRATION)) {
       return mailText;
     }
     String expiration = EMPTY_STRING;
-    if (app.getUser() != null) {
+    if (user != null) {
       try {
-        User u = usersManager.getUserById(registrarSession, app.getUser().getId());
-        Member m = membersManager.getMemberByUser(registrarSession, app.getVo(), u);
+        User u = usersManager.getUserById(registrarSession, user.getId());
+        Member m = membersManager.getMemberByUser(registrarSession, vo, u);
         Attribute a = attrManager.getAttribute(registrarSession, m, URN_MEMBER_EXPIRATION);
         if (a != null && a.getValue() != null) {
           expiration = a.valueAsString();
@@ -1953,29 +1969,30 @@ public class MailManagerImpl implements MailManager {
     return replaceNullSafe(mailText, FIELD_MEMBERSHIP_EXPIRATION, expiration);
   }
 
-  private String replaceExtSource(String mailText, Application app) {
+  private String replaceExtSource(String mailText, String extSource) {
     if (!mailText.contains(FIELD_EXT_SOURCE)) {
       return mailText;
     }
-    return replaceNullSafe(mailText, FIELD_EXT_SOURCE, app.getExtSourceName());
+    return replaceNullSafe(mailText, FIELD_EXT_SOURCE, extSource);
   }
 
-  private String replaceFirstName(String mailText, Application app, List<ApplicationFormItemData> data,
-                                  PerunPrincipal applicationPrincipal) {
+  private String replaceFirstName(String mailText, User user, List<ApplicationFormItemData> data,
+                                  boolean newReg) {
     if (!mailText.contains(FIELD_FIRST_NAME)) {
       return mailText;
     }
 
     String nameText = EMPTY_STRING; // backup
-    ApplicationFormItemData replacementItem =
-        data.stream().filter(d -> hasValueAndReplacement(d, List.of(URN_USER_FIRST_NAME), Collections.emptyList()))
-            .findFirst().orElse(null);
-    if (replacementItem != null) {
-      nameText = replacementItem.getValue();
+    if (!newReg) {
+      ApplicationFormItemData replacementItem =
+          data.stream().filter(d -> hasValueAndReplacement(d, List.of(URN_USER_FIRST_NAME), Collections.emptyList()))
+              .findFirst().orElse(null);
+      if (replacementItem != null) {
+        nameText = replacementItem.getValue();
+      }
     }
 
     if (!StringUtils.hasText(nameText)) {
-      User user = getUserFromAppOrByExtSource(app, applicationPrincipal);
       if (user != null) {
         nameText = user.getFirstName();
       }
@@ -2051,13 +2068,13 @@ public class MailManagerImpl implements MailManager {
     return mailText;
   }
 
-  private String replaceGroupName(String mailText, Application app) {
+  private String replaceGroupName(String mailText, Group group) {
     if (!mailText.contains(FIELD_GROUP_NAME)) {
       return mailText;
     }
     String groupName = EMPTY_STRING;
-    if (app.getGroup() != null) {
-      groupName = app.getGroup().getShortName();
+    if (group != null) {
+      groupName = group.getShortName();
     }
     return replaceNullSafe(mailText, FIELD_GROUP_NAME, groupName);
   }
@@ -2066,21 +2083,22 @@ public class MailManagerImpl implements MailManager {
     return replaceNullSafe(message, key, replacement + EMPTY_STRING);
   }
 
-  private String replaceLastName(String mailText, Application app, List<ApplicationFormItemData> data,
-                                 PerunPrincipal applicationPrincipal) {
+  private String replaceLastName(String mailText, User user, List<ApplicationFormItemData> data,
+                                 boolean newReg) {
     if (!mailText.contains(FIELD_LAST_NAME)) {
       return mailText;
     }
     String nameText = EMPTY_STRING; // backup
-    ApplicationFormItemData replacementItem =
-        data.stream().filter(d -> hasValueAndReplacement(d, List.of(URN_USER_LAST_NAME), Collections.emptyList()))
+    if (!newReg) {
+      ApplicationFormItemData replacementItem =
+          data.stream().filter(d -> hasValueAndReplacement(d, List.of(URN_USER_LAST_NAME), Collections.emptyList()))
             .findFirst().orElse(null);
-    if (replacementItem != null) {
-      nameText = replacementItem.getValue();
+      if (replacementItem != null) {
+        nameText = replacementItem.getValue();
+      }
     }
 
     if (!StringUtils.hasText(nameText)) {
-      User user = getUserFromAppOrByExtSource(app, applicationPrincipal);
       if (user != null) {
         nameText = user.getLastName();
       }
@@ -2088,7 +2106,8 @@ public class MailManagerImpl implements MailManager {
     return replaceNullSafe(mailText, FIELD_LAST_NAME, nameText);
   }
 
-  private String replaceLogins(String mailText, Application app, List<ApplicationFormItemData> data) {
+  private String replaceLogins(String mailText, User user, List<ApplicationFormItemData> data,
+                               boolean newReg) {
     if (!mailText.contains("{login-")) {
       return mailText;
     }
@@ -2107,8 +2126,8 @@ public class MailManagerImpl implements MailManager {
         String namespace = m2.group(1);
         // if user exists, try to get login from attribute instead of application
         // since we do not allow to overwrite login by application
-        String userLogin = getLoginFromUser(app, namespace);
-        if (!StringUtils.hasText(userLogin)) {
+        String userLogin = getLoginFromUser(user, namespace);
+        if (!StringUtils.hasText(userLogin) && !newReg) {
           userLogin = getLoginFromApplication(data, namespace);
         }
         mailText = replaceNullSafe(mailText, toSubstitute, userLogin);
@@ -2117,18 +2136,19 @@ public class MailManagerImpl implements MailManager {
     return mailText;
   }
 
-  private String replaceMail(String mailText, Application app, List<ApplicationFormItemData> data) {
+  private String replaceMail(String mailText, User user, List<ApplicationFormItemData> data,
+                             boolean newReg) {
     if (!mailText.contains(FIELD_MAIL)) {
       return mailText;
     }
     String mail = EMPTY_STRING;
-    if (app.getUser() != null) {
+    if (user != null) {
       try {
-        mail = getValueFromStringUserAttribute(app.getUser().getId(), URN_USER_PREFERRED_MAIL);
+        mail = getValueFromStringUserAttribute(user.getId(), URN_USER_PREFERRED_MAIL);
       } catch (Exception ex) {
         LOG.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail.", ex);
       }
-    } else {
+    } else if (!newReg) {
       mail = getValueFromAppData(data, List.of(URN_MEMBER_MAIL), Collections.emptyList());
       if (!StringUtils.hasText(mail)) {
         mail = getValueFromAppData(data, List.of(URN_USER_PREFERRED_MAIL), Collections.emptyList());
@@ -2192,18 +2212,19 @@ public class MailManagerImpl implements MailManager {
     return mailText;
   }
 
-  private String replacePhone(String mailText, Application app, List<ApplicationFormItemData> data) {
+  private String replacePhone(String mailText, User user, List<ApplicationFormItemData> data,
+                              boolean newReg) {
     if (!mailText.contains(FIELD_PHONE)) {
       return mailText;
     }
     String phone = EMPTY_STRING;
-    if (app.getUser() != null) {
+    if (user != null) {
       try {
-        phone = getValueFromStringUserAttribute(app.getUser().getId(), URN_USER_PHONE);
+        phone = getValueFromStringUserAttribute(user.getId(), URN_USER_PHONE);
       } catch (Exception ex) {
         LOG.error("[MAIL MANAGER] Error thrown when getting phone param for mail.", ex);
       }
-    } else {
+    } else if (!newReg) {
       phone = getValueFromAppData(data, List.of(URN_MEMBER_PHONE), Collections.emptyList());
       if (!StringUtils.hasText(phone)) {
         phone = getValueFromAppData(data, List.of(URN_USER_PHONE), Collections.emptyList());
@@ -2283,11 +2304,11 @@ public class MailManagerImpl implements MailManager {
     return mailText;
   }
 
-  private String replaceVoName(String mailText, Application app) {
+  private String replaceVoName(String mailText, Vo vo) {
     if (!mailText.contains(FIELD_VO_NAME)) {
       return mailText;
     }
-    return replaceNullSafe(mailText, FIELD_VO_NAME, app.getVo().getName());
+    return replaceNullSafe(mailText, FIELD_VO_NAME, vo.getName());
   }
 
   @Override
@@ -2316,7 +2337,7 @@ public class MailManagerImpl implements MailManager {
     Application app = getFakeApplication(vo, group);
     MimeMessage message;
     try {
-      message = getInvitationMessage(vo, group, language, email, app, name, null);
+      message = getInvitationMessage(vo, group, language, email, vo, group, name, null);
     } catch (MessagingException e) {
       throw new RegistrarException("[MAIL MANAGER] Exception thrown when getting invitation message", e);
     }
@@ -2378,7 +2399,7 @@ public class MailManagerImpl implements MailManager {
 
     MimeMessage message = null;
     try {
-      message = getInvitationMessage(vo, group, language, email, app, null, user);
+      message = getInvitationMessage(vo, group, language, email, vo, group, null, user);
     } catch (MessagingException e) {
       throw new RegistrarException("[MAIL MANAGER] Exception thrown when getting invitation message", e);
     }
@@ -2490,7 +2511,7 @@ public class MailManagerImpl implements MailManager {
       Application app = getFakeApplication(vo, group);
       MimeMessage message;
       try {
-        message = getInvitationMessage(vo, group, language, email, app, name, null);
+        message = getInvitationMessage(vo, group, language, email, vo, group, name, null);
         sendInvitationMail(sess, vo, group, email, language, message, app);
         result.put(email, "OK");
       } catch (MessagingException | RegistrarException | FormNotExistsException e) {
@@ -2508,7 +2529,7 @@ public class MailManagerImpl implements MailManager {
                                                               " for this VO/Group as long " +
                                       "as it uses new registrar");
       // get form
-      ApplicationForm form = getForm(app);
+      ApplicationForm form = getForm(app.getVo(), app.getGroup());
 
       // get mail definition
       ApplicationMail mail = getMailByParams(form.getId(), app.getType(), mailType);
@@ -2530,13 +2551,13 @@ public class MailManagerImpl implements MailManager {
         case APPROVABLE_GROUP_APP_USER:
         case APP_APPROVED_USER:
         case APP_REJECTED_USER:
-          sendUserMessage(app, mail, data, reason, exceptions, mail.getMailType());
+          sendUserMessage(app, mail, data, reason, exceptions, mail.getMailType(), false, null);
           break;
         case MAIL_VALIDATION:
           mailValidation(app, mail, data, reason, exceptions);
           break;
         case APP_CREATED_VO_ADMIN:
-          appCreatedVoAdmin(app, mail, data, reason, exceptions);
+          appCreatedVoAdmin(app, mail, data, reason, exceptions, false, null);
           break;
         case APP_ERROR_VO_ADMIN:
           appErrorVoAdmin(app, mail, data, reason, exceptions);
@@ -2572,7 +2593,7 @@ public class MailManagerImpl implements MailManager {
       }
     }
 
-    ApplicationForm form = getForm(app);
+    ApplicationForm form = getForm(app.getVo(), app.getGroup());
 
     ApplicationMail mail = getMailByParams(form.getId(), app.getType(), mailType);
     if (mail == null) {
@@ -2646,6 +2667,65 @@ public class MailManagerImpl implements MailManager {
   }
 
   @Override
+  public void sendMessage(PerunSession sess, User user, Vo vo, Group group, AppType appType, MailType mailType,
+                          String reason, UUID appId)
+      throws PerunException {
+    if (MailType.USER_INVITE.equals(mailType)) {
+      throw new RegistrarException("USER_INVITE notification can't be sent this way. Use sendInvitation() instead.");
+    }
+
+    //Authorization
+    if (group != null) {
+      if (!AuthzResolver.authorizedInternal(sess, "group-sendMessage_Application_MailType_String_policy",
+              Arrays.asList(group, vo))) {
+        throw new PrivilegeException(sess, "sendMessage");
+      }
+    } else {
+      if (!AuthzResolver.authorizedInternal(sess, "vo-sendMessage_Application_MailType_String_policy",
+              Collections.singletonList(vo))) {
+        throw new PrivilegeException(sess, "sendMessage");
+      }
+    }
+
+    // get form
+    ApplicationForm form = getForm(vo, group);
+
+    // get mail definition
+    ApplicationMail mail = getMailByParams(form.getId(), appType, mailType);
+    if (mail == null) {
+      LOG.error("[MAIL MANAGER] Mail not sent. Definition (or mail text) for: {} do not exists for " +
+                "VO: {} and Group: {}", mailType.toString(), vo, group);
+      return; // mail not found
+    } else if (!mail.getSend()) {
+      LOG.info("[MAIL MANAGER] Mail not sent. Disabled by VO admin for: {} / {} / {}", mail.getMailType(),
+          vo, group);
+      return; // sending this mail has been disabled by VO admin
+    }
+    Application app = new Application();
+    app.setGroup(group);
+    app.setVo(vo);
+    app.setUser(user);
+
+    try {
+      switch (mailType) {
+        case APP_APPROVED_USER:
+        case APP_REJECTED_USER:
+          sendUserMessage(app, mail, new ArrayList<>(), reason, new ArrayList<>(), mailType, true, appId);
+          break;
+        case APP_CREATED_VO_ADMIN:
+          appCreatedVoAdmin(app, mail, new ArrayList<>(), reason, new ArrayList<>(), true, appId);
+          break;
+        default:
+          LOG.error("Trying to send unsupported mail type for new registrar");
+          return;
+      }
+    } catch (Exception e) {
+      LOG.error("[MAIL MANAGER] Mail not sent. Exception: {}", e);
+    }
+    LOG.debug("Sent mail {} for new Registrar application {}.", mailType, appId);
+  }
+
+  @Override
   public void sendMessages(PerunSession sess, List<Application> applications, MailType mailType, String reason)
       throws PerunException {
     for (Application application : applications) {
@@ -2654,8 +2734,9 @@ public class MailManagerImpl implements MailManager {
   }
 
   private void sendUserMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason,
-                               List<Exception> exceptions, MailType type) throws MessagingException {
-    MimeMessage message = getUserMessage(app, mail, data, reason, exceptions);
+                               List<Exception> exceptions, MailType type, boolean newReg,
+                               UUID newRegAppId) throws MessagingException {
+    MimeMessage message = getUserMessage(app, mail, data, reason, exceptions, newReg, newRegAppId);
 
     try {
       // send mail
@@ -2714,9 +2795,10 @@ public class MailManagerImpl implements MailManager {
    * BACKUP_FROM address is used.
    *
    * @param message message to set param FROM
-   * @param app     application to decide if it's VO or Group application
+   * @param vo      VO
+   * @param group   Group
    */
-  private void setFromMailAddress(MimeMessage message, Application app) {
+  private void setFromMailAddress(MimeMessage message, Vo vo, Group group) {
     String fromMail = getPropertyFromConfiguration("backupFrom");
     String fromName = getPropertyFromConfiguration("backupFromName");
     String replyToMail = fromMail;
@@ -2729,8 +2811,10 @@ public class MailManagerImpl implements MailManager {
 
     // get proper value from attribute
     try {
-      Attribute attrSenderName = getMailFromVoAndGroupAttrs(app, URN_VO_FROM_NAME_EMAIL, URN_GROUP_FROM_NAME_EMAIL);
-      Attribute attrSenderEmail = getMailFromVoAndGroupAttrs(app, URN_VO_FROM_EMAIL, URN_GROUP_FROM_EMAIL);
+      Attribute attrSenderName =
+          getMailFromVoAndGroupAttrs(vo, group, URN_VO_FROM_NAME_EMAIL, URN_GROUP_FROM_NAME_EMAIL);
+      Attribute attrSenderEmail =
+          getMailFromVoAndGroupAttrs(vo, group, URN_VO_FROM_EMAIL, URN_GROUP_FROM_EMAIL);
 
       if (attrSenderName != null && attrSenderName.getValue() != null) {
         String possibleReplyTo = BeansUtils.attributeValueToString(attrSenderName);
@@ -2759,7 +2843,7 @@ public class MailManagerImpl implements MailManager {
       setFromAndReplyTo(message, fromName, fromMail, replyToName, replyToMail);
     } catch (Exception ex) {
       // we don't care about exceptions here - we have backup TO/FROM address
-      if (app.getGroup() == null) {
+      if (group == null) {
         LOG.error("[MAIL MANAGER] Exception thrown when getting FROM email from an attribute {}. Ex: {}",
             URN_VO_FROM_EMAIL, ex);
       } else {
@@ -2846,50 +2930,53 @@ public class MailManagerImpl implements MailManager {
    * user's attribute: preferredMail
    *
    * @param message message to set TO param
-   * @param app     application
+   * @param user    user
    * @param data    application data
    */
-  private void setUsersMailAsTo(MimeMessage message, Application app, List<ApplicationFormItemData> data)
+  private void setUsersMailAsTo(MimeMessage message, User user, List<ApplicationFormItemData> data,
+                                boolean newReg)
       throws MessagingException {
     setRecipient(message, null);
 
     try {
       // get TO param from VALIDATED_EMAIL form items (it's best fit)
-      for (ApplicationFormItemData d : data) {
-        ApplicationFormItem item = d.getFormItem();
-        String value = d.getValue();
-        if (ApplicationFormItem.Type.VALIDATED_EMAIL.equals(item.getType())) {
-          if (value != null && !value.isEmpty()) {
-            setRecipient(message, value);
-            return; // use first mail address
+      if (!newReg) {
+        for (ApplicationFormItemData d : data) {
+          ApplicationFormItem item = d.getFormItem();
+          String value = d.getValue();
+          if (ApplicationFormItem.Type.VALIDATED_EMAIL.equals(item.getType())) {
+            if (value != null && !value.isEmpty()) {
+              setRecipient(message, value);
+              return; // use first mail address
+            }
           }
         }
-      }
-      // get TO param from other form items related to "user - preferredMail"
-      for (ApplicationFormItemData d : data) {
-        ApplicationFormItem item = d.getFormItem();
-        String value = d.getValue();
-        if (URN_USER_PREFERRED_MAIL.equalsIgnoreCase(item.getPerunDestinationAttribute())) {
-          if (value != null && !value.isEmpty()) {
-            setRecipient(message, value);
-            return; // use first mail address
+        // get TO param from other form items related to "user - preferredMail"
+        for (ApplicationFormItemData d : data) {
+          ApplicationFormItem item = d.getFormItem();
+          String value = d.getValue();
+          if (URN_USER_PREFERRED_MAIL.equalsIgnoreCase(item.getPerunDestinationAttribute())) {
+            if (value != null && !value.isEmpty()) {
+              setRecipient(message, value);
+              return; // use first mail address
+            }
           }
         }
-      }
-      // get TO param from other form items related to "member - mail"
-      for (ApplicationFormItemData d : data) {
-        ApplicationFormItem item = d.getFormItem();
-        String value = d.getValue();
-        if (URN_MEMBER_MAIL.equalsIgnoreCase(item.getPerunDestinationAttribute())) {
-          if (value != null && !value.isEmpty()) {
-            setRecipient(message, value);
-            return; // use first mail address
+        // get TO param from other form items related to "member - mail"
+        for (ApplicationFormItemData d : data) {
+          ApplicationFormItem item = d.getFormItem();
+          String value = d.getValue();
+          if (URN_MEMBER_MAIL.equalsIgnoreCase(item.getPerunDestinationAttribute())) {
+            if (value != null && !value.isEmpty()) {
+              setRecipient(message, value);
+              return; // use first mail address
+            }
           }
         }
       }
       // get TO param from user if not present on application form
-      if (app.getUser() != null) {
-        User u = usersManager.getUserById(registrarSession, app.getUser().getId());
+      if (user != null) {
+        User u = usersManager.getUserById(registrarSession, user.getId());
         Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PREFERRED_MAIL);
         if (a != null && a.getValue() != null) {
           String possibleTo = BeansUtils.attributeValueToString(a);
@@ -2900,7 +2987,7 @@ public class MailManagerImpl implements MailManager {
       }
     } catch (Exception ex) {
       // we don't care about exceptions - we have backup address (empty = mail not sent)
-      LOG.error("[MAIL MANAGER] Exception thrown when getting users mail address for application: {}", app);
+      LOG.error("[MAIL MANAGER] Exception thrown when getting users mail address for user: {}", user);
     }
   }
 
@@ -2937,29 +3024,37 @@ public class MailManagerImpl implements MailManager {
    * @return modified text
    */
   private String substituteCommonStrings(Application app, List<ApplicationFormItemData> data, String mailText,
-                                         String reason, List<Exception> exceptions, boolean isAlternativePlainText) {
-    LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
-    PerunPrincipal applicationPrincipal = new PerunPrincipal(app, additionalAttributes);
-
-    mailText = replaceAppId(mailText, app);
-    mailText = replaceActor(mailText, app);
-    mailText = replaceExtSource(mailText, app);
-    mailText = replaceVoName(mailText, app);
-    mailText = replaceGroupName(mailText, app);
+                                         String reason, List<Exception> exceptions, boolean isAlternativePlainText,
+                                         boolean newReg, UUID newRegAppId) {
+    User user = app.getUser();
+    if (user == null && !newReg) {
+      LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
+      PerunPrincipal applicationPrincipal = new PerunPrincipal(app, additionalAttributes);
+      user = getUserFromAppOrByExtSource(app, applicationPrincipal);
+    }
+    mailText = newRegAppId != null ? replaceAppId(mailText, newRegAppId.toString())
+                   : replaceAppId(mailText, String.valueOf(app.getId()));
+    mailText = replaceActor(mailText, app.getCreatedBy());
+    mailText = replaceExtSource(mailText, app.getExtSourceName());
+    mailText = replaceVoName(mailText, app.getVo());
+    mailText = replaceGroupName(mailText, app.getGroup());
     mailText = replaceCustomMessage(mailText, reason);
     mailText = replaceAutoApproveErrors(mailText, exceptions);
-    mailText = replaceFromAppItems(mailText, data);
-    mailText = replaceDisplayName(mailText, app, data, applicationPrincipal);
-    mailText = replaceFirstName(mailText, app, data, applicationPrincipal);
-    mailText = replaceLastName(mailText, app, data, applicationPrincipal);
+    if (!newReg) {
+      mailText = replaceFromAppItems(mailText, data);
+    }
+    mailText = replaceDisplayName(mailText, user, data, newReg);
+    mailText = replaceFirstName(mailText, user, data, newReg);
+    mailText = replaceLastName(mailText, user, data, newReg);
     mailText = replaceErrors(mailText, exceptions);
-    mailText = replaceLogins(mailText, app, data);
-    mailText = replaceAppDetailUrl(mailText, app.getId(), app.getVo(), app.getGroup());
+    mailText = replaceLogins(mailText, user, data, newReg);
+    mailText = replaceAppDetailUrl(mailText, newRegAppId != null ? newRegAppId.toString() : String.valueOf(app.getId()),
+        app.getVo(), app.getGroup());
     mailText = replaceAppGuiUrl(mailText, app.getVo(), app.getGroup());
     mailText = replacePerunGuiUrl(mailText, app.getVo(), app.getGroup());
-    mailText = replaceExpiration(mailText, app);
-    mailText = replaceMail(mailText, app, data);
-    mailText = replacePhone(mailText, app, data);
+    mailText = replaceExpiration(mailText, user, app.getVo());
+    mailText = replaceMail(mailText, user, data, newReg);
+    mailText = replacePhone(mailText, user, data, newReg);
 
     mailText = replaceFooter(FIELD_MAIL_FOOTER, app.getVo(), app.getGroup(), mailText, true);
     mailText = replaceFooter(FIELD_HTML_MAIL_FOOTER, app.getVo(), app.getGroup(), mailText, isAlternativePlainText);

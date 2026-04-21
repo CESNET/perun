@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
@@ -327,6 +328,31 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
+
+      Vo vo;
+      Group group = null;
+      if (parms.contains("vo")) {
+        vo = ac.getVoById(parms.readInt("vo"));
+      } else {
+        group = ac.getGroupById(parms.readInt("group"));
+        vo = ac.getVoById(group.getVoId());
+      }
+      if (vo != null) {
+        User user = null;
+        if (parms.contains("user")) {
+          user = ac.getUserById(parms.readInt("user"));
+        }
+        String reason = null;
+        if (parms.contains("reason")) {
+          reason = parms.readString("reason");
+        }
+        ac.getRegistrarManager().getMailManager()
+            .sendMessage(ac.getSession(), user, vo, group,
+                AppType.valueOf(parms.readString("newRegAppType")),
+                ApplicationMail.MailType.valueOf(parms.readString("mailType")), reason,
+                parms.readUUID("newRegAppId"));
+        return null;
+      }
 
       if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
 

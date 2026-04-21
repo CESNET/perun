@@ -17341,6 +17341,19 @@ paths:
               properties:
                 mailType: { $ref: '#/components/schemas/MailType' }
                 appId: { type: integer, description: "application id" }
+                group: { type: integer, description: "group id"}
+                vo: { type: integer, description: "vo id"}
+                user: { type: integer, description: "user id"}
+                newRegAppId:
+                  type: string
+                  format: uuid
+                  description: "application id in new Registrar"
+                newRegAppType:
+                  type: string
+                  enum:
+                    - INITIAL
+                    - EXTENSION
+                  description: "type of the application from new Registrar"
                 reason: { type: string, description: "you can specify reason for case: mailType == APP_REJECTED_USER" }
 
   /json/registrarManager/sendMessages:

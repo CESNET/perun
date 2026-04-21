@@ -285,6 +285,23 @@ public interface MailManager {
    */
   void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException;
 
+
+  /**
+   * Same as sendMessage(PerunSession sess, Application app, MailType mailType, String reason) but serving for
+   * new Registrar usage.
+   * @param sess
+   * @param user
+   * @param vo
+   * @param group
+   * @param appType
+   * @param mailType
+   * @param reason
+   * @param appId
+   * @throws PerunException
+   */
+  void sendMessage(PerunSession sess, User user, Vo vo, Group group, Application.AppType appType,
+                   MailType mailType, String reason, UUID appId) throws PerunException;
+
   /**
    * Manually re-send multiple notifications at once. Expected to be called as a result of direct VO administrator
    * action in the web UI.
