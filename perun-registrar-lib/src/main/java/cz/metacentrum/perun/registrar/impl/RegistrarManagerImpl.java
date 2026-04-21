@@ -4976,6 +4976,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
         userPrincipal.setAdditionalInformations(BeansUtils.stringToMapOfAttributes(app.getFedInfo()));
         PerunSession helperSess = new PerunSessionImpl(sess.getPerun(), userPrincipal, sess.getPerunClient());
         List<Application> otherApps = registrarManager.getOpenApplicationsForUserInVo(helperSess, app.getVo());
+
+        perun.getRegistrarAdapter().onRejectApplication(sess, app);
         for (Application otherApp : otherApps) {
           registrarManager.rejectApplication(sess, otherApp.getId(), DEFAULT_GROUP_MSG_VO);
         }

@@ -20,12 +20,14 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RegistrarAdapter;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.openapi.IdmMessagesApi;
 import cz.metacentrum.perun.registrar.openapi.invoker.ApiClient;
 import cz.metacentrum.perun.registrar.openapi.model.ConsolidateUserDTO;
 import cz.metacentrum.perun.registrar.openapi.model.IdmMemberDTO;
 import cz.metacentrum.perun.registrar.openapi.model.IdmObject;
+import cz.metacentrum.perun.registrar.openapi.model.VoAppRejectedDTO;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -198,6 +200,27 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
     registrarApi.userConsolidated(consolidateUserDTO)
           .doOnError((err) -> LOG.error("Failed to notify Registrar on user identity consolidation", err))
         .subscribe();
+  }
+
+  @Override
+  public void onRejectApplication(PerunSession sess, Application application) {
+    if (registrarApi == null) {
+      return;
+    }
+    if (!application.getType().equals(Application.AppType.INITIAL) || application.getGroup() != null) {
+      // only handle VO initial apps for now
+      return;
+    }
+    VoAppRejectedDTO voAppRejectedDTO = new VoAppRejectedDTO();
+    voAppRejectedDTO.setVoId(String.valueOf(application.getVo().getId()));
+    voAppRejectedDTO.setUserId(String.valueOf(application.getUser().getId()));
+    voAppRejectedDTO.setIdentityIdentifier(application.getCreatedBy());
+    voAppRejectedDTO.setIdentityIssuer(application.getExtSourceName());
+
+    registrarApi.applicationRejected(voAppRejectedDTO)
+        .doOnError((err) -> LOG.error("Failed to notify Registrar on application rejection", err))
+        .subscribe();
+
   }
 
   @Override

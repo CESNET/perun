@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.registrar.model.Application;
 
 public interface RegistrarAdapter {
 
@@ -74,6 +75,8 @@ public interface RegistrarAdapter {
       throws RelationExistsException;
 
   void onUserIdentityJoined(PerunSession sess, UserExtSource userExtSource);
+
+  void onRejectApplication(PerunSession sess, Application application);
 
   String getInviteUrlForVo(Vo vo);
 
