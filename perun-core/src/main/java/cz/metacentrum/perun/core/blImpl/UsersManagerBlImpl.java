@@ -2902,7 +2902,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   @Override
   public void changeName(PerunSession sess, User user, String newUserName)
-      throws UserExtSourceNotExistsException, PersonalDataChangeNotEnabledException {
+      throws UserExtSourceNotExistsException, PersonalDataChangeNotEnabledException,
+      UserNotExistsException {
     if (!BeansUtils.getCoreConfig().getEnableLinkedName()) {
       throw new PersonalDataChangeNotEnabledException(
           "Change of user's name to name from user ext source is not enabled.");
@@ -2918,7 +2919,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         if (ues.getLoa() > 0 && newUserName.equals(uesNameAttr.getValue())) {
           User updatedUser = Utils.parseUserFromCommonName(newUserName, true);
           updatedUser.setId(user.getId());
-          usersManagerImpl.updateUser(sess, updatedUser);
+          updateUser(sess, updatedUser);
           return;
         }
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
@@ -2933,7 +2934,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   @Override
   public void changeNameCustom(PerunSession sess, User user, String titleBefore, String firstName, String middleName,
-                               String lastName, String titleAfter) throws PersonalDataChangeNotEnabledException {
+                               String lastName, String titleAfter)
+      throws PersonalDataChangeNotEnabledException, UserNotExistsException {
     if (!BeansUtils.getCoreConfig().getEnableCustomName()) {
       throw new PersonalDataChangeNotEnabledException(
           "Change of user's name to custom name is not enabled.");
@@ -2949,7 +2951,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       user.setMiddleName(middleName);
       user.setLastName(lastName);
       user.setTitleAfter(titleAfter);
-      usersManagerImpl.updateUser(sess, user);
+      updateUser(sess, user);
     }
   }
 

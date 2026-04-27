@@ -1908,7 +1908,7 @@ public interface UsersManagerBl {
    */
   void changeName(PerunSession sess, User user, String newUserName)
       throws UserExtSourceNotExistsException,
-                 PersonalDataChangeNotEnabledException;
+                 PersonalDataChangeNotEnabledException, UserNotExistsException;
 
   /**
    * Change user's name to custom name. If check from admin is required, then
@@ -1925,7 +1925,7 @@ public interface UsersManagerBl {
    */
   void changeNameCustom(PerunSession sess, User user, String titleBefore, String firstName, String middleName,
                         String lastName, String titleAfter)
-      throws PersonalDataChangeNotEnabledException;
+      throws PersonalDataChangeNotEnabledException, UserNotExistsException;
 
   /**
    * Change user's email to email from user ext source.
