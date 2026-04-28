@@ -391,6 +391,29 @@ public class MailManagerImpl implements MailManager {
   }
 
   private String buildInviteURL(Vo vo, Group group, String namespace) {
+    Attribute useNewAttr;
+    if (group != null) {
+      try {
+        useNewAttr = attrManager.getAttribute(registrarSession, group, AttributesManager.NS_GROUP_ATTR_DEF +
+                                                               ":useNewRegistration");
+      } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+        useNewAttr = null;
+      }
+      if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+        return this.perun.getRegistrarAdapter().getInviteUrlForGroup(group);
+      }
+    } else {
+      try {
+        useNewAttr = attrManager.getAttribute(registrarSession, vo, AttributesManager.NS_VO_ATTR_DEF +
+                                                                        ":useNewRegistration");
+      } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+        useNewAttr = null;
+      }
+      if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+        return this.perun.getRegistrarAdapter().getInviteUrlForVo(vo);
+      }
+    }
+
     String url = getPerunRegistrarUrl(vo, group);
     if (!StringUtils.hasText(url)) {
       return EMPTY_STRING;
@@ -1652,7 +1675,25 @@ public class MailManagerImpl implements MailManager {
       }
     }
 
-    if (checkCanBeSubmitted) {
+    boolean useNew = false;
+    try {
+      // implement submissibility check in new registrar once new mail manager exists
+      Attribute useNewAttr;
+      if (group != null) {
+        useNewAttr = attrManager.getAttribute(registrarSession, group,
+            AttributesManager.NS_GROUP_ATTR_DEF + ":useNewRegistration");
+      } else {
+        useNewAttr = attrManager.getAttribute(registrarSession, vo, AttributesManager.NS_VO_ATTR_DEF +
+                                                                      ":useNewRegistration");
+      }
+      if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+        useNew = true;
+      }
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+      // keep as false
+    }
+
+    if (!useNew && checkCanBeSubmitted) {
       // check that invitation form can be submitted
       List<ApplicationFormItem> applicationItems =
           registrarManager.getFormItems(registrarSession, form, AppType.INITIAL);
