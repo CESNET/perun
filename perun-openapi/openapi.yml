@@ -13869,6 +13869,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllMyGroups
+      summary: Returns all groups in a VO the user has access to.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getAllRichGroups:
     get:
       tags:
