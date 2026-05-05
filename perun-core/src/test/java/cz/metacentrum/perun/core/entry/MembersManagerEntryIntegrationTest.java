@@ -175,6 +175,32 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
   }
 
   @Test
+  public void getMemberByUserIfExists() throws Exception {
+    System.out.println(CLASS_NAME + "getMemberByUserIfExists");
+
+    Vo memberVo = setUpVo("member");
+
+    Member member = setUpMember(memberVo);
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    Member testedMember = perun.getMembersManagerBl().getMemberByUserIfExists(sess, memberVo, user);
+    assertEquals(member, testedMember);
+  }
+
+  @Test
+  public void getMemberByUserIfExistsFail() throws Exception {
+    System.out.println(CLASS_NAME + "getMemberByUserIfExistsFails");
+
+    Vo memberVo = setUpVo("member");
+    Vo otherVo = setUpVo("Null");
+
+    Member member = setUpMember(memberVo);
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    Member testedMember = perun.getMembersManagerBl().getMemberByUserIfExists(sess, otherVo, user);
+    assertEquals(null, testedMember);
+  }
+
+
+  @Test
   public void addSponsor() throws Exception {
     System.out.println(CLASS_NAME + "addSponsor");
     //create user which can sponsor

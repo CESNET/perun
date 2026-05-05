@@ -10809,6 +10809,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getMemberByUserIfExists:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMemberByUserIfExists
+      summary: Returns a Member specified by VO id and User ID. Returns null if the Member does not exist.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getMembersByUser:
     get:
       tags:

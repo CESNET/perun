@@ -2365,6 +2365,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
   }
 
   @Override
+  public Member getMemberByUserIfExists(PerunSession sess, Vo vo, User user) {
+    try {
+      return getMembersManagerImpl().getMemberByUserId(sess, vo, user.getId());
+    } catch (MemberNotExistsException e) {
+      return null;
+    }
+  }
+
+  @Override
   public Vo getMemberVo(PerunSession sess, Member member) {
     try {
       return getPerunBl().getVosManagerBl().getVoById(sess, getMembersManagerImpl().getMemberVoId(sess, member));

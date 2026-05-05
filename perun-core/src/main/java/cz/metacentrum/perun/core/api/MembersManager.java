@@ -1092,6 +1092,20 @@ public interface MembersManager {
       throws VoNotExistsException, MemberNotExistsException, PrivilegeException;
 
   /**
+   * Returns member by his vo and user but sends null instead of "MemberNotExistsException"
+   * @param sess
+   * @param vo
+   * @param user
+   * @return member
+   * @throws InternalErrorException
+   * @throws PrivilegeException
+   * @throws VoNotExistsException
+   */
+
+  Member getMemberByUserIfExists(PerunSession sess, Vo vo, User user)
+      throws PrivilegeException, VoNotExistsException, UserNotExistsException;
+
+  /**
    * Get the member VO.
    *
    * @param sess

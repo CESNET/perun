@@ -1191,6 +1191,25 @@ public enum MembersManagerMethod implements ManagerMethod {
   },
 
   /*#
+   *
+   *Returns member by his vo and user but sends null instead of "MemberNotExistsException"
+   *
+   * @param vo int VO <code>id</code>
+   * @param user int User <code>id</code>
+   * @return Member Found member or null
+   *
+   */
+  getMemberByUserIfExists {
+    @Override
+    public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getMembersManager().getMemberByUserIfExists(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+          ac.getUserById(parms.readInt("user")));
+    }
+
+  },
+
+
+  /*#
    * Get all members from all vos.
    *
    * @return List<Member> all members from all Vos.
