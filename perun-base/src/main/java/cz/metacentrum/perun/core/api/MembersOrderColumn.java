@@ -30,8 +30,7 @@ public enum MembersOrderColumn implements OrderColumn {
       "on members.user_id=usrvals.user_id and usrvals.attr_id=" +
       "(select id from attr_names where attr_name='urn:perun:user:attribute-def:def:preferredMail') ",
       ", usrvals.attr_value, memvals.attr_value ",
-      query -> "usrvals.attr_value " + query.getOrder().getSqlValue() + ", " + "memvals.attr_value " +
-               query.getOrder().getSqlValue()),
+      query -> "COALESCE(usrvals.attr_value, memvals.attr_value) " + query.getOrder().getSqlValue()),
 
   // 1. member organization, 2. user organization (from IdP)
   ORGANIZATION(", usrvals.attr_value, memvals.attr_value ",
@@ -42,8 +41,7 @@ public enum MembersOrderColumn implements OrderColumn {
       "on members.user_id=usrvals.user_id and usrvals.attr_id=" +
       "(select id from attr_names where attr_name='urn:perun:user:attribute-def:def:organization') ",
       ", usrvals.attr_value, memvals.attr_value ",
-      query -> "memvals.attr_value " + query.getOrder().getSqlValue() + ", " + "usrvals.attr_value " +
-               query.getOrder().getSqlValue());
+      query -> "COALESCE(memvals.attr_value, usrvals.attr_value) " + query.getOrder().getSqlValue());
 
   private final Function<MembersPageQuery, String> orderBySqlFunction;
   private final String selectSql;
