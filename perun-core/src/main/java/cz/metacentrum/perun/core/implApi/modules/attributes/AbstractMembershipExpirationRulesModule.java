@@ -226,28 +226,19 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
 
     parameter = REMOVE_AFTER;
     if (keys.contains(parameter)) {
-      String value = attrValue.get(parameter);
-      if (value != null && !value.isEmpty()) {
-        // TODO test this, pretty sure you should not be able to set the value to null or empty via gui
-        // null or empty means immediate removal so it's fine
-        Matcher dateMatcher = DATE_PATTERN.matcher(value);
-        if (!dateMatcher.find()) {
-          throw new WrongAttributeValueException(attribute,
-              "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
-        }
+      Matcher dateMatcher = DATE_PATTERN.matcher(attrValue.get(parameter));
+      if (!dateMatcher.find()) {
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
       }
     }
 
     parameter = ARCHIVE_AFTER;
     if (keys.contains(parameter)) {
-      String value = attrValue.get(parameter);
-      if (value != null && !value.isEmpty()) {
-        // null or empty means immediate removal so it's fine
-        Matcher dateMatcher = DATE_PATTERN.matcher(value);
-        if (!dateMatcher.find()) {
-          throw new WrongAttributeValueException(attribute,
-              "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
-        }
+      Matcher dateMatcher = DATE_PATTERN.matcher(attrValue.get(parameter));
+      if (!dateMatcher.find()) {
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
       }
     }
   }
