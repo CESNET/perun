@@ -1164,6 +1164,44 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
   }
 
   @Override
+  public List<Group> getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(Group group) {
+    try {
+      return jdbc.query("SELECT " + GROUP_MAPPING_SELECT_QUERY +
+                               "FROM auto_registration_groups arg " +
+                               "JOIN application_form_items afi ON arg.application_form_item_id = afi.id " +
+                               "JOIN application_form af ON afi.form_id = af.id " +
+                               "JOIN groups ON af.group_id = groups.id " +
+                               "WHERE arg.group_id = ?", GROUP_MAPPER, group.getId());
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
+
+  @Override
+  public void removeGroupsFromAutoRegistrationInTheGivenGroups(List<Group> groupsToBeRemovedFromAutoRegistration,
+                                                               List<Group> groupsWhereGroupsAreEmbedded) {
+    List<Integer> removedGroupIds = groupsToBeRemovedFromAutoRegistration.stream().map(Group::getId).toList();
+    List<Integer> embeddedGroupIds = groupsWhereGroupsAreEmbedded.stream().map(Group::getId).toList();
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("removedGroupIds", removedGroupIds);
+    params.addValue("embeddedGroupIds", embeddedGroupIds);
+
+    try {
+      namedParameterJdbcTemplate.update(
+          "DELETE FROM auto_registration_groups arg " +
+          "USING application_form_items afi, application_form af " +
+          "WHERE arg.application_form_item_id = afi.id " +
+          "  AND afi.form_id = af.id " +
+          "  AND arg.group_id IN (:removedGroupIds) " +
+          "  AND af.group_id IN (:embeddedGroupIds) ",
+          params);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
   public Group getParentGroup(PerunSession sess, Group group) throws ParentGroupNotExistsException {
     try {
       return jdbc.queryForObject("select " + GROUP_MAPPING_SELECT_QUERY + " from groups where groups.id=?",

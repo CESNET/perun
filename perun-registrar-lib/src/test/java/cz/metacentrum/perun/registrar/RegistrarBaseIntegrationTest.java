@@ -78,6 +78,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.AopTestUtils;
@@ -1824,6 +1825,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
   }
 
   @Test
+  @Ignore("It is now allowed to move auto registration groups")
   public void moveGroupInvolvedInVoAutoRegistrationProcess() throws Exception {
     System.out.println("RegistrarManager.moveSubgroupInvolvedInGroupAutoRegistrationProcess");
 
@@ -1841,6 +1843,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
   }
 
   @Test
+  @Ignore("It is now allowed to move auto registration groups")
   public void moveGroupWithSubgroupInvolvedInVoAutoRegistrationProcess() throws Exception {
     System.out.println("RegistrarManager.moveSubgroupInvolvedInGroupAutoRegistrationProcess");
 
@@ -1860,6 +1863,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
   }
 
   @Test
+  @Ignore("It is now allowed to move auto registration groups")
   public void moveSubgroupInvolvedInGroupAutoRegistrationProcess() throws Exception {
     System.out.println("RegistrarManager.moveSubgroupInvolvedInGroupAutoRegistrationProcess");
 
@@ -1879,6 +1883,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
   }
 
   @Test
+  @Ignore("It is now allowed to move auto registration groups")
   public void moveSubgroupWithSubgroupInvolvedInGroupAutoRegistrationProcess() throws Exception {
     System.out.println("RegistrarManager.moveSubgroupInvolvedInGroupAutoRegistrationProcess");
 

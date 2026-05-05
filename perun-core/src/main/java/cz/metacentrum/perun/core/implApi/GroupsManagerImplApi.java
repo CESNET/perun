@@ -610,6 +610,24 @@ public interface GroupsManagerImplApi {
   ApplicationForm getParentApplicationFormForAutoRegistrationGroup(Group group);
 
   /**
+   * Get all the groups that have the given group as embedded for auto-registration in their application form.
+   *
+   * @param group group to be checked
+   * @return groups that have the given group as embedded for auto-registration in their application form
+   */
+  List<Group> getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(Group group);
+
+  /**
+   * This method removes all embedded registrations into the groupsToBeRemovedFromAutoRegistration from the
+   * groupsWhereGroupsAreEmbedded. It is used to delete auto registrations that would be broken by subsequent operation.
+   *
+   * @param groupsToBeRemovedFromAutoRegistration groups that will have auto registrations to them remove
+   * @param groupsWhereGroupsAreEmbedded groups that will have auto registrations from them to the groups above removed
+   */
+  void removeGroupsFromAutoRegistrationInTheGivenGroups(List<Group> groupsToBeRemovedFromAutoRegistration,
+                                                        List<Group> groupsWhereGroupsAreEmbedded);
+
+  /**
    * Get parent group.
    *
    * @param sess
