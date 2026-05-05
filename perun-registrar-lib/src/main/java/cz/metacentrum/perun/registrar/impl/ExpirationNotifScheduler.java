@@ -990,6 +990,7 @@ public class ExpirationNotifScheduler {
         Map<String, String> memberTimestamps = memberTimestampsAttr.valueAsMap();
         if (isPastCycle(memberTimestamps.get("expiredAt"), today, voRules.get("archiveAfter"))) {
           try {
+            LOG.debug("SCHEDULED LIFECYCLE CHANGE: Disabling {}", member);
             perun.getMembersManagerBl().disableMember(sess, member);
           } catch (MemberNotValidYetException e) {
             // should not happen
@@ -1007,6 +1008,7 @@ public class ExpirationNotifScheduler {
         Map<String, String> memberTimestamps = memberTimestampsAttr.valueAsMap();
         if (isPastCycle(memberTimestamps.get("archivedAt"), today, voRules.get("removeAfter"))) {
           try {
+            LOG.debug("SCHEDULED LIFECYCLE CHANGE: Removing {}", member);
             perun.getMembersManagerBl().deleteMember(sess, member);
           } catch (MemberAlreadyRemovedException e) {
             // should not happen
@@ -1039,6 +1041,7 @@ public class ExpirationNotifScheduler {
       Map<String, String> timestampMap = timestampAttr.valueAsMap();
       if (isPastCycle(timestampMap.get("expiredAt"), today, groupRules.get("removeAfter"))) {
         try {
+          LOG.debug("SCHEDULED LIFECYCLE CHANGE: Removing {} from {}", member, group);
           perun.getGroupsManagerBl().removeMember(sess, group, member);
         } catch (NotGroupMemberException | GroupNotExistsException e) {
           // should not happen
@@ -1049,6 +1052,14 @@ public class ExpirationNotifScheduler {
   }
 
   private boolean isPastCycle(String timestamp, LocalDate today, String ruleEntry) {
+    if (ruleEntry == null) {
+      // unset means do not perform
+      return false;
+    }
+    if (ruleEntry.isEmpty()) {
+      // should not happen
+      return false;
+    }
     LocalDate expirationTimestampDate;
     try {
       Date expDate = BeansUtils.getDateFormatterWithoutTime().parse(timestamp);
@@ -1056,10 +1067,6 @@ public class ExpirationNotifScheduler {
     } catch (ParseException e) {
       // shouldn't happen
       throw new InternalErrorException("Incorrect value in timestamp attribute", e);
-    }
-    if (ruleEntry == null || ruleEntry.isEmpty()) {
-      // unset means immediate removal
-      return true;
     }
     Pattern p = Pattern.compile("([0-9]+)([dmy]?)");
     Matcher m = p.matcher(ruleEntry);
