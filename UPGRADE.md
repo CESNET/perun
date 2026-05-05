@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [51.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v51.0.0...v51.0.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* **core:** lifecycles do not perform the changes when key is unset ([5cc3e31](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5cc3e31185841f9cb4611f2a96bfee585c941652))
+
 ## [51.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v50.2.0...v51.0.0) (2026-04-13)
 
 
