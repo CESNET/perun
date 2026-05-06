@@ -28,6 +28,7 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1684,6 +1685,16 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    *
    * @return List<Identity> List of found similar identities.
    */
+  /*#
+   * Check if newly inserted form data may connect anonymous person to existing user.
+   * Return list of similar users (by identity, name or email).
+   * Returned users contain also organization and preferredMail attribute.
+   * For new Registrar usage.
+   *
+   * @param appData Map<String, String> Map of the application attributes (key: attr name, value: attr value)
+   *
+   * @return List<Identity> List of found similar identities.
+   */
   checkForSimilarUsers {
     @Override
     public List<Identity> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1699,6 +1710,10 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       } else if (parms.contains("formItems")) {
         return ac.getRegistrarManager().getConsolidatorManager()
             .checkForSimilarUsers(ac.getSession(), parms.readList("formItems", ApplicationFormItemData.class));
+      } else if (parms.contains("appData")) {
+        return ac.getRegistrarManager().getConsolidatorManager()
+                   .checkForSimilarUsers(ac.getSession(),
+                       (Map<String, String>) parms.read("appData", LinkedHashMap.class));
       } else {
         return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession());
       }
