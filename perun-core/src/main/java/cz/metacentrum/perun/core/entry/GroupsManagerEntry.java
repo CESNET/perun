@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeAction;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.GroupsPageQuery;
@@ -68,7 +67,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -1829,6 +1827,32 @@ public class GroupsManagerEntry implements GroupsManager {
     }
 
     return getGroupsManagerBl().isGroupMember(sess, group, member);
+  }
+
+  @Override
+  public List<Group> getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(
+      PerunSession sess, Group destinationGroup, Group movingGroup)
+      throws GroupNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    getGroupsManagerBl().checkGroupExists(sess, movingGroup);
+
+    // if destination group is null, moving group will be moved as top level group
+    if (destinationGroup != null) {
+      getGroupsManagerBl().checkGroupExists(sess, destinationGroup);
+
+      if ((!AuthzResolver.authorizedInternal(sess, "moveGroup_Group_Group_policy", movingGroup)) ||
+          (!AuthzResolver.authorizedInternal(sess, "moveGroup_Group_Group_policy", destinationGroup))) {
+        throw new PrivilegeException(sess, "moveGroup");
+      }
+    } else {
+      if (!AuthzResolver.authorizedInternal(sess, "destination_null-moveGroup_Group_Group_policy", movingGroup)) {
+        throw new PrivilegeException(sess, "moveGroup");
+      }
+    }
+
+    return getGroupsManagerBl().getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(
+        sess, destinationGroup, movingGroup);
   }
 
   @Override

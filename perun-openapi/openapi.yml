@@ -14011,6 +14011,38 @@ paths:
                 groups: { type: array, items: { type: integer } }
                 forceDelete: { type: boolean, description: "boolean for force delete" }
 
+  /urlinjsonout/groupsManager/getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup/dg-mg:
+    post:
+      tags:
+        - GroupsManager
+      operationId: getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup
+      summary: The groups embedded for an auto-registration in a group form need to be subgroups of this group. When moving 
+               a group within the VO, this relation can be broken. This method gets all such groups, meaning groups that
+               have the group to be moved as embedded in their registration form and will no longer be supergroups after
+               moving the group to the destination.
+      parameters:
+        - { name: destinationGroup,
+            description: "id of Group to have 'movingGroup' as subGroup",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: false
+        }
+        - { name: movingGroup,
+            description: "id of Group to be moved under 'destinationGroup'",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: true
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/moveGroup/dg-mg:
     post:
       tags:
