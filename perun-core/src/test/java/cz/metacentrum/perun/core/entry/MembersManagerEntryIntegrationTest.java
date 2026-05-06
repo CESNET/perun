@@ -3317,7 +3317,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
     List<Integer> returnedMemberIds = result.getData().stream().map(PerunBean::getId).collect(toList());
 
-    assertThat(returnedMemberIds).containsExactly(member1.getId(), member2.getId(), member3.getId(), member4.getId(),
+    assertThat(returnedMemberIds).containsExactly(member1.getId(), member2.getId(), member4.getId(), member3.getId(),
         member5.getId());
   }
 
