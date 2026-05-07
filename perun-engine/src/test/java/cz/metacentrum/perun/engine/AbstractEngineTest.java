@@ -15,6 +15,9 @@ import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.taskslib.model.SendTask;
 import cz.metacentrum.perun.taskslib.model.Task;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -83,14 +86,14 @@ public abstract class AbstractEngineTest {
     srv.setEnabled(true);
     srv.setDelay(1);
     srv.setRecurrence(2);
-    srv.setScript("/bin/true"); // this command always return true
+    srv.setScript(createTempScript(0)); // this command always return true
     service = perun.getServicesManagerBl().createService(sess, srv);
 
     Service srv2 = new Service(0, "test_service2", null);
     srv2.setEnabled(true);
     srv2.setDelay(1);
     srv2.setRecurrence(2);
-    srv2.setScript("/bin/false"); // this command always return false
+    srv2.setScript(createTempScript(1)); // this command always return false
     service2 = perun.getServicesManagerBl().createService(sess, srv2);
 
     destination1 = perun.getServicesManagerBl()
@@ -146,5 +149,20 @@ public abstract class AbstractEngineTest {
     sendTaskFalse.setStartTime(new Date(System.currentTimeMillis()));
     sendTaskFalse.setStatus(SendTask.SendTaskStatus.SENDING);
     sendTaskFalse.setReturnCode(1);
+  }
+
+  private String createTempScript(int exitCode) {
+    try {
+      File script = File.createTempFile("perun-test-", ".sh");
+      script.deleteOnExit();
+      // just exit with the specified exit code.
+      java.nio.file.Files.writeString(script.toPath(), "#!/bin/sh\nexit " + exitCode + "\n");
+      if (!script.setExecutable(true)) {
+        throw new IOException("Cannot make script executable: " + script);
+      }
+      return script.getAbsolutePath();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Failed to create temp test script", e);
+    }
   }
 }
