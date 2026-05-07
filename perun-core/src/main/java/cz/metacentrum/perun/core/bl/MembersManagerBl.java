@@ -1273,6 +1273,17 @@ public interface MembersManagerBl {
   Member getMemberByUserId(PerunSession sess, Vo vo, int userId) throws MemberNotExistsException;
 
   /**
+   *Returns member by his vo and user but sends null instead of "MemberNotExistsException"
+   *
+   * @param sess
+   * @param vo
+   * @return member
+   * @throws InternalErrorException
+   * @throws MemberNotExistsException
+   */
+  Member getMemberByUserIfExists(PerunSession sess, Vo vo, User user);
+
+  /**
    * Get the member VO.
    *
    * @param sess

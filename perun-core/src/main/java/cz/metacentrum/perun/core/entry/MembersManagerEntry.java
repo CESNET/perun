@@ -1287,6 +1287,21 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
+  public Member getMemberByUserIfExists(PerunSession sess, Vo vo, User user)
+      throws PrivilegeException, VoNotExistsException, UserNotExistsException, InternalErrorException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getMemberByUser_Vo_User_policy", Arrays.asList(vo, user))) {
+      throw new PrivilegeException(sess, "getMemberByUserIfExists");
+    }
+    return getMembersManagerBl().getMemberByUserIfExists(sess, vo, user);
+  }
+
+  @Override
   public Vo getMemberVo(PerunSession sess, Member member) throws MemberNotExistsException {
     Utils.checkPerunSession(sess);
 
@@ -2184,12 +2199,12 @@ public class MembersManagerEntry implements MembersManager {
                                                      Map<String, String> oidcAttributes,
                                                      ApplicationType type)
       throws VoNotExistsException, GroupNotExistsException, PrivilegeException, ExternallyManagedException,
-                 MemberNotExistsException, UserNotExistsException, WrongAttributeAssignmentException,
-                 LoginNotExistsException, UserExtSourceNotExistsException, AttributeNotExistsException,
-                 AlreadyMemberException, PasswordCreationFailedException, ExtendMembershipException,
-                 PasswordOperationTimeoutException, NotGroupMemberException, WrongReferenceAttributeValueException,
-                 InvalidLoginException, PasswordDeletionFailedException, ExtSourceNotExistsException,
-                 WrongAttributeValueException {
+      MemberNotExistsException, UserNotExistsException, WrongAttributeAssignmentException,
+      LoginNotExistsException, UserExtSourceNotExistsException, AttributeNotExistsException,
+      AlreadyMemberException, PasswordCreationFailedException, ExtendMembershipException,
+      PasswordOperationTimeoutException, NotGroupMemberException, WrongReferenceAttributeValueException,
+      InvalidLoginException, PasswordDeletionFailedException, ExtSourceNotExistsException,
+      WrongAttributeValueException {
     Utils.checkPerunSession(sess);
     perunBl.getVosManagerBl().checkVoExists(sess, vo);
     if (group != null) {
