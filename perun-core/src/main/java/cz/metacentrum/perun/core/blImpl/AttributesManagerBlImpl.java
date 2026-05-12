@@ -9526,7 +9526,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
         "A flag determining whether the new Registrar component is used to submit and manage application and forms.");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
-    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.SELF, READ, RoleObject.None));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
@@ -9540,9 +9540,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
         "A flag determining whether the new Registrar component is used to submit and manage application and forms.");
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
-    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.SELF, READ, RoleObject.None));
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
-    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Group));
     policies.add(Triple.of(Role.GROUPADMIN, WRITE, RoleObject.Group));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
