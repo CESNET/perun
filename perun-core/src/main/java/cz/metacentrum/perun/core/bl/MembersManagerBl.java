@@ -65,6 +65,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.scheduling.annotation.Async;
 
 /**
@@ -1463,6 +1464,20 @@ public interface MembersManagerBl {
    * @throws InternalErrorException
    */
   RichMember getRichMemberWithAttributes(PerunSession sess, Member member);
+
+  /**
+   * Get RichMember by User and VO with specified attributes.
+   *
+   * @param sess
+   * @param vo
+   * @param user
+   * @param attrNames list of attribute names to include
+   * @return RichMember with specified attributes
+   * @throws MemberNotExistsException
+   * @throws AttributeNotExistsException
+   */
+  RichMember getRichMemberByUserWithAttributes(PerunSession sess, Vo vo, User user, List<String> attrNames)
+      throws MemberNotExistsException, AttributeNotExistsException;
 
   /**
    * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources.

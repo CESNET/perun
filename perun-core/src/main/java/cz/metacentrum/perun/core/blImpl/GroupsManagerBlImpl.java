@@ -147,6 +147,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -2772,6 +2773,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   @Override
   public Group getGroupById(PerunSession sess, int id) throws GroupNotExistsException {
     return getGroupsManagerImpl().getGroupById(sess, id);
+  }
+
+  @Override
+  public Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException {
+    return getGroupsManagerImpl().getGroupByUUID(sess, uuid);
   }
 
   @Override

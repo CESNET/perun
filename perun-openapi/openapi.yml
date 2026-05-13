@@ -3690,6 +3690,24 @@ components:
       in: query
       required: true
 
+    userUuid:
+      name: uuid
+      description: "uuid of User"
+      schema:
+        type: string
+        format: uuid
+      in: query
+      required: true
+
+    groupUuid:
+      name: uuid
+      description: "uuid of Group"
+      schema:
+        type: string
+        format: uuid
+      in: query
+      required: true
+
 #################################################
 #                                               #
 # TAGS - documentation for groups of operations #
@@ -10718,6 +10736,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getRichMemberByUserUUID:
+    get:
+      tags:
+        - MembersManager
+      operationId: getRichMemberByUserUUID
+      summary: Returns RichMember with attributes by the users' uuid and the vo.
+      description: Gets RichMember by uuid
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userUuid'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getMembersByIds:
     get:
       tags:
@@ -13718,6 +13753,21 @@ paths:
       description: Throws GroupNotExistsException when the group doesn't exist.
       parameters:
         - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getGroupByUUID:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupByUUID
+      summary: Returns a group by uuid.
+      description: Throws GroupNotExistsException when the group doesn't exist.
+      parameters:
+        - $ref: '#/components/parameters/groupUuid'
       responses:
         '200':
           $ref: '#/components/responses/GroupResponse'

@@ -52,7 +52,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedExcep
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
@@ -69,10 +68,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
@@ -1296,6 +1293,18 @@ public class UsersManagerImpl implements UsersManagerImplApi {
           id);
     } catch (EmptyResultDataAccessException ex) {
       throw new UserNotExistsException("user id=" + id);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
+    }
+  }
+
+  @Override
+  public User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + USER_MAPPING_SELECT_QUERY + " from users where users.uu_id=? ",
+          USER_MAPPER, uuid);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new UserNotExistsException("User with uuid '" + uuid + "' does not exist.");
     } catch (RuntimeException ex) {
       throw new InternalErrorException(ex);
     }

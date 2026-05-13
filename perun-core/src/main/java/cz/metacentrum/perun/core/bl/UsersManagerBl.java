@@ -1121,6 +1121,16 @@ public interface UsersManagerBl {
   User getUserById(PerunSession perunSession, int id) throws UserNotExistsException;
 
   /**
+   * Returns user by UUID.
+   *
+   * @param sess
+   * @param uuid
+   * @return user
+   * @throws UserNotExistsException
+   */
+  User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException;
+
+  /**
    * Returns user by VO member.
    *
    * @param perunSession

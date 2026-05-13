@@ -2561,6 +2561,19 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
   }
 
+  @Test
+  public void getRichMemberByUser() throws Exception {
+    System.out.println(CLASS_NAME + "getRichMemberByUser");
+
+    final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
+
+    final RichMember actualMember = membersManagerEntry.getRichMemberByUserWithAttributes(
+        sess, createdVo, u, new ArrayList<>());
+    assertNotNull(actualMember);
+    assertFalse(actualMember.getMemberAttributes().isEmpty());
+    assertFalse(actualMember.getUserAttributes().isEmpty());
+  }
+
   private MemberCandidate getMemberCandidateWithCandidate() {
     Candidate candidate = new Candidate();
     candidate.setFirstName("Test");

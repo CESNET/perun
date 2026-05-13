@@ -38,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>Groups manager can do all work about groups in VOs.</p>
@@ -791,6 +792,17 @@ public interface GroupsManager {
    * @throws PrivilegeException
    */
   Group getGroupById(PerunSession perunSession, int id) throws GroupNotExistsException, PrivilegeException;
+
+  /**
+   * Search for the group with specified UUID.
+   *
+   * @param sess
+   * @param uuid
+   * @return group with specified UUID or throws GroupNotExistsException
+   * @throws GroupNotExistsException
+   * @throws PrivilegeException
+   */
+  Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException, PrivilegeException;
 
   /**
    * Search for the group with specified name in specified VO.

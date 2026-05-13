@@ -408,6 +408,21 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Returns a group by <code>uuid</code>.
+   *
+   * @throw GroupNotExistsException When the group doesn't exist
+   *
+   * @param uuid UUID Group <code>id</code>
+   * @return Group Found group
+   */
+  getGroupByUUID {
+    @Override
+    public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getGroupsManager().getGroupByUUID(ac.getSession(), parms.readUUID("uuid"));
+    }
+  },
+
+  /*#
    * Returns a group by VO and Group name.
    *
    * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')

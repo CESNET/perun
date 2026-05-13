@@ -1792,6 +1792,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
+  public User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException {
+    return getUsersManagerImpl().getUserByUUID(sess, uuid);
+  }
+
+  @Override
   public User getUserByMember(PerunSession sess, Member member) {
     if (member.getUserId() != 0) {
       try {

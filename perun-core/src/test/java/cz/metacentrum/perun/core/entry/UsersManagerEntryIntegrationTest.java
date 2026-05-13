@@ -208,6 +208,15 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
   }
 
   @Test
+  public void getUserByUUID() throws Exception {
+    System.out.println(CLASS_NAME + "getUserByUUID");
+
+    User secondUser = usersManager.getUserByUUID(sess, user.getUuid());
+    assertNotNull(secondUser);
+    assertEquals("both users should be the same", user, secondUser);
+  }
+
+  @Test
   public void getUsers() throws Exception {
     System.out.println(CLASS_NAME + "getUsers");
 

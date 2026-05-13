@@ -932,6 +932,17 @@ public interface UsersManager {
   User getUserById(PerunSession perunSession, int id) throws UserNotExistsException, PrivilegeException;
 
   /**
+   * Returns user by UUID.
+   *
+   * @param sess
+   * @param uuid
+   * @return user
+   * @throws UserNotExistsException
+   * @throws PrivilegeException
+   */
+  User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException, PrivilegeException;
+
+  /**
    * Returns user by VO member.
    *
    * @param perunSession

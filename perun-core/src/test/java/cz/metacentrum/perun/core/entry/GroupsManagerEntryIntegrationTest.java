@@ -3502,6 +3502,18 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
   }
 
   @Test
+  public void getGroupByUUID() throws Exception {
+    System.out.println(CLASS_NAME + "getGroupByUUID");
+
+    vo = setUpVo();
+    setUpGroup(vo);
+
+    Group returnedGroup = groupsManager.getGroupByUUID(sess, group.getUuid());
+    assertNotNull(returnedGroup);
+    assertEquals("both groups should be the same", returnedGroup, group);
+  }
+
+  @Test
   public void getGroupsByIds() throws Exception {
     System.out.println(CLASS_NAME + "getGroupsByIds");
 

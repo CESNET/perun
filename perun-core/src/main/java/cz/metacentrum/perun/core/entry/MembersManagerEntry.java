@@ -1484,6 +1484,27 @@ public class MembersManagerEntry implements MembersManager {
   }
 
   @Override
+  public RichMember getRichMemberByUserWithAttributes(PerunSession sess, Vo vo, User user, List<String> attrNames)
+      throws MemberNotExistsException, AttributeNotExistsException, PrivilegeException, VoNotExistsException,
+                 UserNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    // This is pretty much the same as getRichMember policy
+    if (!AuthzResolver.authorizedInternal(sess, "getMemberByUser_Vo_User_policy", Arrays.asList(vo, user))) {
+      throw new PrivilegeException(sess, "getRichMemberByUserWithAttributes");
+    }
+
+    RichMember member = getPerunBl().getMembersManagerBl().getRichMemberByUserWithAttributes(
+        sess, vo, user, attrNames);
+
+    return getPerunBl().getMembersManagerBl()
+               .filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMemberWithAttributes(sess, member));
+  }
+
+  @Override
   public RichMember getRichMemberWithAttributes(PerunSession sess, Member member)
       throws PrivilegeException, MemberNotExistsException {
     Utils.checkPerunSession(sess);

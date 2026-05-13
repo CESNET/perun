@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * GroupsManager entry logic
@@ -922,6 +923,20 @@ public class GroupsManagerEntry implements GroupsManager {
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "getGroupById_int_policy", group)) {
       throw new PrivilegeException(sess, "getGroupById");
+    }
+
+    return group;
+  }
+
+  @Override
+  public Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    Group group = getGroupsManagerBl().getGroupByUUID(sess, uuid);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "getGroupById_int_policy", group)) {
+      throw new PrivilegeException(sess, "getGroupByUUID");
     }
 
     return group;
