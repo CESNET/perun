@@ -17220,6 +17220,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/getPrincipalsReservedLogins:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getPrincipalsReservedLogins
+      summary: Gets logins reserved by the caller in format of `namespace->login`
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/getApplicationById:
     get:
       tags:
