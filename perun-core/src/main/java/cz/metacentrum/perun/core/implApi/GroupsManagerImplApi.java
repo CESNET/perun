@@ -30,6 +30,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author Michal Prochazka
@@ -363,6 +364,16 @@ public interface GroupsManagerImplApi {
    * @throws InternalErrorException
    */
   Group getGroupById(PerunSession perunSession, int id) throws GroupNotExistsException;
+
+  /**
+   * Search for the group with specified UUID.
+   *
+   * @param sess
+   * @param uuid
+   * @return group with specified UUID or throws GroupNotExistsException
+   * @throws GroupNotExistsException
+   */
+  Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException;
 
   /**
    * Search for the group with specified name in specified VO

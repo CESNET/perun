@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import static cz.metacentrum.perun.core.impl.GroupsManagerImpl.GROUP_MAPPER;
-import static cz.metacentrum.perun.core.impl.GroupsManagerImpl.GROUP_MAPPING_SELECT_QUERY;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USEREXTSOURCE_MAPPER;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_EXT_SOURCE_MAPPING_SELECT_QUERY;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_MAPPER;

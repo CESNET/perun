@@ -736,6 +736,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
   }
 
   @Override
+  public Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + GROUP_MAPPING_SELECT_QUERY +
+                                 " from groups where groups.uu_id=? ", GROUP_MAPPER, uuid);
+    } catch (EmptyResultDataAccessException err) {
+      throw new GroupNotExistsException("Group with UUID '" + uuid + "' was not found.");
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
+
+  @Override
   public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException {
     try {
       return jdbc.queryForObject(

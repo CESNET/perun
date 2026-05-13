@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Paginated;
-import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -1172,6 +1171,19 @@ public class UsersManagerEntry implements UsersManager {
 
     return user;
 
+  }
+
+  @Override
+  public User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    User user = getUsersManagerBl().getUserByUUID(sess, uuid);
+
+    if (!AuthzResolver.authorizedInternal(sess, "getUserById_int_policy", user)) {
+      throw new PrivilegeException(sess, "getUserByUUID");
+    }
+
+    return user;
   }
 
   @Override

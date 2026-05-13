@@ -152,8 +152,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
@@ -2705,6 +2703,24 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
     List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers);
     return richMembersWithAttributes.get(0);
+  }
+
+  @Override
+  public RichMember getRichMemberByUserWithAttributes(PerunSession sess, Vo vo, User user, List<String> attrNames)
+      throws MemberNotExistsException, AttributeNotExistsException {
+    Member member = membersManagerImpl.getMemberByUserId(sess, vo, user.getId());
+    List<Member> members = new ArrayList<>();
+    members.add(member);
+
+    List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
+
+    List<AttributeDefinition> attrsDef = new ArrayList<>();
+    for (String atrrName : attrNames) {
+      AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
+      attrsDef.add(attrDef);
+    }
+
+    return this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef).get(0);
   }
 
   @Override

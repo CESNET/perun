@@ -1178,6 +1178,31 @@ public enum MembersManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Returns a rich member by VO and User UUID, including attributes given by attrNames.
+   *
+   * @param vo int VO <code>id</code>
+   * @param uuid UUID identifier of the user
+   * @param attrNames List<String> Attribute names
+   * @return RichMember Found rich member with given attributes
+   */
+  /*#
+   * Returns a rich member by VO and User UUID, including all attributes.
+   *
+   * @param vo int VO <code>id</code>
+   * @param uuid UUID identifier of the user
+   * @return RichMember Found rich member with all attributes
+   */
+  getRichMemberByUserUUID {
+    @Override
+    public RichMember call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getMembersManager()
+                 .getRichMemberByUserWithAttributes(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+                     ac.getUsersManager().getUserByUUID(ac.getSession(), parms.readUUID("uuid")),
+                     parms.contains("attrNames") ? parms.readList("attrNames", String.class) : new ArrayList<>());
+    }
+  },
+
+  /*#
    * Returns members for a user.
    *
    * @param user int User <code>id</code>

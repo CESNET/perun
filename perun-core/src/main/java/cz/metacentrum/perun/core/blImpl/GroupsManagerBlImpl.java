@@ -93,7 +93,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlr
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -102,8 +101,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -151,6 +148,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -2776,6 +2774,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   @Override
   public Group getGroupById(PerunSession sess, int id) throws GroupNotExistsException {
     return getGroupsManagerImpl().getGroupById(sess, id);
+  }
+
+  @Override
+  public Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException {
+    return getGroupsManagerImpl().getGroupByUUID(sess, uuid);
   }
 
   @Override
