@@ -3634,7 +3634,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   }
 
-  private List<Pair<String, String>> getPrincipalsReservedLogins(PerunSession sess) {
+  @Override
+  public List<Pair<String, String>> getPrincipalsReservedLogins(PerunSession sess) {
     User user = sess.getPerunPrincipal().getUser();
     List<Pair<String, String>> logins =
         user == null ? new ArrayList<>() : usersManager.getUsersReservedLogins(sess, user);

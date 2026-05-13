@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.MemberCandidate;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -32,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -890,6 +892,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
           ac.getVoById(parms.readInt("vo")));
     }
 
+  },
+
+  /*#
+   * Gets logins reserved by the caller in format of `namespace->login`
+   *
+   * @return Map<String, String> reserved logins
+   */
+  getPrincipalsReservedLogins {
+    @Override
+    public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+      return ac.getRegistrarManager().getPrincipalsReservedLogins(ac.getSession()).stream()
+                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    }
   },
 
   /*#
