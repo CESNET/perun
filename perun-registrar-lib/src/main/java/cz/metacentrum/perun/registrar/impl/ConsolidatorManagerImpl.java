@@ -149,6 +149,32 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
   }
 
   @Override
+  public List<Identity> checkForSimilarUsers(PerunSession sess, Map<String, String> applicationData)
+      throws PerunException {
+    Set<RichUser> res = new HashSet<>();
+    List<String> attrNames = new ArrayList<>();
+    attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
+    attrNames.add("urn:perun:user:attribute-def:def:organization");
+
+    if (sess.getPerunPrincipal().getUser() != null || applicationData == null) {
+      return new ArrayList<>();
+    }
+
+    for (Map.Entry<String, String> entry : applicationData.entrySet()) {
+      String value = entry.getValue();
+      String destination = entry.getKey();
+      // for now Registrar adds a VALIDATED_EMAIL entry for email type items, as the set destination attr might vary
+      if (destination.equals("urn:perun:user:attribute-def:core:displayName") ||
+          destination.equals("VALIDATED_EMAIL")) {
+        if (value != null && !value.isEmpty()) {
+          res.addAll(perun.getUsersManagerBl().findRichUsersWithAttributesByExactMatch(sess, value, attrNames));
+        }
+      }
+    }
+    return convertToIdentities(new ArrayList<>(res));
+  }
+
+  @Override
   public List<Identity> checkForSimilarUsers(PerunSession sess, int appId) throws PerunException {
 
     String email = "";

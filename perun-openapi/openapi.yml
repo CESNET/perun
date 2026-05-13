@@ -18014,13 +18014,37 @@ paths:
         content:
           application/json:
             schema:
-              title: InputCheckForSimilarUsersWithData
+              title: InputCheckForSimilarUsersWithFormItemData
               description: "input to checkForSimilarUsersWithFormItemData"
               type: object
               required:
                 - formItems
               properties:
                 formItems: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfIdentityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/checkForSimilarUsers/new-registrar:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: checkForSimilarUsersWithAppData
+      summary: Check for similar users by name and email in new registrar application data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCheckForSimilarUsersWithAppData
+              description: "input to checkForSimilarUsersWithAppData"
+              type: object
+              required:
+                - appData
+              properties:
+                appData: { type: object, additionalProperties: {type: string}, description: "Map of the application attributes (key: attr name, value: attr value)" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfIdentityResponse'
