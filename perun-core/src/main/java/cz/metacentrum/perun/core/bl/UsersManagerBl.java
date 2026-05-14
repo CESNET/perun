@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidExcepti
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PersonalDataChangeNotEnabledException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
@@ -456,6 +457,39 @@ public interface UsersManagerBl {
    */
   void deleteReservedLoginsOnlyByGivenApp(PerunSession sess, int appId)
       throws PasswordOperationTimeoutException, InvalidLoginException, PasswordDeletionFailedException;
+
+  /**
+   * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
+   * within it.
+   *
+   * @param sess Perun session
+   * @param login Login to reserve
+   * @param userId ID of user reserving the login
+   * @param namespace Namespace to reserve the login in
+   */
+  void reserveLogin(PerunSession sess, String login, int userId, String namespace)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
+          UserNotExistsException;
+
+  /**
+   * Reserves login in given namespace. Namespace must exist and login must be valid within it.
+   *
+   * @param sess Perun session
+   * @param login Login to reserve
+   * @param identifier Unique identifier of the requesting entity
+   * @param issuer IdP issuing the login reservation
+   * @param namespace Namespace to reserve the login in
+   */
+  void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException;
+
+  /**
+   * Deletes given login reservation.
+   *
+   * @param sess
+   * @param login login (pair namespace and login) to delete
+   */
+  void deleteReservedLogin(PerunSession sess, Pair<String, String> login);
 
   /**
    * Deletes multiple reserved logins from various namespaces.
@@ -1434,10 +1468,20 @@ public interface UsersManagerBl {
   /**
    * Return list of all reserved logins for specific user (pair is namespace and login)
    *
-   * @param user for which get reserved logins
+   * @param sess Perun session
+   * @param user User for which to get reserved logins
    * @return list of pairs namespace and login
    */
   List<Pair<String, String>> getUsersReservedLogins(PerunSession sess, User user);
+
+  /**
+   * Return list of all reserved logins for specific identifier (pair is namespace and login)
+   *
+   * @param sess Perun session
+   * @param identifier Identifier for which to get reserved logins
+   * @return list of pairs namespace and login
+   */
+  List<Pair<String, String>> getReservedLoginsByIdentifier(PerunSession sess, String identifier);
 
   /**
    * Return list of users who matches the searchString, searching name, email and logins and are not member in specific

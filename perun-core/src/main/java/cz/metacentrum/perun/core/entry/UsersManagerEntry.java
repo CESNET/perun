@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -1819,6 +1820,42 @@ public class UsersManagerEntry implements UsersManager {
 
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
     getUsersManagerBl().reserveRandomPassword(sess, user, loginNamespace);
+  }
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, int userId, String namespace)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, UserNotExistsException,
+                  ExtSourceNotExistsException {
+    Utils.checkPerunSession(sess);
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "reserveLogin_String_String_String_String_policy")) {
+      throw new PrivilegeException(sess, "reserveLogin");
+    }
+
+    getPerunBl().getUsersManagerBl().reserveLogin(sess, login, userId, namespace);
+  }
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException {
+    Utils.checkPerunSession(sess);
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "reserveLogin_String_String_String_String_policy")) {
+      throw new PrivilegeException(sess, "reserveLogin");
+    }
+
+    getPerunBl().getUsersManagerBl().reserveLogin(sess, login, identifier, issuer, namespace);
+  }
+
+  @Override
+  public void deleteReservedLogin(PerunSession sess, Pair<String, String> login) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "deleteReservedLogin_String_String_String_String_policy")) {
+      throw new PrivilegeException(sess, "deleteReservedLogin");
+    }
+
+    getPerunBl().getUsersManagerBl().deleteReservedLogin(sess, login);
   }
 
   @Override

@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.2.35
+ALTER TABLE application_reserved_logins ADD COLUMN  identifier varchar;
+UPDATE application_reserved_logins SET identifier = created_by;
+ALTER TABLE application_reserved_logins ALTER COLUMN identifier SET NOT NULL;
+UPDATE configurations SET value='3.2.35' WHERE property='DATABASE VERSION';
+
 3.2.34
 UPDATE group_attr_values gav SET attr_value = gav.attr_value || 'lifecycleEnabled:true,' FROM attr_names an WHERE gav.attr_id = an.id AND an.attr_name = 'urn:perun:group:attribute-def:def:groupMembershipExpirationRules';
 UPDATE vo_attr_values vav SET attr_value = vav.attr_value || 'lifecycleEnabled:true,' FROM attr_names an WHERE vav.attr_id = an.id AND an.attr_name = 'urn:perun:vo:attribute-def:def:membershipExpirationRules';

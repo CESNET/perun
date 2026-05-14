@@ -1909,11 +1909,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
           if (loginAvailable) {
             try {
               // Reserve login
+              String actor = session.getPerunPrincipal().getActor();
+              String extSource = session.getPerunPrincipal().getExtSourceName();
               jdbc.update(
                   "insert into application_reserved_logins(login,namespace,user_id,extsourcename,created_by," +
-                   "created_at) values(?,?,?,?,?,?)",
-                  login, loginNamespace, userId, session.getPerunPrincipal().getExtSourceName(),
-                  session.getPerunPrincipal().getActor(), new Date());
+                   "created_at,identifier) values(?,?,?,?,?,?)",
+                  login, loginNamespace, userId, extSource, actor, new Date(), actor);
               LOG.debug("[REGISTRAR] Added login reservation for login: {} in namespace: {}.", login, loginNamespace);
 
               // process password for this login
@@ -3640,11 +3641,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
     List<Pair<String, String>> logins =
         user == null ? new ArrayList<>() : usersManager.getUsersReservedLogins(sess, user);
 
-    // search reserved logins by principals extsourcename and actor
+    // search reserved logins by principals extsourcename and actor or userId
     logins.addAll(jdbc.query(
-        "SELECT namespace,login " + " FROM application_reserved_logins " + " WHERE extsourcename=? and created_by=? ",
-        (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")),
-        sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor()));
+        "SELECT namespace,login " + " FROM application_reserved_logins " + " WHERE " +
+                " (extsourcename=? and identifier=?) " + " OR " +  " user_id=? ",
+        (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"),
+                resultSet.getString("login")),
+        sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor(),
+            sess.getPerunPrincipal().getUserId()));
 
     return logins;
   }

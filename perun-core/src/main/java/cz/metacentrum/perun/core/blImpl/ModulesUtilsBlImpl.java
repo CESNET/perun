@@ -688,14 +688,14 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
       // check syntax or if its between exceptions
       if (!login.matches(regex) && !isLoginExceptionallyAllowed(namespace, login)) {
         LOG.warn("Login '{}' in {} namespace doesn't match regex: {}", login, namespace, regex);
-        throw new InvalidLoginException("Login doesn't matches expected regex: \"" + regex + "\"");
+        throw new InvalidLoginException("Login doesn't match expected regex: \"" + regex + "\"");
       }
     } else {
       // Regex property not found in our attribute map, so use the default hardcoded regex
       // check syntax or if its between exceptions
       if (!defaultRegex.matcher(login).matches() && !isLoginExceptionallyAllowed(namespace, login)) {
         LOG.warn("Login '{}' in {} namespace doesn't match regex: {}", login, namespace, regex);
-        throw new InvalidLoginException("Login doesn't matches expected regex: \"" + defaultRegex + "\"");
+        throw new InvalidLoginException("Login doesn't match expected regex: \"" + defaultRegex + "\"");
       }
     }
   }

@@ -10715,6 +10715,83 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/reserveLogin/user:
+    post:
+      tags:
+        - UsersManager
+      operationId: reserveLoginForUser
+      summary: Reserve login in a namespace for given userId.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - userId
+                - namespace
+              properties:
+                login: {type: string}
+                userId: {type: integer}
+                namespace: {type: string}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/reserveLogin:
+    post:
+      tags:
+        - UsersManager
+      operationId: reserveLogin
+      summary: Reserve login in a namespace for given identifier and issuer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - identifier
+                - issuer
+                - namespace
+              properties:
+                login: {type: string}
+                identifier: {type: string}
+                issuer: {type: string}
+                namespace: {type: string}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/deleteReservedLogin:
+    post:
+      tags:
+        - UsersManager
+      operationId: deleteReservedLogin
+      summary: Deletes login reservation for given namespace and login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+              properties:
+                namespace: {type: string}
+                login: {type: string}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #

@@ -6764,6 +6764,18 @@ perun_policies:
     include_policies:
       - default_policy
 
+  reserveLogin_String_String_String_String_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  deleteReservedLogin_String_String_String_String_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
   changePassword_User_String_String_String_boolean_policy:
     policy_roles:
       - SELF: User

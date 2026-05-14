@@ -63,6 +63,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -477,6 +478,33 @@ public class UsersManagerImpl implements UsersManagerImplApi {
   public void deleteReservedLoginsForNamespace(PerunSession sess, String namespace) {
     try {
       jdbc.update("delete from application_reserved_logins where namespace=?", namespace);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, int userId, String namespace) {
+    try {
+      jdbc.update(
+              "insert into application_reserved_logins(login,namespace,user_id,extsourcename,created_by," +
+                      "created_at, identifier) values(?,?,?,?,?,?,?)",
+              login, namespace, userId, sess.getPerunPrincipal().getExtSourceName(),
+              sess.getPerunPrincipal().getActor(), new Date(), String.valueOf(userId));
+      LOG.debug("Added login reservation for login: {} in namespace: {} under userId:  {}", login, namespace, userId);
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace) {
+    try {
+      jdbc.update(
+              "insert into application_reserved_logins(login,namespace,extsourcename,created_by," +
+                      "created_at, identifier) values(?,?,?,?,?,?)",
+              login, namespace, issuer, sess.getPerunPrincipal().getActor(), new Date(), identifier);
+      LOG.debug("Added login reservation for login: {} in namespace: {} with issuer {}", login, namespace, issuer);
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }
@@ -1683,6 +1711,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
       return jdbc.query("select namespace,login from application_reserved_logins where user_id=? for update",
           (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")),
           user.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
+  public List<Pair<String, String>> getReservedLoginsByIdentifier(PerunSession sess, String identifier) {
+    try {
+      return jdbc.query("select namespace,login from application_reserved_logins where identifier=? for update",
+              (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"),
+                      resultSet.getString("login")), identifier);
     } catch (RuntimeException e) {
       throw new InternalErrorException(e);
     }

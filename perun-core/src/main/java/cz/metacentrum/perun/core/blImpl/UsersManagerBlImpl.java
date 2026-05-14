@@ -75,6 +75,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidExcepti
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PersonalDataChangeNotEnabledException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
@@ -1015,6 +1016,58 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       // delete reserved login from DB
       getUsersManagerImpl().deleteReservedLogin(sess, login);
     }
+  }
+
+  /**
+   * Checks preconditions for running login reservation
+   *
+   * @param sess session
+   * @param login login being reserved
+   * @param namespace namespace to reserve the login in
+   * @throws PrivilegeException
+   * @throws InvalidLoginException
+   * @throws AlreadyReservedLoginException
+   */
+  private void loginReservationCheck(PerunSession sess, String login, String issuer, String namespace)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    if (!issuer.isEmpty()) {
+      try {
+        getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, issuer);
+      } catch (ExtSourceNotExistsException e) {
+        throw new ExtSourceNotExistsException("Did not find any extSource for issuer with name: " + issuer + "");
+      }
+    }
+
+    if (!isLoginAvailable(sess, namespace, login)) {
+      throw new AlreadyReservedLoginException((
+              "Login: " + login + " in namespace: " + namespace + " is already occupied"
+      ));
+    }
+
+  }
+
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, int userId, String namespace)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
+          UserNotExistsException {
+    loginReservationCheck(sess, login, "", namespace);
+    getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+    getUsersManagerImpl().reserveLogin(sess, login, userId, namespace);
+  }
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException {
+    loginReservationCheck(sess, login, issuer, namespace);
+    getUsersManagerImpl().reserveLogin(sess, login, identifier, issuer, namespace);
+  }
+
+  @Override
+  public void deleteReservedLogin(PerunSession sess, Pair<String, String> login) {
+    getUsersManagerImpl().deleteReservedLogin(sess, login);
   }
 
   @Override
@@ -2141,6 +2194,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   @Override
   public List<Pair<String, String>> getUsersReservedLogins(PerunSession sess, User user) {
     return usersManagerImpl.getUsersReservedLogins(user);
+  }
+
+  @Override
+  public List<Pair<String, String>> getReservedLoginsByIdentifier(PerunSession sess, String identifier) {
+    return usersManagerImpl.getReservedLoginsByIdentifier(sess, identifier);
   }
 
   @Override

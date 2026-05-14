@@ -1,4 +1,4 @@
--- database version 3.2.34 (don't forget to update insert statement at the end of file)
+-- database version 3.2.35 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -676,7 +676,7 @@ create table application_mail_texts
     constraint appmailtxt_appmails_fk foreign key (mail_id) references application_mails (id) on delete cascade
 );
 
--- APPLICATION_RESERVED_LOGINS - lognames reserved for new users who has not been saved at users table yet
+-- APPLICATION_RESERVED_LOGINS - lognames reserved for new users who have not been saved at users table yet
 create table application_reserved_logins
 (
     login           varchar                                 not null, --logname
@@ -684,6 +684,7 @@ create table application_reserved_logins
     user_id         integer,                                          --identifier of user (user.id)
     extsourcename   varchar                                 not null,
     created_by      varchar   default user                  not null,
+    identifier      varchar                                 not null,
     created_at      timestamp default statement_timestamp() not null,
     created_by_uid  integer,
     modified_by_uid integer,
@@ -1968,7 +1969,7 @@ create index idx_fk_blk_attr_attr_names on blocked_attr_values(attr_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.34');
+values ('DATABASE VERSION', '3.2.35');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations
@@ -5543,7 +5544,7 @@ insert into authz (user_id, role_id)
 values (1, 21);
 
 -- insert reserved login for testing
-insert into application_reserved_logins (login, namespace, extsourcename)
-values ('testLogin', 'dummy', 'https://issuer.example.com');
+insert into application_reserved_logins (login, namespace, extsourcename, identifier)
+values ('testLogin', 'dummy', 'https://issuer.example.com', 'test');
 
 

@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -1511,6 +1512,65 @@ public enum UsersManagerMethod implements ManagerMethod {
 
       return null;
 
+    }
+  }, /*#
+   * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
+   * within it.
+   *
+   * @param login String Login
+   * @param userId int User <code>id</code>
+   * @param namespace String Namespace
+   * @throws PrivilegeException When not authorized to reserve logins
+   * @throws InvalidLoginException When login is has invalid syntax for the given namespace
+   * @throws AlreadyReservedLoginException When login is already occupied in the given namespace
+   * @throws UserNotExistsException When no user with the given id exists
+  */
+  /*#
+   * Reserves login in given namespace. Namespace must exist and login must be valid within it. Issuer should be
+   * a valid extSource.
+   *
+   * @param login String Login
+   * @param identifier String Identifier
+   * @param issuer String Issuer
+   * @param namespace String Namespace
+   * @throws PrivilegeException When not authorized to reserve logins
+   * @throws InvalidLoginException When login is has invalid syntax for the given namespace
+   * @throws AlreadyReservedLoginException When login is already occupied in the given namespace
+   */
+  reserveLogin {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      if (parms.contains("userId")) {
+        ac.getUsersManager()
+                .reserveLogin(ac.getSession(), parms.readString("login"), parms.readInt("userId"),
+                        parms.readString("namespace"));
+      } else {
+        ac.getUsersManager()
+                .reserveLogin(ac.getSession(), parms.readString("login"), parms.readString("identifier"),
+                        parms.readString("issuer"), parms.readString("namespace"));
+      }
+      return null;
+    }
+  }, /*#
+   * Deletes login reservation for given namespace and login
+   *
+   * @param namespace String Namespace
+   * @param login String Login
+   * @throws PrivilegeException When not authorized to delete reserved logins
+   */
+  deleteReservedLogin {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      Pair<String, String> loginPair = new Pair<>(
+              parms.readString("namespace"),
+              parms.readString("login")
+      );
+      ac.getUsersManager().deleteReservedLogin(ac.getSession(), loginPair);
+      return null;
     }
   }, /*#
    * Set new login in namespace if login is available and user doesn't have login in that namespace.
