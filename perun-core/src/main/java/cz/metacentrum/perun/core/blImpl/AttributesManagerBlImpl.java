@@ -8635,6 +8635,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
+    //urn:perun:user:attribute-def:def:organizationDomain
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("organizationDomain");
+    attr.setDisplayName("Organization domain");
+    attr.setDescription("Organization domain (schacHomeOrganization), from which user comes from. Provided by IDP.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
     //urn:perun:user:attribute-def:def:preferredMail
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
