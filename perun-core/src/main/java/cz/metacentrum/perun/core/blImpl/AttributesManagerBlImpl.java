@@ -8651,6 +8651,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
+    //urn:perun:user:attribute-def:def:assurances
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attr.setType(ArrayList.class.getName());
+    attr.setFriendlyName("assurances");
+    attr.setDisplayName("User assurances");
+    attr.setDescription("List of assurances from user's relevant identities.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    policies.add(Triple.of(Role.SELF, READ, RoleObject.User));
+    policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.GROUPMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
     //urn:perun:user:attribute-def:def:preferredMail
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
