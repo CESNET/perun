@@ -1451,7 +1451,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef("namespace1"));
 
-    usersManager.reserveLogin(sess, login, identifier, extSourceName, namespace);
+    usersManager.reserveLogin(sess, login, identifier, extSourceName, namespace, null);
     perun.getUsersManagerBl().checkReservedLogins(sess, namespace, login, false);
   }
 
@@ -1464,7 +1464,25 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
     User user = setUpUser("First", "Last");
 
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef("namespace1"));
-    usersManager.reserveLogin(sess, login, user.getId(), namespace);
+    usersManager.reserveLogin(sess, login, user.getId(), namespace, null);
+
+    List<Pair<String, String>> logins = perun.getUsersManagerBl().getUsersReservedLogins(sess, user);
+
+    assertEquals("namespace1", logins.get(0).getLeft());
+    assertEquals("test-user-login", logins.get(0).getRight());
+  }
+
+  @Test
+  public void reserveLogin_userId_withPassword() throws Exception {
+    System.out.println(CLASS_NAME + "reserveLogin_userId_withPassword");
+
+    String login = "test-user-login";
+    String namespace = "namespace1";
+    String password = "password123456";
+    User user = setUpUser("First", "Last");
+
+    perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef("namespace1"));
+    usersManager.reserveLogin(sess, login, user.getId(), namespace, password);
 
     List<Pair<String, String>> logins = perun.getUsersManagerBl().getUsersReservedLogins(sess, user);
 
@@ -1483,8 +1501,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef("namespace1"));
 
-    usersManager.reserveLogin(sess, login, user1.getId(), namespace);
-    usersManager.reserveLogin(sess, login, user2.getId(), namespace);
+    usersManager.reserveLogin(sess, login, user1.getId(), namespace, null);
+    usersManager.reserveLogin(sess, login, user2.getId(), namespace, null);
   }
 
   @Test(expected = AlreadyReservedLoginException.class)
@@ -1497,8 +1515,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef("namespace1"));
 
-    usersManager.reserveLogin(sess, login, user1.getId(), namespace);
-    usersManager.reserveLogin(sess, login, user1.getId(), namespace);
+    usersManager.reserveLogin(sess, login, user1.getId(), namespace, null);
+    usersManager.reserveLogin(sess, login, user1.getId(), namespace, null);
   }
 
   @Test
@@ -1516,9 +1534,9 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef("namespace2"));
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef("namespace3"));
 
-    usersManager.reserveLogin(sess, login, user1.getId(), namespace1);
-    usersManager.reserveLogin(sess, login, user1.getId(), namespace2);
-    usersManager.reserveLogin(sess, login, user2.getId(), namespace3);
+    usersManager.reserveLogin(sess, login, user1.getId(), namespace1, null);
+    usersManager.reserveLogin(sess, login, user1.getId(), namespace2, null);
+    usersManager.reserveLogin(sess, login, user2.getId(), namespace3, null);
 
     List<Pair<String, String>> logins1 = perun.getUsersManagerBl().getUsersReservedLogins(sess, user1);
     assertEquals(2, logins1.size());
@@ -1535,7 +1553,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
     String namespace = "namespace";
 
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef(namespace));
-    usersManager.reserveLogin(sess, login1, identifier, extSourceName, namespace);
+    usersManager.reserveLogin(sess, login1, identifier, extSourceName, namespace, null);
 
     usersManager.deleteReservedLogin(sess, new Pair<>(namespace, login1));
 
@@ -1554,8 +1572,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef(namespace1));
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef(namespace2));
-    usersManager.reserveLogin(sess, login1, identifier, extSourceName, namespace1);
-    usersManager.reserveLogin(sess, login2, identifier, extSourceName, namespace2);
+    usersManager.reserveLogin(sess, login1, identifier, extSourceName, namespace1, null);
+    usersManager.reserveLogin(sess, login2, identifier, extSourceName, namespace2, null);
 
     List<Pair<String, String>> logins = perun.getUsersManagerBl().getReservedLoginsByIdentifier(sess, identifier);
     assertEquals(2, logins.size());
@@ -1577,8 +1595,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
     perun.getAttributesManagerBl().createAttribute(sess, createNamespaceAttrDef(namespace1));
 
     usersManager.deleteReservedLogin(sess, new Pair<>(namespace1, "This-login-does-not-exist"));
-
-
   }
 
   @Test(expected = UserExtSourceNotExistsException.class)

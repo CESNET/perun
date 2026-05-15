@@ -1475,6 +1475,7 @@ public interface UsersManager {
   /**
    * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
    * within it.
+   * Reserves a password for that login as well if it is passed
    *
    * @param sess Perun session
    * @param login Login to reserve
@@ -1485,13 +1486,15 @@ public interface UsersManager {
    * @throws AlreadyReservedLoginException
    * @throws UserNotExistsException
    */
-  void reserveLogin(PerunSession sess, String login, int userId, String namespace)
+  void reserveLogin(PerunSession sess, String login, int userId, String namespace, String password)
           throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, UserNotExistsException,
-                  ExtSourceNotExistsException;
+          ExtSourceNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
+                     PasswordStrengthFailedException, PasswordStrengthException;
 
   /**
    * Reserves login in given namespace. Issuer must be an existing extSource. Namespace must exist and login must be
    * valid within it.
+   * Reserves a password for that login as well if it is passed
    *
    * @param sess Perun session
    * @param login Login to reserve
@@ -1502,8 +1505,11 @@ public interface UsersManager {
    * @throws InvalidLoginException
    * @throws AlreadyReservedLoginException
    */
-  void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace)
-          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException;
+  void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace,
+                    String password)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException,
+                     PasswordOperationTimeoutException, PasswordCreationFailedException,
+                     PasswordStrengthFailedException, PasswordStrengthException;
 
   /**
    * Deletes given login reservation.
