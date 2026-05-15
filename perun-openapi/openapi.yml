@@ -10826,7 +10826,7 @@ paths:
         - $ref: '#/components/parameters/attrNamesOptional'
       responses:
         '200':
-          $ref: '#/components/responses/MemberResponse'
+          $ref: '#/components/responses/RichMemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
