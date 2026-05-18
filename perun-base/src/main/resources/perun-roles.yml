@@ -8005,6 +8005,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8022,6 +8023,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8041,6 +8043,7 @@ perun_policies:
     - GROUPADMIN: Group
     - GROUPOBSERVER: Group
     - VOOBSERVER: Vo
+    - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8532,6 +8535,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8549,6 +8553,7 @@ perun_policies:
       - GROUPADMIN: Group
       - VOOBSERVER: Vo
       - GROUPOBSERVER: Group
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8568,6 +8573,7 @@ perun_policies:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
       - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
