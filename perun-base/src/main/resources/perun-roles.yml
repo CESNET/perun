@@ -8004,6 +8004,7 @@ perun_policies:
   source-copyMailsFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOOBSERVER: Vo
     include_policies:
       - default_policy
 
@@ -8019,6 +8020,8 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOOBSERVER: Vo
     include_policies:
       - default_policy
 
@@ -8034,8 +8037,10 @@ perun_policies:
 
   source-copyMailsFromGroupToGroup_Group_Group_policy:
     policy_roles:
-      - VOADMIN: Vo
-      - GROUPADMIN: Group
+    - VOADMIN: Vo
+    - GROUPADMIN: Group
+    - GROUPOBSERVER: Group
+    - VOOBSERVER: Vo
     include_policies:
       - default_policy
 
@@ -8526,6 +8531,7 @@ perun_policies:
   source-copyFormFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOOBSERVER: Vo
     include_policies:
       - default_policy
 
@@ -8540,6 +8546,9 @@ perun_policies:
   source-copyFormFromVoToGroup_Vo_Group_Policy:
     policy_roles:
       - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - VOOBSERVER: Vo
+      - GROUPOBSERVER: Group
     include_policies:
       - default_policy
 
@@ -8557,6 +8566,8 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOOBSERVER: Vo
     include_policies:
       - default_policy
 
