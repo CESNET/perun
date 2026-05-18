@@ -32,7 +32,7 @@ public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegra
     String authorId = "0000-0002- 1767-9318";
     int yearSince = 2017;
     int yearTill = 0;
-    HttpResponse result =
+    String result =
         prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
     assertNotNull(result);
 
@@ -59,7 +59,7 @@ public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegra
     HttpUriRequest request = obd.getHttpRequest(authorId, yearSince, yearTill, publicationSystem);
 
     try {
-      HttpResponse response = obd.execute(request);
+      String response = obd.execute(request);
       assertNotNull(response);
     } catch (CabinetException ex) {
       if (!ex.getType().equals(ErrorCodes.HTTP_IO_EXCEPTION)) {

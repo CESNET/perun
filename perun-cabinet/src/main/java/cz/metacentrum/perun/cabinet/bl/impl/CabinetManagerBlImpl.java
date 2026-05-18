@@ -33,9 +33,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,16 +178,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
       throw new CabinetException(e);
     }
 
-    HttpUriRequest request = prezentator.getHttpRequest(authorId, yearSince, yearTill, ps);
-    HttpResponse response = prezentator.execute(request);
-
-    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-      throw new CabinetException(
-          "Can't contact publication system. HTTP error code: " + response.getStatusLine().getStatusCode(),
-          ErrorCodes.HTTP_IO_EXCEPTION);
-    }
-
-    List<Publication> publications = prezentator.parseHttpResponse(response);
+    List<Publication> publications = prezentator.fetchPublications(authorId, yearSince, yearTill, ps);
 
     for (Publication p : publications) {
       // set pub system for founded publications

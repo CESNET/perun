@@ -23,13 +23,11 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.text.WordUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -196,15 +194,6 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 
   }
 
-  @Override
-  public List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException {
-    try {
-      return parseResponse(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-    } catch (IOException e) {
-      throw new CabinetException(ErrorCodes.IO_EXCEPTION, e);
-    }
-  }
-
   /**
    * Parse String response as XML document and retrieve Publications from it.
    *
@@ -212,7 +201,8 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
    * @return List of Publications
    * @throws CabinetException If anything fails
    */
-  protected List<Publication> parseResponse(String xml) throws CabinetException {
+  @Override
+  public List<Publication> parseResponse(String xml) throws CabinetException {
 
     assert xml != null;
     List<Publication> result = new ArrayList<Publication>();
