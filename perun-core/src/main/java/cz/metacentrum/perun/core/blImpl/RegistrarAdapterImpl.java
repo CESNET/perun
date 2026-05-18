@@ -213,7 +213,9 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
     }
     VoAppRejectedDTO voAppRejectedDTO = new VoAppRejectedDTO();
     voAppRejectedDTO.setVoId(String.valueOf(application.getVo().getId()));
-    voAppRejectedDTO.setUserId(String.valueOf(application.getUser().getId()));
+    if (application.getUser() != null) {
+      voAppRejectedDTO.setUserId(String.valueOf(application.getUser().getId()));
+    }
     voAppRejectedDTO.setIdentityIdentifier(application.getCreatedBy());
     voAppRejectedDTO.setIdentityIssuer(application.getExtSourceName());
 
