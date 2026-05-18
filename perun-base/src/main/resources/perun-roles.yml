@@ -8039,11 +8039,11 @@ perun_policies:
 
   source-copyMailsFromGroupToGroup_Group_Group_policy:
     policy_roles:
-    - VOADMIN: Vo
-    - GROUPADMIN: Group
-    - GROUPOBSERVER: Group
-    - VOOBSERVER: Vo
-    - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
