@@ -13900,6 +13900,27 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getSubGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getSubGroups
+      summary: Returns direct subgroups of a group (single level)
+      parameters:
+        - { name: parentGroup,
+            description: "Parent Group id",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: true
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getGroupMembers:
     get:
       tags:
