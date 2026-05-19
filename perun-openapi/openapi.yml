@@ -10735,6 +10735,7 @@ paths:
                 login: {type: string}
                 userId: {type: integer}
                 namespace: {type: string}
+                password: {type: string}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10763,6 +10764,7 @@ paths:
                 identifier: {type: string}
                 issuer: {type: string}
                 namespace: {type: string}
+                password: {type: string}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

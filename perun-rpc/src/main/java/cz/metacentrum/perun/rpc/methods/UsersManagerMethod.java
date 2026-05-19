@@ -1515,7 +1515,20 @@ public enum UsersManagerMethod implements ManagerMethod {
     }
   }, /*#
    * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
-   * within it.
+   * within it. Reserves a password for that login as well.
+   *
+   * @param login String Login
+   * @param userId int User <code>id</code>
+   * @param namespace String Namespace
+   * @param password String password
+   * @throws PrivilegeException When not authorized to reserve logins
+   * @throws InvalidLoginException When login is has invalid syntax for the given namespace
+   * @throws AlreadyReservedLoginException When login is already occupied in the given namespace
+   * @throws UserNotExistsException When no user with the given id exists
+  */
+  /*#
+   * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
+   * within it
    *
    * @param login String Login
    * @param userId int User <code>id</code>
@@ -1526,8 +1539,21 @@ public enum UsersManagerMethod implements ManagerMethod {
    * @throws UserNotExistsException When no user with the given id exists
   */
   /*#
-   * Reserves login in given namespace. Namespace must exist and login must be valid within it. Issuer should be
-   * a valid extSource.
+   * Reserves login in given namespace along with password if present. Namespace must exist and login must be valid
+   * within it. Issuer should be a valid extSource.
+   *
+   * @param login String Login
+   * @param identifier String Identifier
+   * @param issuer String Issuer
+   * @param namespace String Namespace
+   * @param password String password
+   * @throws PrivilegeException When not authorized to reserve logins
+   * @throws InvalidLoginException When login is has invalid syntax for the given namespace
+   * @throws AlreadyReservedLoginException When login is already occupied in the given namespace
+   */
+  /*#
+   * Reserves login in given namespace. Namespace must exist and login must be valid
+   * within it. Issuer should be a valid extSource.
    *
    * @param login String Login
    * @param identifier String Identifier
@@ -1545,11 +1571,13 @@ public enum UsersManagerMethod implements ManagerMethod {
       if (parms.contains("userId")) {
         ac.getUsersManager()
                 .reserveLogin(ac.getSession(), parms.readString("login"), parms.readInt("userId"),
-                        parms.readString("namespace"));
+                        parms.readString("namespace"),
+                        parms.contains("password") ? parms.readString("password") : null);
       } else {
         ac.getUsersManager()
                 .reserveLogin(ac.getSession(), parms.readString("login"), parms.readString("identifier"),
-                        parms.readString("issuer"), parms.readString("namespace"));
+                        parms.readString("issuer"), parms.readString("namespace"),
+                        parms.contains("password") ? parms.readString("password") : null);
       }
       return null;
     }

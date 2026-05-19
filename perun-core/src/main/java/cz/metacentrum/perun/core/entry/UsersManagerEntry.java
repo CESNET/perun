@@ -1823,28 +1823,35 @@ public class UsersManagerEntry implements UsersManager {
   }
 
   @Override
-  public void reserveLogin(PerunSession sess, String login, int userId, String namespace)
+  public void reserveLogin(PerunSession sess, String login, int userId, String namespace,
+                           String password)
           throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, UserNotExistsException,
-                  ExtSourceNotExistsException {
+          ExtSourceNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
+                     PasswordStrengthFailedException, PasswordStrengthException {
     Utils.checkPerunSession(sess);
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "reserveLogin_String_String_String_String_policy")) {
       throw new PrivilegeException(sess, "reserveLogin");
     }
 
-    getPerunBl().getUsersManagerBl().reserveLogin(sess, login, userId, namespace);
+    getPerunBl().getUsersManagerBl().reserveLogin(sess, login, userId, namespace,
+            password);
   }
 
   @Override
-  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace)
-          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException {
+  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace,
+                           String password)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException,
+                     PasswordOperationTimeoutException, PasswordCreationFailedException,
+                     PasswordStrengthFailedException, PasswordStrengthException {
     Utils.checkPerunSession(sess);
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "reserveLogin_String_String_String_String_policy")) {
       throw new PrivilegeException(sess, "reserveLogin");
     }
 
-    getPerunBl().getUsersManagerBl().reserveLogin(sess, login, identifier, issuer, namespace);
+    getPerunBl().getUsersManagerBl().reserveLogin(sess, login, identifier, issuer, namespace,
+            password);
   }
 
   @Override

@@ -903,8 +903,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     @Override
     public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-      return ac.getRegistrarManager().getPrincipalsReservedLogins(ac.getSession()).stream()
-                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+      List<Pair<String, String>> reservedLogins =
+          ac.getRegistrarManager().getPrincipalsReservedLogins(ac.getSession());
+      Map<String, String> result = new HashMap<>();
+      for (Pair<String, String> pair : reservedLogins) {
+        // sometimes the same key is returned multiple times, have to convert like this
+        result.put(pair.getLeft(), pair.getRight());
+      }
+      return result;
     }
   },
 

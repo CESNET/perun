@@ -461,18 +461,21 @@ public interface UsersManagerBl {
   /**
    * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
    * within it.
-   *
+   * Reserves a password for that login as well if it is passed
    * @param sess Perun session
    * @param login Login to reserve
    * @param userId ID of user reserving the login
    * @param namespace Namespace to reserve the login in
    */
-  void reserveLogin(PerunSession sess, String login, int userId, String namespace)
+  void reserveLogin(PerunSession sess, String login, int userId, String namespace, String
+          password)
           throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
-          UserNotExistsException;
+          UserNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
+          PasswordStrengthFailedException, PasswordStrengthException;
 
   /**
    * Reserves login in given namespace. Namespace must exist and login must be valid within it.
+   * Reserves a password for that login as well if it is passed
    *
    * @param sess Perun session
    * @param login Login to reserve
@@ -480,11 +483,14 @@ public interface UsersManagerBl {
    * @param issuer IdP issuing the login reservation
    * @param namespace Namespace to reserve the login in
    */
-  void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace)
-          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException;
+  void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace,
+                    String password)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
+          PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException,
+          PasswordStrengthException;
 
   /**
-   * Deletes given login reservation.
+   * Deletes given login reservation along with conneted password if it exists
    *
    * @param sess
    * @param login login (pair namespace and login) to delete

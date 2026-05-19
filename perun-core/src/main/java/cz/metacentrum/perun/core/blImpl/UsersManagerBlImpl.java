@@ -1050,23 +1050,42 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 
   @Override
-  public void reserveLogin(PerunSession sess, String login, int userId, String namespace)
+  public void reserveLogin(PerunSession sess, String login, int userId, String namespace, String
+                           password)
           throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
-          UserNotExistsException {
+          UserNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
+          PasswordStrengthFailedException, PasswordStrengthException {
     loginReservationCheck(sess, login, "", namespace);
     getPerunBl().getUsersManagerBl().getUserById(sess, userId);
     getUsersManagerImpl().reserveLogin(sess, login, userId, namespace);
+    if (password != null) {
+      reservePassword(sess, login, namespace, password);
+    }
   }
 
   @Override
-  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace)
-          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException {
+  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace,
+                           String password)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
+          PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException,
+          PasswordStrengthException {
     loginReservationCheck(sess, login, issuer, namespace);
     getUsersManagerImpl().reserveLogin(sess, login, identifier, issuer, namespace);
+    if (password != null) {
+      reservePassword(sess, login, namespace, password);
+    }
   }
 
   @Override
   public void deleteReservedLogin(PerunSession sess, Pair<String, String> login) {
+    try {
+      deletePassword(sess, login.getRight(), login.getLeft());
+    } catch (LoginNotExistsException ex) {
+      LOG.error("Login: {}  for namespace: {} not exists while deleting password", login.getRight(), login.getLeft());
+    } catch (PasswordOperationTimeoutException | InvalidLoginException | PasswordDeletionFailedException e) {
+      throw new InternalErrorException(
+          "Unable to delete password for login: " + login.getRight() + " and namespace: " + login.getLeft(), e);
+    }
     getUsersManagerImpl().deleteReservedLogin(sess, login);
   }
 
