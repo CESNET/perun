@@ -15,11 +15,16 @@
 
 use strict;
 use warnings FATAL => 'all';
-use Switch;
 use String::Random qw( random_string );
 # Import shared AD library
 use ADConnector;
 
+sub changeAction;
+sub checkAction;
+sub reserveAction;
+sub deleteAction;
+sub validateAction;
+sub reserveRandomAction;
 sub edu_log;
 sub getPassword;
 sub getEntry;
@@ -55,133 +60,142 @@ my $key_path = $lines[0];  # path to the SSH key
 my $server = $lines[1];    # radius server hostname/ip
 
 # do stuff based on password manager action type
-switch ($action) {
+my %passwordManagerActionDispatch = (
+	"change"         => \&changeAction,
+	"check"          => \&checkAction,
+	"reserve"        => \&reserveAction,
+	"delete"         => \&deleteAction,
+	"validate"       => \&validateAction,
+	"reserve_random" => \&reserveRandomAction,
+);
 
-	case("change"){
+my $passwordManagerAction = $passwordManagerActionDispatch{$action};
 
-		my $pass = <STDIN>;
-		chomp($pass);
-
-		unless (0 == checkAgainstAD($namespace, $login, $pass)) {
-			edu_log("[PWDM] Same password for $login in AD exists!");
-			exit 11;
-		}
-
-		my $entry = getEntry($login, getPassword($pass));
-
-		# timeout 120s kill after 120 more sec.
-		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		$ret = $ret>>8;  # shift 8 bits to get original return code
-		if ($ret != 0) {
-			# error adding entry
-			edu_log("[PWDM] Change of password for $login failed with return code: $ret");
-			exit 3; # setting of new password failed
-		} else {
-			# entry added
-			edu_log("[PWDM] Password for $login changed.");
-		}
-
-	}
-
-	case("check"){
-
-		my $entry = getEntry($login, getPassword());
-
-		# timeout 120s kill after 120 more sec.
-		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		$ret = $ret>>8;  # shift 8 bits to get original return code
-		if ($ret != 0) {
-			# error checking entry
-			edu_log("[PWDM] Check of password failed for $login with return code: $ret");
-			exit 6; # checking old password failed
-		} else {
-			# entry added
-			edu_log("[PWDM] Password for $login checked.");
-		}
-
-	}
-
-	case("reserve"){
-
-		my $pass = <STDIN>;
-		chomp($pass);
-
-		unless (0 == checkAgainstAD($namespace, $login, $pass)) {
-			edu_log("[PWDM] Same password for $login in AD exists!");
-			exit 11;
-		}
-
-		my $entry = getEntry($login, getPassword($pass));
-
-		# timeout 120s kill after 120 more sec.
-		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		$ret = $ret>>8;  # shift 8 bits to get original return code
-		if ($ret != 0) {
-			# error adding entry
-			edu_log("[PWDM] Creation of password for $login failed with return code: $ret");
-			exit 4; # creation of new password failed
-		} else {
-			# entry added
-			edu_log("[PWDM] Password for $login reserved.");
-		}
-
-	}
-
-	case("delete") {
-
-		my $entry = getEntry($login, undef);
-
-		# timeout 120s kill after 120 more sec.
-		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		$ret = $ret>>8;  # shift 8 bits to get original return code
-		if ($ret != 0) {
-			# error deleting entry
-			edu_log("[PWDM] Deletion of password for $login failed with return code: $ret");
-			exit 5; # creation of new password failed
-		} else {
-			# entry added
-			edu_log("[PWDM] Password for $login deleted.");
-		}
-
-	}
-
-	case("validate") {
-
-		exit 0;
-
-	}
-
-	case("reserve_random") {
-
-		my $pass = random_string("Cn!CccncCn");
-
-		unless (0 == checkAgainstAD($namespace, $login, $pass)) {
-			edu_log("[PWDM] Same password for $login in AD exists!");
-			exit 11;
-		}
-
-		my $entry = getEntry($login, getPassword($pass));
-
-		# timeout 120s kill after 120 more sec.
-		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		$ret = $ret>>8;  # shift 8 bits to get original return code
-		if ($ret != 0) {
-			# error adding entry
-			edu_log("[PWDM] Creation of random password for $login failed with return code: $ret");
-			exit 4; # creation of new password failed
-		} else {
-			# entry added
-			edu_log("[PWDM] Random password for $login reserved.");
-		}
-
-	}
-
-	else {
-		edu_log("[PWDM] Unknown action for handling passwords.");
-		exit 10;
-	}
-
+unless (defined $passwordManagerAction) {
+	edu_log("[PWDM] Unknown action for handling passwords.");
+	exit 10;
 }
+
+$passwordManagerAction->();
+
+###########################################
+#
+# Action functions
+#
+###########################################
+
+sub changeAction {
+	my $pass = <STDIN>;
+	chomp($pass);
+
+	unless (0 == checkAgainstAD($namespace, $login, $pass)) {
+		edu_log("[PWDM] Same password for $login in AD exists!");
+		exit 11;
+	}
+
+	my $entry = getEntry($login, getPassword($pass));
+
+	# timeout 120s kill after 120 more sec.
+	my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+	$ret = $ret>>8;  # shift 8 bits to get original return code
+	if ($ret != 0) {
+		# error adding entry
+		edu_log("[PWDM] Change of password for $login failed with return code: $ret");
+		exit 3; # setting of new password failed
+	} else {
+		# entry added
+		edu_log("[PWDM] Password for $login changed.");
+	}
+}
+
+sub checkAction {
+	my $entry = getEntry($login, getPassword());
+
+	# timeout 120s kill after 120 more sec.
+	my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+	$ret = $ret>>8;  # shift 8 bits to get original return code
+	if ($ret != 0) {
+		# error checking entry
+		edu_log("[PWDM] Check of password failed for $login with return code: $ret");
+		exit 6; # checking old password failed
+	} else {
+		# entry added
+		edu_log("[PWDM] Password for $login checked.");
+	}
+}
+
+sub reserveAction {
+	my $pass = <STDIN>;
+	chomp($pass);
+
+	unless (0 == checkAgainstAD($namespace, $login, $pass)) {
+		edu_log("[PWDM] Same password for $login in AD exists!");
+		exit 11;
+	}
+
+	my $entry = getEntry($login, getPassword($pass));
+
+	# timeout 120s kill after 120 more sec.
+	my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+	$ret = $ret>>8;  # shift 8 bits to get original return code
+	if ($ret != 0) {
+		# error adding entry
+		edu_log("[PWDM] Creation of password for $login failed with return code: $ret");
+		exit 4; # creation of new password failed
+	} else {
+		# entry added
+		edu_log("[PWDM] Password for $login reserved.");
+	}
+}
+
+sub deleteAction {
+	my $entry = getEntry($login, undef);
+
+	# timeout 120s kill after 120 more sec.
+	my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+	$ret = $ret>>8;  # shift 8 bits to get original return code
+	if ($ret != 0) {
+		# error deleting entry
+		edu_log("[PWDM] Deletion of password for $login failed with return code: $ret");
+		exit 5; # creation of new password failed
+	} else {
+		# entry added
+		edu_log("[PWDM] Password for $login deleted.");
+	}
+}
+
+sub validateAction {
+	exit 0;
+}
+
+sub reserveRandomAction {
+	my $pass = random_string("Cn!CccncCn");
+
+	unless (0 == checkAgainstAD($namespace, $login, $pass)) {
+		edu_log("[PWDM] Same password for $login in AD exists!");
+		exit 11;
+	}
+
+	my $entry = getEntry($login, getPassword($pass));
+
+	# timeout 120s kill after 120 more sec.
+	my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+	$ret = $ret>>8;  # shift 8 bits to get original return code
+	if ($ret != 0) {
+		# error adding entry
+		edu_log("[PWDM] Creation of random password for $login failed with return code: $ret");
+		exit 4; # creation of new password failed
+	} else {
+		# entry added
+		edu_log("[PWDM] Random password for $login reserved.");
+	}
+}
+
+###########################################
+#
+# Auxiliary functions
+#
+###########################################
 
 #
 # Log any message to pwdm.log file located in same folder as script.
