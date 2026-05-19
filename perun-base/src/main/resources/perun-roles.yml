@@ -8550,9 +8550,7 @@ perun_policies:
   source-copyFormFromVoToGroup_Vo_Group_Policy:
     policy_roles:
       - VOADMIN: Vo
-      - GROUPADMIN: Group
       - VOOBSERVER: Vo
-      - GROUPOBSERVER: Group
       - PERUNOBSERVER:
     include_policies:
       - default_policy
