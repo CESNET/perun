@@ -6338,6 +6338,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
     byte[] mac = mailManager.getMessageAuthenticationCode(idStr).getBytes(StandardCharsets.UTF_8);
     byte[] m = urlParameters.get("m").getBytes(StandardCharsets.UTF_8);
     if (MessageDigest.isEqual(mac, m)) {
+      UUID newRegAppDataId = null;
+      try {
+        newRegAppDataId = UUID.fromString(idStr);
+      } catch (java.lang.IllegalArgumentException ex) {
+        // not UUID, continue with old behaviour
+      }
+      if (newRegAppDataId != null) {
+        return perun.getRegistrarAdapter().mailValidated(registrarSession, newRegAppDataId);
+      }
       int appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
       // validate mail
       jdbc.update("update application_data set assurance_level=1 where id = ?", appDataId);
