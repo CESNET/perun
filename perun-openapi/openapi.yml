@@ -16608,7 +16608,7 @@ paths:
         in VOs external sources (if available). Candidates, which are already members of VO are never
         returned even if they match searchString.
       parameters:
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/searchString'
       responses:
         '200':

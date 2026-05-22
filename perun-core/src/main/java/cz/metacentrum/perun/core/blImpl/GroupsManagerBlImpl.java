@@ -66,7 +66,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyRemovedException;
@@ -100,7 +99,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -1329,51 +1327,61 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
                                                       ExtSource membersSource, ExtSource source,
                                                       List<RichMember> actualGroupMembers,
                                                       List<String> skippedMembers) {
+    if (!(source instanceof ExtSourceSimpleApi)) {
+      // sanity check
+      throw new InternalErrorException("ExtSource is not instance of SimpleApi and this is not supported!");
+    }
+
     List<Candidate> candidates = new ArrayList<>();
 
-    //mapping structure for more efficient searching of actual group members
+    // mapping structure for more efficient searching of actual group members
     Map<UserExtSource, RichMember> mappingStructure = this.createMappingStructure(actualGroupMembers);
 
+    // Skip subjects without logins, create an auxiliary map of login -> subject data
+    Map<String, Map<String, String>> loginSubjectMap = new HashMap<>();
     for (Map<String, String> subject : subjects) {
       String login = subject.get("login");
-      // Skip subjects, which doesn't have login
       if (login == null || login.isEmpty()) {
-        LOG.debug("Subject {} doesn't contain attribute login, skipping.", subject);
+        LOG.debug("Subject '{}' does not contain login, skipping them.", subject);
         skippedMembers.add("MemberEntry:[" + subject + "] was skipped because login is missing");
-        continue;
+      } else {
+        loginSubjectMap.put(login, subject);
       }
+    }
+
+    // We have three cases here:
+    // The source is not memberSource, meaning we only got logins and need to get the subject data from memberSource
+    // The source is simple, meaning we only got logins and need to get the subject data with different call
+    // The source is not simple, meaning we already have full subject data
+    boolean isSimpleExtSource = !(membersSource instanceof ExtSourceApi);
+    if (!membersSource.equals(source) || isSimpleExtSource) {
+      // First two cases - we only have logins, so let us fetch the subject data
       try {
-        // One of three possible ways should happen to get Candidate
-        // 1] sources of login and other attributes are not same
-        if (!membersSource.equals(source)) {
-          //need to read attributes from the new memberSource, we can't use locally data there (there are from other
-          // extSource)
-          candidates.add(new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
-          // 2] sources are same and we work with source which is instance of ExtSourceApi
-        } else if (membersSource instanceof ExtSourceApi) {
-          // we can use the data from this source without reading them again (all exists in the map of subject
-          // attributes)
-          candidates.add(
-              new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
-          // 3] sources are same and we work with source which is instace of ExtSourceSimpleApi
-        } else if (membersSource instanceof ExtSourceSimpleApi) {
-          // we can't use the data from this source, we need to read them again (they are not in the map of subject
-          // attributes)
-          candidates.add(new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
-        } else {
-          // this could not happen without change in extSource API code
-          throw new InternalErrorException(
-              "ExtSource is other instance than SimpleApi or Api and this is not supported!");
-        }
-      } catch (CandidateNotExistsException e) {
-        LOG.warn("getGroupSubjects subjects returned login {}, but it cannot be obtained using getCandidate()", login);
-        //If member can't be find in the member's extSource (we are missing other attributes) we can try find him in
-        // the group
+        loginSubjectMap =
+            ((ExtSourceSimpleApi) membersSource).getSubjectsByLogins(loginSubjectMap.keySet().stream().toList());
+      } catch (ExtSourceUnsupportedOperationException e) {
+        // FIXME shouldn't we just fail here?
+        LOG.warn("ExtSource {} doesn't support 'getSubjectsByLogins' operation. " +
+                 "All members will be skipped.", membersSource);
+        loginSubjectMap.values().forEach(subject -> skippedMembers.add("MemberEntry:[" + subject + "] was skipped " +
+                               "because extSource " + membersSource + " does not support method getSubjectsByLogins"));
+        return candidates;
+      }
+    }
+
+    for (Map.Entry<String, Map<String, String>> entry : loginSubjectMap.entrySet()) {
+      Map<String, String> subject = entry.getValue();
+      String login = entry.getKey();
+
+      if (subject == null) {
+        LOG.warn("getGroupSubjects returned login '{}', but no data for it could be obtained from membersSource '{}'",
+            login, membersSource.getName());
+        // If member cannot be found in the membersSource, we can try to find them in the group
         UserExtSource subjectUserExtSource = new UserExtSource(membersSource, login);
-        //If member is in the group, we can create a simple object from him to preserve his existence in the group
+        // If member is in the group, create an object from them to preserve their existence in the group
         if (mappingStructure.containsKey(subjectUserExtSource)) {
           RichMember richMember = mappingStructure.get(subjectUserExtSource);
-          //convert richMember to simple candidate object (to prevent wrong attribute updating)
+          // convert richMember to candidate object (to prevent wrong attribute update)
           candidates.add(BeansUtils.convertRichMemberToCandidate(richMember, subjectUserExtSource));
           skippedMembers.add("MemberEntry:[" + richMember +
                              "] was skipped from updating in the group, because he can't be found by login:'" + login +
@@ -1383,16 +1391,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
                              "] was skipped from adding to the group because he can't be found by login:'" + login +
                              "' in extSource " + membersSource);
         }
-      } catch (ExtSourceUnsupportedOperationException e) {
-        LOG.warn("ExtSource {} doesn't support getCandidate operation.", membersSource);
-        skippedMembers.add("MemberEntry:[" + subject + "] was skipped because extSource " + membersSource +
-                           " not support method getCandidate");
-      } catch (ParserException e) {
-        LOG.warn("Can't parse value {} from candidate with login {}", e.getParsedValue(), login);
-        skippedMembers.add(
-            "MemberEntry:[" + subject + "] was skipped because of problem with parsing value '" + e.getParsedValue() +
-            "'");
+        continue;
       }
+
+      candidates.add(
+          new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
     }
 
     return candidates;

@@ -15,6 +15,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -120,7 +121,7 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 
     List<Map<String, String>> subjects = this.querySource(query, login);
 
-    if (subjects.size() < 1) {
+    if (subjects.isEmpty()) {
       throw new SubjectNotExistsException("Login: " + login);
     }
     if (subjects.size() > 1) {
@@ -128,6 +129,43 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
     }
 
     return subjects.get(0);
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins) {
+    String query = getAttributes().get("loginQuery");
+    if (query == null) {
+      throw new InternalErrorException("loginQuery attribute is required");
+    }
+
+    Map<String, Map<String, String>> subjects = new LinkedHashMap<>();
+    try (Connection con = getDataSource().getConnection()) {
+      try (PreparedStatement st = con.prepareStatement(query)) {
+        // sorted for deterministic order in logs
+        for (String login : logins.stream().sorted().toList()) {
+          LOG.debug("Searching for '{}' in external source '{}'", login, getName());
+          List<Map<String, String>> subjectFromLogin = this.querySource(st, login);
+
+          if (subjectFromLogin.isEmpty()) {
+            subjects.put(login, null);
+            continue;
+          }
+          if (subjectFromLogin.size() > 1) {
+            throw new InternalErrorException("External source returned more than one result for login '" + login +
+                                             "' and query '" + query + "'");
+          }
+
+          subjects.put(login, subjectFromLogin.get(0));
+        }
+        return subjects;
+      } catch (SQLException e) {
+        LOG.error("SQL exception during searching for subjects by logins with following query '{}'", query, e);
+        throw new InternalErrorException(e);
+      }
+    } catch (SQLException e) {
+      LOG.error("Cannot get connection from pool", e);
+      throw new InternalErrorException(e);
+    }
   }
 
   @Override
@@ -214,74 +252,22 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
     }
   }
 
+  /**
+   * Executes an SQL query initialized on this ext source.
+   *
+   * @param query the query to this ext source
+   * @param searchString the string with which to replace the query placeholders '?'
+   * @return A list with one element corresponding to the user's subjects in this ext source
+   * @throws InternalErrorException
+   */
   protected List<Map<String, String>> querySource(String query, String searchString)
       throws InternalErrorException {
     LOG.debug("Searching for '{}' in external source '{}'", searchString, getName());
     try (Connection con = getDataSource().getConnection()) {
       try (PreparedStatement st = con.prepareStatement(query)) {
-        // Substitute the ? in the query by the searchString
-        if (StringUtils.isNotBlank(searchString)) {
-          for (int i = st.getParameterMetaData().getParameterCount(); i > 0; i--) {
-            st.setString(i, searchString);
-          }
-        }
 
-        // make the SQL query
         LOG.trace("Query {}", query);
-        try (ResultSet rs = st.executeQuery()) {
-          // pre-process column metadata into columnMappings
-          ResultSetMetaData metaData = rs.getMetaData();
-          List<ColumnMapping> columnMappings = new ArrayList<>(metaData.getColumnCount());
-          for (int i = 1; i <= metaData.getColumnCount(); i++) {
-            String columnName = metaData.getColumnLabel(i);
-            String baseName = matchingBaseColumnName(columnName);
-            if (baseName != null) {
-              columnMappings.add(new ColumnMapping(i, baseName, false));
-            } else if (columnName.contains(":")) {
-              // Decode the attribute name (column name has limited size, so we need to code the attribute names)
-              // Coded attribute name: x:y:z
-              // x - m: member, u: user, f: facility, r: resource, mr: member-resource, uf: user-facility, h: host,
-              // v: vo, g: group, gr: group-resource
-              // y - d: def, o: opt
-              String[] attributeRaw = columnName.split(":", 3);
-              if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[0])) {
-                LOG.warn("Unknown attribute type '{}', column {}", attributeRaw[0], columnName);
-              } else if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[1])) {
-                LOG.warn("Unknown attribute type '{}', column {}", attributeRaw[1], columnName);
-              } else {
-                String attributeName =
-                    ATTRIBUTE_NAME_MAPPING.get(attributeRaw[0]) + ATTRIBUTE_NAME_MAPPING.get(attributeRaw[1]) +
-                    attributeRaw[2];
-                boolean blob = "BLOB".equals(metaData.getColumnTypeName(i));
-                columnMappings.add(new ColumnMapping(i, attributeName, blob));
-              }
-            } else if (columnName.toLowerCase().startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
-              // additionalUserExtSources, we must do lower case because some DBs changes lower to upper
-              columnMappings.add(new ColumnMapping(i, columnName.toLowerCase(), false));
-            }
-          }
-          // process each row
-          List<Map<String, String>> subjects = new ArrayList<>();
-          while (rs.next()) {
-            Map<String, String> map = new HashMap<>();
-            for (ColumnMapping columnMapping : columnMappings) {
-              if (columnMapping.blob) {
-                try (InputStream in = rs.getBinaryStream(columnMapping.columnIndex)) {
-                  map.put(columnMapping.attributeName, Base64.encodeBase64String(StreamUtils.copyToByteArray(in)));
-                } catch (IOException ex) {
-                  throw new InternalErrorException(
-                      "Unable to read BLOB data for column: " + columnMapping.attributeName, ex);
-                }
-              } else {
-                map.put(columnMapping.attributeName, rs.getString(columnMapping.columnIndex));
-              }
-            }
-            subjects.add(map);
-          }
-          LOG.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this,
-              searchString);
-          return subjects;
-        }
+        return querySource(st, searchString);
       } catch (SQLException e) {
         LOG.error("SQL exception during searching for subject '{}'", query);
         throw new InternalErrorException(e);
@@ -289,6 +275,82 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
     } catch (SQLException e) {
       LOG.error("Cannot get connection from pool", e);
       throw new InternalErrorException(e);
+    }
+  }
+
+  /**
+   * Executes an SQL query initialized in the given statement on this ext source. It clears any existing parameters
+   * and sets them anew to the value of searchString.
+   *
+   * @param st the prepared statement with a query to this ext source
+   * @param searchString the string with which to replace the query placeholders '?'
+   * @return A list with one element corresponding to the user's subjects in this ext source
+   * @throws InternalErrorException
+   * @throws SQLException
+   */
+  private List<Map<String, String>> querySource(PreparedStatement st, String searchString)
+      throws InternalErrorException, SQLException {
+    st.clearParameters();
+    // Substitute the ? in the query by the searchString
+    if (StringUtils.isNotBlank(searchString)) {
+      for (int i = st.getParameterMetaData().getParameterCount(); i > 0; i--) {
+        st.setString(i, searchString);
+      }
+    }
+
+    try (ResultSet rs = st.executeQuery()) {
+      // pre-process column metadata into columnMappings
+      ResultSetMetaData metaData = rs.getMetaData();
+      List<ColumnMapping> columnMappings = new ArrayList<>(metaData.getColumnCount());
+      for (int i = 1; i <= metaData.getColumnCount(); i++) {
+        String columnName = metaData.getColumnLabel(i);
+        String baseName = matchingBaseColumnName(columnName);
+        if (baseName != null) {
+          columnMappings.add(new ColumnMapping(i, baseName, false));
+        } else if (columnName.contains(":")) {
+          // Decode the attribute name (column name has limited size, so we need to code the attribute names)
+          // Coded attribute name: x:y:z
+          // x - m: member, u: user, f: facility, r: resource, mr: member-resource, uf: user-facility, h: host,
+          // v: vo, g: group, gr: group-resource
+          // y - d: def, o: opt
+          String[] attributeRaw = columnName.split(":", 3);
+          if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[0])) {
+            LOG.warn("Unknown attribute type '{}', column {}", attributeRaw[0], columnName);
+          } else if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[1])) {
+            LOG.warn("Unknown attribute type '{}', column {}", attributeRaw[1], columnName);
+          } else {
+            String attributeName =
+                ATTRIBUTE_NAME_MAPPING.get(attributeRaw[0]) + ATTRIBUTE_NAME_MAPPING.get(attributeRaw[1]) +
+                attributeRaw[2];
+            boolean blob = "BLOB".equals(metaData.getColumnTypeName(i));
+            columnMappings.add(new ColumnMapping(i, attributeName, blob));
+          }
+        } else if (columnName.toLowerCase().startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
+          // additionalUserExtSources, we must do lower case because some DBs changes lower to upper
+          columnMappings.add(new ColumnMapping(i, columnName.toLowerCase(), false));
+        }
+      }
+      // process each row
+      List<Map<String, String>> subjects = new ArrayList<>();
+      while (rs.next()) {
+        Map<String, String> map = new HashMap<>();
+        for (ColumnMapping columnMapping : columnMappings) {
+          if (columnMapping.blob) {
+            try (InputStream in = rs.getBinaryStream(columnMapping.columnIndex)) {
+              map.put(columnMapping.attributeName, Base64.encodeBase64String(StreamUtils.copyToByteArray(in)));
+            } catch (IOException ex) {
+              throw new InternalErrorException(
+                  "Unable to read BLOB data for column: " + columnMapping.attributeName, ex);
+            }
+          } else {
+            map.put(columnMapping.attributeName, rs.getString(columnMapping.columnIndex));
+          }
+        }
+        subjects.add(map);
+      }
+      LOG.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this,
+          searchString);
+      return subjects;
     }
   }
 

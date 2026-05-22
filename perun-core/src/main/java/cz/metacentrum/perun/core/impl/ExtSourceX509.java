@@ -5,6 +5,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,12 @@ public class ExtSourceX509 extends ExtSourceImpl implements ExtSourceSimpleApi {
 
   @Override
   public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins)
+      throws ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();
   }
 
