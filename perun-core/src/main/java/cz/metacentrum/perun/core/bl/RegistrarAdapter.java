@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.registrar.model.Application;
+import java.util.UUID;
 
 public interface RegistrarAdapter {
 
@@ -77,6 +78,8 @@ public interface RegistrarAdapter {
   void onUserIdentityJoined(PerunSession sess, UserExtSource userExtSource);
 
   void onRejectApplication(PerunSession sess, Application application);
+
+  boolean mailValidated(PerunSession sess, UUID formItemDataId);
 
   String getInviteUrlForVo(Vo vo);
 

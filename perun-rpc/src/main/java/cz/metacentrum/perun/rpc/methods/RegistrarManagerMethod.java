@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -332,11 +333,11 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      Vo vo;
+      Vo vo = null;
       Group group = null;
       if (parms.contains("vo")) {
         vo = ac.getVoById(parms.readInt("vo"));
-      } else {
+      } else if (parms.contains("group")) {
         group = ac.getGroupById(parms.readInt("group"));
         vo = ac.getVoById(group.getVoId());
       }
@@ -349,11 +350,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
         if (parms.contains("reason")) {
           reason = parms.readString("reason");
         }
+        Map<String, String> emailItems = null;
+        if (parms.contains("emailItems")) {
+          emailItems = (Map<String, String>) parms.read("emailItems", Map.class);
+        }
         ac.getRegistrarManager().getMailManager()
             .sendMessage(ac.getSession(), user, vo, group,
                 AppType.valueOf(parms.readString("newRegAppType")),
                 ApplicationMail.MailType.valueOf(parms.readString("mailType")), reason,
-                parms.readUUID("newRegAppId"));
+                parms.readUUID("newRegAppId"), emailItems);
         return null;
       }
 

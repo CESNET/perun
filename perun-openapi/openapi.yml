@@ -17578,6 +17578,11 @@ paths:
                     - EXTENSION
                   description: "type of the application from new Registrar"
                 reason: { type: string, description: "you can specify reason for case: mailType == APP_REJECTED_USER" }
+                emailItems:
+                  type: object
+                  description: "Map of the email items, {formItemDataUUID}->{value}"
+                  additionalProperties:
+                    type: string
 
   /json/registrarManager/sendMessages:
     post:

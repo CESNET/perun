@@ -1711,8 +1711,21 @@ public class MailManagerImpl implements MailManager {
     return isInvitationEnabled(sess, vo, group, false, true, false);
   }
 
+  /**
+   * Handles building and sending mail validation mail message.
+   * @param app Application object (for new reg this is a dummy)
+   * @param mail ApplicationMail object with the templates
+   * @param data old registrar application data
+   * @param reason
+   * @param exceptions
+   * @param newReg flag whether this is called for new registrar
+   * @param appId new registrar app id
+   * @param emailItemData map of new reg Item Data ID to the email value
+   * @throws MessagingException
+   */
   private void mailValidation(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason,
-                              List<Exception> exceptions) throws MessagingException {
+                              List<Exception> exceptions, boolean newReg, UUID appId,
+                              Map<String, String> emailItemData) throws MessagingException {
     MimeMessage message = mailSender.createMimeMessage();
     // set FROM
     setFromMailAddress(message, app.getVo(), app.getGroup());
@@ -1721,22 +1734,24 @@ public class MailManagerImpl implements MailManager {
     message.setRecipient(Message.RecipientType.TO, null); // empty = not sent
 
     // get language
-    Locale lang = new Locale(getLanguageFromAppData(app.getUser(), data, false));
+    Locale lang = new Locale(getLanguageFromAppData(app.getUser(), data, newReg));
 
     lang = checkLocaleAndFallback(mail, lang);
     // get localized subject and text
-    String mailText = getMailText(mail, lang, app, data, reason, exceptions, false, null);
+    String mailText = getMailText(mail, lang, app, data, reason, exceptions, newReg, appId);
     if (containsHtmlMessage(mail, lang)) {
-      String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, false,
-          null);
+      String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, newReg,
+          appId);
       setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
     } else {
       message.setText(mailText);
     }
-    String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions, false, null);
+    String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions, newReg, appId);
     message.setSubject(mailSubject);
 
-    // send to all emails, which needs to be validated
+    Map<String, String> stringIdToValueEmailMap =  new HashMap<>();
+
+    // send to all old registrar emails, which needs to be validated
     for (ApplicationFormItemData d : data) {
       ApplicationFormItem item = d.getFormItem();
       String value = d.getValue();
@@ -1749,33 +1764,39 @@ public class MailManagerImpl implements MailManager {
       }
       if (ApplicationFormItem.Type.VALIDATED_EMAIL.equals(item.getType()) && loa < 1) {
         if (value != null && !value.isEmpty()) {
-          // set TO
-          message.setRecipients(Message.RecipientType.TO, new InternetAddress[] {new InternetAddress(value)});
-
-          mailText = replaceValidationLinkAndRedirectUrl(app, d, mailText);
-
-          // set replaced text
-          if (containsHtmlMessage(mail, lang)) {
-            String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, false,
-                null);
-            alternativePlainText = replaceValidationLinkAndRedirectUrl(app, d, alternativePlainText);
-            setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
-          } else {
-            message.setText(mailText);
-          }
-
-          try {
-            mailSender.send(message);
-            LOG.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: {} / {} / {}",
-                message.getAllRecipients(), app.getId(), app.getVo(), app.getGroup());
-          } catch (MailException ex) {
-            LOG.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception.", ex);
-          }
-
+          stringIdToValueEmailMap.put(Integer.toString(d.getId(), Character.MAX_RADIX), value);
         } else {
           LOG.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed. Not valid value of VALIDATED_MAIL field: {}",
               value);
         }
+      }
+    }
+    // send to all passed new registrar mails
+    stringIdToValueEmailMap.putAll(emailItemData);
+    for (Map.Entry<String, String> e : stringIdToValueEmailMap.entrySet()) {
+      String idString = e.getKey();
+      String email = e.getValue();
+      // set TO
+      message.setRecipients(Message.RecipientType.TO, new InternetAddress[] {new InternetAddress(email)});
+
+      mailText = replaceValidationLinkAndRedirectUrl(app, idString, mailText);
+
+      // set replaced text
+      if (containsHtmlMessage(mail, lang)) {
+        String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, false,
+            null);
+        alternativePlainText = replaceValidationLinkAndRedirectUrl(app, idString, alternativePlainText);
+        setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
+      } else {
+        message.setText(mailText);
+      }
+
+      try {
+        mailSender.send(message);
+        LOG.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: {} / {} / {}",
+            message.getAllRecipients(), app.getId(), app.getVo(), app.getGroup());
+      } catch (MailException ex) {
+        LOG.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception.", ex);
       }
     }
   }
@@ -2275,10 +2296,9 @@ public class MailManagerImpl implements MailManager {
     return replaceNullSafe(mailText, FIELD_PHONE, phone);
   }
 
-  private String replaceValidationLinkAndRedirectUrl(Application app, ApplicationFormItemData d, String mailText) {
+  private String replaceValidationLinkAndRedirectUrl(Application app, String id, String mailText) {
     // get validation link params
-    String i = Integer.toString(d.getId(), Character.MAX_RADIX);
-    String m = getMessageAuthenticationCode(i);
+    String m = getMessageAuthenticationCode(id);
 
     // replace new validation link
     if (mailText.contains("{validationLink-")) {
@@ -2305,7 +2325,7 @@ public class MailManagerImpl implements MailManager {
             if (app.getGroup() != null) {
               params.put("group", app.getGroup().getShortName());
             }
-            params.put("i", i);
+            params.put("i", id);
             params.put("m", m);
             newValue = buildUrl(newValue, params, namespace, "registrar");
           }
@@ -2324,7 +2344,7 @@ public class MailManagerImpl implements MailManager {
         if (app.getGroup() != null) {
           params.put("group", app.getGroup().getName());
         }
-        params.put("i", i);
+        params.put("i", id);
         params.put("m", m);
 
         // use authType from vo/group attribute if exists
@@ -2595,7 +2615,7 @@ public class MailManagerImpl implements MailManager {
           sendUserMessage(app, mail, data, reason, exceptions, mail.getMailType(), false, null);
           break;
         case MAIL_VALIDATION:
-          mailValidation(app, mail, data, reason, exceptions);
+          mailValidation(app, mail, data, reason, exceptions, false, null, new HashMap<>());
           break;
         case APP_CREATED_VO_ADMIN:
           appCreatedVoAdmin(app, mail, data, reason, exceptions, false, null);
@@ -2709,7 +2729,7 @@ public class MailManagerImpl implements MailManager {
 
   @Override
   public void sendMessage(PerunSession sess, User user, Vo vo, Group group, AppType appType, MailType mailType,
-                          String reason, UUID appId)
+                          String reason, UUID appId, Map<String, String> mailAddresses)
       throws PerunException {
     if (MailType.USER_INVITE.equals(mailType)) {
       throw new RegistrarException("USER_INVITE notification can't be sent this way. Use sendInvitation() instead.");
@@ -2755,6 +2775,9 @@ public class MailManagerImpl implements MailManager {
           break;
         case APP_CREATED_VO_ADMIN:
           appCreatedVoAdmin(app, mail, new ArrayList<>(), reason, new ArrayList<>(), true, appId);
+          break;
+        case MAIL_VALIDATION:
+          mailValidation(app, mail, new ArrayList<>(), reason, new ArrayList<>(), true, appId, mailAddresses);
           break;
         default:
           LOG.error("Trying to send unsupported mail type for new registrar");

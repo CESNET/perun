@@ -297,10 +297,12 @@ public interface MailManager {
    * @param mailType
    * @param reason
    * @param appId
+   * @param mailAddresses mail addresses indexed by their new reg form item data id, id->emailAddress
    * @throws PerunException
    */
   void sendMessage(PerunSession sess, User user, Vo vo, Group group, Application.AppType appType,
-                   MailType mailType, String reason, UUID appId) throws PerunException;
+                   MailType mailType, String reason, UUID appId,
+                   Map<String, String> mailAddresses) throws PerunException;
 
   /**
    * Manually re-send multiple notifications at once. Expected to be called as a result of direct VO administrator

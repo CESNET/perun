@@ -226,6 +226,20 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
   }
 
   @Override
+  public boolean mailValidated(PerunSession sess, UUID formItemDataId) {
+    if (registrarApi == null) {
+      return false;
+    }
+
+
+    return registrarApi.mailValidated(formItemDataId)
+        .thenReturn(true)
+        .doOnError(e -> LOG.error("Failed to validate email", e))
+        .onErrorReturn(false)
+        .blockOptional().orElse(false);
+  }
+
+  @Override
   public String getInviteUrlForVo(Vo vo) {
     if (registrarApi == null) {
       return "";
