@@ -433,7 +433,6 @@ public class ExpirationNotifScheduler {
    *
    * @param group given date
    * @param date  current date
-   * @throws InternalErrorException internal error
    */
   private void checkGroupMemberExpiration(Group group, LocalDate date) {
     List<Member> shouldBeExpired = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "<=", date);
@@ -445,11 +444,10 @@ public class ExpirationNotifScheduler {
             // if member is not direct in group, false is returned
             return Objects.equals(MemberGroupStatus.VALID,
                 perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group));
-          } catch (InternalErrorException e) {
+          } catch (Exception e) {
             LOG.error(
                 "Synchronizer: checkGroupMemberExpiration failed to read member's state in group. Member: {}, Group: " +
-                "{}, Exception: {}",
-                member, group, e);
+                "{}. Member will be skipped from checking expiration.", member, group, e);
             return false;
           }
         }).forEach(member -> {
@@ -458,15 +456,9 @@ public class ExpirationNotifScheduler {
             LOG.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group,
                 perun.getAttributesManagerBl().getAttribute(sess, member, group,
                     AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration").getValue());
-          } catch (InternalErrorException | MemberGroupMismatchException e) {
-            LOG.error("Consistency error while trying to expire member {} in {}, exception {}", member, group, e);
-          } catch (AttributeNotExistsException e) {
-            LOG.warn(
-                "Synchronizer: checkGroupMembersState, attribute definition for membershipExpiration in group doesn't" +
-                " exist.",
-                e);
-          } catch (WrongAttributeAssignmentException e) {
-            LOG.error("Synchronizer: checkMembersState, attribute name is from wrong namespace.", e);
+          } catch (Exception e) {
+            LOG.error("Unexpected error while trying to expire member {} in {}. Member will be skipped.",
+                member.getId(), group.getName(), e);
           }
         });
   }
@@ -477,7 +469,6 @@ public class ExpirationNotifScheduler {
    *
    * @param group group where members are searched
    * @param date  current date
-   * @throws InternalErrorException internal error
    */
   private void checkGroupMemberValidation(Group group, LocalDate date) {
     List<Member> shouldNotBeExpired = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, ">", date);
@@ -489,11 +480,10 @@ public class ExpirationNotifScheduler {
             // if member is not direct in group, false is returned
             return Objects.equals(MemberGroupStatus.EXPIRED,
                 perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group));
-          } catch (InternalErrorException e) {
+          } catch (Exception e) {
             LOG.error(
                 "Synchronizer: checkGroupMemberExpiration failed to read member's state in group. Member: {}, Group: " +
-                "{}, Exception: {}",
-                member, group, e);
+                "{}.  Member will be skipped from checking expiration.", member, group, e);
             return false;
           }
         }).forEach(member -> {
@@ -511,6 +501,9 @@ public class ExpirationNotifScheduler {
                 e);
           } catch (WrongAttributeAssignmentException e) {
             LOG.error("Synchronizer: checkGroupMemberValidation, attribute name is from wrong namespace.", e);
+          } catch (Exception e) {
+            LOG.error("Unexpected error while trying to expire member {} in {}. Member will be skipped.",
+                member, group, e);
           }
         });
   }
@@ -519,7 +512,6 @@ public class ExpirationNotifScheduler {
    * Check members states in groups from given Vos.
    *
    * @param vos vos
-   * @throws InternalErrorException internal error
    */
   private void checkGroupMembersState(List<Vo> vos) {
 
@@ -542,16 +534,28 @@ public class ExpirationNotifScheduler {
     // for all groups in perun
     for (Group group : allGroups) {
 
-      auditIncomingGroupExpirations(allowedStatuses, group);
-      auditOldGroupExpirations(allowedStatuses, group);
+      try {
+        auditIncomingGroupExpirations(allowedStatuses, group);
+        auditOldGroupExpirations(allowedStatuses, group);
+      } catch (Exception e) {
+        LOG.error("Auditing incoming expirations failed for group '{}'. This group will still be processed for " +
+                  "lifecycle changes, but the auditing logs for incoming expirations might be missing or incomplete.",
+            group.getName(), e);
+      }
 
-      // check members which should expire today
-      checkGroupMemberExpiration(group, today);
-      // check members which should be validated today
-      checkGroupMemberValidation(group, today);
-      // perform lifecycle changes now that timestamps have been updated
-      performLifecycleChangesForGroup(group, today);
-
+      try {
+        // check members which should expire today
+        checkGroupMemberExpiration(group, today);
+        // check members which should be validated today
+        checkGroupMemberValidation(group, today);
+        // perform lifecycle changes now that timestamps have been updated
+        performLifecycleChangesForGroup(group, today);
+      } catch (Exception e) {
+        // almost all errors should be caught on the member level in the methods; this catch is just to be super safe
+        LOG.error("An unexpected error occurred when performing expirations and lifecycle changes for group '{}'. " +
+                  "The scheduled expiration, validation and lifecycle change process might be done only partly. " +
+                  "The process will continue with other groups.", group.getName(), e);
+      }
     }
   }
 
@@ -627,19 +631,17 @@ public class ExpirationNotifScheduler {
     // check group expiration in vos
     try {
       checkGroupMembersState(vos);
-    } catch (InternalErrorException e) {
-      LOG.error("checkGroupMembersState failed", e);
+    } catch (Exception e) {
+      // Should not happen, all relevant errors should be caught inside the method
+      LOG.error("Synchronizer: checkGroupMembersState failed", e);
     }
 
     // check vo membership expiration
     try {
       checkVoMembersState(vos);
-    } catch (InternalErrorException e) {
-      LOG.error("Synchronizer: checkMembersState.", e);
-    } catch (AttributeNotExistsException e) {
-      LOG.warn("Synchronizer: checkMembersState, attribute definition for membershipExpiration doesn't exist.", e);
-    } catch (WrongAttributeAssignmentException e) {
-      LOG.error("Synchronizer: checkMembersState, attribute name is from wrong namespace.", e);
+    } catch (Exception e) {
+      // Should not happen, all relevant errors should be caught inside the method
+      LOG.error("Synchronizer: checkMembersState failed", e);
     }
 
     LOG.debug("Processing checkMemberState() on (to be) expired members DONE!");
@@ -650,11 +652,8 @@ public class ExpirationNotifScheduler {
    * Checks state of members in given vos
    *
    * @param vos vos
-   * @throws InternalErrorException            internal error
-   * @throws WrongAttributeAssignmentException error
-   * @throws AttributeNotExistsException       error
    */
-  private void checkVoMembersState(List<Vo> vos) throws WrongAttributeAssignmentException, AttributeNotExistsException {
+  private void checkVoMembersState(List<Vo> vos) {
     // Only members with following statuses will be notified
     List<Status> allowedStatuses = new ArrayList<>();
     allowedStatuses.add(Status.VALID);
@@ -666,17 +665,26 @@ public class ExpirationNotifScheduler {
 
     performAutoExtension(vosMap.values());
 
-    auditIncomingExpirations(allowedStatuses, vosMap);
-
-    auditSponsorshipExpirations();
-
-    auditOldExpirations(allowedStatuses, vosMap);
+    try {
+      auditIncomingExpirations(allowedStatuses, vosMap);
+      auditSponsorshipExpirations();
+      auditOldExpirations(allowedStatuses, vosMap);
+    } catch (Exception e) {
+      LOG.error("Auditing incoming VO expirations failed. The scheduled expiration process will continue, " +
+                "but the audit logs might be missing or incomplete.", e);
+    }
 
     LocalDate today = getCurrentLocalDate();
-    expireMembers(today);
-    validateMembers(today);
-    expireSponsorships();
-    performLifecycleChangesForVos(vos, today);
+    try {
+      expireMembers(today);
+      validateMembers(today);
+      expireSponsorships();
+      performLifecycleChangesForVos(vos, today);
+    } catch (Exception e) {
+      // almost all errors should be caught on the member level in the methods; this catch is just to be super safe
+      LOG.error("An unexpected error occurred when performing expirations and lifecycle changes for VO members. " +
+                "The scheduled expiration, validation and lifecycle change process might be done only partly.", e);
+    }
   }
 
   /**
@@ -771,11 +779,8 @@ public class ExpirationNotifScheduler {
   /**
    * Expires members whose expiration is set to given date or before it.
    *
-   * @throws InternalErrorException            internal error
-   * @throws WrongAttributeAssignmentException error
-   * @throws AttributeNotExistsException       error
    */
-  private void expireMembers(LocalDate date) throws WrongAttributeAssignmentException, AttributeNotExistsException {
+  private void expireMembers(LocalDate date) {
     List<Member> shouldBeExpired = perun.getSearcherBl().getMembersByExpiration(sess, "<=", date);
     for (Member member : shouldBeExpired) {
       if (member.getStatus().equals(Status.VALID)) {
@@ -783,8 +788,8 @@ public class ExpirationNotifScheduler {
           perun.getMembersManagerBl().expireMember(sess, member);
           LOG.info("Switching {} to EXPIRED state, due to expiration {}.", member, perun.getAttributesManagerBl()
               .getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
-        } catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-          LOG.error("Consistency error while trying to expire member {}, exception {}", member, e);
+        } catch (Exception e) {
+          LOG.error("Unexpected error while trying to expire member {}. Member will be skipped.", member, e);
         }
       }
     }
@@ -802,7 +807,7 @@ public class ExpirationNotifScheduler {
 
       perun.getMembersManagerBl().removeSponsor(sess, member, sponsor);
       perun.getAuditer().log(sess, new SponsorshipExpired(convertSponsorshipToEnriched(sponsorship)));
-    } catch (MemberNotExistsException | UserNotExistsException e) {
+    } catch (Exception e) {
       LOG.error("Failed to expire sponsorship. Sponsorship: {}", sponsorship, e);
     }
   }
@@ -963,8 +968,8 @@ public class ExpirationNotifScheduler {
       if (canBeAutoExtended(member, voExpAttribute)) {
         try {
           perun.getMembersManagerBl().extendMembership(sess, member);
-        } catch (ExtendMembershipException e) {
-          LOG.error("Failed to auto-extend member: {}, exception: {}", member, e);
+        } catch (Exception e) {
+          LOG.error("Failed to auto-extend member: {}.", member, e);
         }
       }
     }
@@ -988,13 +993,19 @@ public class ExpirationNotifScheduler {
         }
         Attribute memberTimestampsAttr = getMemberTimestampAttribute(member);
         Map<String, String> memberTimestamps = memberTimestampsAttr.valueAsMap();
+        if (memberTimestamps == null || memberTimestamps.get("expiredAt") == null) {
+          LOG.error("Member '{}' is expired, but is missing 'expiredAt' timestamp in their lifecycle " +
+                    "attribute. This member will be skipped from archivation. This needs to be fixed manually.",
+              member);
+          continue;
+        }
         if (isPastCycle(memberTimestamps.get("expiredAt"), today, voRules.get("archiveAfter"))) {
           try {
             LOG.debug("SCHEDULED LIFECYCLE CHANGE: Disabling {}", member);
             perun.getMembersManagerBl().disableMember(sess, member);
           } catch (MemberNotValidYetException e) {
             // should not happen
-            throw new InternalErrorException("Couldn't disable member as part of lifecycle", e);
+            LOG.error("SCHEDULED LIFECYCLE CHANGE: Couldn't disable member as part of lifecycle", e);
           }
         }
       }
@@ -1006,13 +1017,19 @@ public class ExpirationNotifScheduler {
         }
         Attribute memberTimestampsAttr = getMemberTimestampAttribute(member);
         Map<String, String> memberTimestamps = memberTimestampsAttr.valueAsMap();
+        if (memberTimestamps == null || memberTimestamps.get("archivedAt") == null) {
+          LOG.error("Member '{}' is disabled, but is missing 'archivedAt' timestamp in their lifecycle " +
+                    "attribute. This member will be skipped from removal. This needs to be fixed manually.",
+              member);
+          continue;
+        }
         if (isPastCycle(memberTimestamps.get("archivedAt"), today, voRules.get("removeAfter"))) {
           try {
             LOG.debug("SCHEDULED LIFECYCLE CHANGE: Removing {}", member);
             perun.getMembersManagerBl().deleteMember(sess, member);
           } catch (MemberAlreadyRemovedException e) {
             // should not happen
-            throw new InternalErrorException("Couldn't disable member as part of lifecycle", e);
+            LOG.error("SCHEDULED LIFECYCLE CHANGE: Couldn't remove member as part of lifecycle", e);
           }
         }
       }
@@ -1039,13 +1056,20 @@ public class ExpirationNotifScheduler {
       }
       Attribute timestampAttr = getGroupMemberTimestampAttribute(member, group);
       Map<String, String> timestampMap = timestampAttr.valueAsMap();
+      if (timestampMap == null || timestampMap.get("expiredAt") == null) {
+        LOG.error("Member '{}' of group '{}' is expired, but is missing 'expiredAt' timestamp in their lifecycle " +
+                  "attribute. This member will be skipped. This needs to be fixed manually.",
+            member.getId(), group.getName());
+        continue;
+      }
+
       if (isPastCycle(timestampMap.get("expiredAt"), today, groupRules.get("removeAfter"))) {
         try {
           LOG.debug("SCHEDULED LIFECYCLE CHANGE: Removing {} from {}", member, group);
           perun.getGroupsManagerBl().removeMember(sess, group, member);
         } catch (NotGroupMemberException | GroupNotExistsException e) {
           // should not happen
-          throw new InternalErrorException("Failed to remove member from group.", e);
+          LOG.error("SCHEDULED LIFECYCLE CHANGE: Could not remove member from group.", e);
         }
       }
     }
@@ -1092,11 +1116,8 @@ public class ExpirationNotifScheduler {
    * Validates member whose expiration is set after the given date
    *
    * @param date date
-   * @throws InternalErrorException            internal error
-   * @throws WrongAttributeAssignmentException error
-   * @throws AttributeNotExistsException       error
    */
-  private void validateMembers(LocalDate date) throws WrongAttributeAssignmentException, AttributeNotExistsException {
+  private void validateMembers(LocalDate date) {
     List<Member> shouldntBeExpired = perun.getSearcherBl().getMembersByExpiration(sess, ">", date);
     for (Member member : shouldntBeExpired) {
       if (member.getStatus().equals(Status.EXPIRED)) {
@@ -1104,8 +1125,8 @@ public class ExpirationNotifScheduler {
           perun.getMembersManagerBl().validateMember(sess, member);
           LOG.info("Switching {} to VALID state, due to changed expiration {}.", member, perun.getAttributesManagerBl()
               .getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
-        } catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-          LOG.error("Error during validating member {}, exception {}", member, e);
+        } catch (Exception e) {
+          LOG.error("Unexpected error while trying to validate member {}. Member will be skipped.", member, e);
         }
       }
     }
