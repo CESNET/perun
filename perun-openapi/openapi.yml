@@ -3690,6 +3690,24 @@ components:
       in: query
       required: true
 
+    userUuid:
+      name: uuid
+      description: "uuid of User"
+      schema:
+        type: string
+        format: uuid
+      in: query
+      required: true
+
+    groupUuid:
+      name: uuid
+      description: "uuid of Group"
+      schema:
+        type: string
+        format: uuid
+      in: query
+      required: true
+
 #################################################
 #                                               #
 # TAGS - documentation for groups of operations #
@@ -10697,6 +10715,85 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/reserveLogin/user:
+    post:
+      tags:
+        - UsersManager
+      operationId: reserveLoginForUser
+      summary: Reserve login in a namespace for given userId.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - userId
+                - namespace
+              properties:
+                login: {type: string}
+                userId: {type: integer}
+                namespace: {type: string}
+                password: {type: string}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/reserveLogin:
+    post:
+      tags:
+        - UsersManager
+      operationId: reserveLogin
+      summary: Reserve login in a namespace for given identifier and issuer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - identifier
+                - issuer
+                - namespace
+              properties:
+                login: {type: string}
+                identifier: {type: string}
+                issuer: {type: string}
+                namespace: {type: string}
+                password: {type: string}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/deleteReservedLogin:
+    post:
+      tags:
+        - UsersManager
+      operationId: deleteReservedLogin
+      summary: Deletes login reservation for given namespace and login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+              properties:
+                namespace: {type: string}
+                login: {type: string}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
@@ -10715,6 +10812,23 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getRichMemberByUserUUID:
+    get:
+      tags:
+        - MembersManager
+      operationId: getRichMemberByUserUUID
+      summary: Returns RichMember with attributes by the users' uuid and the vo.
+      description: Gets RichMember by uuid
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userUuid'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/RichMemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -10800,6 +10914,21 @@ paths:
         - MembersManager
       operationId: getMemberByUser
       summary: Returns a Member specified by VO id and User id.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getMemberByUserIfExists:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMemberByUserIfExists
+      summary: Returns a Member specified by VO id and User ID. Returns null if the Member does not exist.
       parameters:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/userId'
@@ -13709,6 +13838,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupByUUID:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupByUUID
+      summary: Returns a group by uuid.
+      description: Throws GroupNotExistsException when the group doesn't exist.
+      parameters:
+        - $ref: '#/components/parameters/groupUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getRichGroupByIdWithAttributesByNames:
     get:
       tags:
@@ -13752,6 +13896,27 @@ paths:
       summary: Returns list of groups by their ids.
       parameters:
         - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getSubGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getSubGroups
+      summary: Returns direct subgroups of a group (single level)
+      parameters:
+        - { name: parentGroup,
+            description: "Parent Group id",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: true
+        }
       responses:
         '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
@@ -13861,6 +14026,20 @@ paths:
         - GroupsManager
       operationId: getAllGroups
       summary: Returns all groups in a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllMyGroups
+      summary: Returns all groups in a VO the user has access to.
       parameters:
         - $ref: '#/components/parameters/voId'
       responses:
@@ -13996,6 +14175,38 @@ paths:
               properties:
                 groups: { type: array, items: { type: integer } }
                 forceDelete: { type: boolean, description: "boolean for force delete" }
+
+  /urlinjsonout/groupsManager/getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup/dg-mg:
+    post:
+      tags:
+        - GroupsManager
+      operationId: getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup
+      summary: The groups embedded for an auto-registration in a group form need to be subgroups of this group. When moving 
+               a group within the VO, this relation can be broken. This method gets all such groups, meaning groups that
+               have the group to be moved as embedded in their registration form and will no longer be supergroups after
+               moving the group to the destination.
+      parameters:
+        - { name: destinationGroup,
+            description: "id of Group to have 'movingGroup' as subGroup",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: false
+        }
+        - { name: movingGroup,
+            description: "id of Group to be moved under 'destinationGroup'",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: true
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/groupsManager/moveGroup/dg-mg:
     post:
@@ -17145,6 +17356,32 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/getOpenApplicationsForUserInVo:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getOpenApplicationsForUserInVo
+      summary: Gets all open applications of the caller in the given VO
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getPrincipalsReservedLogins:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getPrincipalsReservedLogins
+      summary: Gets logins reserved by the caller in format of `namespace->login`
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/getApplicationById:
     get:
       tags:
@@ -17327,7 +17564,25 @@ paths:
               properties:
                 mailType: { $ref: '#/components/schemas/MailType' }
                 appId: { type: integer, description: "application id" }
+                group: { type: integer, description: "group id"}
+                vo: { type: integer, description: "vo id"}
+                user: { type: integer, description: "user id"}
+                newRegAppId:
+                  type: string
+                  format: uuid
+                  description: "application id in new Registrar"
+                newRegAppType:
+                  type: string
+                  enum:
+                    - INITIAL
+                    - EXTENSION
+                  description: "type of the application from new Registrar"
                 reason: { type: string, description: "you can specify reason for case: mailType == APP_REJECTED_USER" }
+                emailItems:
+                  type: object
+                  description: "Map of the email items, {formItemDataUUID}->{value}"
+                  additionalProperties:
+                    type: string
 
   /json/registrarManager/sendMessages:
     post:
@@ -17926,13 +18181,37 @@ paths:
         content:
           application/json:
             schema:
-              title: InputCheckForSimilarUsersWithData
+              title: InputCheckForSimilarUsersWithFormItemData
               description: "input to checkForSimilarUsersWithFormItemData"
               type: object
               required:
                 - formItems
               properties:
                 formItems: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfIdentityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/checkForSimilarUsers/new-registrar:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: checkForSimilarUsersWithAppData
+      summary: Check for similar users by name and email in new registrar application data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCheckForSimilarUsersWithAppData
+              description: "input to checkForSimilarUsersWithAppData"
+              type: object
+              required:
+                - appData
+              properties:
+                appData: { type: object, additionalProperties: {type: string}, description: "Map of the application attributes (key: attr name, value: attr value)" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfIdentityResponse'

@@ -10,6 +10,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.EnrichedIdentity;
 import cz.metacentrum.perun.registrar.model.Identity;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility manager with methods used for identity consolidation.
@@ -74,6 +75,15 @@ public interface ConsolidatorManager {
    * @throws PerunException
    */
   List<Identity> checkForSimilarUsers(PerunSession sess, List<ApplicationFormItemData> formItems) throws PerunException;
+
+  /**
+   * Check for similar users by new registrar application data.
+   * @param sess
+   * @param applicationData
+   * @return
+   * @throws PerunException
+   */
+  List<Identity> checkForSimilarUsers(PerunSession sess, Map<String, String> applicationData) throws PerunException;
 
   /**
    * Check for similar users by name and email.

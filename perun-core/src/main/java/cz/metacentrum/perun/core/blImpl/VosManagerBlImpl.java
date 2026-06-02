@@ -503,11 +503,7 @@ public class VosManagerBlImpl implements VosManagerBl {
       LOG.debug("Removing an administrators' group from the vo {}", vo);
       getPerunBl().getGroupsManagerBl().deleteMembersGroup(sess, vo);
 
-      // delete all VO reserved logins from KDC and DB
-      List<Integer> list = getVosManagerImpl().getVoApplicationIds(sess, vo);
-      for (Integer appId : list) {
-        perunBl.getUsersManagerBl().deleteReservedLoginsOnlyByGivenApp(sess, appId);
-      }
+      getPerunBl().getRegistrarAdapter().onDeleteVo(sess, vo);
 
       // VO applications, submitted data and app_form are deleted on cascade with "deleteVo()"
 
@@ -1098,6 +1094,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 
     }
     return richUsers;
+  }
+
+  @Override
+  public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) {
+    return getVosManagerImpl().getVoApplicationIds(sess, vo);
   }
 
   @Override

@@ -122,6 +122,7 @@ import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.InvitationNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataCertException;
 import cz.metacentrum.perun.registrar.exceptions.MissingRequiredDataException;
+import cz.metacentrum.perun.registrar.exceptions.NewRegistrarUsedException;
 import cz.metacentrum.perun.registrar.exceptions.NoPrefilledUneditableRequiredDataException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -703,6 +704,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw new RegistrarException("Application with ID " + appId + " doesn't exists.");
     }
     Member member;
+
+    throwIfNewRegistration(app, "Cannot edit old registrar applications " +
+                                    "for this Vo/Group as long as it uses new Registrar");
 
     //Authorization
     if (app.getGroup() == null) {
@@ -1905,11 +1909,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
           if (loginAvailable) {
             try {
               // Reserve login
+              String actor = session.getPerunPrincipal().getActor();
+              String extSource = session.getPerunPrincipal().getExtSourceName();
               jdbc.update(
                   "insert into application_reserved_logins(login,namespace,user_id,extsourcename,created_by," +
-                   "created_at) values(?,?,?,?,?,?)",
-                  login, loginNamespace, userId, session.getPerunPrincipal().getExtSourceName(),
-                  session.getPerunPrincipal().getActor(), new Date());
+                   "created_at,identifier) values(?,?,?,?,?,?)",
+                  login, loginNamespace, userId, extSource, actor, new Date(), actor);
               LOG.debug("[REGISTRAR] Added login reservation for login: {} in namespace: {}.", login, loginNamespace);
 
               // process password for this login
@@ -3630,16 +3635,20 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
   }
 
-  private List<Pair<String, String>> getPrincipalsReservedLogins(PerunSession sess) {
+  @Override
+  public List<Pair<String, String>> getPrincipalsReservedLogins(PerunSession sess) {
     User user = sess.getPerunPrincipal().getUser();
     List<Pair<String, String>> logins =
         user == null ? new ArrayList<>() : usersManager.getUsersReservedLogins(sess, user);
 
-    // search reserved logins by principals extsourcename and actor
+    // search reserved logins by principals extsourcename and actor or userId
     logins.addAll(jdbc.query(
-        "SELECT namespace,login " + " FROM application_reserved_logins " + " WHERE extsourcename=? and created_by=? ",
-        (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")),
-        sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor()));
+        "SELECT namespace,login " + " FROM application_reserved_logins " + " WHERE " +
+                " (extsourcename=? and identifier=?) " + " OR " +  " user_id=? ",
+        (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"),
+                resultSet.getString("login")),
+        sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor(),
+            sess.getPerunPrincipal().getUserId()));
 
     return logins;
   }
@@ -3829,6 +3838,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
           Arrays.asList(AttributesManager.NS_VO_ATTR_DEF + ":contactEmail",
               AttributesManager.NS_VO_ATTR_DEF + ":voLogoURL"));
 
+      Attribute useNewAttr;
+      try {
+        useNewAttr = attrManager.getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF +
+                                                            ":useNewRegistration");
+      } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+        useNewAttr = null;
+      }
+      if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+        String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForVo(vo);
+        result.put("newRegistrarUrl", regRedirect);
+        return result;
+      }
+
       result.put("vo", vo);
       result.put("voAttributes", list);
       result.put("voForm", getFormForVo(vo));
@@ -3902,8 +3924,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
       if (groupName != null && !groupName.isEmpty()) {
 
         group = groupsManager.getGroupByName(sess, vo, groupName);
+
+
         result.put("group", group);
         result.put("groupForm", getFormForGroup(group));
+        try {
+          useNewAttr = attrManager.getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF +
+                                                                 ":useNewRegistration");
+        } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+          useNewAttr = null;
+        }
+        if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+          String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForGroup(group);
+          result.put("groupNewRegistrarUrl", regRedirect);
+          return result;
+        }
 
         try {
           result.put("groupFormInitial",
@@ -4725,6 +4760,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
     Application processedApplication;
     try {
 
+      // check whether Vo/Group uses new registrar
+      throwIfNewRegistration(application, "Cannot submit old registrar applications " +
+                                               "for this Vo/Group as long as it uses new Registrar");
+
       // throws exception if user already submitted application or is already a member or can't submit it by VO/Group
       // expiration rules.
       checkDuplicateRegistrationAttempt(session, application.getType(),
@@ -4895,6 +4934,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
         throw new PrivilegeException(sess, "rejectApplication");
       }
     }
+    throwIfNewRegistration(app, "Cannot edit old registrar applications " +
+                                    "for this Vo/Group as long as it uses new Registrar");
 
     // only VERIFIED applications can be rejected
     if (AppState.APPROVED.equals(app.getState())) {
@@ -4940,6 +4981,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
         userPrincipal.setAdditionalInformations(BeansUtils.stringToMapOfAttributes(app.getFedInfo()));
         PerunSession helperSess = new PerunSessionImpl(sess.getPerun(), userPrincipal, sess.getPerunClient());
         List<Application> otherApps = registrarManager.getOpenApplicationsForUserInVo(helperSess, app.getVo());
+
+        perun.getRegistrarAdapter().onRejectApplication(sess, app);
         for (Application otherApp : otherApps) {
           registrarManager.rejectApplication(sess, otherApp.getId(), DEFAULT_GROUP_MSG_VO);
         }
@@ -5026,6 +5069,25 @@ public class RegistrarManagerImpl implements RegistrarManager {
       throw e;
     } catch (Exception ignored) {
       // deal with this exception later in the bulk call
+    }
+  }
+
+  private void throwIfNewRegistration(Application app, String message) throws PerunException {
+    // check whether Vo/Group uses new registrar
+    try {
+      Attribute useNewAttr;
+      if (app.getGroup() != null) {
+        useNewAttr = attrManager.getAttribute(registrarSession, app.getGroup(),
+            AttributesManager.NS_GROUP_ATTR_DEF + ":useNewRegistration");
+      } else {
+        useNewAttr = attrManager.getAttribute(registrarSession, app.getVo(),
+            AttributesManager.NS_VO_ATTR_DEF + ":useNewRegistration");
+      }
+      if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
+        throw new NewRegistrarUsedException(message);
+      }
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+      return;
     }
   }
 
@@ -6276,6 +6338,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
     byte[] mac = mailManager.getMessageAuthenticationCode(idStr).getBytes(StandardCharsets.UTF_8);
     byte[] m = urlParameters.get("m").getBytes(StandardCharsets.UTF_8);
     if (MessageDigest.isEqual(mac, m)) {
+      UUID newRegAppDataId = null;
+      try {
+        newRegAppDataId = UUID.fromString(idStr);
+      } catch (java.lang.IllegalArgumentException ex) {
+        // not UUID, continue with old behaviour
+      }
+      if (newRegAppDataId != null) {
+        return perun.getRegistrarAdapter().mailValidated(registrarSession, newRegAppDataId);
+      }
       int appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
       // validate mail
       jdbc.update("update application_data set assurance_level=1 where id = ?", appDataId);

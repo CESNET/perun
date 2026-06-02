@@ -75,6 +75,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidExcepti
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PersonalDataChangeNotEnabledException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
@@ -256,6 +257,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
     userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);
     getPerunBl().getAuditer().log(sess, new UserExtSourceAddedToUser(userExtSource, user));
+    getPerunBl().getRegistrarAdapter().onUserIdentityJoined(sess, userExtSource);
     return userExtSource;
   }
 
@@ -1016,6 +1018,77 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     }
   }
 
+  /**
+   * Checks preconditions for running login reservation
+   *
+   * @param sess session
+   * @param login login being reserved
+   * @param namespace namespace to reserve the login in
+   * @throws PrivilegeException
+   * @throws InvalidLoginException
+   * @throws AlreadyReservedLoginException
+   */
+  private void loginReservationCheck(PerunSession sess, String login, String issuer, String namespace)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException {
+    Utils.checkPerunSession(sess);
+
+    if (!issuer.isEmpty()) {
+      try {
+        getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, issuer);
+      } catch (ExtSourceNotExistsException e) {
+        throw new ExtSourceNotExistsException("Did not find any extSource for issuer with name: " + issuer + "");
+      }
+    }
+
+    if (!isLoginAvailable(sess, namespace, login)) {
+      throw new AlreadyReservedLoginException((
+              "Login: " + login + " in namespace: " + namespace + " is already occupied"
+      ));
+    }
+
+  }
+
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, int userId, String namespace, String
+                           password)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
+          UserNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
+          PasswordStrengthFailedException, PasswordStrengthException {
+    loginReservationCheck(sess, login, "", namespace);
+    getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+    getUsersManagerImpl().reserveLogin(sess, login, userId, namespace);
+    if (password != null) {
+      reservePassword(sess, login, namespace, password);
+    }
+  }
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace,
+                           String password)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
+          PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException,
+          PasswordStrengthException {
+    loginReservationCheck(sess, login, issuer, namespace);
+    getUsersManagerImpl().reserveLogin(sess, login, identifier, issuer, namespace);
+    if (password != null) {
+      reservePassword(sess, login, namespace, password);
+    }
+  }
+
+  @Override
+  public void deleteReservedLogin(PerunSession sess, Pair<String, String> login) {
+    try {
+      deletePassword(sess, login.getRight(), login.getLeft());
+    } catch (LoginNotExistsException ex) {
+      LOG.error("Login: {}  for namespace: {} not exists while deleting password", login.getRight(), login.getLeft());
+    } catch (PasswordOperationTimeoutException | InvalidLoginException | PasswordDeletionFailedException e) {
+      throw new InternalErrorException(
+          "Unable to delete password for login: " + login.getRight() + " and namespace: " + login.getLeft(), e);
+    }
+    getUsersManagerImpl().deleteReservedLogin(sess, login);
+  }
+
   @Override
   public List<Pair<String, String>> deleteReservedLogins(PerunSession sess,
                                                          Map<String, String> loginAttrsNameValueMap) {
@@ -1244,9 +1317,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       getUsersManagerImpl().anonymizeUser(sess, user);
       getPerunBl().getAuditer().log(sess, new UserUpdated(user));
 
-      // delete all users applications and submitted data, this is needed only when 'anonymizeInstead'
-      // because applications are deleted on cascade when user's row is deleted in DB
-      getUsersManagerImpl().deleteUsersApplications(user);
+      perunBl.getRegistrarAdapter().onDeleteUser(sess, user);
     } else {
       // Finally delete the user
       getUsersManagerImpl().deleteUser(sess, user);
@@ -1256,6 +1327,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     for (User specificUser : specificUsers) {
       logLastSpecificUserOwner(sess, specificUser);
     }
+  }
+
+  @Override
+  public void deleteUsersApplications(PerunSession perunSession, User user) {
+    getUsersManagerImpl().deleteUsersApplications(user);
   }
 
   @Override
@@ -1788,6 +1864,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
+  public User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException {
+    return getUsersManagerImpl().getUserByUUID(sess, uuid);
+  }
+
+  @Override
   public User getUserByMember(PerunSession sess, Member member) {
     if (member.getUserId() != 0) {
       try {
@@ -2132,6 +2213,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   @Override
   public List<Pair<String, String>> getUsersReservedLogins(PerunSession sess, User user) {
     return usersManagerImpl.getUsersReservedLogins(user);
+  }
+
+  @Override
+  public List<Pair<String, String>> getReservedLoginsByIdentifier(PerunSession sess, String identifier) {
+    return usersManagerImpl.getReservedLoginsByIdentifier(sess, identifier);
   }
 
   @Override
@@ -2898,7 +2984,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   @Override
   public void changeName(PerunSession sess, User user, String newUserName)
-      throws UserExtSourceNotExistsException, PersonalDataChangeNotEnabledException {
+      throws UserExtSourceNotExistsException, PersonalDataChangeNotEnabledException,
+      UserNotExistsException {
     if (!BeansUtils.getCoreConfig().getEnableLinkedName()) {
       throw new PersonalDataChangeNotEnabledException(
           "Change of user's name to name from user ext source is not enabled.");
@@ -2914,7 +3001,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
         if (ues.getLoa() > 0 && newUserName.equals(uesNameAttr.getValue())) {
           User updatedUser = Utils.parseUserFromCommonName(newUserName, true);
           updatedUser.setId(user.getId());
-          usersManagerImpl.updateUser(sess, updatedUser);
+          updateUser(sess, updatedUser);
           return;
         }
       } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
@@ -2929,7 +3016,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
   @Override
   public void changeNameCustom(PerunSession sess, User user, String titleBefore, String firstName, String middleName,
-                               String lastName, String titleAfter) throws PersonalDataChangeNotEnabledException {
+                               String lastName, String titleAfter)
+      throws PersonalDataChangeNotEnabledException, UserNotExistsException {
     if (!BeansUtils.getCoreConfig().getEnableCustomName()) {
       throw new PersonalDataChangeNotEnabledException(
           "Change of user's name to custom name is not enabled.");
@@ -2945,7 +3033,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
       user.setMiddleName(middleName);
       user.setLastName(lastName);
       user.setTitleAfter(titleAfter);
-      usersManagerImpl.updateUser(sess, user);
+      updateUser(sess, user);
     }
   }
 

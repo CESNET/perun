@@ -420,6 +420,16 @@ public interface VosManagerBl {
   List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes);
 
   /**
+   * Return list of IDs of all applications, which belongs to VO.
+   *
+   * @param sess
+   * @param vo
+   * @return list of all vo applications ids
+   * @throws InternalErrorException
+   */
+  List<Integer> getVoApplicationIds(PerunSession sess, Vo vo);
+
+  /**
    * Finds existing VO by id.
    *
    * @param perunSession

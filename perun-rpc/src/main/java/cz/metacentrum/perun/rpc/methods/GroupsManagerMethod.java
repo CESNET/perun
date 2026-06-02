@@ -316,6 +316,47 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * The groups embedded for an auto-registration in a group form need to be subgroups of this group. When moving
+   * a group within the VO, this relation can be broken. This method gets all such groups, meaning groups that
+   * have the group to be moved as embedded in their registration form and will no longer be supergroups after
+   * moving the group to the destination.
+   *
+   * @throw GroupNotExistsException When the group doesn't exist
+   *
+   * @param destinationGroup int <code>id</code> of Group to have "movingGroup" as subGroup
+   * @param movingGroup int <code>id</code> of Group to be moved under "destinationGroup"
+   *
+   * @return List<Group> the list of groups that will not be able to have the moved group as embedded after the move
+   */
+  /*#
+   * The groups embedded for an auto-registration in a group form need to be subgroups of this group. When moving
+   * a group within the VO, this relation can be broken. This method gets all such groups, meaning groups that
+   * have the group to be moved as embedded in their registration form and will no longer be supergroups after
+   * moving the group to the destination.n.
+   *
+   * @throw GroupNotExistsException When the group doesn't exist
+   *
+   * @param movingGroup int <code>id</code> of Group to be moved under "destinationGroup"
+   *
+   * @return List<Group> the list of groups that will not be able to have the moved group as embedded after the move
+   */
+  getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup {
+    @Override
+    public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      if (parms.contains("destinationGroup")) {
+        return ac.getGroupsManager().getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(
+            ac.getSession(), ac.getGroupById(parms.readInt("destinationGroup")),
+            ac.getGroupById(parms.readInt("movingGroup")));
+      } else {
+        return ac.getGroupsManager().getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(
+            ac.getSession(), null, ac.getGroupById(parms.readInt("movingGroup")));
+      }
+    }
+  },
+
+  /*#
    * Moves "movingGroup" (including subGroups) under "destinationGroup" as subGroup within same Vo.
    * Indirect group members are also processed during move operation.
    *
@@ -363,6 +404,21 @@ public enum GroupsManagerMethod implements ManagerMethod {
     @Override
     public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
       return ac.getGroupsManager().getGroupById(ac.getSession(), parms.readInt("id"));
+    }
+  },
+
+  /*#
+   * Returns a group by <code>uuid</code>.
+   *
+   * @throw GroupNotExistsException When the group doesn't exist
+   *
+   * @param uuid UUID Group <code>id</code>
+   * @return Group Found group
+   */
+  getGroupByUUID {
+    @Override
+    public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getGroupsManager().getGroupByUUID(ac.getSession(), parms.readUUID("uuid"));
     }
   },
 

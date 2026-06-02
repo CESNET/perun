@@ -1092,6 +1092,20 @@ public interface MembersManager {
       throws VoNotExistsException, MemberNotExistsException, PrivilegeException;
 
   /**
+   * Returns member by his vo and user but sends null instead of "MemberNotExistsException"
+   * @param sess
+   * @param vo
+   * @param user
+   * @return member
+   * @throws InternalErrorException
+   * @throws PrivilegeException
+   * @throws VoNotExistsException
+   */
+
+  Member getMemberByUserIfExists(PerunSession sess, Vo vo, User user)
+      throws PrivilegeException, VoNotExistsException, UserNotExistsException;
+
+  /**
    * Get the member VO.
    *
    * @param sess
@@ -1243,6 +1257,24 @@ public interface MembersManager {
    * @throws MemberNotExistsException if member not exists
    */
   RichMember getRichMemberById(PerunSession sess, int id) throws PrivilegeException, MemberNotExistsException;
+
+  /**
+   * Get RichMember by User and VO with specified attributes.
+   *
+   * @param sess
+   * @param vo
+   * @param user
+   * @param attrNames list of attribute names to include
+   * @return RichMember with specified attributes
+   * @throws MemberNotExistsException
+   * @throws AttributeNotExistsException
+   * @throws PrivilegeException
+   * @throws VoNotExistsException
+   * @throws UserNotExistsException
+   */
+  RichMember getRichMemberByUserWithAttributes(PerunSession sess, Vo vo, User user, List<String> attrNames)
+      throws MemberNotExistsException, AttributeNotExistsException, PrivilegeException, VoNotExistsException,
+                 UserNotExistsException;
 
   /**
    * Get Member to RichMember with attributes.

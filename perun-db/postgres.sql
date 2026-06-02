@@ -1,4 +1,4 @@
--- database version 3.2.34 (don't forget to update insert statement at the end of file)
+-- database version 3.2.35 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -632,13 +632,14 @@ create table application_mail_texts (
   constraint appmailtxt_appmails_fk foreign key (mail_id) references application_mails(id) on delete cascade
 );
 
--- APPLICATION_RESERVED_LOGINS - lognames reserved for new users who has not been saved at users table yet
+-- APPLICATION_RESERVED_LOGINS - lognames reserved for new users who have not been saved at users table yet
 create table application_reserved_logins (
 	login varchar not null,        --logname
 	namespace varchar not null,     --namespace where logname is reserved
 	user_id integer,            --identifier of user (user.id)
 	extsourcename varchar not null,
 	created_by varchar default user not null,
+	identifier varchar not null,
 	created_at timestamp default statement_timestamp() not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1952,7 +1953,7 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.34');
+insert into configurations values ('DATABASE VERSION','3.2.35');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

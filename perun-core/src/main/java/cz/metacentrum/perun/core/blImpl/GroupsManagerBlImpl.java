@@ -93,7 +93,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlr
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -102,8 +101,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -126,7 +123,6 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
-import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -151,6 +147,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1751,22 +1748,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
           "All resources was removed from this group, so no attributes should remain assigned.", ex);
     }
 
-    // delete all Groups reserved logins from KDC and DB
-    List<Integer> list = getGroupsManagerImpl().getGroupApplicationIds(sess, group);
-    for (Integer appId : list) {
-      // for each application
-      try {
-        perunBl.getUsersManagerBl().deleteReservedLoginsOnlyByGivenApp(sess, appId);
-      } catch (InvalidLoginException e) {
-        throw new InternalErrorException(
-            "We are deleting reserved login from group applications, but its syntax is not allowed by namespace " +
-            "configuration.", e);
-      } catch (PasswordOperationTimeoutException ex) {
-        throw new InternalErrorException("Failed to delete reserved login " + ex.getLogin() + " from KDC.", ex);
-      } catch (PasswordDeletionFailedException ex) {
-        throw new InternalErrorException("Failed to delete reserved login " + ex.getLogin() + " from KDC.", ex);
-      }
-    }
+    perunBl.getRegistrarAdapter().onDeleteGroup(sess, group);
 
     //remove all assigned ExtSources to this group
     List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
@@ -2784,8 +2766,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   }
 
   @Override
+  public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) {
+    return getGroupsManagerImpl().getGroupApplicationIds(sess, group);
+  }
+
+  @Override
   public Group getGroupById(PerunSession sess, int id) throws GroupNotExistsException {
     return getGroupsManagerImpl().getGroupById(sess, id);
+  }
+
+  @Override
+  public Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException {
+    return getGroupsManagerImpl().getGroupByUUID(sess, uuid);
   }
 
   @Override
@@ -4344,6 +4336,35 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   }
 
   @Override
+  public List<Group> getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(
+      PerunSession sess, Group destinationGroup, Group movingGroup) {
+    // collect groups that have the moving group or one of its subgroups as embedded in the registration form
+    Set<Group> groupsWhereMovingGroupAndSubgroupsAreEmbedded = new HashSet<>();
+    List<Group> groupsToCheck = getAllSubGroups(sess, movingGroup);
+    groupsToCheck.add(movingGroup);
+    for (Group groupToCheck : groupsToCheck) {
+      groupsWhereMovingGroupAndSubgroupsAreEmbedded.addAll(
+          groupsManagerImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(groupToCheck));
+    }
+
+    // all the to-be-broken candidates that are in the hierarchy of the group being moved are fine, so remove these
+    groupsWhereMovingGroupAndSubgroupsAreEmbedded.removeAll(groupsToCheck);
+
+    // if we are moving the group to be a top-level in the VO, we are done as all the groups we have left will be broken
+    if (destinationGroup == null) {
+      return new ArrayList<>(groupsWhereMovingGroupAndSubgroupsAreEmbedded);
+    }
+
+    // all the to-be-broken candidates that are parent groups of the destination
+    // along with the destination itself are fine, so remove these
+    List<Group> destinationAndItsParents = getParentGroups(sess, destinationGroup);
+    destinationAndItsParents.add(destinationGroup);
+    groupsWhereMovingGroupAndSubgroupsAreEmbedded.removeAll(destinationAndItsParents);
+
+    return groupsWhereMovingGroupAndSubgroupsAreEmbedded.stream().toList();
+  }
+
+  @Override
   public void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup)
       throws GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
@@ -4358,30 +4379,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
           destinationGroup);
     }
 
-    // check if moving group is involved in embedded group application process
-    if (isGroupForAnyAutoRegistration(sess, movingGroup)) {
-      ApplicationForm appForm = getGroupsManagerImpl().getParentApplicationFormForAutoRegistrationGroup(movingGroup);
-      if (appForm.getGroup() == null) {
-        throw new GroupMoveNotAllowedException("This group is involved in organization auto registration process.");
-      } else {
-        throw new GroupMoveNotAllowedException(
-            "This group is involved in auto registration process in the group with id=" + appForm.getGroup().getId());
-      }
-    }
+    List<Group> brokenAutoRegGroups = getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(
+        sess, destinationGroup, movingGroup);
+    if (!brokenAutoRegGroups.isEmpty()) {
+      List<Group> groupsToRemoveFromAutReg = getAllSubGroups(sess, movingGroup);
+      groupsToRemoveFromAutReg.add(movingGroup);
 
-    // check if any subgroup of moving group is involved in embedded group application process
-    for (Group subgroup : getAllSubGroups(sess, movingGroup)) {
-      if (isGroupForAnyAutoRegistration(sess, subgroup)) {
-        ApplicationForm appForm = getGroupsManagerImpl().getParentApplicationFormForAutoRegistrationGroup(subgroup);
-        if (appForm.getGroup() == null) {
-          throw new GroupMoveNotAllowedException(
-              "Subgroup with id=" + subgroup.getId() + " is involved in organization auto registration process.");
-        } else {
-          throw new GroupMoveNotAllowedException("Subgroup with id=" + subgroup.getId() +
-                                                 " is involved in auto registration process in the group with id=" +
-                                                 appForm.getGroup().getId());
-        }
-      }
+      LOG.info("Moving group {} to {} will break auto-registrations to groups {} from groups {}. These" +
+               " will be removed", movingGroup, destinationGroup, groupsToRemoveFromAutReg, brokenAutoRegGroups);
+      groupsManagerImpl.removeGroupsFromAutoRegistrationInTheGivenGroups(groupsToRemoveFromAutReg, brokenAutoRegGroups);
     }
 
     Map<Integer, Map<Integer, MemberGroupStatus>> previousStatuses = new HashMap<>();
@@ -4955,6 +4961,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     if (!getGroupsManagerImpl().isGroupMember(sess, group, member)) {
       addMemberToGroupsFromTriggerAttribute(sess, group, member);
     }
+    // todo reject existing open applications to group
+    getPerunBl().getRegistrarAdapter().onRemoveMemberFromGroup(
+        sess, group, member
+    );
   }
 
   /**

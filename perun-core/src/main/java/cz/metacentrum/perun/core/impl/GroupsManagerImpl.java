@@ -736,6 +736,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
   }
 
   @Override
+  public Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException {
+    try {
+      return jdbc.queryForObject("select " + GROUP_MAPPING_SELECT_QUERY +
+                                 " from groups where groups.uu_id=? ", GROUP_MAPPER, uuid);
+    } catch (EmptyResultDataAccessException err) {
+      throw new GroupNotExistsException("Group with UUID '" + uuid + "' was not found.");
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
+
+  @Override
   public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException {
     try {
       return jdbc.queryForObject(
@@ -1160,6 +1172,44 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
         }, appFormId);
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);
+    }
+  }
+
+  @Override
+  public List<Group> getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(Group group) {
+    try {
+      return jdbc.query("SELECT " + GROUP_MAPPING_SELECT_QUERY +
+                               "FROM auto_registration_groups arg " +
+                               "JOIN application_form_items afi ON arg.application_form_item_id = afi.id " +
+                               "JOIN application_form af ON afi.form_id = af.id " +
+                               "JOIN groups ON af.group_id = groups.id " +
+                               "WHERE arg.group_id = ?", GROUP_MAPPER, group.getId());
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
+
+  @Override
+  public void removeGroupsFromAutoRegistrationInTheGivenGroups(List<Group> groupsToBeRemovedFromAutoRegistration,
+                                                               List<Group> groupsWhereGroupsAreEmbedded) {
+    List<Integer> removedGroupIds = groupsToBeRemovedFromAutoRegistration.stream().map(Group::getId).toList();
+    List<Integer> embeddedGroupIds = groupsWhereGroupsAreEmbedded.stream().map(Group::getId).toList();
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("removedGroupIds", removedGroupIds);
+    params.addValue("embeddedGroupIds", embeddedGroupIds);
+
+    try {
+      namedParameterJdbcTemplate.update(
+          "DELETE FROM auto_registration_groups arg " +
+          "USING application_form_items afi, application_form af " +
+          "WHERE arg.application_form_item_id = afi.id " +
+          "  AND afi.form_id = af.id " +
+          "  AND arg.group_id IN (:removedGroupIds) " +
+          "  AND af.group_id IN (:embeddedGroupIds) ",
+          params);
+    } catch (RuntimeException ex) {
+      throw new InternalErrorException(ex);
     }
   }
 

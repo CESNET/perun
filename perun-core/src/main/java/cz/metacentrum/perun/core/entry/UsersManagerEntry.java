@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Paginated;
-import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -1175,6 +1175,19 @@ public class UsersManagerEntry implements UsersManager {
   }
 
   @Override
+  public User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException, PrivilegeException {
+    Utils.checkPerunSession(sess);
+
+    User user = getUsersManagerBl().getUserByUUID(sess, uuid);
+
+    if (!AuthzResolver.authorizedInternal(sess, "getUserById_int_policy", user)) {
+      throw new PrivilegeException(sess, "getUserByUUID");
+    }
+
+    return user;
+  }
+
+  @Override
   public User getUserByMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException {
     Utils.checkPerunSession(sess);
 
@@ -1807,6 +1820,49 @@ public class UsersManagerEntry implements UsersManager {
 
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
     getUsersManagerBl().reserveRandomPassword(sess, user, loginNamespace);
+  }
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, int userId, String namespace,
+                           String password)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, UserNotExistsException,
+          ExtSourceNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
+                     PasswordStrengthFailedException, PasswordStrengthException {
+    Utils.checkPerunSession(sess);
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "reserveLogin_String_String_String_String_policy")) {
+      throw new PrivilegeException(sess, "reserveLogin");
+    }
+
+    getPerunBl().getUsersManagerBl().reserveLogin(sess, login, userId, namespace,
+            password);
+  }
+
+  @Override
+  public void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace,
+                           String password)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException,
+                     PasswordOperationTimeoutException, PasswordCreationFailedException,
+                     PasswordStrengthFailedException, PasswordStrengthException {
+    Utils.checkPerunSession(sess);
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "reserveLogin_String_String_String_String_policy")) {
+      throw new PrivilegeException(sess, "reserveLogin");
+    }
+
+    getPerunBl().getUsersManagerBl().reserveLogin(sess, login, identifier, issuer, namespace,
+            password);
+  }
+
+  @Override
+  public void deleteReservedLogin(PerunSession sess, Pair<String, String> login) throws PrivilegeException {
+    Utils.checkPerunSession(sess);
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "deleteReservedLogin_String_String_String_String_policy")) {
+      throw new PrivilegeException(sess, "deleteReservedLogin");
+    }
+
+    getPerunBl().getUsersManagerBl().deleteReservedLogin(sess, login);
   }
 
   @Override

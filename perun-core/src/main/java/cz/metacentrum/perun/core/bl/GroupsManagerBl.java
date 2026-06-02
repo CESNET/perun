@@ -59,6 +59,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * <p>Groups manager can do all work about groups in VOs.</p>
@@ -1030,6 +1031,16 @@ public interface GroupsManagerBl {
   List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession perunSession, Group group);
 
   /**
+   * Return list of IDs of all applications, which belongs to Group.
+   *
+   * @param sess
+   * @param group
+   * @return list of all group applications ids
+   * @throws InternalErrorException
+   */
+  List<Integer> getGroupApplicationIds(PerunSession sess, Group group);
+
+  /**
    * Search for the group with specified id in all VOs.
    *
    * @param id
@@ -1039,6 +1050,16 @@ public interface GroupsManagerBl {
    * @throws GroupNotExistsException
    */
   Group getGroupById(PerunSession perunSession, int id) throws GroupNotExistsException;
+
+  /**
+   * Search for the group with specified UUID.
+   *
+   * @param sess
+   * @param uuid
+   * @return group with specified UUID or throws GroupNotExistsException
+   * @throws GroupNotExistsException
+   */
+  Group getGroupByUUID(PerunSession sess, UUID uuid) throws GroupNotExistsException;
 
   /**
    * Search for the group with specified name in specified VO.
@@ -2025,6 +2046,21 @@ public interface GroupsManagerBl {
    * @throws InternalErrorException
    */
   boolean isUserMemberOfGroup(PerunSession sess, User user, Group group);
+
+
+  /**
+   * The groups embedded for an auto-registration in a group form need to be subgroups of this group. When moving
+   * a group within the VO, this relation can be broken. This method gets all such groups, meaning groups that
+   * have the group to be moved as embedded in their registration form and will no longer be supergroups after
+   * moving the group to the destination.
+   *
+   * @param sess perun session
+   * @param destinationGroup group to which is moving group moved, if it's null group will be moved as top level group
+   * @param movingGroup group which is moved to destination group
+   * @return the list of groups that will not be able to have the moved group as embedded after the move
+   */
+  List<Group> getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(
+      PerunSession sess, Group destinationGroup, Group movingGroup);
 
   /**
    * Move one group structure under another group in same vo or as top level group

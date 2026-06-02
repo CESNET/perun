@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -678,6 +679,14 @@ public interface RegistrarManager {
    * @return open applications submitted by user (in session)
    */
   List<Application> getOpenApplicationsForUserInVo(PerunSession sess, Vo vo);
+
+  /**
+   * Returns pairs of `namespace-login` for the session. This will be logins reserved by the user (if present)
+   * and logins reserved via extSourceName and identifier
+   * @param sess
+   * @return
+   */
+  List<Pair<String, String>> getPrincipalsReservedLogins(PerunSession sess);
 
   /**
    * Try to approve all group applications of user with auto-approval (even by user-ext-source) in specified VO. Set

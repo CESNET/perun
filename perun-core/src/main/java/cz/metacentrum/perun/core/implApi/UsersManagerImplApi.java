@@ -178,6 +178,28 @@ public interface UsersManagerImplApi {
   void deleteReservedLoginsForNamespace(PerunSession sess, String namespace);
 
   /**
+   * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
+   * within it. UserId is used as identifier.
+   *
+   * @param sess Perun session
+   * @param login Login to reserve
+   * @param userId ID of user reserving the login
+   * @param namespace Namespace to reserve the login in
+   */
+  void reserveLogin(PerunSession sess, String login, int userId, String namespace);
+
+  /**
+   * Reserves login in given namespace. Namespace must exist and login must be valid within it.
+   *
+   * @param sess Perun session
+   * @param login Login to reserve
+   * @param identifier Unique identifier of the requesting entity
+   * @param issuer IdP issuing the login reservation
+   * @param namespace Namespace to reserve the login in
+   */
+  void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace);
+
+  /**
    * Deletes all links to sponsors, even those marked as inactive.
    *
    * @param sess    perun session
@@ -549,6 +571,16 @@ public interface UsersManagerImplApi {
   User getUserById(PerunSession perunSession, int id) throws UserNotExistsException;
 
   /**
+   * Returns user by UUID.
+   *
+   * @param sess
+   * @param uuid
+   * @return user
+   * @throws UserNotExistsException
+   */
+  User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException;
+
+  /**
    * Returns user by VO member.
    *
    * @param perunSession
@@ -763,6 +795,15 @@ public interface UsersManagerImplApi {
    * @throws InternalErrorException
    */
   List<Pair<String, String>> getUsersReservedLogins(User user);
+
+  /**
+   * Return list of all reserved logins for specific identifier (pair is namespace and login)
+   *
+   * @param sess Perun session
+   * @param identifier Identifier for which to get reserved logins
+   * @return list of pairs namespace and login
+   */
+  List<Pair<String, String>> getReservedLoginsByIdentifier(PerunSession sess, String identifier);
 
   /**
    * Returns all users who are not member of any VO.

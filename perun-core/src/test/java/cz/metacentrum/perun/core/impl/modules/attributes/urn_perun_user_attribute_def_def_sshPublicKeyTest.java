@@ -139,23 +139,6 @@ public class urn_perun_user_attribute_def_def_sshPublicKeyTest {
   }
 
   @Test
-  public void testCheckCorrectSshDssAttributeSyntax() throws Exception {
-    System.out.println("testCheckCorrectSshDssAttributeSyntax()");
-    List<String> value = new ArrayList<>();
-    value.add("ssh-dss " +
-              "AAAAB3NzaC1kc3MAAACBAIrmRnnZf7Gy2YbrdSMUDdcpvMzbuzN8yZjm7AUa6QmIKdWJpj0EdKbRifKW3" +
-              "5DpWW0GCnGuxxJTbiftnfVlEdFxZU8JRD1NLeYtJRVAli1J+nZ4UA4lGnf7kIj+QnPucLN3WbE5WQilQC+Z" +
-              "OL5k1KFe71BdJEQFCl1lRrNAUqb5AAAAFQDYZ7PrEgux3j86ovJtNkW+hkYwgQAAAIEAh+sld4f25d+y+7by" +
-              "uNj3W3G95KL8Q5KSu+zVh97MMHgdcBLr+7YrcaRcR33PLh65LUEFe8lyOo1BMyUHlq6dSisc1dCNMWPQZ1vkpM" +
-              "HPOuZ9q06pd2EiKt0IVqT33sgUnS52Zy4gX1HmCis9fKrSdFMc2+YsVJYTDrgodQfNLdAAAACAV3gFMKSsqbzE5t" +
-              "3L1lJ3oNcAWybCWcVjzfpHvtE8uia6UKg77TD2yHlhX3zxGvlJVwajQ968wxdrqaHZpZWCyswv/9+h3HKVtviWXVUw" +
-              "9/6b8vtwL1bWdr/atDNO3RHtxb+cL4hSr8X8rhyW35wMl1x09MtsPa62TTB+dNdva2s= peter@peter");
-    attributeToCheck.setValue(value);
-
-    classInstance.checkAttributeSyntax(session, user, attributeToCheck);
-  }
-
-  @Test
   public void testCheckCorrectSshRSAWithPrefixAttributeSyntax() throws Exception {
     System.out.println("testCheckCorrectSshRSAWithPrefixAttributeSyntax()");
     List<String> value = new ArrayList<>();

@@ -5,7 +5,9 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.MemberCandidate;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
@@ -27,9 +29,12 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -327,6 +332,35 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     @Override
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
+
+      Vo vo = null;
+      Group group = null;
+      if (parms.contains("vo")) {
+        vo = ac.getVoById(parms.readInt("vo"));
+      } else if (parms.contains("group")) {
+        group = ac.getGroupById(parms.readInt("group"));
+        vo = ac.getVoById(group.getVoId());
+      }
+      if (vo != null) {
+        User user = null;
+        if (parms.contains("user")) {
+          user = ac.getUserById(parms.readInt("user"));
+        }
+        String reason = null;
+        if (parms.contains("reason")) {
+          reason = parms.readString("reason");
+        }
+        Map<String, String> emailItems = null;
+        if (parms.contains("emailItems")) {
+          emailItems = (Map<String, String>) parms.read("emailItems", Map.class);
+        }
+        ac.getRegistrarManager().getMailManager()
+            .sendMessage(ac.getSession(), user, vo, group,
+                AppType.valueOf(parms.readString("newRegAppType")),
+                ApplicationMail.MailType.valueOf(parms.readString("mailType")), reason,
+                parms.readUUID("newRegAppId"), emailItems);
+        return null;
+      }
 
       if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
 
@@ -846,6 +880,43 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       }
     }
 
+  },
+
+  /*#
+   * Gets open applications for the current user in given VO
+   * based on authz and internal user ID.
+   *
+   * @param vo int VO <code>id</code>
+   * @return List<Application> Found open applications
+   */
+  getOpenApplicationsForUserInVo {
+    @Override
+    public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+      return ac.getRegistrarManager().getOpenApplicationsForUserInVo(ac.getSession(),
+          ac.getVoById(parms.readInt("vo")));
+    }
+
+  },
+
+  /*#
+   * Gets logins reserved by the caller in format of `namespace->login`
+   *
+   * @return Map<String, String> reserved logins
+   */
+  getPrincipalsReservedLogins {
+    @Override
+    public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+      List<Pair<String, String>> reservedLogins =
+          ac.getRegistrarManager().getPrincipalsReservedLogins(ac.getSession());
+      Map<String, String> result = new HashMap<>();
+      for (Pair<String, String> pair : reservedLogins) {
+        // sometimes the same key is returned multiple times, have to convert like this
+        result.put(pair.getLeft(), pair.getRight());
+      }
+      return result;
+    }
   },
 
   /*#
@@ -1641,6 +1712,16 @@ public enum RegistrarManagerMethod implements ManagerMethod {
    *
    * @return List<Identity> List of found similar identities.
    */
+  /*#
+   * Check if newly inserted form data may connect anonymous person to existing user.
+   * Return list of similar users (by identity, name or email).
+   * Returned users contain also organization and preferredMail attribute.
+   * For new Registrar usage.
+   *
+   * @param appData Map<String, String> Map of the application attributes (key: attr name, value: attr value)
+   *
+   * @return List<Identity> List of found similar identities.
+   */
   checkForSimilarUsers {
     @Override
     public List<Identity> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -1656,6 +1737,10 @@ public enum RegistrarManagerMethod implements ManagerMethod {
       } else if (parms.contains("formItems")) {
         return ac.getRegistrarManager().getConsolidatorManager()
             .checkForSimilarUsers(ac.getSession(), parms.readList("formItems", ApplicationFormItemData.class));
+      } else if (parms.contains("appData")) {
+        return ac.getRegistrarManager().getConsolidatorManager()
+                   .checkForSimilarUsers(ac.getSession(),
+                       (Map<String, String>) parms.read("appData", LinkedHashMap.class));
       } else {
         return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession());
       }

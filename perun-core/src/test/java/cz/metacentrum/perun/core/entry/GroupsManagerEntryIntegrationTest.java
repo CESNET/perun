@@ -2,12 +2,14 @@ package cz.metacentrum.perun.core.entry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -69,6 +71,7 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -86,6 +89,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.AdditionalAnswers;
+import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Integration tests of GroupsManager
@@ -3496,6 +3502,18 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
   }
 
   @Test
+  public void getGroupByUUID() throws Exception {
+    System.out.println(CLASS_NAME + "getGroupByUUID");
+
+    vo = setUpVo();
+    setUpGroup(vo);
+
+    Group returnedGroup = groupsManager.getGroupByUUID(sess, group.getUuid());
+    assertNotNull(returnedGroup);
+    assertEquals("both groups should be the same", returnedGroup, group);
+  }
+
+  @Test
   public void getGroupsByIds() throws Exception {
     System.out.println(CLASS_NAME + "getGroupsByIds");
 
@@ -5981,7 +5999,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
     richGroups = groupsManagerBl.getMemberRichGroupsWithAttributesByNames(sess, member,
         allAttributes.stream().map(Attribute::getName).collect(Collectors.toList()));
     assertEquals(group.getId(), richGroups.get(0).getId());
-    assertEquals(allAttributes, richGroups.get(0).getAttributes());
+    assertThat(richGroups.get(0).getAttributes()).containsExactlyInAnyOrderElementsOf(allAttributes);
   }
 
   @Test(expected = MemberNotExistsException.class)
@@ -6611,6 +6629,142 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
     // moving inside autoassigning tree, should keep assignment
     groupsManagerBl.moveGroup(sess, group, group3);
     assertTrue(perun.getResourcesManagerBl().getResourceAssignments(sess, group3, List.of()).size() == 1);
+  }
+
+  @Test
+  public void getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroupOneIsBroken() throws Exception {
+    System.out.println(CLASS_NAME + "getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroupOneIsBroken");
+
+    vo = setUpVo();
+
+    perun.getGroupsManager().createGroup(sess, vo, group);
+    perun.getGroupsManager().createGroup(sess, group, group2);
+
+    perun.getGroupsManager().createGroup(sess, vo, group3);
+    perun.getGroupsManager().createGroup(sess, group3, group4);
+    perun.getGroupsManager().createGroup(sess, group4, group5);
+    perun.getGroupsManager().createGroup(sess, group4, group6);
+    perun.getGroupsManager().createGroup(sess, group5, group7);
+    perun.getGroupsManager().createGroup(sess, group6, group8);
+
+    GroupsManagerImplApi realImpl =
+        (GroupsManagerImplApi) ReflectionTestUtils.getField(groupsManagerBl, "groupsManagerImpl");
+    GroupsManagerImplApi spyImpl = Mockito.mock(GroupsManagerImplApi.class, AdditionalAnswers.delegatesTo(realImpl));
+    ReflectionTestUtils.setField(groupsManagerBl, "groupsManagerImpl", spyImpl);
+
+    try {
+      when(spyImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(group4)).thenReturn(List.of(group3));
+      when(spyImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(group5)).thenReturn(List.of(group4));
+
+      List<Group> broken =
+          groupsManagerBl.getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(sess, group2, group4);
+
+      assertThat(broken).containsExactly(group3);
+    } finally {
+      ReflectionTestUtils.setField(groupsManagerBl, "groupsManagerImpl", realImpl);
+    }
+  }
+
+  @Test
+  public void getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroupTwoAreBroken() throws Exception {
+    System.out.println(CLASS_NAME + "getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroupTwoAreBroken");
+
+    vo = setUpVo();
+
+    perun.getGroupsManager().createGroup(sess, vo, group);
+    perun.getGroupsManager().createGroup(sess, group, group2);
+
+    perun.getGroupsManager().createGroup(sess, vo, group3);
+    perun.getGroupsManager().createGroup(sess, group3, group4);
+    perun.getGroupsManager().createGroup(sess, group4, group5);
+    perun.getGroupsManager().createGroup(sess, group5, group6);
+    perun.getGroupsManager().createGroup(sess, group6, group7);
+    perun.getGroupsManager().createGroup(sess, group7, group8);
+
+    GroupsManagerImplApi realImpl =
+        (GroupsManagerImplApi) ReflectionTestUtils.getField(groupsManagerBl, "groupsManagerImpl");
+    GroupsManagerImplApi spyImpl = Mockito.mock(GroupsManagerImplApi.class, AdditionalAnswers.delegatesTo(realImpl));
+    ReflectionTestUtils.setField(groupsManagerBl, "groupsManagerImpl", spyImpl);
+
+    try {
+      when(spyImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(group7)).thenReturn(List.of(group3));
+      when(spyImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(group8)).thenReturn(List.of(group4, group7));
+      when(spyImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(group6)).thenReturn(List.of(group5));
+
+      List<Group> broken =
+          groupsManagerBl.getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(sess, group2, group5);
+
+      assertThat(broken).contains(group3, group4);
+    } finally {
+      ReflectionTestUtils.setField(groupsManagerBl, "groupsManagerImpl", realImpl);
+    }
+  }
+
+  @Test
+  public void getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroupToTopLevel() throws Exception {
+    System.out.println(CLASS_NAME + "getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroupToTopLevel");
+
+    vo = setUpVo();
+
+    perun.getGroupsManager().createGroup(sess, vo, group);
+    perun.getGroupsManager().createGroup(sess, group, group2);
+
+    perun.getGroupsManager().createGroup(sess, vo, group3);
+    perun.getGroupsManager().createGroup(sess, group3, group4);
+    perun.getGroupsManager().createGroup(sess, group4, group5);
+    perun.getGroupsManager().createGroup(sess, group4, group6);
+    perun.getGroupsManager().createGroup(sess, group5, group7);
+    perun.getGroupsManager().createGroup(sess, group6, group8);
+
+    GroupsManagerImplApi realImpl =
+        (GroupsManagerImplApi) ReflectionTestUtils.getField(groupsManagerBl, "groupsManagerImpl");
+    GroupsManagerImplApi spyImpl = Mockito.mock(GroupsManagerImplApi.class, AdditionalAnswers.delegatesTo(realImpl));
+    ReflectionTestUtils.setField(groupsManagerBl, "groupsManagerImpl", spyImpl);
+
+    try {
+      when(spyImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(group8)).thenReturn(List.of(group3));
+
+      List<Group> broken =
+          groupsManagerBl.getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(sess, null, group4);
+
+      assertThat(broken).containsExactly(group3);
+    } finally {
+      ReflectionTestUtils.setField(groupsManagerBl, "groupsManagerImpl", realImpl);
+    }
+  }
+
+  @Test
+  public void getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroupAllAreFine() throws Exception {
+    System.out.println(CLASS_NAME + "getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroupAllAreFine");
+
+    vo = setUpVo();
+
+    perun.getGroupsManager().createGroup(sess, vo, group);
+    perun.getGroupsManager().createGroup(sess, group, group2);
+
+    perun.getGroupsManager().createGroup(sess, vo, group3);
+    perun.getGroupsManager().createGroup(sess, group3, group4);
+    perun.getGroupsManager().createGroup(sess, group4, group5);
+    perun.getGroupsManager().createGroup(sess, group5, group6);
+    perun.getGroupsManager().createGroup(sess, group6, group7);
+    perun.getGroupsManager().createGroup(sess, group7, group8);
+
+    GroupsManagerImplApi realImpl =
+        (GroupsManagerImplApi) ReflectionTestUtils.getField(groupsManagerBl, "groupsManagerImpl");
+    GroupsManagerImplApi spyImpl = Mockito.mock(GroupsManagerImplApi.class, AdditionalAnswers.delegatesTo(realImpl));
+    ReflectionTestUtils.setField(groupsManagerBl, "groupsManagerImpl", spyImpl);
+
+    try {
+      when(spyImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(group7)).thenReturn(List.of(group6));
+      when(spyImpl.getParentGroupsWhereGroupIsEmbeddedForAutoRegistration(group8)).thenReturn(List.of(group7));
+
+      List<Group> broken =
+          groupsManagerBl.getGroupsWhereAutoRegistrationWillBeBrokenByMovingGroup(sess, group4, group6);
+
+      assertThat(broken).isEmpty();
+    } finally {
+      ReflectionTestUtils.setField(groupsManagerBl, "groupsManagerImpl", realImpl);
+    }
   }
 
   @Test

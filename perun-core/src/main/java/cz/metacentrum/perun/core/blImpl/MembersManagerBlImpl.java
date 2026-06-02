@@ -152,8 +152,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
@@ -1693,7 +1691,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     //Remove possible links to member's sponsors
     membersManagerImpl.deleteSponsorLinks(sess, member);
 
-    membersManagerImpl.rejectAllMemberOpenApplications(sess, member);
+    perunBl.getRegistrarAdapter().onDeleteMember(sess, member);
 
     // Remove member from the DB
     removeMemberFromParentVos(sess, member);
@@ -2365,6 +2363,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
   }
 
   @Override
+  public Member getMemberByUserIfExists(PerunSession sess, Vo vo, User user) {
+    try {
+      return getMembersManagerImpl().getMemberByUserId(sess, vo, user.getId());
+    } catch (MemberNotExistsException e) {
+      return null;
+    }
+  }
+
+  @Override
   public Vo getMemberVo(PerunSession sess, Member member) {
     try {
       return getPerunBl().getVosManagerBl().getVoById(sess, getMembersManagerImpl().getMemberVoId(sess, member));
@@ -2705,6 +2712,24 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
     List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers);
     return richMembersWithAttributes.get(0);
+  }
+
+  @Override
+  public RichMember getRichMemberByUserWithAttributes(PerunSession sess, Vo vo, User user, List<String> attrNames)
+      throws MemberNotExistsException, AttributeNotExistsException {
+    Member member = membersManagerImpl.getMemberByUserId(sess, vo, user.getId());
+    List<Member> members = new ArrayList<>();
+    members.add(member);
+
+    List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
+
+    List<AttributeDefinition> attrsDef = new ArrayList<>();
+    for (String atrrName : attrNames) {
+      AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
+      attrsDef.add(attrDef);
+    }
+
+    return this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef).get(0);
   }
 
   @Override
@@ -3575,6 +3600,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       //Should not happen
       throw new InternalErrorException(e);
     }
+  }
+
+  @Override
+  public void rejectAllMemberOpenApplications(PerunSession sess, Member member) {
+    getMembersManagerImpl().rejectAllMemberOpenApplications(sess, member);
   }
 
   /**

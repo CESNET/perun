@@ -175,6 +175,32 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
   }
 
   @Test
+  public void getMemberByUserIfExists() throws Exception {
+    System.out.println(CLASS_NAME + "getMemberByUserIfExists");
+
+    Vo memberVo = setUpVo("member");
+
+    Member member = setUpMember(memberVo);
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    Member testedMember = perun.getMembersManagerBl().getMemberByUserIfExists(sess, memberVo, user);
+    assertEquals(member, testedMember);
+  }
+
+  @Test
+  public void getMemberByUserIfExistsFail() throws Exception {
+    System.out.println(CLASS_NAME + "getMemberByUserIfExistsFails");
+
+    Vo memberVo = setUpVo("member");
+    Vo otherVo = setUpVo("Null");
+
+    Member member = setUpMember(memberVo);
+    User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+    Member testedMember = perun.getMembersManagerBl().getMemberByUserIfExists(sess, otherVo, user);
+    assertEquals(null, testedMember);
+  }
+
+
+  @Test
   public void addSponsor() throws Exception {
     System.out.println(CLASS_NAME + "addSponsor");
     //create user which can sponsor
@@ -2535,6 +2561,19 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
   }
 
+  @Test
+  public void getRichMemberByUser() throws Exception {
+    System.out.println(CLASS_NAME + "getRichMemberByUser");
+
+    final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
+
+    final RichMember actualMember = membersManagerEntry.getRichMemberByUserWithAttributes(
+        sess, createdVo, u, new ArrayList<>());
+    assertNotNull(actualMember);
+    assertFalse(actualMember.getMemberAttributes().isEmpty());
+    assertFalse(actualMember.getUserAttributes().isEmpty());
+  }
+
   private MemberCandidate getMemberCandidateWithCandidate() {
     Candidate candidate = new Candidate();
     candidate.setFirstName("Test");
@@ -3317,7 +3356,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
     List<Integer> returnedMemberIds = result.getData().stream().map(PerunBean::getId).collect(toList());
 
-    assertThat(returnedMemberIds).containsExactly(member1.getId(), member2.getId(), member3.getId(), member4.getId(),
+    assertThat(returnedMemberIds).containsExactly(member1.getId(), member2.getId(), member4.getId(), member3.getId(),
         member5.getId());
   }
 

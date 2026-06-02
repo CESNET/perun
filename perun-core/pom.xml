@@ -223,6 +223,12 @@
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path</artifactId>
 		</dependency>
+
+        <dependency>
+              <groupId>org.perun</groupId>
+              <artifactId>registrar-api-client</artifactId>
+              <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <!--

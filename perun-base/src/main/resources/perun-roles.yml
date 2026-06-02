@@ -6764,6 +6764,18 @@ perun_policies:
     include_policies:
       - default_policy
 
+  reserveLogin_String_String_String_String_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  deleteReservedLogin_String_String_String_String_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
   changePassword_User_String_String_String_boolean_policy:
     policy_roles:
       - SELF: User
@@ -7992,6 +8004,8 @@ perun_policies:
   source-copyMailsFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8007,6 +8021,9 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8024,6 +8041,9 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8514,6 +8534,8 @@ perun_policies:
   source-copyFormFromVoToVo_Vo_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8528,6 +8550,8 @@ perun_policies:
   source-copyFormFromVoToGroup_Vo_Group_Policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -8545,6 +8569,9 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 

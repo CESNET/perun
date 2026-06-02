@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DeletionNotSupportedException;
@@ -932,6 +933,17 @@ public interface UsersManager {
   User getUserById(PerunSession perunSession, int id) throws UserNotExistsException, PrivilegeException;
 
   /**
+   * Returns user by UUID.
+   *
+   * @param sess
+   * @param uuid
+   * @return user
+   * @throws UserNotExistsException
+   * @throws PrivilegeException
+   */
+  User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException, PrivilegeException;
+
+  /**
    * Returns user by VO member.
    *
    * @param perunSession
@@ -1459,6 +1471,53 @@ public interface UsersManager {
   void reserveRandomPassword(PerunSession sess, User user, String loginNamespace)
       throws PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException,
       PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException;
+
+  /**
+   * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
+   * within it.
+   * Reserves a password for that login as well if it is passed
+   *
+   * @param sess Perun session
+   * @param login Login to reserve
+   * @param userId ID of user reserving the login
+   * @param namespace Namespace to reserve the login in
+   * @throws PrivilegeException
+   * @throws InvalidLoginException
+   * @throws AlreadyReservedLoginException
+   * @throws UserNotExistsException
+   */
+  void reserveLogin(PerunSession sess, String login, int userId, String namespace, String password)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, UserNotExistsException,
+          ExtSourceNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
+                     PasswordStrengthFailedException, PasswordStrengthException;
+
+  /**
+   * Reserves login in given namespace. Issuer must be an existing extSource. Namespace must exist and login must be
+   * valid within it.
+   * Reserves a password for that login as well if it is passed
+   *
+   * @param sess Perun session
+   * @param login Login to reserve
+   * @param identifier Unique identifier of the requesting entity
+   * @param issuer IdP issuing the login reservation
+   * @param namespace Namespace to reserve the login in
+   * @throws PrivilegeException
+   * @throws InvalidLoginException
+   * @throws AlreadyReservedLoginException
+   */
+  void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace,
+                    String password)
+          throws PrivilegeException, InvalidLoginException, AlreadyReservedLoginException, ExtSourceNotExistsException,
+                     PasswordOperationTimeoutException, PasswordCreationFailedException,
+                     PasswordStrengthFailedException, PasswordStrengthException;
+
+  /**
+   * Deletes given login reservation.
+   *
+   * @param sess
+   * @param login login (pair namespace and login) to delete
+   */
+  void deleteReservedLogin(PerunSession sess, Pair<String, String> login) throws PrivilegeException;
 
   /**
    * Allow users to manually add login in supported namespace if same login is not reserved. Can be set only to own

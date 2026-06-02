@@ -290,6 +290,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="vosManagerBl" ref="vosManagerBl"/>
         <property name="usersManagerBl" ref="usersManagerBl"/>
         <property name="groupsManagerBl" ref="groupsManagerBl"/>
+        <property name="registrarAdapter" ref="registrarAdapter"/>
         <property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
         <property name="consentsManagerBl" ref="consentsManagerBl"/>
         <property name="configManagerBl" ref="configManagerBl"/>
@@ -425,6 +426,10 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
           depends-on="databaseManagerBl">
         <property name="perunBl" ref="perun"/>
         <constructor-arg ref="groupsManagerImpl"/>
+    </bean>
+    <bean id="registrarAdapter" class="cz.metacentrum.perun.core.blImpl.RegistrarAdapterImpl" scope="singleton"
+          depends-on="databaseManagerBl" init-method="init">
+        <property name="perunBl" ref="perun"/>
     </bean>
     <bean id="tasksManagerBl" class="cz.metacentrum.perun.core.blImpl.TasksManagerBlImpl" scope="singleton"
           depends-on="databaseManagerBl">

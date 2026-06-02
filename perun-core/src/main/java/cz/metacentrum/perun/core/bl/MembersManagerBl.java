@@ -65,6 +65,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.scheduling.annotation.Async;
 
 /**
@@ -1273,6 +1274,17 @@ public interface MembersManagerBl {
   Member getMemberByUserId(PerunSession sess, Vo vo, int userId) throws MemberNotExistsException;
 
   /**
+   *Returns member by his vo and user but sends null instead of "MemberNotExistsException"
+   *
+   * @param sess
+   * @param vo
+   * @return member
+   * @throws InternalErrorException
+   * @throws MemberNotExistsException
+   */
+  Member getMemberByUserIfExists(PerunSession sess, Vo vo, User user);
+
+  /**
    * Get the member VO.
    *
    * @param sess
@@ -1452,6 +1464,20 @@ public interface MembersManagerBl {
    * @throws InternalErrorException
    */
   RichMember getRichMemberWithAttributes(PerunSession sess, Member member);
+
+  /**
+   * Get RichMember by User and VO with specified attributes.
+   *
+   * @param sess
+   * @param vo
+   * @param user
+   * @param attrNames list of attribute names to include
+   * @return RichMember with specified attributes
+   * @throws MemberNotExistsException
+   * @throws AttributeNotExistsException
+   */
+  RichMember getRichMemberByUserWithAttributes(PerunSession sess, Vo vo, User user, List<String> attrNames)
+      throws MemberNotExistsException, AttributeNotExistsException;
 
   /**
    * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources.
@@ -1764,6 +1790,15 @@ public interface MembersManagerBl {
    */
   void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser)
       throws MemberNotExistsException, AlreadyMemberException, ExtendMembershipException;
+
+  /**
+   * Reject all member applications which are not Approved or already rejected Reserved login/passwords are also
+   * deleted. User is not notified about the rejection.
+   *
+   * @param sess   perunSession
+   * @param member which applications will be removed
+   */
+  void rejectAllMemberOpenApplications(PerunSession sess, Member member);
 
   /**
    * Removes a sponsor.

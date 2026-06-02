@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidExcepti
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PersonalDataChangeNotEnabledException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SSHKeyNotValidException;
@@ -458,6 +459,45 @@ public interface UsersManagerBl {
       throws PasswordOperationTimeoutException, InvalidLoginException, PasswordDeletionFailedException;
 
   /**
+   * Reserves login in given namespace. User with given userId must exist. Namespace must exist and login must be valid
+   * within it.
+   * Reserves a password for that login as well if it is passed
+   * @param sess Perun session
+   * @param login Login to reserve
+   * @param userId ID of user reserving the login
+   * @param namespace Namespace to reserve the login in
+   */
+  void reserveLogin(PerunSession sess, String login, int userId, String namespace, String
+          password)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
+          UserNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
+          PasswordStrengthFailedException, PasswordStrengthException;
+
+  /**
+   * Reserves login in given namespace. Namespace must exist and login must be valid within it.
+   * Reserves a password for that login as well if it is passed
+   *
+   * @param sess Perun session
+   * @param login Login to reserve
+   * @param identifier Unique identifier of the requesting entity
+   * @param issuer IdP issuing the login reservation
+   * @param namespace Namespace to reserve the login in
+   */
+  void reserveLogin(PerunSession sess, String login, String identifier, String issuer, String namespace,
+                    String password)
+          throws InvalidLoginException, PrivilegeException, ExtSourceNotExistsException, AlreadyReservedLoginException,
+          PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException,
+          PasswordStrengthException;
+
+  /**
+   * Deletes given login reservation along with conneted password if it exists
+   *
+   * @param sess
+   * @param login login (pair namespace and login) to delete
+   */
+  void deleteReservedLogin(PerunSession sess, Pair<String, String> login);
+
+  /**
    * Deletes multiple reserved logins from various namespaces.
    * This method processes a map of login attribute names and their corresponding values,
    * extracts the namespace from each attribute definition, and deletes the reserved login
@@ -503,6 +543,14 @@ public interface UsersManagerBl {
   void deleteUser(PerunSession perunSession, User user, boolean forceDelete)
       throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException,
       SpecificUserAlreadyRemovedException, DeletionNotSupportedException;
+
+  /**
+   * Delete all applications and submitted data for specific user.
+   *
+   * @param user for which delete applications and submitted data
+   * @throws InternalErrorException
+   */
+  void deleteUsersApplications(PerunSession perunSession, User user);
 
   /**
    * For richUser filter all his user attributes and remove all which principal has no access to.
@@ -1113,6 +1161,16 @@ public interface UsersManagerBl {
   User getUserById(PerunSession perunSession, int id) throws UserNotExistsException;
 
   /**
+   * Returns user by UUID.
+   *
+   * @param sess
+   * @param uuid
+   * @return user
+   * @throws UserNotExistsException
+   */
+  User getUserByUUID(PerunSession sess, UUID uuid) throws UserNotExistsException;
+
+  /**
    * Returns user by VO member.
    *
    * @param perunSession
@@ -1416,10 +1474,20 @@ public interface UsersManagerBl {
   /**
    * Return list of all reserved logins for specific user (pair is namespace and login)
    *
-   * @param user for which get reserved logins
+   * @param sess Perun session
+   * @param user User for which to get reserved logins
    * @return list of pairs namespace and login
    */
   List<Pair<String, String>> getUsersReservedLogins(PerunSession sess, User user);
+
+  /**
+   * Return list of all reserved logins for specific identifier (pair is namespace and login)
+   *
+   * @param sess Perun session
+   * @param identifier Identifier for which to get reserved logins
+   * @return list of pairs namespace and login
+   */
+  List<Pair<String, String>> getReservedLoginsByIdentifier(PerunSession sess, String identifier);
 
   /**
    * Return list of users who matches the searchString, searching name, email and logins and are not member in specific
@@ -1900,7 +1968,7 @@ public interface UsersManagerBl {
    */
   void changeName(PerunSession sess, User user, String newUserName)
       throws UserExtSourceNotExistsException,
-                 PersonalDataChangeNotEnabledException;
+                 PersonalDataChangeNotEnabledException, UserNotExistsException;
 
   /**
    * Change user's name to custom name. If check from admin is required, then
@@ -1917,7 +1985,7 @@ public interface UsersManagerBl {
    */
   void changeNameCustom(PerunSession sess, User user, String titleBefore, String firstName, String middleName,
                         String lastName, String titleAfter)
-      throws PersonalDataChangeNotEnabledException;
+      throws PersonalDataChangeNotEnabledException, UserNotExistsException;
 
   /**
    * Change user's email to email from user ext source.
