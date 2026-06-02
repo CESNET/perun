@@ -1,5 +1,70 @@
 Upgrade notes
 
+## [52.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v51.0.1...v52.0.0) (2026-06-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** unity external source was removed, check that it is not used on your instance anymore
+* perun-python-cli is no longer a part of perun/perun-idm/perun repository and
+  has been moved into its own perun/perun-idm/perun-cli-python
+* Build of docker image for python cli should be modified to reflect this
+  change of repository and new configuration option - generate.sh script now allows use
+  of either local or remote OpenAPI yml file. By default, the script downloads it from
+  perun/perun-idm/perun repository.
+* **core:** new configuration options `perun.registrar.apiUrl` and 'perun.registrar.apiSecret' for comms with new Registrar
+
+### Features
+
+* allow moving a group used in auto registrations ([d53eb00](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d53eb00230ca54bc1da0dedbbedab50d6c5f6657))
+* **core:** add login reservation and release methods ([be29ceb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/be29ceb5b2f5bf4bdea6f88104b59d65e252d298))
+* **core:** add missing roles to source copy checks ([e6fbec9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e6fbec9124869ae00e86d79041a511bce3332fa8))
+* **core:** add missing roles to source copy checks ([a86bbbc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a86bbbcdec84fcdf87749209659c2e7cb1eb0246))
+* **core:** add missing roles to source copy checks ([25de879](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/25de8791cf308b444767a47ff3d2e8ce8537ec2d))
+* **core:** add missing roles to source copy checks ([8a067a3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8a067a3593b24edff5b8743730db2753158b2bbd))
+* **core:** add nullable variant of getMemberByUser ([35afcf6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/35afcf6375d5e337a3a3304449fc8fa8c3aba67c))
+* **core:** adjust reserveLogin API method ([bfff950](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bfff950927de271ea48b67f68fdd6a19cde06264))
+* **core:** integrate with new Registrar ([a4083be](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a4083bee720ee6bea6f4eefe38d9d5a872f4716d))
+* **core:** new attribute definition for user's assurances ([b3a0626](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b3a06267b612fa2c3b6352cb36e23225dcfad261))
+* **core:** switch to asynchronous calls to new registrar ([7a00f82](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7a00f82e296e45ace3a30afa0c6254212cbe6bd6))
+* get Group and Member by uuid methods ([a86cb61](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a86cb61d1365304bd3223b26e3f1e10c861280e4))
+* getSubgroups openapi spec ([8e40d99](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8e40d99423d499b1f30e04f63a62f5f720c51a8f))
+* **openapi:** add getGroups method to the openapi spec ([9adf438](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9adf4389686a6797006db0a0100ed2be5241e050))
+* organization domain user attribute ([a633349](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a63334930afd9d711a280515c00d6c008f33f3ec))
+* **registrar:** add getOpenApplicationsForUserInVo to RPC and openapi ([e9be3e6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e9be3e6f7a9bdea0491dfe9bdea2637474342bec))
+* **registrar:** allow email validation for new Registrar ([6681b57](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6681b57f8114794e35a0b2aad74c03cd75338e80))
+* **registrar:** check new registrar usage and redirect ([0b1c793](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0b1c79361df636983116b2f1dd9e81134969f823))
+* **registrar:** checkForSimilarUsers with new Registrar data ([b27395f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/b27395fb7a6543db7225099d1f96a221b44ceefe))
+* **registrar:** get new registrar URL for invitations ([f9c0868](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f9c0868609dc394658be50c21c468ec7454bf288))
+* **registrar:** getPrincipalsReservedLogins to openapi ([3eaeff0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3eaeff047e50b78840c73e7f6cf059824b8fda83))
+* **registrar:** inform new Registrar when VO initial app rejected ([421eb4e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/421eb4e7211ebde2edb83b455e9561e284476fc4))
+* **registrar:** send message for new reg ([f673ff2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f673ff266ec0dbcfe8d86509d48b932aa4ae3195))
+* rpStage attribute added to schema ([3e637c0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3e637c01936ffc4291a79b819a6a90461e2fd5f5))
+
+
+### Bug Fixes
+
+* **core:** allow reading of useNewRegistration attribute ([d83dc6b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d83dc6b353868db68a58cdc90452ed1de27536f7))
+* **core:** audit user update when changing name ([2a6c9e1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2a6c9e1930b3d7d4c6cd3bbaee9becb37a454e53))
+* **core:** correct sorting in the members page query ([6467c60](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6467c60888d401e14024c5ad9383fa0444beae37))
+* **core:** lifecycles do not perform the changes when key is unset ([aa2841c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/aa2841ccaa155f7c3aa431220935220834600af7))
+* **deps:** update dependency google-api-services-admin-directory ([287cce4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/287cce403125400426c610972394c629385fc614))
+* **deps:** update dependency google-api-services-admin-directory ([cd603b0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cd603b04d8ea07f9a1e310ff29381818305dd77f))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.84 ([afa64fe](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/afa64feaa5c9d3eb3d2f6f0ed80f8a7920ccaf8b))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.13 ([c36547a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c36547a19cf2415846487df977c9e189d8b9bfa2))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.14 ([45fbc32](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/45fbc3241116ef98486508705f7cb8972fc3cacd))
+* do not use deprecated DefaultHttpClient ([1de7c96](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1de7c96184f46e1fe477dd2723dbda688ee4b3e1))
+* **registrar:** anonymous app reject fix ([5eafafe](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5eafafe72e1c201ce48c4ec9327a7df131ff188b))
+* **registrar:** scheduled method checkMembersState now catches exceptions ([f0637b3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f0637b3b9e7f4362936222b903b0ad3eac3f98fb))
+* return RichMember on getRichMemberByUserUUID openapi spec ([fcc6254](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fcc625408cd3c81a5269e27e30f0e9d54fdcdf4e))
+* update new registrar url retrieval ([3cbb865](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3cbb8654da34c27e990f73b33f3c2d02b1acedc7))
+
+
+### Others
+
+* **core:** remove unity external source ([a7b0614](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a7b0614c5c7e57ad03c0cf86f2389c5e6ba783c4))
+* remove python cli ([be3c283](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/be3c283ec8662f12bf20ca956ba3652019b3b778))
+
 ## [51.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v51.0.0...v51.0.1) (2026-05-05)
 
 
