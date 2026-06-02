@@ -5,7 +5,6 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
 use Perun::Common qw(printMessage);
-use Switch;
 
 sub help {
 	return qq{
@@ -48,24 +47,25 @@ my @oldActions = ();
 @oldActions = $attributesAgent->getAttributeRules( attributeDefinition => $attributeId )->getCriticalActions;
 
 my @newActions = ();
-switch($criticalActions) {
-	case "R" {
+my %criticalActionsResolver = (
+	"R"   => sub {
 		push(@newActions, "READ");
-	}
-	case "W" {
+	},
+	"W"   => sub {
 		push(@newActions, "WRITE");
-	}
-	case "R+W" {
+	},
+	"R+W" => sub {
 		push(@newActions, "READ");
 		push(@newActions, "WRITE");
-	}
-	case "N" {
+	},
+	"N"   => sub {
 		# keep list empty
-	}
-	else {
-		die "ERROR: invalid action.\n";
-	}
-}
+	},
+);
+
+my $resolver = $criticalActionsResolver{$criticalActions}
+	or die "ERROR: invalid action.\n";
+$resolver->();
 
 foreach my $action (@oldActions) {
 	if (! grep(/^$action$/, @newActions)) {

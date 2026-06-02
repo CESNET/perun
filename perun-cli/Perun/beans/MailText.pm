@@ -106,7 +106,7 @@ sub setIsHtml
 {
 	my $self = shift;
 	my $value = shift;
-	if (ref $value eq "JSON::XS::Boolean")
+	if (ref $value eq "JSON::PP::Boolean")
 	{
 		$self->{_htmlFormat} = $value;
 	} elsif ($value eq 'true' || $value eq 1)

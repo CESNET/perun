@@ -2,7 +2,6 @@ package Perun::beans::Attribute;
 
 use strict;
 use warnings;
-use Switch;
 
 use overload
 	'""' => \&toString;
@@ -263,11 +262,11 @@ sub getValueAsScalar {
 	my $self = shift;
 	my $value = $self->getValue;
 
-	switch(ref $value) {
-		case ""       { return $value }
-		case "SCALAR" { return $value }
-		case "ARRAY"  { return '["'.join('", "', @$value).'"]' }
-		case "HASH"   {
+	my %valueToScalarResolver = (
+		""       => sub { return $value; },
+		"SCALAR" => sub { return $value; },
+		"ARRAY"  => sub { return '["' . join('", "', @$value) . '"]';},
+		"HASH"   => sub {
 			my $str = '{';
 			foreach my $key (reverse keys %$value) {
 				$str .= '"'.$key.'" => "'.$value->{$key}.'",';
@@ -275,62 +274,60 @@ sub getValueAsScalar {
 			$str =~ s/,$//;
 			$str .= '}';
 			return $str;
-		}
-		case "JSON::XS::Boolean" {
-			return ($value) ? 'true' : 'false';
-		}
-		else {
-			return 'UNKNOWN VALUE TYPE'
-		}
-	}
+		},
+		"JSON::PP::Boolean"	=> sub { return ($value) ? 'true' : 'false'; }
+	);
+
+	my $resolver = $valueToScalarResolver{ref $value}
+		or return 'UNKNOWN VALUE TYPE';
+	return $resolver->();
 }
 
 sub setValueFromArray {
 	my $attribute = shift; #self
+	my $attributeType = $attribute->getType;
 
-	switch ($attribute->getType) {
-		case /^string$/ {
-			if (scalar @_ > 1) { Perun::Common::printMessage(
-				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
-			$attribute->setValue( $_[0] );
+	if ($attributeType eq "string") {
+		if (scalar @_ > 1) { Perun::Common::printMessage(
+			"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+		$attribute->setValue( $_[0] );
+	}
+	elsif ($attributeType eq "integer") {
+		if (scalar @_ > 1) { Perun::Common::printMessage(
+			"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+		my $attributeIntegerValue = $_[0] * 1;
+		$attribute->setValue( $attributeIntegerValue );
+	}
+	elsif ($attributeType eq "boolean") {
+		if (scalar @_ > 1) { Perun::Common::printMessage(
+			"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+		if (("$_[0]" eq '1') or ("$_[0]" eq 'true')) {
+			my $true = JSON::XS::true;
+			$attribute->setValue( $true );
+		} elsif (("$_[0]" eq '0') or ("$_[0]" eq 'false')) {
+			my $false = JSON::XS::false;
+			$attribute->setValue( $false );
+		} else {
+			Perun::Common::printMessage(
+				"Value is not of boolean type, please use numbers 1/0 or strings true/false as input.", $::batch);
 		}
-		case "integer" {
-			if (scalar @_ > 1) { Perun::Common::printMessage(
-				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
-			my $attributeIntegerValue = $_[0] * 1;
-			$attribute->setValue( $attributeIntegerValue );
+	}
+	elsif ($attributeType eq "array") {
+		my @arr = @_;
+		for (my $i=0; $i<scalar @arr; $i++) {
+			utf8::decode($arr[$i]);
 		}
-		case "boolean" {
-			if (scalar @_ > 1) { Perun::Common::printMessage(
-				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
-			if (("$_[0]" eq '1') or ("$_[0]" eq 'true')) {
-				my $true = JSON::XS::true;
-				$attribute->setValue( $true );
-			} elsif (("$_[0]" eq '0') or ("$_[0]" eq 'false')) {
-				my $false = JSON::XS::false;
-				$attribute->setValue( $false );
-			} else {
-				Perun::Common::printMessage(
-					"Value is not of boolean type, please use numbers 1/0 or strings true/false as input.", $::batch);
-			}
+		$attribute->setValue( \@arr );
+	}
+	elsif ($attributeType eq "hash") {
+		my %hash = @_;
+		for my $key (keys %hash) {
+			utf8::decode($hash{$key});
 		}
-		case /^array$/ {
-			my @arr = @_;
-			for (my $i=0; $i<scalar @arr; $i++) {
-				utf8::decode($arr[$i]);
-			}
-			$attribute->setValue( \@arr );
-		}
-		case "hash" {
-			my %hash = @_;
-			for my $key (keys %hash) {
-				utf8::decode($hash{$key});
-			}
-			$attribute->setValue(  \%hash );
-		}
-		else {
-			die "Unknown attribute type. Type=".$attribute->getType;
-		}
+		$attribute->setValue(  \%hash );
+	}
+	else {
+		die "Unknown attribute type. Type=".$attributeType;
 	}
 }
 
@@ -352,7 +349,7 @@ sub setUnique
 {
 	my $self = shift;
 	my $val = shift;
-	if (ref $val eq "JSON::XS::Boolean")
+	if (ref $val eq "JSON::PP::Boolean")
 	{
 		$self->{_unique} = $val;
 	} elsif ($val eq 'true' || $val eq 1)

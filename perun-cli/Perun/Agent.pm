@@ -12,7 +12,6 @@ use warnings;
 use overload
 	'""' => sub { return "Perun::Agent object - version: $agentVersion \n"; };
 
-use Switch;
 use HTTP::Request::Common;
 use LWP::UserAgent;
 use JSON::XS;
@@ -157,15 +156,22 @@ sub new {
 
 		unless ($response->is_success) {
 			# Connection was OK, so check the return code
-			switch($code) {
-				case 401 {die Perun::Exception->fromHash({ type => AUTHENTICATION_FAILED });}
-				case 500 {die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo =>
-					("HTTP STATUS CODE: $code") });}
-				case 302 {next;}
-				case 405 {next;}
-				case 404 {die Perun::Exception->fromHash({ type => WRONG_URL, errorInfo => $self->{_url} });}
-				else {die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo =>
-					("HTTP STATUS CODE: $code") });}
+			if ($code == 401) {
+				die Perun::Exception->fromHash({
+					type => AUTHENTICATION_FAILED
+				});
+			}
+			elsif ($code == 404 || $code == 302 || $code == 405) {
+				die Perun::Exception->fromHash({
+					type => WRONG_URL,
+					errorInfo => $self->{_url},
+				});
+			}
+			else {
+				die Perun::Exception->fromHash({
+					type => SERVER_ERROR,
+					errorInfo => "HTTP STATUS CODE: $code",
+				});
 			}
 		}
 	}

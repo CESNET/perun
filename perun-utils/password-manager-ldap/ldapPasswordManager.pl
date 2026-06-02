@@ -15,7 +15,6 @@
 
 use strict;
 use warnings;
-use Switch;
 use Net::LDAPS;
 use Net::LDAP::Entry;
 use Net::LDAP::Message;
@@ -25,6 +24,13 @@ sub ldap_connect;
 sub ldap_disconnect;
 sub ldap_search;
 sub ldap_log;
+sub changeAction;
+sub checkAction;
+sub reserveAction;
+sub deleteAction;
+sub validateAction;
+sub reserveRandomAction;
+#sub searchAction;
 
 # ldap instance holder
 my $ldap = undef;
@@ -45,221 +51,228 @@ my $login = $ARGV[2];
 my $user_pass = undef;
 
 # do stuff based on password manager action type
-switch ($action){
+my %passwordManagerActionDispatch = (
+	"change"         => \&changeAction,
+	"check"          => \&checkAction,
+	"reserve"        => \&reserveAction,
+	"delete"         => \&deleteAction,
+	"validate"       => \&validateAction,
+	"reserve_random" => \&reserveRandomAction,
+	# "search"         => \&searchAction,
+);
 
-	case("change"){
+my $passwordManagerAction = $passwordManagerActionDispatch{$action};
 
-		$user_pass = <STDIN>;
-		ldap_connect($namespace);
-		my $mesg;
-		eval {
-			$mesg = $ldap->modify( "uid=" . $login . "," . $base_dn ,
-				replace => {
-					userPassword  => $user_pass
-				}
-			);
-		};
-		if ( $@ ) {
+unless (defined $passwordManagerAction) {
+	ldap_log("[PWDM] Unknown action for handling passwords.");
+	exit 10;
+}
 
-			# Error thrown by $ldap
-			ldap_log("[PWDM] Password change failed with LDAP return code: " . $@);
-			ldap_disconnect();
-			exit 3; # setting new password failed
-		} else {
+$passwordManagerAction->();
 
-			# Ok case
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if ($code != 0) {
-				ldap_log("[PWDM] Password change failed with LDAP return code: ".$code);
-				exit 3; # setting new password failed
+###########################################
+#
+# Action functions
+#
+###########################################
+
+sub changeAction {
+	$user_pass = <STDIN>;
+	ldap_connect($namespace);
+	my $mesg;
+	eval {
+		$mesg = $ldap->modify( "uid=" . $login . "," . $base_dn ,
+			replace => {
+				userPassword  => $user_pass
 			}
-
-			# CHANGE WAS SUCCESSFUL
-			ldap_log("[PWDM] Password changed.");
-		}
-
-	}
-
-	case("check"){
-
-		$user_pass = <STDIN>;
-		ldap_connect( $namespace );
-
-		my $mesg;
-		eval {
-			$mesg = $ldap->compare( "uid=" . $login . "," . $base_dn ,
-				attr  => 'userPassword',
-				value => $user_pass
-			);
-		};
-		if ( $@ ) {
-
-			# ERROR WHEN CHECKING - e.g. entry doesn't exists
-			ldap_log("[PWDM] Password check failed with LDAP return code: ".$@);
-			ldap_disconnect();
-			exit 6; # TODO - is this right exit code ?
-		} else {
-
-			# CHECK WAS SUCCESSFULL - READ CHECK RESULT
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if ($code == 5) {
-				ldap_log("[PWDM] Password doesn't match.");
-				exit 1; # password doesn't match
-			}
-			if ($code == 6) {
-				ldap_log("[PWDM] Password match.");
-				exit 0; # password match
-			}
-			if ($code != 0) {
-				ldap_log("[PWDM] Password check failed with LDAP return code: ".$code);
-				exit 6; # TODO - is this right exit code ?
-			}
-		}
-
-	}
-
-	case("reserve"){
-
-		$user_pass = <STDIN>;
-		ldap_connect( $namespace );
-
-		my $entry = Net::LDAP::Entry->new;
-		$entry->dn("uid=" . $login . "," . $base_dn );
-		$entry->add(
-			objectClass => ["top", "inetUser", "inetOrgPerson"] ,
-			userPassword => $user_pass ,
-			inetUserStatus => "inactive" ,
-			cn => $login ,
-			sn => $login
 		);
+	};
+	if ( $@ ) {
 
-		my $mesg;
-		eval {
-			$mesg = $ldap->add( $entry );
-		};
-		if ( $@ ) {
+		# Error thrown by $ldap
+		ldap_log("[PWDM] Password change failed with LDAP return code: " . $@);
+		ldap_disconnect();
+		exit 3; # setting new password failed
+	} else {
 
-			# error adding entry
-			ldap_log("[PWDM] Creation of password failed with LDAP return code: ".$@);
-			ldap_disconnect();
-			exit 4; # creation of new password failed
-		} else {
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if ($code != 0) {
-				ldap_log("[PWDM] Creation of password failed with LDAP return code: ".$code);
-				exit 4 # creation of new password failed
-			}
-
-			# entry added
-			ldap_log("[PWDM] Password reserved.");
+		# Ok case
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if ($code != 0) {
+			ldap_log("[PWDM] Password change failed with LDAP return code: ".$code);
+			exit 3; # setting new password failed
 		}
 
+		# CHANGE WAS SUCCESSFUL
+		ldap_log("[PWDM] Password changed.");
 	}
+}
 
-	case("delete"){
+sub checkAction {
+	$user_pass = <STDIN>;
+	ldap_connect( $namespace );
 
-		ldap_connect( $namespace );
-		my $mesg;
-		eval {
-			$mesg = $ldap->delete( "uid=" . $login . "," . $base_dn );
-		};
-		if ( $@ ) {
-			ldap_log("[PWDM] Password deletion failed with LDAP return code: " . $@);
-			ldap_disconnect();
-			exit 5; # can't delete password
-		} else {
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if($code != 0) {
-				ldap_log("[PWDM] Password deletion failed with LDAP return code: ".$code);
-				exit 5 # can't delete password
-			}
-			ldap_log("[PWDM] Password deleted.");
+	my $mesg;
+	eval {
+		$mesg = $ldap->compare( "uid=" . $login . "," . $base_dn ,
+			attr  => 'userPassword',
+			value => $user_pass
+		);
+	};
+	if ( $@ ) {
+
+		# ERROR WHEN CHECKING - e.g. entry doesn't exists
+		ldap_log("[PWDM] Password check failed with LDAP return code: ".$@);
+		ldap_disconnect();
+		exit 6; # TODO - is this right exit code ?
+	} else {
+
+		# CHECK WAS SUCCESSFULL - READ CHECK RESULT
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if ($code == 5) {
+			ldap_log("[PWDM] Password doesn't match.");
+			exit 1; # password doesn't match
 		}
-
-	}
-
-	case("validate"){
-
-		ldap_connect( $namespace );
-		my $mesg;
-		eval {
-			$mesg = $ldap->modify( "uid=" . $login . "," . $base_dn ,
-				replace => {
-					inetUserStatus  => 'active'
-				}
-			);
-		};
-		if ( $@ ) {
-
-			# ERROR WHEN VALIDATING
-			ldap_log("[PWDM] Password validation failed with LDAP return code: " . $@);
-			ldap_disconnect();
+		if ($code == 6) {
+			ldap_log("[PWDM] Password match.");
+			exit 0; # password match
+		}
+		if ($code != 0) {
+			ldap_log("[PWDM] Password check failed with LDAP return code: ".$code);
 			exit 6; # TODO - is this right exit code ?
-		} else {
-
-			# ENTRY VALIDATED
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if($code != 0) {
-				ldap_log("[PWDM] Password validation failed with LDAP return code: ".$code);
-				exit 6; # TODO - is this right exit code ?
-			}
-			ldap_log("[PWDM] Password validated.");
 		}
-
 	}
+}
 
-	case("reserve_random"){
+sub reserveAction {
+	$user_pass = <STDIN>;
+	ldap_connect( $namespace );
 
-		ldap_connect( $namespace );
-		my $mesg;
+	my $entry = Net::LDAP::Entry->new;
+	$entry->dn("uid=" . $login . "," . $base_dn );
+	$entry->add(
+		objectClass => ["top", "inetUser", "inetOrgPerson"] ,
+		userPassword => $user_pass ,
+		inetUserStatus => "inactive" ,
+		cn => $login ,
+		sn => $login
+	);
 
-		# CREATE ENTRY WITHOUT PASSWORD and as inactive
-		eval {
-			$mesg = $ldap->add( "uid=" . $login . "," . $base_dn ,
-				attrs => [
-					objectClass => ['top','inetUser','inetOrgPerson' ] ,
+	my $mesg;
+	eval {
+		$mesg = $ldap->add( $entry );
+	};
+	if ( $@ ) {
 
-					#userPassword => $user_pass ,
-					inetUserStatus  => 'inactive' ,
-					cn => $login ,
-					sn => $login
-				]
-			);
-		};
-		if ( $@ ) {
-
-			# ERROR WHEN RESERVING
-			ldap_log("[PWDM] Random password reservation failed with LDAP return code: " . $@);
-			ldap_disconnect();
-			exit 4; # creation of new password failed
-		} else {
-			my $code = $mesg->code;
-			ldap_disconnect();
-			if ($code != 0) {
-				ldap_log("[PWDM] Random password reservation failed with LDAP return code: " . $code);
-			}
+		# error adding entry
+		ldap_log("[PWDM] Creation of password failed with LDAP return code: ".$@);
+		ldap_disconnect();
+		exit 4; # creation of new password failed
+	} else {
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if ($code != 0) {
+			ldap_log("[PWDM] Creation of password failed with LDAP return code: ".$code);
 			exit 4 # creation of new password failed
 		}
-		ldap_log("[PWDM] Random password reserved.");
+
+		# entry added
+		ldap_log("[PWDM] Password reserved.");
 	}
-
-	#case("search"){
-	#  ldap_connect( $namespace );
-	#  ldap_search( $login );
-	#  ldap_disconnect();
-	#}
-
-	else {
-		ldap_log("[PWDM] Unknown action for handling passwords.");
-		exit 10;
-	}
-
 }
+
+sub deleteAction {
+	ldap_connect( $namespace );
+	my $mesg;
+	eval {
+		$mesg = $ldap->delete( "uid=" . $login . "," . $base_dn );
+	};
+	if ( $@ ) {
+		ldap_log("[PWDM] Password deletion failed with LDAP return code: " . $@);
+		ldap_disconnect();
+		exit 5; # can't delete password
+	} else {
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if($code != 0) {
+			ldap_log("[PWDM] Password deletion failed with LDAP return code: ".$code);
+			exit 5 # can't delete password
+		}
+		ldap_log("[PWDM] Password deleted.");
+	}
+}
+
+sub validateAction {
+	ldap_connect( $namespace );
+	my $mesg;
+	eval {
+		$mesg = $ldap->modify( "uid=" . $login . "," . $base_dn ,
+			replace => {
+				inetUserStatus  => 'active'
+			}
+		);
+	};
+	if ( $@ ) {
+
+		# ERROR WHEN VALIDATING
+		ldap_log("[PWDM] Password validation failed with LDAP return code: " . $@);
+		ldap_disconnect();
+		exit 6; # TODO - is this right exit code ?
+	} else {
+
+		# ENTRY VALIDATED
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if($code != 0) {
+			ldap_log("[PWDM] Password validation failed with LDAP return code: ".$code);
+			exit 6; # TODO - is this right exit code ?
+		}
+		ldap_log("[PWDM] Password validated.");
+	}
+}
+
+sub reserveRandomAction {
+	ldap_connect( $namespace );
+	my $mesg;
+
+	# CREATE ENTRY WITHOUT PASSWORD and as inactive
+	eval {
+		$mesg = $ldap->add( "uid=" . $login . "," . $base_dn ,
+			attrs => [
+				objectClass => ['top','inetUser','inetOrgPerson' ] ,
+
+				#userPassword => $user_pass ,
+				inetUserStatus  => 'inactive' ,
+				cn => $login ,
+				sn => $login
+			]
+		);
+	};
+	if ( $@ ) {
+
+		# ERROR WHEN RESERVING
+		ldap_log("[PWDM] Random password reservation failed with LDAP return code: " . $@);
+		ldap_disconnect();
+		exit 4; # creation of new password failed
+	} else {
+		my $code = $mesg->code;
+		ldap_disconnect();
+		if ($code != 0) {
+			ldap_log("[PWDM] Random password reservation failed with LDAP return code: " . $code);
+			exit 4 # creation of new password failed
+		}
+	}
+	ldap_log("[PWDM] Random password reserved.");
+}
+
+#sub searchAction {
+#  ldap_connect( $namespace );
+#  ldap_search( $login );
+#  ldap_disconnect();
+#}
+
+
 
 ###########################################
 #
@@ -338,7 +351,7 @@ sub ldap_search {
 
 	#print "\n[LDAP] Search return code: " . $mesg->code;
 	my @size = $mesg->entries;
-	print "\n[LDAP] Found entries: " . ~~@size;
+	print "\n[LDAP] Found entries: " . scalar(@size);
 	Net::LDAP::LDIF->new( \*STDOUT, "w" )->write( $mesg->entries );
 
 }

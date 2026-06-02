@@ -15,9 +15,15 @@
 
 use strict;
 use warnings FATAL => 'all';
-use Switch;
 use File::Slurp qw(read_file write_file);
 use ScriptLock;
+
+sub changeAction;
+sub checkAction;
+sub reserveAction;
+sub deleteAction;
+sub validateAction;
+sub reserveRandomAction;
 
 ##########
 #
@@ -32,148 +38,151 @@ my $entry = $ARGV[1];
 my $file_location = "/etc/raddb/users";
 my $touch_file_location = "./last-changed";
 
+# create service lock
+my $lock = ScriptLock->new("eduroam");
+
+# for cuncurrent runs, try to finish for 1 minute, after that report error.
+my $success = 0;
+my $counter = 0;
+while ($success == 0 && $counter < 60) {
+	$success = $lock->lock();
+	$counter++;
+	sleep 1;
+}
+if ($success == 0) {
+	exit 12; # lock timeout
+}
+
 # do stuff based on password manager action type
-switch ($action){
+my %passwordManagerActionDispatch = (
+	"change"         => \&changeAction,
+	"check"          => \&checkAction,
+	"reserve"        => \&reserveAction,
+	"delete"         => \&deleteAction,
+	"validate"       => \&validateAction,
+	"reserve_random" => \&reserveRandomAction,
+);
 
-	# create service lock
-	my $lock = ScriptLock->new("eduroam");
+my $passwordManagerAction = $passwordManagerActionDispatch{$action};
 
-	# for cuncurrent runs, try to finish for 1 minute, after that report error.
-	my $success = 0;
-	my $counter = 0;
-	while ($success == 0 && $counter < 60) {
-		$success = $lock->lock();
-		$counter++;
-		sleep 1;
-	}
-	if ($success == 0) {
-		exit 12; # lock timeout
-	}
+unless (defined $passwordManagerAction) {
+	$lock->unlock();
+	exit 10;
+}
 
-	case("change"){
+$passwordManagerAction->();
 
-		my $changed = 0;
-		my @parts = split( /:=/ , $entry);
+###########################################
+#
+# Action functions
+#
+###########################################
 
-		my @lines = read_file( $file_location );
-		foreach my $line (@lines) {
-			if ($line =~ /^$parts[0].*$/) {
-				$line = $entry . "\n";
-				$changed = 1;
-			}
+sub changeAction {
+	my $changed = 0;
+	my @parts = split( /:=/ , $entry);
+
+	my @lines = read_file( $file_location );
+	foreach my $line (@lines) {
+		if ($line =~ /^$parts[0].*$/) {
+			$line = $entry . "\n";
+			$changed = 1;
 		}
-		if ($changed == 0) {
-			# entry not found - add as new reservation
-			push (@lines, $entry . "\n");
-		}
-
-		# write back all lines to file
-		write_file ($file_location, @lines);
-		system("touch $touch_file_location");
-		$lock->unlock();
-		exit 0;
-
 	}
-
-	case("check"){
-
-		my @lines = read_file( $file_location );
-		foreach my $line (@lines) {
-			if ($line =~ /^$entry.*$/) {
-				$lock->unlock();
-				exit 0;
-			}
-		}
-		# password doesn't match
-		$lock->unlock();
-		exit 1;
-
-	}
-
-	case("reserve"){
-
-		# prevent duplicates !
-		my @parts = split( /:=/ , $entry);
-		my @lines = read_file( $file_location );
-		foreach my $line (@lines) {
-			if ($line =~ /^$parts[0].*$/) {
-				# entry already exists
-				$lock->unlock();
-				exit 4; # creation of new password failed
-			}
-		}
-
-		# append new user entry
+	if ($changed == 0) {
+		# entry not found - add as new reservation
 		push (@lines, $entry . "\n");
-		write_file ($file_location, @lines);
-		system("touch $touch_file_location");
-		$lock->unlock();
-		exit 0;
-
 	}
 
-	case("delete") {
+	# write back all lines to file
+	write_file ($file_location, @lines);
+	system("touch $touch_file_location");
+	$lock->unlock();
+	exit 0;
+}
 
-		my $found = 0;
-		my @parts = split( /:=/ , $entry);
-
-		my @lines = read_file( $file_location );
-		my @newlines;
-		foreach my $line (@lines) {
-			if ($line =~ /^$parts[0].*$/) {
-				$found = 1;
-				# skip entry to delete
-			} else {
-				# push back not affected entries
-				push (@newlines, $line);
-			}
-		}
-		if ($found == 0) {
-			# entry to delete not found
-			$lock->unlock();
-			exit 5; # can't delete password
-		} else {
-			# entry to delete found -> write content without it
-			write_file ($file_location, @newlines);
-			system("touch $touch_file_location");
+sub checkAction {
+	my @lines = read_file( $file_location );
+	foreach my $line (@lines) {
+		if ($line =~ /^$entry.*$/) {
 			$lock->unlock();
 			exit 0;
 		}
-
 	}
+	# password doesn't match
+	$lock->unlock();
+	exit 1;
+}
 
-	case("validate") {
-
-		$lock->unlock();
-		exit 0;
-
-	}
-
-	case("reserve_random") {
-
-		# prevent duplicates !
-		my @parts = split( /:=/ , $entry);
-		my @lines = read_file( $file_location );
-		foreach my $line (@lines) {
-			if ($line =~ /^$parts[0].*$/) {
-				# entry already exists
-				$lock->unlock();
-				exit 4; # creation of new password failed
-			}
+sub reserveAction {
+	# prevent duplicates !
+	my @parts = split( /:=/ , $entry);
+	my @lines = read_file( $file_location );
+	foreach my $line (@lines) {
+		if ($line =~ /^$parts[0].*$/) {
+			# entry already exists
+			$lock->unlock();
+			exit 4; # creation of new password failed
 		}
+	}
 
-		# append new user entry
-		push (@lines, $entry . "\n");
-		write_file ($file_location, @lines);
+	# append new user entry
+	push (@lines, $entry . "\n");
+	write_file ($file_location, @lines);
+	system("touch $touch_file_location");
+	$lock->unlock();
+	exit 0;
+}
+
+sub deleteAction {
+	my $found = 0;
+	my @parts = split( /:=/ , $entry);
+
+	my @lines = read_file( $file_location );
+	my @newlines;
+	foreach my $line (@lines) {
+		if ($line =~ /^$parts[0].*$/) {
+			$found = 1;
+			# skip entry to delete
+		} else {
+			# push back not affected entries
+			push (@newlines, $line);
+		}
+	}
+	if ($found == 0) {
+		# entry to delete not found
+		$lock->unlock();
+		exit 5; # can't delete password
+	} else {
+		# entry to delete found -> write content without it
+		write_file ($file_location, @newlines);
 		system("touch $touch_file_location");
 		$lock->unlock();
 		exit 0;
+	}
+}
 
+sub validateAction {
+	$lock->unlock();
+	exit 0;
+}
+
+sub reserveRandomAction {
+	# prevent duplicates !
+	my @parts = split( /:=/ , $entry);
+	my @lines = read_file( $file_location );
+	foreach my $line (@lines) {
+		if ($line =~ /^$parts[0].*$/) {
+			# entry already exists
+			$lock->unlock();
+			exit 4; # creation of new password failed
+		}
 	}
 
-	else {
-		$lock->unlock();
-		exit 10;
-	}
-
+	# append new user entry
+	push (@lines, $entry . "\n");
+	write_file ($file_location, @lines);
+	system("touch $touch_file_location");
+	$lock->unlock();
+	exit 0;
 }

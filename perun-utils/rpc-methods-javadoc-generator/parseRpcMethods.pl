@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Switch;
 use Getopt::Long qw(:config no_ignore_case);
 use Sort::Versions;
 
@@ -357,96 +356,94 @@ sub processFile {
 		# !!! THIS IS NOT IMPLEMENTED, IF THERE IS SOME /* COMMENT ON IMPORTANT PLACE
 		# IT CAN CREATE BAD DOCUMENTATION, NEED TO SOLVE OR DO NOT USE THIS TYPE OF COMMENTS
 
-		switch ($phase) {
-			case 0 {
-				if($line =~ m/^\s*\/\*\#/) { $phase=1; }
-			}
-			case 1 {
-				if($line =~ m/^\s*[*]\s*\@param\s*(.*)/) {
-					push @params, $1;
-					$lastToken=1;
-				} elsif($line =~ m/^\s*\*\s*[@]return\s*(.*)/) {
-					$return="$1";
-					$lastToken=2;
-				} elsif($line =~ m/^\s*\*\s*[@]exampleResponse\s*(.*)/) {
-					$exampleResponse="$1";
-					$lastToken=3;
-				} elsif($line =~ m/^\s*\*\s*[@]exampleParam\s*(.*)/) {
-					push @exampleParams, $1;
-					$lastToken=4;
-				} elsif($line =~ m/^\s*\*\s*[@]deprecated\s*(.*)/) {
-					$deprecated="$1";
-					$lastToken=5;
-				} elsif($line =~ m/^\s*\*\s*[@]throw\s*(.*)/) {
-					push @throws, $1;
-					$lastToken=6;
-				} elsif($line =~ m/^\s*\*\//) {
-					$lastToken=0;
-					$phase=2;
-					# local variables for purpose of saving information
-					my $javadoc={};
-					my @localParams = @params;
-					my @localThrows = @throws;
-					my @localTextLines = @textLines;
-					my @localExampleParams = @exampleParams;
-					# save one javadoc
-					$javadoc->{'params'} = \@localParams;
-					$javadoc->{'throws'} = \@localThrows;
-					$javadoc->{'return'} = $return;
-					$javadoc->{'exampleResponse'} = $exampleResponse;
-					$javadoc->{'exampleParams'} = \@localExampleParams;
-					if (defined $deprecated) {
-						$javadoc->{'deprecated'} = $deprecated;
-					}
-					$javadoc->{'text'} = \@localTextLines;
-					push @javadocs, $javadoc;
-					#reset all needed variables
-					@params=();
-					@textLines=();
-					@throws=();
-					@exampleParams=();
-					undef $return;
-					undef $exampleResponse;
-					$deprecated=undef;
-					$javadoc=();
-				} elsif($line =~ m/^\s*\*\s*(.*)/) {
-					if ($lastToken == 0) {
-						push @textLines, $1;
-					} elsif ($lastToken == 1) {
-						$params[-1] = $params[-1] . " " . $1
-					} elsif ($lastToken == 2) {
-						$return = $return . " " . $1;
-					} elsif ($lastToken == 3) {
-						$exampleResponse = $exampleResponse . " " . $1;
-					} elsif ($lastToken == 4) {
-						$exampleParams[-1] = $exampleParams[-1] . " " . $1
-					} elsif ($lastToken == 5) {
-						$deprecated = $deprecated . " " . $1;
-					} elsif ($lastToken == 6) {
-						$throws[-1] = $throws[-1] . " " . $1
-					}
-				} else {
-					#skip this line, it is probably space or something nasty, we dont need it
+		if ($phase == 0) {
+			if($line =~ m/^\s*\/\*\#/) { $phase=1; }
+		}
+		elsif ($phase == 1) {
+			if($line =~ m/^\s*[*]\s*\@param\s*(.*)/) {
+				push @params, $1;
+				$lastToken=1;
+			} elsif($line =~ m/^\s*\*\s*[@]return\s*(.*)/) {
+				$return="$1";
+				$lastToken=2;
+			} elsif($line =~ m/^\s*\*\s*[@]exampleResponse\s*(.*)/) {
+				$exampleResponse="$1";
+				$lastToken=3;
+			} elsif($line =~ m/^\s*\*\s*[@]exampleParam\s*(.*)/) {
+				push @exampleParams, $1;
+				$lastToken=4;
+			} elsif($line =~ m/^\s*\*\s*[@]deprecated\s*(.*)/) {
+				$deprecated="$1";
+				$lastToken=5;
+			} elsif($line =~ m/^\s*\*\s*[@]throw\s*(.*)/) {
+				push @throws, $1;
+				$lastToken=6;
+			} elsif($line =~ m/^\s*\*\//) {
+				$lastToken=0;
+				$phase=2;
+				# local variables for purpose of saving information
+				my $javadoc={};
+				my @localParams = @params;
+				my @localThrows = @throws;
+				my @localTextLines = @textLines;
+				my @localExampleParams = @exampleParams;
+				# save one javadoc
+				$javadoc->{'params'} = \@localParams;
+				$javadoc->{'throws'} = \@localThrows;
+				$javadoc->{'return'} = $return;
+				$javadoc->{'exampleResponse'} = $exampleResponse;
+				$javadoc->{'exampleParams'} = \@localExampleParams;
+				if (defined $deprecated) {
+					$javadoc->{'deprecated'} = $deprecated;
 				}
-			}
-			case 2 {
-				if($line =~ m/^\s*\/[*]\#/) {
-					$phase=1;
-				} elsif($line =~ m/^\s*([a-zA-Z0-9]+)\s*\{.*/) {
-					$phase=0;
-					$method->{'name'}=$1;
-					#local variable for saving all javadocs
-					my @localJavadocs = @javadocs;
-					$method->{'javadocs'}= \@localJavadocs;
-					#local variable for saving one method
-					my $localMethod = $method;
-					push @methods, $localMethod;
-					#reset all needed variables
-					@javadocs = ();
-					$method = {};
-				} else {
-					#skip this line, it is probably some code or empty line, we dont need it
+				$javadoc->{'text'} = \@localTextLines;
+				push @javadocs, $javadoc;
+				#reset all needed variables
+				@params=();
+				@textLines=();
+				@throws=();
+				@exampleParams=();
+				undef $return;
+				undef $exampleResponse;
+				$deprecated=undef;
+				$javadoc=();
+			} elsif($line =~ m/^\s*\*\s*(.*)/) {
+				if ($lastToken == 0) {
+					push @textLines, $1;
+				} elsif ($lastToken == 1) {
+					$params[-1] = $params[-1] . " " . $1
+				} elsif ($lastToken == 2) {
+					$return = $return . " " . $1;
+				} elsif ($lastToken == 3) {
+					$exampleResponse = $exampleResponse . " " . $1;
+				} elsif ($lastToken == 4) {
+					$exampleParams[-1] = $exampleParams[-1] . " " . $1
+				} elsif ($lastToken == 5) {
+					$deprecated = $deprecated . " " . $1;
+				} elsif ($lastToken == 6) {
+					$throws[-1] = $throws[-1] . " " . $1
 				}
+			} else {
+				#skip this line, it is probably space or something nasty, we dont need it
+			}
+		}
+		elsif ($phase == 2) {
+			if($line =~ m/^\s*\/[*]\#/) {
+				$phase=1;
+			} elsif($line =~ m/^\s*([a-zA-Z0-9]+)\s*\{.*/) {
+				$phase=0;
+				$method->{'name'}=$1;
+				#local variable for saving all javadocs
+				my @localJavadocs = @javadocs;
+				$method->{'javadocs'}= \@localJavadocs;
+				#local variable for saving one method
+				my $localMethod = $method;
+				push @methods, $localMethod;
+				#reset all needed variables
+				@javadocs = ();
+				$method = {};
+			} else {
+				#skip this line, it is probably some code or empty line, we dont need it
 			}
 		}
 	}

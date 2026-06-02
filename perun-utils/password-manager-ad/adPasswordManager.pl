@@ -15,7 +15,6 @@
 
 use strict;
 use warnings;
-use Switch;
 use Net::LDAPS;
 use Net::LDAP::Entry;
 use Net::LDAP::Message;
@@ -23,6 +22,12 @@ use Net::LDAP::LDIF;
 use Encode;
 use MIME::Base64;
 
+sub changeAction;
+sub checkAction;
+sub reserveAction;
+sub deleteAction;
+sub validateAction;
+sub reserveRandomAction;
 sub ldap_connect;
 sub ldap_disconnect;
 sub ldap_log;
@@ -48,275 +53,278 @@ my $login = $ARGV[2];
 my $user_pass = undef;
 
 # do stuff based on password manager action type
-switch ($action){
+my %passwordManagerActionDispatch = (
+	"change"         => \&changeAction,
+	"check"          => \&checkAction,
+	"reserve"        => \&reserveAction,
+	"delete"         => \&deleteAction,
+	"validate"       => \&validateAction,
+	"reserve_random" => \&reserveRandomAction,
+);
 
-	case("change"){
+my $passwordManagerAction = $passwordManagerActionDispatch{$action};
 
-		$user_pass = <STDIN>;
-		my $converted_pass = convertPassword($user_pass);
-		ldap_connect($namespace);
-		my $mesg;
-		eval {
-			my $entry = getEntryByLogin();
-			$mesg = $ldap->modify( $entry->dn() ,
-				replace => {
-					unicodePwd  => $converted_pass
-				}
-			);
-		};
-		if ( $@ ) {
+unless (defined $passwordManagerAction) {
+	ldap_log("[PWDM] Unknown action for handling passwords.");
+	exit 10;
+}
 
-			# Error thrown by $ldap
-			ldap_log("[PWDM] Password change failed with AD return code: " . $@);
-			ldap_disconnect();
-			exit 3; # setting new password failed
-		} else {
+$passwordManagerAction->();
 
-			# Ok case
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if ($code != 0) {
-				ldap_log("[PWDM] Password change failed with AD return code: ".$code);
-				exit 3; # setting new password failed
-			}
+###########################################
+#
+# Action functions
+#
+###########################################
 
-			# CHANGE WAS SUCCESSFUL
-			ldap_log("[PWDM] Password changed.");
-		}
-
-	}
-
-	case("check"){
-
-		# ONLY WAY TO CHECK PASSWORD IS TO PERFORM BIND AS USER
-		$user_pass = <STDIN>;
-		chomp($user_pass);
-
-		# get entry from LDAP to find out users DN
-		ldap_connect($namespace);
+sub changeAction {
+	$user_pass = <STDIN>;
+	my $converted_pass = convertPassword($user_pass);
+	ldap_connect($namespace);
+	my $mesg;
+	eval {
 		my $entry = getEntryByLogin();
-		my $dn = $entry->dn();
+		$mesg = $ldap->modify( $entry->dn() ,
+			replace => {
+				unicodePwd  => $converted_pass
+			}
+		);
+	};
+	if ( $@ ) {
+
+		# Error thrown by $ldap
+		ldap_log("[PWDM] Password change failed with AD return code: " . $@);
 		ldap_disconnect();
+		exit 3; # setting new password failed
+	} else {
 
-		my $filename = "/etc/perun/pwchange.".$namespace.".ad";
-		unless (-e $filename) {
-			ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
-			exit 2; # login-namespace is not supported
+		# Ok case
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if ($code != 0) {
+			ldap_log("[PWDM] Password change failed with AD return code: ".$code);
+			exit 3; # setting new password failed
 		}
 
-		# load configuration file
-		open FILE, "<" . $filename;
-		my @lines = <FILE>;
-		close FILE;
+		# CHANGE WAS SUCCESSFUL
+		ldap_log("[PWDM] Password changed.");
+	}
+}
 
-		# remove new-line characters from the end of lines
-		chomp @lines;
+sub checkAction {
+	# ONLY WAY TO CHECK PASSWORD IS TO PERFORM BIND AS USER
+	$user_pass = <STDIN>;
+	chomp($user_pass);
 
-		# read configuration
-		my $ldap_location = $lines[0];
-		$base_dn = $lines[3];
+	# get entry from LDAP to find out users DN
+	ldap_connect($namespace);
+	my $entry = getEntryByLogin();
+	my $dn = $entry->dn();
+	ldap_disconnect();
 
-		# LDAP connect
-		$ldap = Net::LDAPS->new( "$ldap_location" , onerror => 'die' , timeout => 5 , debug => 0, verify => 'require', capath => '/etc/ssl/certs/', port => 636);
-
-		my $mesg;
-		eval {
-			$mesg = $ldap->bind( $dn , password => $user_pass );
-			ldap_log("[AD] connected as: " . $dn );
-		};
-		if ( $@ ) {
-			# ERROR WHEN CHECKING - e.g. entry doesn't exists
-			ldap_log("[PWDM] Password check failed with AD return code: ".$@);
-			ldap_disconnect();
-			exit 1; # Password doesn't match (in a fact, it can be any other reason (e.g. account disabled), but response is just error string).
-		} else {
-			# CHECK WAS SUCCESSFUL - READ CHECK RESULT
-			ldap_disconnect();
-			my $code = $mesg->code();
-			if ($code != 0) {
-				ldap_log("[PWDM] Password check failed with AD return code: ".$code);
-				exit 6; # TODO - is this right exit code ?
-			}
-		}
-
+	my $filename = "/etc/perun/pwchange.".$namespace.".ad";
+	unless (-e $filename) {
+		ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
+		exit 2; # login-namespace is not supported
 	}
 
-	case("reserve"){
+	# load configuration file
+	open FILE, "<" . $filename;
+	my @lines = <FILE>;
+	close FILE;
 
-		$user_pass = <STDIN>;
-		my $converted_pass = convertPassword($user_pass);
-		ldap_connect( $namespace );
+	# remove new-line characters from the end of lines
+	chomp @lines;
 
-		my $filename = "/etc/perun/pwchange.".$namespace.".ad";
-		unless (-e $filename) {
-			ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
-			exit 2; # login-namespace is not supported
-		}
+	# read configuration
+	my $ldap_location = $lines[0];
+	$base_dn = $lines[3];
 
-		# load configuration file
-		open FILE, "<" . $filename;
-		my @lines = <FILE>;
-		close FILE;
+	# LDAP connect
+	$ldap = Net::LDAPS->new( "$ldap_location" , onerror => 'die' , timeout => 5 , debug => 0, verify => 'require', capath => '/etc/ssl/certs/', port => 636);
 
-		# remove new-line characters from the end of lines
-		chomp @lines;
-
-		# read configuration
-		my $uac = $lines[4];
-
-		# By default AD creates normal disabled entry with no password required (userAccountControl = 546)
-		my $entry = Net::LDAP::Entry->new;
-		$entry->dn("cn=" . $login . "," . $base_dn );
-		$entry->add(
-			objectClass => ["top", "user", "person", "organizationalPerson"] ,
-			unicodePwd => $converted_pass ,
-			cn => $login ,
-			sn => $login ,
-			samAccountName => $login ,
-			# create normal disabled account which requires password
-			userAccountControl => $uac
-		);
-
-		my $mesg;
-		eval {
-			$mesg = $ldap->add( $entry );
-		};
-		if ( $@ ) {
-
-			# error adding entry
-			ldap_log("[PWDM] Creation of password failed with AD return code: ".$@);
-			ldap_disconnect();
-			exit 4; # creation of new password failed
-		} else {
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if ($code != 0) {
-				ldap_log("[PWDM] Creation of password failed with AD return code: ".$code);
-				exit 4 # creation of new password failed
-			}
-
-			# entry added
-			ldap_log("[PWDM] Password reserved.");
-		}
-
-	}
-
-	case("delete"){
-
-		ldap_connect( $namespace );
-		my $mesg;
-		eval {
-			my $entry = getEntryByLogin();
-			unless ($entry) {
-				exit 5; # can't delete password
-			}
-			$mesg = $ldap->delete( $entry->dn() );
-		};
-		if ( $@ ) {
-			ldap_log("[PWDM] Password deletion failed with AD return code: " . $@);
-			ldap_disconnect();
-			exit 5; # can't delete password
-		} else {
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if($code != 0) {
-				ldap_log("[PWDM] Password deletion failed with AD return code: ".$code);
-				exit 5 # can't delete password
-			}
-			ldap_log("[PWDM] Password deleted.");
-		}
-
-	}
-
-	case("validate"){
-
-		ldap_connect( $namespace );
-		my $mesg;
-		eval {
-			# Get current entry from LDAP
-			my $entry = getEntryByLogin();
-			unless ($entry) {
-				exit 6;
-			}
-			my $value = $entry->get_value('userAccountControl');
-			# Enable account
-			$value = $value & ~2;
-			# Update local entry
-			$entry->replace(
-				userAccountControl => $value
-			);
-			# Update LDAP
-			$mesg = $entry->update($ldap);
-		};
-		if ( $@ ) {
-
-			# ERROR WHEN VALIDATING
-			ldap_log("[PWDM] Password validation failed with AD return code: " . $@);
-			ldap_disconnect();
+	my $mesg;
+	eval {
+		$mesg = $ldap->bind( $dn , password => $user_pass );
+		ldap_log("[AD] connected as: " . $dn );
+	};
+	if ( $@ ) {
+		# ERROR WHEN CHECKING - e.g. entry doesn't exists
+		ldap_log("[PWDM] Password check failed with AD return code: ".$@);
+		ldap_disconnect();
+		exit 1; # Password doesn't match (in a fact, it can be any other reason (e.g. account disabled), but response is just error string).
+	} else {
+		# CHECK WAS SUCCESSFUL - READ CHECK RESULT
+		ldap_disconnect();
+		my $code = $mesg->code();
+		if ($code != 0) {
+			ldap_log("[PWDM] Password check failed with AD return code: ".$code);
 			exit 6; # TODO - is this right exit code ?
-		} else {
-
-			# ENTRY VALIDATED
-			ldap_disconnect();
-			my $code = $mesg->code;
-			if($code != 0) {
-				ldap_log("[PWDM] Password validation failed with AD return code: ".$code);
-				exit 6; # TODO - is this right exit code ?
-			}
-			ldap_log("[PWDM] Password validated.");
 		}
+	}
+}
 
+sub reserveAction {
+	$user_pass = <STDIN>;
+	my $converted_pass = convertPassword($user_pass);
+	ldap_connect( $namespace );
+
+	my $filename = "/etc/perun/pwchange.".$namespace.".ad";
+	unless (-e $filename) {
+		ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
+		exit 2; # login-namespace is not supported
 	}
 
-	case("reserve_random"){
+	# load configuration file
+	open FILE, "<" . $filename;
+	my @lines = <FILE>;
+	close FILE;
 
-		ldap_connect( $namespace );
+	# remove new-line characters from the end of lines
+	chomp @lines;
 
-		# CREATE ENTRY WITHOUT PASSWORD and as inactive
-		# By default AD creates normal disabled entry with no password required (userAccountControl = 546)
-		my $entry = Net::LDAP::Entry->new;
-		$entry->dn("cn=" . $login . "," . $base_dn );
-		$entry->add(
-			objectClass => ["top", "user", "person", "organizationalPerson"] ,
-			#unicodePwd => $converted_pass ,
-			cn => $login ,
-			sn => $login ,
-			samAccountName => $login ,
-			# create disabled entry with no password required
-			userAccountControl => 546
+	# read configuration
+	my $uac = $lines[4];
+
+	# By default AD creates normal disabled entry with no password required (userAccountControl = 546)
+	my $entry = Net::LDAP::Entry->new;
+	$entry->dn("cn=" . $login . "," . $base_dn );
+	$entry->add(
+		objectClass => ["top", "user", "person", "organizationalPerson"] ,
+		unicodePwd => $converted_pass ,
+		cn => $login ,
+		sn => $login ,
+		samAccountName => $login ,
+		# create normal disabled account which requires password
+		userAccountControl => $uac
+	);
+
+	my $mesg;
+	eval {
+		$mesg = $ldap->add( $entry );
+	};
+	if ( $@ ) {
+
+		# error adding entry
+		ldap_log("[PWDM] Creation of password failed with AD return code: ".$@);
+		ldap_disconnect();
+		exit 4; # creation of new password failed
+	} else {
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if ($code != 0) {
+			ldap_log("[PWDM] Creation of password failed with AD return code: ".$code);
+			exit 4 # creation of new password failed
+		}
+		# entry added
+		ldap_log("[PWDM] Password reserved.");
+	}
+}
+
+sub deleteAction {
+	ldap_connect( $namespace );
+	my $mesg;
+	eval {
+		my $entry = getEntryByLogin();
+		unless ($entry) {
+			exit 5; # can't delete password
+		}
+		$mesg = $ldap->delete( $entry->dn() );
+	};
+	if ( $@ ) {
+		ldap_log("[PWDM] Password deletion failed with AD return code: " . $@);
+		ldap_disconnect();
+		exit 5; # can't delete password
+	} else {
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if($code != 0) {
+			ldap_log("[PWDM] Password deletion failed with AD return code: ".$code);
+			exit 5 # can't delete password
+		}
+		ldap_log("[PWDM] Password deleted.");
+	}
+}
+
+sub validateAction {
+	ldap_connect( $namespace );
+	my $mesg;
+	eval {
+		# Get current entry from LDAP
+		my $entry = getEntryByLogin();
+		unless ($entry) {
+			exit 6;
+		}
+		my $value = $entry->get_value('userAccountControl');
+		# Enable account
+		$value = $value & ~2;
+		# Update local entry
+		$entry->replace(
+			userAccountControl => $value
 		);
+		# Update LDAP
+		$mesg = $entry->update($ldap);
+	};
+	if ( $@ ) {
 
-		my $mesg;
-		eval {
-			$mesg = $ldap->add( $entry );
-		};
-		if ( $@ ) {
+		# ERROR WHEN VALIDATING
+		ldap_log("[PWDM] Password validation failed with AD return code: " . $@);
+		ldap_disconnect();
+		exit 6; # TODO - is this right exit code ?
+	} else {
 
-			# ERROR WHEN RESERVING
-			ldap_log("[PWDM] Random password reservation failed with AD return code: " . $@);
-			ldap_disconnect();
-			exit 4; # creation of new password failed
-		} else {
-			my $code = $mesg->code;
-			ldap_disconnect();
-			if ($code != 0) {
-				ldap_log("[PWDM] Random password reservation failed with AD return code: " . $code);
-			}
+		# ENTRY VALIDATED
+		ldap_disconnect();
+		my $code = $mesg->code;
+		if($code != 0) {
+			ldap_log("[PWDM] Password validation failed with AD return code: ".$code);
+			exit 6; # TODO - is this right exit code ?
+		}
+		ldap_log("[PWDM] Password validated.");
+	}
+}
+
+sub reserveRandomAction {
+	ldap_connect( $namespace );
+
+	# CREATE ENTRY WITHOUT PASSWORD and as inactive
+	# By default AD creates normal disabled entry with no password required (userAccountControl = 546)
+	my $entry = Net::LDAP::Entry->new;
+	$entry->dn("cn=" . $login . "," . $base_dn );
+	$entry->add(
+		objectClass => ["top", "user", "person", "organizationalPerson"] ,
+		#unicodePwd => $converted_pass ,
+		cn => $login ,
+		sn => $login ,
+		samAccountName => $login ,
+		# create disabled entry with no password required
+		userAccountControl => 546
+	);
+
+	my $mesg;
+	eval {
+		$mesg = $ldap->add( $entry );
+	};
+	if ( $@ ) {
+
+		# ERROR WHEN RESERVING
+		ldap_log("[PWDM] Random password reservation failed with AD return code: " . $@);
+		ldap_disconnect();
+		exit 4; # creation of new password failed
+	} else {
+		my $code = $mesg->code;
+		ldap_disconnect();
+		if ($code != 0) {
+			ldap_log("[PWDM] Random password reservation failed with AD return code: " . $code);
 			exit 4 # creation of new password failed
 		}
 		ldap_log("[PWDM] Random password reserved.");
 	}
-
-	else {
-		ldap_log("[PWDM] Unknown action for handling passwords.");
-		exit 10;
-	}
-
 }
 
 ###########################################
 #
-# Auxiliary functions used by main script
+# Auxiliary functions
 #
 ###########################################
 
