@@ -56,6 +56,7 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -561,13 +562,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     // Create application form if non exists
-    for (Group group : groups) {
-      try {
-        getFormForGroup(group);
-      } catch (FormNotExistsException e) {
-        createApplicationFormInGroup(sess, group);
-      }
-    }
+    prepareGroupsForms(sess, groups);
 
     perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups);
   }
@@ -589,13 +584,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     // Create application form if non exists
-    for (Group group : groups) {
-      try {
-        getFormForGroup(group);
-      } catch (FormNotExistsException e) {
-        createApplicationFormInGroup(sess, group);
-      }
-    }
+
+    prepareGroupsForms(sess, groups);
 
     perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups, formItem);
   }
@@ -625,13 +615,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     // Create application form if non exists
-    for (Group group : groups) {
-      try {
-        getFormForGroup(group);
-      } catch (FormNotExistsException e) {
-        createApplicationFormInGroup(sess, group);
-      }
-    }
+    prepareGroupsForms(sess, groups);
 
     perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups, formItem);
   }
@@ -1708,6 +1692,28 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   /**
+   * Checks whether group can be used for auto registration and if its form exists - if not it creates
+   * a form for the group.
+   *
+   * @param sess
+   * @param groups
+   * @throws GroupNotAllowedToAutoRegistrationException
+   * @throws PrivilegeException
+   * @throws GroupNotExistsException
+   */
+  private void prepareGroupsForms(PerunSession sess, List<Group> groups)
+      throws GroupNotAllowedToAutoRegistrationException, PrivilegeException, GroupNotExistsException {
+    for (Group group : groups) {
+      perun.getGroupsManagerBl().checkGroupCanBeAddedToAutoRegistration(sess, group);
+      try {
+        getFormForGroup(group);
+      } catch (FormNotExistsException e) {
+        createApplicationFormInGroup(sess, group);
+      }
+    }
+  }
+
+  /**
    * Checks if submit or auto-submit button are either not required, or present if required.
    *
    * @param items list of ApplicationFormItems being checked
@@ -1757,6 +1763,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
     if (!AuthzResolver.authorizedInternal(sess, "createApplicationFormInGroup_Group_policy",
         Collections.singletonList(group))) {
       throw new PrivilegeException(sess, "createApplicationFormInGroup");
+    }
+    if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+      throw new InternalErrorException("Cannot be created for members group.");
     }
 
     int id = Utils.getNewId(jdbc, "APPLICATION_FORM_ID_SEQ");
