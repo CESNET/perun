@@ -215,19 +215,19 @@
         <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
             <artifactId>owasp-java-html-sanitizer</artifactId>
-            <version>20260101.1</version>
+            <version>20260313.1</version>
             <scope>compile</scope>
         </dependency>
         <!-- JSON Path -->
-		<dependency>
-			<groupId>com.jayway.jsonpath</groupId>
-			<artifactId>json-path</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+        </dependency>
 
         <dependency>
-              <groupId>org.perun</groupId>
-              <artifactId>registrar-api-client</artifactId>
-              <version>0.0.1-SNAPSHOT</version>
+            <groupId>org.perun</groupId>
+            <artifactId>registrar-api-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
