@@ -983,7 +983,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     }
   }
 
-  private void checkGroupCanBeAddedToAutoRegistration(PerunSession sess, Group group)
+  @Override
+  public void checkGroupCanBeAddedToAutoRegistration(PerunSession sess, Group group)
       throws GroupNotAllowedToAutoRegistrationException {
     if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
       throw new GroupNotAllowedToAutoRegistrationException("Members group cannot be added to auto registration.",

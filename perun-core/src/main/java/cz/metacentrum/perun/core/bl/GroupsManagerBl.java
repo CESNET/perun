@@ -76,6 +76,16 @@ import java.util.UUID;
  */
 public interface GroupsManagerBl {
 
+  /**
+   * Checks whether the group can be used for auto registration.`Members` group and groups with synchronization
+   * enabled cannot be used. Throw `GroupNotAllowedToAutoRegistrationException` for such groups
+   *
+   * @param sess
+   * @param group
+   * @throws GroupNotAllowedToAutoRegistrationException
+   */
+  void checkGroupCanBeAddedToAutoRegistration(PerunSession sess, Group group)
+      throws GroupNotAllowedToAutoRegistrationException;
 
   /**
    * Adds groups to a list of groups which can be registered into during vo registration. This will NOT create empty
