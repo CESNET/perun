@@ -163,8 +163,8 @@ public interface FacilitiesManagerImplApi {
   List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess);
 
   /**
-   * Return all allowed facilities of the user. It means all facilities, where is assigned through some resource and
-   * member is allowed on such resource.
+   * Get all facilities where the user is allowed. The user has a membership in a group with an active assignment to a
+   * resource on the facility and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param user
@@ -173,8 +173,8 @@ public interface FacilitiesManagerImplApi {
   List<Facility> getAllowedFacilities(PerunSession sess, User user);
 
   /**
-   * Return all allowed facilities of the member. It means all facilities, where is assigned through some resource and
-   * member is allowed.
+   * Get all facilities where the member is allowed. The member belongs to a group with an active assignment to a
+   * resource on the facility and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param member
@@ -183,8 +183,8 @@ public interface FacilitiesManagerImplApi {
   List<Facility> getAllowedFacilities(PerunSession sess, Member member);
 
   /**
-   * Return all members, which are "allowed" on facility through any resource disregarding their possible expired status
-   * in a group. All members include all group statuses, through which they can be filtered if necessary.
+   * Return all allowed members on the facility. Allowed members belong to a group with an active assignment to a
+   * resource on this facility and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param facility
@@ -194,9 +194,13 @@ public interface FacilitiesManagerImplApi {
   List<Member> getAllowedMembers(PerunSession sess, Facility facility);
 
   /**
-   * Return all members, which are "allowed" on facility through any resource assigned to the given service.
-   * Service settings decide whether expired group and expired VO members are returned as well. Disabled and invalid VO
-   * members are always ignored.
+   * Return all allowed members on the facility through any resource assigned to the given service. Allowed members
+   * belong to a group with an active assignment to a resource with this service and their VO membership status is
+   * not INVALID or DISABLED.
+   * <p>
+   * The result is further narrowed by the service's flags: {@code useExpiredVoMembers=false} excludes EXPIRED VO
+   * members (only VALID are kept), and {@code useExpiredMembers=false} excludes members whose group membership is
+   * expired.
    *
    * @param sess
    * @param facility
@@ -206,7 +210,8 @@ public interface FacilitiesManagerImplApi {
   List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service);
 
   /**
-   * Return all users, which are "allowed" on facility through any member/resource.
+   * Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a
+   * resource on this facility and whose VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param facility
@@ -269,22 +274,25 @@ public interface FacilitiesManagerImplApi {
   List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility, Service service);
 
   /**
-   * Return all users assigned to Facility.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param facility
-   * @return list of user
+   * @return list of assigned users on the facility
    * @throws InternalErrorException
    */
   List<User> getAssignedUsers(PerunSession sess, Facility facility);
 
   /**
-   * Returns list of Users assigned with chosen Facility containing resources where service is assigned.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. On top of that, results are restricted to resources that have the given service
+   * assigned. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param facility
    * @param service
-   * @return list of Users
+   * @return list of assigned users on the facility for resources with the given service
    * @throws InternalErrorException
    */
   List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service);

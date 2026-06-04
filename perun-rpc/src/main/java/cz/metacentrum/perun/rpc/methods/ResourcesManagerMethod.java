@@ -270,10 +270,11 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns all members assigned to the resource.
+   * Returns all allowed members on the resource. Allowed members belong to a group with an active assignment to the
+   * resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param resource int Resource <code>id</code>
-   * @return List<Member> Members assigned to the resource
+   * @return List<Member> allowed members on the resource
    */
   getAllowedMembers {
     @Override
@@ -283,10 +284,11 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns all users assigned to the resource.
+   * Returns all allowed users on the resource. Allowed users are members of a group with an active assignment to the
+   * resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param resource int Resource <code>id</code>
-   * @return List<User> Users assigned to the resource
+   * @return List<User> allowed users on the resource
    */
   getAllowedUsers {
     @Override
@@ -507,10 +509,20 @@ public enum ResourcesManagerMethod implements ManagerMethod {
    * @return List<Resource> Resources
    */
   /*#
-   * List all resources associated with a member's group.
+   * Get all resources where the member is assigned. The member belongs to a group with an active assignment to the
+   * resource. No filter is applied on their VO membership status.
    *
    * @param member int Member <code>id</code>
-   * @return List<Resource> Resources
+   * @return List<Resource> resources where the member is assigned
+   */
+  /*#
+   * Get all resources where the member is assigned. The member belongs to a group with an active assignment to the
+   * resource. On top of that, results are restricted to resources with the given service assigned. No filter is
+   * applied on their VO membership status.
+   *
+   * @param member int Member <code>id</code>
+   * @param service int Service <code>id</code>
+   * @return List<Resource> resources where the member is assigned that have the given service
    */
   getAssignedResources {
     @Override
@@ -531,10 +543,12 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns all assigned resources with statuses where member is assigned through the groups.
+   * Returns all resources reachable through groups the member belongs to, annotated with the group-resource
+   * assignment status. Assignments in any state are included (not only ACTIVE). If the same resource is reached
+   * through multiple assignments, only the entry with the most important status is returned.
    *
    * @param member int Member <code>id</code>
-   * @return List<AssignedResource> Resources with statuses
+   * @return List<AssignedResource> reachable resources with their assignment status
    */
   getAssignedResourcesWithStatus {
     @Override
@@ -545,17 +559,20 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Get all rich resources where the service and the member are assigned with facility property filled.
+   * Get all rich resources where the member is assigned, with facility property filled. The member belongs to a
+   * group with an active assignment to the resource. On top of that, results are restricted to resources with the
+   * given service assigned. No filter is applied on their VO membership status.
    *
    * @param member int Member <code>id</code>
    * @param service int Service <code>id</code>
-   * @return List<RichResource> List of rich resources
+   * @return List<RichResource> rich resources where the member is assigned that have the given service
    */
   /*#
-   * List all rich resources associated with a member's group.
+   * Get all rich resources where the member is assigned, with facility property filled. The member belongs to a
+   * group with an active assignment to the resource. No filter is applied on their VO membership status.
    *
    * @param member int Member <code>id</code>
-   * @return List<RichResource> List of rich resources
+   * @return List<RichResource> rich resources where the member is assigned
    */
   /*#
    * List all rich resources associated with a group.
@@ -583,10 +600,11 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns all members assigned to the resource.
+   * Returns all assigned members on the resource. Assigned members belong to a group with an active assignment to
+   * the resource. No filter is applied on their VO membership status.
    *
    * @param resource int Resource <code>id</code>
-   * @return List<Member> list of assigned members
+   * @return List<Member> assigned members on the resource
    */
   getAssignedMembers {
     @Override
@@ -597,10 +615,11 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns members of groups assigned to resource with status of group-resource assignment.
-   * @param sess perunSession
-   * @param resource resource
-   * @return list of members of groups assigned to given resource
+   * Returns all members of groups with a group-resource assignment to the resource, annotated with the assignment
+   * status. Assignments in any state are included (not only ACTIVE).
+   *
+   * @param resource int Resource <code>id</code>
+   * @return List<AssignedMember> members of groups with a group-resource assignment with the assignment status
    *
    * @throw PrivilegeException insufficient permissions
    */
@@ -613,10 +632,11 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Returns all members assigned to the resource as RichMembers.
+   * Returns all assigned members on the resource as RichMembers. Assigned members belong to a group with an active
+   * assignment to the resource. No filter is applied on their VO membership status.
    *
    * @param resource int Resource <code>id</code>
-   * @return List<RichMember> list of assigned rich members
+   * @return List<RichMember> assigned rich members on the resource
    */
   getAssignedRichMembers {
     @Override
@@ -1097,10 +1117,11 @@ public enum ResourcesManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Get all resources which have the member access on.
+   * Get all resources where the member is allowed. The member belongs to a group with an active assignment to the
+   * resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param member int Member <code>id</code>
-   * @return List<Resource> VO resources
+   * @return List<Resource> allowed resources
    */
   getAllowedResources {
     @Override

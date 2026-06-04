@@ -9837,7 +9837,7 @@ paths:
       tags:
         - UsersManager
       operationId: getAssignedRichResourcesForUser
-      summary: Get all rich resources which have the user assigned.
+      summary: Get all rich resources where the user is assigned. The user has a membership in a group with an active assignment to the resource. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
@@ -10705,7 +10705,7 @@ paths:
       tags:
         - UsersManager
       operationId: getAllowedResourcesOnFacility
-      summary: Get all resources on given facility which the user has access to.
+      summary: Get all resources on the facility where the user is allowed. The user has a membership in a group with an active assignment to the resource and their VO membership status is not INVALID or DISABLED.
       parameters:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/facilityId'
@@ -12125,7 +12125,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAssignedUsers
-      summary: Lists all users assigned to facility containing resources where service is assigned.
+      summary: Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a resource on this facility. If a service is provided, results are additionally restricted to resources with that service assigned. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - name: service
@@ -12145,7 +12145,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAssignedUsersByFacilityName
-      summary: Lists all users assigned to facility containing resources where service is assigned.
+      summary: Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a resource on this facility. If a service is provided, results are additionally restricted to resources with that service assigned. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - name: service
@@ -12579,7 +12579,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAllowedGroups
-      summary: Get all assigned groups on Facility, optionally filtered by Vo or Service or both.
+      summary: Get all allowed groups on the Facility, optionally filtered by Vo or Service or both. Allowed groups have an active assignment to a resource on the facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
@@ -12595,7 +12595,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAllowedGroupsByFacilityName
-      summary: Get all assigned groups on Facility, optionally filtered by Vo or Service or both.
+      summary: Get all allowed groups on the Facility, optionally filtered by Vo or Service or both. Allowed groups have an active assignment to a resource on the facility.
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
@@ -12611,7 +12611,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAllowedRichGroupsWithAttributes
-      summary: Get all assigned RichGroups on Facility with specified set of attributes, optionally filtered by Vo or Service or both.
+      summary: Get all allowed RichGroups on the Facility with specified set of attributes, optionally filtered by Vo or Service or both. Allowed groups have an active assignment to a resource on the facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/attrNames'
@@ -12628,7 +12628,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAllowedRichGroupsWithAttributesByFacilityName
-      summary: Get all assigned RichGroups on Facility with specified set of attributes, optionally filtered by Vo or Service or both.
+      summary: Get all allowed RichGroups on the Facility with specified set of attributes, optionally filtered by Vo or Service or both. Allowed groups have an active assignment to a resource on the facility.
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - $ref: '#/components/parameters/attrNames'
@@ -13077,7 +13077,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAssignedFacilitiesByMember
-      summary: Get facilities which have the member access on.
+      summary: Get facilities where the member is assigned. A facility is returned if the member belongs to a group with an active assignment to at least one resource on that facility. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/memberId'
       responses:
@@ -13091,7 +13091,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAssignedFacilitiesByUser
-      summary: et facilities which have the user access on.
+      summary: Get facilities where the user is assigned. A facility is returned if the user has a membership in a group with an active assignment to at least one resource on that facility. No filter is applied on VO membership status.
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
@@ -13320,7 +13320,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAllowedUsersOfFacility
-      summary: Return all users which can use this facility
+      summary: Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a resource on this facility and their VO membership status is not INVALID or DISABLED.
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO" }
@@ -13336,7 +13336,7 @@ paths:
       tags:
         - FacilitiesManager
       operationId: getAllowedUsersOfFacilityByFacilityName
-      summary: Return all users which can use this facility
+      summary: Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a resource on this facility and their VO membership status is not INVALID or DISABLED.
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO" }
@@ -15141,7 +15141,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAllowedMembers
-      summary: Returns all members assigned to the resource.
+      summary: Returns all allowed members on the resource. Allowed members belong to a group with an active assignment to the resource and their VO membership status is not INVALID or DISABLED.
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
@@ -15155,7 +15155,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAllowedUsersOfResource
-      summary: Returns all users assigned to the resource.
+      summary: Returns all allowed users on the resource. Allowed users are members of a group with an active assignment to the resource and their VO membership status is not INVALID or DISABLED.
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
@@ -15312,7 +15312,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedResourcesWithStatus
-      summary: Returns all assigned resources with statuses where member is assigned through the groups.
+      summary: Returns all resources reachable through groups the member belongs to, annotated with the group-resource assignment status. Assignments in any state are included (not only ACTIVE). If the same resource is reached through multiple assignments, only the entry with the most important status is returned.
       parameters:
         - $ref: '#/components/parameters/memberId'
       responses:
@@ -15422,7 +15422,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedResourcesWithMember
-      summary: List all resources associated with a member's group.
+      summary: Get all resources where the member is assigned. The member belongs to a group with an active assignment to the resource. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/memberId'
       responses:
@@ -15436,7 +15436,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedRichResourcesWithMemberService
-      summary: Get all rich resources where the service and the member are assigned with facility property filled.
+      summary: Get all rich resources where the member is assigned, with facility property filled. The member belongs to a group with an active assignment to the resource. On top of that, results are restricted to resources with the given service assigned. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/serviceId'
@@ -15451,7 +15451,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedRichResourcesWithMember
-      summary: List all rich resources associated with a member's group.
+      summary: Get all rich resources where the member is assigned, with facility property filled. The member belongs to a group with an active assignment to the resource. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/memberId'
       responses:
@@ -15479,7 +15479,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedMembers
-      summary: Returns all members assigned to the resource.
+      summary: Returns all assigned members on the resource. Assigned members belong to a group with an active assignment to the resource. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
@@ -15493,7 +15493,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedMembersWithStatus
-      summary: Returns members of groups assigned to resource with status of group-resource assignment.
+      summary: Returns all members of groups with a group-resource assignment to the resource, annotated with the assignment status. Assignments in any state are included (not only ACTIVE).
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
@@ -15507,7 +15507,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAssignedRichMembers
-      summary: Returns all members assigned to the resource as RichMembers.
+      summary: Returns all assigned members on the resource as RichMembers. Assigned members belong to a group with an active assignment to the resource. No filter is applied on their VO membership status.
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
@@ -15893,7 +15893,7 @@ paths:
       tags:
         - ResourcesManager
       operationId: getAllowedResources
-      summary: Get all resources which have the member access on.
+      summary: Get all resources where the member is allowed. The member belongs to a group with an active assignment to the resource and their VO membership status is not INVALID or DISABLED.
       parameters:
         - $ref: '#/components/parameters/memberId'
       responses:
