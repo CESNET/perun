@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -366,6 +367,21 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
     }
 
     return subjects.get(0);
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins) {
+    // TODO introduce an optimization in here
+    Map<String, Map<String, String>> subjects = new LinkedHashMap<>();
+    // sorted for deterministic order in logs
+    for (String login : logins.stream().sorted().toList()) {
+      try {
+        subjects.put(login, getSubjectByLogin(login));
+      } catch (SubjectNotExistsException e) {
+        subjects.put(login, null);
+      }
+    }
+    return subjects;
   }
 
   @Override

@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -302,6 +303,20 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
     setEnviroment();
     Map<String, String> subject = covertRichUserToSubject(findRichUser(login));
     return subject;
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins) {
+    Map<String, Map<String, String>> subjects = new LinkedHashMap<>();
+    // sorted for deterministic order in logs
+    for (String login : logins.stream().sorted().toList()) {
+      try {
+        subjects.put(login, getSubjectByLogin(login));
+      } catch (SubjectNotExistsException e) {
+        subjects.put(login, null);
+      }
+    }
+    return subjects;
   }
 
   @Override

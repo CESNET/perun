@@ -21,6 +21,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -370,6 +371,21 @@ public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
     }
 
     return null;
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins) {
+    // this ext source is not used much anymore, so it should do fine without any optimization
+    Map<String, Map<String, String>> subjects = new LinkedHashMap<>();
+    // sorted for deterministic order in logs
+    for (String login : logins.stream().sorted().toList()) {
+      try {
+        subjects.put(login, getSubjectByLogin(login));
+      } catch (SubjectNotExistsException e) {
+        subjects.put(login, null);
+      }
+    }
+    return subjects;
   }
 
   @Override

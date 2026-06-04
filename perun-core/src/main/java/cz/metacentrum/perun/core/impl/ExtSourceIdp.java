@@ -43,6 +43,12 @@ public class ExtSourceIdp extends ExtSourceImpl implements ExtSourceSimpleApi {
   }
 
   @Override
+  public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins)
+      throws ExtSourceUnsupportedOperationException {
+    throw new ExtSourceUnsupportedOperationException();
+  }
+
+  @Override
   public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes)
       throws ExtSourceUnsupportedOperationException {
     throw new ExtSourceUnsupportedOperationException();
