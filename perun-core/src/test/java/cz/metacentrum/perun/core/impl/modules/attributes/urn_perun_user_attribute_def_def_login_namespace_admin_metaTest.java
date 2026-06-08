@@ -61,11 +61,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_admin_metaTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("login-namespace:admin-meta");
+    attributeToCheck.setDisplayName("");
     attributeToCheck.setValue("test");
 
     einfraAttribute = new Attribute();
     einfraAttribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     einfraAttribute.setFriendlyName("login-namespace:einfra");
+    einfraAttribute.setDisplayName("");
     einfraAttribute.setValue("test");
 
     PerunBl perunBl = mock(PerunBl.class);

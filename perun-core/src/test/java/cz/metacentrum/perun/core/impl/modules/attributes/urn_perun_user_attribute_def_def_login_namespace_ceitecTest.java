@@ -31,6 +31,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitecTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("login-namespace:ceitec");
+    attributeToCheck.setDisplayName("");
 
     PerunBl perunBl = mock(PerunBl.class);
     when(session.getPerunBl()).thenReturn(perunBl);

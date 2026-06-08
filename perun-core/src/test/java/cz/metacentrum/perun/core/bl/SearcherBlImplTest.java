@@ -155,7 +155,9 @@ public class SearcherBlImplTest {
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setId(id);
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+    attrDef.setDisplayName("");
     attrDef.setType(type);
     Attribute attr = new Attribute(attrDef);
     attr.setValue(value);

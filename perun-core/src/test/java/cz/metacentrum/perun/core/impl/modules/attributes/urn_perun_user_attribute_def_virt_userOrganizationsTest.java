@@ -48,7 +48,9 @@ public class urn_perun_user_attribute_def_virt_userOrganizationsTest extends Abs
 
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+    attr.setDisplayName("");
     attr.setFriendlyName("userOrganizations");
+    attr.setDisplayName("");
     attr.setType(HashMap.class.getName());
 
     Attribute attribute = new Attribute(attr);

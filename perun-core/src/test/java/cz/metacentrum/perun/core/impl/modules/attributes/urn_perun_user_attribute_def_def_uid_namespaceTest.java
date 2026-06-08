@@ -32,6 +32,7 @@ public class urn_perun_user_attribute_def_def_uid_namespaceTest {
     user = new User(0, "John", "Doe", "", "", "");
     attributeToCheck = new Attribute();
     attributeToCheck.setFriendlyName("name:param");
+    attributeToCheck.setDisplayName("");
     minUid = new Attribute();
     maxUid = new Attribute();
 

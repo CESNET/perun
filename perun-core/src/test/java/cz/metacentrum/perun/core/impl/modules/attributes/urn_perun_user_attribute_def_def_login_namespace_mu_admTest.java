@@ -38,6 +38,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_mu_admTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("login-namespace:mu-adm");
+    attributeToCheck.setDisplayName("");
 
     PerunBl perunBl = mock(PerunBl.class);
     when(session.getPerunBl()).thenReturn(perunBl);

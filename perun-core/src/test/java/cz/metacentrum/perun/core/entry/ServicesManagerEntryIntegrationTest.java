@@ -2023,6 +2023,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
     attribute = new AttributeDefinition();
     attribute.setFriendlyName("ServicesManagerTestAttribute");
+    attribute.setDisplayName("");
     attribute.setDescription("TestingAttribute");
     attribute.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
     attribute.setType(String.class.getName());
@@ -2249,6 +2250,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
     attribute = new AttributeDefinition();
     attribute.setFriendlyName("ServicesManagerTestUserAttribute");
+    attribute.setDisplayName("");
     attribute.setDescription("TestingUserAttribute");
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attribute.setType(String.class.getName());

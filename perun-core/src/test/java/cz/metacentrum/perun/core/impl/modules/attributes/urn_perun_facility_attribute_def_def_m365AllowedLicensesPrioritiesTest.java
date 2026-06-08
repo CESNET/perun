@@ -35,6 +35,7 @@ public class urn_perun_facility_attribute_def_def_m365AllowedLicensesPrioritiesT
     facility = new Facility();
     attributeToCheck = new Attribute();
     attributeToCheck.setFriendlyName("m365AllowedLicensesPriorities");
+    attributeToCheck.setDisplayName("");
   }
 
   // SYNTAX CHECKS

@@ -128,6 +128,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiersTest extends Ab
   private Attribute setUpGroupAttribute(String friendlyName, String type, Object value) throws Exception {
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     attrDef.setType(type);
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
@@ -150,6 +151,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiersTest extends Ab
   private Attribute setUpUserAttribute(String friendlyName, String type, Object value) throws Exception {
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setType(type);
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
@@ -162,6 +164,7 @@ public class urn_perun_user_attribute_def_virt_studentIdentifiersTest extends Ab
   private void setUpUserExtSourceAttribute(String friendlyName, String type) throws Exception {
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
     attrDef.setType(type);
     perun.getAttributesManagerBl().createAttribute(sess, attrDef);

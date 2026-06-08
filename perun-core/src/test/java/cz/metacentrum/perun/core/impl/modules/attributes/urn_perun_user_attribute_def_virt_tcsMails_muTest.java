@@ -266,6 +266,7 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setId(id);
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setType(type);
     Attribute attr = new Attribute(attrDef);

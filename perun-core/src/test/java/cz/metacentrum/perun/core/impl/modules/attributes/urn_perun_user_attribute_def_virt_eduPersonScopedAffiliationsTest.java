@@ -299,6 +299,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
     Attribute attribute = new Attribute();
     attribute.setFriendlyName("eduPersonScopedAffiliationsManuallyAssigned");
+    attribute.setDisplayName("");
 
     event = new AttributeSetForUser(attribute, user);
     auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);

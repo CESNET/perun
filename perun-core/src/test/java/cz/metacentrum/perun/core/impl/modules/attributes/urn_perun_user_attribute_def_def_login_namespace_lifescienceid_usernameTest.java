@@ -56,6 +56,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName(lifescienceidUsername);
+    attributeToCheck.setDisplayName("");
     attributeToCheck.setValue("test");
 
     PerunBl perunBl = mock(PerunBl.class);
@@ -76,6 +77,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     AttributeDefinition lifescienceAttrDefinition = new AttributeDefinition();
     lifescienceAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     lifescienceAttrDefinition.setFriendlyName(lifescienceidUsername);
+    lifescienceAttrDefinition.setDisplayName("");
     when(session.getPerunBl().getAttributesManagerBl()
              .getAttributeDefinition(session, lifescienceAttrDefinition.getName())).thenReturn(
         lifescienceAttrDefinition);
@@ -83,12 +85,14 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     AttributeDefinition elixirAttrDefinition = new AttributeDefinition();
     elixirAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     elixirAttrDefinition.setFriendlyName(elixirUsername);
+    elixirAttrDefinition.setDisplayName("");
     when(session.getPerunBl().getAttributesManagerBl()
              .getAttributeDefinition(session, elixirAttrDefinition.getName())).thenReturn(elixirAttrDefinition);
 
     AttributeDefinition bbmriAttrDefinition = new AttributeDefinition();
     bbmriAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     bbmriAttrDefinition.setFriendlyName(bbmriUsername);
+    bbmriAttrDefinition.setDisplayName("");
     when(session.getPerunBl().getAttributesManagerBl()
              .getAttributeDefinition(session, bbmriAttrDefinition.getName())).thenReturn(bbmriAttrDefinition);
 
@@ -107,6 +111,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     AttributeDefinition lifescienceAttrDefinition = new AttributeDefinition();
     lifescienceAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     lifescienceAttrDefinition.setFriendlyName(lifescienceidUsername);
+    lifescienceAttrDefinition.setDisplayName("");
     when(session.getPerunBl().getAttributesManagerBl()
              .getAttributeDefinition(session, lifescienceAttrDefinition.getName())).thenReturn(
         lifescienceAttrDefinition);
@@ -114,12 +119,14 @@ public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_user
     AttributeDefinition elixirAttrDefinition = new AttributeDefinition();
     elixirAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     elixirAttrDefinition.setFriendlyName(elixirUsername);
+    elixirAttrDefinition.setDisplayName("");
     when(session.getPerunBl().getAttributesManagerBl()
              .getAttributeDefinition(session, elixirAttrDefinition.getName())).thenReturn(elixirAttrDefinition);
 
     AttributeDefinition bbmriAttrDefinition = new AttributeDefinition();
     bbmriAttrDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     bbmriAttrDefinition.setFriendlyName(bbmriUsername);
+    bbmriAttrDefinition.setDisplayName("");
     when(session.getPerunBl().getAttributesManagerBl()
              .getAttributeDefinition(session, bbmriAttrDefinition.getName())).thenReturn(bbmriAttrDefinition);
 

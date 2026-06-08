@@ -40,6 +40,7 @@ public class urn_perun_ues_attribute_def_def_isCesnetEligibleLastSeenTest extend
     def.setDescription("isCesnetEligibleLastSeen");
     def.setDisplayName("isCesnetEligibleLastSeen");
     def.setFriendlyName("isCesnetEligibleLastSeen");
+    def.setDisplayName("");
     try {
       perun.getAttributesManagerBl().createAttribute(sess, def);
     } catch (AttributeDefinitionExistsException ex) {

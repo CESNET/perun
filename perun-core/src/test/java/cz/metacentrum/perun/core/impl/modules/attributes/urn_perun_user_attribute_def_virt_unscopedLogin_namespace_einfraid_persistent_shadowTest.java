@@ -29,6 +29,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
     attributeDefinitionToCheck = new AttributeDefinition();
     attributeDefinitionToCheck.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attributeDefinitionToCheck.setFriendlyName("unscopedLogin-namespace:einfraid-persistent-shadow");
+    attributeDefinitionToCheck.setDisplayName("");
   }
 
   @Test
@@ -38,6 +39,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
     Attribute attribute = new Attribute();
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attribute.setFriendlyName("login-namespace:einfraid-persistent-shadow");
+    attribute.setDisplayName("");
     attribute.setType("def");
     attribute.setValue("test@test@test@scope");
     when(session.getPerunBl().getAttributesManagerBl()
@@ -54,6 +56,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
     Attribute attribute = new Attribute();
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attribute.setFriendlyName("login-namespace:einfraid-persistent-shadow");
+    attribute.setDisplayName("");
     attribute.setType("def");
     attribute.setValue("test@scope");
     when(session.getPerunBl().getAttributesManagerBl()
@@ -70,6 +73,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
     Attribute attribute = new Attribute();
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attribute.setFriendlyName("login-namespace:einfraid-persistent-shadow");
+    attribute.setDisplayName("");
     attribute.setType("def");
     attribute.setValue("test");
     when(session.getPerunBl().getAttributesManagerBl()
@@ -86,6 +90,7 @@ public class urn_perun_user_attribute_def_virt_unscopedLogin_namespace_einfraid_
     Attribute attribute = new Attribute();
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attribute.setFriendlyName("login-namespace:einfraid-persistent-shadow");
+    attribute.setDisplayName("");
     attribute.setType("def");
     attribute.setValue(null);
     when(session.getPerunBl().getAttributesManagerBl()

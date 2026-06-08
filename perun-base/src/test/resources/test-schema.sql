@@ -1,4 +1,4 @@
--- database version 3.2.35 (don't forget to update insert statement at the end of file)
+-- database version 3.2.36 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -284,7 +284,7 @@ create table attr_names
     modified_by     varchar   default user                  not null,
     created_by_uid  integer,
     modified_by_uid integer,
-    display_name    varchar,                                          --name of attr. displayed at GUI
+    display_name    varchar                                 not null, --name of attr. displayed at GUI
     is_unique       boolean   DEFAULT FALSE                 NOT NULL,
     constraint attnam_pk primary key (id),
     constraint attnam_u unique (attr_name),
@@ -1969,7 +1969,7 @@ create index idx_fk_blk_attr_attr_names on blocked_attr_values(attr_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.35');
+values ('DATABASE VERSION', '3.2.36');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations

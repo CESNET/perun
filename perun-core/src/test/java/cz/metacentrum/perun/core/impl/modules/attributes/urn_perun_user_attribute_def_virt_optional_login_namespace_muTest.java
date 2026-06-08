@@ -40,6 +40,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_muTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("login-namespace:mu");
+    attributeToCheck.setDisplayName("");
 
     extSource = new ExtSource(EXTSOURCE_MUNI_IDP2, ExtSourcesManager.EXTSOURCE_IDP);
 
@@ -70,6 +71,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_muTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("optional-login-namespace:mu");
+    attr.setDisplayName("");
 
     assertNull(classInstance.getAttributeValue(session, user, attr).getValue());
   }
@@ -82,6 +84,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_muTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("optional-login-namespace:mu");
+    attr.setDisplayName("");
 
     assertEquals(attributeToCheck.getValue(), classInstance.getAttributeValue(session, user, attr).getValue());
   }
@@ -95,6 +98,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_muTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("optional-login-namespace:mu");
+    attr.setDisplayName("");
     assertEquals("123456", classInstance.getAttributeValue(session, user, attr).getValue());
   }
 

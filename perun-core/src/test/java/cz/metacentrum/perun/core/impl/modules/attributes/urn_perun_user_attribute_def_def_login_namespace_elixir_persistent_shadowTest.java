@@ -48,6 +48,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
     System.out.println("testCheckAttributeSemantics()");
     Attribute attribute = new Attribute();
     attribute.setFriendlyName("login-namespace:elixir-persistent");
+    attribute.setDisplayName("");
     attribute.setValue("28c5353b8bb34984a8bd4169ba94c606@elixir-europe.org");
 
     when(session.getPerunBl().getUsersManagerBl()
@@ -69,6 +70,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 
     Attribute attribute = new Attribute();
     attribute.setFriendlyName("login-namespace:elixir-persistent-shadow");
+    attribute.setDisplayName("");
     attribute.setValue("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org");
 
     Attribute attributeToReturn = new Attribute();

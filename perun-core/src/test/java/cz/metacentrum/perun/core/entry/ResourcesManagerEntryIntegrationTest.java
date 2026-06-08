@@ -649,6 +649,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     AttributeDefinition resourceMemberAttrDef = new AttributeDefinition();
     resourceMemberAttrDef.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
     resourceMemberAttrDef.setFriendlyName("memberResourceAttribute");
+    resourceMemberAttrDef.setDisplayName("");
     resourceMemberAttrDef.setType(Integer.class.getName());
     resourceMemberAttrDef = perun.getAttributesManagerBl().createAttribute(sess, resourceMemberAttrDef);
 
@@ -2927,6 +2928,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
     attrDef.setDescription("Test attribute description");
     attrDef.setFriendlyName("testingAttribute");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -2939,6 +2941,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
     attrDef.setDescription("Test attribute2 description");
     attrDef.setFriendlyName("testingAttribute2");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -2951,6 +2954,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     attrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
     attrDef.setDescription("Test attribute3 description");
     attrDef.setFriendlyName("testingAttribute3");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -3021,6 +3025,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     attrDef.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
     attrDef.setDescription("Test Group resource attribute desc");
     attrDef.setFriendlyName("testingAttributeGR");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -3058,6 +3063,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     attrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     attrDef.setDescription("Test attribute description");
     attrDef.setFriendlyName("testingAttribute");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -3142,6 +3148,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setDescription("Test attribute description");
     attrDef.setFriendlyName("testingAttribute");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);

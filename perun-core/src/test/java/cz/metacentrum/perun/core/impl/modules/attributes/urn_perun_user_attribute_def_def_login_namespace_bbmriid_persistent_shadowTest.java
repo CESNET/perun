@@ -53,6 +53,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_bbmriid_persistent
 
     Attribute attribute = new Attribute();
     attribute.setFriendlyName("login-namespace:bbmriid-persistent-shadow");
+    attribute.setDisplayName("");
 
     Attribute outputOne = classInstance.fillAttribute(session, user, attribute);
     Attribute outputTwo = classInstance.fillAttribute(session, user, attribute);

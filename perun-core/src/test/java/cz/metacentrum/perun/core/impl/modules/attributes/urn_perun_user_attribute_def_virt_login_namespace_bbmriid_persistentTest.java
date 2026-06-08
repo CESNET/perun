@@ -44,6 +44,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persisten
     Attribute attributeToReturn = new Attribute();
     attributeToReturn.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToReturn.setFriendlyName("login-namespace:bbmriid-persistent-shadow");
+    attributeToReturn.setDisplayName("");
     attributeToReturn.setType("def");
 
     when(session.getPerunBl().getAttributesManagerBl()
@@ -53,6 +54,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_bbmriid_persisten
     Attribute attributeToFill = new Attribute();
     attributeToFill.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToFill.setFriendlyName("login-namespace:bbmriid-persistent-shadow");
+    attributeToFill.setDisplayName("");
     attributeToFill.setType("def");
     attributeToFill.setValue("879a224546cf11fe53863737de037d2d39640258@bbmriid");
 

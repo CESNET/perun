@@ -47,6 +47,7 @@ public class urn_perun_member_attribute_def_virt_mailsTest extends AbstractPerun
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_VIRT);
     attr.setFriendlyName("mails");
+    attr.setDisplayName("");
     attr.setType(ArrayList.class.getName());
     Attribute attribute = new Attribute(attr);
 

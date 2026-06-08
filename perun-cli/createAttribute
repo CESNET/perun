@@ -8,7 +8,7 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Creates an attribute. Attribute name, namespace and type are required fields.
+	Creates an attribute. Attribute name, display name, namespace and type are required fields.
 	--------------------------------------
 	Available options:
 	--attributeName       | -N attribute friendly name
@@ -35,6 +35,7 @@ GetOptions ("help|h"         => sub {
 
 # Check options
 unless (defined($attributeName)) { die "ERROR: attributeName is required \n";}
+unless (defined($attributeDisplayName)) { die "ERROR: attributeDisplayName is required \n";}
 unless (defined($attributeNameSpace)) { die "ERROR: attributeNameSpace is required \n";}
 unless (defined($attributeType)) { die "ERROR: attributeType is required \n";}
 

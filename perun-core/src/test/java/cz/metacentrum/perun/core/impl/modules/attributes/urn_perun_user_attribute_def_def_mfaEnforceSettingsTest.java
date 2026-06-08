@@ -35,6 +35,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettingsTest {
     user = new User();
     attributeToCheck = new Attribute();
     attributeToCheck.setFriendlyName("mfaEnforceSettings:test");
+    attributeToCheck.setDisplayName("");
 
 
     Attribute mockMfaCategories = new Attribute();

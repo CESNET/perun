@@ -51,6 +51,7 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
   private Attribute getArrayAttribute(String... value) {
     Attribute attribute = new Attribute();
     attribute.setFriendlyName("test");
+    attribute.setDisplayName("");
     attribute.setNamespace("test");
     attribute.setType(ArrayList.class.getName());
     attribute.setValue(new ArrayList<>(Arrays.asList(value)));
@@ -61,6 +62,7 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(nameSpace);
     attr.setFriendlyName(name);
+    attr.setDisplayName("");
     attr.setDisplayName(name);
     attr.setType(String.class.getName());
     attr.setDescription(name);
@@ -81,6 +83,7 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
     }
     Attribute attribute = new Attribute();
     attribute.setFriendlyName("test");
+    attribute.setDisplayName("");
     attribute.setNamespace("test");
     attribute.setType(LinkedHashMap.class.getName());
 
@@ -148,6 +151,7 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attr.setFriendlyName("mailaliasesGenericMail");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
 
     assertNotNull(attributesManager.getUninitializedAttributesModule(sess, attr));
@@ -164,6 +168,7 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attr.setFriendlyName("SomeNonexistentAttribute");
+    attr.setDisplayName("");
     attr.setType(ArrayList.class.getName());
 
     assertNull(attributesManager.getUninitializedAttributesModule(sess, attr));
@@ -176,6 +181,7 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attr.setFriendlyName("mailaliasesGenericMail");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
 
     perun.getAttributesManagerBl().createAttribute(sess, attr);
