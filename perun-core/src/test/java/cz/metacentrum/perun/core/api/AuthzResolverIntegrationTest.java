@@ -1902,6 +1902,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
     attrDef.setType(Integer.class.getName());
     attrDef.setFriendlyName("testFacilityAttribute");
+    attrDef.setDisplayName("");
     attrDef.setDisplayName("test facility attr");
 
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
@@ -1923,6 +1924,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
     attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     attrDef.setType(Integer.class.getName());
     attrDef.setFriendlyName("testGroupAttr");
+    attrDef.setDisplayName("");
     attrDef.setDisplayName("test group attr");
 
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);

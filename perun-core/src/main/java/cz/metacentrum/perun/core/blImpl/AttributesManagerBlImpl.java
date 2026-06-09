@@ -1899,6 +1899,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     Utils.notNull(attribute.getNamespace(), "attribute.getNamespace");
     Utils.notNull(attribute.getFriendlyName(), "attribute.getFriendlyName");
     Utils.notNull(attribute.getType(), "attribute.getType");
+    Utils.notNull(attribute.getDisplayName(), "attribute.getDisplayName");
 
     //check if attribute.nameSpace is valid nameSpace
     if (!isCorrectNameSpace(attribute.getNamespace())) {

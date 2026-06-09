@@ -556,6 +556,7 @@ public class ExpirationNotifSchedulerTest extends AbstractRegistrarIntegrationTe
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
     attr.setFriendlyName("groupMembershipExpiration");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setDisplayName("Group membership expiration");
     attr.setDescription("When the member expires in group, format YYYY-MM-DD.");
@@ -568,6 +569,7 @@ public class ExpirationNotifSchedulerTest extends AbstractRegistrarIntegrationTe
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attr.setFriendlyName("isCesnetEligibleLastSeen");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setDisplayName("isCesnetEligibleLastSeen");
     attr.setDescription("isCesnetEligibleLastSeen");
@@ -599,6 +601,7 @@ public class ExpirationNotifSchedulerTest extends AbstractRegistrarIntegrationTe
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace("urn:perun:member:attribute-def:def");
     attr.setFriendlyName("membershipExpiration");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setDisplayName("Membership expiration");
     attr.setDescription("Membership expiration date.");

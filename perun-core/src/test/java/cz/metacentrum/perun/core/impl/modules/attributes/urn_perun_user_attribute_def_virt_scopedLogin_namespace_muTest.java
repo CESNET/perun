@@ -31,6 +31,7 @@ public class urn_perun_user_attribute_def_virt_scopedLogin_namespace_muTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("login-namespace:mu");
+    attributeToCheck.setDisplayName("");
 
     when(session.getPerunBl()).thenReturn(mock(PerunBl.class));
     when(session.getPerunBl().getAttributesManagerBl()).thenReturn(mock(AttributesManagerBl.class));
@@ -47,6 +48,7 @@ public class urn_perun_user_attribute_def_virt_scopedLogin_namespace_muTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("scopedLogin-namespace:mu");
+    attr.setDisplayName("");
 
     assertNull(classInstance.getAttributeValue(session, user, attr).getValue());
   }
@@ -62,6 +64,7 @@ public class urn_perun_user_attribute_def_virt_scopedLogin_namespace_muTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("scopedLogin-namespace:mu");
+    attr.setDisplayName("");
 
     assertNull(classInstance.getAttributeValue(session, user, attr).getValue());
   }
@@ -74,6 +77,7 @@ public class urn_perun_user_attribute_def_virt_scopedLogin_namespace_muTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("scopedLogin-namespace:mu");
+    attr.setDisplayName("");
 
     assertEquals(attributeToCheck.getValue() + "@muni.cz",
         classInstance.getAttributeValue(session, user, attr).getValue());

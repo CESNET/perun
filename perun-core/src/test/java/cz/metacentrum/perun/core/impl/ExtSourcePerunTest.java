@@ -37,6 +37,7 @@ public class ExtSourcePerunTest {
     // set up list of rich users
     AttributeDefinition attributeDefinition = new AttributeDefinition();
     attributeDefinition.setFriendlyName("firstName");
+    attributeDefinition.setDisplayName("");
     attributeDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeDefinition.setType(String.class.getName());
     Attribute attribute = new Attribute(attributeDefinition, "metodej");

@@ -48,6 +48,7 @@ public class urn_perun_member_attribute_def_virt_isLifecycleAlterableTest extend
     attrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     attrDef.setDescription("Member organizations");
     attrDef.setFriendlyName("memberOrganizations");
+    attrDef.setDisplayName("");
     attrDef.setType(ArrayList.class.getName());
 
     return perun.getAttributesManagerBl().getAttributeDefinition(sess, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);

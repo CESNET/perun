@@ -63,6 +63,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_egiTest 
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("optional-login-namespace:egi");
+    attr.setDisplayName("");
 
     assertNull(classInstance.getAttributeValue(session, user, attr).getValue());
   }
@@ -74,6 +75,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespace_egiTest 
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("optional-login-namespace:egi");
+    attr.setDisplayName("");
     // should return EGI identity with lowest UES ID
     assertEquals("53358466014af3010b88afe55786aa6249c257049b8526c702f104d344e4d1c8@egi.eu",
         classInstance.getAttributeValue(session, user, attr).getValue());

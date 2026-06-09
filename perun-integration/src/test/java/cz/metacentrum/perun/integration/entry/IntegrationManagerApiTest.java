@@ -48,6 +48,7 @@ public class IntegrationManagerApiTest {
   private AttributeDefinition createMemberGroupAttr(String friendlyName) throws Exception {
     var attrDef = new AttributeDefinition();
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
     attrDef.setType(String.class.getName());
     return perun.getAttributesManagerBl().createAttribute(sess, attrDef);

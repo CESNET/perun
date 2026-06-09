@@ -85,6 +85,7 @@ public class urn_perun_user_attribute_def_virt_associatedUsersMailsTest {
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setFriendlyName("preferredMail");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     Attribute attr = new Attribute(attrDef);
     attr.setValue(mail);

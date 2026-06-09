@@ -1365,22 +1365,31 @@ public enum AttributesManagerMethod implements ManagerMethod {
     public AttributeDefinition call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
+      AttributeDefinition attribute = new AttributeDefinition();
       if (parms.contains("attribute")) {
-        return ac.getAttributesManager()
-            .createAttribute(ac.getSession(), parms.read("attribute", AttributeDefinition.class));
-      } else if (parms.contains("friendlyName") && parms.contains("namespace") && parms.contains("description") &&
-                 parms.contains("type") && parms.contains("displayName") && parms.contains("unique")) {
-        AttributeDefinition attribute = new AttributeDefinition();
+        attribute = parms.read("attribute", AttributeDefinition.class);
+      } else {
         attribute.setFriendlyName(parms.readString("friendlyName"));
         attribute.setNamespace(parms.readString("namespace"));
         attribute.setDescription(parms.readString("description"));
         attribute.setType(parms.readString("type"));
         attribute.setDisplayName(parms.readString("displayName"));
         attribute.setUnique(parms.readBoolean("unique"));
-        return ac.getAttributesManager().createAttribute(ac.getSession(), attribute);
-      } else {
-        throw new RpcException(RpcException.Type.WRONG_PARAMETER);
       }
+
+      if (attribute.getFriendlyName() == null) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Missing 'friendlyName' field");
+      } else if (attribute.getNamespace() == null) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Missing 'namespace' field");
+      } else if (attribute.getDescription() == null) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Missing 'description' field");
+      } else if (attribute.getType() == null) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Missing 'type' field");
+      } else if (attribute.getDisplayName() == null) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Missing 'displayName' field");
+      }
+
+      return ac.getAttributesManager().createAttribute(ac.getSession(), attribute);
     }
   },
 
@@ -3729,8 +3738,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
     public AttributeDefinition call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      return ac.getAttributesManager()
-          .updateAttributeDefinition(ac.getSession(), parms.read("attributeDefinition", AttributeDefinition.class));
+      AttributeDefinition attribute = parms.read("attributeDefinition", AttributeDefinition.class);
+      if (attribute.getDisplayName() == null) {
+        throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Missing 'displayName' field");
+      }
+
+      return ac.getAttributesManager().updateAttributeDefinition(ac.getSession(), attribute);
     }
   },
 

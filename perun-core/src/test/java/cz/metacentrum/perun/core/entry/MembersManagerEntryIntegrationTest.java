@@ -4331,6 +4331,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     Attribute attrLogin = new Attribute();
     attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrLogin.setFriendlyName("login-namespace:dummy");
+    attrLogin.setDisplayName("");
     attrLogin.setType(String.class.getName());
     perun.getAttributesManager().createAttribute(sess, attrLogin);
   }
@@ -4339,6 +4340,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     Attribute attr = new Attribute();
     attr.setNamespace(namespace);
     attr.setFriendlyName(friendlyName);
+    attr.setDisplayName("");
     attr.setType(type);
     attr.setValue(value);
     attr.setDescription("TEST DESCRIPTION");
@@ -4460,6 +4462,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     Attribute attrLogin = new Attribute();
     attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrLogin.setFriendlyName("login-namespace:testMichal");
+    attrLogin.setDisplayName("");
     attrLogin.setType(String.class.getName());
     attrLogin = new Attribute(attributesManagerEntry.createAttribute(sess, attrLogin));
     attrLogin.setValue("TestovaciLogin");
@@ -4494,6 +4497,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     Attribute attrLogin = new Attribute();
     attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrLogin.setFriendlyName("login-namespace:testMichal2");
+    attrLogin.setDisplayName("");
     attrLogin.setType(String.class.getName());
     attrLogin = new Attribute(attributesManagerEntry.createAttribute(sess, attrLogin));
     attrLogin.setValue("123456");
@@ -4530,6 +4534,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
     Attribute attrLogin = new Attribute();
     attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrLogin.setFriendlyName("login-namespace:dummy");
+    attrLogin.setDisplayName("");
     attrLogin.setType(String.class.getName());
     attrLogin = new Attribute(attributesManagerEntry.createAttribute(sess, attrLogin));
     attrLogin.setValue("111111");

@@ -159,6 +159,7 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365muTest {
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setId(id);
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     attrDef.setType(type);
     return attrDef;

@@ -1406,6 +1406,7 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
     attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
     attrDef.setType(Integer.class.getName());
     attrDef.setFriendlyName("testFacAttr");
+    attrDef.setDisplayName("");
     attrDef.setDisplayName("test facility attr");
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     return attrDef;
@@ -1441,6 +1442,7 @@ public class ConsentsManagerEntryIntegrationTest extends AbstractPerunIntegratio
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setType(Integer.class.getName());
     attrDef.setFriendlyName(name);
+    attrDef.setDisplayName("");
     attrDef.setDisplayName(name);
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     return attrDef;

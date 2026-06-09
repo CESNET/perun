@@ -30,6 +30,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_nicknameT
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("login-namespace:eduteams-nickname");
+    attributeToCheck.setDisplayName("");
 
     PerunBl perunBl = mock(PerunBl.class);
     when(session.getPerunBl()).thenReturn(perunBl);

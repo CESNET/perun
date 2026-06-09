@@ -90,6 +90,7 @@ public class urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganization
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setId(id);
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     attrDef.setType(type);
     Attribute attr = new Attribute(attrDef);

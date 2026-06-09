@@ -140,6 +140,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
     AttributeDefinition schacHomeOrgDef = new AttributeDefinition();
     schacHomeOrgDef.setId(5);
     schacHomeOrgDef.setFriendlyName("schacHomeOrganization");
+    schacHomeOrgDef.setDisplayName("");
     schacHomeOrgDef.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
     schacHomeOrgDef.setType("java.lang.String");
     schacHomeOrg = new Attribute(schacHomeOrgDef);

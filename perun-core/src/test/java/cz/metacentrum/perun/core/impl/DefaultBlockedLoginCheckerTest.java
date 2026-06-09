@@ -74,6 +74,7 @@ public class DefaultBlockedLoginCheckerTest extends AbstractPerunIntegrationTest
     attr = new Attribute();
     attr.setNamespace("urn:perun:user:attribute-def:def");
     attr.setFriendlyName("login-namespace:META-login");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue(LOGIN);
 

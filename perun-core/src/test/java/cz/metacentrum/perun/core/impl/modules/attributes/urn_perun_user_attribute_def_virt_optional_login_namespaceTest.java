@@ -29,6 +29,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespaceTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("login-namespace:einfra");
+    attributeToCheck.setDisplayName("");
     attributeToCheck.setValue("test");
 
     String namespace =
@@ -48,6 +49,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespaceTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("optional-login-namespace:einfra");
+    attr.setDisplayName("");
 
     assertEquals(attributeToCheck.getValue(), classInstance.getAttributeValue(session, user, attr).getValue());
     assertEquals(attributeToCheck.getValueCreatedBy(),
@@ -62,6 +64,7 @@ public class urn_perun_user_attribute_def_virt_optional_login_namespaceTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("optional-login-namespace:einfra");
+    attr.setDisplayName("");
 
     assertNull(classInstance.getAttributeValue(session, user, attr).getValue());
   }

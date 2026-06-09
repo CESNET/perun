@@ -30,6 +30,7 @@ public class urn_perun_user_attribute_def_virt_anonymizedTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attributeToCheck.setFriendlyName("anonymized");
+    attributeToCheck.setDisplayName("");
     attributeToCheck.setValue(true);
 
     String attrName = AttributesManager.NS_USER_ATTR_VIRT + ":anonymized";
@@ -47,6 +48,7 @@ public class urn_perun_user_attribute_def_virt_anonymizedTest {
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attr.setFriendlyName("anonymized");
+    attr.setDisplayName("");
 
     assertEquals(attributeToCheck.getValue(), classInstance.getAttributeValue(session, user, attr).getValue());
   }

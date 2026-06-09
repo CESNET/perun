@@ -326,6 +326,7 @@ public class urn_perun_user_attribute_def_virt_voPersonExternalAffiliationTest {
 
     Attribute attribute = new Attribute();
     attribute.setFriendlyName("voPersonExternalAffiliationManuallyAssigned");
+    attribute.setDisplayName("");
 
     event = new AttributeSetForUser(attribute, user);
     auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);

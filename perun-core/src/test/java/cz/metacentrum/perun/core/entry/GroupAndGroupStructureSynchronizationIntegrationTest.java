@@ -1109,6 +1109,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     attrDef.setDescription("Test attribute description");
     attrDef.setFriendlyName(name);
+    attrDef.setDisplayName("");
     attrDef.setType(type);
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -1481,6 +1482,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     String namespace = "member-test-unique-attribute:specialNamespace";
     attribute.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     attribute.setFriendlyName(namespace + "1");
+    attribute.setDisplayName("");
     attribute.setType(ArrayList.class.getName());
     attribute.setValue(Stream.of("value1", "value2").collect(Collectors.toList()));
     assertNotNull("unable to create member attribute", attributesManagerBl.createAttribute(sess, attribute));
@@ -1883,6 +1885,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     String namespace = "user-test-unique-attribute:specialNamespace";
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attribute.setFriendlyName(namespace + "1");
+    attribute.setDisplayName("");
     attribute.setType(String.class.getName());
     attribute.setValue("UserAttribute");
     assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, attribute));

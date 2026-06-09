@@ -1113,6 +1113,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:host:attribute-def:opt");
     attr.setFriendlyName("host-test-for-list-of-names-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("HostAttributeForList");
     perun.getAttributesManagerBl().createAttribute(sess, attr);
@@ -2591,6 +2592,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
     attrDef.setDescription("Test attribute description");
     attrDef.setFriendlyName("testingAttribute");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -2603,6 +2605,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
     attrDef.setDescription("Test attribute2 description");
     attrDef.setFriendlyName("testingAttribute2");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -2615,6 +2618,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     attrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
     attrDef.setDescription("Test attribute3 description");
     attrDef.setFriendlyName("testingAttribute3");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -2633,6 +2637,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
       attrDef = new AttributeDefinition();
       attrDef.setNamespace("urn:perun:facility:attribute-def:def");
       attrDef.setFriendlyName("facility-test-attribute");
+      attrDef.setDisplayName("");
       attrDef.setType(String.class.getName());
 
       attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
@@ -2652,6 +2657,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setDescription("Test attribute description");
     attrDef.setFriendlyName("testingAttribute");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
