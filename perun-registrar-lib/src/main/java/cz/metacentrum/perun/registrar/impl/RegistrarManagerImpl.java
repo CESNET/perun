@@ -6344,19 +6344,38 @@ public class RegistrarManagerImpl implements RegistrarManager {
   public boolean validateEmailFromLink(Map<String, String> urlParameters) throws PerunException {
 
     String idStr = urlParameters.get("i");
-    byte[] mac = mailManager.getMessageAuthenticationCode(idStr).getBytes(StandardCharsets.UTF_8);
-    byte[] m = urlParameters.get("m").getBytes(StandardCharsets.UTF_8);
-    if (MessageDigest.isEqual(mac, m)) {
-      UUID newRegAppDataId = null;
-      try {
-        newRegAppDataId = UUID.fromString(idStr);
-      } catch (java.lang.IllegalArgumentException ex) {
-        // not UUID, continue with old behaviour
-      }
+    UUID newRegAppDataId = null;
+    try {
+      newRegAppDataId = UUID.fromString(idStr);
+    } catch (java.lang.IllegalArgumentException ex) {
+      // not UUID, continue with old behaviour
+    }
+    String emailValue;
+    int appDataId = -1;
+    if (newRegAppDataId != null) {
+      emailValue = perun.getRegistrarAdapter().getFormItemDataValue(newRegAppDataId);
+    } else {
+      appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
+      emailValue = jdbc.queryForObject(
+        "select value from application_data where id = ?", String.class, appDataId);
+    }
+
+    // Get the current email value from database to include in MAC verification
+    if (emailValue == null || emailValue.isEmpty()) {
+      LOG.warn("Application data ID {} doesn't exist or has no value",
+          newRegAppDataId != null ? newRegAppDataId : appDataId);
+      throw new RegistrarException("Application data doesn't exist and therefore mail can't be verified.");
+    }
+
+    // Verify MAC includes both the ID and the email value
+    String expectedMac = mailManager.getMessageAuthenticationCode(idStr + ":" + emailValue);
+    byte[] expectedMacBytes = expectedMac.getBytes(StandardCharsets.UTF_8);
+    byte[] providedMac = urlParameters.get("m").getBytes(StandardCharsets.UTF_8);
+
+    if (MessageDigest.isEqual(expectedMacBytes, providedMac)) {
       if (newRegAppDataId != null) {
         return perun.getRegistrarAdapter().mailValidated(registrarSession, newRegAppDataId);
       }
-      int appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
       // validate mail
       jdbc.update("update application_data set assurance_level=1 where id = ?", appDataId);
       Application app =

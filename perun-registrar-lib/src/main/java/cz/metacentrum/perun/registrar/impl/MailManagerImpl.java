@@ -1779,13 +1779,13 @@ public class MailManagerImpl implements MailManager {
       // set TO
       message.setRecipients(Message.RecipientType.TO, new InternetAddress[] {new InternetAddress(email)});
 
-      mailText = replaceValidationLinkAndRedirectUrl(app, idString, mailText);
+      mailText = replaceValidationLinkAndRedirectUrl(app, idString, mailText, email);
 
       // set replaced text
       if (containsHtmlMessage(mail, lang)) {
         String alternativePlainText = getMailAlternativePlainText(mail, lang, app, data, reason, exceptions, false,
             null);
-        alternativePlainText = replaceValidationLinkAndRedirectUrl(app, idString, alternativePlainText);
+        alternativePlainText = replaceValidationLinkAndRedirectUrl(app, idString, alternativePlainText, email);
         setHtmlMessageWithAltPlainTextMessage(message, alternativePlainText, mailText);
       } else {
         message.setText(mailText);
@@ -2296,9 +2296,9 @@ public class MailManagerImpl implements MailManager {
     return replaceNullSafe(mailText, FIELD_PHONE, phone);
   }
 
-  private String replaceValidationLinkAndRedirectUrl(Application app, String id, String mailText) {
+  private String replaceValidationLinkAndRedirectUrl(Application app, String id, String mailText, String mail) {
     // get validation link params
-    String m = getMessageAuthenticationCode(id);
+    String m = getMessageAuthenticationCode(id + ":" + mail);
 
     // replace new validation link
     if (mailText.contains("{validationLink-")) {
