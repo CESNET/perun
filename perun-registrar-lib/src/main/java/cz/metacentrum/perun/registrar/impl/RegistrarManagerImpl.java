@@ -1913,7 +1913,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
               String extSource = session.getPerunPrincipal().getExtSourceName();
               jdbc.update(
                   "insert into application_reserved_logins(login,namespace,user_id,extsourcename,created_by," +
-                   "created_at,identifier) values(?,?,?,?,?,?)",
+                   "created_at,identifier) values(?,?,?,?,?,?,?)",
                   login, loginNamespace, userId, extSource, actor, new Date(), actor);
               LOG.debug("[REGISTRAR] Added login reservation for login: {} in namespace: {}.", login, loginNamespace);
 
