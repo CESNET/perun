@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [52.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v52.0.0...v52.0.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* **registrar:** broken reserve login query ([2e8751f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2e8751ff28bb970b63855b67b3721917bf931bb7))
+
 ## [52.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v51.0.1...v52.0.0) (2026-06-02)
 
 
