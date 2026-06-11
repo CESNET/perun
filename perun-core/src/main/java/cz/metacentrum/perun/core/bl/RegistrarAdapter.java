@@ -84,4 +84,6 @@ public interface RegistrarAdapter {
   String getInviteUrlForVo(Vo vo);
 
   String getInviteUrlForGroup(Group group);
+
+  String getFormItemDataValue(UUID id);
 }

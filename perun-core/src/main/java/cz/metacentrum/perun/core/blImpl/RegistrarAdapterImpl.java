@@ -249,6 +249,15 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
   }
 
   @Override
+  public String getFormItemDataValue(UUID id) {
+    if (registrarApi == null) {
+      LOG.error("Trying to validate email item data {} but new registrar is not available.", id);
+      return "";
+    }
+    return registrarApi.getItemData(id).block();
+  }
+
+  @Override
   public String getInviteUrlForGroup(Group group) {
     if (registrarApi == null) {
       return "";
