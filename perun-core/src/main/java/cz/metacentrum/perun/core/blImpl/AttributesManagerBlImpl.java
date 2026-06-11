@@ -8668,6 +8668,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
+    //urn:perun:facility:attribute-def:def:rpCategory
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("rpCategory");
+    attr.setDisplayName("RP category");
+    attr.setDescription("Category of the relying party used for MFA enforcement and authentication policy evaluation.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
     //urn:perun:user:attribute-def:def:preferredMail
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
