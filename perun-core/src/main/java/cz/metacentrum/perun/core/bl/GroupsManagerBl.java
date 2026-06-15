@@ -55,6 +55,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import java.util.List;
 import java.util.Map;
@@ -2056,6 +2057,13 @@ public interface GroupsManagerBl {
    * @throws InternalErrorException
    */
   boolean isUserMemberOfGroup(PerunSession sess, User user, Group group);
+
+  /**
+   * Get form for the group. Returns null if it does not exist
+   * @param group
+   * @return
+   */
+  ApplicationForm getApplicationFormForGroup(Group group);
 
 
   /**

@@ -121,6 +121,7 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -4337,6 +4338,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   private Member mergeMembers(Member m1, Member m2) {
     m1.putGroupStatuses(m2.getGroupStatuses());
     return m1;
+  }
+
+  @Override
+  public ApplicationForm getApplicationFormForGroup(Group group) {
+    return groupsManagerImpl.getApplicationFormForGroup(group);
   }
 
   @Override
