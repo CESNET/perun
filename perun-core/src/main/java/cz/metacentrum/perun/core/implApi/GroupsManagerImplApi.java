@@ -621,6 +621,13 @@ public interface GroupsManagerImplApi {
   ApplicationForm getParentApplicationFormForAutoRegistrationGroup(Group group);
 
   /**
+   * Get form for the group. Returns null if it does not exist
+   * @param group
+   * @return
+   */
+  ApplicationForm getApplicationFormForGroup(Group group);
+
+  /**
    * Get all the groups that have the given group as embedded for auto-registration in their application form.
    *
    * @param group group to be checked
