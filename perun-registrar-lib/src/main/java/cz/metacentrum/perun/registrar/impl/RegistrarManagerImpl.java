@@ -3847,6 +3847,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
           Arrays.asList(AttributesManager.NS_VO_ATTR_DEF + ":contactEmail",
               AttributesManager.NS_VO_ATTR_DEF + ":voLogoURL"));
 
+      result.put("vo", vo);
+      result.put("voAttributes", list);
+
       Attribute useNewAttr;
       try {
         useNewAttr = attrManager.getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF +
@@ -3855,78 +3858,102 @@ public class RegistrarManagerImpl implements RegistrarManager {
         useNewAttr = null;
       }
       if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
-        String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForVo(vo);
-        result.put("newRegistrarUrl", regRedirect);
-        return result;
-      }
+        boolean hasVoOpen = this.perun.getRegistrarAdapter().hasOpenAppInVo(sess, vo);
+        Member member = null;
+        if (hasVoOpen) {
+          result.put("newRegistrarVoOpen", true);
+        }
+        if (sess.getPerunPrincipal().getUser() != null) {
+          // we also do not want to redirect to new registrar if the user is already a member
+          // currently wui only knows this based on us returning this exception
+          try {
+            member = membersManager.getMemberByUser(registrarSession, vo, sess.getPerunPrincipal().getUser());
+            result.put("voFormInitialException", new AlreadyRegisteredException(""));
+          } catch (MemberNotExistsException ex) {
+            // do nothing
+          }
+        }
+        // we want to redirect if group is not in old reg -> new reg provides all the info, OR if user can perform an
+        // action in new reg -> needs to fill VO app (not member nor existing app) OR can fill extension form. We can
+        // assume new registrar will correctly redirect to old reg, now with existing application/membership
+        boolean needsRegistration = !hasVoOpen && member == null;
+        boolean needsExtension = member != null &&
+                                 perun.getMembersManagerBl().canExtendMembership(sess, member) &&
+                                 perun.getRegistrarAdapter().doesVoHaveExtensionForm(vo);
 
-      result.put("vo", vo);
-      result.put("voAttributes", list);
-      result.put("voForm", getFormForVo(vo));
+        if (groupName == null || needsRegistration || needsExtension) {
+          result.put("newRegistrarUrl", this.perun.getRegistrarAdapter().getInviteUrlForVo(vo));
+          // we can end here, new reg will redirect back to old reg after creating app
+          return result;
+        }
+      } else {
 
-      // GET INITIAL APPLICATION IF POSSIBLE
-      try {
+        result.put("voForm", getFormForVo(vo));
 
-        result.put("voFormInitial",
-            getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("voForm"),
-                    externalParams));
-
-      } catch (DuplicateRegistrationAttemptException ex) {
-        // has submitted application
-        result.put("voFormInitialException", ex);
-      } catch (AlreadyRegisteredException ex) {
-        // is already member of VO
-        result.put("voFormInitialException", ex);
-      } catch (ExtendMembershipException ex) {
-        // can't become member of VO
-        result.put("voFormInitialException", ex);
-      } catch (NoPrefilledUneditableRequiredDataException ex) {
-        // can't display form
-        result.put("voFormInitialException", ex);
-      } catch (MissingRequiredDataException ex) {
-        // can't display form
-        result.put("voFormInitialException", ex);
-      } catch (MissingRequiredDataCertException ex) {
-        // can't display form
-        result.put("voFormInitialException", ex);
-      } catch (CantBeSubmittedException ex) {
-        // can't display form / become member by some custom rules
-        result.put("voFormInitialException", ex);
-      }
-
-      // ONLY EXISTING USERS CAN EXTEND VO MEMBERSHIP
-      if (sess.getPerunPrincipal().getUser() != null) {
-
+        // GET INITIAL APPLICATION IF POSSIBLE
         try {
-          result.put("voFormExtension",
-              getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("voForm"),
-                      externalParams));
+
+          result.put("voFormInitial",
+              getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("voForm"),
+              externalParams));
+
         } catch (DuplicateRegistrationAttemptException ex) {
           // has submitted application
-          result.put("voFormExtensionException", ex);
-        } catch (RegistrarException ex) {
-          // more severe exception like bad input/inconsistency
-          result.put("voFormExtensionException", ex);
+          result.put("voFormInitialException", ex);
+        } catch (AlreadyRegisteredException ex) {
+          // is already member of VO
+          result.put("voFormInitialException", ex);
         } catch (ExtendMembershipException ex) {
-          // can't extend membership in VO
-          result.put("voFormExtensionException", ex);
-        } catch (MemberNotExistsException ex) {
-          // is not member -> can't extend
-          result.put("voFormExtensionException", ex);
+          // can't become member of VO
+          result.put("voFormInitialException", ex);
         } catch (NoPrefilledUneditableRequiredDataException ex) {
           // can't display form
-          result.put("voFormExtensionException", ex);
+          result.put("voFormInitialException", ex);
         } catch (MissingRequiredDataException ex) {
           // can't display form
-          result.put("voFormExtensionException", ex);
+          result.put("voFormInitialException", ex);
         } catch (MissingRequiredDataCertException ex) {
           // can't display form
-          result.put("voFormExtensionException", ex);
+          result.put("voFormInitialException", ex);
         } catch (CantBeSubmittedException ex) {
-          // can't display form / extend membership by some custom rules
-          result.put("voFormExtensionException", ex);
+          // can't display form / become member by some custom rules
+          result.put("voFormInitialException", ex);
         }
 
+        // ONLY EXISTING USERS CAN EXTEND VO MEMBERSHIP
+        if (sess.getPerunPrincipal().getUser() != null) {
+
+          try {
+            result.put("voFormExtension",
+                getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("voForm"),
+                externalParams));
+          } catch (DuplicateRegistrationAttemptException ex) {
+            // has submitted application
+            result.put("voFormExtensionException", ex);
+          } catch (RegistrarException ex) {
+            // more severe exception like bad input/inconsistency
+            result.put("voFormExtensionException", ex);
+          } catch (ExtendMembershipException ex) {
+            // can't extend membership in VO
+            result.put("voFormExtensionException", ex);
+          } catch (MemberNotExistsException ex) {
+            // is not member -> can't extend
+            result.put("voFormExtensionException", ex);
+          } catch (NoPrefilledUneditableRequiredDataException ex) {
+            // can't display form
+            result.put("voFormExtensionException", ex);
+          } catch (MissingRequiredDataException ex) {
+            // can't display form
+            result.put("voFormExtensionException", ex);
+          } catch (MissingRequiredDataCertException ex) {
+            // can't display form
+            result.put("voFormExtensionException", ex);
+          } catch (CantBeSubmittedException ex) {
+            // can't display form / extend membership by some custom rules
+            result.put("voFormExtensionException", ex);
+          }
+
+        }
       }
 
       // GET GROUP IF RELEVANT
@@ -3946,6 +3973,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
           String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForGroup(group);
           result.put("groupNewRegistrarUrl", regRedirect);
+          // we always want to redirect for groups
           return result;
         }
 

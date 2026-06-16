@@ -81,6 +81,10 @@ public interface RegistrarAdapter {
 
   boolean mailValidated(PerunSession sess, UUID formItemDataId);
 
+  boolean hasOpenAppInVo(PerunSession sess, Vo vo);
+
+  boolean doesVoHaveExtensionForm(Vo vo);
+
   String getInviteUrlForVo(Vo vo);
 
   String getInviteUrlForGroup(Group group);
