@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import cz.metacentrum.perun.registrar.openapi.model.IdmObject;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -24,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public enum AuthzResolverMethod implements ManagerMethod {
 
@@ -82,6 +84,24 @@ public enum AuthzResolverMethod implements ManagerMethod {
       User user = ac.getUserById(parms.readInt("userId"));
 
       return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), user, true);
+    }
+  },
+
+  /*#
+   * Returns all new Registrar roles for the user derived from roles in Perun. This transitively includes subgroup
+   * roles as well as roles for groups of VOs (e.g. when VOADMIN, add roles for all the groups of that VO)
+   *
+   * @param userId int Id of a user
+   * @return Map<String, Set<IdmObject>> Map where keys are Registrar roles and values sets of the objects of those
+   * roles for the user
+   * @exampleResponse {"FACILITYADMIN":{{"idmObjectType": "VO", "objectId": "123"}},"PERUNADMIN":{}}
+   */
+  getRegistrarUserRoles {
+    @Override
+    public Map<String, Set<IdmObject>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+      User user = ac.getUserById(parms.readInt("userId"));
+
+      return cz.metacentrum.perun.core.api.AuthzResolver.getRegistrarUserRoles(ac.getSession(), user);
     }
   },
 

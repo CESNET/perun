@@ -1371,6 +1371,17 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/GenDataNode'
 
+    IdmObject:
+      type: object
+      properties:
+        idmObjectType:
+          type: string
+        objectId:
+          type: string
+      required:
+        - idmObjectType
+        - objectId
+
     TaskStatus:
       type: string
       enum:
@@ -2689,6 +2700,18 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/AuthzRoles"
+
+    MapStringSetOfIdmObjectResponse:
+      description: "returns Map<String, Set<IdmObject>>"
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                $ref: "#/components/schemas/IdmObject"
+              uniqueItems: true
 
     ComplementaryObjectsWithAuthzGroupsResponse:
       description: Complementary objects combined with authorized groups (connected by role)
@@ -4458,6 +4481,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getRegistrarUserRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getRegistrarUserRoles
+      summary: Returns all new Registrar roles for the user derived from roles in Perun.
+      parameters:
+        - $ref: '#/components/parameters/userIdLiterally'
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringSetOfIdmObjectResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
