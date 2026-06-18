@@ -1,5 +1,35 @@
 Upgrade notes
 
+## [53.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v52.0.1...v53.0.0) (2026-06-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** `display_name` attribute is now required in `attr_names`
+table. All attribute definitions need to have it set before
+deployment. You can use this query to find the ones without it:
+`SELECT id, attr_name, display_name FROM attr_names WHERE display_name IS NULL;`
+
+### Features
+
+* **core:** display name required for attribute definition ([7fd1b43](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7fd1b43926bce1a716b71a7162cdf7d33a5e45bc))
+* **core:** extend ext source api with getSubjectsByLogins method ([bd42c77](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bd42c77cfbee5f1642537e8171ff12cff2c38a0d))
+* **core:** module for group useNewRegistration attribute ([209436d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/209436da02805071fafd74d227b9f98701b2b5c6))
+* **core:** new getRegistrarUserRolesMethod ([bbac832](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bbac832e61fd856b9d87e98990ae3f82b7a733f0))
+* **core:** new rpCategory attribute definition ([826d301](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/826d301983fc6af2758ee33f95071b56909d09c9))
+* **openapi:** force ObjectMapper to use NON_NULL on defaults ([ee939cc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ee939cc20a3447e23e5cfe03421bf1eff8506d08))
+* **registrar:** prevent members groups from registration setup ([e271e86](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e271e865c044766f109c2a75935b9288ad195a75))
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-api-services-admin-directory ([f581358](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f581358b76e60afec4e6aab3b28a5d11923705cc))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.15 ([1c6dff9](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/1c6dff9c4badb7824edd3e855cd100eccea85441))
+* **deps:** updated owasp-java-html-sanitizer ([82cd2f3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/82cd2f3d49b0378e29769bfb2312e7b048e874d7))
+* **registrar:** broken reserve login query ([5f3e6e4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5f3e6e43347b817cc0cdbf0da0a10a24b6f46778))
+* **registrar:** do not redirect to new Reg when not necessary ([c995012](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c9950125cf68bb6328370d86d562cf89c24f22e3))
+* **registrar:** email validation security ([de725d2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/de725d2d17d7ab7edef74286483a17ad349462bc))
+
 ## [52.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v52.0.0...v52.0.1) (2026-06-11)
 
 
