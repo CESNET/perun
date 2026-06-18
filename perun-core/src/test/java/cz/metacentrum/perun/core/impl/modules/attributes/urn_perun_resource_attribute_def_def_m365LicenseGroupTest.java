@@ -31,6 +31,7 @@ public class urn_perun_resource_attribute_def_def_m365LicenseGroupTest {
     facility = new Facility();
     attributeToCheck = new Attribute();
     attributeToCheck.setFriendlyName("m365LicenseGroup");
+    attributeToCheck.setDisplayName("");
   }
 
   @Test

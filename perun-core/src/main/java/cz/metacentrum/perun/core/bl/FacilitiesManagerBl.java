@@ -270,7 +270,8 @@ public interface FacilitiesManagerBl {
   List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess);
 
   /**
-   * Get facilities where the user is allowed.
+   * Get all facilities where the user is allowed. The user has a membership in a group with an active assignment to a
+   * resource on the facility and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param user
@@ -279,7 +280,8 @@ public interface FacilitiesManagerBl {
   List<Facility> getAllowedFacilities(PerunSession sess, User user);
 
   /**
-   * Get facilities where member is allowed.
+   * Get all facilities where the member is allowed. The member belongs to a group with an active assignment to a
+   * resource on the facility and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param member
@@ -288,22 +290,22 @@ public interface FacilitiesManagerBl {
   List<Facility> getAllowedFacilities(PerunSession sess, Member member);
 
   /**
-   * Get all Groups which can use this facility (Groups must be assigned to resource which belongs to this facility)
-   * specificVo and specificService can choose concrete groups if specificVo, specificService or both are null, they do
-   * not specific (all possible results are returned)
+   * Get all allowed groups on the facility. Allowed groups have an active assignment to a resource on this facility.
+   * <p>
+   * Results can optionally be filtered by specificVo, specificService, or both. If null, no filtering is applied.
    *
    * @param perunSession
    * @param facility        searching for this facility
-   * @param specificVo      specific only those results which are in specific VO (with null, all results)
-   * @param specificService specific only those results, which have resource with assigned specific service (if null,
-   *                        all results)
+   * @param specificVo      filter to only groups in this VO (null means all VOs)
+   * @param specificService filter to only groups on resources with this service assigned (null means all services)
    * @return list of allowed groups
    * @throws InternalErrorException
    */
   List<Group> getAllowedGroups(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService);
 
   /**
-   * Return all members, which are "allowed" on facility.
+   * Return all allowed members on the facility. Allowed members belong to a group with an active assignment to a
+   * resource on this facility and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param facility
@@ -313,9 +315,13 @@ public interface FacilitiesManagerBl {
   List<Member> getAllowedMembers(PerunSession sess, Facility facility);
 
   /**
-   * Return all members, which are "allowed" on facility through any resource assigned to the given service.
-   * Service settings decide whether expired group and expired VO members are returned as well. Disabled and invalid VO
-   * members are always ignored. Users banned on the facility are filtered out as well
+   * Return all allowed members on the facility through any resource assigned to the given service. Allowed members
+   * belong to a group with an active assignment to a resource with this service and their VO membership status is
+   * not INVALID or DISABLED. Users banned on the facility are filtered out as well.
+   * <p>
+   * The result is further narrowed by the service's flags: {@code useExpiredVoMembers=false} excludes EXPIRED VO
+   * members (only VALID are kept), and {@code useExpiredMembers=false} excludes members whose group membership is
+   * expired.
    *
    * @param sess
    * @param facility
@@ -325,15 +331,14 @@ public interface FacilitiesManagerBl {
   List<Member> getAllowedMembers(PerunSession sess, Facility facility, Service service);
 
   /**
-   * Get all RichGroups which can use this facility (Groups must be assigned to Resource which belongs to this facility)
-   * specificVo and specificService can choose concrete groups if specificVo, specificService or both are null, they do
-   * not specific (all possible results are returned) We also retrieve attributes specified by attrNames for each
-   * returned RichGroup.
+   * Get all allowed RichGroups on the facility. Allowed groups have an active assignment to a resource on this
+   * facility. Each returned RichGroup includes attributes specified by attrNames.
+   * <p>
+   * Results can optionally be filtered by specificVo, specificService, or both. If null, no filtering is applied.
    *
    * @param facility        searching for this facility
-   * @param specificVo      specific only those results which are in specific VO (with null, all results)
-   * @param specificService specific only those results, which have resource with assigned specific service (if null,
-   *                        all results)
+   * @param specificVo      filter to only groups in this VO (null means all VOs)
+   * @param specificService filter to only groups on resources with this service assigned (null means all services)
    * @param attrNames       with each returned RichGroup we get also attributes specified by this list
    * @return list of allowed groups
    * @throws InternalErrorException when implementation fails
@@ -342,41 +347,44 @@ public interface FacilitiesManagerBl {
                                                      Service specificService, List<String> attrNames);
 
   /**
-   * Return all users who can use this facility
+   * Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a
+   * resource on this facility and whose VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param facility
-   * @return list of users
+   * @return list of allowed users
    */
   List<User> getAllowedUsers(PerunSession sess, Facility facility);
 
   /**
-   * Return all users who can use this facility You can specify VO or Service you are interested in to filter resulting
-   * users (they must be members of VO and from Resource with assigned Service). if specificVo, specificService or both
-   * are null, they do not specific (all possible results are returned)
+   * Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a
+   * resource on this facility and whose VO membership status is not INVALID or DISABLED.
+   * <p>
+   * Results can optionally be filtered by specificVo, specificService, or both. If null, no filtering is applied.
    *
    * @param sess
    * @param facility
-   * @param specificVo      specific only those results which are in specific VO (with null, all results)
-   * @param specificService specific only those results, which have resource with assigned specific service (if null,
-   *                        all results)
-   * @return list of users
+   * @param specificVo      filter to only users in this VO (null means all VOs)
+   * @param specificService filter to only users on resources with this service assigned (null means all services)
+   * @return list of allowed users
    * @throws InternalErrorException
    */
   List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService);
 
   /**
-   * Return all users who can use this facility and who are not expired in any of groups associated with any resource
-   * You can specify VO or Service you are interested in to filter resulting users (they must be members of VO and from
-   * Resource with assigned Service). if specificVo, specificService or both are null, they do not specific (all
-   * possible results are returned)
+   * Return all allowed users on the facility who are not expired in groups.
+   * <p>
+   * Allowed users are members of a group with an active assignment to a resource on this facility and whose VO
+   * membership status is not INVALID or DISABLED. On top of that, only users with a VALID group membership status
+   * in at least one group assigned to a resource on this facility are included.
+   * <p>
+   * Results can optionally be filtered by specificVo, specificService, or both. If null, no filtering is applied.
    *
    * @param sess
    * @param facility
-   * @param specificVo      specific only those results which are in specific VO (with null, all results)
-   * @param specificService specific only those results, which have resource with assigned specific service (if null,
-   *                        all results)
-   * @return list of users
+   * @param specificVo      filter to only users in this VO (null means all VOs)
+   * @param specificService filter to only users on resources with this service assigned (null means all services)
+   * @return list of allowed users not expired in groups
    * @throws InternalErrorException
    */
   List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Facility facility, Vo specificVo,
@@ -403,21 +411,23 @@ public interface FacilitiesManagerBl {
   List<Facility> getAssignedFacilities(PerunSession sess, Group group);
 
   /**
-   * Get facilities which have the member access on.
+   * Get facilities where the member is assigned. A facility is returned if the member belongs to a group with an
+   * active assignment to at least one resource on that facility. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param member
-   * @return
+   * @return list of facilities where the member is assigned
    * @throws InternalErrorException
    */
   List<Facility> getAssignedFacilities(PerunSession sess, Member member);
 
   /**
-   * Get facilities where the user is assigned.
+   * Get facilities where the user is assigned. A facility is returned if the user has a membership in a group with
+   * an active assignment to at least one resource on that facility. No filter is applied on VO membership status.
    *
    * @param sess
    * @param user
-   * @return
+   * @return list of facilities where the user is assigned
    * @throws InternalErrorException
    */
   List<Facility> getAssignedFacilities(PerunSession sess, User user);
@@ -477,23 +487,26 @@ public interface FacilitiesManagerBl {
   List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility, Service service);
 
   /**
-   * Returns list of Users assigned to chosen Facility.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param facility
-   * @return list of Users
+   * @return list of assigned users on the facility
    * @throws InternalErrorException
    */
 
   List<User> getAssignedUsers(PerunSession sess, Facility facility);
 
   /**
-   * Returns list of Users assigned with chosen Facility containing resources where service is assigned.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. On top of that, results are restricted to resources that have the given service
+   * assigned. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param facility
    * @param service
-   * @return list of Users
+   * @return list of assigned users on the facility for resources with the given service
    * @throws InternalErrorException
    */
 

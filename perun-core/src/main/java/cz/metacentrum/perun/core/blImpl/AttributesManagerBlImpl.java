@@ -132,6 +132,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribu
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupSynchronizationFilename;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_useNewRegistration;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_lifecycleTimestamps;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isLifecycleAlterable;
@@ -1899,6 +1900,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     Utils.notNull(attribute.getNamespace(), "attribute.getNamespace");
     Utils.notNull(attribute.getFriendlyName(), "attribute.getFriendlyName");
     Utils.notNull(attribute.getType(), "attribute.getType");
+    Utils.notNull(attribute.getDisplayName(), "attribute.getDisplayName");
 
     //check if attribute.nameSpace is valid nameSpace
     if (!isCorrectNameSpace(attribute.getNamespace())) {
@@ -8667,6 +8669,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.ORGANIZATIONMEMBERSHIPMANAGER, READ, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
+    //urn:perun:facility:attribute-def:def:rpCategory
+    attr = new AttributeDefinition();
+    attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+    attr.setType(String.class.getName());
+    attr.setFriendlyName("rpCategory");
+    attr.setDisplayName("RP category");
+    attr.setDescription("Category of the relying party used for MFA enforcement and authentication policy evaluation.");
+    //set attribute rights (with dummy id of attribute - not known yet)
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
     //urn:perun:user:attribute-def:def:preferredMail
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
@@ -9562,14 +9575,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies.add(Triple.of(Role.VOADMIN, WRITE, RoleObject.Vo));
     attributes.put(attr, createInitialPolicyCollections(policies));
 
-    //urn:perun:vo:attribute-def:def:useNewRegistration
-    attr = new AttributeDefinition();
-    attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-    attr.setType(Boolean.class.getName());
-    attr.setFriendlyName("useNewRegistration");
-    attr.setDisplayName("Use new registration");
-    attr.setDescription(
-        "A flag determining whether the new Registrar component is used to submit and manage application and forms.");
+    //urn:perun:group:attribute-def:def:useNewRegistration
+    attr = new urn_perun_group_attribute_def_def_useNewRegistration().getAttributeDefinition();
     //set attribute rights (with dummy id of attribute - not known yet)
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.SELF, READ, RoleObject.None));

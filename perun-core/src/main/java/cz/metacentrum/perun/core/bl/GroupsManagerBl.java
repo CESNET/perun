@@ -55,6 +55,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,16 @@ import java.util.UUID;
  */
 public interface GroupsManagerBl {
 
+  /**
+   * Checks whether the group can be used for auto registration.`Members` group and groups with synchronization
+   * enabled cannot be used. Throw `GroupNotAllowedToAutoRegistrationException` for such groups
+   *
+   * @param sess
+   * @param group
+   * @throws GroupNotAllowedToAutoRegistrationException
+   */
+  void checkGroupCanBeAddedToAutoRegistration(PerunSession sess, Group group)
+      throws GroupNotAllowedToAutoRegistrationException;
 
   /**
    * Adds groups to a list of groups which can be registered into during vo registration. This will NOT create empty
@@ -2046,6 +2057,13 @@ public interface GroupsManagerBl {
    * @throws InternalErrorException
    */
   boolean isUserMemberOfGroup(PerunSession sess, User user, Group group);
+
+  /**
+   * Get form for the group. Returns null if it does not exist
+   * @param group
+   * @return
+   */
+  ApplicationForm getApplicationFormForGroup(Group group);
 
 
   /**

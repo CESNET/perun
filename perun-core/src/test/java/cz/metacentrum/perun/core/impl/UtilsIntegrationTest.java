@@ -742,6 +742,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
     AttributeDefinition attributeDefinition = new AttributeDefinition();
     attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
     attributeDefinition.setFriendlyName("eppn");
+    attributeDefinition.setDisplayName("");
     attributeDefinition.setDescription("login value");
     attributeDefinition.setType(String.class.getName());
     sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
@@ -749,6 +750,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
     AttributeDefinition attributeDefinition2 = new AttributeDefinition();
     attributeDefinition2.setNamespace("urn:perun:ues:attribute-def:def");
     attributeDefinition2.setFriendlyName("eppnList");
+    attributeDefinition2.setDisplayName("");
     attributeDefinition2.setDescription("login value as list");
     attributeDefinition2.setType(ArrayList.class.getName());
     sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition2);
@@ -771,6 +773,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
     AttributeDefinition attributeDefinition = new AttributeDefinition();
     attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
     attributeDefinition.setFriendlyName("eppn");
+    attributeDefinition.setDisplayName("");
     attributeDefinition.setDescription("login value");
     attributeDefinition.setType(String.class.getName());
     sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
@@ -792,6 +795,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
     AttributeDefinition attributeDefinition = new AttributeDefinition();
     attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
     attributeDefinition.setFriendlyName("eppn");
+    attributeDefinition.setDisplayName("");
     attributeDefinition.setDescription("login value");
     attributeDefinition.setType(String.class.getName());
     sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);

@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use Switch;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
 use Perun::Common qw(printMessage);
@@ -98,29 +97,30 @@ die "ERROR: role $role not found\n";
 
 
 sub getObject {
-	switch(lc $compObjectName) {
-		case "vo" {
+	my %compObjectNameResolver = (
+		"vo"       => sub {
 			my $vosAgent = $agent->getVosAgent;
-			return $vosAgent->getVoById( id => $objectId );
-		}
-		case "facility" {
+			return $vosAgent->getVoById(id => $objectId);
+		},
+		"facility" => sub {
 			my $facilitiesAgent = $agent->getFacilitiesAgent;
-			return $facilitiesAgent->getFacilityById( id => $objectId );
-		}
-		case "group" {
+			return $facilitiesAgent->getFacilityById(id => $objectId);
+		},
+		"group"    => sub {
 			my $groupsAgent = $agent->getGroupsAgent;
-			return $groupsAgent->getGroupById( id => $objectId );
-		}
-		case "resource" {
+			return $groupsAgent->getGroupById(id => $objectId);
+		},
+		"resource" => sub {
 			my $resourcesAgent = $agent->getResourcesAgent;
-			return $resourcesAgent->getResourceById( id => $objectId );
-		}
-		case "service" {
+			return $resourcesAgent->getResourceById(id => $objectId);
+		},
+		"service"  => sub {
 			my $servicesAgent = $agent->getServicesAgent;
 			return $servicesAgent->getServiceById( id => $objectId );
 		}
-		else {
-			die "ERROR: Invalid object name\n";
-		}
-	}
+	);
+
+	my $resolver = $compObjectNameResolver{lc $compObjectName}
+		or die "ERROR: Invalid object name\n";
+	return $resolver->();
 }

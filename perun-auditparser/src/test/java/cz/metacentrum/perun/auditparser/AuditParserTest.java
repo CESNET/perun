@@ -103,6 +103,7 @@ public class AuditParserTest {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(NS_GROUP_RESOURCE_ATTR_DEF);
     attr.setFriendlyName("isUnixGroup");
+    attr.setDisplayName("");
     attr.setType(Integer.class.getName());
     attr.setDescription("Does this group represents unix group on the resource?");
     return attr;
@@ -112,6 +113,7 @@ public class AuditParserTest {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(NS_FACILITY_ATTR_DEF);
     attr.setFriendlyName("shell_passwd-scp");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setDescription("Shell for passwd-scp service");
     return attr;
@@ -121,6 +123,7 @@ public class AuditParserTest {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(NS_FACILITY_ATTR_DEF);
     attr.setFriendlyName("myTest1");
+    attr.setDisplayName("");
     attr.setType(ArrayList.class.getName());
     attr.setDescription("");
     attr.setUnique(true);
@@ -131,6 +134,7 @@ public class AuditParserTest {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(NS_FACILITY_ATTR_DEF);
     attr.setFriendlyName("myTest2");
+    attr.setDisplayName("");
     attr.setType(LinkedHashMap.class.getName());
     attr.setDescription("");
     return attr;
@@ -140,6 +144,7 @@ public class AuditParserTest {
     AttributeDefinition attr = new AttributeDefinition();
     attr.setNamespace(NS_USER_ATTR_DEF);
     attr.setFriendlyName(name);
+    attr.setDisplayName("");
     attr.setType(ArrayList.class.getName());
     attr.setDescription("");
     return attr;
@@ -265,6 +270,7 @@ public class AuditParserTest {
     attributeDefinition1.setType(null);
     attributeDefinition1.setDescription(null);
     attributeDefinition1.setFriendlyName(null);
+    attributeDefinition1.setDisplayName("");
     attributeDefinition1.setNamespace(null);
     List<PerunBean> attributeDefinition1InList = AuditParser.parseLog(attributeDefinition1.serializeToString());
     assertEquals(attributeDefinition1.toString(), attributeDefinition1InList.get(0).toString());

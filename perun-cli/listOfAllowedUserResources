@@ -9,8 +9,10 @@ use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
-	Prints list of Resources assigned to User. Can be limited
-	to resources from specified facility. User is required field.
+	Prints list of Resources where the User is allowed. The user has a
+	membership in a group with an active assignment to the resource and
+	their VO membership status is not INVALID or DISABLED.
+	Can be limited to resources from specified facility. User is required field.
 	---------------------------------------------------------
 	Available options:
 	--userId       | -u  user identifier

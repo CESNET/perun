@@ -796,50 +796,56 @@ public interface UsersManagerBl {
   List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin);
 
   /**
-   * Get all resources from the facility which have the user access on.
+   * Get all resources on the facility where the user is allowed. The user has a membership in a group with an
+   * active assignment to the resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param facility
    * @param user
-   * @return list of resources which have the user access on
+   * @return list of resources where the user is allowed
    * @throws InternalErrorException
    */
   List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user);
 
   /**
-   * Get all resources which have the user access on.
+   * Get all resources where the user is allowed. The user has a membership in a group with an active
+   * assignment to the resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param user
-   * @return list of resources which have the user access on
+   * @return list of resources where the user is allowed
    */
   List<Resource> getAllowedResources(PerunSession sess, User user);
 
   /**
-   * Get all resources from the facility where the user is assigned.
+   * Get all resources where the user is assigned. The user has a membership in a group with an active assignment to
+   * the resource. On top of that, results are restricted to resources on the given facility. No filter is applied on
+   * their VO membership status.
    *
    * @param sess
    * @param facility
    * @param user
-   * @return list of resources which have the user access on
+   * @return list of resources on the facility where the user is assigned
    */
   List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user);
 
   /**
-   * Get all resources where the user is assigned.
+   * Get all resources where the user is assigned. The user has a membership in a group with an active assignment to
+   * the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param user
-   * @return list of resources which have the user access on
+   * @return list of resources where the user is assigned
    */
   List<Resource> getAssignedResources(PerunSession sess, User user);
 
   /**
-   * Get all rich resources where the user is assigned.
+   * Get all rich resources where the user is assigned. The user has a membership in a group with an active
+   * assignment to the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param user
-   * @return list of rich resources which have the user access on
+   * @return list of rich resources where the user is assigned
    */
   List<RichResource> getAssignedRichResources(PerunSession sess, User user);
 

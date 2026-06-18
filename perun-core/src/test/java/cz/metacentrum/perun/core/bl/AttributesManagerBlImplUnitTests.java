@@ -696,6 +696,7 @@ public class AttributesManagerBlImplUnitTests {
     AttributeDefinition attributeDefinition = new AttributeDefinition();
     attributeDefinition.setNamespace("urn:perun:user:attribute-def:virt");
     attributeDefinition.setFriendlyName(name);
+    attributeDefinition.setDisplayName("");
     Attribute attribute = new Attribute(attributeDefinition);
     return new RichAttribute<>(holder1, holder2, attribute);
   }

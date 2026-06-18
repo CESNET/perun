@@ -66,6 +66,7 @@ public class urn_perun_user_attribute_def_virt_earliestActiveLastAccessTest {
     attrDef = new AttributeDefinition();
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attrDef.setFriendlyName("earliestActiveLastAccess");
+    attrDef.setDisplayName("");
 
     when(session.getPerunBl()).thenReturn(mock(PerunBl.class));
     when(session.getPerunBl().getUsersManagerBl()).thenReturn(mock(UsersManagerBl.class));

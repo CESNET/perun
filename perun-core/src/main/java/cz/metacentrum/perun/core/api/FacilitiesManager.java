@@ -197,14 +197,13 @@ public interface FacilitiesManager {
   List<User> getAdmins(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
   /**
-   * Get all Groups which can use this facility (Groups must be assigned to resource which belongs to this facility)
-   * specificVo and specificService can choose concrete groups if specificVo, specificService or both are null, they do
-   * not specific (all possible results are returned)
+   * Get all allowed groups on the facility. Allowed groups have an active assignment to a resource on this facility.
+   * <p>
+   * Results can optionally be filtered by specificVo, specificService, or both. If null, no filtering is applied.
    *
    * @param facility        searching for this facility
-   * @param specificVo      specific only those results which are in specific VO (with null, all results)
-   * @param specificService specific only those results, which have resource with assigned specific service (if null,
-   *                        all results)
+   * @param specificVo      filter to only groups in this VO (null means all VOs)
+   * @param specificService filter to only groups on resources with this service assigned (null means all services)
    * @return list of allowed groups
    * @throws FacilityNotExistsException if facility not exist, return this exception
    * @throws ServiceNotExistsException  if service is not null and not exist
@@ -214,15 +213,14 @@ public interface FacilitiesManager {
       throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException, VoNotExistsException;
 
   /**
-   * Get all RichGroups which can use this facility (Groups must be assigned to Resource which belongs to this facility)
-   * specificVo and specificService can choose concrete groups if specificVo, specificService or both are null, they do
-   * not specific (all possible results are returned) We also retrieve attributes specified by attrNames for each
-   * returned RichGroup.
+   * Get all allowed RichGroups on the facility. Allowed groups have an active assignment to a resource on this
+   * facility. Each returned RichGroup includes attributes specified by attrNames.
+   * <p>
+   * Results can optionally be filtered by specificVo, specificService, or both. If null, no filtering is applied.
    *
    * @param facility        searching for this facility
-   * @param specificVo      specific only those results which are in specific VO (with null, all results)
-   * @param specificService specific only those results, which have resource with assigned specific service (if null,
-   *                        all results)
+   * @param specificVo      filter to only groups in this VO (null means all VOs)
+   * @param specificService filter to only groups on resources with this service assigned (null means all services)
    * @param attrNames       with each returned RichGroup we get also attributes specified by this list
    * @return list of allowed groups
    * @throws FacilityNotExistsException if facility not exist, return this exception
@@ -234,21 +232,23 @@ public interface FacilitiesManager {
       throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException, VoNotExistsException;
 
   /**
-   * Return all users who can use this facility
+   * Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a
+   * resource on this facility and whose VO membership status is not INVALID or DISABLED.
    *
-   * @return list of users
+   * @return list of allowed users
    */
   List<User> getAllowedUsers(PerunSession perunSession, Facility facility)
       throws PrivilegeException, FacilityNotExistsException;
 
   /**
-   * Return all users who can use this facility specificVo and specificService can choose concrete users if specificVo,
-   * specificService or both are null, they do not specific (all possible results are returned)
+   * Return all allowed users on the facility. Allowed users are members of a group with an active assignment to a
+   * resource on this facility and whose VO membership status is not INVALID or DISABLED.
+   * <p>
+   * Results can optionally be filtered by specificVo, specificService, or both. If null, no filtering is applied.
    *
-   * @param specificVo      specific only those results which are in specific VO (with null, all results)
-   * @param specificService specific only those results, which have resource with assigned specific service (if null,
-   *                        all results)
-   * @return list of users
+   * @param specificVo      filter to only users in this VO (null means all VOs)
+   * @param specificService filter to only users on resources with this service assigned (null means all services)
+   * @return list of allowed users
    * @throws ServiceNotExistsException if service is not null and not exist
    * @throws VoNotExistsException      if vo is not null and not exist
    */
@@ -270,13 +270,19 @@ public interface FacilitiesManager {
       throws PrivilegeException, GroupNotExistsException;
 
   /**
-   * Get facilities which have the member access on.
+   * Get facilities where the member is assigned. A facility is returned if the member belongs to a group with an
+   * active assignment to at least one resource on that facility. No filter is applied on their VO membership status.
+   *
+   * @return list of facilities where the member is assigned
    */
   List<Facility> getAssignedFacilities(PerunSession sess, Member member)
       throws PrivilegeException, MemberNotExistsException;
 
   /**
-   * Get facilities which have the user access on.
+   * Get facilities where the user is assigned. A facility is returned if the user has a membership in a group with
+   * an active assignment to at least one resource on that facility. No filter is applied on VO membership status.
+   *
+   * @return list of facilities where the user is assigned
    */
   List<Facility> getAssignedFacilities(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException;
 
@@ -324,17 +330,20 @@ public interface FacilitiesManager {
       throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;
 
   /**
-   * Returns list of Users, assigned with chosen Facility.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. No filter is applied on their VO membership status.
    *
-   * @return list of users
+   * @return list of assigned users on the facility
    */
   List<User> getAssignedUsers(PerunSession sess, Facility facility)
       throws PrivilegeException, FacilityNotExistsException;
 
   /**
-   * Returns list of Users assigned with chosen Facility containing resources where service is assigned.
+   * Returns all assigned users on the facility. Assigned users are members of a group with an active assignment to a
+   * resource on this facility. On top of that, results are restricted to resources that have the given service
+   * assigned. No filter is applied on their VO membership status.
    *
-   * @return list of users
+   * @return list of assigned users on the facility for resources with the given service
    */
   List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service)
       throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;

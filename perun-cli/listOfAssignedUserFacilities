@@ -9,7 +9,10 @@ use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
-	Prints list of Facilities assigned to User. User is required field.
+	Prints list of Facilities where the User is assigned. A facility is returned if the
+	user has a membership in a group with an active assignment to at least one resource
+	on that facility. No filter is applied on VO membership status.
+	User is required field.
 	---------------------------------------------------
 	Available options:
 	--userId       | -u  user's id

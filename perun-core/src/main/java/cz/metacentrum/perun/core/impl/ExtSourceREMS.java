@@ -135,9 +135,24 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
   public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
     Map<String, String> subject = super.getSubjectByLogin(login);
     if (!isExistingUser(subject)) {
-      throw new SubjectNotExistsException("Subject for given login does not exist in Perun");
+      throw new SubjectNotExistsException("Subject for given login '" + login + "' does not exist in Perun");
     }
     return subject;
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins) {
+    Map<String, Map<String, String>> subjects = super.getSubjectsByLogins(logins);
+    for (Map.Entry<String, Map<String, String>> entry : subjects.entrySet()) {
+      String login = entry.getKey();
+      Map<String, String> subject = entry.getValue();
+      if (subject != null && !isExistingUser(subject)) {
+        LOG.warn("Subject for login '{}' does not exist in Perun", login);
+        entry.setValue(null);
+      }
+    }
+
+    return subjects;
   }
 
   @Override

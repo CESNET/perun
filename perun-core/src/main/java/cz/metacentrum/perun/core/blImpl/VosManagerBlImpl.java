@@ -36,7 +36,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
@@ -531,78 +530,66 @@ public class VosManagerBlImpl implements VosManagerBl {
   public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString,
                                         List<ExtSource> extSources, boolean filterExistingMembers) {
     List<Candidate> candidates = new ArrayList<>();
-    int numOfResults = 0;
 
     try {
-      // Iterate through given extSources
       for (ExtSource source : extSources) {
+        boolean isSimpleExtSource = !(source instanceof ExtSourceApi);
         try {
-          // Info if this is only simple ext source, change behavior if not
-          boolean simpleExtSource = true;
-
-          // Get potential subjects from the extSource
-          List<Map<String, String>> subjects;
+          List<Map<String, String>> subjects = new ArrayList<>();
           try {
-            if (source instanceof ExtSourceApi) {
-              // find subjects with all their properties
-              subjects = ((ExtSourceApi) source).findSubjects(searchString);
-              simpleExtSource = false;
-            } else {
-              // find subjects only with logins - they then must be retrieved by login
-              subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString);
-            }
+            subjects = isSimpleExtSource ?
+              ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString) :
+              ((ExtSourceApi) source).findSubjects(searchString);
           } catch (ExtSourceUnsupportedOperationException e1) {
-            LOG.warn("ExtSource {} doesn't support findSubjects", source.getName());
+            LOG.warn("ExtSource {} doesn't support {}", source.getName(),
+                isSimpleExtSource ? "findSubjectsLogins" : "findSubjects");
             continue;
           } catch (InternalErrorException e) {
-            LOG.error("Error occurred on ExtSource {},  Exception {}.", source.getName(), e);
+            LOG.error("Error occurred on ExtSource {}", source.getName(), e);
             continue;
-          } finally {
-            try {
-              ((ExtSourceSimpleApi) source).close();
-            } catch (ExtSourceUnsupportedOperationException e) {
-              // ExtSource doesn't support that functionality, so silently skip it.
-            } catch (InternalErrorException e) {
-              LOG.error("Can't close extSource connection.", e);
-            }
           }
 
-          Set<String> uniqueLogins = new HashSet<>();
-          for (Map<String, String> s : subjects) {
-            // Check if the user has unique identifier within extSource
-            if ((s.get("login") == null) || (s.get("login") != null && s.get("login").isEmpty())) {
-              LOG.error("User '{}' cannot be added, because he/she doesn't have a unique identifier (login)", s);
-              // Skip to another user
+          Map<String, Map<String, String>> loginSubjectMap = new HashMap<>();
+          for (Map<String, String> subject : subjects) {
+            String login = subject.get("login");
+            if (login == null || login.isEmpty()) {
+              LOG.error("User '{}' cannot be added, because they do not have an identifier (login)", subject);
               continue;
             }
 
-            String extLogin = s.get("login");
-
-            // check uniqueness of every login in extSource
-            if (uniqueLogins.contains(extLogin)) {
+            if (loginSubjectMap.containsKey(login)) {
               throw new InternalErrorException(
-                  "There are more than 1 login '" + extLogin + "' getting from extSource '" + source + "'");
-            } else {
-              uniqueLogins.add(extLogin);
+                  "More than one subject was fetched for login '" + login + "' from extSource '" + source + "'");
+            }
+            loginSubjectMap.put(login, subject);
+          }
+
+          if (isSimpleExtSource) {
+            // For simple ext source we only have logins, so let us fetch the subject data
+            try {
+              loginSubjectMap = ((ExtSourceSimpleApi) source).getSubjectsByLogins(
+                  loginSubjectMap.keySet().stream().toList());
+            } catch (ExtSourceUnsupportedOperationException e) {
+              // this should not really happen unless someone breaks something in code, or implements broken ext source
+              throw new InternalErrorException("ExtSource supports `findSubjectsByLogins`," +
+                                               "but not `getSubjectsByLogins`", e);
+
+            }
+          }
+
+          for (Map.Entry<String, Map<String, String>> entry : loginSubjectMap.entrySet()) {
+            Map<String, String> subject = entry.getValue();
+            String login = entry.getKey();
+
+            if (subject == null) {
+              // this means that we found login, but no data (relevant only for the simple ext source case)
+              throw new InternalErrorException(
+                  "findSubjectsLogins returned login '" + login + "', but no subject data for it was found." + login);
             }
 
-            // Get Candidate
             Candidate candidate;
-            try {
-              if (simpleExtSource) {
-                // retrieve data about subjects from ext source based on ext. login
-                candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin));
-              } else {
-                // retrieve data about subjects from subjects we already have locally
-                candidate =
-                    new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin));
-              }
-            } catch (CandidateNotExistsException e) {
-              throw new ConsistencyErrorException(
-                  "findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
-            } catch (ExtSourceUnsupportedOperationException e) {
-              throw new InternalErrorException("extSource supports findSubjects but not getCandidate???", e);
-            }
+            candidate = new Candidate(
+                getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, source, login));
 
             if (filterExistingMembers) {
               try {
@@ -614,11 +601,8 @@ public class VosManagerBlImpl implements VosManagerBl {
               }
             }
 
-            // Add candidate to the list of candidates
             LOG.debug("findCandidates: returning candidate: {}", candidate);
             candidates.add(candidate);
-
-            numOfResults++;
           }
 
         } catch (InternalErrorException e) {
@@ -657,115 +641,12 @@ public class VosManagerBlImpl implements VosManagerBl {
 
   public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString, List<ExtSource> extSources,
                                         boolean filterExistingMembers) {
-    List<Candidate> candidates = new ArrayList<>();
-
     try {
-      // Iterate through given extSources
-      for (ExtSource source : extSources) {
-        try {
-          // Info if this is only simple ext source, change behavior if not
-          boolean simpleExtSource = true;
-
-          // Get potential subjects from the extSource
-          List<Map<String, String>> subjects;
-          try {
-            if (source instanceof ExtSourceApi) {
-              // find subjects with all their properties
-              subjects = ((ExtSourceApi) source).findSubjects(searchString);
-              simpleExtSource = false;
-            } else {
-              // find subjects only with logins - they then must be retrieved by login
-              subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString);
-            }
-          } catch (ExtSourceUnsupportedOperationException e1) {
-            LOG.warn("ExtSource {} doesn't support findSubjects", source.getName());
-            continue;
-          } catch (InternalErrorException e) {
-            LOG.error("Error occurred on ExtSource {},  Exception {}.", source.getName(), e);
-            continue;
-          } finally {
-            try {
-              ((ExtSourceSimpleApi) source).close();
-            } catch (ExtSourceUnsupportedOperationException e) {
-              // ExtSource doesn't support that functionality, so silently skip it.
-            } catch (InternalErrorException e) {
-              LOG.error("Can't close extSource connection.", e);
-            }
-          }
-
-          Set<String> uniqueLogins = new HashSet<>();
-          for (Map<String, String> s : subjects) {
-            // Check if the user has unique identifier within extSource
-            if ((s.get("login") == null) || (s.get("login") != null && s.get("login").isEmpty())) {
-              LOG.error("User '{}' cannot be added, because he/she doesn't have a unique identifier (login)", s);
-              // Skip to another user
-              continue;
-            }
-
-            String extLogin = s.get("login");
-
-            // check uniqueness of every login in extSource
-            if (uniqueLogins.contains(extLogin)) {
-              throw new InternalErrorException(
-                  "There are more than 1 login '" + extLogin + "' getting from extSource '" + source + "'");
-            } else {
-              uniqueLogins.add(extLogin);
-            }
-
-            // Get Candidate
-            Candidate candidate;
-            try {
-              if (simpleExtSource) {
-                // retrieve data about subjects from ext source based on ext. login
-                candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin));
-              } else {
-                // retrieve data about subjects from subjects we already have locally
-                candidate =
-                    new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin));
-              }
-            } catch (CandidateNotExistsException e) {
-              throw new ConsistencyErrorException(
-                  "findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
-            } catch (ExtSourceUnsupportedOperationException e) {
-              throw new InternalErrorException("extSource supports findSubjects but not getCandidate???", e);
-            }
-
-            if (filterExistingMembers) {
-              try {
-                Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
-                getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, vo, candidate.getUserExtSources());
-                // Candidate is already a member of the VO, so do not add him to the list of candidates
-                continue;
-              } catch (VoNotExistsException e) {
-                throw new InternalErrorException(e);
-              } catch (MemberNotExistsException e) {
-                // This is OK
-              }
-            }
-
-            // Add candidate to the list of candidates
-            LOG.debug("findCandidates: returning candidate: {}", candidate);
-            candidates.add(candidate);
-
-          }
-        } catch (InternalErrorException e) {
-          LOG.error("Failed to get candidates from ExtSource: {}", source);
-        } finally {
-          if (source instanceof ExtSourceSimpleApi) {
-            try {
-              ((ExtSourceSimpleApi) source).close();
-            } catch (ExtSourceUnsupportedOperationException e) {
-              // silently skip
-            } catch (Exception e) {
-              LOG.error("Failed to close connection to extsource", e);
-            }
-          }
-        }
-      }
-
-      LOG.debug("Returning {} potential members for group {}", candidates.size(), group);
+      List<Candidate> candidates = findCandidates(sess, getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId()),
+          searchString, extSources, filterExistingMembers);
+      LOG.debug("Got {} potential members for group {}", candidates.size(), group);
       return candidates;
-    } catch (RuntimeException e) {
+    } catch (VoNotExistsException e) {
       throw new InternalErrorException(e);
     }
   }

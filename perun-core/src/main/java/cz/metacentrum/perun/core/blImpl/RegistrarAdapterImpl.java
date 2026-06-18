@@ -25,9 +25,11 @@ import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.openapi.IdmMessagesApi;
 import cz.metacentrum.perun.registrar.openapi.invoker.ApiClient;
 import cz.metacentrum.perun.registrar.openapi.model.ConsolidateUserDTO;
+import cz.metacentrum.perun.registrar.openapi.model.GetApplicationsForUserRequest;
 import cz.metacentrum.perun.registrar.openapi.model.IdmMemberDTO;
 import cz.metacentrum.perun.registrar.openapi.model.IdmObject;
 import cz.metacentrum.perun.registrar.openapi.model.VoAppRejectedDTO;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -240,12 +242,61 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
   }
 
   @Override
+  public boolean hasOpenAppInVo(PerunSession sess, Vo vo) {
+    if (registrarApi == null) {
+      return false;
+    }
+
+    GetApplicationsForUserRequest input = new GetApplicationsForUserRequest();
+    if (sess.getPerunPrincipal().getUser() != null) {
+      String strUserId = String.valueOf(sess.getPerunPrincipal().getUserId());
+      input.setUserId(strUserId);
+    } else {
+      input.setIdentityIssuer(sess.getPerunPrincipal().getExtSourceName());
+      input.setIdentityIdentifier(sess.getPerunPrincipal().getActor());
+    }
+    List<GetApplicationsForUserRequest.StatesEnum> openStates = new ArrayList<>();
+    openStates.add(GetApplicationsForUserRequest.StatesEnum.CHANGES_REQUESTED);
+    openStates.add(GetApplicationsForUserRequest.StatesEnum.VERIFIED);
+    openStates.add(GetApplicationsForUserRequest.StatesEnum.SUBMITTED);
+    input.setStates(openStates);
+    IdmObject idmObject = new IdmObject();
+    idmObject.setIdmObjectType(IdmObject.IdmObjectTypeEnum.VO);
+    idmObject.setObjectId(String.valueOf(vo.getId()));
+    input.setIdmObjects(List.of(idmObject));
+    return registrarApi.getApplicationsForUser(input)
+      .doOnError(e -> LOG.error("Failed to retrieve user's open apps in vo", e))
+      .hasElements()
+      .blockOptional().orElse(false);
+  }
+
+  @Override
+  public boolean doesVoHaveExtensionForm(Vo vo) {
+    if (registrarApi == null) {
+      return false;
+    }
+    return registrarApi.doesVoHaveExtensionForm("VO",
+      String.valueOf(vo.getId()), null)
+      .doOnError(e -> LOG.error("Failed to check if VO has extension form", e))
+      .blockOptional().orElse(false);
+  }
+
+  @Override
   public String getInviteUrlForVo(Vo vo) {
     if (registrarApi == null) {
       return "";
     }
     return registrarApi.inviteUrl("VO", String.valueOf(vo.getId()), null)
                .block();
+  }
+
+  @Override
+  public String getFormItemDataValue(UUID id) {
+    if (registrarApi == null) {
+      LOG.error("Trying to validate email item data {} but new registrar is not available.", id);
+      return "";
+    }
+    return registrarApi.getItemData(id).block();
   }
 
   @Override

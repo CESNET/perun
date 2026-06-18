@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.openapi;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import cz.metacentrum.perun.openapi.invoker.ApiClient;
 import java.util.List;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -52,10 +55,13 @@ public class PerunRPC {
       restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
     }
     // set converters from HTTP response to Java objects
+
+    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().findModulesViaServiceLoader(true).build();
+    objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+
     restTemplate.setMessageConverters(List.of(
         // register JSON response converter to find modules including JsonNullableModule
-        new MappingJackson2HttpMessageConverter(
-            Jackson2ObjectMapperBuilder.json().findModulesViaServiceLoader(true).build()),
+        new MappingJackson2HttpMessageConverter(objectMapper),
         // register String response converter
         new StringHttpMessageConverter()));
 

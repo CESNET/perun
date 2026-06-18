@@ -5,7 +5,6 @@ use warnings FATAL => 'all';
 use DBI;
 use POSIX qw(:errno_h);
 use Getopt::Long qw(:config no_ignore_case);
-no if $] >= 5.017011, warnings => 'experimental::smartmatch';
 
 sub help {
 	return qq{
@@ -20,7 +19,7 @@ sub help {
 }
 
 my ($user, $pwd, $input_vo);
-my @already_processed_groups = ();
+my %already_processed_groups = ();
 
 GetOptions ("help|h" => sub { print help(); exit 0;}, "vo|v=s" => \$input_vo,"user|u=s" => \$user, "password|w=s" => \$pwd) || die help();
 
@@ -84,17 +83,19 @@ sub check_against_next_group_level {
 	my @all_sub_groups = ();
 
 	foreach my $parent_group (sort keys %$current_indirect_members) {
-		next if($parent_group ~~ @already_processed_groups);
+		next if($already_processed_groups{$parent_group});
 		my @sub_groups = @{$dbh->selectcol_arrayref($sth_child_groups, {}, ($parent_group))};
 		foreach my $sub_group (@sub_groups) {
 			my @all_sub_group_members = @{$dbh->selectcol_arrayref($sth_group_members, {}, ($sub_group))};
 			foreach my $sub_group_member (@all_sub_group_members) {
-				unless ($sub_group_member ~~ @{$current_indirect_members->{$parent_group}->{$sub_group}}) {
+				# O(n) lookup, if at any point it becomes an issue, change this to use a hash
+				unless (grep { $_ == $sub_group_member } @{$current_indirect_members->{$parent_group}->{$sub_group}}) {
 					print("Inconsistency found. Member with user id $sub_group_member should exist as Indirect in parent group $parent_group of group $sub_group.\n");
 				}
 			}
 			foreach my $expected_sub_group_member (@{$current_indirect_members->{$parent_group}->{$sub_group}}) {
-				unless ($expected_sub_group_member ~~ @all_sub_group_members) {
+				# O(n) lookup as well
+				unless (grep { $_ == $expected_sub_group_member } @all_sub_group_members) {
 					print("Inconsistency found. Indirect member with user id $expected_sub_group_member should exist as Direct in operand group $sub_group of parent group $parent_group.\n");
 				}
 			}
@@ -102,7 +103,7 @@ sub check_against_next_group_level {
 		}
 	}
 	my $next_indirect_members = prepare_structure_of_indirect_members(\@all_sub_groups);
-	push(@already_processed_groups, keys %$current_indirect_members);
+	$already_processed_groups{$_} = 1 for keys %$current_indirect_members;
 	check_against_next_group_level($next_indirect_members);
 }
 

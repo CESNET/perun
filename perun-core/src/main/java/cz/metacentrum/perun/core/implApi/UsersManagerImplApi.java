@@ -348,7 +348,8 @@ public interface UsersManagerImplApi {
   List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin);
 
   /**
-   * Return all resources, where user is allowed by all his members.
+   * Get all resources where the user is allowed. The user has a membership in a group with an active assignment to
+   * the resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param sess
    * @param user
@@ -357,30 +358,34 @@ public interface UsersManagerImplApi {
   List<Resource> getAllowedResources(PerunSession sess, User user);
 
   /**
-   * Return all resources, where user is assigned through all his members.
+   * Return all resources where the user is assigned. The user has a membership in a group with an active assignment
+   * to the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param user
-   * @return All resources where user is assigned
+   * @return list of resources where the user is assigned
    */
   List<Resource> getAssignedResources(PerunSession sess, User user);
 
   /**
-   * Return all resources of specified facility, where user is assigned through all his members.
+   * Return all resources where the user is assigned. The user has a membership in a group with an active assignment
+   * to the resource. On top of that, results are restricted to resources on the given facility. No filter is applied
+   * on their VO membership status.
    *
    * @param sess
    * @param facility
    * @param user
-   * @return All resources where user is assigned
+   * @return list of resources on the facility where the user is assigned
    */
   List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user);
 
   /**
-   * Return all rich resources, where user is assigned through all his members.
+   * Return all rich resources where the user is assigned. The user has a membership in a group with an active
+   * assignment to the resource. No filter is applied on their VO membership status.
    *
    * @param sess
    * @param user
-   * @return All resources where user is assigned
+   * @return list of rich resources where the user is assigned
    */
   List<RichResource> getAssignedRichResources(PerunSession sess, User user);
 

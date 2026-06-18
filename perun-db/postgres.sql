@@ -1,4 +1,4 @@
--- database version 3.2.35 (don't forget to update insert statement at the end of file)
+-- database version 3.2.36 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -263,7 +263,7 @@ create table attr_names (
 	modified_by varchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
-	display_name varchar,  --name of attr. displayed at GUI
+    display_name varchar not null, --name of attr. displayed at GUI
 	is_unique boolean DEFAULT FALSE NOT NULL,
 	constraint attnam_pk primary key(id),
   constraint attnam_u unique (attr_name),
@@ -1953,7 +1953,7 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.35');
+insert into configurations values ('DATABASE VERSION','3.2.36');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

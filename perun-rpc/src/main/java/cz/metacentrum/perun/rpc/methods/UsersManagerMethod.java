@@ -1048,17 +1048,19 @@ public enum UsersManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Get all resources from the facility which have the user access on.
+   * Get all resources on the facility where the user is allowed. The user has a membership in a group with an active
+   * assignment to the resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param user int User <code>id</code>
    * @param facility int Facility <code>id</code>
-   * @return List<Resource> Allowed resources
+   * @return List<Resource> allowed resources
    */
   /*#
-   * Get all resources which have the user access on.
+   * Get all resources where the user is allowed. The user has a membership in a group with an active assignment to
+   * the resource and their VO membership status is not INVALID or DISABLED.
    *
    * @param user int User <code>id</code>
-   * @return List<Resource> Allowed resources
+   * @return List<Resource> allowed resources
    */
   getAllowedResources {
     @Override
@@ -1089,10 +1091,11 @@ public enum UsersManagerMethod implements ManagerMethod {
   },
 
   /*#
-   * Get all rich resources which have the user assigned.
+   * Get all rich resources where the user is assigned. The user has a membership in a group with an active
+   * assignment to the resource. No filter is applied on their VO membership status.
    *
    * @param user int User <code>id</code>
-   * @return List<RichResource> Assigned rich resources
+   * @return List<RichResource> rich resources where the user is assigned
    */
   getAssignedRichResources {
     @Override

@@ -31,6 +31,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespaceTest {
     classInstance = new urn_perun_group_attribute_def_def_unixGroupName_namespace();
     attributeToCheck = new Attribute();
     attributeToCheck.setFriendlyName("unixGID-namespace");
+    attributeToCheck.setDisplayName("");
 
     sess = mock(PerunSessionImpl.class);
     PerunBl perunBl = mock(PerunBl.class);

@@ -56,6 +56,7 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -561,13 +562,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     // Create application form if non exists
-    for (Group group : groups) {
-      try {
-        getFormForGroup(group);
-      } catch (FormNotExistsException e) {
-        createApplicationFormInGroup(sess, group);
-      }
-    }
+    prepareGroupsForms(sess, groups);
 
     perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups);
   }
@@ -589,13 +584,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     // Create application form if non exists
-    for (Group group : groups) {
-      try {
-        getFormForGroup(group);
-      } catch (FormNotExistsException e) {
-        createApplicationFormInGroup(sess, group);
-      }
-    }
+
+    prepareGroupsForms(sess, groups);
 
     perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups, formItem);
   }
@@ -625,13 +615,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
     }
 
     // Create application form if non exists
-    for (Group group : groups) {
-      try {
-        getFormForGroup(group);
-      } catch (FormNotExistsException e) {
-        createApplicationFormInGroup(sess, group);
-      }
-    }
+    prepareGroupsForms(sess, groups);
 
     perun.getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups, formItem);
   }
@@ -1708,6 +1692,28 @@ public class RegistrarManagerImpl implements RegistrarManager {
   }
 
   /**
+   * Checks whether group can be used for auto registration and if its form exists - if not it creates
+   * a form for the group.
+   *
+   * @param sess
+   * @param groups
+   * @throws GroupNotAllowedToAutoRegistrationException
+   * @throws PrivilegeException
+   * @throws GroupNotExistsException
+   */
+  private void prepareGroupsForms(PerunSession sess, List<Group> groups)
+      throws GroupNotAllowedToAutoRegistrationException, PrivilegeException, GroupNotExistsException {
+    for (Group group : groups) {
+      perun.getGroupsManagerBl().checkGroupCanBeAddedToAutoRegistration(sess, group);
+      try {
+        getFormForGroup(group);
+      } catch (FormNotExistsException e) {
+        createApplicationFormInGroup(sess, group);
+      }
+    }
+  }
+
+  /**
    * Checks if submit or auto-submit button are either not required, or present if required.
    *
    * @param items list of ApplicationFormItems being checked
@@ -1757,6 +1763,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
     if (!AuthzResolver.authorizedInternal(sess, "createApplicationFormInGroup_Group_policy",
         Collections.singletonList(group))) {
       throw new PrivilegeException(sess, "createApplicationFormInGroup");
+    }
+    if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+      throw new InternalErrorException("Cannot be created for members group.");
     }
 
     int id = Utils.getNewId(jdbc, "APPLICATION_FORM_ID_SEQ");
@@ -3838,6 +3847,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
           Arrays.asList(AttributesManager.NS_VO_ATTR_DEF + ":contactEmail",
               AttributesManager.NS_VO_ATTR_DEF + ":voLogoURL"));
 
+      result.put("vo", vo);
+      result.put("voAttributes", list);
+
       Attribute useNewAttr;
       try {
         useNewAttr = attrManager.getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF +
@@ -3846,78 +3858,102 @@ public class RegistrarManagerImpl implements RegistrarManager {
         useNewAttr = null;
       }
       if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
-        String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForVo(vo);
-        result.put("newRegistrarUrl", regRedirect);
-        return result;
-      }
+        boolean hasVoOpen = this.perun.getRegistrarAdapter().hasOpenAppInVo(sess, vo);
+        Member member = null;
+        if (hasVoOpen) {
+          result.put("newRegistrarVoOpen", true);
+        }
+        if (sess.getPerunPrincipal().getUser() != null) {
+          // we also do not want to redirect to new registrar if the user is already a member
+          // currently wui only knows this based on us returning this exception
+          try {
+            member = membersManager.getMemberByUser(registrarSession, vo, sess.getPerunPrincipal().getUser());
+            result.put("voFormInitialException", new AlreadyRegisteredException(""));
+          } catch (MemberNotExistsException ex) {
+            // do nothing
+          }
+        }
+        // we want to redirect if group is not in old reg -> new reg provides all the info, OR if user can perform an
+        // action in new reg -> needs to fill VO app (not member nor existing app) OR can fill extension form. We can
+        // assume new registrar will correctly redirect to old reg, now with existing application/membership
+        boolean needsRegistration = !hasVoOpen && member == null;
+        boolean needsExtension = member != null &&
+                                 perun.getMembersManagerBl().canExtendMembership(sess, member) &&
+                                 perun.getRegistrarAdapter().doesVoHaveExtensionForm(vo);
 
-      result.put("vo", vo);
-      result.put("voAttributes", list);
-      result.put("voForm", getFormForVo(vo));
+        if (groupName == null || needsRegistration || needsExtension) {
+          result.put("newRegistrarUrl", this.perun.getRegistrarAdapter().getInviteUrlForVo(vo));
+          // we can end here, new reg will redirect back to old reg after creating app
+          return result;
+        }
+      } else {
 
-      // GET INITIAL APPLICATION IF POSSIBLE
-      try {
+        result.put("voForm", getFormForVo(vo));
 
-        result.put("voFormInitial",
-            getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("voForm"),
-                    externalParams));
-
-      } catch (DuplicateRegistrationAttemptException ex) {
-        // has submitted application
-        result.put("voFormInitialException", ex);
-      } catch (AlreadyRegisteredException ex) {
-        // is already member of VO
-        result.put("voFormInitialException", ex);
-      } catch (ExtendMembershipException ex) {
-        // can't become member of VO
-        result.put("voFormInitialException", ex);
-      } catch (NoPrefilledUneditableRequiredDataException ex) {
-        // can't display form
-        result.put("voFormInitialException", ex);
-      } catch (MissingRequiredDataException ex) {
-        // can't display form
-        result.put("voFormInitialException", ex);
-      } catch (MissingRequiredDataCertException ex) {
-        // can't display form
-        result.put("voFormInitialException", ex);
-      } catch (CantBeSubmittedException ex) {
-        // can't display form / become member by some custom rules
-        result.put("voFormInitialException", ex);
-      }
-
-      // ONLY EXISTING USERS CAN EXTEND VO MEMBERSHIP
-      if (sess.getPerunPrincipal().getUser() != null) {
-
+        // GET INITIAL APPLICATION IF POSSIBLE
         try {
-          result.put("voFormExtension",
-              getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("voForm"),
-                      externalParams));
+
+          result.put("voFormInitial",
+              getFormItemsWithPrefilledValues(sess, AppType.INITIAL, (ApplicationForm) result.get("voForm"),
+              externalParams));
+
         } catch (DuplicateRegistrationAttemptException ex) {
           // has submitted application
-          result.put("voFormExtensionException", ex);
-        } catch (RegistrarException ex) {
-          // more severe exception like bad input/inconsistency
-          result.put("voFormExtensionException", ex);
+          result.put("voFormInitialException", ex);
+        } catch (AlreadyRegisteredException ex) {
+          // is already member of VO
+          result.put("voFormInitialException", ex);
         } catch (ExtendMembershipException ex) {
-          // can't extend membership in VO
-          result.put("voFormExtensionException", ex);
-        } catch (MemberNotExistsException ex) {
-          // is not member -> can't extend
-          result.put("voFormExtensionException", ex);
+          // can't become member of VO
+          result.put("voFormInitialException", ex);
         } catch (NoPrefilledUneditableRequiredDataException ex) {
           // can't display form
-          result.put("voFormExtensionException", ex);
+          result.put("voFormInitialException", ex);
         } catch (MissingRequiredDataException ex) {
           // can't display form
-          result.put("voFormExtensionException", ex);
+          result.put("voFormInitialException", ex);
         } catch (MissingRequiredDataCertException ex) {
           // can't display form
-          result.put("voFormExtensionException", ex);
+          result.put("voFormInitialException", ex);
         } catch (CantBeSubmittedException ex) {
-          // can't display form / extend membership by some custom rules
-          result.put("voFormExtensionException", ex);
+          // can't display form / become member by some custom rules
+          result.put("voFormInitialException", ex);
         }
 
+        // ONLY EXISTING USERS CAN EXTEND VO MEMBERSHIP
+        if (sess.getPerunPrincipal().getUser() != null) {
+
+          try {
+            result.put("voFormExtension",
+                getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("voForm"),
+                externalParams));
+          } catch (DuplicateRegistrationAttemptException ex) {
+            // has submitted application
+            result.put("voFormExtensionException", ex);
+          } catch (RegistrarException ex) {
+            // more severe exception like bad input/inconsistency
+            result.put("voFormExtensionException", ex);
+          } catch (ExtendMembershipException ex) {
+            // can't extend membership in VO
+            result.put("voFormExtensionException", ex);
+          } catch (MemberNotExistsException ex) {
+            // is not member -> can't extend
+            result.put("voFormExtensionException", ex);
+          } catch (NoPrefilledUneditableRequiredDataException ex) {
+            // can't display form
+            result.put("voFormExtensionException", ex);
+          } catch (MissingRequiredDataException ex) {
+            // can't display form
+            result.put("voFormExtensionException", ex);
+          } catch (MissingRequiredDataCertException ex) {
+            // can't display form
+            result.put("voFormExtensionException", ex);
+          } catch (CantBeSubmittedException ex) {
+            // can't display form / extend membership by some custom rules
+            result.put("voFormExtensionException", ex);
+          }
+
+        }
       }
 
       // GET GROUP IF RELEVANT
@@ -3937,6 +3973,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
         if (useNewAttr != null && useNewAttr.getValue() != null && useNewAttr.valueAsBoolean()) {
           String regRedirect = this.perun.getRegistrarAdapter().getInviteUrlForGroup(group);
           result.put("groupNewRegistrarUrl", regRedirect);
+          // we always want to redirect for groups
           return result;
         }
 
@@ -6335,19 +6372,38 @@ public class RegistrarManagerImpl implements RegistrarManager {
   public boolean validateEmailFromLink(Map<String, String> urlParameters) throws PerunException {
 
     String idStr = urlParameters.get("i");
-    byte[] mac = mailManager.getMessageAuthenticationCode(idStr).getBytes(StandardCharsets.UTF_8);
-    byte[] m = urlParameters.get("m").getBytes(StandardCharsets.UTF_8);
-    if (MessageDigest.isEqual(mac, m)) {
-      UUID newRegAppDataId = null;
-      try {
-        newRegAppDataId = UUID.fromString(idStr);
-      } catch (java.lang.IllegalArgumentException ex) {
-        // not UUID, continue with old behaviour
-      }
+    UUID newRegAppDataId = null;
+    try {
+      newRegAppDataId = UUID.fromString(idStr);
+    } catch (java.lang.IllegalArgumentException ex) {
+      // not UUID, continue with old behaviour
+    }
+    String emailValue;
+    int appDataId = -1;
+    if (newRegAppDataId != null) {
+      emailValue = perun.getRegistrarAdapter().getFormItemDataValue(newRegAppDataId);
+    } else {
+      appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
+      emailValue = jdbc.queryForObject(
+        "select value from application_data where id = ?", String.class, appDataId);
+    }
+
+    // Get the current email value from database to include in MAC verification
+    if (emailValue == null || emailValue.isEmpty()) {
+      LOG.warn("Application data ID {} doesn't exist or has no value",
+          newRegAppDataId != null ? newRegAppDataId : appDataId);
+      throw new RegistrarException("Application data doesn't exist and therefore mail can't be verified.");
+    }
+
+    // Verify MAC includes both the ID and the email value
+    String expectedMac = mailManager.getMessageAuthenticationCode(idStr + ":" + emailValue);
+    byte[] expectedMacBytes = expectedMac.getBytes(StandardCharsets.UTF_8);
+    byte[] providedMac = urlParameters.get("m").getBytes(StandardCharsets.UTF_8);
+
+    if (MessageDigest.isEqual(expectedMacBytes, providedMac)) {
       if (newRegAppDataId != null) {
         return perun.getRegistrarAdapter().mailValidated(registrarSession, newRegAppDataId);
       }
-      int appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
       // validate mail
       jdbc.update("update application_data set assurance_level=1 where id = ?", appDataId);
       Application app =

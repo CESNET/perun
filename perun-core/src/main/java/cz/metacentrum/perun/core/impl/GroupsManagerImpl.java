@@ -160,6 +160,27 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
         }
         return map;
       };
+  public static final RowMapper<ApplicationForm> APPLICATION_FORM_ROW_MAPPER =
+      (resultSet, arg1) -> {
+        ApplicationForm form = new ApplicationForm();
+        form.setId(resultSet.getInt("id"));
+        form.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
+        form.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
+        form.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
+        if (resultSet.getString("module_names") != null) {
+          form.setModuleClassNames(Arrays.asList(resultSet.getString("module_names").split(",")));
+        }
+        Vo vo = new Vo();
+        vo.setId(resultSet.getInt("vo_id"));
+        form.setVo(vo);
+        if (resultSet.getInt("group_id") > 0) {
+          Group grp = new Group();
+          grp.setId(resultSet.getInt("group_id"));
+          form.setGroup(grp);
+        }
+        return form;
+      };
+
   // http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
   private final JdbcPerunTemplate jdbc;
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -1151,25 +1172,19 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
       int appFormId = jdbc.queryForInt("SELECT form_id FROM application_form_items WHERE id = ?", appFormItemId);
 
       return jdbc.queryForObject("select " + APPLICATION_FORM_MAPPING_SELECT_QUERY +
-                                     " where id=?", (resultSet, arg1) -> {
-          ApplicationForm form = new ApplicationForm();
-          form.setId(resultSet.getInt("id"));
-          form.setAutomaticApproval(resultSet.getBoolean("automatic_approval"));
-          form.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
-          form.setAutomaticApprovalEmbedded(resultSet.getBoolean("automatic_approval_embedded"));
-          if (resultSet.getString("module_names") != null) {
-            form.setModuleClassNames(Arrays.asList(resultSet.getString("module_names").split(",")));
-          }
-          Vo vo = new Vo();
-          vo.setId(resultSet.getInt("vo_id"));
-          form.setVo(vo);
-          if (resultSet.getInt("group_id") > 0) {
-            Group grp = new Group();
-            grp.setId(resultSet.getInt("group_id"));
-            form.setGroup(grp);
-          }
-          return form;
-        }, appFormId);
+                                     " where id=?", APPLICATION_FORM_ROW_MAPPER, appFormId);
+    } catch (RuntimeException err) {
+      throw new InternalErrorException(err);
+    }
+  }
+
+  @Override
+  public ApplicationForm getApplicationFormForGroup(Group group) {
+    try {
+      return jdbc.queryForObject("select " + APPLICATION_FORM_MAPPING_SELECT_QUERY +
+                                     " where group_id=?", APPLICATION_FORM_ROW_MAPPER, group.getId());
+    } catch (EmptyResultDataAccessException e) {
+      return null;
     } catch (RuntimeException err) {
       throw new InternalErrorException(err);
     }

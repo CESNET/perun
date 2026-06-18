@@ -34,9 +34,11 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsupTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("login-namespace:eduroam-vsup");
+    attributeToCheck.setDisplayName("");
     attribute = new Attribute();
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attribute.setFriendlyName("login-namespace:eduroam-vsup");
+    attribute.setDisplayName("");
     attribute.setValue("same_value");
 
     PerunBl perunBl = mock(PerunBl.class);

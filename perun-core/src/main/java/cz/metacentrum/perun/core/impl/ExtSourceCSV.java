@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -89,7 +90,7 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
   /**
    * Parse CSV file into list of our standard "subject" (aka candidates)
    *
-   * @param query      query to check CSV file content against
+   * @param query query to check CSV file content against
    * @return List of Maps representing subjects for synchronization (perun_attr/constant = value).
    * @throws InternalErrorException When implementation fails
    * @throws IOException            When reading CSV file fails
@@ -261,6 +262,21 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
     }
 
     return null;
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins) {
+    // TODO introduce an optimization in here
+    Map<String, Map<String, String>> subjects = new LinkedHashMap<>();
+    // sorted for deterministic order in logs
+    for (String login : logins.stream().sorted().toList()) {
+      try {
+        subjects.put(login, getSubjectByLogin(login));
+      } catch (SubjectNotExistsException e) {
+        subjects.put(login, null);
+      }
+    }
+    return subjects;
   }
 
   @Override

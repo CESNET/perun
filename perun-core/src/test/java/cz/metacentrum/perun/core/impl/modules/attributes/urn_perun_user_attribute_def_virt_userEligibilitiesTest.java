@@ -66,6 +66,7 @@ public class urn_perun_user_attribute_def_virt_userEligibilitiesTest {
     userEligibilitiesAttributeDefinition = new AttributeDefinition();
     userEligibilitiesAttributeDefinition.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     userEligibilitiesAttributeDefinition.setFriendlyName("userEligibilities");
+    userEligibilitiesAttributeDefinition.setDisplayName("");
     userEligibilitiesAttributeDefinition.setDisplayName("user eligibilities");
     userEligibilitiesAttributeDefinition.setType(HashMap.class.getName());
     userEligibilitiesAttributeDefinition.setDescription(
@@ -75,6 +76,7 @@ public class urn_perun_user_attribute_def_virt_userEligibilitiesTest {
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("eligibilities");
+    attrDef.setDisplayName("");
     attrDef.setType(AttributesManager.NS_UES_ATTR_DEF);
     attrDef.setDescription("eligibilities test attribute");
     uesAttribute1 = new Attribute(attrDef);

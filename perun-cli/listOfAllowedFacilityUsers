@@ -9,7 +9,9 @@ use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
-	Prints list of users.
+	Prints list of allowed users on the facility. Allowed users are members of a group
+	with an active assignment to a resource on the facility and their VO membership
+	status is not INVALID or DISABLED.
 	------------------------------
 	Available options:
 	--facilityId   | -f  facility identifier

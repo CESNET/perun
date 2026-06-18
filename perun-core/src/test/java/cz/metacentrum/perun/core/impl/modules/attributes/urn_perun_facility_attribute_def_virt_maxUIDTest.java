@@ -28,6 +28,7 @@ public class urn_perun_facility_attribute_def_virt_maxUIDTest {
     facility = new Facility();
     attributeToCheck = new Attribute();
     attributeToCheck.setFriendlyName("friendly_name");
+    attributeToCheck.setDisplayName("");
     reqAttribute = new Attribute();
 
     PerunBl perunBl = mock(PerunBl.class);

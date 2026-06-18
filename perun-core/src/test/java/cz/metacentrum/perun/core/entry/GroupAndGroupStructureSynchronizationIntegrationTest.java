@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -12,6 +13,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -35,6 +37,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -51,6 +54,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.ExtSourceLdap;
+import cz.metacentrum.perun.core.impl.ExtSourceSql;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
 import cz.metacentrum.perun.core.impl.PerunLocksUtils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
@@ -84,6 +88,7 @@ import org.mockito.Spy;
 public class GroupAndGroupStructureSynchronizationIntegrationTest extends AbstractPerunIntegrationTest {
   private static final String CLASS_NAME = "GroupsManager.";
   private static final String EXT_SOURCE_NAME = "GroupSyncExtSource";
+  private static final String MEMBERS_EXT_SOURCE_NAME = "MembersSource";
   private static final String ADDITIONAL_STRING = "additionalString";
   private static final String ADDITIONAL_LIST = "additionalList";
   private static final String A_G_D_SYNC_RESOURCES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureResources";
@@ -97,6 +102,8 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
   private final ExtSourceSimpleApi essa = mock(ExtSourceLdap.class);
   private Vo vo;
   private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_LDAP);
+  private ExtSourceSql membersExtSource = mock(ExtSourceSql.class);
+  private ExtSource extSourceMembersDb = new ExtSource(1, MEMBERS_EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_SQL);
   private Resource resource1;
   private Resource resource2;
   private Facility facility;
@@ -1102,6 +1109,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     attrDef.setDescription("Test attribute description");
     attrDef.setFriendlyName(name);
+    attrDef.setDisplayName("");
     attrDef.setType(type);
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -1138,10 +1146,13 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
   private void setUpBaseGroup(Vo vo) throws Exception {
     extSource = extSourceManagerBl.createExtSource(sess, extSource, null);
+    extSourceMembersDb = extSourceManagerBl.createExtSource(sess, extSourceMembersDb, null);
+
 
     Group returnedGroup = groupsManagerBl.createGroup(sess, vo, baseGroup);
 
     extSourceManagerBl.addExtSource(sess, vo, extSource);
+    extSourceManagerBl.addExtSource(sess, vo, extSourceMembersDb);
     Attribute attr = attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
     attr.setValue(extSource.getName());
     attributesManagerBl.setAttribute(sess, baseGroup, attr);
@@ -1193,13 +1204,18 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
     MockitoAnnotations.initMocks(this);
 
-    doReturn(essa).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class), any(String.class));
+    doReturn(membersExtSource).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class),
+        eq(MEMBERS_EXT_SOURCE_NAME));
+    doReturn(essa).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class),
+        argThat(arg -> !arg.equals(MEMBERS_EXT_SOURCE_NAME)));
     when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
         extSourceForUserCreation);
     when(extSourceManagerBl.getExtSourceByName(sess, extSourceForUserCreation.getName())).thenReturn(
         extSourceForUserCreation);
     //noinspection ResultOfMethodCallIgnored
     doReturn(EXT_SOURCE_NAME).when((ExtSourceLdap) essa).getName();
+    doReturn(MEMBERS_EXT_SOURCE_NAME).when(membersExtSource).getName();
+    doReturn(ExtSourcesManager.EXTSOURCE_SQL).when(membersExtSource).getType();
     doNothing().when(extSourceManagerBl).addExtSource(any(PerunSession.class), any(Group.class), any(ExtSource.class));
   }
 
@@ -1359,6 +1375,61 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
   }
 
   @Test
+  public void synchronizeGroupAddMissingMembersDifferentMembersSource() throws Exception {
+    System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMembersDifferentMembersSource");
+
+    when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(
+        extSourceForUserCreation);
+    doReturn(extSourceForUserCreation.getId()).when(membersExtSource).getId();
+
+
+    Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+    attr.setValue(extSource.getName());
+    Attribute attrMembersExtSource = attributesManagerBl.getAttribute(sess, group,
+        GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME);
+    attrMembersExtSource.setValue(MEMBERS_EXT_SOURCE_NAME);
+    attributesManagerBl.setAttribute(sess, group, attr);
+    attributesManagerBl.setAttribute(sess, group, attrMembersExtSource);
+
+    List<Map<String, String>> loginSubjects = new ArrayList<>();
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("login", "metodej");
+    loginSubjects.add(attributes);
+    attributes = new HashMap<>();
+    attributes.put("login", "ivan");
+    loginSubjects.add(attributes);
+
+    Map<String, Map<String, String>> subjectMap = new HashMap<>();
+    Map<String, String> subjects = new HashMap<>();
+    subjects.put("login", "metodej");
+    subjects.put("firstName", "Metodej");
+    subjects.put("lastName", "Velky");
+    subjectMap.put("metodej", subjects);
+    subjects = new HashMap<>();
+    subjects.put("login", "ivan");
+    subjects.put("firstName", "Ivan");
+    subjects.put("lastName", "Maly");
+    subjectMap.put("ivan", subjects);
+    when(membersExtSource.getSubjectsByLogins(any())).thenReturn(subjectMap);
+
+    when(essa.getGroupSubjects(anyMap())).thenReturn(loginSubjects);
+
+    assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+    groupsManagerBl.synchronizeGroup(sess, group);
+    List<RichMember> membersAfterSync = groupsManagerBl.getGroupRichMembers(sess, group);
+    assertEquals(2, membersAfterSync.size());
+    assertThat(membersAfterSync)
+        .extracting(
+            m -> m.getUser().getFirstName(),
+            m -> m.getUser().getLastName()
+        )
+        .contains(
+            tuple("Ivan", "Maly"),
+            tuple("Metodej", "Velky")
+        );
+  }
+
+  @Test
   public void synchronizeGroupAddMissingMemberWhileCandidateAlreadyMember() throws Exception {
     System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMemberWhileCandidateAlreadyMember");
 
@@ -1411,6 +1482,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     String namespace = "member-test-unique-attribute:specialNamespace";
     attribute.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     attribute.setFriendlyName(namespace + "1");
+    attribute.setDisplayName("");
     attribute.setType(ArrayList.class.getName());
     attribute.setValue(Stream.of("value1", "value2").collect(Collectors.toList()));
     assertNotNull("unable to create member attribute", attributesManagerBl.createAttribute(sess, attribute));
@@ -1813,6 +1885,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
     String namespace = "user-test-unique-attribute:specialNamespace";
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attribute.setFriendlyName(namespace + "1");
+    attribute.setDisplayName("");
     attribute.setType(String.class.getName());
     attribute.setValue("UserAttribute");
     assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, attribute));

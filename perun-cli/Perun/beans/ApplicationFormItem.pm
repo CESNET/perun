@@ -157,7 +157,7 @@ sub setRequired
 {
     my $self = shift;
     my $value = shift;
-    if (ref $value eq "JSON::XS::Boolean")
+    if (ref $value eq "JSON::PP::Boolean")
     {
         $self->{_required} = $value;
     } elsif ($value eq 'true' || $value eq 1)
@@ -294,7 +294,7 @@ sub setForDelete
 {
     my $self = shift;
     my $value = shift;
-    if (ref $value eq "JSON::XS::Boolean")
+    if (ref $value eq "JSON::PP::Boolean")
     {
         $self->{_forDelete} = $value;
     } elsif ($value eq 'true' || $value eq 1)

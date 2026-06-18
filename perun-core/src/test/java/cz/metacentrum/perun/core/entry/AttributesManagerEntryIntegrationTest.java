@@ -291,6 +291,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-manager-test-attribute");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setType(String.class.getName());
     attrDef.setDescription("AttributesManagerTest");
@@ -306,6 +307,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-manager-test-attribute");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setType(String.class.getName());
     attrDef.setDescription("AttributesManagerTest");
@@ -335,6 +337,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-def-facility-tests-attr");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setDescription("poznamka");
     attrDef.setType(String.class.getName());
@@ -356,6 +359,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-def-facility-tests-attr");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setDescription("poznamka");
     attrDef.setType(String.class.getName());
@@ -375,6 +379,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
       String friendlyName = "test-attr";
       AttributeDefinition attrDef = new AttributeDefinition();
       attrDef.setFriendlyName(friendlyName);
+      attrDef.setDisplayName("");
       attrDef.setNamespace(namespace);
       attrDef.setDescription("poznamka");
       attrDef.setType(String.class.getName());
@@ -404,6 +409,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-def-facility-tests-attr");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setDescription("poznamka");
     attrDef.setType(String.class.getName());
@@ -424,6 +430,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-def-facility-tests-attr");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setDescription("poznamka");
     attrDef.setType(String.class.getName());
@@ -461,6 +468,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     AttributeDefinition test = new AttributeDefinition();
     test.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     test.setDescription("test");
+    test.setDisplayName("");
     test.setFriendlyName("login-namespace:test");
     test.setType(String.class.getName());
     test = attributesManager.createAttribute(sess, test);
@@ -470,6 +478,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     common.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     common.setDescription("common");
     common.setFriendlyName("login-namespace");
+    common.setDisplayName("");
     common.setType(String.class.getName());
     attributesManager.createAttribute(sess, common);
 
@@ -503,6 +512,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setDescription("attributesManagerTestAttrDef");
     attrDef.setFriendlyName("attrDef");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:member:attribute-def:opt");
     attrDef.setType(String.class.getName());
     attributesManager.createAttribute(sess, attrDef);
@@ -522,6 +532,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-def-facility-tests-attr");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setDescription("poznamka");
     attrDef.setType(String.class.getName());
@@ -561,6 +572,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("login-namespace:" + deleteNamespace);
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:user:attribute-def:def");
     attrDef.setType(String.class.getName());
     attributesManager.createAttribute(sess, attrDef);
@@ -611,6 +623,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr1 = new Attribute();
     attr1.setNamespace("urn:perun:user:attribute-def:def");
     attr1.setFriendlyName("login-namespace:" + namespaceDef);
+    attr1.setDisplayName("");
     attr1.setType(String.class.getName());
     attr1.setValue("testLogin1");
     assertNotNull("unable to create attribute", attributesManager.createAttribute(sess, attr1));
@@ -618,6 +631,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr2 = new Attribute();
     attr2.setNamespace("urn:perun:user:attribute-def:virt");
     attr2.setFriendlyName("login-namespace:" + namespaceVirt);
+    attr2.setDisplayName("");
     attr2.setType(String.class.getName());
     attr2.setValue("testLogin2");
     assertNotNull("unable to create attribute", attributesManager.createAttribute(sess, attr2));
@@ -676,6 +690,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setDescription("attributesManagerTestAttrDef");
     attrDef.setFriendlyName("attrDef");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:member:attribute-def:opt");
     attrDef.setType(String.class.getName());
 
@@ -3192,6 +3207,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:host:attribute-def:opt");
     attr.setFriendlyName("host-test-for-list-of-names-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("HostAttributeForList");
     attributesManager.createAttribute(sess, attr);
@@ -3491,6 +3507,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:user:attribute-def:opt");
     attr.setFriendlyName("login-namespace:META-login");
+    attr.setDisplayName("");
     // je to správná syntaxe pro loginy ??
     attr.setType(String.class.getName());
     attr.setValue("UserLoginNamespaceAttribute");
@@ -3764,6 +3781,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member:attribute-def:opt");
     attr.setFriendlyName("member-test-for-list-of-names-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberAttributeForList");
     attributesManager.createAttribute(sess, attr);
@@ -3791,6 +3809,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member:attribute-def:opt");
     attr.setFriendlyName("member-test-for-list-of-names-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberAttributeForList");
     attributesManager.createAttribute(sess, attr);
@@ -4298,6 +4317,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member_group:attribute-def:opt");
     attr.setFriendlyName("member-group-test-for-list-of-names-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberGroupAttributeForList");
     attributesManager.createAttribute(sess, attr);
@@ -4326,6 +4346,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member_group:attribute-def:opt");
     attr.setFriendlyName("member-group-test-for-list-of-names-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberGroupAttributeForList");
     attributesManager.createAttribute(sess, attr);
@@ -4660,6 +4681,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member_group:attribute-def:opt");
     attr.setFriendlyName("member-group-test-for-list-of-names-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberGroupAttributeForList");
     attributesManager.createAttribute(sess, attr);
@@ -9551,6 +9573,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-manager-test-attribute");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setType(String.class.getName());
     attrDef.setDescription("AttributesManagerTest");
@@ -9569,6 +9592,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     /*
          AttributeDefinition attrDef = new AttributeDefinition();
          attrDef.setFriendlyName("attr-manager-test-attribute");
+         attrDef.setDisplayName("");
          attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
          attrDef.setType(String.class.getName());
          attrDef.setDescription("AttributesManagerTest");
@@ -9585,6 +9609,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-manager-test-attribute");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setType(String.class.getName());
     attrDef.setDescription("AttributesManagerTest");
@@ -9603,6 +9628,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setFriendlyName("attr-manager-test-attribute");
+    attrDef.setDisplayName("");
     attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
     attrDef.setType(String.class.getName());
     attrDef.setDescription("AttributesManagerTest");
@@ -11588,6 +11614,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     attrDef.setNamespace(namespace);
     attrDef.setDescription("Test attribute description");
     attrDef.setFriendlyName("testingAttribute");
+    attrDef.setDisplayName("");
     attrDef.setType(String.class.getName());
     attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
     Attribute attribute = new Attribute(attrDef);
@@ -11683,6 +11710,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     entitylessTestAtrDef.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
     entitylessTestAtrDef.setDescription("entityless_test_atr_def");
     entitylessTestAtrDef.setFriendlyName("test-entityless-test-atr-def");
+    entitylessTestAtrDef.setDisplayName("");
     entitylessTestAtrDef.setType(String.class.getName());
     entitylessTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, entitylessTestAtrDef);
 
@@ -11710,6 +11738,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     facilityTestAtrDef.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
     facilityTestAtrDef.setDescription("facility_test_atr_def");
     facilityTestAtrDef.setFriendlyName("test-facility-test-atr-def");
+    facilityTestAtrDef.setDisplayName("");
     facilityTestAtrDef.setType(String.class.getName());
     facilityTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, facilityTestAtrDef);
 
@@ -11739,6 +11768,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     groupFromEmailAtrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     groupFromEmailAtrDef.setDescription("group_fromEmail_atr_def");
     groupFromEmailAtrDef.setFriendlyName("test-group-fromEmail-atr-def");
+    groupFromEmailAtrDef.setDisplayName("");
     groupFromEmailAtrDef.setType(String.class.getName());
     groupFromEmailAtrDef = perun.getAttributesManagerBl().createAttribute(sess, groupFromEmailAtrDef);
 
@@ -11781,6 +11811,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     groupResourceTestAtrDef.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
     groupResourceTestAtrDef.setDescription("groupResource_test_atr_def");
     groupResourceTestAtrDef.setFriendlyName("test-groupResource-test-atr-def");
+    groupResourceTestAtrDef.setDisplayName("");
     groupResourceTestAtrDef.setType(String.class.getName());
     groupResourceTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, groupResourceTestAtrDef);
 
@@ -11821,6 +11852,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     hostTestAtrDef.setNamespace(AttributesManager.NS_HOST_ATTR_DEF);
     hostTestAtrDef.setDescription("host_test_atr_def");
     hostTestAtrDef.setFriendlyName("test-host-test-atr-def");
+    hostTestAtrDef.setDisplayName("");
     hostTestAtrDef.setType(String.class.getName());
     hostTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, hostTestAtrDef);
 
@@ -11863,6 +11895,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     memberPhoneAtrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     memberPhoneAtrDef.setDescription("member_phone_atr_def");
     memberPhoneAtrDef.setFriendlyName("test-member-phone-atr-def");
+    memberPhoneAtrDef.setDisplayName("");
     memberPhoneAtrDef.setType(String.class.getName());
     memberPhoneAtrDef = perun.getAttributesManagerBl().createAttribute(sess, memberPhoneAtrDef);
 
@@ -11870,6 +11903,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     memberEmailAtrDef.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
     memberEmailAtrDef.setDescription("member_email_atr_def");
     memberEmailAtrDef.setFriendlyName("test-member-email-atr-def");
+    memberEmailAtrDef.setDisplayName("");
     memberEmailAtrDef.setType(String.class.getName());
     memberEmailAtrDef = perun.getAttributesManagerBl().createAttribute(sess, memberEmailAtrDef);
 
@@ -11928,6 +11962,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     memberGroupTestAtrDef.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
     memberGroupTestAtrDef.setDescription("memberGroup_test_atr_def");
     memberGroupTestAtrDef.setFriendlyName("test-memberGroup-test-atr-def");
+    memberGroupTestAtrDef.setDisplayName("");
     memberGroupTestAtrDef.setType(String.class.getName());
     memberGroupTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, memberGroupTestAtrDef);
 
@@ -11987,6 +12022,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     memberResourceTestAtrDef.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
     memberResourceTestAtrDef.setDescription("memberResource_test_atr_def");
     memberResourceTestAtrDef.setFriendlyName("test-memberResource-test-atr-def");
+    memberResourceTestAtrDef.setDisplayName("");
     memberResourceTestAtrDef.setType(String.class.getName());
     memberResourceTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, memberResourceTestAtrDef);
 
@@ -12031,6 +12067,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     resourceTestAtrDef.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
     resourceTestAtrDef.setDescription("resource_test_atr_def");
     resourceTestAtrDef.setFriendlyName("test-resource-test-atr-def");
+    resourceTestAtrDef.setDisplayName("");
     resourceTestAtrDef.setType(String.class.getName());
     resourceTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, resourceTestAtrDef);
 
@@ -12063,6 +12100,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     uesTestAtrDef.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
     uesTestAtrDef.setDescription("ues_test_atr_def");
     uesTestAtrDef.setFriendlyName("test-ues-test-atr-def");
+    uesTestAtrDef.setDisplayName("");
     uesTestAtrDef.setType(String.class.getName());
     uesTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, uesTestAtrDef);
 
@@ -12094,6 +12132,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     userPhoneAtrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     userPhoneAtrDef.setDescription("user_phone_atr_def");
     userPhoneAtrDef.setFriendlyName("test-user-phone-atr-def");
+    userPhoneAtrDef.setDisplayName("");
     userPhoneAtrDef.setType(String.class.getName());
     userPhoneAtrDef = perun.getAttributesManagerBl().createAttribute(sess, userPhoneAtrDef);
 
@@ -12101,6 +12140,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     userEmailAtrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     userEmailAtrDef.setDescription("user_email_atr_def");
     userEmailAtrDef.setFriendlyName("test-user-email-atr-def");
+    userEmailAtrDef.setDisplayName("");
     userEmailAtrDef.setType(String.class.getName());
     userEmailAtrDef = perun.getAttributesManagerBl().createAttribute(sess, userEmailAtrDef);
 
@@ -12139,6 +12179,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     userFacilityTestAtrDef.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
     userFacilityTestAtrDef.setDescription("userFacility_test_atr_def");
     userFacilityTestAtrDef.setFriendlyName("test-userFacility-test-atr-def");
+    userFacilityTestAtrDef.setDisplayName("");
     userFacilityTestAtrDef.setType(String.class.getName());
     userFacilityTestAtrDef = perun.getAttributesManagerBl().createAttribute(sess, userFacilityTestAtrDef);
 
@@ -12183,6 +12224,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     voToEmailDef.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
     voToEmailDef.setDescription("vo_toEmail_def");
     voToEmailDef.setFriendlyName("test-vo-toEmail-def");
+    voToEmailDef.setDisplayName("");
     voToEmailDef.setType(String.class.getName());
     voToEmailDef = perun.getAttributesManagerBl().createAttribute(sess, voToEmailDef);
 
@@ -12190,6 +12232,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     voFromEmailDef.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
     voFromEmailDef.setDescription("vo_fromEmail_def");
     voFromEmailDef.setFriendlyName("test-vo-fromEmail-def");
+    voFromEmailDef.setDisplayName("");
     voFromEmailDef.setType(String.class.getName());
     voFromEmailDef = perun.getAttributesManagerBl().createAttribute(sess, voFromEmailDef);
 
@@ -12655,6 +12698,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     groupNameAaa.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     groupNameAaa.setDescription("groupName in namespace AAA");
     groupNameAaa.setFriendlyName("unixGroupName-namespace:" + namespaceAAA);
+    groupNameAaa.setDisplayName("");
     groupNameAaa.setType(String.class.getName());
     groupNameAaa = perun.getAttributesManagerBl().createAttribute(sess, groupNameAaa);
     Attribute groupNameAttr = new Attribute(groupNameAaa);
@@ -12665,6 +12709,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     groupNameBbb.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     groupNameBbb.setDescription("groupName in namespace BBB");
     groupNameBbb.setFriendlyName("unixGroupName-namespace:" + namespaceBBB);
+    groupNameBbb.setDisplayName("");
     groupNameBbb.setType(String.class.getName());
     perun.getAttributesManagerBl().createAttribute(sess, groupNameBbb);
 
@@ -12673,6 +12718,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     gidAaaDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     gidAaaDef.setDescription("gid in namespace AAA");
     gidAaaDef.setFriendlyName("unixGID-namespace:" + namespaceAAA);
+    gidAaaDef.setDisplayName("");
     gidAaaDef.setType(Integer.class.getName());
     gidAaaDef = perun.getAttributesManagerBl().createAttribute(sess, gidAaaDef);
 
@@ -12681,6 +12727,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     gidBbbDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
     gidBbbDef.setDescription("gid in namespace BBB");
     gidBbbDef.setFriendlyName("unixGID-namespace:" + namespaceBBB);
+    gidBbbDef.setDisplayName("");
     gidBbbDef.setType(Integer.class.getName());
     gidBbbDef = perun.getAttributesManagerBl().createAttribute(sess, gidBbbDef);
 
@@ -12689,6 +12736,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     resGroupNameAaa.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
     resGroupNameAaa.setDescription("groupName in namespace AAA");
     resGroupNameAaa.setFriendlyName("unixGroupName-namespace:" + namespaceAAA);
+    resGroupNameAaa.setDisplayName("");
     resGroupNameAaa.setType(String.class.getName());
     perun.getAttributesManagerBl().createAttribute(sess, resGroupNameAaa);
 
@@ -12697,6 +12745,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     resGroupNameBbb.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
     resGroupNameBbb.setDescription("groupName in namespace BBB");
     resGroupNameBbb.setFriendlyName("unixGroupName-namespace:" + namespaceBBB);
+    resGroupNameBbb.setDisplayName("");
     resGroupNameBbb.setType(String.class.getName());
     perun.getAttributesManagerBl().createAttribute(sess, resGroupNameBbb);
 
@@ -12705,6 +12754,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     resGidAaa.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
     resGidAaa.setDescription("gid in namespace AAA");
     resGidAaa.setFriendlyName("unixGID-namespace:" + namespaceAAA);
+    resGidAaa.setDisplayName("");
     resGidAaa.setType(Integer.class.getName());
     perun.getAttributesManagerBl().createAttribute(sess, resGidAaa);
 
@@ -12713,6 +12763,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     resGidBbb.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
     resGidBbb.setDescription("gid in namespace BBB");
     resGidBbb.setFriendlyName("unixGID-namespace:" + namespaceBBB);
+    resGidBbb.setDisplayName("");
     resGidBbb.setType(Integer.class.getName());
     perun.getAttributesManagerBl().createAttribute(sess, resGidBbb);
 
@@ -13729,6 +13780,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute userUidNamespace = new Attribute();
     userUidNamespace.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     userUidNamespace.setFriendlyName("uid-namespace:" + namespace);
+    userUidNamespace.setDisplayName("");
     userUidNamespace.setType(Integer.class.getName());
     userUidNamespace.setDescription("Uid namespace.");
     userUidNamespace = new Attribute(perun.getAttributesManagerBl().createAttribute(sess, userUidNamespace));
@@ -13935,6 +13987,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace(namespace);
     attr.setFriendlyName(friendlyName);
+    attr.setDisplayName("");
     attr.setType(type);
     attr.setValue(value);
     attr.setDescription("TEST DESCRIPTION");
@@ -13947,6 +14000,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
     attr.setFriendlyName("entityless-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("EntitylessAttribute");
     assertNotNull("unable to create facility attribute", attributesManager.createAttribute(sess, attr));
@@ -13962,6 +14016,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:entityless:attribute-def:opt");
     attr.setFriendlyName("listEntitylessAttributeForTest");
+    attr.setDisplayName("");
     attr.setType(ArrayList.class.getName());
     List<String> listOfTestStrings = new ArrayList<>();
     listOfTestStrings.add("first");
@@ -13979,6 +14034,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:entityless:attribute-def:opt");
     attr.setFriendlyName("mapEntitylessAttributeForTest");
+    attr.setDisplayName("");
     attr.setType(LinkedHashMap.class.getName());
     Map<String, String> mapOfTestStrings = new LinkedHashMap<>();
     mapOfTestStrings.put("G11", "20005");
@@ -14009,6 +14065,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:facility:attribute-def:opt");
     attr.setFriendlyName("facility-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("FacilityAttribute");
     assertNotNull("unable to create facility attribute", attributesManager.createAttribute(sess, attr));
@@ -14027,6 +14084,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:user_facility:attribute-def:opt");
     attr.setFriendlyName("user-facility-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("UserFacilityAttribute");
 
@@ -14071,6 +14129,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:group:attribute-def:opt");
     attr.setFriendlyName("group-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("GroupAttribute");
 
@@ -14090,7 +14149,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     String namespace = "group-test-uniqueattribute:specialNamespace";
     attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
+    attr.setDisplayName("");
     attr.setFriendlyName(namespace + "1");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("GroupAttribute");
 
@@ -14100,12 +14161,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     Attribute attr2 = new Attribute(attr);
     attr2.setFriendlyName(namespace + "2");
+    attr2.setDisplayName("");
     attr2.setValue("next2");
     assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr2));
     attributes.add(attr2);
 
     Attribute attr3 = new Attribute(attr);
     attr3.setFriendlyName(namespace + "3");
+    attr3.setDisplayName("");
     attr3.setValue("next3");
     assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr3));
     attributes.add(attr3);
@@ -14113,12 +14176,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //And one attribute with other name
     Attribute attr4 = new Attribute(attr);
     attr4.setFriendlyName("group-test-uniqueEattribute:specialNamespace");
+    attr4.setDisplayName("");
     attr4.setValue("next4");
     assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr4));
 
     //Attribute with null value
     Attribute attr5 = new Attribute(attr);
     attr5.setFriendlyName(namespace + "5");
+    attr5.setDisplayName("");
     assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr5));
     attributes.add(attr5);
 
@@ -14131,6 +14196,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:group_resource:attribute-def:opt");
     attr.setFriendlyName("group-resource-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("GroupResourceAttribute");
 
@@ -14170,6 +14236,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:host:attribute-def:opt");
     attr.setFriendlyName("host-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("HostAttribute");
 
@@ -14216,6 +14283,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member:attribute-def:opt");
     attr.setFriendlyName("member-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberAttribute");
 
@@ -14237,6 +14305,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member_group:attribute-def:opt");
     attr.setFriendlyName("member-group-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberGroupAttribute");
     assertNotNull("unable to create member-group attribute", attributesManager.createAttribute(sess, attr));
@@ -14254,6 +14323,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member_resource:attribute-def:opt");
     attr.setFriendlyName("member-resource-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberResourceAttribute");
     assertNotNull("unable to create member-resource attribute", attributesManager.createAttribute(sess, attr));
@@ -14312,6 +14382,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:resource:attribute-def:opt");
     attr.setFriendlyName("resource-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("ResourceAttribute");
     assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr));
@@ -14331,6 +14402,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     String namespace = "resource-test-uniqueattribute:specialNamespace";
     attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_OPT);
     attr.setFriendlyName(namespace + "1");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("ResourceAttribute");
 
@@ -14340,12 +14412,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     Attribute attr2 = new Attribute(attr);
     attr2.setFriendlyName(namespace + "2");
+    attr2.setDisplayName("");
     attr2.setValue("next2");
     assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr2));
     attributes.add(attr2);
 
     Attribute attr3 = new Attribute(attr);
     attr3.setFriendlyName(namespace + "3");
+    attr3.setDisplayName("");
     attr3.setValue("next3");
     assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr3));
     attributes.add(attr3);
@@ -14353,12 +14427,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     //And one attribute with other name
     Attribute attr4 = new Attribute(attr);
     attr4.setFriendlyName("resource-test-uniqueEattribute:specialNamespace");
+    attr4.setDisplayName("");
     attr4.setValue("next4");
     assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr4));
 
     //Attribute with null value
     Attribute attr5 = new Attribute(attr);
     attr5.setFriendlyName(namespace + "5");
+    attr5.setDisplayName("");
     assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr5));
     attributes.add(attr5);
 
@@ -14370,6 +14446,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:resource:attribute-def:opt");
     attr.setFriendlyName("resource-large-test-attribute");
+    attr.setDisplayName("");
     attr.setType(LinkedHashMap.class.getName());
     Map<String, String> value = new LinkedHashMap<>();
     value.put("ResourceLargeAttribute", "test value");
@@ -14392,6 +14469,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
     attribute.setNamespace("urn:perun:resource:attribute-def:opt");
     attribute.setFriendlyName("resource-test-attribute-2");
+    attribute.setDisplayName("");
     attribute.setType(String.class.getName());
     attribute.setValue("ResourceAttribute");
     assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attribute));
@@ -14426,6 +14504,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member_resource:attribute-def:opt");
     attr.setFriendlyName("specificMemberResourceAttributeForTest");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("test value");
 
@@ -14441,6 +14520,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:user:attribute-def:opt");
     attr.setFriendlyName("user-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("UserAttribute");
     assertNotNull("unable to create user attribute", attributesManager.createAttribute(sess, attr));
@@ -14470,6 +14550,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:ues:attribute-def:opt");
     attr.setFriendlyName("userExtSource-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("UserExtSourceAttribute");
 
@@ -14503,6 +14584,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:user:attribute-def:opt");
     attr.setFriendlyName("user-large-test-attribute");
+    attr.setDisplayName("");
     attr.setType(LinkedHashMap.class.getName());
     Map<String, String> value = new LinkedHashMap<>();
     value.put("UserLargeAttribute", "test value");
@@ -14534,6 +14616,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:vo:attribute-def:opt");
     attr.setFriendlyName("vo-test-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("VoAttribute");
     assertNotNull("unable to create vo attribute", attributesManager.createAttribute(sess, attr));
@@ -14780,6 +14863,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     Attribute attr = new Attribute();
     attr.setNamespace("urn:perun:member_group:attribute-def:opt");
     attr.setFriendlyName("member-group-test-for-list-of-names-attribute");
+    attr.setDisplayName("");
     attr.setType(String.class.getName());
     attr.setValue("MemberGroupAttributeForList");
     attributesManager.createAttribute(sess, attr);
@@ -15446,6 +15530,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setUnique(true);
     attrDef.setFriendlyName("test-conv-attr");
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setDescription("poznamka");
     attrDef.setType(String.class.getName());
@@ -15473,6 +15558,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setUnique(false);
     attrDef.setFriendlyName("test-conv-attr");
+    attrDef.setDisplayName("");
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setDescription("poznamka");
     attrDef.setType(String.class.getName());
@@ -15490,6 +15577,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setUnique(true);
     attrDef.setFriendlyName("test-conv-attr");
+    attrDef.setDisplayName("");
     attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attrDef.setDescription("poznamka");
     attrDef.setType(String.class.getName());
@@ -15523,6 +15611,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition attrDef = new AttributeDefinition();
         attrDef.setUnique(false);
         attrDef.setFriendlyName(friendlyName);
+        attrDef.setDisplayName("");
         attrDef.setNamespace(namespace);
         attrDef.setDescription(description);
         attrDef.setType(type);
@@ -15636,6 +15725,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
     AttributeDefinition attrDef = new AttributeDefinition();
     attrDef.setUnique(true);
     attrDef.setFriendlyName(friendlyName);
+    attrDef.setDisplayName("");
     attrDef.setNamespace(namespace);
     attrDef.setDescription(description);
     attrDef.setType(type);
@@ -15741,6 +15831,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
         AttributeDefinition attrDef = new AttributeDefinition();
         attrDef.setUnique(true);
         attrDef.setFriendlyName(friendlyName);
+        attrDef.setDisplayName("");
         attrDef.setNamespace(namespace);
         attrDef.setDescription(description);
         attrDef.setType(type);

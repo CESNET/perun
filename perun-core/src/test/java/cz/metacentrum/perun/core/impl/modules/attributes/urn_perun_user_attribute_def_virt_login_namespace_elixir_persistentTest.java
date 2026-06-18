@@ -48,6 +48,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_elixir_persistent
     Attribute attributeToReturn = new Attribute();
     attributeToReturn.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToReturn.setFriendlyName("login-namespace:elixir-persistent-shadow");
+    attributeToReturn.setDisplayName("");
     attributeToReturn.setType("def");
     when(session.getPerunBl().getAttributesManagerBl()
         .getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(attributeToReturn);
@@ -55,6 +56,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_elixir_persistent
     Attribute attributeToFill = new Attribute();
     attributeToFill.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToFill.setFriendlyName("login-namespace:elixir-persistent-shadow");
+    attributeToFill.setDisplayName("");
     attributeToFill.setType("def");
     attributeToFill.setValue("879a224546cf11fe53863737de037d2d39640258@elixir-europe.org");
     when(session.getPerunBl().getAttributesManagerBl()

@@ -62,6 +62,20 @@ public interface ExtSourceSimpleApi {
       throws SubjectNotExistsException, ExtSourceUnsupportedOperationException;
 
   /**
+   * Finds subjects from the external source by their primary logins used in the external source.
+   * For most ext sources, this method is just a loop of `getSubjectByLogin`, but some, such as SQLExtSource,
+   * can implement a hefty optimization here.
+   * Instead of throwing a `SubjectNotExistsException`, this method just sets the subject as null for the corresponding
+   * login, leaving the caller to deal with this case.
+   *
+   * @param logins logins used in the external source
+   * @return map of logins to subject maps that contain attr_name -&gt; attr_value, e.g. firstName-&gt;Michal
+   * @throws InternalErrorException
+   */
+  Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins)
+      throws ExtSourceUnsupportedOperationException;
+
+  /**
    * Get the list of the subject groups in the external source.
    *
    * @param attributes map of attributes used for quering the external source

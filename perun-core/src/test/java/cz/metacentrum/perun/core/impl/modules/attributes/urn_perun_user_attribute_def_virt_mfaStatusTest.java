@@ -27,6 +27,7 @@ public class urn_perun_user_attribute_def_virt_mfaStatusTest {
     Attribute attribute = new Attribute();
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attribute.setFriendlyName("mfaStatus:mu");
+    attribute.setDisplayName("");
 
     assertEquals("ENFORCED_ALL", classInstance.getAttributeValue(sess, user, attribute).getValue());
   }
@@ -39,6 +40,7 @@ public class urn_perun_user_attribute_def_virt_mfaStatusTest {
     Attribute attribute = new Attribute();
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attribute.setFriendlyName("mfaStatus:mu");
+    attribute.setDisplayName("");
 
     assertEquals("", classInstance.getAttributeValue(sess, user, attribute).getValue());
   }
@@ -51,6 +53,7 @@ public class urn_perun_user_attribute_def_virt_mfaStatusTest {
     Attribute attribute = new Attribute();
     attribute.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
     attribute.setFriendlyName("mfaStatus:mu");
+    attribute.setDisplayName("");
 
     assertEquals("ENFORCED_PARTIALLY", classInstance.getAttributeValue(sess, user, attribute).getValue());
   }
@@ -63,6 +66,7 @@ public class urn_perun_user_attribute_def_virt_mfaStatusTest {
     attributeToCheck = new Attribute();
     attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
     attributeToCheck.setFriendlyName("mfaEnforceSettings:mu");
+    attributeToCheck.setDisplayName("");
 
     String mfaEnforceMU = AttributesManager.NS_USER_ATTR_DEF + ":mfaEnforceSettings:mu";
     when(sess.getPerunBl()).thenReturn(mock(PerunBl.class));
