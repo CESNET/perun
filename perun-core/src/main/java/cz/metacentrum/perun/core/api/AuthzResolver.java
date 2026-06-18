@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.openapi.model.IdmObject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -595,6 +596,13 @@ public class AuthzResolver {
       return userRoles;
     }
     return filterRolesBasedOnPrincipalRights(sess, userRoles);
+  }
+
+
+  public static Map<String, Set<IdmObject>> getRegistrarUserRoles(PerunSession sess, User user) {
+    Utils.checkPerunSession(sess);
+
+    return AuthzResolverBlImpl.getRegistrarUserRoles(sess, user);
   }
 
   /**

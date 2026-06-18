@@ -86,6 +86,7 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.openapi.model.IdmObject;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -162,6 +163,48 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     groupRoles.put("Group", newGroupsIds);
     authzRoles.put(role, groupRoles);
 
+    return authzRoles;
+  }
+
+  /**
+   * For the given role with association to "Vo" add also all Vo's groups to authzRoles. If authzRoles is null, return
+   * empty AuthzRoles. If there is no role (given in parameter) or Group object for this role, return not changed
+   * authzRoles.
+   *
+   * @param sess       perun session
+   * @param authzRoles authzRoles for some user
+   * @return the same object authzRoles, which is given in parameter, but also with subgroups of groups for given role
+   */
+  public static AuthzRoles addAllVoGroupsToAuthzRoles(PerunSession sess, AuthzRoles authzRoles, String role) {
+    if (authzRoles == null) {
+      return new AuthzRoles();
+    }
+    if (role == null || !authzRoles.hasRole(role)) {
+      return authzRoles;
+    }
+
+    if (!Role.VOADMIN.equals(role) && !Role.ORGANIZATIONMEMBERSHIPMANAGER.equals(role)) {
+      return authzRoles;
+    }
+
+    Map<String, Set<Integer>> voRoles = authzRoles.get(role);
+    Set<Integer> vosIds = voRoles.get("Vo");
+    Set<Integer> groupIds = new HashSet<>();
+    for (Integer id : vosIds) {
+      Vo vo;
+      try {
+        vo = getPerunBl().getVosManagerBl().getVoById(sess, id);
+      } catch (VoNotExistsException ex) {
+        LOG.debug("Vo with id=" + id + " not exists when initializing rights for user: " +
+                      sess.getPerunPrincipal().getUser());
+        continue;
+      }
+      List<Group> groups = getPerunBl().getGroupsManagerBl().getAllGroups(sess, vo);
+      for (Group g : groups) {
+        groupIds.add(g.getId());
+      }
+    }
+    authzRoles.put(role, new HashMap<>(Map.of("Group", groupIds)));
     return authzRoles;
   }
 
@@ -1136,6 +1179,103 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
     addMembershipRole(sess, roles, user);
     setAdditionalRoles(sess, roles, user);
     return roles;
+  }
+
+  /**
+   * Returns all new Registrar roles for the user derived from roles in Perun. Retrieves all Perun user roles,
+   * including via authorized groups. This transitively includes subgroup
+   * roles as well as roles for groups of VOs (e.g. when VOADMIN, add roles for all the groups of that VO)
+   * @param sess
+   * @param user
+   * @return
+   */
+  public static Map<String, Set<IdmObject>> getRegistrarUserRoles(PerunSession sess, User user) {
+    AuthzRoles roles = authzResolverImpl.getRoles(user, true);
+    // Load all user's roles with all possible subgroups
+    roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPADMIN);
+    roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPOBSERVER);
+    roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPMEMBERSHIPMANAGER);
+    // now add VO -> Group transitive roles
+    roles = addAllVoGroupsToAuthzRoles(sess, roles, Role.VOADMIN);
+    roles = addAllVoGroupsToAuthzRoles(sess, roles, Role.ORGANIZATIONMEMBERSHIPMANAGER);
+
+    addMembershipRole(sess, roles, user);
+
+    return extractRegistrarRoles(roles);
+  }
+
+  /**
+   * Iterates through Perun roles and maps them to matching Registrar roles, storing the associated IdmObject
+   * @param roles
+   * @return
+   */
+  private static Map<String, Set<IdmObject>> extractRegistrarRoles(AuthzRoles roles) {
+    Map<String, Set<IdmObject>> regRoles = new HashMap<>();
+    regRoles.put("FORM_MANAGER", new HashSet<>());
+    regRoles.put("FORM_APPROVER", new HashSet<>());
+    regRoles.put("MEMBERSHIP", new HashSet<>());
+    for (Map.Entry<String, Map<String, Set<Integer>>> entry : roles.entrySet()) {
+      Set<IdmObject> vos = new HashSet<>();
+      if (entry.getValue().containsKey("Vo")) {
+        vos = entry.getValue().get("Vo").stream()
+            .map(id -> toIdmObject(IdmObject.IdmObjectTypeEnum.VO, id))
+            .collect(Collectors.toSet());
+      }
+      Set<IdmObject> groups = new HashSet<>();
+      if (entry.getValue().containsKey("Group")) {
+        groups = entry.getValue().get("Group").stream()
+            .map(id -> toIdmObject(IdmObject.IdmObjectTypeEnum.GROUP, id))
+            .collect(Collectors.toSet());
+      }
+      switch (entry.getKey()) {
+        case "VOADMIN":
+          regRoles.get("FORM_MANAGER").addAll(vos);
+          regRoles.get("FORM_APPROVER").addAll(vos);
+          regRoles.get("FORM_MANAGER").addAll(groups);
+          regRoles.get("FORM_APPROVER").addAll(groups);
+          break;
+
+        case "ORGANIZATIONMEMBERSHIPMANAGER":
+          regRoles.get("FORM_APPROVER").addAll(vos);
+          regRoles.get("FORM_APPROVER").addAll(groups);
+          break;
+
+        case "GROUPADMIN":
+          regRoles.get("FORM_MANAGER").addAll(groups);
+          regRoles.get("FORM_APPROVER").addAll(groups);
+          break;
+
+        case "GROUPMEMBERSHIPMANAGER":
+          regRoles.get("FORM_APPROVER").addAll(groups);
+          break;
+
+        case "MEMBERSHIP":
+          regRoles.get("MEMBERSHIP").addAll(vos);
+          regRoles.get("MEMBERSHIP").addAll(groups);
+          break;
+
+        case "PERUNADMIN":
+          regRoles.putIfAbsent("ADMIN", Set.of());
+          break;
+
+        default:
+          break;
+      }
+    }
+    return regRoles;
+  }
+
+  /**
+   * Helper to construct IdmObject
+   * @param type
+   * @param id
+   * @return
+   */
+  private static IdmObject toIdmObject(IdmObject.IdmObjectTypeEnum type, Object id) {
+    IdmObject obj = new IdmObject();
+    obj.idmObjectType(type);
+    obj.objectId(String.valueOf(id));
+    return obj;
   }
 
   static List<Vo> getVosForGroupInRole(PerunSession sess, Group group, String role) {
