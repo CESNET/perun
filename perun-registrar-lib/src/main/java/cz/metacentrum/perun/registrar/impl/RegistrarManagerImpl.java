@@ -6319,6 +6319,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
     try {
 
       User user = usersManager.getUserById(registrarSession, app.getUser().getId());
+      if (user.isServiceUser()) {
+        // there's a bug where the whole display name of service users (due to `(Service)`) would be duplicated
+        // into the titles
+        return;
+      }
       List<ApplicationFormItemData> data = registrarManager.getApplicationDataById(registrarSession, app.getId());
       boolean found = false;
 
