@@ -4355,7 +4355,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
         return null;
       }
 
-      if (Utils.updateUserNameTitles(user, attributes)) {
+      // there's a bug where the whole display name of service users (due to `(Service)`) would be duplicated
+      // into the titles
+      if (!user.isServiceUser() && Utils.updateUserNameTitles(user, attributes)) {
         perunBl.getUsersManagerBl().updateNameTitles(sess, user);
       }
     }
