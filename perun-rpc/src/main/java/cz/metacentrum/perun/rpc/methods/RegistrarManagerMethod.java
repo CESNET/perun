@@ -333,35 +333,6 @@ public enum RegistrarManagerMethod implements ManagerMethod {
     public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
       parms.stateChangingCheck();
 
-      Vo vo = null;
-      Group group = null;
-      if (parms.contains("vo")) {
-        vo = ac.getVoById(parms.readInt("vo"));
-      } else if (parms.contains("group")) {
-        group = ac.getGroupById(parms.readInt("group"));
-        vo = ac.getVoById(group.getVoId());
-      }
-      if (vo != null) {
-        User user = null;
-        if (parms.contains("user")) {
-          user = ac.getUserById(parms.readInt("user"));
-        }
-        String reason = null;
-        if (parms.contains("reason")) {
-          reason = parms.readString("reason");
-        }
-        Map<String, String> emailItems = null;
-        if (parms.contains("emailItems")) {
-          emailItems = (Map<String, String>) parms.read("emailItems", Map.class);
-        }
-        ac.getRegistrarManager().getMailManager()
-            .sendMessage(ac.getSession(), user, vo, group,
-                AppType.valueOf(parms.readString("newRegAppType")),
-                ApplicationMail.MailType.valueOf(parms.readString("mailType")), reason,
-                parms.readUUID("newRegAppId"), emailItems);
-        return null;
-      }
-
       if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
 
         ac.getRegistrarManager().getMailManager()
@@ -380,6 +351,79 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
     }
 
+  },
+
+  /*#
+   * Re-send mail notification for existing application. Message of specified type is sent only,
+   * when application is in expected state related to the notification.
+   *
+   * Note, that some data related to processing application are not available (e.g. list of exceptions
+   * during approval), since this method doesn't perform any action with Application itself.
+   *
+   * Perun admin can send any notification except USER_INVITE type, see #sendInvitation() for this.
+   *
+   * @param mailType MailType type of mail notification
+   * @param user int <code>id</code> of the applicant's user object
+   * @param group int <code>id</code> of group the application is for
+   * @param vo int <code>id</code> of VO the application is for
+   * @param newRegAppId UUID <code>id</code> of application to send notification for
+   * @param newRegAppType String type of the application, INITIAL of EXTENSION
+   * @param reason String you can specify reason for case: mailType == APP_REJECTED_USER
+   * @param issuer String issuer of the user's identity
+   * @param identifier String identifier of the user identity
+   * @param emailItems Map<String, String> Map of the email items, {formItemDataUUID}->{value}
+   * @param itemsByShortname Map<String, String> Map of the item data, itemShortname->itemData
+   * @param destinationValues Map<String, String> Map of the items with a destination attribute,
+   *  destinationAttribute->itemData
+   *
+   * @throws RegistrarException if notification can't be sent
+   * @throws ApplicationNotCreatedException if message of type MAIL_VERIFICATION and application is no longer 'NEW'
+   */
+  sendMessageNewRegistrar {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+
+      Vo vo;
+      Group group = null;
+      if (parms.contains("vo")) {
+        vo = ac.getVoById(parms.readInt("vo"));
+      } else {
+        group = ac.getGroupById(parms.readInt("group"));
+        vo = ac.getVoById(group.getVoId());
+      }
+      User user = null;
+      if (parms.contains("user")) {
+        user = ac.getUserById(parms.readInt("user"));
+      }
+      String reason = null;
+      if (parms.contains("reason")) {
+        reason = parms.readString("reason");
+      }
+      String issuer = parms.readString("issuer");
+      String identifier = parms.readString("identifier");
+      Map<String, String> emailItems = new HashMap<>();
+      if (parms.contains("emailItems")) {
+        emailItems = (Map<String, String>) parms.read("emailItems", Map.class);
+      }
+      Map<String, String> itemsByShortname = new HashMap<>();
+      if (parms.contains("itemsByShortname")) {
+        itemsByShortname = (Map<String, String>) parms.read("itemsByShortname", Map.class);
+      }
+      Map<String, String> destinationValues = new HashMap<>();
+      if (parms.contains("destinationValues")) {
+        destinationValues = (Map<String, String>) parms.read("destinationValues", Map.class);
+      }
+
+
+
+      ac.getRegistrarManager().getMailManager()
+          .sendMessage(ac.getSession(), user, issuer, identifier, vo, group,
+              AppType.valueOf(parms.readString("newRegAppType")),
+              ApplicationMail.MailType.valueOf(parms.readString("mailType")), reason,
+              parms.readUUID("newRegAppId"), emailItems, itemsByShortname, destinationValues);
+      return null;
+    }
   },
 
   /*#
