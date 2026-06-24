@@ -371,17 +371,43 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
 
   @Override
   public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins) {
-    // TODO introduce an optimization in here
-    Map<String, Map<String, String>> subjects = new LinkedHashMap<>();
-    // sorted for deterministic order in logs
-    for (String login : logins.stream().sorted().toList()) {
-      try {
-        subjects.put(login, getSubjectByLogin(login));
-      } catch (SubjectNotExistsException e) {
-        subjects.put(login, null);
+    try {
+      Map<String, Map<String, String>> loginSubjectsMap = new LinkedHashMap<>();
+
+      query = getAttributes().get("loginXpath");
+      if (query == null || query.isEmpty()) {
+        throw new InternalErrorException("query attributes is required");
       }
+
+      prepareEnvironment();
+      Document doc = getDocument();
+
+      // sorted for deterministic order in logs
+      for (String login : logins.stream().sorted().toList()) {
+        login = convertToXpathSearchString(login);
+        if (login == null || login.isEmpty()) {
+          throw new InternalErrorException("login string can't be null or empty");
+        }
+
+        String currentQuery = query.replaceAll("\\?", login);
+        List<Map<String, String>> subjects = xpathParsing(currentQuery, doc);
+
+        if (subjects.isEmpty()) {
+          loginSubjectsMap.put(login, null);
+          continue;
+        }
+        if (subjects.size() > 1) {
+          LOG.warn("There is more than one result for login '{}'. This login will be skipped", login);
+          loginSubjectsMap.put(login, null);
+          continue;
+        }
+        loginSubjectsMap.put(login, subjects.get(0));
+      }
+
+      return loginSubjectsMap;
+    } finally {
+      this.close();
     }
-    return subjects;
   }
 
   @Override
@@ -453,45 +479,15 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
   }
 
   /**
-   * Get query and maxResults. Prepare document and xpathExpression by query. Get all nodes by xpath from document and
-   * parse them one by one.
+   * Get all nodes by xpath from the prepared document and parse them one by one.
    * <p>
-   * The way of xml take from "file" or "uri" (configuration file)
    *
-   * @param query      xpath query from config file
+   * @param query      xpath query from the config file
+   * @param doc        loaded XML document
    * @return List of results, where result is Map<String,String> like <name, value>
-   * @throws InternalErrorException
    */
-  protected List<Map<String, String>> xpathParsing(String query) {
-    //Prepare result list
+  private List<Map<String, String>> xpathParsing(String query, Document doc) {
     List<Map<String, String>> subjects = new ArrayList<>();
-
-    //Create new document factory builder
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder builder;
-    try {
-      builder = factory.newDocumentBuilder();
-    } catch (ParserConfigurationException ex) {
-      throw new InternalErrorException("Error when creating newDocumentBuilder.", ex);
-    }
-
-    Document doc;
-    try {
-      if (file != null && !file.isEmpty()) {
-        doc = builder.parse(file);
-      } else if (uri != null && !uri.isEmpty()) {
-        doc = builder.parse(this.createTwoWaySSLConnection(uri));
-      } else {
-        throw new InternalErrorException(
-            "Document can't be parsed, because there is no way (file or uri) to this document in xpathParser.");
-      }
-    } catch (SAXParseException ex) {
-      throw new InternalErrorException("Error when parsing uri by document builder.", ex);
-    } catch (SAXException ex) {
-      throw new InternalErrorException("Problem with parsing is more complex, not only invalid characters.", ex);
-    } catch (IOException ex) {
-      throw new InternalErrorException("Error when parsing uri by document builder. Problem with input or output.", ex);
-    }
 
     //Prepare xpath expression
     XPathFactory xpathfactory = XPathFactory.newInstance();
@@ -500,7 +496,7 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
     try {
       queryExpr = xpath.compile(query);
     } catch (XPathExpressionException ex) {
-      throw new InternalErrorException("Error when compiling xpath query.", ex);
+      throw new InternalErrorException("Error when compiling xpath query '" + query + "'", ex);
     }
 
     //Call query on document node and get back nodesets
@@ -528,8 +524,56 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
       }
     }
 
-    this.close();
     return subjects;
   }
 
+  /**
+   * Get query and maxResults. Prepare document and xpathExpression by query. Get all nodes by xpath from document and
+   * parse them one by one.
+   * <p>
+   * The way of xml take from "file" or "uri" (configuration file)
+   *
+   * @param query      xpath query from config file
+   * @return List of results, where result is Map<String,String> like <name, value>
+   * @throws InternalErrorException
+   */
+  protected List<Map<String, String>> xpathParsing(String query) {
+    try {
+      Document doc = getDocument();
+
+      List<Map<String, String>> subjects = xpathParsing(query, doc);
+      return subjects;
+    } finally {
+      this.close();
+    }
+  }
+
+  private Document getDocument() {
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder;
+    try {
+      builder = factory.newDocumentBuilder();
+    } catch (ParserConfigurationException ex) {
+      throw new InternalErrorException("Error when creating newDocumentBuilder.", ex);
+    }
+
+    Document doc;
+    try {
+      if (file != null && !file.isEmpty()) {
+        doc = builder.parse(file);
+      } else if (uri != null && !uri.isEmpty()) {
+        doc = builder.parse(this.createTwoWaySSLConnection(uri));
+      } else {
+        throw new InternalErrorException(
+            "Document can't be parsed, because there is no way (file or uri) to this document in xpathParser.");
+      }
+    } catch (SAXParseException ex) {
+      throw new InternalErrorException("Error when parsing uri by document builder.", ex);
+    } catch (SAXException ex) {
+      throw new InternalErrorException("Problem with parsing is more complex, not only invalid characters.", ex);
+    } catch (IOException ex) {
+      throw new InternalErrorException("Error when parsing uri by document builder. Problem with input or output.", ex);
+    }
+    return doc;
+  }
 }
