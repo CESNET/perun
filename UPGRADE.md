@@ -1,5 +1,19 @@
 Upgrade notes
 
+## [53.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v53.0.0...v53.1.0) (2026-06-24)
+
+
+### Features
+
+* **core:** optimized implementation of getSubjectsByLogins for ExtSourceXML ([d749cee](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d749ceea82c5ebcf9c496a8ccc31d74438f8f602))
+* **registrar:** substitute in notification templates with new Registrar data ([2e51be4](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2e51be4e1e6fe4104af8f8fcb50603200d3bcee1))
+
+
+### Bug Fixes
+
+* **deps:** update gwtversion to v2.13.1 ([5290a84](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5290a848dd71762257b1aa14b3967f55bb3d237c))
+* **registrar:** do not duplicate service user name to titles ([41acd30](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/41acd30024f0fc7a37a19dabdbae19ba149c40ca))
+
 ## [53.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v52.0.1...v53.0.0) (2026-06-18)
 
 
