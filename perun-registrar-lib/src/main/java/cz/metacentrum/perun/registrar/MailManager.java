@@ -291,6 +291,8 @@ public interface MailManager {
    * new Registrar usage.
    * @param sess
    * @param user
+   * @param issuer identity issuer of the applicant
+   * @param identifier unique identifier of the applicant
    * @param vo
    * @param group
    * @param appType
@@ -298,11 +300,15 @@ public interface MailManager {
    * @param reason
    * @param appId
    * @param mailAddresses mail addresses indexed by their new reg form item data id, id->emailAddress
+   * @param itemsByShortname items' values indexed by shortname, shortname->itemValue
+   * @param destinationValues values of items with a destination attribute, indexed by destination attribute name
    * @throws PerunException
    */
-  void sendMessage(PerunSession sess, User user, Vo vo, Group group, Application.AppType appType,
+  void sendMessage(PerunSession sess, User user, String issuer, String identifier,
+                   Vo vo, Group group, Application.AppType appType,
                    MailType mailType, String reason, UUID appId,
-                   Map<String, String> mailAddresses) throws PerunException;
+                   Map<String, String> mailAddresses,
+                   Map<String, String> itemsByShortname, Map<String, String> destinationValues) throws PerunException;
 
   /**
    * Manually re-send multiple notifications at once. Expected to be called as a result of direct VO administrator
