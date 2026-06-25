@@ -93,9 +93,6 @@ public class SendMessageToRt {
     // append signature
     text += SIGNATURE;
 
-    // appended space after each new line ("\n" to "\n ")
-    text = text.replace("\n", "\n ");
-
     // encode URL
     //text = URL.encode(text);
 
