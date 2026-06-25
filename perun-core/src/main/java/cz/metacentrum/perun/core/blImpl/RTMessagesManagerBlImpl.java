@@ -139,6 +139,8 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
     if (text == null) {
       text = "";
     }
+    // this needs to here, otherwise the RT API will read only the first line
+    text = text.replace("\n", "\n ");
 
     //Prepare credentials
     String username = BeansUtils.getCoreConfig().getRtServiceuserUsername();
