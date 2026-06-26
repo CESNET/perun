@@ -3244,10 +3244,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       }
     }
 
+    boolean isDisabledMember = member.getStatus().equals(Status.DISABLED);
     // Do we extend for x months or for static date?
     if (period != null) {
       if (period.startsWith("+")) {
-        if (!isMemberInGracePeriod(membershipExpirationRules, (String) membershipExpirationAttribute.getValue())) {
+        // do not check for disabled members, they should always be allowed to have expiration set (and be validated)
+        if (!isDisabledMember &&
+                !isMemberInGracePeriod(membershipExpirationRules, (String) membershipExpirationAttribute.getValue())) {
           if (throwExceptions) {
             throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD,
                 (String) membershipExpirationAttribute.getValue(),
@@ -3299,7 +3302,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
             // If we do not need to set the attribute value, only check if the current member's expiration time is
             // not in grace period
-            if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
+            // also do not check for disabled member - we want to allow always
+            if (!isDisabledMember && !setAttributeValue && membershipExpirationAttribute.getValue() != null) {
               LocalDate currentMemberExpiration =
                   LocalDate.parse((String) membershipExpirationAttribute.getValue(), DateTimeFormatter.ISO_LOCAL_DATE);
               currentMemberExpiration = currentMemberExpiration.minus(fieldAmount.getLeft(), fieldAmount.getRight());
