@@ -282,7 +282,8 @@ public class VosManagerEntry implements VosManager {
       throw new PrivilegeException(sess, "findCandidates");
     }
 
-    return vosManagerBl.findCandidates(sess, vo, searchString);
+    List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
+    return vosManagerBl.findCandidates(sess, vo, searchString, extSources, true);
   }
 
   @Override
@@ -297,7 +298,11 @@ public class VosManagerEntry implements VosManager {
       throw new PrivilegeException(sess, "findCandidates");
     }
 
-    return vosManagerBl.findCandidates(sess, group, searchString);
+    Vo vo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
+
+    List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
+    List<Candidate> candidates = vosManagerBl.findCandidates(sess, vo, searchString, extSources, true);
+    return candidates;
   }
 
   @Override

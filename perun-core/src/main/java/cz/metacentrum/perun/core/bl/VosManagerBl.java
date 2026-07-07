@@ -114,25 +114,16 @@ public interface VosManagerBl {
   /**
    * Finds users, who can join the Vo.
    *
-   * @param perunSession
-   * @param vo           vo to be used
-   * @param searchString depends on the extSource of the VO, could by part of the name, email or something like that.
-   * @return list of candidates who match the searchString
+   * @param sess                  session
+   * @param vo                    vo which the candidates can join
+   * @param searchString          string used to search for candidates
+   * @param extSources            external sources to search
+   * @param filterExistingMembers whether to exclude candidates who are already members of the vo
+   * @return candidates from the given external sources who match the search string
    * @throws InternalErrorException
    */
-  List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString);
-
-  /**
-   * Finds users, who can join the group in Vo.
-   *
-   * @param sess
-   * @param group        group to be used
-   * @param searchString depends on the extSource of the Group, could by part of the name, email or something like
-   *                     that.
-   * @return list of candidates who match the searchString
-   * @throws InternalErrorException
-   */
-  List<Candidate> findCandidates(PerunSession sess, Group group, String searchString);
+  List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString,
+                                 List<ExtSource> extSources, boolean filterExistingMembers);
 
   /**
    * Get list of group administrators of the given VO.

@@ -527,6 +527,7 @@ public class VosManagerBlImpl implements VosManagerBl {
     this.deleteVo(sess, vo, false);
   }
 
+  @Override
   public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString,
                                         List<ExtSource> extSources, boolean filterExistingMembers) {
     List<Candidate> candidates = new ArrayList<>();
@@ -628,30 +629,6 @@ public class VosManagerBlImpl implements VosManagerBl {
   }
 
   @Override
-  public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString) {
-    List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
-    return this.findCandidates(sess, vo, searchString, extSources, true);
-  }
-
-  @Override
-  public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) {
-    List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
-    return this.findCandidates(sess, group, searchString, extSources, true);
-  }
-
-  public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString, List<ExtSource> extSources,
-                                        boolean filterExistingMembers) {
-    try {
-      List<Candidate> candidates = findCandidates(sess, getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId()),
-          searchString, extSources, filterExistingMembers);
-      LOG.debug("Got {} potential members for group {}", candidates.size(), group);
-      return candidates;
-    } catch (VoNotExistsException e) {
-      throw new InternalErrorException(e);
-    }
-  }
-
-  @Override
   public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) {
     return getVosManagerImpl().getAdminGroups(perunSession, vo, role);
   }
@@ -729,11 +706,12 @@ public class VosManagerBlImpl implements VosManagerBl {
   public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames,
                                                      String searchString, List<ExtSource> extSources) {
     List<RichUser> richUsers = getRichUsersForMemberCandidates(sess, vo, attrNames, searchString, extSources);
-    List<Candidate> candidates = findCandidates(sess, group, searchString, extSources, false);
 
     if (vo == null) {
       vo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
     }
+
+    List<Candidate> candidates = findCandidates(sess, vo, searchString, extSources, false);
 
     return createMemberCandidates(sess, richUsers, vo, group, candidates, attrNames);
   }
