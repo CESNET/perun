@@ -1272,7 +1272,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Application application4 = setUpApplicationGroup(user4, subGroup2);
 
     ApplicationsPageQuery query =
-        new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE,
+        new ApplicationsPageQuery(4, 0, SortingOrder.ASCENDING, ApplicationsOrderColumn.GROUP_NAME,
             List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), group1.getId(), true);
 
     Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
@@ -1315,7 +1315,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
     Application application6 = setUpApplicationGroup(user6, subsubGroup2);
 
     ApplicationsPageQuery query =
-        new ApplicationsPageQuery(4, 0, SortingOrder.DESCENDING, ApplicationsOrderColumn.STATE,
+        new ApplicationsPageQuery(4, 0, SortingOrder.ASCENDING, ApplicationsOrderColumn.GROUP_NAME,
             List.of(Application.AppState.APPROVED, Application.AppState.VERIFIED), group1.getId(), true);
 
     Paginated<RichApplication> result = registrarManager.getApplicationsPage(session, vo, query);
