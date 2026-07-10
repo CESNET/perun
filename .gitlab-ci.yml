@@ -42,10 +42,33 @@ maven-build:
         POSTGRESQL_DATABASE: perun
         HEALTHCHECK_TCP_PORT: "5432"
 
+# Publish dev (SNAPSHOT) packages to GitLab Package Registry on main branch merges (under <CURRENT_VERSION>-SNAPSHOT):
 deploy:
   stage: deploy
   image: registry.gitlab.ics.muni.cz:443/perun/ci/pipeline-components/maven:3-eclipse-temurin-21
   script:
+    # Gets latest release tag from upstream
+    - |
+      LATEST_TAG="$(
+        git ls-remote --tags --refs origin 'v*' \
+          | awk -F/ '{print $NF}' \
+          | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+          | sort -V \
+          | tail -n1
+      )"
+
+      if [ -z "$LATEST_TAG" ]; then
+        echo "No release tag found"
+        exit 1
+      fi
+
+      RELEASE_VERSION="${LATEST_TAG#v}"
+      SNAPSHOT_VERSION="${RELEASE_VERSION}-SNAPSHOT"
+
+      echo "Latest release tag: ${LATEST_TAG}"
+      echo "Publishing perun-openapi as ${SNAPSHOT_VERSION}"
+    # Set version in pom.xml to <version>-SNAPSHOT
+    - mvn -B -s ci_settings.xml versions:set -DnewVersion="${SNAPSHOT_VERSION}" -DgenerateBackupPoms=false
     - 'mvn deploy -s ci_settings.xml -DskipTests'
   rules:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != 'schedule' && $CI_PIPELINE_SOURCE != 'trigger'"
