@@ -13,10 +13,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +119,9 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
 
           // translate CSV column names to perun attribute URNs
           for (String key : rowAsMap.keySet()) {
-            singleSubject.put(attributeMapping.get(key), rowAsMap.get(key));
+            if (attributeMapping.get(key) != null) {
+              singleSubject.put(attributeMapping.get(key), rowAsMap.get(key));
+            }
           }
 
           subjects.add(singleSubject);
@@ -266,17 +270,66 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
 
   @Override
   public Map<String, Map<String, String>> getSubjectsByLogins(List<String> logins) {
-    // TODO introduce an optimization in here
-    Map<String, Map<String, String>> subjects = new LinkedHashMap<>();
-    // sorted for deterministic order in logs
-    for (String login : logins.stream().sorted().toList()) {
-      try {
-        subjects.put(login, getSubjectByLogin(login));
-      } catch (SubjectNotExistsException e) {
-        subjects.put(login, null);
+    Map<String, Map<String, String>> loginSubjectsMap = new LinkedHashMap<>();
+    Set<String> loginsSet = new HashSet<>(logins);
+
+    try {
+      query = getAttributes().get("loginQuery");
+
+      if (query == null || query.isEmpty()) {
+        throw new InternalErrorException("loginQuery attribute is required");
       }
+
+      int index = query.indexOf("=");
+      if (index <= 0) {
+        throw new InternalErrorException(
+            "loginQuery must always be in form of 'colName=?'. Got '" + query + "' instead.");
+      }
+      String loginColumn = query.substring(0, index).trim();
+
+      prepareFile();
+      File file = new File(this.file);
+
+      Map<String, String> attributeMapping = getCsvMapping();
+      CsvMapper mapper = new CsvMapper();
+      CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+      // Fetch the subjects for all logins on a single passthrough
+      try (MappingIterator<Map<String, String>> it =
+               mapper.readerFor(Map.class).with(schema).readValues(file)) {
+        while (it.hasNext()) {
+          Map<String, String> rowAsMap = it.next();
+          String loginValue = rowAsMap.get(loginColumn);
+
+          if (loginValue == null || !loginsSet.contains(loginValue)) {
+            continue;
+          }
+          if (loginSubjectsMap.containsKey(loginValue)) {
+            throw new InternalErrorException("External source must return exactly one result" +
+                                             ", but returned more for search string: " + loginValue);
+          }
+
+          Map<String, String> mappedSubject = new HashMap<>();
+          for (Map.Entry<String, String> entry : rowAsMap.entrySet()) {
+            String mappedAttr = attributeMapping.get(entry.getKey());
+            if (mappedAttr != null) {
+              mappedSubject.put(mappedAttr, entry.getValue());
+            }
+          }
+
+          loginSubjectsMap.put(loginValue, mappedSubject);
+        }
+      }
+
+      // The logins not found are for the caller to deal with
+      loginsSet.forEach(login -> loginSubjectsMap.putIfAbsent(login, null));
+      return loginSubjectsMap;
+
+    } catch (IOException e) {
+      LOG.error("IOException in getSubjectsByLogins() method while parsing csv file", e);
     }
-    return subjects;
+
+    return loginSubjectsMap;
   }
 
   @Override
