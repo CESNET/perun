@@ -1,5 +1,21 @@
 Upgrade notes
 
+## [53.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v53.1.0...v53.2.0) (2026-07-14)
+
+
+### Features
+
+* **core:** optimized implementation of getSubjectsByLogins for ExtSourceCSV ([4b74daf](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4b74daf7197e389b78d4a6c4cf8e1fa4db084ac0))
+
+
+### Bug Fixes
+
+* **core:** the RT ticket throwing away subsequent lines ([40c270f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/40c270fdcba8496b2e0682aca83100b06e31595c))
+* **deps:** update dependency com.puppycrawl.tools.checkstyle ([fbbcf57](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fbbcf57ada8960a16a4bdf4cbd441293fc5df98d))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.85 ([fd0c42a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fd0c42a3aec91081b7c4b40505210da7d5136996))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.16 ([a35606b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/a35606bbb77064e4608644d6166da3b60f479b2f))
+* getApplicationsPageForGroupdWithSubgroupRecursive was flaky ([e75c646](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e75c6465a01a66f8f0b14e6aa5c12dd14d2378f1))
+
 ## [53.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v53.0.0...v53.1.0) (2026-06-24)
 
 
