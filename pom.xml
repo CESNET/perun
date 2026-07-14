@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.15</version>
+		<version>3.5.16</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -71,7 +71,7 @@
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
 		<flying-saucer-pdf.version>9.13.3</flying-saucer-pdf.version>
-		<bouncycastle.version>1.84</bouncycastle.version>
+		<bouncycastle.version>1.85</bouncycastle.version>
 		<google-api-services-admin-directory.version>directory_v1-rev20260531-2.0.0</google-api-services-admin-directory.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
@@ -221,7 +221,7 @@
 						<dependency>
 						  <groupId>com.puppycrawl.tools</groupId>
 						  <artifactId>checkstyle</artifactId>
-						  <version>11.1.0</version>
+						  <version>13.8.0</version>
 						</dependency>
 					  </dependencies>
 			  	</plugin>
