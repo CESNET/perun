@@ -253,6 +253,9 @@ public interface GroupsManagerBl {
   boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group)
       throws ExtendMembershipException;
 
+  boolean canExtendInNewRegistrarGroup(PerunSession sess, Member member, Group group)
+      throws ExtendMembershipException;
+
   void checkGroupExists(PerunSession sess, Group group) throws GroupNotExistsException;
 
   /**

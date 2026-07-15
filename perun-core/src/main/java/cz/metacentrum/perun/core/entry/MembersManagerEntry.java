@@ -213,6 +213,20 @@ public class MembersManagerEntry implements MembersManager {
     return getMembersManagerBl().canExtendMembershipWithReason(sess, member);
   }
 
+  @Override
+  public boolean canExtendInNewRegistrar(PerunSession sess, Member member)
+      throws PrivilegeException, MemberNotExistsException, ExtendMembershipException {
+    Utils.checkPerunSession(sess);
+    getMembersManagerBl().checkMemberExists(sess, member);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "canExtendMembershipWithReason_Member_policy", member)) {
+      throw new PrivilegeException(sess, "canExtendInNewRegistrar");
+    }
+
+    return getMembersManagerBl().canExtendInNewRegistrar(sess, member);
+  }
+
   /**
    * Converts member to member with sponsors and sets all his sponsors.
    *

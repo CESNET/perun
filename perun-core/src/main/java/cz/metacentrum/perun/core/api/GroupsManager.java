@@ -265,6 +265,9 @@ public interface GroupsManager {
   boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group)
       throws MemberNotExistsException, GroupNotExistsException, PrivilegeException, ExtendMembershipException;
 
+  boolean canExtendInNewRegistrarGroup(PerunSession sess, Member member, Group group)
+      throws MemberNotExistsException, GroupNotExistsException, PrivilegeException, ExtendMembershipException;
+
   /**
    * Copies direct members from one group to other groups in the same VO. The members are copied without their
    * member-group attributes. Copies all direct members if members list is empty or null.

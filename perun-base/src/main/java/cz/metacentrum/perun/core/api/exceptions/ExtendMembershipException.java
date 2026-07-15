@@ -94,7 +94,8 @@ public class ExtendMembershipException extends PerunException {
     INSUFFICIENTLOA, // User has LoA which is not allowed in the VO
     INSUFFICIENTLOAFOREXTENSION, // User cannot extend membership because has insufficient LoA
     OUTSIDEEXTENSIONPERIOD, // We are not in grace period, so do not allow extension
-    LIFECYCLENOTALTERABLE // membership is managed by hierarchical vo relations, we can't extend membership
+    LIFECYCLENOTALTERABLE, // membership is managed by hierarchical vo relations, we can't extend membership
+    NEVEREXPIRE // VO is managed by lifecycle and member expiration is set to NEVER - for new Registrar
   }
 
 }

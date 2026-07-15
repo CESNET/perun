@@ -44,6 +44,7 @@ import cz.metacentrum.perun.core.api.GroupsPageQuery;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.Pair;
@@ -807,6 +808,33 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     }
     extendMembershipInGroup(sess, member, group, false);
     return true;
+  }
+
+  @Override
+  public boolean canExtendInNewRegistrarGroup(PerunSession sess, Member member, Group group)
+      throws ExtendMembershipException {
+    try {
+      // check the NEVER expiration
+      Vo vo = perunBl.getVosManagerBl().getVoById(sess, member.getVoId());
+      Attribute membershipExpirationRulesAttr =
+          perunBl.getAttributesManagerBl().getAttribute(sess, vo,
+              MembersManager.MEMBERSHIP_EXPIRATION_RULES_ATTRIBUTE_NAME);
+      Attribute memberExpiration =
+          perunBl.getAttributesManagerBl().getAttribute(sess, member,
+              MembersManager.MEMBERSHIP_EXPIRATION_ATTRIBUTE_NAME);
+      LinkedHashMap<String, String> membershipExpirationRules = membershipExpirationRulesAttr.valueAsMap();
+
+      if (membershipExpirationRulesAttr.getValue() != null &&
+            "true".equals(membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED)) &&
+              memberExpiration.getValue() == null) {
+        throw new ExtendMembershipException(ExtendMembershipException.Reason.NEVEREXPIRE,
+            "Members with expiration set to NEVER cannot apply for " +
+                "membership extension in VOs with defined expiration rules.");
+      }
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException | VoNotExistsException e) {
+      // ignore, shouldn't happen
+    }
+    return canExtendMembershipInGroupWithReason(sess, member, group);
   }
 
   /**
