@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.rpc.serializer;
 
-import com.lowagie.text.DocumentException;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -8,6 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.openpdf.text.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xhtmlrenderer.pdf.ITextRenderer;
