@@ -285,6 +285,22 @@ public class GroupsManagerEntry implements GroupsManager {
   }
 
   @Override
+  public boolean canExtendInNewRegistrarGroup(PerunSession sess, Member member, Group group)
+      throws MemberNotExistsException, GroupNotExistsException, PrivilegeException, ExtendMembershipException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+    getGroupsManagerBl().checkGroupExists(sess, group);
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "canExtendMembershipInGroupWithReason_Member_Group_policy",
+        Arrays.asList(member, group))) {
+      throw new PrivilegeException(sess, "canExtendInNewRegistrarGroup");
+    }
+
+    return getGroupsManagerBl().canExtendMembershipInGroupWithReason(sess, member, group);
+  }
+
+  @Override
   public void copyMembers(PerunSession sess, Group sourceGroup, List<Group> destinationGroups, List<Member> members)
       throws WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException,
                  MemberNotExistsException, GroupGroupMismatchException, PrivilegeException, ExternallyManagedException,

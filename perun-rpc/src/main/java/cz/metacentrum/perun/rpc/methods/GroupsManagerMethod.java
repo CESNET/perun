@@ -2771,6 +2771,26 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Checks whether member can submit extension application in new Registrar for the group or if no rules were set for
+   * the membershipExpiration
+   *
+   * @param member int Member <code>id</code>
+   * @return boolean True if can extend
+   *
+   * @throw GroupNotExistsException If any group not exists in perun
+   * @throw MemberNotExistsException When member doesn't exist
+   * @throw ExtendMembershipException When member can't extend membership, reason is specified in exception text.
+   */
+  canExtendInNewRegistrarGroup {
+    @Override
+    public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getGroupsManager().canExtendInNewRegistrarGroup(ac.getSession(),
+          ac.getMemberById(parms.readInt("member")),
+          ac.getGroupById(parms.readInt("group")));
+    }
+  },
+
+  /*#
    * Get unique paths of groups via which member is indirectly included to the group.
    * Cuts off after first included group.
    *

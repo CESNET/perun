@@ -169,6 +169,10 @@ public interface MembersManager {
   boolean canExtendMembershipWithReason(PerunSession sess, Member member)
       throws ExtendMembershipException, PrivilegeException, MemberNotExistsException;
 
+  boolean canExtendInNewRegistrar(PerunSession sess, Member member) throws ExtendMembershipException,
+                                                                               PrivilegeException,
+                                                                               MemberNotExistsException;
+
   /**
    * Set another user (copyTo) as sponsor of sponsored members of user (copyFrom). If the copyValidity flag is set to
    * true, also set the validity to the same value as the existing sponsorship. Otherwise set validity to the value of

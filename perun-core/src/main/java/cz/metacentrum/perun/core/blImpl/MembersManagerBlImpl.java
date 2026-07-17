@@ -4,6 +4,8 @@ import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_AT
 import static cz.metacentrum.perun.core.impl.Utils.getEmailMessagePartFromEntitylessAttribute;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.EXPIRE_SPONSORED_MEMBERS;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON;
+import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SUBMIT_BUTTON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -94,6 +96,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -121,6 +124,8 @@ import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
+import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -440,6 +445,32 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
     Pair<Boolean, Date> ret = this.manageMembershipExpiration(sess, member, false, true);
     return ret.getLeft();
+  }
+
+  @Override
+  public boolean canExtendInNewRegistrar(PerunSession sess, Member member) throws ExtendMembershipException {
+    try {
+      // check the NEVER expiration
+      Vo vo = perunBl.getVosManagerBl().getVoById(sess, member.getVoId());
+      Attribute membershipExpirationRulesAttr =
+          perunBl.getAttributesManagerBl().getAttribute(sess, vo,
+              MembersManager.MEMBERSHIP_EXPIRATION_RULES_ATTRIBUTE_NAME);
+      Attribute memberExpiration =
+          perunBl.getAttributesManagerBl().getAttribute(sess, member,
+              MembersManager.MEMBERSHIP_EXPIRATION_ATTRIBUTE_NAME);
+      LinkedHashMap<String, String> membershipExpirationRules = membershipExpirationRulesAttr.valueAsMap();
+
+      if (membershipExpirationRulesAttr.getValue() != null &&
+            "true".equals(membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED)) &&
+              memberExpiration.getValue() == null) {
+        throw new ExtendMembershipException(ExtendMembershipException.Reason.NEVEREXPIRE,
+            "Members with expiration set to NEVER cannot apply for " +
+                "membership extension in VOs with defined expiration rules.");
+      }
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException | VoNotExistsException e) {
+      // ignore, shouldn't happen
+    }
+    return canExtendMembershipWithReason(sess, member);
   }
 
   @Override
