@@ -1,4 +1,4 @@
--- database version 3.2.36 (don't forget to update insert statement at the end of file)
+-- database version 3.2.37 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1617,6 +1617,7 @@ create type mail_type as enum (
 	'APP_APPROVED_USER',
 	'APP_REJECTED_USER',
 	'APP_ERROR_VO_ADMIN',
+    'APP_CHANGES_REQUESTED',
 	'USER_INVITE',
     'USER_PRE_APPROVED_INVITE'
 );
@@ -1953,7 +1954,7 @@ grant all on auto_registration_groups to perun;
 grant all on invitations to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.2.36');
+insert into configurations values ('DATABASE VERSION','3.2.37');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

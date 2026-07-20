@@ -2822,6 +2822,7 @@ public class MailManagerImpl implements MailManager {
       switch (mailType) {
         case APP_APPROVED_USER:
         case APP_REJECTED_USER:
+        case APP_CHANGES_REQUESTED:
           sendUserMessage(app, mail, new ArrayList<>(), reason, new ArrayList<>(), mailType, true, appId, appData);
           break;
         case APP_CREATED_VO_ADMIN:

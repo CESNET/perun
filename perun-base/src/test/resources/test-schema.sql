@@ -1,4 +1,4 @@
--- database version 3.2.36 (don't forget to update insert statement at the end of file)
+-- database version 3.2.37 (don't forget to update insert statement at the end of file)
 CREATE
 EXTENSION IF NOT EXISTS "unaccent";
 CREATE
@@ -1732,6 +1732,7 @@ create type mail_type as enum (
 	'APP_APPROVED_USER',
 	'APP_REJECTED_USER',
 	'APP_ERROR_VO_ADMIN',
+    'APP_CHANGES_REQUESTED',
 	'USER_INVITE',
     'USER_PRE_APPROVED_INVITE'
 );
@@ -1969,7 +1970,7 @@ create index idx_fk_blk_attr_attr_names on blocked_attr_values(attr_id);
 
 -- set initial Perun DB version
 insert into configurations
-values ('DATABASE VERSION', '3.2.36');
+values ('DATABASE VERSION', '3.2.37');
 insert into configurations
 values ('suspendGroupSync', 'false');
 insert into configurations
