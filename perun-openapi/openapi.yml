@@ -1166,6 +1166,7 @@ components:
         - APP_APPROVED_USER
         - APP_REJECTED_USER
         - APP_ERROR_VO_ADMIN
+        - APP_CHANGES_REQUESTED
         - USER_INVITE
         - USER_PRE_APPROVED_INVITE
 

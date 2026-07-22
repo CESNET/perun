@@ -292,6 +292,12 @@ public class ApplicationMail {
     APP_ERROR_VO_ADMIN,
 
     /**
+     * Notification to user when admin requests changes to the application
+     */
+    APP_CHANGES_REQUESTED,
+
+
+    /**
      * Notification to User with invitation to VO / group
      */
     USER_INVITE,
