@@ -1,9 +1,6 @@
 package cz.metacentrum.perun.auditlogger.logger.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import cz.metacentrum.perun.auditlogger.logger.EventLogger;
 import cz.metacentrum.perun.auditlogger.service.AuditLoggerManager;
 import cz.metacentrum.perun.core.api.AuditMessage;
@@ -19,13 +16,16 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 /**
  * Class containing the core logic of AuditLogger. It retrieves the last processed event ID from the configured file,
@@ -46,19 +46,17 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 
   private static final Logger JOURNAL = LoggerFactory.getLogger(AUDIT_LOGGER_NAME);
 
-  private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
-  private static final ObjectMapper MAPPER = new ObjectMapper();
-
-  static {
-    JavaTimeModule module = new JavaTimeModule();
-    MAPPER.registerModule(module);
-    // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
-    MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-    MAPPER.enableDefaultTyping();
-    // TODO - skip any problematic properties using interfaces for mixins
-    MAPPER.setMixIns(MIXIN_MAP);
-  }
+  private static final JsonMapper MAPPER = JsonMapper.builder()
+                                               .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                                               .activateDefaultTyping(
+                                                   BasicPolymorphicTypeValidator.builder()
+                                                       .allowIfSubType("cz.metacentrum.perun.")
+                                                       .allowIfSubType("java.")
+                                                       .build(),
+                                                   DefaultTyping.OBJECT_AND_NON_CONCRETE,
+                                                   JsonTypeInfo.As.WRAPPER_ARRAY
+                                               )
+                                               .build();
 
   @Autowired
   private AuditLoggerManager auditLoggerManager;
@@ -100,7 +98,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
   public int logMessage(AuditMessage message) {
     try {
       JOURNAL.info(MAPPER.writeValueAsString(message));
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       LOG.error("Unable to write audit message: {}", message, e);
       return -1;
     }

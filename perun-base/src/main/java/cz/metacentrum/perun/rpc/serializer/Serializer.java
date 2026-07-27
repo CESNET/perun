@@ -2,7 +2,6 @@ package cz.metacentrum.perun.rpc.serializer;
 
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
-import java.io.IOException;
 
 /**
  * Subclasses of {@code Serializer} class provide methods to serialize PerunAPI's datatypes (as JSON, for example).
@@ -19,21 +18,19 @@ public abstract interface Serializer {
    */
   String getContentType();
 
-  void write(Object object) throws IOException;
+  void write(Object object);
 
   /**
    * Serializes {@code PerunException}.
    *
    * @param pex {@code PerunException} to serialize
-   * @throws IOException If an IO error occurs
    */
-  void writePerunException(PerunException pex) throws IOException;
+  void writePerunException(PerunException pex);
 
   /**
    * Serializes {@code PerunRuntimeException}.
    *
    * @param prex {@code PerunRuntimeException} to serialize
-   * @throws IOException If an IO error occurs
    */
-  void writePerunRuntimeException(PerunRuntimeException prex) throws IOException;
+  void writePerunRuntimeException(PerunRuntimeException prex);
 }

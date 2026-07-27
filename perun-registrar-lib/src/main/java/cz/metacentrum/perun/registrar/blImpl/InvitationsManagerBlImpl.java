@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.registrar.blImpl;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvParser;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -40,6 +36,10 @@ import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.MappingIterator;
+import tools.jackson.dataformat.csv.CsvMapper;
+import tools.jackson.dataformat.csv.CsvReadFeature;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 public class InvitationsManagerBlImpl implements InvitationsManagerBl {
 
@@ -396,8 +396,7 @@ public class InvitationsManagerBlImpl implements InvitationsManagerBl {
    * @return list of list of row values
    */
   private List<List<String>> parseInvitationCsv(List<String> data) throws IOException {
-    CsvMapper csvMapper = new CsvMapper();
-    csvMapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
+    CsvMapper csvMapper = CsvMapper.builder().enable(CsvReadFeature.WRAP_AS_ARRAY).build();
     MappingIterator<List<String>> rows = csvMapper.readerFor(List.class)
         .with(CsvSchema.emptySchema().withColumnSeparator(';'))
         .readValues(String.join("\n", data));

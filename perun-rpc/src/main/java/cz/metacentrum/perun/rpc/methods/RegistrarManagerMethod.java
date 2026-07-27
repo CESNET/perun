@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.JsonNode;
 
 public enum RegistrarManagerMethod implements ManagerMethod {
 

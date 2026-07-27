@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import java.io.FileNotFoundException;
@@ -17,10 +13,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 public class LoginNamespacesRulesConfigLoader {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
+  private static final YAMLMapper OBJECT_MAPPER = YAMLMapper.builder().build();
   private static final Logger LOG = LoggerFactory.getLogger(LoginNamespacesRulesConfigLoader.class);
 
   private Resource configurationPath;
@@ -62,7 +61,7 @@ public class LoginNamespacesRulesConfigLoader {
     JsonNode namespacesNodes = rootNode.get("namespaces");
 
     // For each namespace node construct NamespaceRules and add it to the set
-    Iterator<String> namespacesNames = namespacesNodes.fieldNames();
+    Iterator<String> namespacesNames = namespacesNodes.propertyNames().iterator();
     while (namespacesNames.hasNext()) {
       String namespaceName = namespacesNames.next();
       JsonNode namespaceNode = namespacesNodes.get(namespaceName);
@@ -79,17 +78,17 @@ public class LoginNamespacesRulesConfigLoader {
 
       NamespaceRules namespaceRules = new NamespaceRules();
       namespaceRules.setNamespaceName(namespaceName);
-      namespaceRules.setDefaultEmail(defaultEmail.asText());
+      namespaceRules.setDefaultEmail(defaultEmail.asString());
       namespaceRules.setRequiredAttributes(requiredAttributes);
       namespaceRules.setOptionalAttributes(optionalAttributes);
       if (csvGenHeader != null && !csvGenHeader.isNull()) {
-        namespaceRules.setCsvGenHeader(csvGenHeader.asText());
+        namespaceRules.setCsvGenHeader(csvGenHeader.asString());
       }
       if (csvGenPlaceholder != null && !csvGenPlaceholder.isNull()) {
-        namespaceRules.setCsvGenPlaceholder(csvGenPlaceholder.asText());
+        namespaceRules.setCsvGenPlaceholder(csvGenPlaceholder.asString());
       }
       if (csvGenHeaderDescription != null && !csvGenHeaderDescription.isNull()) {
-        namespaceRules.setCsvGenHeaderDescription(csvGenHeaderDescription.asText());
+        namespaceRules.setCsvGenHeaderDescription(csvGenHeaderDescription.asString());
       }
 
       rules.add(namespaceRules);

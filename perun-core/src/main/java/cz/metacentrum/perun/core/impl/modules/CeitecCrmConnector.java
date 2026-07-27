@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Connector class used to call CEITEC CRM API.
@@ -383,7 +383,7 @@ public class CeitecCrmConnector {
           throw new ClientProtocolException("CRM API token endpoint response contains no content.");
         }
         try (InputStream instream = entity.getContent()) {
-          return new ObjectMapper().readValue(instream, AccessToken.class);
+          return JsonMapper.builder().build().readValue(instream, AccessToken.class);
         }
       };
 

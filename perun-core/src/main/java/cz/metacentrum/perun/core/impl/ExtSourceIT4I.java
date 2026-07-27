@@ -2,8 +2,6 @@ package cz.metacentrum.perun.core.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -46,6 +44,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.CollectionType;
 
 /**
  * Implementation of ExtSource for IT4I SCS API. It is used to retrieve groups (projects) from IT4I including group
@@ -140,9 +140,9 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
             throw new ClientProtocolException("Response contains no content");
           }
 
-          ObjectMapper mapper = new ObjectMapper();
+          JsonMapper mapper = JsonMapper.builder().build();
           CollectionType collectionType =
-              new ObjectMapper().getTypeFactory().constructCollectionType(List.class, String.class);
+              mapper.getTypeFactory().constructCollectionType(List.class, String.class);
 
           try (InputStream instream = entity.getContent()) {
             return mapper.readValue(instream, collectionType);
@@ -245,9 +245,9 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
           throw new ClientProtocolException("Response contains no content");
         }
 
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.builder().build();
         CollectionType collectionType =
-            new ObjectMapper().getTypeFactory().constructCollectionType(List.class, IT4IGroup.class);
+            mapper.getTypeFactory().constructCollectionType(List.class, IT4IGroup.class);
 
         try (InputStream instream = entity.getContent()) {
           return mapper.readValue(instream, collectionType);
@@ -317,7 +317,7 @@ public class ExtSourceIT4I extends ExtSourceImpl implements ExtSourceSimpleApi {
           throw new ClientProtocolException("Response contains no content");
         }
         try (InputStream instream = entity.getContent()) {
-          return new ObjectMapper().readValue(instream, AccessToken.class);
+          return JsonMapper.builder().build().readValue(instream, AccessToken.class);
         }
 
       }

@@ -51,7 +51,10 @@
                                 <library>resttemplate</library>
                                 <!-- Use Jakarta Package -->
                                 <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJackson3>true</useJackson3>
+                                <!-- Turn off the legacy Jackson 2 nullable wrapper -->
+                                <openApiNullable>false</openApiNullable>
                                 <!-- options for generating target/generated-sources/openapi/pom.xml which is not used -->
                                 <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
                                 <licenseName>Apache 2.0</licenseName>
@@ -94,13 +97,8 @@
             <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openapitools</groupId>
-            <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.11</version>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>

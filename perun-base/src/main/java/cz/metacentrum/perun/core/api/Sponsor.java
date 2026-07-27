@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.core.api;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import cz.metacentrum.perun.rpc.stdserializers.LocalDateSerializer;
 import java.time.LocalDate;
 import java.util.List;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Class representing a Sponsor for some specific member. This object contains information about the validity of this

@@ -2,7 +2,6 @@ package cz.metacentrum.perun.scim.api.endpoints;
 
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_USER;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -16,11 +15,12 @@ import cz.metacentrum.perun.scim.api.entities.EmailSCIM;
 import cz.metacentrum.perun.scim.api.entities.UserSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Endpoint controller, that returns all user resources.
@@ -71,7 +71,7 @@ public class UserResourceEndpointController {
     }
     try {
       User perunUser = perunBl.getUsersManagerBl().getUserById(session, Integer.parseInt(identifier));
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.builder().build();
       return Response.ok(mapper.writeValueAsString(mapPerunUserToScimUser(perunUser))).build();
     } catch (InternalErrorException ex) {
       log.warn("Internal exception occured while getting user with id {}.", identifier);
@@ -79,7 +79,7 @@ public class UserResourceEndpointController {
     } catch (UserNotExistsException ex) {
       log.warn("User with id {} does not exists.", identifier);
       return Response.status(Response.Status.NOT_FOUND).build();
-    } catch (IOException ex) {
+    } catch (JacksonException ex) {
       throw new SCIMException("Cannot convert user resource to json string", ex);
     }
   }
@@ -90,7 +90,7 @@ public class UserResourceEndpointController {
     UserSCIM result = new UserSCIM();
     EmailSCIM email = getEmail(perunUser);
     if (email != null) {
-      List emails = new ArrayList<>();
+      List<EmailSCIM> emails = new ArrayList<>();
       emails.add(email);
       result.setEmails(emails);
     }

@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.SponsorshipExpired;
@@ -31,6 +30,7 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Integration tests of AuditMessagesManager.
@@ -154,7 +154,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
     createdAuditMessage.setEvent(facilityCreatedEvent);
   }
 
-  private void testAuditEventMapper(ObjectMapper mapper, AuditEvent event) throws Exception {
+  private void testAuditEventMapper(JsonMapper mapper, AuditEvent event) throws Exception {
     String value = mapper.writeValueAsString(event);
 
     AuditEvent deserializedEvent = mapper.readValue(value, AuditEvent.class);
@@ -296,7 +296,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
             "auditMessagesManagerImpl");
     assertThat(auditMessagesManagerImpl).isNotNull();
 
-    ObjectMapper mapper = (ObjectMapper) ReflectionTestUtils.getField(auditMessagesManagerImpl, "MAPPER");
+    JsonMapper mapper = (JsonMapper) ReflectionTestUtils.getField(auditMessagesManagerImpl, "MAPPER");
     assertThat(mapper).isNotNull();
 
     AuditEvent event = new SponsorshipEstablished(null, null, LocalDate.MIN);
@@ -305,7 +305,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 
     EnrichedSponsorship enrichedSponsorship = new EnrichedSponsorship();
     enrichedSponsorship.setValidityTo(LocalDate.MAX);
-    AuditEvent event2 = new SponsorshipExpired();
+    AuditEvent event2 = new SponsorshipExpired(enrichedSponsorship);
 
     testAuditEventMapper(mapper, event2);
   }

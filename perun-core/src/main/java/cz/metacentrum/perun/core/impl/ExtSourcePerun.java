@@ -88,12 +88,7 @@ public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
       this.processIOException(ex);
     }
 
-    JsonDeserializer des = null;
-    try {
-      des = new JsonDeserializer(rpcServerAnswer);
-    } catch (IOException ex) {
-      this.processIOException(ex);
-    }
+    JsonDeserializer des = new JsonDeserializer(rpcServerAnswer);
 
     return des;
   }

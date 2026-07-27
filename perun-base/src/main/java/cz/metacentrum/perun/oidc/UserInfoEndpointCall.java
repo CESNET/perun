@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.oidc;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -16,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
+import tools.jackson.databind.JsonNode;
 
 /**
  * Class for executing call to User info endpoint.
@@ -35,8 +34,8 @@ public class UserInfoEndpointCall {
     HttpEntity<Void> entity = new HttpEntity<>(headers);
     ResponseEntity<JsonNode> userInfoResponse;
     try {
-      userInfoResponse =
-          restTemplate.exchange(config.path("userinfo_endpoint").textValue(), HttpMethod.GET, entity, JsonNode.class);
+      userInfoResponse = restTemplate.exchange(config.path("userinfo_endpoint").stringValue(), HttpMethod.GET, entity,
+          JsonNode.class);
     } catch (HttpClientErrorException ex) {
       if (ex.getStatusCode() == HttpStatus.FORBIDDEN) {
         LOG.error("Token {} is no longer valid for issuer: {}", accessToken, issuer);
@@ -50,7 +49,7 @@ public class UserInfoEndpointCall {
       }
     }
     JsonNode userInfo = userInfoResponse.getBody();
-    if (StringUtils.isNotEmpty(userInfo.path("error").asText())) {
+    if (StringUtils.isNotEmpty(userInfo.path("error").asString())) {
       LOG.error("Call to user info endpoint failed, the error is: {}", userInfo);
       throw new InternalErrorException("Call to user info endpoint failed, the error is" + userInfo);
     }
@@ -65,12 +64,12 @@ public class UserInfoEndpointCall {
    * @param additionalInformation
    */
   private void fillAdditionalInformationWithDataFromUserInfo(JsonNode userInfo,
-                                                             Map<String, String> additionalInformation) {
-    //retrieving name
-    String name = userInfo.path("name").asText();
+      Map<String, String> additionalInformation) {
+    // retrieving name
+    String name = userInfo.path("name").asString();
     if (StringUtils.isEmpty(name)) {
-      String firstName = userInfo.path("given_name").asText();
-      String familyName = userInfo.path("family_name").asText();
+      String firstName = userInfo.path("given_name").asString();
+      String familyName = userInfo.path("family_name").asString();
       if (StringUtils.isNotEmpty(firstName) && StringUtils.isNotEmpty(familyName)) {
         name = firstName + " " + familyName;
       }
@@ -79,13 +78,13 @@ public class UserInfoEndpointCall {
       additionalInformation.put("displayName", name);
     }
 
-    //retrieving email
-    String email = userInfo.path("email").asText();
+    // retrieving email
+    String email = userInfo.path("email").asString();
     if (StringUtils.isNotEmpty(email)) {
       additionalInformation.put("mail", email);
     }
 
-    //retrieve friendly IdP name from the nested property
+    // retrieve friendly IdP name from the nested property
     List<String> pathToIdpName = BeansUtils.getCoreConfig().getUserInfoEndpointExtSourceFriendlyName();
     JsonNode node = userInfo;
     String idpName = "";
@@ -94,8 +93,8 @@ public class UserInfoEndpointCall {
       if (node.isArray()) {
         node = node.get(0);
       }
-      if (node.isTextual()) {
-        idpName = node.asText();
+      if (node.isString()) {
+        idpName = node.asString();
       }
     }
     if (StringUtils.isNotEmpty(idpName)) {
@@ -118,8 +117,8 @@ public class UserInfoEndpointCall {
       if (loginNode.isArray()) {
         loginNode = loginNode.get(0);
       }
-      if (loginNode.isTextual()) {
-        login = loginNode.asText();
+      if (loginNode.isString()) {
+        login = loginNode.asString();
       }
       if (StringUtils.isNotEmpty(login)) {
         return login;
@@ -139,7 +138,7 @@ public class UserInfoEndpointCall {
    */
   private String getExtSourceName(JsonNode userInfo) {
     String pathToExtSourceName = BeansUtils.getCoreConfig().getUserInfoEndpointExtSourceName();
-    String extSourceName = userInfo.path(pathToExtSourceName).asText();
+    String extSourceName = userInfo.path(pathToExtSourceName).asString();
     if (StringUtils.isEmpty(extSourceName)) {
       LOG.info("issuer from user info endpoint was empty or null: {}", extSourceName);
     }

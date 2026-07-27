@@ -2,15 +2,15 @@ package cz.metacentrum.perun.core.impl.modules;
 
 import static cz.metacentrum.perun.core.impl.Utils.notNull;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import cz.metacentrum.perun.core.api.exceptions.rt.ModulePropertyNotFoundException;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
@@ -37,16 +37,17 @@ public class ModulesYamlConfigLoader implements ModulesConfigLoader {
    */
   private static JsonNode loadModulesYamlFile(String path) {
     try {
-      YAMLMapper mapper = new YAMLMapper();
+      YAMLMapper mapper = YAMLMapper.builder().build();
       return mapper.readTree(new File(path));
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       LOG.error("Failed to load a module's yaml property file at: {}", path);
       throw new ModulePropertyNotFoundException("Failed to load a module's yaml property file.", e);
     }
   }
 
   /**
-   * Parse a corresponding JsonNode from the given root node, with the specified property name. The syntax supports a
+   * Parse a corresponding JsonNode from the given root node, with the specified
+   * property name. The syntax supports a
    * dot notation to identify children nodes. Eg: oidc.client.id.
    *
    * @param root         root node
@@ -128,7 +129,7 @@ public class ModulesYamlConfigLoader implements ModulesConfigLoader {
     if (propertyNode == null || propertyNode.isNull()) {
       throw new ModulePropertyNotFoundException(moduleName, property);
     }
-    return propertyNode.asText();
+    return propertyNode.asString();
   }
 
   @Override
@@ -138,7 +139,7 @@ public class ModulesYamlConfigLoader implements ModulesConfigLoader {
       throw new ModulePropertyNotFoundException(moduleName, property);
     }
     List<String> values = new ArrayList<>();
-    propertyNode.iterator().forEachRemaining(node -> values.add(node.asText()));
+    propertyNode.iterator().forEachRemaining(node -> values.add(node.asString()));
     return values;
   }
 
@@ -149,7 +150,7 @@ public class ModulesYamlConfigLoader implements ModulesConfigLoader {
       return defaultValue;
     }
     List<String> values = new ArrayList<>();
-    propertyNode.iterator().forEachRemaining(node -> values.add(node.asText()));
+    propertyNode.iterator().forEachRemaining(node -> values.add(node.asString()));
     return values;
   }
 
@@ -159,7 +160,7 @@ public class ModulesYamlConfigLoader implements ModulesConfigLoader {
     if (propertyNode == null || propertyNode.isNull()) {
       return defaultValue;
     }
-    return propertyNode.asText();
+    return propertyNode.asString();
   }
 
   @Override
