@@ -70,9 +70,9 @@
 		<dom4j.version>2.2.0</dom4j.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.11</expiringmap.version>
-		<flying-saucer-pdf.version>9.13.3</flying-saucer-pdf.version>
+		<flying-saucer-pdf.version>10.4.0</flying-saucer-pdf.version>
 		<bouncycastle.version>1.85</bouncycastle.version>
-		<google-api-services-admin-directory.version>directory_v1-rev20260531-2.0.0</google-api-services-admin-directory.version>
+		<google-api-services-admin-directory.version>directory_v1-rev20260729-2.0.0</google-api-services-admin-directory.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20240303</json.version>
@@ -221,7 +221,7 @@
 						<dependency>
 						  <groupId>com.puppycrawl.tools</groupId>
 						  <artifactId>checkstyle</artifactId>
-						  <version>13.8.0</version>
+						  <version>13.9.0</version>
 						</dependency>
 					  </dependencies>
 			  	</plugin>

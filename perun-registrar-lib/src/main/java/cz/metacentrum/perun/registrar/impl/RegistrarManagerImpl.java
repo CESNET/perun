@@ -1360,8 +1360,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
    */
   private void checkExtensionWithNeverExpiration(PerunSession sess, ApplicationForm form, Vo vo, Member member)
       throws CantBeSubmittedException {
-    if (member.getStatus() == Status.EXPIRED) {
-      return; // expired member can always submit extension form
+    if (member.getStatus() == Status.EXPIRED || member.getStatus() == Status.DISABLED) {
+      return; // expired/disabled member can always submit extension form
     }
 
     try {

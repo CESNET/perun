@@ -1166,6 +1166,7 @@ components:
         - APP_APPROVED_USER
         - APP_REJECTED_USER
         - APP_ERROR_VO_ADMIN
+        - APP_CHANGES_REQUESTED
         - USER_INVITE
         - USER_PRE_APPROVED_INVITE
 
@@ -11091,6 +11092,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/canExtendInNewRegistrar:
+    get:
+      tags:
+        - MembersManager
+      operationId: canExtendInNewRegistrar
+      summary: Return true if the membership can be extended or if no rules were set for the membershipExpiration, otherwise throws an exception containing the reason.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/canCallerBeMemberWithReason:
+    get:
+      tags:
+        - MembersManager
+      operationId: canCallerBeMemberWithReason
+      summary: Checks if the caller can apply for membership in VO, throws error containing the reason if cannot be member.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getMembersCount:
     get:
       tags:
@@ -14477,6 +14506,21 @@ paths:
         - GroupsManager
       operationId: canExtendMembershipInGroup
       summary: Returns true if member in given group can extend membership or if no rules were set for the membershipExpiration, otherwise false.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/canExtendInNewRegistrarGroup:
+    get:
+      tags:
+        - GroupsManager
+      operationId: canExtendInNewRegistrarGroup
+      summary: Returns true if member in given group can extend membership or if no rules were set for the membershipExpiration, otherwise throws exception containing the reason.
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/groupId'

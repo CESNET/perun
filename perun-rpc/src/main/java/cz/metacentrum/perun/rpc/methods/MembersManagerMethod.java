@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersPageQuery;
 import cz.metacentrum.perun.core.api.NamespaceRules;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.SpecificUserType;
@@ -1991,6 +1992,25 @@ public enum MembersManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Checks if the caller can apply for membership in VO.
+   * Decision is based on VO rules for: extendMembershipRules and doNotAllowLoa.
+   *
+   * @param vo int VO <code>id</code>
+   * @throw ExtendMembershipException When user can't become member of VO, reason is specified in exception text.
+   * @return boolean True when the caller can apply for membership
+   */
+  canCallerBeMemberWithReason {
+    @Override
+    public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+      PerunPrincipal principal = ac.getSession().getPerunPrincipal();
+
+      return ac.getMembersManager()
+          .canBeMemberWithReason(ac.getSession(), ac.getVoById(parms.readInt("vo")), principal.getUser(),
+              String.valueOf(principal.getExtSourceLoa()));
+    }
+  },
+
+  /*#
    * Extend member membership using membershipExpirationRules attribute defined at VO.
    *
    * @param member int Member <code>id</code>
@@ -2024,6 +2044,21 @@ public enum MembersManagerMethod implements ManagerMethod {
       } else {
         return 0;
       }
+    }
+  },
+
+  /*#
+   * Check if member can submit extension application in new Registrar according to the VO rules.
+   *
+   * @param member int Member <code>id</code>
+   * @return boolean True if can extend, throws otherwise
+   * @throw ExtendMembershipException When member can't extend membership of VO, reason is specified in exception text.
+   */
+  canExtendInNewRegistrar {
+    @Override
+    public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+      return ac.getMembersManager().canExtendInNewRegistrar(ac.getSession(),
+          ac.getMemberById(parms.readInt("member")));
     }
   },
 

@@ -129,6 +129,8 @@ public interface MembersManagerBl {
    */
   boolean canExtendMembershipWithReason(PerunSession sess, Member member) throws ExtendMembershipException;
 
+  boolean canExtendInNewRegistrar(PerunSession sess, Member member) throws ExtendMembershipException;
+
   void checkMemberExists(PerunSession sess, Member member) throws MemberNotExistsException;
 
   /**
