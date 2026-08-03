@@ -1,5 +1,26 @@
 Upgrade notes
 
+## [54.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v53.2.0...v54.0.0) (2026-08-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* **registrar:** db update
+
+### Features
+
+* always allow disabled members to extend membership ([640e047](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/640e047aa019d354ecd0370ed633dcef6336c03f))
+* **openapi:** membership checking methods to openapi ([da2543b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/da2543b4c7550f426a1b4297a9144d3ef8064334))
+* **registrar:** add new `APP_CHANGES_REQUESTED` mail type ([69aa763](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/69aa763ef786a6ff0b0abe7b6c17848a652918d7))
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-api-services-admin-directory ([2424f3a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2424f3a6beeb5825c17a04f8ec781fe586600735))
+* **deps:** update dependency org.openapitools:jackson-databind-nullable to v0.2.11 ([ad67afc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ad67afcb79be701373228af83baebdd4b3bb2da8))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v10 ([f4e9ec0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f4e9ec06b4963c865f500ce6edf013d4d90dc00c))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v10.4.0 ([e5540bd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e5540bd910e89d7fe2628e3aa30b9815f07d6174))
+
 ## [53.2.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v53.1.0...v53.2.0) (2026-07-14)
 
 
