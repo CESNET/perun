@@ -44,7 +44,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
       Pattern.compile("^it4i.*$"),
       Pattern.compile("^pr[0-9].*$")
   );
-  protected final Pattern einfraLoginPattern = Pattern.compile("^[a-z][a-z0-9_-]{1,14}$");
+  protected final Pattern einfraLoginPattern = Pattern.compile("^(?!.*--)[a-z][a-z0-9_-]{1,14}$");
   protected final Pattern einfraPasswordContainsDigit = Pattern.compile(".*[0-9].*");
   protected final Pattern einfraPasswordContainsLower = Pattern.compile(".*[a-z].*");
   protected final Pattern einfraPasswordContainsUpper = Pattern.compile(".*[A-Z].*");
