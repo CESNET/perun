@@ -1,5 +1,24 @@
 Upgrade notes
 
+## [55.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v54.0.0...v55.0.0) (2026-08-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** needs java 25 installed
+* **deps:** upgrade to tomcat 11 needed. If you’re deploying a war file to Tomcat,
+you need to switch the dependency spring-boot-starter-tomcat to spring-boot-starter-tomcat-runtime.
+
+### Features
+
+* add hyphens check to einfra login ([be89a02](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/be89a02a0b95ad0caa9ea060918fec6e4b0e4269))
+
+
+### Others
+
+* **deps:** upgrade java to 25 ([5eb2f49](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5eb2f495f056bd3365b148a210172a4c612e5cb2))
+* **deps:** upgrade to spring boot 4 ([9f47d9c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9f47d9cffe2c6d0683b9e90bf5fc0e2ba2a4260d))
+
 ## [54.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v53.2.0...v54.0.0) (2026-08-03)
 
 
