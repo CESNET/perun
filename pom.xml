@@ -155,16 +155,16 @@
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>
-											org.codehaus.mojo
+											net.ltgt.gwt.maven
 										</groupId>
 										<artifactId>
 											gwt-maven-plugin
 										</artifactId>
 										<versionRange>
-											[2.5.1,)
+											[1.0.0,)
 										</versionRange>
 										<goals>
-											<goal>i18n</goal>
+											<goal>compile</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
