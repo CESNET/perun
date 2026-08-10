@@ -85,10 +85,11 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfraTest {
     ModulesUtilsBl modulesUtilsBlSpy = spy(ModulesUtilsBl.class);
     when(session.getPerunBl().getModulesUtilsBl()).thenReturn(modulesUtilsBlSpy);
 
-    Mockito.doThrow(InvalidLoginException.class).when(modulesUtilsBlSpy)
-        .checkLoginNamespaceRegex(eq("einfra"), ArgumentMatchers.matches("(?!^[a-z][a-z0-9_-]{1,14}$)"),
-            // negated einfra check
-            ArgumentMatchers.any(Pattern.class));
+    Mockito.doThrow(InvalidLoginException.class).when(modulesUtilsBlSpy).checkLoginNamespaceRegex(
+        eq("einfra"),
+        ArgumentMatchers.matches("^(?!(?!.*--)[a-z][a-z0-9_-]{1,14}$).*$"),
+        // negated einfra check
+        ArgumentMatchers.any(Pattern.class));
   }
 
   @Test(expected = WrongReferenceAttributeValueException.class)
