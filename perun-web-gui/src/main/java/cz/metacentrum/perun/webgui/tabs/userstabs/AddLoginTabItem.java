@@ -182,7 +182,7 @@ public class AddLoginTabItem implements TabItem {
     layout.getFlexCellFormatter().addStyleName(2, 0, "inputFormInlineComment");
 
     HTML help = new HTML(
-        "Login must<ul><li>start with lower-cased letter<li>be 2-15 characters long<li>consist only of<ul><li>lower-cased non-accented letters<li>digits<li>hyphens and underscores</ul></ul>");
+        "Login must<ul><li>start with lower-cased letter<li>be 2-15 characters long<li>consist only of<ul><li>lower-cased non-accented letters<li>digits<li>hyphens and underscores (no consecutive hyphens)</ul></ul>");
     help.setVisible(false);
     layout.getFlexCellFormatter().setColSpan(3, 0, 2);
     layout.setWidget(3, 0, help);
