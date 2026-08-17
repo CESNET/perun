@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISResponseData;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISServiceCaller;
 import java.io.ByteArrayOutputStream;
@@ -19,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -186,12 +186,9 @@ public class ISServiceCallerImpl implements ISServiceCaller {
    * @throws InternalErrorException
    */
   public ISResponseData parseResponse(InputStream inputStream, int requestID) {
-
-    //Create new document factory builder
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder;
     try {
-      builder = factory.newDocumentBuilder();
+      builder = Utils.createDocumentBuilderDisallowedDoctype();
     } catch (ParserConfigurationException ex) {
       throw new InternalErrorException("Error when creating newDocumentBuilder. Request ID: " + requestID, ex);
     }
