@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.scim.api.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * All resources (user, group, ..) extend from this class, that contains resource id, resource externalId and resource
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * @date 08.10.2016
  */
 
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Resource {
 
   @JsonProperty

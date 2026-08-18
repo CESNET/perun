@@ -2,12 +2,6 @@ package cz.metacentrum.perun.rpc.deserializer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
@@ -43,6 +37,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Deserializer for JSON / JSONP data format.
@@ -59,7 +58,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class JsonDeserializer extends Deserializer {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final JsonMapper MAPPER;
   private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
 
   static {
@@ -89,8 +88,10 @@ public class JsonDeserializer extends Deserializer {
     MIXIN_MAP.put(Thanks.class, PerunBeanMixIn.class);
     MIXIN_MAP.put(ThanksForGUI.class, PerunBeanMixIn.class);
 
-    MAPPER.setMixIns(MIXIN_MAP);
-
+    MAPPER = JsonMapper.builder()
+        .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+        .addMixIns(MIXIN_MAP)
+        .build();
   }
 
   private final JsonNode root;
@@ -100,20 +101,18 @@ public class JsonDeserializer extends Deserializer {
    * Create deserializer for JSON/JSONP data format.
    *
    * @param request HttpServletRequest this deserializer is about to process
-   * @throws IOException  if an IO error occurs
-   * @throws RpcException if content of {@code in} is wrongly formatted
+   * @throws RpcException if content of {@code in} is wrongly formatted or IO error occurs
    */
-  public JsonDeserializer(HttpServletRequest request) throws IOException {
+  public JsonDeserializer(HttpServletRequest request) {
 
     this.req = request;
 
-    MAPPER.registerModule(new JavaTimeModule());
-    MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
     try {
       root = MAPPER.readTree(req.getInputStream());
-    } catch (JsonProcessingException ex) {
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
+    } catch (IOException ex) {
+      throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "IO error reading request input", ex);
     }
 
     if (!root.isObject()) {
@@ -121,10 +120,10 @@ public class JsonDeserializer extends Deserializer {
     }
   }
 
-  public JsonDeserializer(InputStream in) throws IOException {
+  public JsonDeserializer(InputStream in) {
     try {
       root = MAPPER.readTree(in);
-    } catch (JsonProcessingException ex) {
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
     }
   }
@@ -167,8 +166,8 @@ public class JsonDeserializer extends Deserializer {
     }
 
     try {
-      return MAPPER.readValue(node.traverse(), valueType);
-    } catch (IOException ex) {
+      return MAPPER.readValue(MAPPER.treeAsTokens(node), valueType);
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as " + valueType.getSimpleName(), ex);
     }
   }
@@ -228,11 +227,11 @@ public class JsonDeserializer extends Deserializer {
       throw new RpcException(RpcException.Type.MISSING_VALUE, name);
     }
     if (!node.isInt()) {
-      if (!node.isTextual()) {
+      if (!node.isString()) {
         throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
       } else {
         try {
-          return Integer.parseInt(node.textValue());
+          return Integer.parseInt(node.stringValue());
         } catch (NumberFormatException ex) {
           throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int", ex);
         }
@@ -272,10 +271,10 @@ public class JsonDeserializer extends Deserializer {
     try {
       List<T> list = new ArrayList<>(node.size());
       for (JsonNode e : node) {
-        list.add(MAPPER.readValue(e.traverse(), valueType));
+        list.add(MAPPER.readValue(MAPPER.treeAsTokens(e), valueType));
       }
       return list;
-    } catch (IOException ex) {
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
           node + " as List<" + valueType.getSimpleName() + ">", ex);
     }
@@ -305,20 +304,21 @@ public class JsonDeserializer extends Deserializer {
     try {
       List<PerunBean> list = new ArrayList<>(node.size());
       for (JsonNode e : node) {
-        String beanName = e.get("beanName").textValue();
+        String beanName = e.get("beanName").stringValue();
 
         if (beanName == null) {
           throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
               node + " as List<PerunBean> - missing beanName info");
         }
         list.add(
-            (PerunBean) MAPPER.readValue(e.traverse(), Class.forName("cz.metacentrum.perun.core.api." + beanName)));
+            (PerunBean) MAPPER.readValue(MAPPER.treeAsTokens(e),
+                Class.forName("cz.metacentrum.perun.core.api." + beanName)));
       }
       return list;
     } catch (ClassNotFoundException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
           node + " as List<PerunBean> - class not found");
-    } catch (IOException ex) {
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as List<PerunBean>", ex);
     }
   }
@@ -338,16 +338,17 @@ public class JsonDeserializer extends Deserializer {
     }
 
     try {
-      String beanName = node.get("beanName").textValue();
+      String beanName = node.get("beanName").stringValue();
       if (beanName == null) {
         throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
             node + " as List<PerunBean> - missing beanName info");
       }
-      return (PerunBean) MAPPER.readValue(node.traverse(), Class.forName("cz.metacentrum.perun.core.api." + beanName));
+      return (PerunBean) MAPPER.readValue(
+          MAPPER.treeAsTokens(node), Class.forName("cz.metacentrum.perun.core.api." + beanName));
     } catch (ClassNotFoundException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
           node + " as List<PerunBean> - class not found");
-    } catch (IOException ex) {
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as PerunBean");
     }
   }
@@ -366,7 +367,7 @@ public class JsonDeserializer extends Deserializer {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as String");
     }
 
-    return node.asText();
+    return node.asString();
   }
 
   @Override
@@ -385,7 +386,7 @@ public class JsonDeserializer extends Deserializer {
 
     UUID uuid;
     try {
-      uuid = UUID.fromString(node.asText());
+      uuid = UUID.fromString(node.asString());
     } catch (IllegalArgumentException e) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as UUID");
     }

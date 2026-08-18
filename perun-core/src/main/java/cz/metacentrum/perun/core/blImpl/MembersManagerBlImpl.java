@@ -9,9 +9,6 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SUBM
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberCreated;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDeleted;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDisabled;
@@ -160,6 +157,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.MappingIterator;
+import tools.jackson.dataformat.csv.CsvMapper;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 public class MembersManagerBlImpl implements MembersManagerBl {
 
@@ -1585,9 +1586,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     try {
       byte[] bytes = String.join("\n", dataWithHeader).getBytes(StandardCharsets.UTF_8);
       dataIterator =
-          new CsvMapper().readerFor(Map.class).with(CsvSchema.emptySchema().withHeader().withColumnSeparator(';'))
-              .readValues(bytes);
-    } catch (IOException e) {
+          CsvMapper.builder().build().readerFor(Map.class)
+            .with(CsvSchema.emptySchema().withHeader().withColumnSeparator(';'))
+            .readValues(bytes);
+    } catch (JacksonException e) {
       LOG.error("Failed to parse received CSV data.", e);
       throw new InternalErrorException("Failed to parse received CSV data.", e);
     }

@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
@@ -21,6 +18,10 @@ import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.MappingIterator;
+import tools.jackson.dataformat.csv.CsvMapper;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 /**
  * Ext source for CSV files. It expects them to have 1st row as a header.
@@ -104,7 +105,7 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
     Map<String, String> attributeMapping = getCsvMapping();
 
     File csvFile = new File(file);
-    CsvMapper mapper = new CsvMapper();
+    CsvMapper mapper = CsvMapper.builder().build();
     // use first row as header; otherwise defaults are fine
     CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
@@ -291,7 +292,7 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
       File file = new File(this.file);
 
       Map<String, String> attributeMapping = getCsvMapping();
-      CsvMapper mapper = new CsvMapper();
+      CsvMapper mapper = CsvMapper.builder().build();
       CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
       // Fetch the subjects for all logins on a single passthrough
@@ -325,7 +326,7 @@ public class ExtSourceCSV extends ExtSourceImpl implements ExtSourceApi {
       loginsSet.forEach(login -> loginSubjectsMap.putIfAbsent(login, null));
       return loginSubjectsMap;
 
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       LOG.error("IOException in getSubjectsByLogins() method while parsing csv file", e);
     }
 

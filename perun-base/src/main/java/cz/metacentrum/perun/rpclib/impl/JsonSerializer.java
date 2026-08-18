@@ -1,22 +1,19 @@
 package cz.metacentrum.perun.rpclib.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpclib.api.Serializer;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * JSON serializer.
@@ -26,52 +23,42 @@ import java.util.Map;
  */
 public final class JsonSerializer implements Serializer {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final JsonMapper MAPPER;
   private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
-  private static final JsonFactory JSON_FACTORY = new JsonFactory();
+  private static final JsonFactory JSON_FACTORY = JsonFactory.builder()
+        .disable(StreamWriteFeature.AUTO_CLOSE_TARGET)
+        .disable(StreamWriteFeature.AUTO_CLOSE_CONTENT)
+        .build();
 
   static {
-
-    JavaTimeModule module = new JavaTimeModule();
-    MAPPER.registerModule(module);
-    // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
-    MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     MIXIN_MAP.put(Attribute.class, AttributeMixIn.class);
     MIXIN_MAP.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
     MIXIN_MAP.put(User.class, UserMixIn.class);
 
-    MAPPER.setMixIns(MIXIN_MAP);
-  }
-
-  static {
-    //FIXME removed disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
-    //jsonFactory.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
-    JSON_FACTORY.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)
-        .setCodec(MAPPER);
+    MAPPER = JsonMapper.builder(JSON_FACTORY)
+        .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+        .addMixIns(MIXIN_MAP)
+        .build();
   }
 
   private OutputStream out;
 
   /**
    * @param out {@code OutputStream} to output serialized data
-   * @throws IOException if an IO error occurs
    */
-  public JsonSerializer(OutputStream out) throws IOException {
+  public JsonSerializer(OutputStream out) {
     this.out = out;
   }
 
   @Override
-  public void write(Object object) throws IOException {
-    JsonGenerator gen = JSON_FACTORY.createGenerator(out, JsonEncoding.UTF8);
-
+  public void write(Object object) {
     if (object instanceof Throwable) {
       throw new IllegalArgumentException("Tried to serialize a throwable object using write()", (Throwable) object);
     }
     try {
-      gen.writeObject(object);
-      gen.close();
-    } catch (JsonProcessingException ex) {
+      MAPPER.writeValue(out, object);
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, ex);
     }
   }

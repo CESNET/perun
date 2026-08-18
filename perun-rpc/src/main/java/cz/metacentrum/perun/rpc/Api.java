@@ -520,7 +520,7 @@ public class Api extends HttpServlet {
     // we do not init anything
   }
 
-  private Deserializer selectDeserializer(String format, HttpServletRequest req) throws IOException {
+  private Deserializer selectDeserializer(String format, HttpServletRequest req) {
     switch (Formats.match(format)) {
       case json:
       case jsonp:
@@ -535,7 +535,7 @@ public class Api extends HttpServlet {
   }
 
   private Serializer selectSerializer(String format, String manager, String method, OutputStream out,
-                                      HttpServletRequest req, HttpServletResponse resp) throws IOException {
+                                      HttpServletRequest req, HttpServletResponse resp) {
     Serializer serializer;
 
     switch (Formats.match(format)) {
@@ -874,11 +874,6 @@ public class Api extends HttpServlet {
       }
       LOG.warn("PerunRuntime exception {}: {}.", prex.getErrorId(), prex);
       ser.writePerunRuntimeException(prex);
-    } catch (IOException ioex) { //IOException gets logged and is rethrown
-      //noinspection ThrowableNotThrown
-      LOG.warn("IO exception {}: {}.", Long.toHexString(System.currentTimeMillis()), ioex);
-      new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ioex);
-      throw ioex;
     } catch (Exception ex) {
       // If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
       if (!isJsonp) {
