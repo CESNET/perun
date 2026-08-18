@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -549,10 +548,9 @@ public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
   }
 
   private Document getDocument() {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder;
     try {
-      builder = factory.newDocumentBuilder();
+      builder = Utils.createDocumentBuilderDisallowedDoctype();
     } catch (ParserConfigurationException ex) {
       throw new InternalErrorException("Error when creating newDocumentBuilder.", ex);
     }

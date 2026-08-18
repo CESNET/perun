@@ -7,6 +7,7 @@ import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.strategy.AbstractPublicationSystemStrategy;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.Utils;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -15,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -211,11 +211,9 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 
     LOG.trace("RESPONSE: " + xml);
 
-    //Create new document factory builder
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder;
     try {
-      builder = factory.newDocumentBuilder();
+      builder = Utils.createDocumentBuilderDisallowedDoctype();
     } catch (ParserConfigurationException ex) {
       throw new CabinetException("Error when creating newDocumentBuilder.", ex);
     }
