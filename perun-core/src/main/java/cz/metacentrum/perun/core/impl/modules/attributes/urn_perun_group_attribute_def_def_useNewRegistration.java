@@ -17,6 +17,15 @@ public class urn_perun_group_attribute_def_def_useNewRegistration extends GroupA
   public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute)
       throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
     super.checkAttributeSemantics(perunSession, group, attribute);
+
+    // in case group already uses automatic registration, we cannot set useNewRegistration to true
+    if (perunSession.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(perunSession, group)) {
+      throw new WrongReferenceAttributeValueException(
+              attribute,
+              "Group " + group.getName() +
+                      " is used for auto registration and therefore cannot use the new Registrar.");
+    }
+
     if (attribute.getValue() != null && attribute.valueAsBoolean() &&
             perunSession.getPerunBl().getGroupsManagerBl().getApplicationFormForGroup(group) == null) {
       throw new WrongReferenceAttributeValueException(attribute, "Group " + group.getName() + " has no application " +

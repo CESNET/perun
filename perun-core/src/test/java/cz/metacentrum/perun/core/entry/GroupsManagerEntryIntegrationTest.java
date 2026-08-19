@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,6 +54,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -69,6 +71,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
@@ -7789,6 +7792,31 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
     assertNotNull(allGroupAdmins);
     assertEquals(1, allGroupAdmins.getData().size());
     assertEquals(group2.getId(), allGroupAdmins.getData().get(0).getId());
+  }
+
+  @Test
+  public void newRegistrarGroupCannotBeAddedToAutoRegistration()
+          throws Exception {
+
+    vo = setUpVo();
+    perun.getGroupsManager().createGroup(sess, vo, group);
+
+    AttributeDefinition attrDef =
+            attributesManager.getAttributeDefinition(
+                    sess,
+                    AttributesManager.NS_GROUP_ATTR_DEF + ":useNewRegistration");
+
+    Attribute attr = new Attribute(attrDef);
+    attr.setValue(true);
+    //attributesManager.setAttribute(sess, group, attr);
+    perun.getAttributesManagerBl()
+            .setAttributeWithoutCheck(sess, group, attr);
+
+    assertThatThrownBy(
+            () -> groupsManagerBl.checkGroupCanBeAddedToAutoRegistration(
+                    sess, group))
+            .isInstanceOf(GroupNotAllowedToAutoRegistrationException.class)
+            .hasMessageContaining("new Registrar");
   }
 
   // PRIVATE METHODS -------------------------------------------------------------
