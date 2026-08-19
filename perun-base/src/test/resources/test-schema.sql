@@ -3125,13 +3125,6 @@ values (6701, 6701, 'Preferred Unix Group Name', 2989,
         '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
 insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
                         dsc, created_at, created_by, modified_at, modified_by)
-values (3354, 3354, 'Heslo pro službu SAMBA DÚ', 3200, 'urn:perun:user:attribute-def:def:altPasswords:samba-du',
-        'altPasswords:samba-du', 'urn:perun:user:attribute-def:def', 'java.util.LinkedHashMap',
-        'Heslo pro službu SAMBA DÚ, uloženo na SAMBA serveru.', timestamp '2014-12-04 20:17:13.5',
-        '/DC=cz/DC=cesnet-ca/O=Masaryk University/CN=Michal Prochazka', timestamp '2014-12-04 20:17:13.5',
-        '/DC=cz/DC=cesnet-ca/O=Masaryk University/CN=Michal Prochazka');
-insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
-                        dsc, created_at, created_by, modified_at, modified_by)
 values (null, 3261, 'Name of mailing list', 1840, 'urn:perun:resource:attribute-def:def:mailingListName',
         'mailingListName', 'urn:perun:resource:attribute-def:def', 'java.lang.String',
         'Name of the mailing list which is represented by this resource.', timestamp '2012-11-16 12:58:02.6',
@@ -3209,11 +3202,6 @@ values (-1, -1, 'Registrar URL', 3161, 'urn:perun:group:attribute-def:def:regist
         'urn:perun:group:attribute-def:def', 'java.lang.String',
         'Custom URL used in registration notifications (hostname without any parameters like: https://hostname.domain/). This value override same VO setting. If not set, default hostname of Perun instance is used.',
         timestamp '2014-11-10 12:23:18.2', 'perunRegistrar', timestamp '2014-11-10 12:23:18.2', 'perunRegistrar');
-insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
-                        dsc, created_at, created_by, modified_at, modified_by)
-values (3354, 3354, 'Login on DU SAMBA server', 3180, 'urn:perun:user:attribute-def:def:login-namespace:du-samba',
-        'login-namespace:du-samba', 'urn:perun:user:attribute-def:def', 'java.lang.String', 'Login on DU SAMBA server',
-        timestamp '2014-11-25 12:07:59.3', 'michalp@META', timestamp '2014-11-25 12:07:59.3', 'michalp@META');
 insert into attr_names (created_by_uid, modified_by_uid, display_name, id, attr_name, friendly_name, namespace, type,
                         dsc, created_at, created_by, modified_at, modified_by)
 values (null, 3261, 'From email address', 1740, 'urn:perun:vo:attribute-def:def:fromEmail', 'fromEmail',
@@ -3731,12 +3719,6 @@ insert into services (created_by_uid, modified_by_uid, id, name, description, de
                       created_at, created_by, modified_at, modified_by)
 values (6701, 6701, 741, 'fs_project', null, 10, 2, true, './fs_project', timestamp '2014-03-12 09:35:39.4',
         'stava@META', timestamp '2014-03-12 09:35:39.4', 'stava@META');
-insert into services (created_by_uid, modified_by_uid, id, name, description, delay, recurrence, enabled, script,
-                      created_at, created_by, modified_at, modified_by)
-values (6701, 6701, 841, 'samba_du', null, 10, 2, true, './samba_du', timestamp '2014-10-08 15:51:25.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:51:25.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
 insert into services (created_by_uid, modified_by_uid, id, name, description, delay, recurrence, enabled, script,
                       created_at, created_by, modified_at, modified_by)
 values (null, null, 101, 'fs_scratch', null, 10, 2, true, './fs_scratch', timestamp '2011-12-16 15:20:31.6', 'PERUNV3',
@@ -5268,12 +5250,6 @@ values (6701, 6701, 101, 2989, timestamp '2014-09-09 14:35:04.3',
         '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
 insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
                                     modified_at, modified_by)
-values (6701, 6701, 841, 341, timestamp '2014-10-08 16:08:38.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 16:08:38.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
 values (6701, 6701, 121, 2840, timestamp '2014-09-03 10:38:38.4',
         '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
         timestamp '2014-09-03 10:38:38.4',
@@ -5301,24 +5277,6 @@ insert into service_required_attrs (created_by_uid, modified_by_uid, service_id,
 values (6701, 6701, 101, 2988, timestamp '2014-09-09 14:35:04.3',
         '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
         timestamp '2014-09-09 14:35:04.3',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 263, timestamp '2014-10-08 15:53:12.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:53:12.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 261, timestamp '2014-10-08 15:52:53.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:52:53.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 262, timestamp '2014-10-08 15:53:12.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:53:12.4',
         '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
 insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
                                     modified_at, modified_by)
@@ -5392,12 +5350,6 @@ values (6701, 6701, 42, 3220, timestamp '2015-01-20 14:16:00.3', 'stava@META', t
         'stava@META');
 insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
                                     modified_at, modified_by)
-values (6701, 6701, 841, 260, timestamp '2014-10-08 15:52:53.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:52:53.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
 values (3255, 3255, 822, 146, timestamp '2014-09-11 11:38:28.5',
         '/C=CZ/O=Masaryk University/CN=Slavek Licehammer/unstructuredName=255920', timestamp '2014-09-11 11:38:28.5',
         '/C=CZ/O=Masaryk University/CN=Slavek Licehammer/unstructuredName=255920');
@@ -5406,48 +5358,6 @@ insert into service_required_attrs (created_by_uid, modified_by_uid, service_id,
 values (3255, 3255, 221, 3020, timestamp '2014-09-17 10:18:34.4',
         '/C=CZ/O=Masaryk University/CN=Slavek Licehammer/unstructuredName=255920', timestamp '2014-09-17 10:18:34.4',
         '/C=CZ/O=Masaryk University/CN=Slavek Licehammer/unstructuredName=255920');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 581, timestamp '2014-10-08 15:54:14.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:54:14.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 2340, timestamp '2014-10-08 16:08:10.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 16:08:10.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 582, timestamp '2014-10-08 16:07:52.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 16:07:52.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 280, timestamp '2014-10-08 15:57:03.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:57:03.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 361, timestamp '2014-10-08 15:57:45.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:57:45.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 360, timestamp '2014-10-08 15:57:57.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:57:57.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
-insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
-                                    modified_at, modified_by)
-values (6701, 6701, 841, 580, timestamp '2014-10-08 15:54:14.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739',
-        timestamp '2014-10-08 15:54:14.4',
-        '/C=CZ/O=Masarykova univerzita/CN=Michal \xC5\xA0\xC5\xA5ava/unstructuredName=255739');
 insert into service_required_attrs (created_by_uid, modified_by_uid, service_id, attr_id, created_at, created_by,
                                     modified_at, modified_by)
 values (6701, 6701, 341, 1720, timestamp '2014-11-26 17:23:01.4',
