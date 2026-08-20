@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-kerberos-client</artifactId>
-			<version>7.1.0</version>
+			<version>7.1.1</version>
 		</dependency>
 	</dependencies>
 
