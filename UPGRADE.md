@@ -1,5 +1,38 @@
 Upgrade notes
 
+## [56.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v55.0.0...v56.0.0) (2026-08-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* processing of any XML with a `DOCTYPE` tag
+is now disallowed and will throw an error
+* **core:** samba password manager script should be removed
+on relevant instances
+* **deps:** needs java 25 installed
+* **deps:** upgrade to tomcat 11 needed. If you’re deploying a war file to Tomcat,
+you need to switch the dependency spring-boot-starter-tomcat to spring-boot-starter-tomcat-runtime.
+
+### Features
+
+* **core:** disable embedded groups with the useNewRegistration attribute ([bc503fd](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/bc503fd0e653248a18127299454476a798bf7ac4))
+* **deps:** dependency for migration of properties - checks in runtime ([5ba6206](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5ba6206e7f6cba0c74d56812f2e5beeb62af7240))
+* disallow doctype tag when parsing xml ([7b858ed](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7b858ed075de9c3c7cb2ee44aa9c874dfd4f520d))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v4.1.1 ([f371ac1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f371ac1727f53cf67a524c9751cf17ba7fb45560))
+* **deps:** update dependency org.springframework.security:spring-security-kerberos-client to v7.1.1 ([9f1620a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9f1620ac1405fef08ec29b8c10b3053022cc5a69))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v10.5.0 ([fb56c22](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/fb56c227ce4857c9541c8315715354d69b936d02))
+
+
+### Others
+
+* **core:** remove samba password manager module ([80478b5](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/80478b5b17664e7fbe70e95a2e058d6164392b78))
+* **deps:** upgrade java to 25 ([da1541b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/da1541b424d23be50cbbf81edbac1a7ec847d853))
+* **deps:** upgrade to spring boot 4 ([aeabbdb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/aeabbdbb99625c36e83285a499df4ae4a52860f9))
+
 ## [55.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v54.0.0...v55.0.0) (2026-08-10)
 
 
