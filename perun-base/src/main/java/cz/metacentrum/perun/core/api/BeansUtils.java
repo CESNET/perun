@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import java.io.BufferedInputStream;
@@ -44,7 +43,6 @@ public class BeansUtils {
   private static final JavaMailSenderImpl MAIL_SENDER = new JavaMailSenderImpl();
   private static CoreConfig coreConfig;
   private static boolean mailSenderInitialized = false;
-  private static ObjectMapper objectMapper = new ObjectMapper();
 
   private BeansUtils() {
 

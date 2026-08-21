@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import org.openpdf.text.DocumentException;
 import org.slf4j.Logger;
@@ -32,7 +31,7 @@ public class PdfSerializer implements Serializer {
   }
 
   @Override
-  public void write(Object object) throws IOException {
+  public void write(Object object) {
 
     if (object instanceof String) {
 
@@ -54,26 +53,26 @@ public class PdfSerializer implements Serializer {
       try {
         renderer.createPDF(outputStream);
       } catch (DocumentException e) {
-        throw new IOException(e);
+        throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, e);
       }
     }
   }
 
   @Override
-  public void writePerunException(PerunException pex) throws IOException {
+  public void writePerunException(PerunException pex) {
     try {
       write("Operation failed. ErrorId: " + pex.getErrorId() + " Reason: " + pex.getMessage());
     } catch (RpcException e) {
-      throw new IOException(e);
+      throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, e);
     }
   }
 
   @Override
-  public void writePerunRuntimeException(PerunRuntimeException prex) throws IOException {
+  public void writePerunRuntimeException(PerunRuntimeException prex) {
     try {
       write("Operation failed. ErrorId: " + prex.getErrorId() + " Reason: " + prex.getMessage());
     } catch (RpcException e) {
-      throw new IOException(e);
+      throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, e);
     }
   }
 }

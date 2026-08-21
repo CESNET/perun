@@ -15,10 +15,6 @@ import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_MA
 import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_REGISTRAR_URL;
 import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_TO_EMAIL;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvParser;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.InvitationSentEvent;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdAdded;
@@ -127,6 +123,10 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import tools.jackson.databind.MappingIterator;
+import tools.jackson.dataformat.csv.CsvMapper;
+import tools.jackson.dataformat.csv.CsvReadFeature;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 public class MailManagerImpl implements MailManager {
 
@@ -1816,8 +1816,7 @@ public class MailManagerImpl implements MailManager {
    * @return list of list of row values
    */
   private List<List<String>> parseInvitationCsv(List<String> data) throws IOException {
-    CsvMapper csvMapper = new CsvMapper();
-    csvMapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
+    CsvMapper csvMapper = CsvMapper.builder().enable(CsvReadFeature.WRAP_AS_ARRAY).build();
     MappingIterator<List<String>> rows =
         csvMapper.readerFor(List.class).with(CsvSchema.emptySchema().withColumnSeparator(';'))
             .readValues(String.join("\n", data));

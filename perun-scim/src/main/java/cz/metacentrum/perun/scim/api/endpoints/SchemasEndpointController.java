@@ -4,14 +4,14 @@ import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_GROUP;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_SCHEMA;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_USER;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.scim.api.entities.ListResponseSCIM;
 import cz.metacentrum.perun.scim.api.entities.SchemaSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Endpoint controller, that returns schema of all resources.
@@ -45,9 +45,9 @@ public class SchemasEndpointController {
       int numberOfSchemas = result.getResources().size();
       result.setTotalResults((long) numberOfSchemas);
 
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.builder().build();
       return Response.ok(mapper.writeValueAsString(result)).build();
-    } catch (IOException ex) {
+    } catch (JacksonException ex) {
       throw new SCIMException("Cannot convert schemas to json string", ex);
     }
   }

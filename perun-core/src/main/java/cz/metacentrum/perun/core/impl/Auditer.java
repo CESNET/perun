@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -11,17 +9,14 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.sql.DataSource;
 import net.jcip.annotations.GuardedBy;
@@ -30,6 +25,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 /**
  * This class is responsible for runtime logging of audit events. It gets messages and assocaites them with current
@@ -51,24 +51,21 @@ public class Auditer {
 
   private static final Logger LOG = LoggerFactory.getLogger(Auditer.class);
   private static final Logger TRANSACTION_LOGGER = LoggerFactory.getLogger("transactionLogger");
-  private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final JsonMapper MAPPER = JsonMapper.builder()
+                                               .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                                               .activateDefaultTyping(
+                                                   BasicPolymorphicTypeValidator.builder()
+                                                       .allowIfSubType("cz.metacentrum.perun.")
+                                                       .allowIfSubType("java.")
+                                                       .build(),
+                                                   DefaultTyping.OBJECT_AND_NON_CONCRETE,
+                                                   JsonTypeInfo.As.WRAPPER_ARRAY
+                                               )
+                                               .build();
   private static final Object LOCK_DB_TABLE_AUDITER_LOG = new Object();
   private static final Set<AttributesModuleImplApi> REGISTERED_ATTRIBUTES_MODULES = new HashSet<>();
   @GuardedBy("Auditer.class")
   private static volatile Auditer selfInstance;
-
-  static {
-
-    JavaTimeModule module = new JavaTimeModule();
-    MAPPER.registerModule(module);
-    // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
-    MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-    MAPPER.enableDefaultTyping();
-    // TODO - skip any problematic properties using interfaces for mixins
-    MAPPER.setMixIns(MIXIN_MAP);
-  }
 
   private JdbcPerunTemplate jdbc;
   private int lastProcessedId;
@@ -447,7 +444,7 @@ public class Auditer {
                                  String jsonString = "";
                                  try {
                                    jsonString = MAPPER.writeValueAsString(auditerMessage.getEvent());
-                                 } catch (IOException e) {
+                                 } catch (JacksonException e) {
                                    LOG.error("Could not map event {} to JSON: {}",
                                        auditerMessage.getEvent().getClass().getSimpleName(),
                                        auditerMessage.getEvent().getMessage());

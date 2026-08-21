@@ -4,7 +4,6 @@ import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_USER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.scim.AbstractSCIMTest;
 import cz.metacentrum.perun.scim.api.entities.UserSCIM;
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Testing class for handling user resources from Perun in SCIM protocol format.
@@ -25,7 +25,7 @@ import org.junit.Test;
 public class UserResourceEndpointControllerTest extends AbstractSCIMTest {
 
   private UserResourceEndpointController controller;
-  private ObjectMapper mapper;
+  private JsonMapper mapper;
 
   private UserSCIM prepareExpectedResult() throws Exception {
     User user1 = createUser(1, "firstName1", "lastName1");
@@ -46,7 +46,7 @@ public class UserResourceEndpointControllerTest extends AbstractSCIMTest {
   @Before
   public void setUp() throws SCIMException, IOException, Exception {
     controller = new UserResourceEndpointController(session);
-    mapper = new ObjectMapper();
+    mapper = JsonMapper.builder().build();
   }
 
   @Test

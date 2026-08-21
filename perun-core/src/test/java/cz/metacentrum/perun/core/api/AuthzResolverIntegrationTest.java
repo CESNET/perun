@@ -12,9 +12,6 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
@@ -45,6 +42,8 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * Integration tests of AuthzResolver
@@ -54,7 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
   private static final String CLASS_NAME = "AuthzResolver.";
-  private static final ObjectMapper YAMLMAPPER = new ObjectMapper(new YAMLFactory());
+  private static final YAMLMapper YAMLMAPPER = YAMLMapper.builder().build();
   private static final List<String> ROLENAMESFORTESTING = List.of("PERUNADMIN", "VOADMIN", "GROUPADMIN", "VOOBSERVER");
   final ExtSource extSource = new ExtSource(0, "AuthzResolverExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
   @Autowired

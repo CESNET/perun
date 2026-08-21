@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.openapi;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import org.springframework.web.client.HttpClientErrorException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 public class PerunException extends Exception {
 
@@ -23,12 +23,14 @@ public class PerunException extends Exception {
    * @return PerunException
    */
   public static PerunException to(HttpClientErrorException ex) {
+    JsonMapper mapper = JsonMapper.builder()
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .build();
     try {
       cz.metacentrum.perun.openapi.model.PerunException pe =
-          new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-              .readValue(ex.getResponseBodyAsByteArray(), cz.metacentrum.perun.openapi.model.PerunException.class);
+          mapper.readValue(ex.getResponseBodyAsByteArray(), cz.metacentrum.perun.openapi.model.PerunException.class);
       return new PerunException(pe.getName() + ": " + pe.getMessage(), ex, pe.getName(), pe.getErrorId());
-    } catch (IOException ioe) {
+    } catch (JacksonException jex) {
       return new PerunException("cannot parse remote Exception", ex, "", "");
     }
   }

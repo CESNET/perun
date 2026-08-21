@@ -5,14 +5,14 @@ import static cz.metacentrum.perun.scim.api.SCIMDefaults.AUTH_OAUTH2_DESC;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.AUTH_OAUTH2_NAME;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_SERVICE_PROVIDER_CONFIG;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.scim.api.entities.AuthenticationSchemes;
 import cz.metacentrum.perun.scim.api.entities.ServiceProviderConfiguration;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Service Provider Configuration endpoint, that returns specification compliance, authentication schemas and data
@@ -24,7 +24,7 @@ import java.util.List;
 public class ServiceProviderConfigsEndpointController {
 
   private List<AuthenticationSchemes> getAuthenticationSchemes() {
-    List schemes = new ArrayList();
+    List<AuthenticationSchemes> schemes = new ArrayList<>();
 
     AuthenticationSchemes autheticationSchemes = new AuthenticationSchemes();
     autheticationSchemes.setName(AUTH_OAUTH2_NAME);
@@ -47,13 +47,13 @@ public class ServiceProviderConfigsEndpointController {
       result.setSortSupport(false);
       result.setXmlDataFormatSupport(false);
 
-      List schemas = new ArrayList();
+      List<String> schemas = new ArrayList<>();
       schemas.add(URN_SERVICE_PROVIDER_CONFIG);
       result.setSchemas(schemas);
 
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.builder().build();
       return Response.ok(mapper.writeValueAsString(result)).build();
-    } catch (IOException ex) {
+    } catch (JacksonException ex) {
       throw new SCIMException("Cannot convert service provider configuration to json string", ex);
     }
   }

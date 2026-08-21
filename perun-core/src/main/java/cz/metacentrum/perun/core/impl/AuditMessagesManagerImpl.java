@@ -1,11 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
@@ -37,7 +32,6 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.rpclib.impl.JsonDeserializer;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,16 +48,22 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 /**
  * Implementation of AuditMessagesManagerImplApi with methods used to read stored auditer messages.
- *
- * @author Pavel Zlámal
- */
+*
+* @author Pavel Zlámal
+*/
 public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
   private static final Logger LOG = LoggerFactory.getLogger(AuditMessagesManagerImpl.class);
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final JsonMapper MAPPER;
 
   private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
   private static final String AUDIT_MESSAGE_MAPPING_SELECT_QUERY = "id, msg, actor, created_at, created_by_uid";
@@ -71,50 +71,8 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
   private static final int AUDITLOG_READ_LIMIT = BeansUtils.getCoreConfig().getAuditlogReadLimit();
   private static final int PAGE_COUNT_PRECISION = 1000;
-  private static final RowMapper<AuditEvent> AUDIT_EVENT_MAPPER = (resultSet, i) -> {
-    try {
-      return MAPPER.readValue(resultSet.getString("msg"), AuditEvent.class);
-    } catch (JsonParseException | JsonMappingException ex) {
-      LOG.error("Can't parse JSON auditer log!", ex);
-      throw new SQLException(ex);
-    } catch (IOException ex) {
-      throw new SQLException(ex);
-    }
-
-  };
-  private static final RowMapper<AuditMessage> AUDIT_MESSAGE_MAPPER = (resultSet, i) -> {
-
-    AuditEvent event = AUDIT_EVENT_MAPPER.mapRow(resultSet, i);
-
-    Integer principalUserId = null;
-    if (resultSet.getInt("created_by_uid") != 0) {
-      principalUserId = resultSet.getInt("created_by_uid");
-    }
-    return new AuditMessage(resultSet.getInt("id"), event, resultSet.getString("actor"),
-        resultSet.getString("created_at"), principalUserId);
-
-  };
-  private static final ResultSetExtractor<Map<String, Integer>> AUDITER_CONSUMER_EXTRACTOR = resultSet -> {
-    Map<String, Integer> auditerConsumers = new HashMap<>();
-    while (resultSet.next()) {
-      // fetch from map by ID
-      String name = resultSet.getString("name");
-      Integer lastProcessedId = resultSet.getInt("last_processed_id");
-      auditerConsumers.put(name, lastProcessedId);
-    }
-    return auditerConsumers;
-  };
 
   static {
-
-    JavaTimeModule module = new JavaTimeModule();
-    MAPPER.registerModule(module);
-    // make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
-    MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-    // configure JSON deserializer for auditer log
-    MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    MAPPER.enableDefaultTyping();
 
     MIXIN_MAP.put(Attribute.class, JsonDeserializer.AttributeMixIn.class);
     MIXIN_MAP.put(AttributeDefinition.class, JsonDeserializer.AttributeDefinitionMixIn.class);
@@ -143,9 +101,52 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
     MIXIN_MAP.put(Thanks.class, JsonDeserializer.PerunBeanMixIn.class);
     MIXIN_MAP.put(ThanksForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
 
-    MAPPER.setMixIns(MIXIN_MAP);
+    MAPPER = JsonMapper.builder()
+      .addMixIns(MIXIN_MAP)
+      .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+      .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+      .activateDefaultTyping(
+          BasicPolymorphicTypeValidator.builder()
+                                 .allowIfSubType("cz.metacentrum.perun.")
+                                 .allowIfSubType("java.")
+                                 .build(),
+          DefaultTyping.OBJECT_AND_NON_CONCRETE,
+          JsonTypeInfo.As.WRAPPER_ARRAY
+      )
+      .build();
 
   }
+
+  private static final RowMapper<AuditEvent> AUDIT_EVENT_MAPPER = (resultSet, i) -> {
+    try {
+      return MAPPER.readValue(resultSet.getString("msg"), AuditEvent.class);
+    } catch (JacksonException ex) {
+      LOG.error("Can't parse JSON auditer log!", ex);
+      throw new SQLException(ex);
+    }
+  };
+  private static final RowMapper<AuditMessage> AUDIT_MESSAGE_MAPPER = (resultSet, i) -> {
+
+    AuditEvent event = AUDIT_EVENT_MAPPER.mapRow(resultSet, i);
+
+    Integer principalUserId = null;
+    if (resultSet.getInt("created_by_uid") != 0) {
+      principalUserId = resultSet.getInt("created_by_uid");
+    }
+    return new AuditMessage(resultSet.getInt("id"), event, resultSet.getString("actor"),
+        resultSet.getString("created_at"), principalUserId);
+
+  };
+  private static final ResultSetExtractor<Map<String, Integer>> AUDITER_CONSUMER_EXTRACTOR = resultSet -> {
+    Map<String, Integer> auditerConsumers = new HashMap<>();
+    while (resultSet.next()) {
+      // fetch from map by ID
+      String name = resultSet.getString("name");
+      Integer lastProcessedId = resultSet.getInt("last_processed_id");
+      auditerConsumers.put(name, lastProcessedId);
+    }
+    return auditerConsumers;
+  };
 
   public static final List<String> EXISTING_EVENT_CLASS_NAMES = new ArrayList<>();
 

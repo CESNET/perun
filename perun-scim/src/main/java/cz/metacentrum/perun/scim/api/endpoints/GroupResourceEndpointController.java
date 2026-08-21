@@ -4,7 +4,6 @@ import static cz.metacentrum.perun.scim.api.SCIMDefaults.BASE_PATH;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_GROUP;
 import static cz.metacentrum.perun.scim.api.SCIMDefaults.USERS_PATH;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -16,11 +15,12 @@ import cz.metacentrum.perun.scim.api.entities.GroupSCIM;
 import cz.metacentrum.perun.scim.api.entities.MemberSCIM;
 import cz.metacentrum.perun.scim.api.exceptions.SCIMException;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Endpoint controller, that returns all group resources.
@@ -46,7 +46,7 @@ public class GroupResourceEndpointController {
     }
     try {
       Group perunGroup = perunBl.getGroupsManagerBl().getGroupById(session, Integer.parseInt(identifier));
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.builder().build();
       return Response.ok(mapper.writeValueAsString(mapPerunGroupToScimGroup(perunGroup))).build();
     } catch (InternalErrorException ex) {
       log.warn("Internal exception occured while getting group with id {}.", identifier);
@@ -54,7 +54,7 @@ public class GroupResourceEndpointController {
     } catch (GroupNotExistsException ex) {
       log.warn("Group with id {} does not exists.", identifier);
       return Response.status(Response.Status.NOT_FOUND).build();
-    } catch (IOException ex) {
+    } catch (JacksonException ex) {
       throw new SCIMException("Cannot convert group resource to json string", ex);
     }
   }
@@ -78,7 +78,7 @@ public class GroupResourceEndpointController {
   }
 
   private List<MemberSCIM> mapPerunMembersToScimMembers(List<Member> perunMembers) {
-    List<MemberSCIM> scimMembers = new ArrayList();
+    List<MemberSCIM> scimMembers = new ArrayList<>();
 
     for (Member perunMember : perunMembers) {
       User perunUser;

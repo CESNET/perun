@@ -4,7 +4,6 @@ import static cz.metacentrum.perun.scim.api.SCIMDefaults.URN_GROUP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.scim.AbstractSCIMTest;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Testing class for handling group resources from Perun in SCIM protocol format.
@@ -27,7 +27,7 @@ import org.junit.Test;
 public class GroupResourceEndpointControllerTest extends AbstractSCIMTest {
 
   private GroupResourceEndpointController controller;
-  private ObjectMapper mapper;
+  private JsonMapper mapper;
 
   private GroupSCIM prepareExpectedResult() throws Exception {
 
@@ -52,7 +52,7 @@ public class GroupResourceEndpointControllerTest extends AbstractSCIMTest {
   @Before
   public void setUp() throws SCIMException, IOException, Exception {
     controller = new GroupResourceEndpointController(session);
-    mapper = new ObjectMapper();
+    mapper = JsonMapper.builder().build();
   }
 
   @Test

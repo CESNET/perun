@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.core.api.OidcConfig;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import java.io.FileNotFoundException;
@@ -14,7 +11,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-
+import tools.jackson.databind.JsonNode;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 public class PerunOidcConfigLoader {
 
@@ -24,13 +22,13 @@ public class PerunOidcConfigLoader {
   private static OidcConfig getOidcConfigFromJsonNode(JsonNode rootNode) {
     OidcConfig oidcConfig = new OidcConfig();
     try {
-      oidcConfig.setClientId(rootNode.get("client_id").asText());
-      oidcConfig.setOidcDeviceCodeUri(rootNode.get("oidc_device_code_uri").asText());
-      oidcConfig.setOidcTokenEndpointUri(rootNode.get("oidc_token_endpoint_uri").asText());
-      oidcConfig.setOidcTokenRevokeEndpointUri(rootNode.get("oidc_token_revoke_endpoint_uri").asText());
-      oidcConfig.setAcrValues(rootNode.get("acr_values").asText());
-      oidcConfig.setScopes(rootNode.get("scopes").asText());
-      oidcConfig.setPerunApiEndpoint(rootNode.get("perun_api_endpoint").asText());
+      oidcConfig.setClientId(rootNode.get("client_id").asString());
+      oidcConfig.setOidcDeviceCodeUri(rootNode.get("oidc_device_code_uri").asString());
+      oidcConfig.setOidcTokenEndpointUri(rootNode.get("oidc_token_endpoint_uri").asString());
+      oidcConfig.setOidcTokenRevokeEndpointUri(rootNode.get("oidc_token_revoke_endpoint_uri").asString());
+      oidcConfig.setAcrValues(rootNode.get("acr_values").asString());
+      oidcConfig.setScopes(rootNode.get("scopes").asString());
+      oidcConfig.setPerunApiEndpoint(rootNode.get("perun_api_endpoint").asString());
       oidcConfig.setEnforceMfa(rootNode.get("enforce_mfa").asBoolean());
     } catch (NullPointerException ex) {
       throw new InternalErrorException(
@@ -40,7 +38,7 @@ public class PerunOidcConfigLoader {
   }
 
   private JsonNode loadConfigurationFile(Resource resource) throws FileNotFoundException {
-    ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+    YAMLMapper objectMapper = YAMLMapper.builder().build();
     JsonNode rootNode;
     try (InputStream is = resource.getInputStream()) {
       rootNode = objectMapper.readTree(is);
@@ -64,7 +62,7 @@ public class PerunOidcConfigLoader {
       return null;
     }
 
-    Iterator<String> configNames = rootNode.fieldNames();
+    Iterator<String> configNames = rootNode.propertyNames().iterator();
 
     while (configNames.hasNext()) {
       String configName = configNames.next();

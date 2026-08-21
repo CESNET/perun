@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.Role;
@@ -28,6 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * The purpose of the PerunRolesLoader is to load perun roles and other policies from the perun-roles.yml configuration
@@ -38,7 +37,7 @@ import org.springframework.jdbc.core.SingleColumnRowMapper;
  */
 public class PerunRolesLoader {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
+  private static final YAMLMapper OBJECT_MAPPER = YAMLMapper.builder().build();
   private static final Logger LOG = LoggerFactory.getLogger(PerunRolesLoader.class);
 
   private Resource configurationPath;
@@ -64,9 +63,9 @@ public class PerunRolesLoader {
           " to be a correct YAML array");
     }
 
-    Iterator<JsonNode> nodeArray = node.elements();
+    Iterator<JsonNode> nodeArray = node.iterator();
     while (nodeArray.hasNext()) {
-      String value = nodeArray.next().asText();
+      String value = nodeArray.next().asString();
       if (value == null || value.isEmpty()) {
         throw new RolesConfigurationException("Expected " + parsedProperty + " for " + subject +
             " to be a correct YAML array with string items");
@@ -117,15 +116,15 @@ public class PerunRolesLoader {
                                                     String subject, String parsedProperty) {
     if (!node.isObject()) {
       throw new RolesConfigurationException("Could not parse " + parsedProperty + " for " + subject +
-          " error reading: " + node.asText());
+          " error reading: " + node.asString());
     }
     Map<String, String> resultMap = new HashMap<>();
 
-    Iterator<String> nodeArrayKeys = node.fieldNames();
+    Iterator<String> nodeArrayKeys = node.propertyNames().iterator();
     while (nodeArrayKeys.hasNext()) {
       String key = nodeArrayKeys.next();
       JsonNode valueNode = node.get(key);
-      String value = valueNode.isNull() ? null : valueNode.textValue();
+      String value = valueNode.isNull() ? null : valueNode.stringValue();
       resultMap.put(key, value);
     }
     if (allowedKeys != null) {
@@ -287,13 +286,13 @@ public class PerunRolesLoader {
     JsonNode rolesNodes = rootNode.get("perun_roles_management");
 
     // For each role node construct RoleManagementRules and add it to the map
-    Iterator<String> roleNames = rolesNodes.fieldNames();
+    Iterator<String> roleNames = rolesNodes.propertyNames().iterator();
     while (roleNames.hasNext()) {
       String roleName = roleNames.next();
       JsonNode roleNode = rolesNodes.get(roleName);
 
       JsonNode primaryObjectNode = roleNode.get("primary_object");
-      String primaryObject = primaryObjectNode.isNull() ? null : primaryObjectNode.textValue();
+      String primaryObject = primaryObjectNode.isNull() ? null : primaryObjectNode.stringValue();
 
       List<Map<String, String>> privilegedRolesToManage =
           createListOfMapsFromJsonNode(roleNode.get("privileged_roles_to_manage"), availableRoleNames,
@@ -324,7 +323,7 @@ public class PerunRolesLoader {
           roleNode.get("mfa_critical_role") != null && roleNode.get("mfa_critical_role").asBoolean();
 
       JsonNode displayNameNode = roleNode.get("display_name");
-      String displayName = displayNameNode.isNull() ? null : displayNameNode.textValue();
+      String displayName = displayNameNode.isNull() ? null : displayNameNode.stringValue();
 
       List<String> receiveNotifications = createListFromJsonNode(
           roleNode.get("receive_notifications"), roleName + " management rules", "receive_notifications");
@@ -355,7 +354,7 @@ public class PerunRolesLoader {
     }
 
     // For each policy node construct PerunPolicy and add it to the list
-    Iterator<String> policyNames = policiesNode.fieldNames();
+    Iterator<String> policyNames = policiesNode.propertyNames().iterator();
     while (policyNames.hasNext()) {
       String policyName = policyNames.next();
       JsonNode policyNode = policiesNode.get(policyName);

@@ -3,8 +3,6 @@ package cz.metacentrum.perun.registrar.impl;
 import static cz.metacentrum.perun.core.api.PerunPrincipal.ISSUER;
 import static java.util.Comparator.comparing;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -66,6 +64,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Manager for Identity consolidation in Registrar.
@@ -77,7 +77,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
   private static final Logger LOG = LoggerFactory.getLogger(ConsolidatorManagerImpl.class);
   private static final Set<String> EXT_SOURCES_MULTIPLE_IDENTIFIERS =
       BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
-  private static ObjectMapper objectMapper = new ObjectMapper();
+  private static JsonMapper objectMapper = JsonMapper.builder().build();
   private static UserInfoEndpointCall userInfoEndpointCall = new UserInfoEndpointCall();
   @Autowired
   RegistrarManager registrarManager;

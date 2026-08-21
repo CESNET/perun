@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
@@ -18,6 +15,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -50,7 +50,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
     Set<String> includeCategories = null;
     Set<String> excludeRps = null;
     try {
-      final ObjectMapper mapper = new ObjectMapper();
+      final JsonMapper mapper = JsonMapper.builder().build();
       JsonNode root = mapper.readTree(val);
 
       if (root.has("all")) {
@@ -69,7 +69,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
       if (root.has("exclude_rps")) {
         fillSet(root.get("exclude_rps"), excludeRps);
       }
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new WrongAttributeAssignmentException("Attribute " + attribute + "is incorrectly assigned.");
     }
 
@@ -92,18 +92,18 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
 
     String mfaCategoryValue = mfaCategory.valueAsString();
     try {
-      final ObjectMapper mapper = new ObjectMapper();
+      final JsonMapper mapper = JsonMapper.builder().build();
       JsonNode mfaCategoriesNode = mapper.readTree(mfaCategoryValue);
 
       // Iterate through categories and check that all included categories exist
-      for (Iterator<Map.Entry<String, JsonNode>> catIt = mfaCategoriesNode.fields(); catIt.hasNext(); ) {
+      for (Iterator<Map.Entry<String, JsonNode>> catIt = mfaCategoriesNode.properties().iterator(); catIt.hasNext(); ) {
         Map.Entry<String, JsonNode> catEntry = catIt.next();
 
         boolean checkRps = includeCategories.remove(catEntry.getKey());
         if (checkRps) {
           // Iterate through rps and check that all excluded rps exist
           JsonNode rps = catEntry.getValue().get("rps");
-          for (Iterator<Map.Entry<String, JsonNode>> rpsIt = rps.fields(); rpsIt.hasNext(); ) {
+          for (Iterator<Map.Entry<String, JsonNode>> rpsIt = rps.properties().iterator(); rpsIt.hasNext(); ) {
             Map.Entry<String, JsonNode> rp = rpsIt.next();
             excludeRps.remove(rp.getKey());
           }
@@ -119,7 +119,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
         throw new WrongReferenceAttributeValueException(
             "Rps " + excludeRps + " do not exist inside included categories in mfaCategories attribute.");
       }
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new WrongAttributeAssignmentException("Attribute " + mfaCategory + "is incorrectly assigned.");
     }
   }
@@ -145,7 +145,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
 
     // Should be string in valid JSON format
     try {
-      final ObjectMapper mapper = new ObjectMapper();
+      final JsonMapper mapper = JsonMapper.builder().build();
       JsonNode root = mapper.readTree(val);
 
       // Check "all"
@@ -175,7 +175,7 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
           "Attribute value " + val + " has incorrect format." + " Allowed values are:" + " empty string or null," +
           " {\"all\":true}," + " {\"include_categories\":[\"str1\",\"str2\"]}," +
           " {\"include_categories\":[\"str1\",\"str2\"],\"exclude_rps\":[\"rp1\",\"rp2\"]}");
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new WrongAttributeValueException("Attribute value " + val + " is not a valid JSON.");
     }
   }
@@ -187,9 +187,9 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
    * @param set  HashSet
    */
   private void fillSet(JsonNode node, Set<String> set) {
-    for (Iterator<JsonNode> it = node.elements(); it.hasNext(); ) {
+    for (Iterator<JsonNode> it = node.iterator(); it.hasNext(); ) {
       JsonNode next = it.next();
-      set.add(next.textValue());
+      set.add(next.stringValue());
     }
   }
 
@@ -203,9 +203,9 @@ public class urn_perun_user_attribute_def_def_mfaEnforceSettings extends UserAtt
     // Check property is valid array
     if (node.isArray()) {
       // Check all items of array are string like
-      for (Iterator<JsonNode> it = node.elements(); it.hasNext(); ) {
+      for (Iterator<JsonNode> it = node.iterator(); it.hasNext(); ) {
         JsonNode value = it.next();
-        if (!value.isTextual()) {
+        if (!value.isString()) {
           throw new WrongAttributeValueException("Property '" + name + "' has non textual value " + value);
         }
       }

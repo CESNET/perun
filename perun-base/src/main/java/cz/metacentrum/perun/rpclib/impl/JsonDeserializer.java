@@ -2,10 +2,6 @@ package cz.metacentrum.perun.rpclib.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
@@ -33,12 +29,15 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Deserializer that reads values from JSON content.
@@ -49,10 +48,12 @@ import java.util.Map;
 @SuppressWarnings("WeakerAccess")
 public class JsonDeserializer extends Deserializer {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final JsonMapper MAPPER;
   private static final Map<Class<?>, Class<?>> MIXIN_MAP = new HashMap<>();
 
   static {
+    JsonMapper.Builder builder = JsonMapper.builder();
+
     MIXIN_MAP.put(Attribute.class, AttributeMixIn.class);
     MIXIN_MAP.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
     MIXIN_MAP.put(User.class, UserMixIn.class);
@@ -78,20 +79,20 @@ public class JsonDeserializer extends Deserializer {
     MIXIN_MAP.put(Thanks.class, PerunBeanMixIn.class);
     MIXIN_MAP.put(ThanksForGUI.class, PerunBeanMixIn.class);
 
-    MAPPER.setMixIns(MIXIN_MAP);
+    builder.addMixIns(MIXIN_MAP);
+    MAPPER = builder.build();
   }
 
   private final JsonNode root;
 
   /**
    * @param in {@code InputStream} to read JSON data from
-   * @throws IOException  if an IO error occurs
-   * @throws RpcException if content of {@code in} is wrongly formatted
+   * @throws RpcException if content of {@code in} is wrongly formatted or IO error occurs
    */
-  public JsonDeserializer(InputStream in) throws IOException {
+  public JsonDeserializer(InputStream in) {
     try {
       root = MAPPER.readTree(in);
-    } catch (JsonProcessingException ex) {
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
     }
   }
@@ -124,8 +125,8 @@ public class JsonDeserializer extends Deserializer {
     }
 
     try {
-      return MAPPER.readValue(node.traverse(), valueType);
-    } catch (IOException ex) {
+      return MAPPER.readValue(MAPPER.treeAsTokens(node), valueType);
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as " + valueType.getSimpleName(), ex);
     }
   }
@@ -187,11 +188,11 @@ public class JsonDeserializer extends Deserializer {
     }
 
     if (!node.isInt()) {
-      if (!node.isTextual()) {
+      if (!node.isString()) {
         throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int");
       } else {
         try {
-          return Integer.parseInt(node.textValue());
+          return Integer.parseInt(node.stringValue());
         } catch (NumberFormatException ex) {
           throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as int", ex);
         }
@@ -232,10 +233,10 @@ public class JsonDeserializer extends Deserializer {
     try {
       List<T> list = new ArrayList<>(node.size());
       for (JsonNode e : node) {
-        list.add(MAPPER.readValue(e.traverse(), valueType));
+        list.add(MAPPER.readValue(MAPPER.treeAsTokens(e), valueType));
       }
       return list;
-    } catch (IOException ex) {
+    } catch (JacksonException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
           node + " as List<" + valueType.getSimpleName() + ">", ex);
     }
@@ -264,7 +265,7 @@ public class JsonDeserializer extends Deserializer {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as String");
     }
 
-    return node.asText();
+    return node.asString();
   }
 
   @Override

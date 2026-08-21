@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ public class GenResourceDataNode extends GenDataNode {
 
   private final Integer voId;
 
+  @JsonCreator
   private GenResourceDataNode(Map<Integer, GenDataNode> children, Map<Integer, Integer> members, Integer vo) {
     super(children, members);
     this.voId = vo;

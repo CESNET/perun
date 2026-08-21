@@ -116,6 +116,9 @@ import java.util.regex.PatternSyntaxException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -3248,5 +3251,15 @@ public class Utils {
       }
       return originalValue;
     }
+  }
+
+  /**
+   * Creates a new instance of DocumentBuilder in a configuration that disallows any DOCTYPE tags.
+   */
+  public static DocumentBuilder createDocumentBuilderDisallowedDoctype() throws ParserConfigurationException {
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
+    return factory.newDocumentBuilder();
   }
 }
