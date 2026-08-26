@@ -1026,10 +1026,10 @@ components:
       type: object
       properties:
         locale: { type: string }
-        label: { type: string }
+        label: { type: string, nullable: true }
         options: { type: string, nullable: true }
-        help: { type: string }
-        errorMessage: { type: string }
+        help: { type: string, nullable: true }
+        errorMessage: { type: string, nullable: true }
 
     ApplicationFormItem:
       type: object
@@ -1042,7 +1042,7 @@ components:
         federationAttribute: { type: string, nullable: true }
         perunSourceAttribute: { type: string, nullable: true }
         perunDestinationAttribute: { type: string, nullable: true }
-        regex: { type: string }
+        regex: { type: string, nullable: true }
         applicationTypes:
           type: array
           items:
