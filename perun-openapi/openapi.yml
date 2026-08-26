@@ -3117,14 +3117,6 @@ components:
       in: query
       required: false
 
-    userIdLiterally:
-      name: userId
-      description: "id of User"
-      schema:
-        type: integer
-      in: query
-      required: true
-
     optionalUserId:
       name: user
       description: "id of User"
@@ -4478,7 +4470,7 @@ paths:
       operationId: getUserRoles
       summary: Returns all roles accessible to the principal as an AuthzRoles object for a given user.
       parameters:
-        - $ref: '#/components/parameters/userIdLiterally'
+        - $ref: '#/components/parameters/userId'
       responses:
         '200':
           $ref: '#/components/responses/AuthzRolesResponse'
@@ -4492,7 +4484,7 @@ paths:
       operationId: getRegistrarUserRoles
       summary: Returns all new Registrar roles for the user derived from roles in Perun.
       parameters:
-        - $ref: '#/components/parameters/userIdLiterally'
+        - $ref: '#/components/parameters/userId'
       responses:
         '200':
           $ref: '#/components/responses/MapStringSetOfIdmObjectResponse'
@@ -4506,7 +4498,7 @@ paths:
       operationId: getUserDirectRoles
       summary: Returns all roles accessible to the principal except for those obtained from membership in authorized groups as an AuthzRoles object for a given user.
       parameters:
-        - $ref: '#/components/parameters/userIdLiterally'
+        - $ref: '#/components/parameters/userId'
       responses:
         '200':
           $ref: '#/components/responses/AuthzRolesResponse'
@@ -4520,7 +4512,7 @@ paths:
       operationId: getUserRolesObtainedFromAuthorizedGroupMemberships
       summary: Returns roles resulting from membership in authorized groups as an AuthzRoles object for a given user.
       parameters:
-        - $ref: '#/components/parameters/userIdLiterally'
+        - $ref: '#/components/parameters/userId'
       responses:
         '200':
           $ref: '#/components/responses/AuthzRolesResponse'
@@ -4535,7 +4527,7 @@ paths:
       summary: Returns map of role names with map of corresponding complementary objects (perun beans)
         together with list of authorized groups where user is member.
       parameters:
-        - $ref: '#/components/parameters/userIdLiterally'
+        - $ref: '#/components/parameters/userId'
       responses:
         '200':
           $ref: '#/components/responses/ComplementaryObjectsWithAuthzGroupsResponse'
