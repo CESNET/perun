@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.cfg.DateTimeFeature;
@@ -90,6 +91,7 @@ public class JsonDeserializer extends Deserializer {
 
     MAPPER = JsonMapper.builder()
         .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+        .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
         .addMixIns(MIXIN_MAP)
         .build();
   }
