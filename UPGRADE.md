@@ -1,5 +1,12 @@
 Upgrade notes
 
+## [56.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v56.0.0...v56.0.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* revert old json deserializer null behavior ([9aab5d6](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9aab5d678b892e427f3e0a1a84b669f6f07397db))
+
 ## [56.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v55.0.0...v56.0.0) (2026-08-21)
 
 
