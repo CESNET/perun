@@ -105,6 +105,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
       .addMixIns(MIXIN_MAP)
       .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
       .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+      .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
       .activateDefaultTyping(
           BasicPolymorphicTypeValidator.builder()
                                  .allowIfSubType("cz.metacentrum.perun.")

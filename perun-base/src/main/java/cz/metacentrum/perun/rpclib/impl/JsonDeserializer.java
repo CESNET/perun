@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.json.JsonMapper;
@@ -80,7 +81,9 @@ public class JsonDeserializer extends Deserializer {
     MIXIN_MAP.put(ThanksForGUI.class, PerunBeanMixIn.class);
 
     builder.addMixIns(MIXIN_MAP);
-    MAPPER = builder.build();
+    MAPPER = builder
+        .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+        .build();
   }
 
   private final JsonNode root;
