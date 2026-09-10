@@ -1,8 +1,11 @@
 package cz.metacentrum.perun.oidc;
 
+import static cz.metacentrum.perun.core.api.PerunPrincipal.AUTH_TIME;
+
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.ExpiredTokenException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -82,6 +85,13 @@ public class UserInfoEndpointCall {
     String email = userInfo.path("email").asString();
     if (StringUtils.isNotEmpty(email)) {
       additionalInformation.put("mail", email);
+    }
+
+    // retrieving authTime
+    String authTime = userInfo.path("auth_time").asString();
+    if (StringUtils.isNotEmpty(authTime)) {
+      Instant authReadableTimestamp = Instant.ofEpochSecond(Long.parseLong(authTime));
+      additionalInformation.put(AUTH_TIME, authReadableTimestamp.toString());
     }
 
     // retrieve friendly IdP name from the nested property
