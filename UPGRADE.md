@@ -1,5 +1,13 @@
 Upgrade notes
 
+## [56.0.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v56.0.1...v56.0.2) (2026-09-11)
+
+
+### Bug Fixes
+
+* **core:** store auth_time from user_info_endpoint in session ([6e47d7c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/6e47d7c533ec2fbf40648f4bb5239cfbd342362a))
+* fix deserialization of RichGroup ([d8f7a51](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d8f7a510c2dd42acc7af4abd3439a83a85d3815c))
+
 ## [56.0.1](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v56.0.0...v56.0.1) (2026-09-08)
 
 
