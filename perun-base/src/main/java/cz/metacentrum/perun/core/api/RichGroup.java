@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +17,7 @@ public class RichGroup extends Group {
   public RichGroup() {
   }
 
+  @JsonIgnore
   public RichGroup(Group group, List<Attribute> attrs) {
     super(group.getId(), group.getName(), group.getDescription(), group.getCreatedAt(), group.getCreatedBy(),
         group.getModifiedAt(), group.getModifiedBy(), group.getParentGroupId(), group.getCreatedByUid(),
