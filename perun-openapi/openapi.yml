@@ -11112,6 +11112,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/canBeMemberWithReasonUserId:
+    get:
+      tags:
+        - MembersManager
+      operationId: canBeMemberWithReasonUserId
+      summary: Checks if the user can apply for membership in VO, throws error containing the reason if cannot be member.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+        - { name: 'loa', in: query, required: false, schema: {type: string}, description: "User's LOA"}
+      responses:
+        '200':
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getMembersCount:
     get:
       tags:
