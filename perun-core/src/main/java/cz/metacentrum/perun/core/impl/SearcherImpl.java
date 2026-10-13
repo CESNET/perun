@@ -38,7 +38,8 @@ public class SearcherImpl implements SearcherImplApi {
       "group", Map.of("attrValueTableName", "group_attr_values", "entityTableName", "groups"),
       "user", Map.of("attrValueTableName", "user_attr_values", "entityTableName", "users"),
       "resource", Map.of("attrValueTableName", "resource_attr_values", "entityTableName", "resources"),
-      "member", Map.of("attrValueTableName", "member_attr_values", "entityTableName", "members")
+      "member", Map.of("attrValueTableName", "member_attr_values", "entityTableName", "members"),
+      "memberGroup", Map.of("attrValueTableName", "member_group_attr_values", "entityTableName", "members")
   );
 
   private static NamedParameterJdbcTemplate jdbc;
@@ -196,6 +197,83 @@ public class SearcherImpl implements SearcherImplApi {
   }
 
   @Override
+  public List<Member> getMembersByLastExtension(PerunSession sess, Vo vo, String operator, LocalDate date, int days) {
+
+    // this would default to now
+    if (date == null) {
+      date = LocalDate.now();
+    }
+    date = date.plusDays(days);
+    // create sql toDate()
+    String compareDate = "TO_DATE('" + date + "','YYYY-MM-DD')";
+
+    if (operator == null || operator.isEmpty()) {
+      operator = "=";
+    }
+
+    if (!operator.equals("<") && !operator.equals("<=") && !operator.equals("=") && !operator.equals(">=") &&
+        !operator.equals(">")) {
+      throw new InternalErrorException("Operator '" + operator + "' is not allowed in SQL.");
+    }
+
+    String query = "select distinct " +
+                       MembersManagerImpl.MEMBER_MAPPING_SELECT_QUERY + " from member_attr_values val" +
+                   " join members on val.member_id=members.id" + " and val.attr_id=(select id from attr_names where " +
+                   "attr_name='urn:perun:member:attribute-def:def:lastExtension')" +
+                   " and members.vo_id=?" +
+                   " and TO_DATE(val.attr_value, 'YYYY-MM-DD')" + operator + compareDate;
+    try {
+
+      return jdbcTemplate.query(query, MembersManagerImpl.MEMBER_MAPPER, vo.getId());
+
+    } catch (Exception e) {
+      LOG.error("Failed to get members of vo {} by lastExtension using query: {}", vo, query);
+      throw new InternalErrorException(e);
+    }
+
+  }
+
+  @Override
+  public List<Member> getMembersByGroupLastExtension(PerunSession sess, Group group, String operator, LocalDate date,
+                                                     int days) {
+
+    // if date is null, use today
+    if (date == null) {
+      date = LocalDate.now();
+    }
+    date = date.plusDays(days);
+    // create sql toDate()
+    String compareDate = "TO_DATE('" + date + "','YYYY-MM-DD')";
+
+    if (operator == null || operator.isEmpty()) {
+      operator = "=";
+    }
+
+    if (!operator.equals("<") && !operator.equals("<=") && !operator.equals("=") && !operator.equals(">=") &&
+        !operator.equals(">")) {
+      throw new InternalErrorException("Operator '" + operator + "' is not allowed in SQL.");
+    }
+
+    // Use Oracle specific SQL hint to force usage of attr_id index to prevent to_date() failure on invalid input
+    String query = "select /*+INDEX(val IDX_FK_MEMGAV_ACCATTNAM) */ distinct " +
+                   MembersManagerImpl.GROUPS_MEMBERS_MAPPING_SELECT_QUERY + " from member_group_attr_values val" +
+                   " join groups_members on val.member_id=groups_members.member_id" +
+                   " and val.group_id=groups_members.group_id" + " and val.group_id=?" +
+                   " and val.attr_id=(select id from attr_names where " +
+                   "attr_name='urn:perun:member_group:attribute-def:def:lastExtension')" +
+                   " and TO_DATE(val.attr_value, 'YYYY-MM-DD')" + operator + compareDate +
+                   " join members on members.id=val.member_id";
+    try {
+
+      return jdbcTemplate.query(query, MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, group.getId());
+
+    } catch (Exception e) {
+      LOG.error("Failed to get group members of {} by lastExtension using query: {}", group, query);
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
   public List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues,
                                      boolean allowPartialMatchForString) throws WrongAttributeValueException {
     StringBuilder query = new StringBuilder();
@@ -314,6 +392,9 @@ public class SearcherImpl implements SearcherImplApi {
    * Generates 'WHERE' clauses into given query based on values from given Map. Works with a map of entities to
    * attributes with searching values. The entity name is used to look up the corresponding tables for the attributes
    * we want to search by.
+   * <p>
+   * For the "memberGroup" entity the query must contain both the {@code members} and the {@code groups} tables, the
+   * member-group attribute values are joined on both of them.
    *
    * @param query                                 output where are the generated clauses appended
    * @param parameters                            output where are added objects used in where clauses
@@ -376,12 +457,42 @@ public class SearcherImpl implements SearcherImplApi {
                                 String attrValueTableName, String entityName, String entityTableName,
                                 String value, boolean allowPartialMatchForString, Attribute attr, int counter,
                                 List<String> whereClauses) throws WrongAttributeValueException {
-    query.append("left join ").append(attrValueTableName).append(" val").append(counter).append(" ");
-    query.append("on val").append(counter).append(".").append(entityName).append("_id=").append(entityTableName)
-        .append(".id and val").append(counter).append(".attr_id=").append(attr.getId()).append(" ");
+    String joinOnClause;
+    if ("memberGroup".equals(entityName)) {
+      // member-group attributes belong to both the member and the group, so join the values table on both ids
+      joinOnClause = "val" + counter + ".member_id=members.id and val" + counter + ".group_id=groups.id ";
+    } else {
+      joinOnClause = "val" + counter + "." + entityName + "_id=" + entityTableName + ".id ";
+    }
+    query.append("left join ").append(attrValueTableName).append(" val").append(counter).append(" on ")
+        .append(joinOnClause).append("and val").append(counter).append(".attr_id=").append(attr.getId()).append(" ");
     query.append("left join attr_names nam").append(counter).append(" on val").append(counter).append(".attr_id=nam")
         .append(counter).append(".id ");
 
+    addWhereClausesForAttributeValueMatch(parameters, value, allowPartialMatchForString, attr, counter, whereClauses);
+  }
+
+  /**
+   * Adds where-clauses (and bind parameters) that match the attribute value of the already joined
+   * {@code val<counter>}/{@code nam<counter>} aliases against the searched value.
+   * <p>
+   * The caller must join the attribute values table into {@code val<counter>} and the attribute names
+   * table into {@code nam<counter>} before invoking this method.
+   *
+   * @param parameters                 query parameters to which new bind parameters are added
+   * @param value                      value to search for (null/empty matches a NULL stored value)
+   * @param allowPartialMatchForString if true, string values are matched partially (like %value%),
+   *                                   if false only total match is used
+   * @param attr                       attribute definition which type determines the matching (its value is set as
+   *                                   a side effect, same as in extendQueryWithAttribute)
+   * @param counter                    alias counter of the joined attribute value/name tables
+   * @param whereClauses               list where generated where-clauses are appended
+   * @throws WrongAttributeValueException wrong attribute value
+   */
+  @SuppressWarnings("ConstantConditions")
+  private void addWhereClausesForAttributeValueMatch(MapSqlParameterSource parameters, String value,
+                                                     boolean allowPartialMatchForString, Attribute attr, int counter,
+                                                     List<String> whereClauses) throws WrongAttributeValueException {
     if (value == null || value.isEmpty()) {
       whereClauses.add("val" + counter + ".attr_value IS NULL ");
     } else {

@@ -129,6 +129,40 @@ public interface SearcherImplApi {
   List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date, int days);
 
   /**
+   * Returns members of the given Vo with the lastExtension attribute set, which will reach (or have reached) the
+   * given date. You can specify operator for comparison (by default "=") returning exact match.
+   * <p>
+   * Method ignores current member state, just compares the lastExtension date !
+   *
+   * @param sess     PerunSession
+   * @param vo       Vo where the members are searched
+   * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
+   * @param date     Date to compare lastExtension with (if null, current date is used).
+   * @param days     X days before/after today.
+   * @return Members with lastExtension relative to method params.
+   * @throws InternalErrorException
+   */
+  List<Member> getMembersByLastExtension(PerunSession sess, Vo vo, String operator, LocalDate date, int days);
+
+  /**
+   * Returns members of the given group with the member-group lastExtension attribute set, which will reach (or have
+   * reached) the given date. You can specify operator for comparison (by default "=") returning exact match.
+   * <p>
+   * Method returns members with the direct membership in the group. Method ignores current member state, just
+   * compares the lastExtension date !
+   *
+   * @param sess     PerunSession
+   * @param group    Group where the members are searched
+   * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
+   * @param date     Date to compare lastExtension with (if null, current date is used).
+   * @param days     X days before/after today.
+   * @return Members with lastExtension relative to method params.
+   * @throws InternalErrorException internal error
+   */
+  List<Member> getMembersByGroupLastExtension(PerunSession sess, Group group, String operator, LocalDate date,
+                                              int days);
+
+  /**
    * This method get Map of Attributes with searching values and try to find all resources, which have specific
    * attributes in format. Better information about format below. When there are more than 1 attribute in Map, it means
    * all must be true "looking for all of them" (AND)

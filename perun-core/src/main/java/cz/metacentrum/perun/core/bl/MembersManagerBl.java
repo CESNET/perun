@@ -766,6 +766,19 @@ public interface MembersManagerBl {
   void extendMembership(PerunSession sess, Member member) throws ExtendMembershipException;
 
   /**
+   * Extend member membership using membershipExpirationRules attribute defined at VO.
+   *
+   * @param sess                  session
+   * @param member                member to extend membership for
+   * @param recordLastExtension   TRUE = set the member's lastExtension attribute to the current date after the
+   *                              extension, FALSE = don't set it (used for extensions which are not initiated by an
+   *                              approved extension application, e.g. automatic extensions)
+   * @throws InternalErrorException internal error
+   * @throws ExtendMembershipException extend membership exception
+   */
+  void extendMembership(PerunSession sess, Member member, boolean recordLastExtension) throws ExtendMembershipException;
+
+  /**
    * For richMember filter all his user and member attributes and remove all which principal has no access to.
    *
    * @param sess

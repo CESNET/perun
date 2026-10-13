@@ -589,6 +589,21 @@ public interface GroupsManagerBl {
   void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws ExtendMembershipException;
 
   /**
+   * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
+   *
+   * @param sess                session
+   * @param member              member to extend membership for
+   * @param group               group to extend membership in
+   * @param recordLastExtension TRUE = set the member-group's lastExtension attribute to the current date after the
+   *                            extension, FALSE = don't set it (used for extensions which are not initiated by an
+   *                            approved extension application, e.g. automatic extensions)
+   * @throws InternalErrorException    internal error
+   * @throws ExtendMembershipException extend membership exception
+   */
+  void extendMembershipInGroup(PerunSession sess, Member member, Group group, boolean recordLastExtension)
+      throws ExtendMembershipException;
+
+  /**
    * This method take list of members (also with duplicit) and: 1] add all members with direct membership to target list
    * 2] add all members with indirect membership who are not already in target list to the target list
    *
@@ -1314,7 +1329,7 @@ public interface GroupsManagerBl {
    *
    * @param sess
    * @param vo   vo
-   * @return list of groups
+   * @return list of all groups of the VO, including sub-groups
    * @throws InternalErrorException
    */
   List<Group> getGroups(PerunSession sess, Vo vo);

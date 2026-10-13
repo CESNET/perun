@@ -2125,11 +2125,11 @@ public class Utils {
    * @param localDate date to be extended
    * @param period    period used to extend date
    * @throws InternalErrorException when the period has wrong format, allowed format is given by regex
-   *                                "\\+([0-9]+)([dmy]?)"
+   *                                "[+~]?([0-9]+)([dmy]?)"
    */
   public static LocalDate extendDateByPeriod(LocalDate localDate, String period) {
     // We will add days/months/years
-    Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
+    Pattern p = Pattern.compile("[+~]?([0-9]+)([dmy]?)");
     Matcher m = p.matcher(period);
     if (m.matches()) {
       String countString = m.group(1);

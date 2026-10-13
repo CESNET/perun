@@ -133,10 +133,12 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribu
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupSynchronizationFilename;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_useNewRegistration;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_lastExtension;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_lifecycleTimestamps;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isLifecycleAlterable;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_virt_isSuspended;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_def_lastExtension;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_def_lifecycleTimestamps;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
@@ -8879,6 +8881,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
+    //urn:perun:member:attribute-def:def:lastExtension
+    attr = new AttributeDefinition((new urn_perun_member_attribute_def_def_lastExtension())
+                                       .getAttributeDefinition());
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
     //urn:perun:member:attribute-def:def:sponzoredMember
     attr = new AttributeDefinition();
     attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
@@ -9087,6 +9095,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
     //urn:perun:member_group:attribute-def:def:lifecycleTimestamps
     attr = new AttributeDefinition((new urn_perun_member_group_attribute_def_def_lifecycleTimestamps())
+                                       .getAttributeDefinition());
+    policies = new ArrayList<>();
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:member_group:attribute-def:def:lastExtension
+    attr = new AttributeDefinition((new urn_perun_member_group_attribute_def_def_lastExtension())
                                        .getAttributeDefinition());
     policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));

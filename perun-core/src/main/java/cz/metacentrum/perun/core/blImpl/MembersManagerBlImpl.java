@@ -4,6 +4,7 @@ import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_AT
 import static cz.metacentrum.perun.core.impl.Utils.getEmailMessagePartFromEntitylessAttribute;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.EXPIRE_SPONSORED_MEMBERS;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.ACTIVITY_CAP;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.AUTO_SUBMIT_BUTTON;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.SUBMIT_BUTTON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -169,6 +170,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
   private static final String ATTR_PREFIX = "urn:perun:";
   private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
   private static final String LIFECYCLE_TIMESTAMPS = AttributesManager.NS_MEMBER_ATTR_DEF + ":lifecycleTimestamps";
+  private static final String LAST_EXTENSION = AttributesManager.NS_MEMBER_ATTR_DEF + ":lastExtension";
   private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
   public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS =
       Arrays.asList("firstname", "lastname", A_U_PREF_MAIL);
@@ -1901,12 +1903,39 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
   @Override
   public void extendMembership(PerunSession sess, Member member) throws ExtendMembershipException {
+    this.extendMembership(sess, member, false);
+  }
+
+  @Override
+  public void extendMembership(PerunSession sess, Member member, boolean recordLastExtension)
+      throws ExtendMembershipException {
+    if (recordLastExtension) {
+      // update lastExtension first so that expiration by period is not capped
+      setLastExtension(sess, member);
+    }
     try {
       checkMemberLifecycleIsAlterable(sess, member);
     } catch (MemberLifecycleAlteringForbiddenException e) {
       throw new ExtendMembershipException(e);
     }
     this.manageMembershipExpiration(sess, member, true, true);
+  }
+
+  /**
+   * Sets the member's lastExtension attribute to the current date.
+   *
+   * @param sess   session
+   * @param member member whose lastExtension attribute is set
+   */
+  private void setLastExtension(PerunSession sess, Member member) {
+    try {
+      Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, LAST_EXTENSION);
+      attribute.setValue(LocalDate.now().toString());
+      getPerunBl().getAttributesManagerBl().setAttribute(sess, member, attribute);
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+             WrongReferenceAttributeValueException e) {
+      throw new InternalErrorException("cannot set last extension date for member " + member.getId(), e);
+    }
   }
 
   @Override
@@ -2612,7 +2641,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
     // Do we extend for x months or for static date?
     if (period != null) {
-      if (period.startsWith("+")) {
+      if (period.startsWith("+") || period.startsWith("~")) {
         try {
           localDate = Utils.extendDateByPeriod(localDate, period);
         } catch (InternalErrorException e) {
@@ -3294,7 +3323,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     boolean isDisabledMember = member.getStatus().equals(Status.DISABLED);
     // Do we extend for x months or for static date?
     if (period != null) {
-      if (period.startsWith("+")) {
+      if (period.startsWith("+") || period.startsWith("~")) {
         // do not check for disabled members, they should always be allowed to have expiration set (and be validated)
         if (!isDisabledMember &&
                 !isMemberInGracePeriod(membershipExpirationRules, (String) membershipExpirationAttribute.getValue())) {
@@ -3313,6 +3342,25 @@ public class MembersManagerBlImpl implements MembersManagerBl {
           localDate = Utils.extendDateByPeriod(localDate, period);
         } catch (InternalErrorException e) {
           throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute.", e);
+        }
+        if (period.startsWith("~")) {
+          String activityCap = membershipExpirationRules.get(ACTIVITY_CAP);
+          if (activityCap != null) {
+            Attribute lastExtensionAttr;
+            try {
+              lastExtensionAttr = perunBl.getAttributesManagerBl().getAttribute(sess, member,
+                  LAST_EXTENSION);
+            } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+              throw new InternalErrorException("Shouldn't happen.");
+            }
+            if (lastExtensionAttr != null && lastExtensionAttr.getValue() != null) {
+              LocalDate lastExtension = LocalDate.parse(lastExtensionAttr.valueAsString());
+              LocalDate capDate = Utils.extendDateByPeriod(lastExtension, activityCap);
+              if (capDate.isBefore(localDate)) {
+                localDate = capDate;
+              }
+            }
+          }
         }
       } else {
         // We will extend to particular date
@@ -4471,7 +4519,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
                                            "since they are not a VALID/INVALID member of the organization.");
       }
       member = perunBl.getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
-      perunBl.getGroupsManagerBl().extendMembershipInGroup(sess, member, group);
+      perunBl.getGroupsManagerBl().extendMembershipInGroup(sess, member, group, true);
       return member;
     }
 
@@ -4479,7 +4527,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     if (!perunBl.getVosManagerBl().getMemberVos(sess, vo.getId()).isEmpty()) {
       updateOrganizationsAttributes(sess, vo, member);
     }
-    extendMembership(sess, member);
+    extendMembership(sess, member, true);
     return member;
   }
 

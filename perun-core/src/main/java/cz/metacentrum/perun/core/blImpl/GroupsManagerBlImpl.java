@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.ACTIVITY_CAP;
 import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.groupingBy;
@@ -181,6 +182,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
       AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureResources";
   private static final String A_MG_D_MEMBERSHIP_EXPIRATION =
       AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
+  private static final String LAST_EXTENSION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":lastExtension";
   private static final String LIFECYCLE_TIMESTAMPS = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +
                                                          ":lifecycleTimestamps";
   private static final String A_U_V_LOA = AttributesManager.NS_USER_ATTR_VIRT + ":loa";
@@ -253,7 +255,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     // try to set init expiration
     try {
-      extendMembershipInGroup(sess, member, group);
+      extendMembershipInGroup(sess, member, group, false, true);
     } catch (ExtendMembershipException e) {
       throw new InternalErrorException("Failed to set initial member-group expiration date.");
     }
@@ -792,7 +794,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
       return true;
     }
     try {
-      extendMembershipInGroup(sess, member, group, false);
+      extendMembershipInGroup(sess, member, group, false, false);
     } catch (ExtendMembershipException e) {
       return false;
     }
@@ -806,7 +808,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     if (membershipExpirationRulesAttribute == null) {
       return true;
     }
-    extendMembershipInGroup(sess, member, group, false);
+    extendMembershipInGroup(sess, member, group, false, false);
     return true;
   }
 
@@ -2033,7 +2035,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
    * @throws InternalErrorException    internal error
    * @throws ExtendMembershipException when cannot extend
    */
-  private LocalDate extendForMonths(LocalDate localDate, String period, Map<String, String> membershipExpirationRules,
+  private LocalDate extendForMonths(PerunSession sess, LocalDate localDate, String period,
+                                    Map<String, String> membershipExpirationRules,
                                     Attribute membershipExpirationAttribute, Member member, Group group)
       throws ExtendMembershipException {
     if (!isMemberInGracePeriod(membershipExpirationRules, (String) membershipExpirationAttribute.getValue())) {
@@ -2044,10 +2047,30 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     }
 
     try {
-      return Utils.extendDateByPeriod(localDate, period);
+      localDate = Utils.extendDateByPeriod(localDate, period);
     } catch (InternalErrorException e) {
       throw new InternalErrorException("Wrong format of period in Group membershipExpirationRules attribute.", e);
     }
+    if (period.startsWith("~")) {
+      String activityCap = membershipExpirationRules.get(ACTIVITY_CAP);
+      if (activityCap != null) {
+        Attribute lastExtensionAttr;
+        try {
+          lastExtensionAttr = perunBl.getAttributesManagerBl().getAttribute(sess, member, group,
+              LAST_EXTENSION);
+        } catch (WrongAttributeAssignmentException | AttributeNotExistsException | MemberGroupMismatchException e) {
+          throw new InternalErrorException("Shouldn't happen.");
+        }
+        if (lastExtensionAttr != null && lastExtensionAttr.getValue() != null) {
+          LocalDate lastExtension = LocalDate.parse(lastExtensionAttr.valueAsString());
+          LocalDate capDate = Utils.extendDateByPeriod(lastExtension, activityCap);
+          if (capDate.isBefore(localDate)) {
+            localDate = capDate;
+          }
+        }
+      }
+    }
+    return localDate;
   }
 
   /**
@@ -2120,14 +2143,36 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
   @Override
   public void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws ExtendMembershipException {
-    extendMembershipInGroup(sess, member, group, true);
+    this.extendMembershipInGroup(sess, member, group, false, true);
   }
 
-  private void extendMembershipInGroup(PerunSession sess, Member member, Group group, boolean setValue)
+  @Override
+  public void extendMembershipInGroup(PerunSession sess, Member member, Group group, boolean recordLastExtension)
+      throws ExtendMembershipException {
+    this.extendMembershipInGroup(sess, member, group, recordLastExtension, true);
+  }
+
+  /**
+   * Extend member membership in the group.
+   *
+   * @param sess                session
+   * @param member              member
+   * @param group               group
+   * @param recordLastExtension TRUE = set the member-group's lastExtension attribute to the current date after the
+   *                            extension (used when the extension is initiated by an approved extension application)
+   * @param setValue            FALSE = don't set the membership expiration attribute, only check if the extension is
+   *                            allowed (dry run)
+   */
+  private void extendMembershipInGroup(PerunSession sess, Member member, Group group, boolean recordLastExtension,
+                                       boolean setValue)
       throws ExtendMembershipException {
     Attribute membershipExpirationRulesAttribute = getMembershipExpirationRulesAttribute(sess, group);
     if (membershipExpirationRulesAttribute == null) {
       return;
+    }
+
+    if (setValue && recordLastExtension) {
+      setLastExtension(sess, member, group);
     }
     LinkedHashMap<String, String> membershipExpirationRules = membershipExpirationRulesAttribute.valueAsMap();
 
@@ -2152,9 +2197,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     // Do we extend for x months or for static date?
     if (period != null) {
-      if (period.startsWith("+")) {
+      if (period.startsWith("+") || period.startsWith("~")) {
         localDate =
-            extendForMonths(localDate, period, membershipExpirationRules, membershipExpirationAttribute, member, group);
+            extendForMonths(sess, localDate, period, membershipExpirationRules,
+                membershipExpirationAttribute, member, group);
       } else {
         // We will extend to particular date
         localDate =
@@ -2174,6 +2220,27 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
                MemberGroupMismatchException e) {
         throw new InternalErrorException(e);
       }
+    }
+  }
+
+  /**
+   * Sets the member-group's lastExtension attribute to the current date.
+   *
+   * @param sess   session
+   * @param member member
+   * @param group  group
+   */
+  private void setLastExtension(PerunSession sess, Member member, Group group) {
+    try {
+      Attribute attribute =
+          getPerunBl().getAttributesManagerBl().getAttribute(sess, member, group, LAST_EXTENSION);
+      attribute.setValue(LocalDate.now().toString());
+      getPerunBl().getAttributesManagerBl().setAttribute(sess, member, group, attribute);
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+             WrongReferenceAttributeValueException | MemberGroupMismatchException e) {
+      throw new InternalErrorException(
+          "cannot set last extension date for member " + member.getId() +
+          " in group " + group.getId(), e);
     }
   }
 

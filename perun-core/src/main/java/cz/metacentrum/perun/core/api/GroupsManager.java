@@ -1038,7 +1038,7 @@ public interface GroupsManager {
    *
    * @param sess
    * @param vo   vo
-   * @return list of groups
+   * @return list of all groups of the VO, including sub-groups
    * @throws InternalErrorException
    * @throws VoNotExistsException
    * @throws PrivilegeException

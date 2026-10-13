@@ -34,13 +34,17 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
   public static final String EXCLUDE_SERVICE_ACCOUNTS = "excludeServiceAccounts";
   public static final String REMOVE_AFTER = "removeAfter";
   public static final String ARCHIVE_AFTER = "archiveAfter";
+  public static final String ACTIVITY_CAP = "activityCap";
   private static final Pattern EXTENSION_DATE_PATTERN = Pattern.compile("^[+][0-9]+([dmy])$");
+  private static final Pattern ACTIVITY_DATE_PATTERN = Pattern.compile("^~[0-9]+([dmy])$");
   private static final Pattern DATE_PATTERN = Pattern.compile("^[0-9]+([dmy])$");
   private static final Pattern LOA_PATTERN = Pattern.compile("^(([0-9]+,)|([0-9]+,[ ]))*[0-9]+$");
   private static final Pattern PERIOD_LOA_PATTERN =
       Pattern.compile("^[0-9]+[|](([0-9]+[.][0-9]+[.])|([+][0-9]+([dmy])))[.]?$");
   private static final Pattern EXT_SOURCES_PATTER = Pattern.compile("^(\\d+)(,\\d+)*$");
   private static final Pattern EXPIRE_SPONSORED_MEMBERS_PATTERN = Pattern.compile("^(true)|(false)$");
+  //Maximum allowed value of the inactivity period and the activity cap - 5 years in months
+  private static final int MAX_ACTIVITY_PERIOD_MONTHS = 60;
 
   public void checkAttributeSemantics(PerunSessionImpl sess, T entity, Attribute attribute)
       throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
@@ -106,15 +110,29 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
     if (keys.contains(parameter)) {
       DateTimeFormatter dateTimeFormatter =
           DateTimeFormatter.ofPattern("d.M.uuuu").withResolverStyle(ResolverStyle.STRICT);
+      String periodValue = attrValue.get(parameter);
       try {
         //Check if given date is valid date (2000 is a leap year)
-        LocalDate.parse(attrValue.get(parameter) + "2000", dateTimeFormatter);
+        LocalDate.parse(periodValue + "2000", dateTimeFormatter);
       } catch (DateTimeParseException ex) {
         //It's not date in format d.M. (or dd.MM.) so test for next option, for example: "+18m"
-        Matcher extensionDateMatcher = EXTENSION_DATE_PATTERN.matcher(attrValue.get(parameter));
-        if (!extensionDateMatcher.find()) {
-          throw new WrongAttributeValueException(attribute,
-              "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
+        if (periodValue.startsWith("~")) {
+          Matcher activityDateMatcher = ACTIVITY_DATE_PATTERN.matcher(periodValue);
+          if (!activityDateMatcher.find()) {
+            throw new WrongAttributeValueException(attribute,
+                "There is not allowed value for parameter '" + parameter + "': " + periodValue);
+          }
+          if (toMonths(periodValue.substring(1)) > MAX_ACTIVITY_PERIOD_MONTHS) {
+            throw new WrongAttributeValueException(attribute,
+                "There is not allowed value for parameter '" + parameter +
+                    "', maximum allowed value is 5 years: " + periodValue);
+          }
+        } else {
+          Matcher extensionDateMatcher = EXTENSION_DATE_PATTERN.matcher(periodValue);
+          if (!extensionDateMatcher.find()) {
+            throw new WrongAttributeValueException(attribute,
+                "There is not allowed value for parameter '" + parameter + "': " + periodValue);
+          }
         }
       }
     }
@@ -240,6 +258,43 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
         throw new WrongAttributeValueException(attribute,
             "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
       }
+    }
+
+    parameter = ACTIVITY_CAP;
+    if (keys.contains(parameter)) {
+      Matcher dateMatcher = DATE_PATTERN.matcher(attrValue.get(parameter));
+      if (!dateMatcher.find()) {
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
+      }
+      if (toMonths(attrValue.get(parameter)) > MAX_ACTIVITY_PERIOD_MONTHS) {
+        throw new WrongAttributeValueException(attribute,
+            "There is not allowed value for parameter '" + parameter +
+                "', maximum allowed value is 5 years: " + attrValue.get(parameter));
+      }
+    }
+  }
+
+  /**
+   * Converts a period value (30d, 18m or 2y) to months.
+   *
+   * @param periodValue period in the format number + d/m/y
+   * @return period in months, -1 when the value does not match the format
+   */
+  private static int toMonths(String periodValue) {
+    if (!DATE_PATTERN.matcher(periodValue).matches()) {
+      return -1;
+    }
+    int amount = Integer.parseInt(periodValue.substring(0, periodValue.length() - 1));
+    switch (periodValue.charAt(periodValue.length() - 1)) {
+      case 'y':
+        return amount * 12;
+      case 'm':
+        return amount;
+      case 'd':
+        return amount / 30;
+      default:
+        return -1;
     }
   }
 

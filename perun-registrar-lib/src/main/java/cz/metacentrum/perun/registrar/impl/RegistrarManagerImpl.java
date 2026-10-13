@@ -951,14 +951,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
       if (app.getGroup() != null) {
         // extends users Group membership
-        groupsManager.extendMembershipInGroup(sess, member, app.getGroup());
+        groupsManager.extendMembershipInGroup(sess, member, app.getGroup(), true);
       } else {
         // extend users VO membership
         // if VO is hierarchical, add it to MemberOrganizations
         if (perun.getVosManagerBl().getMemberVos(sess, app.getVo().getId()).size() > 0) {
           perun.getMembersManagerBl().updateOrganizationsAttributes(sess, app.getVo(), member);
         }
-        membersManager.extendMembership(registrarSession, member);
+        membersManager.extendMembership(registrarSession, member, true);
       }
 
       // unreserve new logins, if user already have login in same namespace

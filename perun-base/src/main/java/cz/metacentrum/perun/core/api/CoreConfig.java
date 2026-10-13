@@ -116,6 +116,7 @@ public class CoreConfig {
   private boolean enableCustomEmail;
   private boolean customEmailRequiresVerification;
   private String verifiedEmailsAttribute;
+  private int activityExtendFrequencyDays;
 
   private void createAttributeDefinitions(String extSourceType, List<String> attrNames) {
     List<AttributeDefinition> attrs = new ArrayList<>();
@@ -238,6 +239,14 @@ public class CoreConfig {
       attrs.add(attr);
     }
     attributesForUpdate.put(extSourceType, attrs);
+  }
+
+  public int getActivityExtendFrequencyDays() {
+    return activityExtendFrequencyDays;
+  }
+
+  public void setActivityExtendFrequencyDays(int activityExtendFrequencyDays) {
+    this.activityExtendFrequencyDays = activityExtendFrequencyDays;
   }
 
   public int getAccountActivationValidationWindow() {
