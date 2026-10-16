@@ -16,6 +16,7 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRe
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -30,18 +31,16 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.modules.ModulesConfigLoader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.matchers.Any;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Test module for urn:perun:user:attribute-def:virt:eduPersonScopedAffiliations
@@ -123,7 +122,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
     List<String> actual = receivedAttr.valueAsList();
     Collections.sort(actual);
-    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3, VALUE4, VALUE5, VALUE6);
+    List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3, VALUE4, VALUE5);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
   }
@@ -131,7 +130,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
   @Test
   public void getAttributeValueOnlyFromEduPersonScopedAffiliationsManuallyAssigned() throws Exception {
     urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance =
-        new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();
+        getModuleWithConfig(false, true);
     PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
     String secondarySourceAttrName = classInstance.getSecondarySourceAttributeName();
@@ -149,10 +148,28 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
     @SuppressWarnings("unchecked") List<String> actual = (List<String>) receivedAttr.getValue();
     Collections.sort(actual);
-    List<String> expected = new ArrayList<>();
-    expected.add(VALUE6);
+    List<String> expected = Arrays.asList(VALUE6, VALUE7);
     Collections.sort(expected);
     assertEquals("collected values are incorrect", expected, actual);
+  }
+
+  @Test
+  public void getAttributeValueManualUserAffiliationsAreDisabledByDefault() throws Exception {
+    urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance =
+        new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();
+    PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+
+    String secondarySourceAttrName = classInstance.getSecondarySourceAttributeName();
+    when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, secondarySourceAttrName)).thenReturn(
+        userAtt1);
+
+    when(session.getPerunBl().getAttributesManagerBl().getEntitylessAttributes(eq(session), anyString())).thenReturn(
+        new ArrayList<>());
+    when(session.getPerunBl().getUsersManagerBl().getUserExtSources(eq(session), any())).thenReturn(new ArrayList<>());
+
+    Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
+    assertTrue(receivedAttr.getValue() instanceof List);
+    assertTrue(receivedAttr.valueAsList().isEmpty());
   }
 
   @Test
@@ -295,20 +312,36 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
     event = new AllAttributesRemovedForUser(user);
     auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
-    assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
+    assertTrue(auditEvents.isEmpty());
 
     Attribute attribute = new Attribute();
-    attribute.setFriendlyName("eduPersonScopedAffiliationsManuallyAssigned");
+    attribute.setFriendlyName("eduPersonScopedAffiliations");
     attribute.setDisplayName("");
 
     event = new AttributeSetForUser(attribute, user);
     auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
+    assertTrue(auditEvents.isEmpty());
+
+    urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations configurableModule =
+        getModuleWithConfig(true, true);
+    auditEvents = configurableModule.resolveVirtualAttributeValueChange(session, event);
     assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
 
     when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user,
         AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonScopedAffiliations")).thenReturn(attribute);
-    auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
+    auditEvents = configurableModule.resolveVirtualAttributeValueChange(session, event);
     assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
+  }
+
+  @Test
+  public void groupRelatedHandleIdentifiersCanBeDisabledByConfig() {
+    urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations configurableModule =
+        getModuleWithConfig(false, false);
+
+    AuditEvent event = new DirectMemberAddedToGroup(validMember, group1);
+    for (var handleIdentifier : configurableModule.getHandleIdentifiers()) {
+      assertEquals(null, handleIdentifier.shouldBeEventHandled(event));
+    }
   }
 
   @Before
@@ -318,7 +351,6 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
     valid = LocalDate.now();
     invalid = valid.minusDays(1);
-    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     user = new User();
     user.setId(1);
@@ -332,10 +364,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
     uesAtt2.setValue(VALUE2 + ";" + VALUE3);
 
     userAtt1 = new Attribute();
-    Map<String, String> mapValue = new LinkedHashMap<>();
-    mapValue.put(VALUE6, valid.format(dateFormat));
-    mapValue.put(VALUE7, invalid.format(dateFormat));
-    userAtt1.setValue(mapValue);
+    userAtt1.setValue(new ArrayList<>(Arrays.asList(VALUE6, VALUE7)));
 
     group1 = new Group(gId1, "G1", "G1_DSC", null, null, null, null, null, null);
 
@@ -356,4 +385,20 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
     groupAtt1.setValue(arrListValue);
   }
 
+  private urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations getModuleWithConfig(
+      boolean groupsEnabled, boolean manualEnabled) {
+    ModulesConfigLoader loader = mock(ModulesConfigLoader.class);
+    when(loader.moduleFileExists(anyString())).thenReturn(true);
+    when(loader.loadStringOrDefault(anyString(), eq("enableGroupAffiliations"), anyString())).thenReturn(
+        Boolean.toString(groupsEnabled));
+    when(loader.loadStringOrDefault(anyString(), eq("enableManualUserAffiliations"), anyString())).thenReturn(
+        Boolean.toString(manualEnabled));
+    when(loader.loadStringOrDefault(anyString(), eq("userAffiliationsAttrFriendlyName"), anyString())).thenReturn(
+        "eduPersonScopedAffiliations");
+
+    urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations module =
+        new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();
+    ReflectionTestUtils.setField(module, "loader", loader);
+    return module;
+  }
 }
