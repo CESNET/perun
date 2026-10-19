@@ -222,7 +222,7 @@ public class MailManagerImpl implements MailManager {
         .map(s -> s.endsWith("/") ? s : s + "/") // all path components need to end with "/"
         .forEach(sb::append); //append all path components
 
-    if (params != null) {
+    if (params != null && !params.isEmpty()) {
       sb.append("?");
       final StringJoiner sj = new StringJoiner("&");
       params.forEach(
