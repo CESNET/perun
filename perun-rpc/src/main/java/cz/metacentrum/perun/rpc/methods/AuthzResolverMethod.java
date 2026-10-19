@@ -73,7 +73,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * For PERUNADMIN, PERUNOBSERVER and SELF on the user returns all roles of the given user.
    * For other principals the roles are filtered only to those that the caller can read.
    *
-   * @param userId int Id of a user
+   * @param user int Id of a user
    * @return AuthzRoles Object which contains all roles with perunbeans
    * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},
    * "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
@@ -81,7 +81,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
   getUserRoles {
     @Override
     public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
-      User user = ac.getUserById(parms.readInt("userId"));
+      User user = ac.getUserById(parms.readInt("user"));
 
       return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), user, true);
     }
@@ -91,7 +91,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * Returns all new Registrar roles for the user derived from roles in Perun. This transitively includes subgroup
    * roles as well as roles for groups of VOs (e.g. when VOADMIN, add roles for all the groups of that VO)
    *
-   * @param userId int Id of a user
+   * @param user int Id of a user
    * @return Map<String, Set<IdmObject>> Map where keys are Registrar roles and values sets of the objects of those
    * roles for the user
    * @exampleResponse {"FACILITYADMIN":{{"idmObjectType": "VO", "objectId": "123"}},"PERUNADMIN":{}}
@@ -99,7 +99,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
   getRegistrarUserRoles {
     @Override
     public Map<String, Set<IdmObject>> call(ApiCaller ac, Deserializer parms) throws PerunException {
-      User user = ac.getUserById(parms.readInt("userId"));
+      User user = ac.getUserById(parms.readInt("user"));
 
       return cz.metacentrum.perun.core.api.AuthzResolver.getRegistrarUserRoles(ac.getSession(), user);
     }
@@ -112,7 +112,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * For PERUNADMIN, PERUNOBSERVER and SELF on the user returns all roles of the given user.
    * For other principals the roles are filtered only to those that the caller can read.
    *
-   * @param userId int Id of a user
+   * @param user int Id of a user
    * @return AuthzRoles Object which contains all roles with perunbeans
    * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},
    * "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
@@ -120,7 +120,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
   getUserDirectRoles {
     @Override
     public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
-      User user = ac.getUserById(parms.readInt("userId"));
+      User user = ac.getUserById(parms.readInt("user"));
 
       return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), user, false);
     }
@@ -129,7 +129,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
   /*#
    * Returns roles resulting from membership in authorized groups as an AuthzRoles object for a given user.
    *
-   * @param userId int Id of a user
+   * @param user int Id of a user
    * @return AuthzRoles Object which contains roles with perunbeans
    * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},
    * "SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
@@ -138,7 +138,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
     @Override
     public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
       return cz.metacentrum.perun.core.api.AuthzResolver.getRolesObtainedFromAuthorizedGroupMemberships(ac.getSession(),
-          parms.readInt("userId"));
+          parms.readInt("user"));
     }
   },
 
@@ -147,7 +147,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
    * together with list of authorized groups where user is member:
    * Map< RoleName, Map< BeanName, Map< BeanID, List<AuthzGroup> >>>
    *
-   * @param userId int Id of a user
+   * @param user int Id of a user
    * @return Map<String, Map<String, Map<Integer, List<Group>>>> roles with map of complementary objects with
    * associated authorized groups
    */
@@ -156,7 +156,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
     public Map<String, Map<String, Map<Integer, List<Group>>>> call(ApiCaller ac, Deserializer parms)
         throws PerunException {
       return cz.metacentrum.perun.core.api.AuthzResolver.getRoleComplementaryObjectsWithAuthorizedGroups(
-          ac.getSession(), parms.readInt("userId"));
+          ac.getSession(), parms.readInt("user"));
     }
   },
 

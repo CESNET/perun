@@ -100,6 +100,11 @@ public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
         dbpool = "db-" + attributes.get(USER) + "-" + attributes.get(URL);
       }
       this.dataSource = perunBl.getExtSourcesManagerBl().getDataSource(dbpool);
+      if (this.dataSource == null) {
+        LOG.error("Could not get DB pool {} for ExtSource {}", dbpool, getName());
+        throw new InternalErrorException("DB pool " + dbpool + " does not exist");
+      }
+
       LOG.debug("ExtSource {} got dbpool {}", getName(), dbpool);
     }
     return dataSource;

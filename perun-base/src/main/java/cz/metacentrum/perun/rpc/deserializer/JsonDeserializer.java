@@ -336,22 +336,24 @@ public class JsonDeserializer extends Deserializer {
       return null;
     }
     if (!node.isObject()) {
-      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as PerunBean.");
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node +
+      " as PerunBean - node is not an Object");
     }
 
+    String beanName = null;
     try {
-      String beanName = node.get("beanName").stringValue();
+      beanName = node.get("beanName").stringValue();
       if (beanName == null) {
         throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
-            node + " as List<PerunBean> - missing beanName info");
+            node + " as PerunBean - missing beanName info");
       }
       return (PerunBean) MAPPER.readValue(
           MAPPER.treeAsTokens(node), Class.forName("cz.metacentrum.perun.core.api." + beanName));
     } catch (ClassNotFoundException ex) {
       throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE,
-          node + " as List<PerunBean> - class not found");
+          node + " PerunBean - class cz.metacentrum.perun.core.api." + beanName + " not found");
     } catch (JacksonException ex) {
-      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as PerunBean");
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as PerunBean", ex);
     }
   }
 
@@ -390,7 +392,7 @@ public class JsonDeserializer extends Deserializer {
     try {
       uuid = UUID.fromString(node.asString());
     } catch (IllegalArgumentException e) {
-      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as UUID");
+      throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node + " as UUID", e);
     }
 
     return uuid;
