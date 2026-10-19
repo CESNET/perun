@@ -9,12 +9,11 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * All affiliations collected from: ues:def:voPersonExternalAffiliation
+ * All affiliations collected from "ues:def:voPersonExternalAffiliation" attribute
  *
  * @author Michal Berky
  */
@@ -24,12 +23,6 @@ public class urn_perun_user_attribute_def_virt_forwardedVoPersonExternalAffiliat
     extends UserVirtualAttributeCollectedFromUserExtSource {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-  private final Pattern userAllAttrsRemovedPattern =
-      Pattern.compile("All attributes removed for User:\\[(.*)]", Pattern.DOTALL);
-
-  // format has to match the format in Perun-wui setAffiliation miniapp (method createAssignedAffiliationsAttribute)
-  private static final String VALIDITY_DATE_FORMAT = "yyyy-MM-dd";
 
   @Override
   public Attribute getAttributeValue(PerunSessionImpl sess, User user,

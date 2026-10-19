@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-import requests
 import sys
+
+import requests
 
 # Authentication details
 BASE_URL = "https://api-dev.perun-aai.org/ba/rpc/json/"

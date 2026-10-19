@@ -157,6 +157,19 @@ public class VosManagerBlImpl implements VosManagerBl {
             // remove expiration set according to parentVo and update memberOrganizations and memberOrganizationsHistory
             perunBl.getAttributesManagerBl().removeAttribute(sess, newMember, memberExpirationAttrDef);
             perunBl.getMembersManagerBl().setOrganizationsAttributes(sess, memberVo, newMember);
+          } else {
+            // EXPIRED but not in the parent VO -> set memberOrg attribute the same as in `expireMember`
+            // set memberOrganizations attribute to empty list
+            Attribute memberOrganizations =
+                perunBl.getAttributesManagerBl().getAttribute(sess, newMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS);
+            memberOrganizations.setValue(new ArrayList<String>());
+            perunBl.getAttributesManagerBl().setAttribute(sess, newMember, memberOrganizations);
+
+            // update memberOrganizationsHistory attribute to contain VO
+            Attribute memberOrganizationsHistory = perunBl.getAttributesManagerBl()
+                .getAttribute(sess, newMember, A_MEMBER_DEF_MEMBER_ORGANIZATIONS_HISTORY);
+            memberOrganizationsHistory.setValue(new ArrayList<>(List.of(memberVo.getShortName())));
+            perunBl.getAttributesManagerBl().setAttribute(sess, newMember, memberOrganizationsHistory);
           }
           perunBl.getMembersManagerBl().validateMember(sess, newMember);
         }

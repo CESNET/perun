@@ -34,24 +34,25 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.modules.ModulesConfigLoader;
+import cz.metacentrum.perun.core.impl.modules.ModulesYamlConfigLoader;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * All affiliations collected from: - UserExtSources attributes -
- * urn:perun:user:attribute-def:def:eduPersonScopedAffiliationsManuallyAssigned -
- * urn:perun:group:attribute-def:def:groupAffiliations
+ * All affiliations collected from: - UserExtSources attributes - always
+ * urn:perun:user:attribute-def:def:eduPersonScopedAffiliations (or configured attr) - based on config default false
+ * urn:perun:group:attribute-def:def:groupAffiliations - based on config default true
+ * This attribute module takes its config from the YAML module config file with the following properties:
+ *  - enableGroupAffiliations: boolean, default true
+ *  - enableManualUserAffiliations: boolean, default false
+ *  - userAffiliationsAttrFriendlyName: string, default eduPersonScopedAffiliations
  *
  * @author Martin Kuba makub@ics.muni.cz
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
@@ -61,19 +62,32 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
     extends UserVirtualAttributeCollectedFromUserExtSource {
 
+  private static final String ENABLE_GROUP_AFFILIATIONS_PROPERTY = "enableGroupAffiliations";
+  private static final String ENABLE_MANUAL_USER_AFFILIATIONS_PROPERTY = "enableManualUserAffiliations";
+  private static final String USER_AFFILIATIONS_ATTR_FRIENDLY_NAME_PROPERTY = "userAffiliationsAttrFriendlyName";
+  private static final String DEFAULT_GROUP_AFFILIATIONS_ENABLED = "true";
+  private static final String DEFAULT_MANUAL_USER_AFFILIATIONS_ENABLED = "false";
+  private static final String DEFAULT_MANUAL_AFFILIATIONS_FRIENDLY_NAME = "eduPersonScopedAffiliations";
+
   private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final ModulesConfigLoader loader = new ModulesYamlConfigLoader();
 
-  private final Pattern userAllAttrsRemovedPattern =
-      Pattern.compile("All attributes removed for User:\\[(.*)]", Pattern.DOTALL);
-  private final Pattern userEPSAMASetPattern = Pattern.compile(
-      "Attribute:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() + ">(.*)] set for User:\\[(.*)]",
-      Pattern.DOTALL);
-  private final Pattern userEPSAMARemovePattern = Pattern.compile(
-      "AttributeDefinition:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() +
-      ">(.*)] removed for User:\\[(.*)]", Pattern.DOTALL);
+  private String loadModulePropertyOrDefault(String propertyName, String defaultValue) {
+    if (!loader.moduleFileExists(getClass().getSimpleName())) {
+      return defaultValue;
+    }
 
-  // format has to match the format in Perun-wui setAffiliation miniapp (method createAssignedAffiliationsAttribute)
-  private static final String VALIDITY_DATE_FORMAT = "yyyy-MM-dd";
+    return loader.loadStringOrDefault(getClass().getSimpleName(), propertyName, defaultValue);
+  }
+
+  private boolean loadModulePropertyOrDefaultAsBoolean(String propertyName, String defaultValue) {
+    try {
+      return Boolean.parseBoolean(loadModulePropertyOrDefault(propertyName, defaultValue));
+    } catch (Exception e) {
+      log.error("Error while loading module property {} as boolean. Returning default value.", propertyName, e);
+      return Boolean.parseBoolean(defaultValue);
+    }
+  }
 
   /**
    * Collect affiliations from perun Groups
@@ -149,29 +163,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
     }
 
     if (manualEPSAAttr != null) {
-      Map<String, String> value = manualEPSAAttr.valueAsMap();
+      List<String> value = manualEPSAAttr.valueAsList();
       if (value != null) {
-
-        LocalDate now = LocalDate.now();
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(VALIDITY_DATE_FORMAT);
-        for (Map.Entry<String, String> entry : value.entrySet()) {
-          try {
-            if (entry.getValue().isEmpty()) {
-              // empty expiration means indefinite validity
-              result.add(entry.getKey());
-              continue;
-            }
-
-            LocalDate expiration = LocalDate.parse(entry.getValue(), dateFormat);
-            if (!now.isAfter(expiration)) {
-              result.add(entry.getKey());
-            }
-          } catch (Exception e) {
-            log.error("Invalid date format for affiliation {} in attribute {} for user with id {}. " +
-                      "This affiliation will be skipped from the result.",
-                entry.getKey(), getSecondarySourceAttributeFriendlyName(), user.getId(), e);
-          }
-        }
+        result.addAll(value);
       }
     }
 
@@ -189,8 +183,15 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
     //for values use set because of avoiding duplicities
     Set<String> valuesWithoutDuplicities = new HashSet<>(attribute.valueAsList());
 
-    valuesWithoutDuplicities.addAll(getAffiliationsManuallyAssigned(sess, user));
-    valuesWithoutDuplicities.addAll(getAffiliationsFromGroups(sess, user));
+    if (loadModulePropertyOrDefaultAsBoolean(ENABLE_MANUAL_USER_AFFILIATIONS_PROPERTY,
+        DEFAULT_MANUAL_USER_AFFILIATIONS_ENABLED)) {
+      valuesWithoutDuplicities.addAll(getAffiliationsManuallyAssigned(sess, user));
+    }
+
+    if (loadModulePropertyOrDefaultAsBoolean(
+        ENABLE_GROUP_AFFILIATIONS_PROPERTY, DEFAULT_GROUP_AFFILIATIONS_ENABLED)) {
+      valuesWithoutDuplicities.addAll(getAffiliationsFromGroups(sess, user));
+    }
 
     //convert set to list (values in list will be without duplicities)
     destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicities));
@@ -206,6 +207,11 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
   public List<AttributeHandleIdentifier> getHandleIdentifiers() {
 
     List<AttributeHandleIdentifier> handleIdentifiers = super.getHandleIdentifiers();
+
+    if (!loadModulePropertyOrDefaultAsBoolean(
+        ENABLE_GROUP_AFFILIATIONS_PROPERTY, DEFAULT_GROUP_AFFILIATIONS_ENABLED)) {
+      return handleIdentifiers;
+    }
 
     // member related events
     handleIdentifiers.add(auditEvent -> {
@@ -246,7 +252,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
    * @return friendly name of secondary source attribute
    */
   public String getSecondarySourceAttributeFriendlyName() {
-    return "eduPersonScopedAffiliationsManuallyAssigned";
+    return loadModulePropertyOrDefault(
+        USER_AFFILIATIONS_ATTR_FRIENDLY_NAME_PROPERTY, DEFAULT_MANUAL_AFFILIATIONS_FRIENDLY_NAME);
   }
 
   /**
@@ -290,15 +297,20 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
 
     // handle source user attribute changes
 
-    if (message instanceof AttributeSetForUser && ((AttributeSetForUser) message).getAttribute().getFriendlyName()
-        .equals(getSecondarySourceAttributeFriendlyName())) {
+    if (loadModulePropertyOrDefaultAsBoolean(
+        ENABLE_MANUAL_USER_AFFILIATIONS_PROPERTY, DEFAULT_MANUAL_USER_AFFILIATIONS_ENABLED) &&
+        message instanceof AttributeSetForUser &&
+        ((AttributeSetForUser) message).getAttribute().getFriendlyName()
+            .equals(getSecondarySourceAttributeFriendlyName())) {
 
       AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl()
           .getAttributeDefinition(perunSession, getDestinationAttributeName());
       resolvingMessages.add(
           new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeSetForUser) message).getUser()));
 
-    } else if (message instanceof AttributeRemovedForUser &&
+    } else if (loadModulePropertyOrDefaultAsBoolean(
+             ENABLE_MANUAL_USER_AFFILIATIONS_PROPERTY, DEFAULT_MANUAL_USER_AFFILIATIONS_ENABLED) &&
+           message instanceof AttributeRemovedForUser &&
                ((AttributeRemovedForUser) message).getAttribute().getFriendlyName()
                    .equals(getSecondarySourceAttributeFriendlyName())) {
 
@@ -307,7 +319,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
       resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition),
           ((AttributeRemovedForUser) message).getUser()));
 
-    } else if (message instanceof AllAttributesRemovedForUser) {
+    } else if (loadModulePropertyOrDefaultAsBoolean(
+             ENABLE_MANUAL_USER_AFFILIATIONS_PROPERTY, DEFAULT_MANUAL_USER_AFFILIATIONS_ENABLED) &&
+           message instanceof AllAttributesRemovedForUser) {
 
       boolean skip = false;
       try {
@@ -332,7 +346,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
 
     // handle group attr changes, exclude "members" group, since its not counted within attr value
 
-    if (message instanceof AttributeSetForGroup &&
+    if (loadModulePropertyOrDefaultAsBoolean(
+        ENABLE_GROUP_AFFILIATIONS_PROPERTY, DEFAULT_GROUP_AFFILIATIONS_ENABLED) &&
+        message instanceof AttributeSetForGroup &&
         !VosManager.MEMBERS_GROUP.equals(((AttributeSetForGroup) message).getGroup().getName()) &&
         ((AttributeSetForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
 
@@ -345,7 +361,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
         resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
       }
 
-    } else if (message instanceof AttributeRemovedForGroup &&
+    } else if (loadModulePropertyOrDefaultAsBoolean(
+             ENABLE_GROUP_AFFILIATIONS_PROPERTY, DEFAULT_GROUP_AFFILIATIONS_ENABLED) &&
+           message instanceof AttributeRemovedForGroup &&
                !VosManager.MEMBERS_GROUP.equals(((AttributeRemovedForGroup) message).getGroup().getName()) &&
                ((AttributeRemovedForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
 
@@ -358,7 +376,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations
         resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
       }
 
-    } else if (message instanceof AllAttributesRemovedForGroup &&
+    } else if (loadModulePropertyOrDefaultAsBoolean(
+             ENABLE_GROUP_AFFILIATIONS_PROPERTY, DEFAULT_GROUP_AFFILIATIONS_ENABLED) &&
+           message instanceof AllAttributesRemovedForGroup &&
                !VosManager.MEMBERS_GROUP.equals(((AllAttributesRemovedForGroup) message).getGroup().getName())) {
 
       boolean skip = false;
