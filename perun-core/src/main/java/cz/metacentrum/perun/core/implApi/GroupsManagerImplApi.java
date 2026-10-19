@@ -95,6 +95,14 @@ public interface GroupsManagerImplApi {
   void checkGroupExists(PerunSession perunSession, Group group) throws GroupNotExistsException;
 
   /**
+   * Creates an empty application form for a newly created group.
+   *
+   * @param sess  perun session
+   * @param group group to create the form for
+   */
+  void createApplicationForm(PerunSession sess, Group group);
+
+  /**
    * Creates a new top-level group and associates it with the VO from parameter.
    * <p>
    * For this method the new group has always same shortName like Name. Important: voId in object group is ignored

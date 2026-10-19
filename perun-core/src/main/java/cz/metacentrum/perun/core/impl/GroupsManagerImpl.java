@@ -297,6 +297,17 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
   }
 
   @Override
+  public void createApplicationForm(PerunSession sess, Group group) {
+    int id = Utils.getNewId(jdbc, "APPLICATION_FORM_ID_SEQ");
+    try {
+      jdbc.update("insert into application_form(id, vo_id, group_id) values (?,?,?)", id, group.getVoId(),
+          group.getId());
+    } catch (RuntimeException e) {
+      throw new InternalErrorException(e);
+    }
+  }
+
+  @Override
   public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException {
     Utils.notNull(group, "group");
     Utils.notNull(group.getName(), "group.getName()");
