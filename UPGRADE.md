@@ -1,5 +1,48 @@
 Upgrade notes
 
+## [57.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v56.0.2...v57.0.0) (2026-10-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* eduPersonScopedAffiliations now uses YAML config file, check the javadoc
+for the available properties. If no config is provided, the attribute value will NOT include
+the user attribute values.
+* **openapi:** Rename the `userId` query parameter to `user` for
+`AuthzResolver/getUserRoles`, `AuthzResolver/getRegistrarUserRoles`,
+
+`AuthzResolver/getUserDirectRoles`,
+
+`AuthzResolver/getUserRolesObtainedFromAuthorizedGroupMemberships`, and
+
+`AuthzResolver/getRoleComplementaryObjectsWithAuthorizedGroups`.
+
+### Features
+
+* changed attribute module eduPersonScopedAffiliations ([0b719c5](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/0b719c5a429a3706f3a1664491e66db610aec924))
+* more verbose logs in json deserializer ([98d9bcf](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/98d9bcfb85f51b4709c66483e664635473e4ac8a))
+
+
+### Bug Fixes
+
+* consistent memberOrganizations attribute value on addMemberVo ([cef298e](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/cef298e86fa96f6cbaa4e887398069e9d58ea99c))
+* **core:** store auth_time from user_info_endpoint in session ([c1ed75b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c1ed75b9abedf5894d67627fd6d37e4898f157ac))
+* **deps:** update dependency google-api-services-admin-directory ([451c516](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/451c516a7994bf7264ba431b61b2232b80bbc113))
+* **deps:** update dependency google-api-services-admin-directory ([9d8e852](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9d8e852fd764fd5b94e6f1c82c64590d17f95915))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.86 ([86b4832](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/86b483274ede5971978835b099a1f160684f8a2c))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v10.6.0 ([53ffced](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/53ffcedf7bd03b229cb4a2e55c0edab7952ad26f))
+* fix deserialization of RichGroup ([306b63a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/306b63ac805889629dbf86a2ddf1af8dad0e1580))
+* **gui:** fix matomo analytics for MU template ([ae8dff3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/ae8dff3ff9bb7302052a2711c6c11a662edb2cf9))
+* **openapi:** mark nullable fields in ApplicationFormItem and ItemTexts ([4469b66](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/4469b665cbf765dd00f3b425741959a09f8d48d0)), closes [STR-2103](https://perunaai.atlassian.net/browse/STR-2103)
+* remove unnecessary query question mark if params are empty ([9e518d3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/9e518d3875d89818f9307e2abb6a1b37454169b0))
+* revert old json deserializer null behavior ([beabb7f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/beabb7f233365ab491ad761cf82012965592d377))
+* throw an exception on non-existend dbpool ([f91de2d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f91de2de8b19ec3165e0e323ba25b26deb4e2571))
+
+
+### Refactoring
+
+* **openapi:** replace userIdLiterally with userId ([82ef1fc](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/82ef1fc98078f97ab43a5addfeeb30287eba60b2))
+
 ## [56.0.2](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v56.0.1...v56.0.2) (2026-09-11)
 
 
