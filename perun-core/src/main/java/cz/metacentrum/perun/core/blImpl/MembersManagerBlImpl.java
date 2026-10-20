@@ -383,6 +383,20 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       throw new InternalErrorException("Shouldn't happen.");
     }
 
+    if (loa == null) {
+      // Get user LOA
+      try {
+        Attribute loaAttr =
+            getPerunBl().getAttributesManagerBl().getAttribute(sess, user,
+                AttributesManager.NS_USER_ATTR_VIRT + ":loa");
+        loa = Integer.toString((Integer) loaAttr.getValue());
+      } catch (AttributeNotExistsException e) {
+        // user has no loa defined - if required by VO, it will be stopped in checking method later
+      } catch (WrongAttributeAssignmentException e) {
+        throw new InternalErrorException(e);
+      }
+    }
+
     // Which LOA we won't allow?
     if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME) !=
         null) {
