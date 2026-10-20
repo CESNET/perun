@@ -36,7 +36,7 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
     }
     try {
       if (attribute.valueAsString().equals("true")) {
-        if (sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group)) {
+        if (sess.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(sess, group, true)) {
           throw new WrongReferenceAttributeValueException(attribute,
               "Synchronization cannot be enabled for groups in auto registration.");
         }

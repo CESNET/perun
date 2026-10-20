@@ -1929,10 +1929,11 @@ public interface GroupsManagerBl {
   /**
    * Check if group has automatic registration enabled in any form item.
    *
-   * @param sess  session
-   * @param group group to check
+   * @param sess              session
+   * @param group             group to check
+   * @param checkNewRegistrar whether to also check embedded forms in new Registrar
    */
-  boolean isGroupForAnyAutoRegistration(PerunSession sess, Group group);
+  boolean isGroupForAnyAutoRegistration(PerunSession sess, Group group, boolean checkNewRegistrar);
 
   /**
    * Check if group has automatic registration enabled in the given form item.

@@ -1018,26 +1018,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
           group);
     }
 
-    // when using new registrar, we have to disable this group for auto registration
-    try {
-      Attribute useNewRegistration =
-              getPerunBl()
-                      .getAttributesManagerBl()
-                      .getAttribute(
-                              sess,
-                              group,
-                              AttributesManager.NS_GROUP_ATTR_DEF + ":useNewRegistration");
-
-      if (useNewRegistration.getValue() != null &&
-              useNewRegistration.valueAsBoolean()) {
-        throw new GroupNotAllowedToAutoRegistrationException(
-                "Group using the new Registrar cannot be added to auto registration.",
-                group);
-      }
-    } catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-      // If the attribute is not defined, the group does not use the new Registrar.
-    }
-
     try {
       Attribute syncEnabledAttr =
           getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
@@ -4052,8 +4032,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
   }
 
   @Override
-  public boolean isGroupForAnyAutoRegistration(PerunSession sess, Group group) {
-    return this.getGroupsManagerImpl().isGroupForAnyAutoRegistration(sess, group);
+  public boolean isGroupForAnyAutoRegistration(PerunSession sess, Group group, boolean checkNewRegistrar) {
+    return this.getGroupsManagerImpl().isGroupForAnyAutoRegistration(sess, group) ||
+               (checkNewRegistrar && perunBl.getRegistrarAdapter().isGroupForAnyAutoRegistration(sess, group));
   }
 
   @Override

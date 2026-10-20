@@ -17,6 +17,14 @@ import java.util.UUID;
 public interface RegistrarAdapter {
 
   /**
+   * Check if group has automatic registration enabled in any form item.
+   *
+   * @param sess  session
+   * @param group group to check
+   */
+  boolean isGroupForAnyAutoRegistration(PerunSession sess, Group group);
+
+  /**
    * Reject all applications of user (consider deleting?), while freeing all reserved logins.
    * Probably skip rejection notifications for this?
    *

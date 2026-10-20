@@ -36,7 +36,8 @@ public class urn_perun_group_attribute_def_virt_autoRegistrationEnabledTest {
   @Test
   public void testAutoRegistrationDisabledGetAttributeValue() throws Exception {
     System.out.println("testAutoRegistrationDisabledAttributeValue()");
-    when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupB)).thenReturn(false);
+    when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupB, false))
+        .thenReturn(false);
 
     Boolean attributeValue = classInstance.getAttributeValue(session, groupB, attrDef).valueAsBoolean();
     assertThat(attributeValue).isFalse();
@@ -45,7 +46,8 @@ public class urn_perun_group_attribute_def_virt_autoRegistrationEnabledTest {
   @Test
   public void testAutoRegistrationEnabledGetAttributeValue() throws Exception {
     System.out.println("testAutoRegistrationEnabledGetAttributeValue()");
-    when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupA)).thenReturn(true);
+    when(session.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(session, groupA, false))
+        .thenReturn(true);
 
     Boolean attributeValue = classInstance.getAttributeValue(session, groupA, attrDef).valueAsBoolean();
     assertThat(attributeValue).isTrue();

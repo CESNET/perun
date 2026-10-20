@@ -2500,13 +2500,13 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForVoForm();
 
-    assertFalse(groupsManagerBl.isGroupForAnyAutoRegistration(session, group));
+    assertFalse(groupsManagerBl.isGroupForAnyAutoRegistration(session, group, true));
     assertFalse(groupsManagerBl.isGroupForAutoRegistration(session, group, List.of(embeddedGroupsItem.getId())));
     assertFalse(
         groupsManagerBl.isGroupForAutoRegistration(session, nonEmbeddedGroup, List.of(embeddedGroupsItem.getId())));
 
     registrarManager.addGroupsToAutoRegistration(session, List.of(group), embeddedGroupsItem);
-    assertTrue(groupsManagerBl.isGroupForAnyAutoRegistration(session, group));
+    assertTrue(groupsManagerBl.isGroupForAnyAutoRegistration(session, group, true));
     assertTrue(groupsManagerBl.isGroupForAutoRegistration(session, group, List.of(embeddedGroupsItem.getId())));
     // this group is still not added for auto registration
     assertFalse(
@@ -2528,13 +2528,13 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
     ApplicationFormItem embeddedGroupsItem = setUpEmbeddedGroupApplicationItemForGroupForm(group);
 
-    assertFalse(groupsManagerBl.isGroupForAnyAutoRegistration(session, group2));
+    assertFalse(groupsManagerBl.isGroupForAnyAutoRegistration(session, group2, true));
     assertFalse(groupsManagerBl.isGroupForAutoRegistration(session, group2, List.of(embeddedGroupsItem.getId())));
     assertFalse(
         groupsManagerBl.isGroupForAutoRegistration(session, nonEmbeddedSubgroup, List.of(embeddedGroupsItem.getId())));
 
     registrarManager.addGroupsToAutoRegistration(session, List.of(group2), group, embeddedGroupsItem);
-    assertTrue(groupsManagerBl.isGroupForAnyAutoRegistration(session, group2));
+    assertTrue(groupsManagerBl.isGroupForAnyAutoRegistration(session, group2, true));
     assertTrue(groupsManagerBl.isGroupForAutoRegistration(session, group2, List.of(embeddedGroupsItem.getId())));
     // this group is still not added for auto registration
     assertFalse(

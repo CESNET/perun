@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -7795,7 +7796,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
   }
 
   @Test
-  public void newRegistrarGroupCannotBeAddedToAutoRegistration()
+  public void newRegistrarGroupCanBeAddedToAutoRegistration()
           throws Exception {
 
     vo = setUpVo();
@@ -7812,11 +7813,9 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
     perun.getAttributesManagerBl()
             .setAttributeWithoutCheck(sess, group, attr);
 
-    assertThatThrownBy(
+    assertThatNoException().isThrownBy(
             () -> groupsManagerBl.checkGroupCanBeAddedToAutoRegistration(
-                    sess, group))
-            .isInstanceOf(GroupNotAllowedToAutoRegistrationException.class)
-            .hasMessageContaining("new Registrar");
+                    sess, group));
   }
 
   // PRIVATE METHODS -------------------------------------------------------------
