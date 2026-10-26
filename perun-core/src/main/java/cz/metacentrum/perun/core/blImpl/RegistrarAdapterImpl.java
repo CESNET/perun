@@ -256,7 +256,6 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
       input.setIdentityIdentifier(sess.getPerunPrincipal().getActor());
     }
     List<GetApplicationsForUserRequest.StatesEnum> openStates = new ArrayList<>();
-    openStates.add(GetApplicationsForUserRequest.StatesEnum.CHANGES_REQUESTED);
     openStates.add(GetApplicationsForUserRequest.StatesEnum.VERIFIED);
     openStates.add(GetApplicationsForUserRequest.StatesEnum.SUBMITTED);
     input.setStates(openStates);
