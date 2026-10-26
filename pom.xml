@@ -34,7 +34,6 @@
 		<module>perun-web-gui</module>
 		<module>perun-scim</module>
 		<module>perun-openapi</module>
-		<module>perun-cli-java</module>
 		<module>perun-auditlogger</module>
 		<module>perun-integration</module>
     </modules>
