@@ -111,6 +111,7 @@
         <property name="enableLinkedEmail" value="${perun.enableLinkedEmail}"/>
         <property name="enableCustomEmail" value="${perun.enableCustomEmail}"/>
         <property name="customEmailRequiresVerification" value="${perun.customEmailRequiresVerification}"/>
+        <property name="verifiedEmailsAttribute" value="${perun.verifiedEmailsAttribute}"/>
 
     </bean>
 
@@ -238,6 +239,7 @@
                 <prop key="perun.enableLinkedEmail">false</prop>
                 <prop key="perun.enableCustomEmail">false</prop>
                 <prop key="perun.customEmailRequiresVerification">false</prop>
+                <prop key="perun.verifiedEmailsAttribute"></prop>
             </props>
         </property>
     </bean>

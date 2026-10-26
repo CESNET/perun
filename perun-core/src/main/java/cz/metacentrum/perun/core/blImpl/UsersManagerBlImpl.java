@@ -3073,6 +3073,41 @@ public class UsersManagerBlImpl implements UsersManagerBl {
   }
 
   @Override
+  public void changeEmailFromAttribute(PerunSession sess, User user, String newEmail)
+      throws PersonalDataChangeNotEnabledException {
+    String verifiedEmailsAttrName = BeansUtils.getCoreConfig().getVerifiedEmailsAttribute();
+    if (verifiedEmailsAttrName == null || verifiedEmailsAttrName.isBlank()) {
+      throw new PersonalDataChangeNotEnabledException(
+          "Change of user's email to a verified email from attribute is not enabled.");
+    }
+    Attribute verifiedEmailsAttr;
+    try {
+      verifiedEmailsAttr = getPerunBl().getAttributesManagerBl()
+                                         .getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" +
+                                                                   verifiedEmailsAttrName.trim());
+      List<String> verifiedEmails = verifiedEmailsAttr.valueAsList();
+      if (verifiedEmails == null || !verifiedEmails.contains(newEmail)) {
+        throw new PersonalDataChangeNotEnabledException("Email '" + newEmail + "' is not among verified emails ('" +
+                                                        verifiedEmailsAttrName + "' attribute) of user: " + user);
+      }
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+      throw new InternalErrorException("Error getting '" + verifiedEmailsAttrName.trim() + "' attribute for userId: " +
+                                       user.getId() + ".", ex);
+    }
+
+    try {
+      AttributeDefinition preferredMailAttrDef = getPerunBl().getAttributesManagerBl()
+                                                     .getAttributeDefinition(sess,
+                                                         AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+      getPerunBl().getAttributesManagerBl().setAttribute(sess, user, new Attribute(preferredMailAttrDef, newEmail));
+    } catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException |
+             WrongReferenceAttributeValueException ex) {
+      throw new InternalErrorException("Error setting email attribute for userId: " + user.getId() +
+                                       ", newEmail: " + newEmail + ".", ex);
+    }
+  }
+
+  @Override
   public void changeEmailCustom(PerunSession sess, User user, String newEmail, String url, String lang, String path,
                                 String idp)
       throws PersonalDataChangeNotEnabledException {

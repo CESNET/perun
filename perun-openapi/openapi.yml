@@ -1624,6 +1624,7 @@ components:
         enableLinkedEmail: { type: boolean }
         enableCustomEmail: { type: boolean }
         customEmailRequiresVerification: { type: boolean }
+        verifiedEmailsAttribute: { type: string, description: "friendly name of user attribute with emails not requiring verification; empty if the functionality is off" }
       required:
         - enableLinkedName
         - enableCustomName
@@ -10702,6 +10703,21 @@ paths:
         - UsersManager
       operationId: changeEmail
       summary: Change user's email to email from user ext source.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - { name: newEmail, schema: { type: string }, in: query, required: true, description: "new email which will be set" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeEmailFromAttribute:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeEmailFromAttribute
+      summary: Change user's email to one of the verified emails stored in the configured user attribute. No verification is required.
       parameters:
         - $ref: '#/components/parameters/userId'
         - { name: newEmail, schema: { type: string }, in: query, required: true, description: "new email which will be set" }

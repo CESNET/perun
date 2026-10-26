@@ -2216,12 +2216,34 @@ public class UsersManagerEntry implements UsersManager {
     Utils.checkPerunSession(sess);
     getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
+    if (newEmail == null) {
+      throw new IllegalArgumentException("Email is required for user with id: " + user.getId());
+    }
+
     // Authorization
     if (!AuthzResolver.authorizedInternal(sess, "changeEmail_User_String_policy", user)) {
       throw new PrivilegeException(sess, "changeEmail");
     }
 
     getUsersManagerBl().changeEmail(sess, user, newEmail);
+  }
+
+  @Override
+  public void changeEmailFromAttribute(PerunSession sess, User user, String newEmail)
+      throws UserNotExistsException, PrivilegeException, PersonalDataChangeNotEnabledException {
+    Utils.checkPerunSession(sess);
+    getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+    if (newEmail == null) {
+      throw new IllegalArgumentException("Email is required for user with id: " + user.getId());
+    }
+
+    // Authorization
+    if (!AuthzResolver.authorizedInternal(sess, "changeEmailFromAttribute_User_String_policy", user)) {
+      throw new PrivilegeException(sess, "changeEmailFromAttribute");
+    }
+
+    getUsersManagerBl().changeEmailFromAttribute(sess, user, newEmail);
   }
 
   @Override

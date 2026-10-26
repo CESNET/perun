@@ -12,6 +12,7 @@ public class PersonalDataChangeConfig {
   private boolean enableLinkedEmail;
   private boolean enableCustomEmail;
   private boolean customEmailRequiresVerification;
+  private String verifiedEmailsAttribute;
 
   public PersonalDataChangeConfig() {}
 
@@ -87,6 +88,14 @@ public class PersonalDataChangeConfig {
     this.customEmailRequiresVerification = customEmailRequiresVerification;
   }
 
+  public String getVerifiedEmailsAttribute() {
+    return verifiedEmailsAttribute;
+  }
+
+  public void setVerifiedEmailsAttribute(String verifiedEmailsAttribute) {
+    this.verifiedEmailsAttribute = verifiedEmailsAttribute;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -104,14 +113,15 @@ public class PersonalDataChangeConfig {
                    customOrganizationRequiresApprove == that.customOrganizationRequiresApprove &&
                    enableLinkedEmail == that.enableLinkedEmail &&
                    enableCustomEmail == that.enableCustomEmail &&
-                   customEmailRequiresVerification == that.customEmailRequiresVerification;
+                   customEmailRequiresVerification == that.customEmailRequiresVerification &&
+                   Objects.equals(verifiedEmailsAttribute, that.verifiedEmailsAttribute);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(enableLinkedName, enableCustomName, customNameRequiresApprove, enableLinkedOrganization,
             enableCustomOrganization, customOrganizationRequiresApprove, enableLinkedEmail, enableCustomEmail,
-            customEmailRequiresVerification);
+            customEmailRequiresVerification, verifiedEmailsAttribute);
   }
 
   @Override
@@ -126,6 +136,7 @@ public class PersonalDataChangeConfig {
                    ", enableLinkedEmail=" + enableLinkedEmail +
                    ", enableCustomEmail=" + enableCustomEmail +
                    ", customEmailRequiresVerification=" + customEmailRequiresVerification +
+                   ", verifiedEmailsAttribute='" + verifiedEmailsAttribute +
                    '}';
   }
 }

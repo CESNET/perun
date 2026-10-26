@@ -7030,6 +7030,14 @@ perun_policies:
     mfa_rules:
       - MFA: User
 
+  changeEmailFromAttribute_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+    mfa_rules:
+      - MFA: User
+
   changeEmailCustom_User_String_String_String_String_String_policy:
     policy_roles:
       - SELF: User
