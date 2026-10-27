@@ -76,5 +76,3 @@ java -jar openapi-generator-cli-$GENERATOR_VERSION.jar generate \
 
 where the value of the --generator-name option should be the name of the language from the generators list.
 For detailed documentation see [generator usage](https://openapi-generator.tech/docs/usage#generate).
-
-An example of generating PHP client is available in [generate.sh](../perun-cli-php/generate.sh)  
