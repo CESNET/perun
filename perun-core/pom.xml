@@ -222,7 +222,7 @@
         <dependency>
             <groupId>org.perun</groupId>
             <artifactId>registrar-api-client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>2.0.0</version>
         </dependency>
     </dependencies>
 
