@@ -109,4 +109,11 @@ public interface ConfigManagerImplApi {
    * @return true if custom email requires verification, otherwise false
    */
   boolean getCustomEmailRequiresVerification();
+
+  /**
+   * Get friendly name of the user attribute holding emails which don't need verification.
+   *
+   * @return attribute friendly name, empty or null if the functionality is off
+   */
+  String getVerifiedEmailsAttribute();
 }

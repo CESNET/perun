@@ -72,6 +72,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
 import cz.metacentrum.perun.core.api.exceptions.LoginIsAlreadyBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.LoginIsNotBlockedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PersonalDataChangeNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceOnlyRoleAssignedException;
@@ -452,6 +453,54 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
     user.setFirstName(null);
     user.setLastName(null);
     User updateUser = usersManager.updateUser(sess, user);
+  }
+
+  @Test
+  public void changeEmailFromAttribute() throws Exception {
+    System.out.println(CLASS_NAME + "changeEmailFromAttribute");
+
+    String originalAttr = BeansUtils.getCoreConfig().getVerifiedEmailsAttribute();
+    try {
+      setUpVerifiedEmails("verifiedEmailsTest", new ArrayList<>(List.of("verified@test.cz", "other@test.cz")));
+
+      usersManager.changeEmailFromAttribute(sess, user, "verified@test.cz");
+
+      Attribute preferredMail = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_PREFERRED_MAIL);
+      assertEquals("verified@test.cz", preferredMail.valueAsString());
+    } finally {
+      BeansUtils.getCoreConfig().setVerifiedEmailsAttribute(originalAttr);
+    }
+  }
+
+  @Test
+  public void changeEmailFromAttributeNotInAttribute() throws Exception {
+    System.out.println(CLASS_NAME + "changeEmailFromAttributeNotInAttribute");
+
+    String originalAttr = BeansUtils.getCoreConfig().getVerifiedEmailsAttribute();
+    try {
+      setUpVerifiedEmails("verifiedEmailsTest", new ArrayList<>(List.of("verified@test.cz")));
+
+      assertThrows(PersonalDataChangeNotEnabledException.class,
+          () -> usersManager.changeEmailFromAttribute(sess, user, "unverified@test.cz"));
+
+      Attribute preferredMail = perun.getAttributesManagerBl().getAttribute(sess, user, URN_ATTR_USER_PREFERRED_MAIL);
+      assertNull(preferredMail.getValue());
+    } finally {
+      BeansUtils.getCoreConfig().setVerifiedEmailsAttribute(originalAttr);
+    }
+  }
+
+  private void setUpVerifiedEmails(String friendlyName, ArrayList<String> emails) throws Exception {
+    AttributeDefinition attrDef = new AttributeDefinition();
+    attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+    attrDef.setFriendlyName(friendlyName);
+    attrDef.setType(ArrayList.class.getName());
+    attrDef.setDisplayName(friendlyName);
+    attrDef.setDescription(friendlyName);
+    attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+
+    perun.getAttributesManagerBl().setAttribute(sess, user, new Attribute(attrDef, emails));
+    BeansUtils.getCoreConfig().setVerifiedEmailsAttribute(friendlyName);
   }
 
   @Test

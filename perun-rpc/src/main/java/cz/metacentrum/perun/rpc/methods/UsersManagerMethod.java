@@ -2141,6 +2141,28 @@ public enum UsersManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Change user's email to one of the emails stored in the user attribute configured by the
+   * verifiedEmailsAttribute config property. No verification is required.
+   *
+   * @param user user
+   * @param newEmail new email
+   * @throw UserNotExistsException                If user does not exist.
+   * @throw PrivilegeException                    if privileges are not given.
+   * @throw PersonalDataChangeNotEnabledException If the functionality is not enabled, or newEmail is not
+   *                                               among the user's verified emails.
+   */
+  changeEmailFromAttribute {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      parms.stateChangingCheck();
+      ac.getUsersManager()
+          .changeEmailFromAttribute(ac.getSession(), ac.getUserById(parms.readInt("user")),
+              parms.readString("newEmail"));
+      return null;
+    }
+  },
+
+  /*#
    * Change user's email to custom email. If verification is required, then verification email will be sent.
    * Otherwise, it will be set immediately.
    *
