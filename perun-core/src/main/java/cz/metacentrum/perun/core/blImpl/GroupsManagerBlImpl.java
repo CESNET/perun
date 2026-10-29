@@ -1502,6 +1502,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     getPerunBl().getAuditer().log(sess, new GroupCreatedInVo(group, vo));
     group.setVoId(vo.getId());
 
+    setDefaultRegistration(sess, group);
+
     //set creator as group admin unless he already have authz right on the group (he is VO admin or this is "members"
     // group of VO)
     User user = sess.getPerunPrincipal().getUser();
@@ -1542,6 +1544,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
     getPerunBl().getAuditer().log(sess, new GroupCreatedAsSubgroup(group, vo, parentGroup));
 
+    setDefaultRegistration(sess, group);
+
     // set creator as group admin unless he already has rights on the group (Perun, VO or parent group admin)
     User user = sess.getPerunPrincipal().getUser();
     if (user != null) {
@@ -1577,6 +1581,29 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
     }
 
     return group;
+  }
+
+  private void setDefaultRegistration(PerunSession sess, Group group) {
+    // The members group uses the VO's registration and cannot have its own application form.
+    if (VosManager.MEMBERS_GROUP.equals(group.getName())) {
+      return;
+    }
+
+    try {
+      Attribute defaultUseNewRegistration = getPerunBl().getAttributesManagerBl().getAttribute(sess, "groups",
+          AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":defaultUseNewRegistration");
+      if (Boolean.TRUE.equals(defaultUseNewRegistration.valueAsBoolean())) {
+        // An application form is required by the useNewRegistration attribute's semantic check.
+        getGroupsManagerImpl().createApplicationForm(sess, group);
+        Attribute useNewRegistration = getPerunBl().getAttributesManagerBl().getAttribute(sess, group,
+            AttributesManager.NS_GROUP_ATTR_DEF + ":useNewRegistration");
+        useNewRegistration.setValue(true);
+        getPerunBl().getAttributesManagerBl().setAttribute(sess, group, useNewRegistration);
+      }
+    } catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException |
+             WrongReferenceAttributeValueException e) {
+      LOG.error("Cannot set the default Registrar for the newly created group {}.", group, e);
+    }
   }
 
   @Override
