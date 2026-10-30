@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -267,6 +268,17 @@ public interface GroupsManager {
 
   boolean canExtendInNewRegistrarGroup(PerunSession sess, Member member, Group group)
       throws MemberNotExistsException, GroupNotExistsException, PrivilegeException, ExtendMembershipException;
+
+  /**
+   * Checks whether the group can be used for auto registration.`Members` group and groups with synchronization
+   * enabled cannot be used. Throw `GroupNotAllowedToAutoRegistrationException` for such groups
+   *
+   * @param sess
+   * @param group
+   * @throws GroupNotAllowedToAutoRegistrationException
+   */
+  void checkGroupCanBeAddedToAutoRegistration(PerunSession sess, Group group)
+      throws GroupNotAllowedToAutoRegistrationException, PrivilegeException, GroupNotExistsException;
 
   /**
    * Copies direct members from one group to other groups in the same VO. The members are copied without their
