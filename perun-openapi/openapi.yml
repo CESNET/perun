@@ -14554,6 +14554,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/checkGroupCanBeAddedToAutoRegistration:
+    get:
+      tags:
+        - GroupsManager
+      operationId: checkGroupCanBeAddedToAutoRegistration
+      summary: Checks whether the group can be used for auto registration.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/removeGroupUnion:
     post:
       tags:

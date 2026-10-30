@@ -2791,6 +2791,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
   },
 
   /*#
+   * Checks whether the group can be used for auto registration.`Members` group and groups with synchronization
+   * enabled cannot be used. Throw `GroupNotAllowedToAutoRegistrationException` for such groups
+   *
+   * @param group group in which the member is indirectly included
+   *
+   * @throw GroupNotExistsException If any group not exists in perun
+   * @throw GroupNotAllowedToAutoRegistrationException if group cannot be used in auto registration
+   */
+  checkGroupCanBeAddedToAutoRegistration {
+    @Override
+    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+      ac.getGroupsManager().checkGroupCanBeAddedToAutoRegistration(ac.getSession(),
+          ac.getGroupById(parms.readInt("group")));
+      return null;
+    }
+  },
+
+  /*#
    * Get unique paths of groups via which member is indirectly included to the group.
    * Cuts off after first included group.
    *
