@@ -32,6 +32,7 @@ import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -110,7 +111,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.MissingOidcAttributesRuntimeException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
@@ -4355,11 +4355,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     String extSourceName = iss != null ?
                                BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().getOrDefault(iss, iss) : null;
     if (sub == null || extSourceName == null) {
-      LOG.error("Expected both id ({}) and issuer name ({}) to be among the OIDC attributes: {}",
+      // anonymous user, set up principal with local ext source, registrar modules should assign some UES
+      sub = Long.toString(System.currentTimeMillis());
+      extSourceName = ExtSourcesManager.EXTSOURCE_NAME_LOCAL;
+      LOG.info("Expected both id ({}) and issuer name ({}) to be among the OIDC attributes: {}," +
+                   " treating as anonymous user",
           OIDC_CLAIM_SUB, OIDC_CLAIM_ISSUER, oidcAttributes);
-      throw new MissingOidcAttributesRuntimeException(
-          "Expected both id (" + OIDC_CLAIM_SUB + ") and issuer name (" + OIDC_CLAIM_ISSUER + ")" +
-          " to be among the OIDC attributes.");
     }
 
     if (group != null) {

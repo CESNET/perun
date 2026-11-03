@@ -41,7 +41,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.MissingOidcAttributesRuntimeException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -2378,7 +2377,6 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @throw MemberNotExistsException if member does not exist when required
    * @throw ExternallyManagedException if target group is externally managed
    * @throw NotGroupMemberException if user is not a member of the specified group
-   * @throw MissingOidcAttributesRuntimeException if required OIDC claims (issuer, subject) are missing
    *
    * @return created or updated member
    *
@@ -2424,7 +2422,6 @@ public enum MembersManagerMethod implements ManagerMethod {
    * @throw MemberNotExistsException if member does not exist when required
    * @throw ExternallyManagedException if target group is externally managed
    * @throw NotGroupMemberException if user is not a member of the specified group
-   * @throw MissingOidcAttributesRuntimeException if required OIDC claims (issuer, subject) are missing
    *
    * @return created or updated member
    *
