@@ -1,8 +1,10 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.ACTIVITY_CAP;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.AUTO_EXTENSION_EXT_SOURCES;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.AUTO_EXTENSION_LAST_LOGIN_PERIOD;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.EXPIRE_SPONSORED_MEMBERS;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.MEMBERSHIP_PERIOD_KEY_NAME;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -101,6 +103,74 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRulesTest {
     value.put(AUTO_EXTENSION_EXT_SOURCES, "3,2");
     attributeToCheck.setValue(value);
     classInstance.checkAttributeSemantics(session, vo, attributeToCheck);
+  }
+
+  @Test
+  public void activityCapCorrectSyntax() throws Exception {
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put(ACTIVITY_CAP, "2y");
+    attributeToCheck.setValue(value);
+    classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
+  }
+
+  @Test
+  public void activityCapBoundaryValueSyntax() throws Exception {
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put(ACTIVITY_CAP, "60m");
+    attributeToCheck.setValue(value);
+    classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
+  }
+
+  @Test
+  public void activityCapTooLargeMonthsSyntax() throws Exception {
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put(ACTIVITY_CAP, "61m");
+    attributeToCheck.setValue(value);
+    assertThatExceptionOfType(WrongAttributeValueException.class).isThrownBy(
+        () -> classInstance.checkAttributeSyntax(session, vo, attributeToCheck));
+  }
+
+  @Test
+  public void activityCapTooLargeYearsSyntax() throws Exception {
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put(ACTIVITY_CAP, "6y");
+    attributeToCheck.setValue(value);
+    assertThatExceptionOfType(WrongAttributeValueException.class).isThrownBy(
+        () -> classInstance.checkAttributeSyntax(session, vo, attributeToCheck));
+  }
+
+  @Test
+  public void inactivityPeriodCorrectSyntax() throws Exception {
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put(MEMBERSHIP_PERIOD_KEY_NAME, "~3m");
+    attributeToCheck.setValue(value);
+    classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
+  }
+
+  @Test
+  public void inactivityPeriodBoundaryValueSyntax() throws Exception {
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put(MEMBERSHIP_PERIOD_KEY_NAME, "~60m");
+    attributeToCheck.setValue(value);
+    classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
+  }
+
+  @Test
+  public void inactivityPeriodTooLargeMonthsSyntax() throws Exception {
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put(MEMBERSHIP_PERIOD_KEY_NAME, "~61m");
+    attributeToCheck.setValue(value);
+    assertThatExceptionOfType(WrongAttributeValueException.class).isThrownBy(
+        () -> classInstance.checkAttributeSyntax(session, vo, attributeToCheck));
+  }
+
+  @Test
+  public void inactivityPeriodTooLargeYearsSyntax() throws Exception {
+    Map<String, String> value = new LinkedHashMap<>();
+    value.put(MEMBERSHIP_PERIOD_KEY_NAME, "~6y");
+    attributeToCheck.setValue(value);
+    assertThatExceptionOfType(WrongAttributeValueException.class).isThrownBy(
+        () -> classInstance.checkAttributeSyntax(session, vo, attributeToCheck));
   }
 
   // ------------- Semantics ------------- //

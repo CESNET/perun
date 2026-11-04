@@ -185,6 +185,17 @@ public class SearcherBlImpl implements SearcherBl {
     return getSearcherImpl().getMembersByGroupExpiration(sess, group, operator, date, 0);
   }
 
+  @Override
+  public List<Member> getMembersByLastExtension(PerunSession sess, Vo vo, String operator, LocalDate date) {
+    return getSearcherImpl().getMembersByLastExtension(sess, vo, operator, date, 0);
+  }
+
+  @Override
+  public List<Member> getMembersByGroupLastExtension(PerunSession sess, Group group, String operator,
+                                                     LocalDate date) {
+    return getSearcherImpl().getMembersByGroupLastExtension(sess, group, operator, date, 0);
+  }
+
   public PerunBl getPerunBl() {
     return this.perunBl;
   }

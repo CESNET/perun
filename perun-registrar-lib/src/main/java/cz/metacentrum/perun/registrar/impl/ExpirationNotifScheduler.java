@@ -1,8 +1,10 @@
 package cz.metacentrum.perun.registrar.impl;
 
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.ACTIVITY_CAP;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.AUTO_EXTENSION_EXT_SOURCES;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.AUTO_EXTENSION_LAST_LOGIN_PERIOD;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.LIFECYCLE_ENABLED;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.MEMBERSHIP_PERIOD_KEY_NAME;
 import static java.util.stream.Collectors.toMap;
 
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.CesnetEligibleExpiration;
@@ -23,6 +25,7 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunClient;
@@ -45,8 +48,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.Synchronizer;
@@ -97,6 +98,15 @@ public class ExpirationNotifScheduler {
                                                                   ":lifecycleTimestamps";
   private static final String A_MEMBER_GROUP_LIFECYCLE_TIMESTAMPS = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +
                                                                         ":lifecycleTimestamps";
+  private static final String USER_ACCESS_TIMESTAMP_ATTRIBUTE = AttributesManager.NS_USER_ATTR_DEF +
+                                                                    ":isCesnetEligibleLastSeen";
+  private static final String A_MEMBER_LAST_EXTENSION_ATTRIBUTE = AttributesManager.NS_MEMBER_ATTR_DEF +
+                                                                      ":lastExtension";
+  private static final String A_MEMBER_G_LAST_EXTENSION_ATTRIBUTE = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF +
+                                                                      ":lastExtension";
+  private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
+  private static final String A_MEMBER_GROUP_MEMBERSHIP_EXPIRATION =
+      AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
   private final DateTimeFormatter lastAccessFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   private PerunSession sess;
   private PerunBl perun;
@@ -125,23 +135,27 @@ public class ExpirationNotifScheduler {
    */
   private void auditIncomingExpirations(List<Status> allowedStatuses, Map<Integer, Vo> vosMap) {
     LocalDate nextMonth = getCurrentLocalDate().plusMonths(1);
+    Map<Integer, Attribute> expAttrsByVos = vosMap.values().stream()
+                                                .collect(toMap(Vo::getId, this::getVoExpirationAttribute));
 
     // log message for all members which will expire in 30 days
-    auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, nextMonth, ExpirationPeriod.MONTH);
+    auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expAttrsByVos, nextMonth,
+        ExpirationPeriod.MONTH);
 
     // log message for all members which will expire in 14 days
     LocalDate expireInA14Days = getCurrentLocalDate().plusDays(14);
-    auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expireInA14Days,
+    auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expAttrsByVos, expireInA14Days,
         ExpirationPeriod.DAYS_14);
 
     // log message for all members which will expire in 7 days
     LocalDate expireInA7Days = getCurrentLocalDate().plusDays(7);
-    auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expireInA7Days,
+    auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expAttrsByVos, expireInA7Days,
         ExpirationPeriod.DAYS_7);
 
     // log message for all members which will expire tomorrow
     LocalDate expireInADay = getCurrentLocalDate().plusDays(1);
-    auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expireInADay, ExpirationPeriod.DAYS_1);
+    auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expAttrsByVos, expireInADay,
+        ExpirationPeriod.DAYS_1);
   }
 
   /**
@@ -153,24 +167,25 @@ public class ExpirationNotifScheduler {
    */
   private void auditIncomingGroupExpirations(List<Status> allowedStatuses, Group group) {
     LocalDate nextMonth = getCurrentLocalDate().plusMonths(1);
+    Attribute groupExpAttr = getGroupExpirationAttribute(group);
 
     // log message for all members which will expire in 30 days
-    auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, nextMonth,
+    auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, groupExpAttr, nextMonth,
         GroupExpirationPeriod.MONTH);
 
     // log message for all members which will expire in 14 days
     LocalDate expireInA14Days = getCurrentLocalDate().plusDays(14);
-    auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInA14Days,
+    auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, groupExpAttr, expireInA14Days,
         GroupExpirationPeriod.DAYS_14);
 
     // log message for all members which will expire in 7 days
     LocalDate expireInA7Days = getCurrentLocalDate().plusDays(7);
-    auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInA7Days,
+    auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, groupExpAttr, expireInA7Days,
         GroupExpirationPeriod.DAYS_7);
 
     // log message for all members which will expire tomorrow
     LocalDate expireInADay = getCurrentLocalDate().plusDays(1);
-    auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInADay,
+    auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, groupExpAttr, expireInADay,
         GroupExpirationPeriod.DAYS_1);
   }
 
@@ -185,12 +200,30 @@ public class ExpirationNotifScheduler {
    * @throws InternalErrorException internal error
    */
   private void auditInfoAboutIncomingGroupMembersExpirationInGivenTime(List<Status> allowedStatuses, Group group,
+                                                                       Attribute groupExpAttr,
                                                                        LocalDate timeBeforeExpiration,
                                                                        GroupExpirationPeriod expirationPeriod) {
-    List<Member> expireInTime =
-        perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "=", timeBeforeExpiration);
+    // members expiring on the given date due to inactivity - including those from groups using automated
+    // extension, for them the expiration reflects their last activity, so it only approaches the given date
+    // when they are actually going to expire
+    List<Member> toNotify = new ArrayList<>(
+        perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "=", timeBeforeExpiration));
+    Set<Integer> alreadyNotified = toNotify.stream().map(Member::getId).collect(Collectors.toSet());
 
-    for (Member m : expireInTime) {
+    if (usesAutomatedExtension(groupExpAttr)) {
+      // also add members whose activity cap deadline hits on the given date, their expiration attribute still
+      // reflects their last activity, so they are not covered by the expiration attribute search above
+      LocalDate notifyDate = getNotifyDate(groupExpAttr, timeBeforeExpiration);
+      if (notifyDate != null) {
+        for (Member m : perun.getSearcherBl().getMembersByGroupLastExtension(sess, group, "=", notifyDate)) {
+          if (alreadyNotified.add(m.getId())) {
+            toNotify.add(m);
+          }
+        }
+      }
+    }
+
+    for (Member m : toNotify) {
       try {
         // we don't notify disabled or invalid members
         if (allowedStatuses.contains(m.getStatus())) {
@@ -226,6 +259,24 @@ public class ExpirationNotifScheduler {
   }
 
   /**
+   * Computes the lastExtension value, whose members reach their activity cap deadline on the given target date.
+   *
+   * @param expRulesAttribute      expiration rules attribute of the VO or group
+   * @param timeBeforeExpiration   target date, on which the cap deadline should hit
+   * @return lastExtension value, or null if the activity cap is not set in the rules
+   */
+  private static LocalDate getNotifyDate(Attribute expRulesAttribute, LocalDate timeBeforeExpiration) {
+    LinkedHashMap<String, String> rulesAttrValue = expRulesAttribute.valueAsMap();
+    String activityCap = rulesAttrValue.get(ACTIVITY_CAP);
+    if (activityCap == null) {
+      // no cap set, so no cap based notifications
+      return null;
+    }
+    // last extension plus activity cap = time before => notify
+    return Utils.shortenDateByPeriod(timeBeforeExpiration, activityCap);
+  }
+
+  /**
    * Finds members who should expire in given time, and if they did not submit an extension application, notification is
    * logged in auditer
    *
@@ -236,10 +287,34 @@ public class ExpirationNotifScheduler {
    * @throws InternalErrorException internal error
    */
   private void auditInfoAboutIncomingMembersExpirationInGivenTime(List<Status> allowedStatuses, Map<Integer, Vo> vosMap,
+                                                                  Map<Integer, Attribute> expAttrsByVos,
                                                                   LocalDate timeBeforeExpiration,
                                                                   ExpirationPeriod expirationPeriod) {
+    // all members expiring on the given date - including those from VOs using automated extension, for them
+    // the expiration reflects their last activity, so it only approaches the given date when they are actually
+    // going to expire
     List<Member> expireInTime = perun.getSearcherBl().getMembersByExpiration(sess, "=", timeBeforeExpiration);
-    for (Member m : expireInTime) {
+    List<Member> toNotify = new ArrayList<>(expireInTime);
+    Set<Integer> alreadyNotified = expireInTime.stream().map(Member::getId).collect(Collectors.toSet());
+
+    for (Vo vo : vosMap.values()) {
+      Attribute voExpAttribute = expAttrsByVos.get(vo.getId());
+      if (!usesAutomatedExtension(voExpAttribute)) {
+        continue;
+      }
+      // also add members whose activity cap deadline hits on the given date, their expiration attribute still
+      // reflects their last activity, so they are not covered by the expiration attribute search above
+      LocalDate notifyDate = getNotifyDate(voExpAttribute, timeBeforeExpiration);
+      if (notifyDate != null) {
+        for (Member m : perun.getSearcherBl().getMembersByLastExtension(sess, vo, "=", notifyDate)) {
+          if (alreadyNotified.add(m.getId())) {
+            toNotify.add(m);
+          }
+        }
+      }
+    }
+
+    for (Member m : toNotify) {
       try {
         if (allowedStatuses.contains(m.getStatus())) {
           perun.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
@@ -266,6 +341,18 @@ public class ExpirationNotifScheduler {
         }
       }
     }
+  }
+
+  private static boolean usesAutomatedExtension(Attribute expRulesAttribute) {
+    if (expRulesAttribute != null && expRulesAttribute.getValue() != null) {
+      LinkedHashMap<String, String> rulesAttrValue = expRulesAttribute.valueAsMap();
+      if ("true".equals(rulesAttrValue.get(LIFECYCLE_ENABLED))) {
+        // do not perform ues autoextend if auto-extending on activity
+        return rulesAttrValue.get(MEMBERSHIP_PERIOD_KEY_NAME) != null &&
+                   rulesAttrValue.get(MEMBERSHIP_PERIOD_KEY_NAME).startsWith("~");
+      }
+    }
+    return false;
   }
 
   private void auditIsCesnetEligibleExpiration(LocalDate today, User user, String isEligibleTimestamp) {
@@ -435,6 +522,7 @@ public class ExpirationNotifScheduler {
    * @param date  current date
    */
   private void checkGroupMemberExpiration(Group group, LocalDate date) {
+
     List<Member> shouldBeExpired = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "<=", date);
     shouldBeExpired.stream()
         // read member exact group status (not calculated from other group relations),
@@ -676,7 +764,7 @@ public class ExpirationNotifScheduler {
 
     LocalDate today = getCurrentLocalDate();
     try {
-      expireMembers(today);
+      expireMembers(today, vos);
       validateMembers(today);
       expireSponsorships();
       performLifecycleChangesForVos(vos, today);
@@ -776,11 +864,14 @@ public class ExpirationNotifScheduler {
 
   }
 
+
   /**
    * Expires members whose expiration is set to given date or before it.
    *
+   * @param date date on which the members are expired
+   * @param vos  all VOs from perun
    */
-  private void expireMembers(LocalDate date) {
+  private void expireMembers(LocalDate date, List<Vo> vos) {
     List<Member> shouldBeExpired = perun.getSearcherBl().getMembersByExpiration(sess, "<=", date);
     for (Member member : shouldBeExpired) {
       if (member.getStatus().equals(Status.VALID)) {
@@ -965,6 +1056,9 @@ public class ExpirationNotifScheduler {
 
     for (Member member : soonExpiringMembers) {
       Attribute voExpAttribute = expAttrsByVos.get(member.getVoId());
+      if (usesAutomatedExtension(voExpAttribute)) {
+        continue;
+      }
       if (canBeAutoExtended(member, voExpAttribute)) {
         try {
           perun.getMembersManagerBl().extendMembership(sess, member);
@@ -972,6 +1066,153 @@ public class ExpirationNotifScheduler {
           LOG.error("Failed to auto-extend member: {}.", member, e);
         }
       }
+    }
+
+    for (Vo vo : vos) {
+      boolean voUsesActivity = usesAutomatedExtension(expAttrsByVos.get(vo.getId()));
+      // groups of the VO using the activity model - they are checked even when the VO itself does not use it
+      List<Group> activityGroups = new ArrayList<>();
+      for (Group group : perun.getGroupsManagerBl().getGroups(sess, vo)) {
+        if (usesAutomatedExtension(getGroupExpirationAttribute(group))) {
+          activityGroups.add(group);
+        }
+      }
+      if (!voUsesActivity && activityGroups.isEmpty()) {
+        continue;
+      }
+      List<Member> members = perun.getMembersManagerBl().getMembers(sess, vo);
+      for (Member member : members) {
+        // non-valid members (e.g. expired) are not auto-extended, they must submit an extension application
+        if (!member.getStatus().equals(Status.VALID)) {
+          continue;
+        }
+        if (voUsesActivity) {
+          // members created, or present when the activity model was introduced, have no lastExtension,
+          // initialize it with the current date so the activity cap can count from today
+          ensureMemberLastExtension(sess, member, expAttrsByVos.get(vo.getId()).valueAsMap());
+        }
+        User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+        Attribute timestampAttr;
+        try {
+          timestampAttr = perun.getAttributesManagerBl().getAttribute(sess, user, USER_ACCESS_TIMESTAMP_ATTRIBUTE);
+        } catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+          // shouldn't happen
+          LOG.error("Failed to get user timestamp attribute.", e);
+          throw new InternalErrorException(e);
+        }
+        if (timestampAttr == null || timestampAttr.getValue() == null) {
+          LOG.warn("Timestamp attribute not defined for user {}", user.getId());
+          continue;
+        }
+        LocalDate lastAccessDate = LocalDate.parse(timestampAttr.valueAsString(), lastAccessFormatter);
+        LocalDate lastCheckDate = getCurrentLocalDate()
+                                      .minusDays(BeansUtils.getCoreConfig().getActivityExtendFrequencyDays());
+        if (!lastAccessDate.isAfter(lastCheckDate)) {
+          // user has not accessed since the last check, do not extend memberships
+          continue;
+        }
+        for (Group group : activityGroups) {
+          // only direct members which are VALID in the group are auto-extended, others must re-apply
+          MemberGroupStatus groupStatus;
+          try {
+            groupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group);
+          } catch (Exception e) {
+            LOG.error("Failed to read direct group status of {} in {}. Member will be skipped from group " +
+                      "auto extension.", member.getId(), group.getId(), e);
+            continue;
+          }
+          if (!MemberGroupStatus.VALID.equals(groupStatus)) {
+            continue;
+          }
+          if (!perun.getGroupsManagerBl().canExtendMembershipInGroup(sess, member, group)) {
+            continue;
+          }
+          // members present when the activity model was introduced have no lastExtension in the group,
+          // initialize it with the current date so the activity cap can count from today
+          ensureMemberGroupLastExtension(sess, member, group, getGroupExpirationAttribute(group).valueAsMap());
+          // do not record lastExtension, it must stay the date of the last member-initiated extension,
+          // otherwise the activity cap would be reset on every auto-extension and never reached
+          try {
+            perun.getGroupsManagerBl().extendMembershipInGroup(sess, member, group);
+          } catch (ExtendMembershipException e) {
+            LOG.error("Failed to auto-extend member: {} in group {}", member.getId(), group.getId(), e);
+          }
+        }
+        if (!voUsesActivity || !perun.getMembersManagerBl().canExtendMembership(sess, member)) {
+          continue;
+        }
+
+        // do not record lastExtension, it must stay the date of the last member-initiated extension,
+        // otherwise the activity cap would be reset on every auto-extension and never reached
+        try {
+          perun.getMembersManagerBl().extendMembership(sess, member, false);
+        } catch (Exception e) {
+          LOG.error("Failed to auto-extend member: {}.", member, e);
+        }
+      }
+    }
+  }
+
+  /**
+   * Ensures that the member has the lastExtension attribute set. Members created, or already present when the
+   * activity-based extension model was introduced, do not have it, so it is initialized with the current date.
+   *
+   * @param sess   perun session
+   * @param member member to check
+   */
+  private void ensureMemberLastExtension(PerunSession sess, Member member, Map<String, String> expRules) {
+    try {
+      Attribute lastExtensionAttr = perun.getAttributesManagerBl()
+          .getAttribute(sess, member, A_MEMBER_LAST_EXTENSION_ATTRIBUTE);
+      if (lastExtensionAttr.getValue() == null) {
+        Attribute memberExpiration = perun.getAttributesManagerBl()
+                                         .getAttribute(sess, member, EXPIRATION);
+        String activityCap = expRules.get(ACTIVITY_CAP);
+        if (memberExpiration.getValue() == null || activityCap == null) {
+          lastExtensionAttr.setValue(getCurrentLocalDate().toString());
+        } else {
+          lastExtensionAttr.setValue(Utils.shortenDateByPeriod(LocalDate.parse(memberExpiration.valueAsString()),
+              activityCap));
+        }
+        perun.getAttributesManagerBl().setAttribute(sess, member, lastExtensionAttr);
+        LOG.info("Initialized missing lastExtension attribute of member {} to {}",
+            member, lastExtensionAttr.getValue());
+      }
+    } catch (Exception e) {
+      LOG.error("Failed to initialize lastExtension attribute of member {}", member, e);
+    }
+  }
+
+  /**
+   * Ensures that the member has the member-group lastExtension attribute set in the given group. Members present
+   * in the group when the activity-based extension model was introduced do not have it, so it is initialized with
+   * the current date.
+   *
+   * @param sess   perun session
+   * @param member member to check
+   * @param group  group to check the member-group attribute in
+   */
+  private void ensureMemberGroupLastExtension(PerunSession sess, Member member, Group group,
+                                              Map<String, String> expRules) {
+    try {
+      Attribute lastExtensionAttr = perun.getAttributesManagerBl()
+          .getAttribute(sess, member, group, A_MEMBER_G_LAST_EXTENSION_ATTRIBUTE);
+      if (lastExtensionAttr.getValue() == null) {
+        Attribute memberExpiration = perun.getAttributesManagerBl()
+                                         .getAttribute(sess, member, group, A_MEMBER_GROUP_MEMBERSHIP_EXPIRATION);
+        String activityCap = expRules.get(ACTIVITY_CAP);
+        if (memberExpiration.getValue() == null || activityCap == null) {
+          lastExtensionAttr.setValue(getCurrentLocalDate().toString());
+        } else {
+          lastExtensionAttr.setValue(Utils.shortenDateByPeriod(LocalDate.parse(memberExpiration.valueAsString()),
+              activityCap));
+        }
+        perun.getAttributesManagerBl().setAttribute(sess, member, group, lastExtensionAttr);
+        LOG.info("Initialized missing lastExtension attribute of member {} in group {} to {}",
+            member, group, lastExtensionAttr.getValue());
+      }
+    } catch (Exception e) {
+      LOG.error("Failed to initialize lastExtension attribute of member {} in group {}", member, group, e);
     }
   }
 

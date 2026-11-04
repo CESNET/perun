@@ -56,6 +56,6 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules
            parameter.equals(MEMBERSHIP_DO_NOT_ALLOW_LOA_KEY_NAME) || parameter.equals(AUTO_EXTENSION_EXT_SOURCES) ||
            parameter.equals(AUTO_EXTENSION_LAST_LOGIN_PERIOD) || parameter.equals(EXPIRE_SPONSORED_MEMBERS) ||
            parameter.equals(LIFECYCLE_ENABLED) || parameter.equals(REMOVE_AFTER) || parameter.equals(ARCHIVE_AFTER) ||
-           parameter.equals(EXCLUDE_SERVICE_ACCOUNTS);
+           parameter.equals(EXCLUDE_SERVICE_ACCOUNTS) || parameter.equals(ACTIVITY_CAP);
   }
 }
