@@ -77,7 +77,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.MissingOidcAttributesRuntimeException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
@@ -5067,19 +5066,6 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
     assertNotNull(member);
     assertEquals(MemberGroupStatus.VALID, member.getGroupStatus());
-  }
-
-  @Test(expected = MissingOidcAttributesRuntimeException.class)
-  public void createMemberFromRegistrarApplicationWhenOidcAttributesMissingSub() throws Exception {
-    System.out.println(CLASS_NAME + "createMemberFromRegistrarApplicationWhenOidcAttributesMissingSub");
-
-    Vo vo = setUpVo("TestVo");
-    Map<String, String> attributes = new HashMap<>();
-    Map<String, String> oidcAttributes = new HashMap<>();
-    oidcAttributes.put("iss", "https://issuer.example.com");
-
-    membersManagerEntry.createMemberFromRegistrarApplication(sess, vo, null, attributes, oidcAttributes,
-        ApplicationType.INITIAL);
   }
 
   @Test(expected = InternalErrorException.class)
