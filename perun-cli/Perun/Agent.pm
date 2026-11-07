@@ -54,7 +54,7 @@ use constant {
 	WRONG_AGENT_VERSION     => "Version of the command tools and Perun server mismatch",
 	MFA_PRIVILEGE_EXCEPTION => "Multi-Factor Authentication required",
 	MFA_PRIVILEGE_EXC_NAME  => "MfaPrivilegeException",
-	MFA_ROLE_EXC_NAME		=> "MfaRolePrivilegeException"
+	MFA_ROLE_EXC_NAME       => "MfaRolePrivilegeException"
 };
 
 sub gotMfaPrivilegeException;
@@ -104,6 +104,7 @@ sub new {
 		# Check if the PERUN_URL is defined
 		if (!defined($ENV{PERUN_URL})) {die Perun::Exception->fromHash({ type => MISSING_URL });};
 		$self->{_url} = $ENV{PERUN_URL};
+		$self->{_url} =~ s{/*$}{/};
 
 		# Extract login/password from ENV if available
 		my ($login, $pass) = split '/', $ENV{PERUN_USER}, 2 if $ENV{PERUN_USER};
@@ -201,7 +202,7 @@ sub call
 {
 	my ($self, $class, $method, $hash) = @_;
 
-	my $fullUrl = "$self->{_url}/$format/$class/$method";
+	my $fullUrl = "$self->{_url}$format/$class/$method";
 
 	my $content = $self->{_jsonXs}->encode( $hash );
 
