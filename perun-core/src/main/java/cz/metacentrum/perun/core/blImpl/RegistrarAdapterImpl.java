@@ -64,6 +64,18 @@ public class RegistrarAdapterImpl implements RegistrarAdapter {
 
 
   @Override
+  public boolean isGroupForAnyAutoRegistration(PerunSession sess, Group group) {
+    if (registrarApi == null) {
+      return false;
+    }
+
+    return registrarApi.isGroupForAnyAutoRegistration("GROUP", String.valueOf(group.getId()),
+        group.getName())
+         .doOnError(e -> LOG.error("Failed to check if group is for auto registration in new Registrar", e))
+      .blockOptional().orElse(false);
+  }
+
+  @Override
   public void onDeleteUser(PerunSession sess, User user) {
     if (registrarApi != null) {
       registrarApi.onDeleteIdmUser(String.valueOf(user.getId()))

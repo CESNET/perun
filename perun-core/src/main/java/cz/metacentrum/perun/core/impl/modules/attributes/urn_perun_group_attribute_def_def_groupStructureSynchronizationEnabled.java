@@ -68,13 +68,14 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
         throw new InternalErrorException("Synchronization is already enabled for one of the parent groups.");
       }
 
-      if (perunSession.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(perunSession, group)) {
+      if (perunSession.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(perunSession, group, true)) {
         throw new WrongReferenceAttributeValueException(attribute,
             "Structure synchronization cannot be enabled for group in auto registration.");
       }
 
       for (Group subgroup : perunSession.getPerunBl().getGroupsManagerBl().getAllSubGroups(perunSession, group)) {
-        if (perunSession.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(perunSession, subgroup)) {
+        if (perunSession.getPerunBl().getGroupsManagerBl().isGroupForAnyAutoRegistration(perunSession, subgroup,
+            true)) {
           throw new WrongReferenceAttributeValueException(attribute,
               "Structure synchronization cannot be enabled for group with subgroup in auto registration: " +
               subgroup.toString());
