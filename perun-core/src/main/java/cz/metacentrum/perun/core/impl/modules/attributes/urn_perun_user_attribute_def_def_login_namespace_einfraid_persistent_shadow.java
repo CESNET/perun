@@ -26,6 +26,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfraid_persisten
 
   private static final String extSourceNameEinfraid = "https://login.cesnet.cz/idp/";
   private static final String extSourceNameEinfraCZ = "https://login.e-infra.cz/idp/";
+  private static final String extSourceNameCESiD = "https://login.cesid.cesnet.cz/cas/idp";
   private static final String domainNameEinfraid = "einfra.cesnet.cz";
   private static final String attrNameEinfraid = "login-namespace:einfraid-persistent-shadow";
 
@@ -40,15 +41,21 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfraid_persisten
       // create default identity based on module configuration
       super.changedAttributeHook(session, user, attribute);
 
-      // duplicate logic for e-INFRA CZ proxy identity
+      // duplicate logic for e-INFRA CZ proxy identity and CESiD proxy identity
       String userNamespace = attribute.getFriendlyNameParameter();
 
       if (userNamespace.equals(getFriendlyNameParameter()) && attribute.getValue() != null) {
-        ExtSource extSource =
+        ExtSource extSourceEinfra =
             session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, extSourceNameEinfraCZ);
-        UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
+        UserExtSource userExtSourceEinfra = new UserExtSource(extSourceEinfra, 0, attribute.getValue().toString());
 
-        session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
+        session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSourceEinfra);
+
+        ExtSource extSourceCesid =
+            session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, extSourceNameCESiD);
+        UserExtSource userExtSourceCesid = new UserExtSource(extSourceCesid, 0, attribute.getValue().toString());
+
+        session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSourceCesid);
       }
 
     } catch (UserExtSourceExistsException ex) {
