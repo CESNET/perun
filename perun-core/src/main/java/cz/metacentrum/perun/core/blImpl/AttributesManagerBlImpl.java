@@ -143,6 +143,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatus;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_group_attribute_def_virt_groupStatusIndirect;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_virt_isBanned;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_lastActivityTimestamp;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_userEligibilities;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_facility_attribute_def_virt_isBanned;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAffiliationRegex;
@@ -9882,6 +9883,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
     policies = new ArrayList<>();
     policies.add(Triple.of(Role.VOADMIN, READ, RoleObject.None));
     policies.add(Triple.of(Role.GROUPADMIN, READ, RoleObject.None));
+    attributes.put(attr, createInitialPolicyCollections(policies));
+
+    //urn:perun:user:attribute-def:virt:lastActivityTimestamp
+    attr =
+        new AttributeDefinition((new urn_perun_user_attribute_def_virt_lastActivityTimestamp())
+                                    .getAttributeDefinition());
+    policies = new ArrayList<>();
     attributes.put(attr, createInitialPolicyCollections(policies));
 
     //urn:perun:user:attribute-def:virt:userEligibilities
