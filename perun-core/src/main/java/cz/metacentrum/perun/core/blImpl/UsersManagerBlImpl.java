@@ -522,6 +522,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
     }
   }
 
+  public void checkLoginFormat(PerunSession sess, String namespace, String login) throws InvalidLoginException {
+    getPasswordManagerModule(sess, namespace).checkLoginFormat(sess, login);
+  }
+
   @Override
   public void checkPasswordResetRequestIsValid(PerunSession sess, UUID token)
       throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {

@@ -221,6 +221,15 @@ public interface UsersManagerBl {
       throws LoginIsAlreadyBlockedException;
 
   /**
+   * Check if login format is allowed for the provided namespace. If not, InvalidLoginException is thrown.
+   * @param sess
+   * @param namespace
+   * @param login
+   * @throws InvalidLoginException
+   */
+  void checkLoginFormat(PerunSession sess, String namespace, String login) throws InvalidLoginException;
+
+  /**
    * Checks if the password reset request link is valid. The request is valid, if it was created, never used and hasn't
    * expired yet.
    *

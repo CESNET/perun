@@ -9325,6 +9325,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/checkLoginFormat:
+    post:
+      tags:
+        - UsersManager
+      operationId: checkLoginFormat
+      summary: Check if login format is allowed for the provided namespace. If not, InvalidLoginException is thrown.
+      parameters:
+        - { name: loginNamespace, description: "login namespace", schema: { type: string }, in: query, required: true }
+        - $ref: '#/components/parameters/login'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/checkPasswordStrength:
     post:
       tags:
