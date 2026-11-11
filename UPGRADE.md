@@ -1,5 +1,33 @@
 Upgrade notes
 
+## [57.1.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v57.0.0...v57.1.0) (2026-11-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* new config property `verifiedEmailsAttribute`
+
+### Features
+
+* canUserBeMember to openapi ([5806462](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/5806462dc374b28c38e91266f4a14a5d08860681))
+* changing email without verification by attribute ([839dd03](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/839dd03f121c03e0c781287255bf86dc85b66026))
+* **core:** add checkGroupCanBeAddedToAutoRegistration to RPC ([dfa8329](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/dfa83294fe05817818dbf11455311b21369fb6d7))
+* **core:** configure default registration for new VOs and groups ([8b1d338](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/8b1d33892c9dcc5fecff177c36e6773f53e9cbb4))
+* generate ues also for cesid on einfra login ([59ca22b](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/59ca22b624ccde26707f876fcc8762818bfce6fc))
+* **mvn:** versioning policy for perun-openapi ([c7b2c9c](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/c7b2c9c35f155c0e01aacb954918361968f999ed))
+
+
+### Bug Fixes
+
+* **cli:** do not duplicate path separator in perun-cli api calls ([06209a7](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/06209a75b1bd603922acec43f33b5601f064d6a0))
+* **core:** skip reading attrs of ues with loa 0 ([2db7922](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/2db792265192e24d66b2cbcf1449cd2392ddfd67))
+* **core:** update registrar adapter to match new API ([f96e40a](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/f96e40a7fffa6217f5c73b2c3844bf934f26c469))
+* **deps:** update dependency org.bouncycastle:bcmail-jdk18on to v1.87 ([97651bb](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/97651bbac5b209dcaebee0279042070dc0248cac))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v4.1.2 ([d1b4c9d](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/d1b4c9d65af4ea4a5916947fb878cd4f275a4a1c))
+* **deps:** update dependency org.springframework.security:spring-security-kerberos-client to v7.1.2 ([3d59785](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/3d59785f364c19a4b19387d9470c644ee91db27b))
+* **deps:** update dependency org.xhtmlrenderer:flying-saucer-pdf to v10.7.0 ([7f82d0f](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/7f82d0fd1b414acc922c34b1adeca90cbc58c9e0))
+* **deps:** update google api services directory dependency ([e6492d3](https://gitlab.ics.muni.cz/perun/perun-idm/perun/commit/e6492d35243c301745fb72677413e6f7703fd9d5))
+
 ## [57.0.0](https://gitlab.ics.muni.cz/perun/perun-idm/perun/compare/v56.0.2...v57.0.0) (2026-10-19)
 
 
